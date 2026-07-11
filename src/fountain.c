@@ -251,6 +251,12 @@ drinkfountain(void)
         return;
     }
 
+#ifdef NH_ELECTRON_TEST_FIXTURES
+    if (electron_test_consume_event_result("drink-fountain",
+                                           "monster-detection"))
+        fate = 26;
+#endif
+
     if (mgkftn && u.uluck >= 0 && fate >= 10) {
         int i, ii, littleluck = (u.uluck < 4);
 

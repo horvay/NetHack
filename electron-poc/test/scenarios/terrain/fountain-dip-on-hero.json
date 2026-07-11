@@ -1,0 +1,28 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "terrain/fountain-dip-on-hero",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": { "placement": "current" },
+  "level": {
+    "safeAreaAroundHero": 3,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none",
+    "terrain": [
+      { "at": "hero", "type": "floor" },
+      { "at": "east", "type": "fountain" }
+    ]
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    { "typeId": "POT_HEALING", "identityKnown": true, "beatitudeKnown": false },
+    { "typeId": "DAGGER", "quantity": 1 }
+  ],
+  "expectedPublicFacts": {
+    "contextActions": ["Dip item in fountain"],
+    "mapAffordances": ["adjacent fountain"],
+    "inventoryRows": ["potion of healing", "dagger"],
+    "messages": ["fountain dip fixture"]
+  }
+}

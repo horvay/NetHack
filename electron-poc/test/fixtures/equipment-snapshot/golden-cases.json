@@ -1,0 +1,65 @@
+{
+  "weaponQuiverArmor": {
+    "event": {
+      "name": "shim_update_inventory",
+      "reason": -1,
+      "revision": 11,
+      "inventoryRevision": 11,
+      "equipmentRevision": 5,
+      "items": [
+        { "selector": 97, "objectId": 2001, "text": "a - a +0 spear (weapon in hand)", "quantity": 1, "glyph": 800, "glyphChar": 41, "wornMask": 256, "semanticKind": "object", "semanticName": "spear", "semanticKnown": true, "actionAffordances": ["wield"] },
+        { "selector": 98, "objectId": 2002, "text": "b - 12 arrows (in quiver)", "quantity": 12, "glyph": 812, "glyphChar": 41, "wornMask": 512, "semanticKind": "object", "semanticName": "arrow", "semanticKnown": true, "actionAffordances": ["quiver", "throw"] },
+        { "selector": 99, "objectId": 2003, "text": "c - a +0 ring mail (being worn)", "quantity": 1, "glyph": 900, "glyphChar": 91, "wornMask": 1, "semanticKind": "object", "semanticName": "ring mail", "semanticKnown": true, "actionAffordances": ["takeOff"] }
+      ]
+    },
+    "expected": {
+      "revision": 5,
+      "inventoryRevision": 11,
+      "equipped": { "mainHand": "a +0 spear (weapon in hand)", "quiver": "12 arrows (in quiver)", "armor.body": "a +0 ring mail (being worn)" },
+      "empty": ["ring.left", "ring.right", "amulet"]
+    }
+  },
+  "ringsAmuletShieldLayers": {
+    "event": {
+      "name": "shim_update_inventory",
+      "reason": -1,
+      "revision": 12,
+      "inventoryRevision": 12,
+      "equipmentRevision": 6,
+      "items": [
+        { "selector": 100, "objectId": 2010, "text": "d - a small shield (being worn)", "quantity": 1, "glyphChar": 91, "wornMask": 8, "semanticKind": "object", "semanticName": "small shield", "semanticKnown": true },
+        { "selector": 101, "objectId": 2011, "text": "e - an amulet (being worn)", "quantity": 1, "glyphChar": 34, "wornMask": 65536, "semanticKind": "object", "semanticName": "amulet", "semanticKnown": true },
+        { "selector": 102, "objectId": 2012, "text": "f - a pearl ring (on left hand)", "quantity": 1, "glyphChar": 61, "wornMask": 131072, "semanticKind": "object", "semanticAppearance": "pearl ring", "semanticKnown": false },
+        { "selector": 103, "objectId": 2013, "text": "g - a shiny ring (on right hand)", "quantity": 1, "glyphChar": 61, "wornMask": 262144, "semanticKind": "object", "semanticAppearance": "shiny ring", "semanticKnown": false }
+      ]
+    },
+    "expected": {
+      "revision": 6,
+      "inventoryRevision": 12,
+      "equipped": { "armor.shield": "a small shield (being worn)", "amulet": "an amulet (being worn)", "ring.left": "a pearl ring (on left hand)", "ring.right": "a shiny ring (on right hand)" },
+      "forbiddenSemanticNameSlots": ["ring.left", "ring.right"]
+    }
+  },
+  "fullArmorLayeringAndEyes": {
+    "event": {
+      "name": "shim_update_inventory",
+      "reason": -1,
+      "revision": 13,
+      "inventoryRevision": 13,
+      "equipmentRevision": 7,
+      "items": [
+        { "selector": 104, "objectId": 2020, "text": "h - a Hawaiian shirt (being worn)", "glyphChar": 91, "wornMask": 64, "semanticKind": "object", "semanticName": "Hawaiian shirt", "semanticKnown": true },
+        { "selector": 105, "objectId": 2021, "text": "i - a cloak (being worn)", "glyphChar": 91, "wornMask": 2, "semanticKind": "object", "semanticName": "cloak", "semanticKnown": true },
+        { "selector": 106, "objectId": 2022, "text": "j - a helm (being worn)", "glyphChar": 91, "wornMask": 4, "semanticKind": "object", "semanticName": "helm", "semanticKnown": true },
+        { "selector": 107, "objectId": 2023, "text": "k - a pair of gloves (being worn)", "glyphChar": 91, "wornMask": 16, "semanticKind": "object", "semanticName": "gloves", "semanticKnown": true },
+        { "selector": 108, "objectId": 2024, "text": "l - a pair of boots (being worn)", "glyphChar": 91, "wornMask": 32, "semanticKind": "object", "semanticName": "boots", "semanticKnown": true },
+        { "selector": 109, "objectId": 2025, "text": "m - a blindfold (being worn)", "glyphChar": 40, "wornMask": 524288, "semanticKind": "object", "semanticName": "blindfold", "semanticKnown": true }
+      ]
+    },
+    "expected": {
+      "revision": 7,
+      "inventoryRevision": 13,
+      "equippedObjectIds": { "armor.shirt": 2020, "armor.cloak": 2021, "armor.helm": 2022, "armor.gloves": 2023, "armor.boots": 2024, "eyes": 2025 }
+    }
+  }
+}

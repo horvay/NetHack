@@ -1,0 +1,41 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "object/asset-tooltip-iron-skull-cap",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current"
+  },
+  "level": {
+    "safeAreaAroundHero": 3,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [
+    {
+      "at": "east",
+      "object": {
+        "typeId": "ORCISH_HELM",
+        "identityKnown": false,
+        "beatitudeKnown": false
+      }
+    }
+  ],
+  "monsters": [],
+  "inventory": [
+    {
+      "typeId": "ORCISH_HELM",
+      "identityKnown": false,
+      "beatitudeKnown": false,
+      "equipped": "worn"
+    }
+  ],
+  "expectedPublicFacts": {
+    "groundRows": [
+      "iron skull cap"
+    ],
+    "messages": [
+      "iron skull cap asset tooltip fixture loaded"
+    ]
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "container/multi-item-transfer-large-box-on-hero",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current"
+  },
+  "level": {
+    "safeAreaAroundHero": 2,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [
+    {
+      "at": "hero",
+      "object": {
+        "typeId": "LARGE_BOX",
+        "locked": false,
+        "trap": "none",
+        "contents": [
+          {
+            "typeId": "FOOD_RATION"
+          },
+          {
+            "typeId": "DAGGER"
+          },
+          {
+            "typeId": "APPLE"
+          }
+        ]
+      }
+    }
+  ],
+  "monsters": [],
+  "inventory": [
+    {
+      "typeId": "TIN_OPENER"
+    },
+    {
+      "typeId": "SCR_IDENTIFY",
+      "beatitude": "uncursed",
+      "identityKnown": true
+    }
+  ],
+  "expectedPublicFacts": {
+    "contextActions": [
+      "open-container"
+    ],
+    "containerRows": [
+      "food ration",
+      "dagger",
+      "apple"
+    ],
+    "inventoryRows": [
+      "tin opener",
+      "scroll of identify"
+    ],
+    "mapAffordances": [
+      "container"
+    ],
+    "messages": [
+      "unlocked large box containing 3 items"
+    ]
+  }
+}

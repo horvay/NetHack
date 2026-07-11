@@ -1,0 +1,97 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "object/coordinate-container-pile",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current"
+  },
+  "level": {
+    "safeAreaAroundHero": 4,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none",
+    "terrain": [
+      {
+        "at": {
+          "dx": 2,
+          "dy": 1
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": -2,
+          "dy": 0
+        },
+        "type": "floor"
+      }
+    ]
+  },
+  "ground": [
+    {
+      "at": {
+        "dx": 2,
+        "dy": 1
+      },
+      "object": {
+        "typeId": "CHEST",
+        "locked": false,
+        "trap": "none",
+        "contents": [
+          {
+            "typeId": "POT_HEALING",
+            "beatitude": "blessed",
+            "beatitudeKnown": true,
+            "identityKnown": true
+          },
+          {
+            "typeId": "SCR_REMOVE_CURSE",
+            "identityKnown": true
+          },
+          {
+            "typeId": "ARROW",
+            "quantity": 2,
+            "poisoned": true
+          }
+        ]
+      }
+    },
+    {
+      "at": {
+        "dx": -2,
+        "dy": 0
+      },
+      "object": {
+        "typeId": "FOOD_RATION",
+        "quantity": 4
+      }
+    }
+  ],
+  "monsters": [],
+  "inventory": [
+    {
+      "typeId": "LOCK_PICK"
+    }
+  ],
+  "expectedPublicFacts": {
+    "groundRows": [
+      "chest",
+      "4 food rations"
+    ],
+    "containerRows": [
+      "potion of healing",
+      "scroll of remove curse",
+      "poisoned arrow"
+    ],
+    "inventoryRows": [
+      "lock pick"
+    ],
+    "mapAffordances": [
+      "coordinate ground objects",
+      "container contents"
+    ],
+    "messages": [
+      "coordinate container pile"
+    ]
+  }
+}

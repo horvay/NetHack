@@ -67,6 +67,11 @@ extern int dowhatdoes(void);         /**/
 extern int dohelp(void);             /**/
 extern int dohistory(void);          /**/
 extern int doloot(void);             /**/
+extern int doshimgroundtransfer(void); /**/
+extern int doshimcontainertransfer(void); /**/
+extern int doshimcontainersnapshot(void); /**/
+extern int doshimequipmentchange(void); /**/
+extern int doshimterrainaction(void); /**/
 extern int dodrink(void);            /**/
 extern int dodip(void);              /**/
 extern int dosacrifice(void);        /**/
@@ -1864,6 +1869,26 @@ struct ext_func_tab extcmdlist[] = {
                         | CMD_NOT_AVAILABLE
 #endif /* SHELL */
                         ), NULL },
+    { '\0',   "shimgroundtransfer",
+              "internal bridge ground transfer",
+              doshimgroundtransfer, GENERALCMD | NOFUZZERCMD | INTERNALCMD,
+              NULL },
+    { '\0',   "shimcontainertransfer",
+              "internal bridge container transfer",
+              doshimcontainertransfer, GENERALCMD | NOFUZZERCMD | INTERNALCMD,
+              NULL },
+    { '\0',   "shimcontainersnapshot",
+              "internal bridge container contents snapshot",
+              doshimcontainersnapshot, GENERALCMD | NOFUZZERCMD | INTERNALCMD,
+              NULL },
+    { '\0',   "shimequipmentchange",
+              "internal bridge equipment change",
+              doshimequipmentchange, GENERALCMD | NOFUZZERCMD | INTERNALCMD,
+              NULL },
+    { '\0',   "shimterrainaction",
+              "internal bridge terrain action",
+              doshimterrainaction, GENERALCMD | NOFUZZERCMD | INTERNALCMD,
+              NULL },
     /* $ is like ),=,&c but is not included with *, so not called "seegold" */
     { GOLD_SYM, "showgold", "show gold, possibly shop credit or debt",
               doprgold, IFBURIED | GENERALCMD | CMD_M_PREFIX, NULL },

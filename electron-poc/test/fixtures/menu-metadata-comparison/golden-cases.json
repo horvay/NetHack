@@ -1,0 +1,83 @@
+[
+  {
+    "name": "inventory overview explicit prompt",
+    "menu": { "window": 10, "prompt": "Inventory:", "how": 0, "items": [{ "selector": 97, "text": "a - a food ration", "semanticKind": "object" }] },
+    "context": { "lastWorldCommand": "i" },
+    "expectedPurpose": "inventory.overview",
+    "expectedHeuristicPurpose": "inventory.overview"
+  },
+  {
+    "name": "inventory overview promptless object menu after inventory command",
+    "menu": { "window": 11, "prompt": "", "how": 0, "items": [{ "selector": 97, "text": "a - a +0 dagger", "semanticKind": "object" }] },
+    "context": { "lastWorldCommand": "i" },
+    "expectedPurpose": "inventory.overview",
+    "expectedHeuristicPurpose": "inventory.overview"
+  },
+  {
+    "name": "ground pickup menu",
+    "menu": { "window": 12, "prompt": "Pick up what?", "how": 2, "awaitingSelection": true, "items": [{ "selector": 97, "text": "a - a scroll labeled READ ME", "semanticKind": "object" }] },
+    "expectedPurpose": "ground.pickup",
+    "expectedHeuristicPurpose": "ground.pickup"
+  },
+  {
+    "name": "passive ground look menu",
+    "menu": { "window": 13, "prompt": "Things that are here:", "how": 0, "suppressPicker": true, "items": [{ "selector": 0, "text": "a food ration" }] },
+    "expectedPurpose": "ground.look",
+    "expectedHeuristicPurpose": "ground.look"
+  },
+  {
+    "name": "container action menu",
+    "menu": { "window": 14, "prompt": "Do what with the large box?", "how": 1, "awaitingSelection": true, "items": [{ "selector": 111, "text": "o - take something out" }, { "selector": 105, "text": "i - put something in" }, { "selector": 113, "text": "q - do nothing" }] },
+    "expectedPurpose": "container.action",
+    "expectedHeuristicPurpose": "container.action"
+  },
+  {
+    "name": "container take-out menu",
+    "menu": { "window": 15, "prompt": "Take out what?", "how": 2, "awaitingSelection": true, "items": [{ "selector": 97, "text": "a - an uncursed food ration" }] },
+    "expectedPurpose": "container.takeOut",
+    "expectedHeuristicPurpose": "container.takeOut"
+  },
+  {
+    "name": "container put-in menu",
+    "menu": { "window": 16, "prompt": "Put in what?", "how": 2, "awaitingSelection": true, "items": [{ "selector": 98, "text": "b - a +0 dagger (weapon in hand)" }] },
+    "expectedPurpose": "container.putIn",
+    "expectedHeuristicPurpose": "container.putIn"
+  },
+  {
+    "name": "container category menu",
+    "menu": { "window": 17, "prompt": "Take out what type of object?", "how": 2, "awaitingSelection": true, "items": [{ "selector": 65, "text": "A - All types" }, { "selector": 37, "text": "% - Food" }] },
+    "expectedPurpose": "container.category",
+    "expectedHeuristicPurpose": "container.category"
+  },
+  {
+    "name": "drop action choice menu",
+    "menu": { "window": 18, "prompt": "What do you want to drop?", "how": 2, "awaitingSelection": true, "items": [{ "selector": 97, "text": "a - a long sword" }, { "selector": 98, "text": "b - a food ration" }] },
+    "expectedPurpose": "action.choice",
+    "expectedHeuristicPurpose": "action.choice"
+  },
+  {
+    "name": "startup menu",
+    "menu": { "window": 19, "prompt": "Welcome to NetHack!", "how": 1, "awaitingSelection": true, "items": [{ "selector": 121, "text": "y - Shall I pick a character for you?" }] },
+    "expectedPurpose": "system.startup",
+    "expectedHeuristicPurpose": "system.startup"
+  },
+  {
+    "name": "help menu",
+    "menu": { "window": 20, "prompt": "Help", "how": 0, "items": [{ "selector": 0, "text": "Extended command help" }, { "selector": 0, "text": "Keyboard commands" }] },
+    "expectedPurpose": "system.help",
+    "expectedHeuristicPurpose": "system.help"
+  },
+  {
+    "name": "status/statistics screen",
+    "menu": { "window": 21, "prompt": "Final attributes", "how": 0, "items": [{ "selector": 0, "text": "You were piously aligned." }, { "selector": 0, "text": "Conduct: You were vegetarian." }] },
+    "expectedPurpose": "system.status",
+    "expectedHeuristicPurpose": "system.status"
+  },
+  {
+    "name": "explicit safe metadata overrides heuristic for developer comparison",
+    "menu": { "window": 22, "prompt": "Inventory:", "how": 0, "menuPurpose": "inventory.overview", "menuRequestId": "req-explicit-inventory", "requestSource": { "layer": "shim-bridge", "command": "inventory" }, "owner": { "kind": "inventory" }, "items": [{ "selector": 97, "text": "a - a food ration", "semanticKind": "object" }] },
+    "expectedPurpose": "inventory.overview",
+    "expectedHeuristicPurpose": "inventory.overview",
+    "expectedRequestId": "req-explicit-inventory"
+  }
+]

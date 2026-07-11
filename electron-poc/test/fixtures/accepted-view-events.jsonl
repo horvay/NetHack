@@ -1,0 +1,25 @@
+{"name":"shim_create_nhwindow","return":1,"windowType":3}
+{"name":"shim_print_glyph","window":1,"x":10,"y":4,"glyph":3985,"ttychar":46,"char":".","color":7,"tileidx":120,"semanticKind":"floor","semanticName":"floor of a room","cmapIndex":19}
+{"name":"shim_print_glyph","window":1,"x":11,"y":4,"glyph":725,"ttychar":64,"char":"@","color":15,"tileidx":42,"semanticKind":"player","semanticName":"hero"}
+{"name":"shim_print_glyph","window":1,"x":12,"y":4,"glyph":798,"ttychar":102,"char":"f","color":7,"tileidx":45,"semanticKind":"pet","semanticName":"kitten pet"}
+{"name":"shim_print_glyph","window":1,"x":13,"y":4,"glyph":4014,"ttychar":123,"char":"{","color":14,"tileidx":141,"semanticKind":"fixture","semanticName":"fountain","cmapIndex":37}
+{"name":"shim_print_glyph","window":1,"x":14,"y":4,"glyph":3979,"ttychar":45,"char":"-","color":6,"tileidx":113,"semanticKind":"door","semanticName":"vertical open door","cmapIndex":13}
+{"name":"shim_print_glyph","window":1,"x":15,"y":4,"glyph":3980,"ttychar":124,"char":"|","color":6,"tileidx":114,"semanticKind":"door","semanticName":"horizontal open door","cmapIndex":14}
+{"name":"shim_status_update","field":18,"value":"12"}
+{"name":"shim_status_update","field":19,"value":"16"}
+{"name":"shim_status_update","field":17,"value":"Hungry"}
+{"name":"shim_status_update","field":22,"conditionMask":10}
+{"name":"shim_putstr","text":"Velkommen Electron, welcome to NetHack!"}
+{"name":"shim_create_nhwindow","return":5,"windowType":5}
+{"name":"shim_putstr","window":5,"text":"Extended command help: pray, offer, loot"}
+{"name":"shim_display_nhwindow","window":5,"blocking":1}
+{"name":"shim_message_menu","text":"message history"}
+{"name":"shim_start_menu","window":2,"behavior":0}
+{"name":"shim_add_menu","window":2,"selector":97,"text":"a - a +1 long sword (weapon in hand)","glyph":1234,"glyphChar":41,"tileidx":88,"semanticKind":"object","semanticName":"long sword"}
+{"name":"shim_add_menu","window":2,"selector":98,"text":"b - 4 daggers","glyph":1235,"glyphChar":41,"tileidx":89,"semanticKind":"object","semanticName":"dagger"}
+{"name":"shim_end_menu","window":2,"prompt":"Inventory:"}
+{"name":"shim_select_menu","window":2,"how":2,"awaitingSelection":true}
+{"name":"bridge_menu_answer","window":2,"return":2,"selector":98,"selectors":"ab"}
+{"name":"shim_get_ext_cmd","awaitingSelection":true}
+{"name":"bridge_extcmd_catalog","commands":[{"index":10,"name":"pray","description":"pray to the gods","key":0,"flags":2},{"index":11,"name":"offer","description":"offer a sacrifice","key":0,"flags":2},{"index":12,"name":"loot","description":"loot a container or saddle","key":0,"flags":2}]}
+{"name":"bridge_extcmd_answer","return":10,"value":"pray","command":"pray"}

@@ -1,0 +1,58 @@
+[
+  {
+    "case": "wrong protocol",
+    "command": {
+      "protocol": "nethack-electron-ui/v1",
+      "commandId": "cmd-bad-protocol",
+      "commandType": "action.execute",
+      "actionId": "item.drop",
+      "payload": {}
+    }
+  },
+  {
+    "case": "unknown command type",
+    "command": {
+      "protocol": "nethack-electron-ui/v2",
+      "commandId": "cmd-unknown",
+      "commandType": "debug.omniscientTeleport",
+      "payload": {}
+    }
+  },
+  {
+    "case": "action execute without actionId",
+    "command": {
+      "protocol": "nethack-electron-ui/v2",
+      "commandId": "cmd-no-action",
+      "commandType": "action.execute",
+      "payload": {}
+    }
+  },
+  {
+    "case": "bad expected revision",
+    "command": {
+      "protocol": "nethack-electron-ui/v2",
+      "commandId": "cmd-bad-revision",
+      "commandType": "menu.select",
+      "expectedRevision": { "inventory": -1 },
+      "payload": { "menuId": "menu-1" }
+    }
+  },
+  {
+    "case": "direct command unknown payload field",
+    "command": {
+      "protocol": "nethack-electron-ui/v2",
+      "commandId": "cmd-direct-extra-field",
+      "commandType": "equipment.change",
+      "payload": { "action": "takeOff", "itemId": 1234, "inventoryLetter": "a" }
+    }
+  },
+  {
+    "case": "direct command forbidden coordinate field",
+    "command": {
+      "protocol": "nethack-electron-ui/v2",
+      "commandId": "cmd-direct-bad-coord",
+      "commandType": "terrain.action",
+      "payload": { "action": "drink", "coord": { "x": 42, "y": 12, "z": 0 }, "terrain": "fountain" }
+    }
+  }
+]

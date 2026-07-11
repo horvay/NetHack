@@ -1,0 +1,1172 @@
+{
+  "auditedAt": "2026-07-10T01:50:06.578Z",
+  "summary": {
+    "armor appearance": 17,
+    "known armor": 3,
+    "weapon appearance": 2,
+    "weapon": 2,
+    "tool": 2,
+    "food": 2,
+    "potion": 2,
+    "scroll": 2,
+    "spellbook": 1,
+    "wand": 1,
+    "monster": 1,
+    "corpse": 1,
+    "statue": 1,
+    "terrain": 3,
+    "trap": 1
+  },
+  "rows": [
+    {
+      "id": "boss-iron-skull-cap-map-tooltip-inventory-cell",
+      "group": "armor appearance",
+      "expectedAssetId": "helmet",
+      "mustInclude": "helmet|Iron Skull Cap",
+      "mustNotInclude": "armor-class-icon|orcish-helm|shield\\.png",
+      "cell": {
+        "ch": "[",
+        "glyph": 3579,
+        "semanticKind": "object",
+        "semanticName": "orcish helm",
+        "semanticKnown": false,
+        "semanticAppearance": "iron skull cap"
+      },
+      "assetId": "helmet",
+      "categorySlug": "objects-inventory",
+      "image": "helmet.png",
+      "ariaLabel": "iron skull cap over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Iron Skull Cap",
+        "assetId": "helmet",
+        "description": "Object · Objects and inventory items · glyph 3579 · map 1,1"
+      }
+    },
+    {
+      "id": "boss-iron-skull-cap-with-missing-class-glyph",
+      "group": "armor appearance",
+      "expectedAssetId": "helmet",
+      "mustInclude": "helmet|Iron Skull Cap",
+      "mustNotInclude": "armor-class-icon|orcish-helm|shield\\.png",
+      "cell": {
+        "semanticKind": "object",
+        "semanticName": "orcish helm",
+        "semanticKnown": false,
+        "semanticAppearance": "iron skull cap"
+      },
+      "assetId": "helmet",
+      "categorySlug": "objects-inventory",
+      "image": "helmet.png",
+      "ariaLabel": "iron skull cap over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Iron Skull Cap",
+        "assetId": "helmet",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "leather-hat-helmet-appearance",
+      "group": "armor appearance",
+      "expectedAssetId": "helmet",
+      "cell": {
+        "ch": "[",
+        "semanticKind": "object",
+        "semanticName": "elven leather helm",
+        "semanticKnown": false,
+        "semanticAppearance": "leather hat"
+      },
+      "assetId": "helmet",
+      "categorySlug": "objects-inventory",
+      "image": "helmet.png",
+      "ariaLabel": "leather hat over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Leather Hat",
+        "assetId": "helmet",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "hard-hat-helmet-appearance",
+      "group": "armor appearance",
+      "expectedAssetId": "helmet",
+      "cell": {
+        "ch": "[",
+        "semanticKind": "object",
+        "semanticName": "dwarvish iron helm",
+        "semanticKnown": false,
+        "semanticAppearance": "hard hat"
+      },
+      "assetId": "helmet",
+      "categorySlug": "objects-inventory",
+      "image": "helmet.png",
+      "ariaLabel": "hard hat over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Hard Hat",
+        "assetId": "helmet",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "conical-hat-helmet-appearance",
+      "group": "armor appearance",
+      "expectedAssetId": "helmet",
+      "cell": {
+        "ch": "[",
+        "semanticKind": "object",
+        "semanticName": "dunce cap",
+        "semanticKnown": false,
+        "semanticAppearance": "conical hat"
+      },
+      "assetId": "helmet",
+      "categorySlug": "objects-inventory",
+      "image": "helmet.png",
+      "ariaLabel": "conical hat over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Conical Hat",
+        "assetId": "helmet",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "crystal-helmet-appearance",
+      "group": "armor appearance",
+      "expectedAssetId": "helmet",
+      "cell": {
+        "ch": "[",
+        "semanticKind": "object",
+        "semanticName": "helm of brilliance",
+        "semanticKnown": false,
+        "semanticAppearance": "crystal helmet"
+      },
+      "assetId": "helmet",
+      "categorySlug": "objects-inventory",
+      "image": "helmet.png",
+      "ariaLabel": "crystal helmet over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Crystal Helmet",
+        "assetId": "helmet",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "plumed-helmet-appearance",
+      "group": "armor appearance",
+      "expectedAssetId": "helmet",
+      "cell": {
+        "ch": "[",
+        "semanticKind": "object",
+        "semanticName": "helmet",
+        "semanticKnown": false,
+        "semanticAppearance": "plumed helmet"
+      },
+      "assetId": "helmet",
+      "categorySlug": "objects-inventory",
+      "image": "helmet.png",
+      "ariaLabel": "plumed helmet over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Plumed Helmet",
+        "assetId": "helmet",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "etched-helmet-appearance",
+      "group": "armor appearance",
+      "expectedAssetId": "helmet",
+      "cell": {
+        "ch": "[",
+        "semanticKind": "object",
+        "semanticName": "helm of caution",
+        "semanticKnown": false,
+        "semanticAppearance": "etched helmet"
+      },
+      "assetId": "helmet",
+      "categorySlug": "objects-inventory",
+      "image": "helmet.png",
+      "ariaLabel": "etched helmet over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Etched Helmet",
+        "assetId": "helmet",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "crested-helmet-appearance",
+      "group": "armor appearance",
+      "expectedAssetId": "helmet",
+      "cell": {
+        "ch": "[",
+        "semanticKind": "object",
+        "semanticName": "helm of opposite alignment",
+        "semanticKnown": false,
+        "semanticAppearance": "crested helmet"
+      },
+      "assetId": "helmet",
+      "categorySlug": "objects-inventory",
+      "image": "helmet.png",
+      "ariaLabel": "crested helmet over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Crested Helmet",
+        "assetId": "helmet",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "visored-helmet-appearance",
+      "group": "armor appearance",
+      "expectedAssetId": "helmet",
+      "cell": {
+        "ch": "[",
+        "semanticKind": "object",
+        "semanticName": "helm of telepathy",
+        "semanticKnown": false,
+        "semanticAppearance": "visored helmet"
+      },
+      "assetId": "helmet",
+      "categorySlug": "objects-inventory",
+      "image": "helmet.png",
+      "ariaLabel": "visored helmet over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Visored Helmet",
+        "assetId": "helmet",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "wooden-shield-appearance",
+      "group": "armor appearance",
+      "expectedAssetId": "shield",
+      "cell": {
+        "ch": "[",
+        "semanticKind": "object",
+        "semanticName": "small shield",
+        "semanticKnown": false,
+        "semanticAppearance": "wooden shield"
+      },
+      "assetId": "shield",
+      "categorySlug": "objects-inventory",
+      "image": "shield.png",
+      "ariaLabel": "wooden shield over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Wooden Shield",
+        "assetId": "shield",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "large-round-shield-appearance",
+      "group": "armor appearance",
+      "expectedAssetId": "shield",
+      "cell": {
+        "ch": "[",
+        "semanticKind": "object",
+        "semanticName": "dwarvish roundshield",
+        "semanticKnown": false,
+        "semanticAppearance": "large round shield"
+      },
+      "assetId": "shield",
+      "categorySlug": "objects-inventory",
+      "image": "shield.png",
+      "ariaLabel": "large round shield over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Large Round Shield",
+        "assetId": "shield",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "cloak-public-appearance",
+      "group": "armor appearance",
+      "expectedAssetId": "cloak",
+      "cell": {
+        "ch": "[",
+        "semanticKind": "object",
+        "semanticName": "cloak of protection",
+        "semanticKnown": false,
+        "semanticAppearance": "tattered cape"
+      },
+      "assetId": "cloak",
+      "categorySlug": "objects-inventory",
+      "image": "cloak.png",
+      "ariaLabel": "tattered cape over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Tattered Cape",
+        "assetId": "cloak",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "gloves-public-appearance",
+      "group": "armor appearance",
+      "expectedAssetId": "gloves",
+      "cell": {
+        "ch": "[",
+        "semanticKind": "object",
+        "semanticName": "gauntlets of power",
+        "semanticKnown": false,
+        "semanticAppearance": "riding gloves"
+      },
+      "assetId": "gloves",
+      "categorySlug": "objects-inventory",
+      "image": "gloves.png",
+      "ariaLabel": "riding gloves over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Riding Gloves",
+        "assetId": "gloves",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "boots-public-appearance",
+      "group": "armor appearance",
+      "expectedAssetId": "boots",
+      "cell": {
+        "ch": "[",
+        "semanticKind": "object",
+        "semanticName": "speed boots",
+        "semanticKnown": false,
+        "semanticAppearance": "combat boots"
+      },
+      "assetId": "boots",
+      "categorySlug": "objects-inventory",
+      "image": "boots.png",
+      "ariaLabel": "combat boots over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Combat Boots",
+        "assetId": "boots",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "crude-ring-mail-public-appearance",
+      "group": "armor appearance",
+      "expectedAssetId": "orcish-ring-mail",
+      "cell": {
+        "ch": "[",
+        "semanticKind": "object",
+        "semanticName": "orcish ring mail",
+        "semanticKnown": false,
+        "semanticAppearance": "crude ring mail"
+      },
+      "assetId": "orcish-ring-mail",
+      "categorySlug": "full-source-objects",
+      "image": "orcish-ring-mail.png",
+      "ariaLabel": "crude ring mail over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Crude Ring Mail",
+        "assetId": "orcish-ring-mail",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "crude-chain-mail-public-appearance",
+      "group": "armor appearance",
+      "expectedAssetId": "chain-mail",
+      "cell": {
+        "ch": "[",
+        "semanticKind": "object",
+        "semanticName": "orcish chain mail",
+        "semanticKnown": false,
+        "semanticAppearance": "crude chain mail"
+      },
+      "assetId": "chain-mail",
+      "categorySlug": "objects-inventory",
+      "image": "chain-mail.png",
+      "ariaLabel": "crude chain mail over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Crude Chain Mail",
+        "assetId": "chain-mail",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "known-orcish-helm",
+      "group": "known armor",
+      "expectedAssetId": "orcish-helm",
+      "cell": {
+        "ch": "[",
+        "semanticKind": "object",
+        "semanticName": "orcish helm",
+        "semanticKnown": true,
+        "semanticAppearance": "iron skull cap"
+      },
+      "assetId": "orcish-helm",
+      "categorySlug": "full-source-objects",
+      "image": "orcish-helm.png",
+      "ariaLabel": "orcish helm over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Orcish Helm",
+        "assetId": "orcish-helm",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "known-large-shield",
+      "group": "known armor",
+      "expectedAssetId": "large-shield",
+      "cell": {
+        "ch": "[",
+        "semanticKind": "object",
+        "semanticName": "large shield",
+        "semanticKnown": true
+      },
+      "assetId": "large-shield",
+      "categorySlug": "full-source-objects",
+      "image": "large-shield.png",
+      "ariaLabel": "large shield over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Large Shield",
+        "assetId": "large-shield",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "known-fedora",
+      "group": "known armor",
+      "expectedAssetId": "fedora",
+      "cell": {
+        "ch": "[",
+        "semanticKind": "object",
+        "semanticName": "fedora",
+        "semanticKnown": true
+      },
+      "assetId": "fedora",
+      "categorySlug": "full-source-objects",
+      "image": "fedora.png",
+      "ariaLabel": "fedora over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Fedora",
+        "assetId": "fedora",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "boss-crude-dagger-map-tooltip-inventory-cell",
+      "group": "weapon appearance",
+      "expectedAssetId": "orcish-dagger",
+      "expectedTooltipTitle": "Crude Dagger",
+      "mustInclude": "Crude Dagger|orcish-dagger",
+      "mustVisibleNotInclude": "orcish dagger|Full source objects",
+      "mustNotInclude": "weapon-class-icon",
+      "cell": {
+        "ch": ")",
+        "glyph": 3484,
+        "semanticKind": "object",
+        "semanticName": "orcish dagger",
+        "semanticKnown": false,
+        "semanticAppearance": "crude dagger"
+      },
+      "assetId": "orcish-dagger",
+      "categorySlug": "full-source-objects",
+      "image": "orcish-dagger.png",
+      "ariaLabel": "crude dagger over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Crude Dagger",
+        "assetId": "orcish-dagger",
+        "description": "Object · Objects and inventory items · glyph 3484 · map 1,1"
+      }
+    },
+    {
+      "id": "boss-crude-dagger-with-missing-class-glyph",
+      "group": "weapon appearance",
+      "expectedAssetId": "orcish-dagger",
+      "expectedTooltipTitle": "Crude Dagger",
+      "mustInclude": "Crude Dagger|orcish-dagger",
+      "mustVisibleNotInclude": "orcish dagger|Full source objects",
+      "mustNotInclude": "weapon-class-icon",
+      "cell": {
+        "semanticKind": "object",
+        "semanticName": "orcish dagger",
+        "semanticKnown": false,
+        "semanticAppearance": "crude dagger"
+      },
+      "assetId": "orcish-dagger",
+      "categorySlug": "full-source-objects",
+      "image": "orcish-dagger.png",
+      "ariaLabel": "crude dagger over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Crude Dagger",
+        "assetId": "orcish-dagger",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "weapon-known-long-sword",
+      "group": "weapon",
+      "expectedAssetId": "long-sword",
+      "cell": {
+        "ch": ")",
+        "semanticKind": "object",
+        "semanticName": "long sword",
+        "semanticKnown": true
+      },
+      "assetId": "long-sword",
+      "categorySlug": "objects-inventory",
+      "image": "long-sword.png",
+      "ariaLabel": "long sword over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Long Sword",
+        "assetId": "long-sword",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "weapon-unknown-runed-dagger",
+      "group": "weapon",
+      "expectedAssetId": "weapon-class-icon",
+      "cell": {
+        "ch": ")",
+        "semanticKind": "object",
+        "semanticName": "elven dagger",
+        "semanticKnown": false,
+        "semanticAppearance": "runed dagger"
+      },
+      "assetId": "weapon-class-icon",
+      "categorySlug": "objects-inventory",
+      "image": "weapon-class-icon.png",
+      "ariaLabel": "runed dagger over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Runed Dagger",
+        "assetId": "weapon-class-icon",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "tool-known-lock-pick",
+      "group": "tool",
+      "expectedAssetId": "lock-pick",
+      "cell": {
+        "ch": "(",
+        "semanticKind": "object",
+        "semanticName": "lock pick",
+        "semanticKnown": true
+      },
+      "assetId": "lock-pick",
+      "categorySlug": "objects-inventory",
+      "image": "lock-pick.png",
+      "ariaLabel": "lock pick over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Lock Pick",
+        "assetId": "lock-pick",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "tool-unknown-key",
+      "group": "tool",
+      "expectedAssetId": "tool-class-icon",
+      "cell": {
+        "ch": "(",
+        "semanticKind": "object",
+        "semanticName": "skeleton key",
+        "semanticKnown": false,
+        "semanticAppearance": "key"
+      },
+      "assetId": "tool-class-icon",
+      "categorySlug": "objects-inventory",
+      "image": "tool-class-icon.png",
+      "ariaLabel": "key over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Key",
+        "assetId": "tool-class-icon",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "food-ration",
+      "group": "food",
+      "expectedAssetId": "food-ration",
+      "cell": {
+        "ch": "%",
+        "semanticKind": "object",
+        "semanticName": "food ration",
+        "semanticKnown": true
+      },
+      "assetId": "food-ration",
+      "categorySlug": "objects-inventory",
+      "image": "food-ration.png",
+      "ariaLabel": "food ration over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Food Ration",
+        "assetId": "food-ration",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "apple",
+      "group": "food",
+      "expectedAssetId": "apple",
+      "cell": {
+        "ch": "%",
+        "semanticKind": "object",
+        "semanticName": "apple",
+        "semanticKnown": true
+      },
+      "assetId": "apple",
+      "categorySlug": "objects-inventory",
+      "image": "apple.png",
+      "ariaLabel": "apple over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Apple",
+        "assetId": "apple",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "potion-unknown",
+      "group": "potion",
+      "expectedAssetId": "potion-class-icon",
+      "mustNotInclude": "healing",
+      "cell": {
+        "ch": "!",
+        "semanticKind": "object",
+        "semanticName": "healing",
+        "semanticKnown": false,
+        "semanticAppearance": "purple-red"
+      },
+      "assetId": "potion-class-icon",
+      "categorySlug": "objects-inventory",
+      "image": "potion-class-icon.png",
+      "ariaLabel": "purple red potion over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Purple Red Potion",
+        "assetId": "potion-class-icon",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "potion-unknown-ruby-appearance",
+      "group": "potion",
+      "expectedAssetId": "potion-class-icon",
+      "expectedTooltipTitle": "Ruby Potion",
+      "mustNotInclude": "ruby.png|gain-level|healing",
+      "cell": {
+        "ch": "!",
+        "glyph": 3755,
+        "semanticKind": "object",
+        "semanticName": "gain level",
+        "semanticKnown": false,
+        "semanticAppearance": "ruby"
+      },
+      "assetId": "potion-class-icon",
+      "categorySlug": "objects-inventory",
+      "image": "potion-class-icon.png",
+      "ariaLabel": "ruby potion over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Ruby Potion",
+        "assetId": "potion-class-icon",
+        "description": "Object · Objects and inventory items · glyph 3755 · map 1,1"
+      }
+    },
+    {
+      "id": "scroll-unknown-safe-label",
+      "group": "scroll",
+      "expectedAssetId": "read-me",
+      "mustNotInclude": "destroy-armor",
+      "cell": {
+        "ch": "?",
+        "semanticKind": "object",
+        "semanticName": "destroy armor",
+        "semanticKnown": false,
+        "semanticAppearance": "scroll labeled READ ME"
+      },
+      "assetId": "read-me",
+      "categorySlug": "full-source-objects",
+      "image": "read-me.png",
+      "ariaLabel": "scroll labeled READ ME over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Scroll Labeled READ ME",
+        "assetId": "read-me",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "scroll-unknown-unsafe-label",
+      "group": "scroll",
+      "expectedAssetId": "scroll-class-icon",
+      "mustNotInclude": "create-monster|foobie-bletch",
+      "cell": {
+        "ch": "?",
+        "semanticKind": "object",
+        "semanticName": "create monster",
+        "semanticKnown": false,
+        "semanticAppearance": "scroll labeled FOOBIE BLETCH"
+      },
+      "assetId": "scroll-class-icon",
+      "categorySlug": "objects-inventory",
+      "image": "scroll-class-icon.png",
+      "ariaLabel": "scroll labeled FOOBIE BLETCH over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Scroll Labeled FOOBIE BLETCH",
+        "assetId": "scroll-class-icon",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "spellbook-unknown-thin",
+      "group": "spellbook",
+      "expectedAssetId": "spellbook-class-icon",
+      "mustNotInclude": "jumping|closed-door",
+      "cell": {
+        "ch": "+",
+        "semanticKind": "object",
+        "semanticName": "jumping",
+        "semanticKnown": false,
+        "semanticAppearance": "thin"
+      },
+      "assetId": "spellbook-class-icon",
+      "categorySlug": "objects-inventory",
+      "image": "spellbook-class-icon.png",
+      "ariaLabel": "thin spellbook over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Thin Spellbook",
+        "assetId": "spellbook-class-icon",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "wand-unknown-long",
+      "group": "wand",
+      "expectedAssetId": "wand-class-icon",
+      "mustNotInclude": "death|open-vertical-door",
+      "cell": {
+        "ch": "/",
+        "semanticKind": "object",
+        "semanticName": "death",
+        "semanticKnown": false,
+        "semanticAppearance": "long"
+      },
+      "assetId": "wand-class-icon",
+      "categorySlug": "objects-inventory",
+      "image": "wand-class-icon.png",
+      "ariaLabel": "long wand over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Long Wand",
+        "assetId": "wand-class-icon",
+        "description": "Object · Objects and inventory items · map 1,1"
+      }
+    },
+    {
+      "id": "monster-jackal",
+      "group": "monster",
+      "expectedAssetId": "jackal",
+      "cell": {
+        "ch": "d",
+        "glyph": 395,
+        "semanticKind": "monster",
+        "semanticName": "jackal"
+      },
+      "assetId": "jackal",
+      "categorySlug": "common-early-monsters",
+      "image": "jackal.png",
+      "ariaLabel": "jackal over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Jackal",
+        "assetId": "jackal",
+        "description": "Monster · Common early monsters · glyph 395 · map 1,1"
+      }
+    },
+    {
+      "id": "corpse-jackal",
+      "group": "corpse",
+      "expectedAssetId": "jackal",
+      "cell": {
+        "ch": "%",
+        "semanticKind": "corpse",
+        "semanticName": "jackal"
+      },
+      "assetId": "jackal",
+      "categorySlug": "common-early-monsters",
+      "image": "jackal.png",
+      "ariaLabel": "jackal corpse over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay",
+        "corpse-tile",
+        "corpse-overlay"
+      ],
+      "tooltip": {
+        "title": "Jackal Corpse",
+        "assetId": "jackal",
+        "description": "Common early monsters · map 1,1"
+      }
+    },
+    {
+      "id": "statue-of-jackal",
+      "group": "statue",
+      "expectedAssetId": "jackal",
+      "cell": {
+        "ch": "`",
+        "semanticKind": "statue",
+        "semanticName": "statue of a jackal"
+      },
+      "assetId": "jackal",
+      "categorySlug": "common-early-monsters",
+      "image": "jackal.png",
+      "ariaLabel": "statue of a jackal over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay",
+        "statue-tile",
+        "statue-overlay"
+      ],
+      "tooltip": {
+        "title": "Statue Of A Jackal",
+        "assetId": "jackal",
+        "description": "Common early monsters · map 1,1"
+      }
+    },
+    {
+      "id": "terrain-floor",
+      "group": "terrain",
+      "expectedAssetId": "room-floor",
+      "cell": {
+        "ch": ".",
+        "glyph": 3992,
+        "semanticKind": "terrain",
+        "semanticName": "floor of a room"
+      },
+      "assetId": "room-floor",
+      "categorySlug": "terrain-features",
+      "image": "",
+      "ariaLabel": "floor of a room",
+      "classes": [
+        "tile-cell",
+        "terrain-floor"
+      ],
+      "tooltip": null
+    },
+    {
+      "id": "terrain-fountain-cmap",
+      "group": "terrain",
+      "expectedAssetId": "fountain",
+      "cell": {
+        "ch": "{",
+        "glyph": 4014,
+        "semanticKind": "fixture",
+        "semanticName": "fountain"
+      },
+      "assetId": "fountain",
+      "categorySlug": "terrain-features",
+      "image": "fountain.png",
+      "ariaLabel": "fountain over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Fountain",
+        "assetId": "fountain",
+        "description": "Fixture · Terrain and features · glyph 4014 · map 1,1"
+      }
+    },
+    {
+      "id": "terrain-engraving-cmap",
+      "group": "terrain",
+      "expectedAssetId": "engraving",
+      "cell": {
+        "ch": "`",
+        "glyph": 3994,
+        "cmapIndex": 21,
+        "semanticKind": "engraving",
+        "semanticName": "engraving in a room"
+      },
+      "assetId": "engraving",
+      "categorySlug": "terrain-features",
+      "image": "engraving.png",
+      "ariaLabel": "engraving in a room over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Engraving In A Room",
+        "assetId": "engraving",
+        "description": "Terrain and features · glyph 3994 · map 1,1"
+      }
+    },
+    {
+      "id": "trap-fire",
+      "group": "trap",
+      "expectedAssetId": "fire-trap",
+      "cell": {
+        "ch": "^",
+        "semanticKind": "trap",
+        "semanticName": "fire"
+      },
+      "assetId": "fire-trap",
+      "categorySlug": "traps-hazards",
+      "image": "fire-trap.png",
+      "ariaLabel": "fire over dungeon floor",
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "tooltip": {
+        "title": "Fire",
+        "assetId": "fire-trap",
+        "description": "Trap · Traps and hazards · map 1,1"
+      }
+    }
+  ]
+}

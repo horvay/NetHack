@@ -1,0 +1,2779 @@
+{
+  "sourceInventory": "asset-generation/manifests/player-avatar-combo-inventory.json",
+  "records": [
+    {
+      "id": "dwarf-archeologist-female-avatar",
+      "race": "dwarf",
+      "role": "Archeologist",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a dwarf Archeologist female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: dwarven adventurer with stocky curvy build, tan skin, auburn braids, feminine face, and bronze accents. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing khaki explorer jacket over fitted leather field armor, brass lantern, fedora, pickaxe, dusty satchel, parchment map, practical adventuring boots. Tasteful sexy fantasy design details for this role: tailored jacket, fitted corseted vest, open collar, belted hip satchel, and tall boots; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 923499,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "2d929479-bf34-4e57-970c-5d90e2885af5",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/dwarf-archeologist-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-archeologist-female-avatar.png",
+      "sha256": "ddc68a2ae6720be1a3c129b493037ae3f35eeac44a47a098c11695c271a2bca3",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        211,
+        0,
+        819,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        211,
+        0,
+        818,
+        1024
+      ]
+    },
+    {
+      "id": "dwarf-archeologist-male-avatar",
+      "race": "dwarf",
+      "role": "Archeologist",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a dwarf Archeologist male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: dwarven adventurer with stocky build, tan skin, thick auburn beard, braided hair, and bronze accents. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing khaki explorer jacket over fitted leather field armor, brass lantern, fedora, pickaxe, dusty satchel, parchment map, practical adventuring boots. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 923199,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "0c984b00-b661-4e0c-b6eb-bf14b253e17d",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/dwarf-archeologist-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-archeologist-male-avatar.png",
+      "sha256": "617e910db917d6c05565de0f7721f966843edd8d19f167c72d98eb0d8908388e",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        157,
+        0,
+        863,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        159,
+        0,
+        863,
+        1024
+      ]
+    },
+    {
+      "id": "dwarf-caveman-female-avatar",
+      "race": "dwarf",
+      "role": "Caveman",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a dwarf Caveman female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: dwarven adventurer with stocky curvy build, tan skin, auburn braids, feminine face, and bronze accents. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing primitive hide-and-bone armor, stone club, bone necklace, rough fur wraps, rugged prehistoric hunter silhouette. Tasteful sexy fantasy design details for this role: asymmetric hide wraps, decorative bone straps, exposed shoulders, rugged thigh wraps, and fur panels; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 923916,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "892275ae-845e-48db-a3de-67a33c00a15a",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/dwarf-caveman-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-caveman-female-avatar.png",
+      "sha256": "a7fbdbf7beaaba9569c1b4545c12b887b20165027dbe987f6491ac01a24f0d02",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        89,
+        0,
+        808,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        90,
+        0,
+        807,
+        1024
+      ]
+    },
+    {
+      "id": "dwarf-caveman-male-avatar",
+      "race": "dwarf",
+      "role": "Caveman",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a dwarf Caveman male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: dwarven adventurer with stocky build, tan skin, thick auburn beard, braided hair, and bronze accents. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing primitive hide-and-bone armor, stone club, bone necklace, rough fur wraps, rugged prehistoric hunter silhouette. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 923616,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "7d9ee9c7-6a2e-4ff2-afa4-79f0ae5f1a46",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/dwarf-caveman-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-caveman-male-avatar.png",
+      "sha256": "daaf08210531f7f3b1f94f686d7ecb4583f671d638920191846ecdffdd0dc998",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        160,
+        0,
+        864,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        160,
+        0,
+        863,
+        1024
+      ]
+    },
+    {
+      "id": "dwarf-valkyrie-female-avatar",
+      "race": "dwarf",
+      "role": "Valkyrie",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a dwarf Valkyrie female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: dwarven adventurer with stocky curvy build, tan skin, auburn braids, feminine face, and bronze accents. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing unmistakably female Norse shield-maiden armor with bright steel breastplate, fitted waist, layered leather skirt or mail tunic, silver winged helm, blue cloak, round shield and spear. Tasteful sexy fantasy design details for this role: feminine sculpted breastplate with tasteful cleavage or neckline cutout, fitted waist, thigh-slit battle skirt, decorative straps, and heroic boots; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 927160,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "1e5da93b-ce94-48b6-bf94-880ef78da568",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/dwarf-valkyrie-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-valkyrie-female-avatar.png",
+      "sha256": "3cadfd5e1353b2def253940ae84ce0ab6c7f60495d8ccde4edfaaee9e4ab560d",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        152,
+        0,
+        899,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        152,
+        0,
+        897,
+        1024
+      ]
+    },
+    {
+      "id": "elf-priest-female-avatar",
+      "race": "elf",
+      "role": "Priest",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a elf Priest female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: elven adventurer with golden fair skin, feminine angular features, long pale-blond hair, elegant pointed ears, and emerald accents. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing purple and ivory holy vestments over modest armor, gold sun symbol, ceremonial mace and prayer book, solemn sacred presence. Tasteful sexy fantasy design details for this role: ornate fitted vestments, tasteful neckline, side-slit ceremonial robe, gold chains, and layered sacred cloth; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 924985,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "8aae4045-2d60-4cd3-89f3-e191f8eeda54",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/elf-priest-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-priest-female-avatar.png",
+      "sha256": "05d93ee39aed5acc22dee7a93935ec59c7179c26b858c5784b1fe11dc6c8a0c7",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        229,
+        0,
+        892,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        229,
+        0,
+        892,
+        1024
+      ]
+    },
+    {
+      "id": "elf-priest-male-avatar",
+      "race": "elf",
+      "role": "Priest",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a elf Priest male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: elven adventurer with golden fair skin, long pale-blond hair, high cheekbones, elegant pointed ears, and emerald accents. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing purple and ivory holy vestments over modest armor, gold sun symbol, ceremonial mace and prayer book, solemn sacred presence. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 924685,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "6560d6dd-5297-4934-a17f-0cb75f7792b4",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/elf-priest-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-priest-male-avatar.png",
+      "sha256": "c93fc4b683e8f15fceebebece15b56609b1d4e711459bacc39c9ddd280099282",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        230,
+        0,
+        951,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        231,
+        0,
+        951,
+        1024
+      ]
+    },
+    {
+      "id": "elf-ranger-female-avatar",
+      "race": "elf",
+      "role": "Ranger",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a elf Ranger female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: elven adventurer with golden fair skin, feminine angular features, long pale-blond hair, elegant pointed ears, and emerald accents. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing forest-green cloak, brown leather armor, bow and quiver, leaf-green highlights, practical wilderness gear. Tasteful sexy fantasy design details for this role: fitted leather jerkin, shoulder cutouts, thigh quiver straps, split cloak, and wilderness boots; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 925737,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "d818d2e2-3e88-4b78-b171-9ea20b039d65",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/elf-ranger-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-ranger-female-avatar.png",
+      "sha256": "c60332978e4ece818e415558abf04373e76620963882d3b5a07586660f0a7be4",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        153,
+        0,
+        870,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        156,
+        0,
+        869,
+        1024
+      ]
+    },
+    {
+      "id": "elf-ranger-male-avatar",
+      "race": "elf",
+      "role": "Ranger",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a elf Ranger male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: elven adventurer with golden fair skin, long pale-blond hair, high cheekbones, elegant pointed ears, and emerald accents. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing forest-green cloak, brown leather armor, bow and quiver, leaf-green highlights, practical wilderness gear. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 925437,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "b507364a-2337-4ed8-a5a1-5c2bd4c152df",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/elf-ranger-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-ranger-male-avatar.png",
+      "sha256": "092249cb1ccd1d05e2f6345b01b6830cae5505a517f0661d5c0217ca18cfb866",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        93,
+        0,
+        929,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        93,
+        0,
+        928,
+        1024
+      ]
+    },
+    {
+      "id": "elf-wizard-female-avatar",
+      "race": "elf",
+      "role": "Wizard",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a elf Wizard female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: elven adventurer with golden fair skin, feminine angular features, long pale-blond hair, elegant pointed ears, and emerald accents. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing deep blue and violet wizard robes, gold stars, glowing staff, arcane purple magic, ornate spellbook and layered sleeves. Tasteful sexy fantasy design details for this role: fitted bodice under star robes, shoulder cutouts, side slit robe panels, corset belt, and glowing arcane jewelry; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 927113,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "cc992e37-ce87-4184-9001-fb0a8c8f462d",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/elf-wizard-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-wizard-female-avatar.png",
+      "sha256": "e467c23827b41a063d3c42ac30ef45a28a33996fb72d296959c54ae617069e4b",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        113,
+        0,
+        897,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        114,
+        0,
+        897,
+        1024
+      ]
+    },
+    {
+      "id": "elf-wizard-male-avatar",
+      "race": "elf",
+      "role": "Wizard",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a elf Wizard male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: elven adventurer with golden fair skin, long pale-blond hair, high cheekbones, elegant pointed ears, and emerald accents. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing deep blue and violet wizard robes, gold stars, glowing staff, arcane purple magic, ornate spellbook and layered sleeves. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 926813,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "e6f4dbe8-2676-4114-884f-48049e727536",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/elf-wizard-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-wizard-male-avatar.png",
+      "sha256": "4a30f6a55fa3c925d183cb3cb2203ddce46f1c52a3652fa14555bda4f369f4e1",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        80,
+        0,
+        945,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        80,
+        0,
+        944,
+        1024
+      ]
+    },
+    {
+      "id": "gnome-archeologist-female-avatar",
+      "race": "gnome",
+      "role": "Archeologist",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a gnome Archeologist female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: gnomish adventurer with compact petite build, rosy tan skin, bright copper hair, feminine face, and playful oversized gear. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing khaki explorer jacket over fitted leather field armor, brass lantern, fedora, pickaxe, dusty satchel, parchment map, practical adventuring boots. Tasteful sexy fantasy design details for this role: tailored jacket, fitted corseted vest, open collar, belted hip satchel, and tall boots; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 923695,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "6473b513-f610-4208-bd14-5d19d465f6e1",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-archeologist-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-archeologist-female-avatar.png",
+      "sha256": "51000211d141537e0a6aed560d8cbb175aa36645f14878dd9c5b660ce6183161",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        177,
+        0,
+        847,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        177,
+        0,
+        847,
+        1024
+      ]
+    },
+    {
+      "id": "gnome-archeologist-male-avatar",
+      "race": "gnome",
+      "role": "Archeologist",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a gnome Archeologist male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: gnomish adventurer with compact build, rosy tan skin, bright copper hair, clever expression, and playful oversized gear. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing khaki explorer jacket over fitted leather field armor, brass lantern, fedora, pickaxe, dusty satchel, parchment map, practical adventuring boots. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 923395,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "08720d99-832d-413e-aa61-d9c671c39cae",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-archeologist-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-archeologist-male-avatar.png",
+      "sha256": "2f51d5ce9d136b68620269c281aca7ae5efd828d545c4dbba7712b523914e1b5",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        116,
+        0,
+        862,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        117,
+        0,
+        861,
+        1024
+      ]
+    },
+    {
+      "id": "gnome-caveman-female-avatar",
+      "race": "gnome",
+      "role": "Caveman",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a gnome Caveman female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: gnomish adventurer with compact petite build, rosy tan skin, bright copper hair, feminine face, and playful oversized gear. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing primitive hide-and-bone armor, stone club, bone necklace, rough fur wraps, rugged prehistoric hunter silhouette. Tasteful sexy fantasy design details for this role: asymmetric hide wraps, decorative bone straps, exposed shoulders, rugged thigh wraps, and fur panels; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 924112,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "02f525f0-4eaf-4e91-85bf-f44f37d9a994",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-caveman-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-caveman-female-avatar.png",
+      "sha256": "864b6548c56c94a8d978fd8a4cadbd482a87cfd9f0bbb4f32a7afa8c79cd1ed1",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        113,
+        0,
+        871,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        113,
+        0,
+        871,
+        1024
+      ]
+    },
+    {
+      "id": "gnome-caveman-male-avatar",
+      "race": "gnome",
+      "role": "Caveman",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a gnome Caveman male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: gnomish adventurer with compact build, rosy tan skin, bright copper hair, clever expression, and playful oversized gear. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing primitive hide-and-bone armor, stone club, bone necklace, rough fur wraps, rugged prehistoric hunter silhouette. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 923812,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "cefbc780-4a26-4b47-9344-ba83adb9ebac",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-caveman-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-caveman-male-avatar.png",
+      "sha256": "9467b0ff745ec275d2fa4e65038ba29155b4621daf46cd8849c6699fc24c12c2",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        56,
+        0,
+        898,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        57,
+        0,
+        897,
+        1024
+      ]
+    },
+    {
+      "id": "gnome-healer-female-avatar",
+      "race": "gnome",
+      "role": "Healer",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a gnome Healer female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: gnomish adventurer with compact petite build, rosy tan skin, bright copper hair, feminine face, and playful oversized gear. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing white and teal healer robes over light quilted armor, glowing staff, turquoise medicine sigil, clean linen wraps and potion vials. Tasteful sexy fantasy design details for this role: elegant fitted bodice under robes, open shoulder sleeves, high side slit for movement, and glowing vial jewelry; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 924394,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "1923499b-bfea-4b71-83c1-8d52636745f6",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-healer-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-healer-female-avatar.png",
+      "sha256": "bb1535d1a5da16bb8110e453c5f05bb1a3d86f670daf6627a2da3612af7fbfc2",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        106,
+        0,
+        931,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        107,
+        0,
+        930,
+        1024
+      ]
+    },
+    {
+      "id": "gnome-healer-male-avatar",
+      "race": "gnome",
+      "role": "Healer",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a gnome Healer male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: gnomish adventurer with compact build, rosy tan skin, bright copper hair, clever expression, and playful oversized gear. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing white and teal healer robes over light quilted armor, glowing staff, turquoise medicine sigil, clean linen wraps and potion vials. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 924094,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "ede00722-3fe2-4a67-9234-2eb542406ff0",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-healer-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-healer-male-avatar.png",
+      "sha256": "047839ea728e49a74c26f90d64af7b9699447918610767df0b5e0d14ec971ca3",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        104,
+        0,
+        895,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        104,
+        0,
+        895,
+        1024
+      ]
+    },
+    {
+      "id": "gnome-ranger-female-avatar",
+      "race": "gnome",
+      "role": "Ranger",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a gnome Ranger female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: gnomish adventurer with compact petite build, rosy tan skin, bright copper hair, feminine face, and playful oversized gear. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing forest-green cloak, brown leather armor, bow and quiver, leaf-green highlights, practical wilderness gear. Tasteful sexy fantasy design details for this role: fitted leather jerkin, shoulder cutouts, thigh quiver straps, split cloak, and wilderness boots; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 926154,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "5d59e4ce-1709-4c9b-97e3-bfa5e9602229",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-ranger-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-ranger-female-avatar.png",
+      "sha256": "cf8b6b6ae4bb7ca8b95e305da57550738ac945fed061bda5d8170d28506dbc34",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        186,
+        0,
+        898,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        186,
+        0,
+        897,
+        1024
+      ]
+    },
+    {
+      "id": "gnome-ranger-male-avatar",
+      "race": "gnome",
+      "role": "Ranger",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a gnome Ranger male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: gnomish adventurer with compact build, rosy tan skin, bright copper hair, clever expression, and playful oversized gear. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing forest-green cloak, brown leather armor, bow and quiver, leaf-green highlights, practical wilderness gear. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 925854,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "349ff6bd-831a-4303-bb4e-e27a53514dad",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-ranger-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-ranger-male-avatar.png",
+      "sha256": "944f1cae0eb78b7dbf866099edf8d60b0dd872ca8ccb99530898da0122fe9ba2",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        74,
+        0,
+        943,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        75,
+        0,
+        942,
+        1024
+      ]
+    },
+    {
+      "id": "gnome-wizard-female-avatar",
+      "race": "gnome",
+      "role": "Wizard",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a gnome Wizard female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: gnomish adventurer with compact petite build, rosy tan skin, bright copper hair, feminine face, and playful oversized gear. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing deep blue and violet wizard robes, gold stars, glowing staff, arcane purple magic, ornate spellbook and layered sleeves. Tasteful sexy fantasy design details for this role: fitted bodice under star robes, shoulder cutouts, side slit robe panels, corset belt, and glowing arcane jewelry; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 927530,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "1e0d0b53-cfd2-457a-830a-6a7675baaaf2",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-wizard-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-wizard-female-avatar.png",
+      "sha256": "b7b424721822da3d077233233b590bb2e95f6f0cd5b557321997def22e223a95",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        80,
+        0,
+        934,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        80,
+        0,
+        933,
+        1024
+      ]
+    },
+    {
+      "id": "gnome-wizard-male-avatar",
+      "race": "gnome",
+      "role": "Wizard",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a gnome Wizard male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: gnomish adventurer with compact build, rosy tan skin, bright copper hair, clever expression, and playful oversized gear. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing deep blue and violet wizard robes, gold stars, glowing staff, arcane purple magic, ornate spellbook and layered sleeves. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 927230,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "dd906837-9d76-4130-a94e-513018c35b12",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-wizard-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-wizard-male-avatar.png",
+      "sha256": "4be3c024bed44c9def35e15f071ac06d5555378f13c8669ac665c910fc27e1dc",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        55,
+        0,
+        930,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        55,
+        0,
+        929,
+        1024
+      ]
+    },
+    {
+      "id": "human-archeologist-female-avatar",
+      "race": "human",
+      "role": "Archeologist",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Archeologist female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, feminine facial features, styled brown hair, and bright heroic eyes. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing khaki explorer jacket over fitted leather field armor, brass lantern, fedora, pickaxe, dusty satchel, parchment map, practical adventuring boots. Tasteful sexy fantasy design details for this role: tailored jacket, fitted corseted vest, open collar, belted hip satchel, and tall boots; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 923310,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "652d8d41-578e-49aa-8bbf-898cd8cb910b",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-archeologist-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-archeologist-female-avatar.png",
+      "sha256": "d5ec4d4bcbe935e833e4c6a1d48bbc79a7d763148504e8bf977b8472665e1a8a",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        241,
+        0,
+        784,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        241,
+        0,
+        783,
+        1024
+      ]
+    },
+    {
+      "id": "human-archeologist-male-avatar",
+      "race": "human",
+      "role": "Archeologist",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Archeologist male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, strong natural features, brown hair, and bright heroic eyes. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing khaki explorer jacket over fitted leather field armor, brass lantern, fedora, pickaxe, dusty satchel, parchment map, practical adventuring boots. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 923010,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "10793635-e296-4b59-b58d-8abfd52280c1",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-archeologist-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-archeologist-male-avatar.png",
+      "sha256": "c50ad67df557cfa5c106205e368b3edca1a8a40e4a54822b85fe1089ed3c1d6b",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        209,
+        0,
+        814,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        210,
+        0,
+        813,
+        1024
+      ]
+    },
+    {
+      "id": "human-barbarian-female-avatar",
+      "race": "human",
+      "role": "Barbarian",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Barbarian female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, feminine facial features, styled brown hair, and bright heroic eyes. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing fur-trimmed bronze-and-leather battle harness, heavy axe, red warpaint, muscular warrior silhouette, rugged northern trophies. Tasteful sexy fantasy design details for this role: decorative straps, exposed shoulders, thigh-high boots or greaves, dramatic fur mantle, and battle-ready skin showing where practical; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 923538,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "76410dd9-c163-4d1a-9499-056e1e4fc691",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-barbarian-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-barbarian-female-avatar.png",
+      "sha256": "12e87110412b34cfcbd61bcf4a5cc4bba9b56b55813daa4a4cdca2d24d142fd3",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        124,
+        0,
+        908,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        125,
+        0,
+        907,
+        1024
+      ]
+    },
+    {
+      "id": "human-barbarian-male-avatar",
+      "race": "human",
+      "role": "Barbarian",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Barbarian male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, strong natural features, brown hair, and bright heroic eyes. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing fur-trimmed bronze-and-leather battle harness, heavy axe, red warpaint, muscular warrior silhouette, rugged northern trophies. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 923238,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "2d0b0103-8048-4114-9f89-cbc645df30e5",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-barbarian-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-barbarian-male-avatar.png",
+      "sha256": "60f04a5454d3e4d04415e4bbb21a535c53cf39c7f16fa2e72e446ea0a5d4b88c",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        126,
+        0,
+        901,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        126,
+        0,
+        901,
+        1024
+      ]
+    },
+    {
+      "id": "human-caveman-female-avatar",
+      "race": "human",
+      "role": "Caveman",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Caveman female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, feminine facial features, styled brown hair, and bright heroic eyes. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing primitive hide-and-bone armor, stone club, bone necklace, rough fur wraps, rugged prehistoric hunter silhouette. Tasteful sexy fantasy design details for this role: asymmetric hide wraps, decorative bone straps, exposed shoulders, rugged thigh wraps, and fur panels; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 923727,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "cc20d350-b9e1-4414-8a76-0979ff5741cd",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-caveman-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-caveman-female-avatar.png",
+      "sha256": "d1650f5f7e8847284e4e0043868139eb9a06dae58a87055e2221b60e07a2b81f",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        132,
+        0,
+        830,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        133,
+        0,
+        829,
+        1024
+      ]
+    },
+    {
+      "id": "human-caveman-male-avatar",
+      "race": "human",
+      "role": "Caveman",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Caveman male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, strong natural features, brown hair, and bright heroic eyes. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing primitive hide-and-bone armor, stone club, bone necklace, rough fur wraps, rugged prehistoric hunter silhouette. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 923427,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "e612e6a1-0ef5-4c33-925a-5f43e4db168d",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-caveman-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-caveman-male-avatar.png",
+      "sha256": "da82ec89829291a27b548bdf66fd63a82d4f5b62337e959029af43cc07710e15",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        225,
+        0,
+        902,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        225,
+        0,
+        901,
+        1024
+      ]
+    },
+    {
+      "id": "human-healer-female-avatar",
+      "race": "human",
+      "role": "Healer",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Healer female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, feminine facial features, styled brown hair, and bright heroic eyes. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing white and teal healer robes over light quilted armor, glowing staff, turquoise medicine sigil, clean linen wraps and potion vials. Tasteful sexy fantasy design details for this role: elegant fitted bodice under robes, open shoulder sleeves, high side slit for movement, and glowing vial jewelry; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 924203,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "c94254e9-bae3-4de6-aaa5-6f5079c031bf",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-healer-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-healer-female-avatar.png",
+      "sha256": "12e29da5eb5aa4eca7505db38c6df8deaa1d940d409792fea0af4a07ed86ce0f",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        88,
+        0,
+        878,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        89,
+        1,
+        877,
+        1024
+      ]
+    },
+    {
+      "id": "human-healer-male-avatar",
+      "race": "human",
+      "role": "Healer",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Healer male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, strong natural features, brown hair, and bright heroic eyes. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing white and teal healer robes over light quilted armor, glowing staff, turquoise medicine sigil, clean linen wraps and potion vials. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 923903,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "62ff7382-90df-4329-9e6e-7e6977259155",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-healer-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-healer-male-avatar.png",
+      "sha256": "a1caefcc287da5d323e88c1833754df882a36c7cad3afb99982d72e4a7ed2251",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        131,
+        0,
+        1022,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        132,
+        0,
+        1022,
+        1024
+      ]
+    },
+    {
+      "id": "human-knight-female-avatar",
+      "race": "human",
+      "role": "Knight",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Knight female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, feminine facial features, styled brown hair, and bright heroic eyes. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing polished silver plate armor, blue tabard, gold trim, longsword and shield, noble tournament silhouette. Tasteful sexy fantasy design details for this role: sculpted armor, fitted cuirass, blue tabard slit, decorative straps, and elegant armored boots; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 924611,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "fe0f6399-c8fb-44d0-9e5c-83a2c8ade950",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-knight-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-knight-female-avatar.png",
+      "sha256": "e028b02d4d607b2d687a92fa8f2a53dbfcfc88c773ac08aa64f7f0aa255a08ab",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        132,
+        0,
+        853,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        132,
+        0,
+        852,
+        1024
+      ]
+    },
+    {
+      "id": "human-knight-male-avatar",
+      "race": "human",
+      "role": "Knight",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Knight male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, strong natural features, brown hair, and bright heroic eyes. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing polished silver plate armor, blue tabard, gold trim, longsword and shield, noble tournament silhouette. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 924311,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "3dbb582f-9813-49e8-91be-5230d61d3f51",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-knight-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-knight-male-avatar.png",
+      "sha256": "d45d3ebc34eb4b139d54fc6ab6d2f2d4a6f81131e17e9f64d9e2c491a2572b05",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        197,
+        0,
+        775,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        198,
+        1,
+        775,
+        1024
+      ]
+    },
+    {
+      "id": "human-monk-female-avatar",
+      "race": "human",
+      "role": "Monk",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Monk female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, feminine facial features, styled brown hair, and bright heroic eyes. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing orange and saffron martial robes, prayer beads, wrapped fists, calm balanced fighting stance, simple cloth layers. Tasteful sexy fantasy design details for this role: wrapped athletic silhouette, bare shoulders or midriff where appropriate, sash slits, and graceful martial cloth layers; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 924597,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "8ce477e4-1fea-4b9d-adf1-85cc7d4263b5",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-monk-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-monk-female-avatar.png",
+      "sha256": "dc3e6810bb058cc5512b57a1ef6517654e77e7a74a22a51512291f80b681c3c8",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        260,
+        0,
+        899,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        261,
+        0,
+        898,
+        1024
+      ]
+    },
+    {
+      "id": "human-monk-male-avatar",
+      "race": "human",
+      "role": "Monk",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Monk male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, strong natural features, brown hair, and bright heroic eyes. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing orange and saffron martial robes, prayer beads, wrapped fists, calm balanced fighting stance, simple cloth layers. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 924297,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "13512ea8-09ba-4cb4-b719-4fb4333809ef",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-monk-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-monk-male-avatar.png",
+      "sha256": "878f61d44bcc502df60612d4fbecac6d34be81fab668d1ed585a3861fec09bcd",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        239,
+        0,
+        918,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        240,
+        0,
+        917,
+        1024
+      ]
+    },
+    {
+      "id": "human-priest-female-avatar",
+      "race": "human",
+      "role": "Priest",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Priest female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, feminine facial features, styled brown hair, and bright heroic eyes. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing purple and ivory holy vestments over modest armor, gold sun symbol, ceremonial mace and prayer book, solemn sacred presence. Tasteful sexy fantasy design details for this role: ornate fitted vestments, tasteful neckline, side-slit ceremonial robe, gold chains, and layered sacred cloth; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 925017,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "2ed2f131-e1a6-417e-a204-32a86d9d8705",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-priest-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-priest-female-avatar.png",
+      "sha256": "db4eda5d9423cf43b5a462da3d0cd3ae899264140a772ce4e160d1e6a34ccc52",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        147,
+        0,
+        879,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        148,
+        0,
+        879,
+        1024
+      ]
+    },
+    {
+      "id": "human-priest-male-avatar",
+      "race": "human",
+      "role": "Priest",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Priest male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, strong natural features, brown hair, and bright heroic eyes. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing purple and ivory holy vestments over modest armor, gold sun symbol, ceremonial mace and prayer book, solemn sacred presence. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 924717,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "26dbaf56-7efe-40c4-8b31-4e682d7352c6",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-priest-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-priest-male-avatar.png",
+      "sha256": "35745f0d3e143a86d3f38391bed23d0e460889f56a4ba9056e5633b466bb2d95",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        209,
+        1,
+        892,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        209,
+        2,
+        891,
+        1024
+      ]
+    },
+    {
+      "id": "human-ranger-female-avatar",
+      "race": "human",
+      "role": "Ranger",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Ranger female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, feminine facial features, styled brown hair, and bright heroic eyes. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing forest-green cloak, brown leather armor, bow and quiver, leaf-green highlights, practical wilderness gear. Tasteful sexy fantasy design details for this role: fitted leather jerkin, shoulder cutouts, thigh quiver straps, split cloak, and wilderness boots; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 925769,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "cdf7b8e5-0aa1-408f-8bd7-94434d489fce",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-ranger-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-ranger-female-avatar.png",
+      "sha256": "39a9df0b81058d4b1219f3cd91459684efd3cd9a995a3f0763abe9e9edb0f932",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        78,
+        0,
+        941,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        79,
+        3,
+        940,
+        1024
+      ]
+    },
+    {
+      "id": "human-ranger-male-avatar",
+      "race": "human",
+      "role": "Ranger",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Ranger male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, strong natural features, brown hair, and bright heroic eyes. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing forest-green cloak, brown leather armor, bow and quiver, leaf-green highlights, practical wilderness gear. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 925469,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "1329fe32-6fc1-4e22-a426-e0d050599edf",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-ranger-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-ranger-male-avatar.png",
+      "sha256": "ea8495000ae830a6ddc14ed80a2961884319c6366321c5d85940332a8ae557b0",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        117,
+        0,
+        905,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        118,
+        2,
+        904,
+        1024
+      ]
+    },
+    {
+      "id": "human-rogue-female-avatar",
+      "race": "human",
+      "role": "Rogue",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Rogue female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, feminine facial features, styled brown hair, and bright heroic eyes. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing charcoal fitted leather armor, silver daggers, hooded cloak, agile thief silhouette, dark burgundy accents. Tasteful sexy fantasy design details for this role: sleek fitted leather, thigh straps, side cutouts or lace-up panels, dagger belts, and agile boots; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 925288,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "32e361d4-2780-430d-b68f-7d3b947b356c",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-rogue-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-rogue-female-avatar.png",
+      "sha256": "1baee1822b21d62e625e1d0d66f8eb7b56622cb3df3d19e0d67dcddf4f3025a7",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        216,
+        0,
+        899,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        216,
+        0,
+        898,
+        1024
+      ]
+    },
+    {
+      "id": "human-rogue-male-avatar",
+      "race": "human",
+      "role": "Rogue",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Rogue male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, strong natural features, brown hair, and bright heroic eyes. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing charcoal fitted leather armor, silver daggers, hooded cloak, agile thief silhouette, dark burgundy accents. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 924988,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "8d6576aa-b7d3-4f96-baf2-b9d19954efc8",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-rogue-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-rogue-male-avatar.png",
+      "sha256": "3eb9765e9cdcc8ef3638467ff07b7ae2d42ef3aa82b501123dbc914620b16f59",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        305,
+        0,
+        866,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        305,
+        0,
+        866,
+        1024
+      ]
+    },
+    {
+      "id": "human-samurai-female-avatar",
+      "race": "human",
+      "role": "Samurai",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Samurai female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, feminine facial features, styled brown hair, and bright heroic eyes. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing purple lacquered samurai armor, gold trim, katana, dramatic kabuto helmet, silk cords and armored sleeves. Tasteful sexy fantasy design details for this role: elegant lacquered armor with fitted bodice plates, silk skirt slits, decorative cords, and armored thigh guards; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 926660,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "4e2d2146-3573-4b61-a093-c1847dbccedc",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-samurai-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-samurai-female-avatar.png",
+      "sha256": "2c5043e9cb55e781217ddc0f9bbe991e949bf060176ae8b8ec22734a0842c167",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        305,
+        0,
+        807,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        305,
+        0,
+        806,
+        1024
+      ]
+    },
+    {
+      "id": "human-samurai-male-avatar",
+      "race": "human",
+      "role": "Samurai",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Samurai male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, strong natural features, brown hair, and bright heroic eyes. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing purple lacquered samurai armor, gold trim, katana, dramatic kabuto helmet, silk cords and armored sleeves. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 926360,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "db73525e-c853-4927-8343-fb7e1ee805ca",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-samurai-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-samurai-male-avatar.png",
+      "sha256": "e82792650da827de292aafa938dafbcf177be1b650167e256744b5ff7dded062",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        277,
+        0,
+        848,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        278,
+        0,
+        847,
+        1024
+      ]
+    },
+    {
+      "id": "human-tourist-female-avatar",
+      "race": "human",
+      "role": "Tourist",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Tourist female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, feminine facial features, styled brown hair, and bright heroic eyes. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing sky-blue travel tunic, red scarf, camera, map satchel, walking stick, cheerful fantasy explorer gear. Tasteful sexy fantasy design details for this role: tailored travel dress or tunic, exposed shoulders or open collar, scarf, thigh pouch straps, and cheerful boots; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 926894,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "002b8039-0606-46b0-927f-011f6639f127",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-tourist-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-tourist-female-avatar.png",
+      "sha256": "ed8f2beded6476290241bf215c195b66cd3b1e694a65100e14e84c46fdaba28f",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        233,
+        0,
+        782,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        233,
+        0,
+        781,
+        1024
+      ]
+    },
+    {
+      "id": "human-tourist-male-avatar",
+      "race": "human",
+      "role": "Tourist",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Tourist male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, strong natural features, brown hair, and bright heroic eyes. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing sky-blue travel tunic, red scarf, camera, map satchel, walking stick, cheerful fantasy explorer gear. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 926594,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "6f75b52a-f9cc-461c-a9e1-a5eb71c6386c",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-tourist-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-tourist-male-avatar.png",
+      "sha256": "6d35d2f53caf062fedfad64fb64db0066626d4e0d3101f50c17ebd41be7c2c22",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        208,
+        0,
+        815,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        208,
+        0,
+        814,
+        1024
+      ]
+    },
+    {
+      "id": "human-valkyrie-female-avatar",
+      "race": "human",
+      "role": "Valkyrie",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Valkyrie female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, feminine facial features, styled brown hair, and bright heroic eyes. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing unmistakably female Norse shield-maiden armor with bright steel breastplate, fitted waist, layered leather skirt or mail tunic, silver winged helm, blue cloak, round shield and spear. Tasteful sexy fantasy design details for this role: feminine sculpted breastplate with tasteful cleavage or neckline cutout, fitted waist, thigh-slit battle skirt, decorative straps, and heroic boots; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 927068,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "f181d468-f9f1-41b5-916b-19c69a02ad19",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-valkyrie-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-valkyrie-female-avatar.png",
+      "sha256": "3788f230cf69b8b802f1696b99748a4c740c2585c154a7c7c69b1203f2fd3ca7",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        234,
+        0,
+        879,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        234,
+        0,
+        878,
+        1024
+      ]
+    },
+    {
+      "id": "human-wizard-female-avatar",
+      "race": "human",
+      "role": "Wizard",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Wizard female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, feminine facial features, styled brown hair, and bright heroic eyes. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing deep blue and violet wizard robes, gold stars, glowing staff, arcane purple magic, ornate spellbook and layered sleeves. Tasteful sexy fantasy design details for this role: fitted bodice under star robes, shoulder cutouts, side slit robe panels, corset belt, and glowing arcane jewelry; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 927145,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "65209780-d361-4fc9-a5c0-e81ae59f2fb7",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-wizard-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-wizard-female-avatar.png",
+      "sha256": "f216b2af1b58e77c5e58f0e27fa284cd5e93ff7100cd2eed8b185a4ccb7d5b3f",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        112,
+        0,
+        910,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        112,
+        0,
+        909,
+        1024
+      ]
+    },
+    {
+      "id": "human-wizard-male-avatar",
+      "race": "human",
+      "role": "Wizard",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a human Wizard male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: human adventurer with warm peach skin, strong natural features, brown hair, and bright heroic eyes. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing deep blue and violet wizard robes, gold stars, glowing staff, arcane purple magic, ornate spellbook and layered sleeves. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 926845,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "76dc6f1f-ee3f-46ba-ac3b-121394bfcdfb",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/human-wizard-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-wizard-male-avatar.png",
+      "sha256": "5f649b441baa8b5496e3171649960bd9d94a1b7b523b8027a5197589f6b5a54b",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        84,
+        0,
+        940,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        85,
+        0,
+        939,
+        1024
+      ]
+    },
+    {
+      "id": "orc-barbarian-female-avatar",
+      "race": "orc",
+      "role": "Barbarian",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a orc Barbarian female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: orc adventurer with moss-green skin, black hair, small tusks, red-orange eyes, feminine strong features, and weathered iron accents. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing fur-trimmed bronze-and-leather battle harness, heavy axe, red warpaint, muscular warrior silhouette, rugged northern trophies. Tasteful sexy fantasy design details for this role: decorative straps, exposed shoulders, thigh-high boots or greaves, dramatic fur mantle, and battle-ready skin showing where practical; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 923519,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "8977cc40-01e8-4794-b3ea-e0da20ba3c90",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/orc-barbarian-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-barbarian-female-avatar.png",
+      "sha256": "5cde211123d30d22a324631d1c8765770e4a4812b9ee50bd6ae73c97e4f4a79d",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        110,
+        0,
+        893,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        111,
+        0,
+        892,
+        1024
+      ]
+    },
+    {
+      "id": "orc-barbarian-male-avatar",
+      "race": "orc",
+      "role": "Barbarian",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a orc Barbarian male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: orc adventurer with moss-green skin, black hair, small tusks, red-orange eyes, rugged jaw, and weathered iron accents. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing fur-trimmed bronze-and-leather battle harness, heavy axe, red warpaint, muscular warrior silhouette, rugged northern trophies. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 923219,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "a7dcfdd5-68e9-4d77-90e7-a290f9777df7",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/orc-barbarian-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-barbarian-male-avatar.png",
+      "sha256": "385d465473ae1d7851175ec8dad46419abe02c39789f2974581748d68e215d63",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        106,
+        0,
+        921,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        107,
+        0,
+        920,
+        1024
+      ]
+    },
+    {
+      "id": "orc-ranger-female-avatar",
+      "race": "orc",
+      "role": "Ranger",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a orc Ranger female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: orc adventurer with moss-green skin, black hair, small tusks, red-orange eyes, feminine strong features, and weathered iron accents. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing forest-green cloak, brown leather armor, bow and quiver, leaf-green highlights, practical wilderness gear. Tasteful sexy fantasy design details for this role: fitted leather jerkin, shoulder cutouts, thigh quiver straps, split cloak, and wilderness boots; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 926138,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "37ec5731-339f-41e2-b20e-34f80a2f6248",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/orc-ranger-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-ranger-female-avatar.png",
+      "sha256": "c0d925b8c823f4026e9b2fbbceed55e6dd89700904648b86630fb6bc8893e59e",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        67,
+        0,
+        947,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        68,
+        0,
+        946,
+        1024
+      ]
+    },
+    {
+      "id": "orc-ranger-male-avatar",
+      "race": "orc",
+      "role": "Ranger",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a orc Ranger male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: orc adventurer with moss-green skin, black hair, small tusks, red-orange eyes, rugged jaw, and weathered iron accents. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing forest-green cloak, brown leather armor, bow and quiver, leaf-green highlights, practical wilderness gear. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 925838,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "adb17160-92e5-4dcd-a4df-f1cb9cb8414c",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/orc-ranger-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-ranger-male-avatar.png",
+      "sha256": "44f63857e86465c9de8f36f0d0778679135a328fa6cc80396ce59b1c1d818daf",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        51,
+        0,
+        968,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        51,
+        0,
+        968,
+        1024
+      ]
+    },
+    {
+      "id": "orc-rogue-female-avatar",
+      "race": "orc",
+      "role": "Rogue",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a orc Rogue female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: orc adventurer with moss-green skin, black hair, small tusks, red-orange eyes, feminine strong features, and weathered iron accents. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing charcoal fitted leather armor, silver daggers, hooded cloak, agile thief silhouette, dark burgundy accents. Tasteful sexy fantasy design details for this role: sleek fitted leather, thigh straps, side cutouts or lace-up panels, dagger belts, and agile boots; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 925269,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "ecda9db2-8cf7-4ac7-947c-38d74f10b3f7",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/orc-rogue-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-rogue-female-avatar.png",
+      "sha256": "133cd44c25310c6713b1a4e3e1e70feea5d76654ebc7b1eafee09e8a9ddfc65e",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        289,
+        0,
+        809,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        289,
+        0,
+        808,
+        1024
+      ]
+    },
+    {
+      "id": "orc-rogue-male-avatar",
+      "race": "orc",
+      "role": "Rogue",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a orc Rogue male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: orc adventurer with moss-green skin, black hair, small tusks, red-orange eyes, rugged jaw, and weathered iron accents. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing charcoal fitted leather armor, silver daggers, hooded cloak, agile thief silhouette, dark burgundy accents. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 924969,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "e0be9acb-4b6e-4362-a2fe-3f6e67539525",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/orc-rogue-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-rogue-male-avatar.png",
+      "sha256": "4aa082de91ccf05b1da0974f8ae3584b7fe6b385db1c7f3757e5bfbfe34d4201",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        288,
+        0,
+        820,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        288,
+        0,
+        819,
+        1024
+      ]
+    },
+    {
+      "id": "orc-wizard-female-avatar",
+      "race": "orc",
+      "role": "Wizard",
+      "gender": "female",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a orc Wizard female NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: orc adventurer with moss-green skin, black hair, small tusks, red-orange eyes, feminine strong features, and weathered iron accents. Gender identity: clearly female heroic fantasy adventurer, feminine face and silhouette, attractive but tasteful class-appropriate costume, confident pose, unmistakably female even in armor. Class identity: wearing deep blue and violet wizard robes, gold stars, glowing staff, arcane purple magic, ornate spellbook and layered sleeves. Tasteful sexy fantasy design details for this role: fitted bodice under star robes, shoulder cutouts, side slit robe panels, corset belt, and glowing arcane jewelry; vary by class, not a repeated chainmail bikini. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 927514,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "3295134c-9c55-41b2-b7a4-6ce5b4bbb6cb",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/orc-wizard-female-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-wizard-female-avatar.png",
+      "sha256": "19164a2fc02486639066160178d3408d100cc1953f2450e4e8967d3926e40419",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        109,
+        0,
+        904,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        109,
+        0,
+        903,
+        1024
+      ]
+    },
+    {
+      "id": "orc-wizard-male-avatar",
+      "race": "orc",
+      "role": "Wizard",
+      "gender": "male",
+      "prompt": "A polished high-resolution full-body fantasy character image, refined painterly concept art, dramatic studio character lighting, detailed costume materials, elegant game key art, single centered standing character cutout, complete head-to-toe figure visible, boots and feet visible, hands and weapons fully inside frame, generous empty margin around the entire silhouette, sharp expressive face, cohesive fantasy roguelike identity, true 1024 by 1024 composition of a orc Wizard male NetHack player character. Full-body framing is mandatory: show the entire figure from hat/head to boots/feet, do not crop the body, place the character smaller in the canvas if needed so all weapons and props fit. Race identity: orc adventurer with moss-green skin, black hair, small tusks, red-orange eyes, rugged jaw, and weathered iron accents. Gender identity: clearly male heroic fantasy adventurer, masculine face and build, practical confident pose. Class identity: wearing deep blue and violet wizard robes, gold stars, glowing staff, arcane purple magic, ornate spellbook and layered sleeves. Handsome heroic fantasy styling with role-appropriate fitted gear and confident full-body stance. Clear race, class, and gender readability; attractive tasteful fantasy design where appropriate. Production transparent avatar source on a solid green background. Negative constraints: no pixel art, no low resolution sprite, no chibi icon, no flat vector art, no text, no letters, no numbers, no UI badge, no square card, no frame, no fake transparency, no checkerboard, no modern clothes, no cropped head, no cropped feet, no cropped boots, no cropped weapon, no half body, no bust portrait, no waist-up portrait, no knee-up portrait, no close-up portrait, no extra limbs, no duplicate character, no masculine female valkyrie.",
+      "seed": 927214,
+      "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+      "modelDetails": {
+        "latent": [
+          "1024 x 1024   (square)",
+          1,
+          1
+        ],
+        "unet": "krea2Center_v05Int8.safetensors",
+        "unetWeightDtype": "default",
+        "vae": "qwen_image_vae.safetensors",
+        "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+        "clipType": "krea2",
+        "rmbg": {
+          "model": "RMBG-2.0",
+          "background": "Alpha"
+        }
+      },
+      "comfyPromptId": "157036da-0956-462d-bcf5-e2f745fbf6d3",
+      "outputPath": "asset-generation/outputs/player-combo-avatars/orc-wizard-male-avatar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-wizard-male-avatar.png",
+      "sha256": "0fa0f8140b71b1ee88212e0ce9a20fd5b3ac67ba71c23ba79881daad28ed3155",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBBox": [
+        100,
+        0,
+        912,
+        1024
+      ],
+      "status": "generated-installed-validated",
+      "opaqueAlphaBBox": [
+        100,
+        1,
+        912,
+        1024
+      ]
+    }
+  ],
+  "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+  "workflowSha256": "a3b3247d3da777a8b310264a35cebe9fd261ad430e3dcede5f5a638ca9504271",
+  "comfyuiVersion": "0.26.0",
+  "updatedAt": "2026-07-01T18:03:04Z",
+  "modelDetails": {
+    "latent": [
+      "1024 x 1024   (square)",
+      1,
+      1
+    ],
+    "unet": "krea2Center_v05Int8.safetensors",
+    "unetWeightDtype": "default",
+    "vae": "qwen_image_vae.safetensors",
+    "clip": "qwen3vl_4b_fp8_scaled.safetensors",
+    "clipType": "krea2",
+    "rmbg": {
+      "model": "RMBG-2.0",
+      "background": "Alpha"
+    }
+  }
+}

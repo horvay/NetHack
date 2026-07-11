@@ -1,0 +1,188 @@
+[
+  {
+    "protocol": "nethack-electron-ui/v2",
+    "sequence": 1,
+    "eventId": "evt-menu-open-1",
+    "eventType": "menu.opened",
+    "turn": 0,
+    "source": {
+      "layer": "shim-bridge",
+      "window": 7
+    },
+    "requestId": "req-menu-1",
+    "payload": {
+      "menuId": "menu-7-1",
+      "purpose": "inventory.overview",
+      "selectionMode": "one",
+      "owner": {
+        "kind": "system"
+      }
+    }
+  },
+  {
+    "protocol": "nethack-electron-ui/v2",
+    "sequence": 2,
+    "eventId": "evt-inventory-1",
+    "eventType": "inventory.snapshot",
+    "turn": 12,
+    "source": {
+      "layer": "shim-bridge"
+    },
+    "revision": {
+      "inventory": 1
+    },
+    "payload": {
+      "revision": 1,
+      "items": [
+        {
+          "objectId": 1001,
+          "inventoryLetter": "a",
+          "displayName": "a food ration",
+          "quantity": 1,
+          "known": {
+            "identity": true
+          },
+          "location": {
+            "kind": "inventory"
+          },
+          "actionAffordances": []
+        }
+      ]
+    }
+  },
+  {
+    "protocol": "nethack-electron-ui/v2",
+    "sequence": 3,
+    "eventId": "evt-v1-compat-1",
+    "eventType": "diagnostic.v1Compatibility",
+    "turn": 12,
+    "source": {
+      "layer": "renderer"
+    },
+    "payload": {
+      "legacyEventName": "shim_end_menu",
+      "legacyPath": "renderer.isInventoryOverviewMenu",
+      "reason": "Inventory overview still uses classic menu classification until inventory.snapshot is authoritative.",
+      "fallback": "classic-menu-safe-fallback"
+    }
+  },
+  {
+    "protocol": "nethack-electron-ui/v2",
+    "sequence": 4,
+    "eventId": "evt-map-cell-1",
+    "eventType": "map.cell.updated",
+    "turn": 12,
+    "source": {
+      "layer": "shim-bridge",
+      "window": 3
+    },
+    "revision": {
+      "map": 2
+    },
+    "payload": {
+      "coord": {
+        "x": 12,
+        "y": 8
+      },
+      "backgroundSemanticKind": "terrain",
+      "objectLayerSemanticKind": "object",
+      "objectLayerSemanticName": "food ration"
+    }
+  },
+  {
+    "protocol": "nethack-electron-ui/v2",
+    "sequence": 5,
+    "eventId": "evt-inventory-delta-1",
+    "eventType": "inventory.delta",
+    "turn": 13,
+    "source": {
+      "layer": "shim-bridge"
+    },
+    "revision": {
+      "inventory": 2
+    },
+    "payload": {
+      "revision": 2,
+      "added": [
+        {
+          "objectId": 1002,
+          "inventoryLetter": "b",
+          "displayName": "a milky potion",
+          "quantity": 1,
+          "known": {
+            "identity": false,
+            "appearance": true
+          },
+          "appearanceName": "milky potion",
+          "semanticKind": "object",
+          "semanticAppearance": "milky potion",
+          "semanticKnown": false,
+          "location": {
+            "kind": "inventory"
+          }
+        }
+      ],
+      "removed": [
+        1001
+      ]
+    }
+  },
+  {
+    "protocol": "nethack-electron-ui/v2",
+    "sequence": 6,
+    "eventId": "evt-equipment-1",
+    "eventType": "equipment.snapshot",
+    "turn": 13,
+    "source": {
+      "layer": "shim-bridge"
+    },
+    "revision": {
+      "equipment": 2,
+      "inventory": 2
+    },
+    "payload": {
+      "revision": 2,
+      "inventoryRevision": 2,
+      "slots": [
+        {
+          "slotId": "mainHand",
+          "label": "Weapon / main hand",
+          "objectId": 1003,
+          "wornMask": 256,
+          "publicStatus": "equipped",
+          "blockedBy": [],
+          "actions": [
+            "wield/change"
+          ],
+          "item": {
+            "objectId": 1003,
+            "inventoryLetter": "c",
+            "displayName": "a +0 spear",
+            "quantity": 1,
+            "known": {
+              "identity": true
+            },
+            "location": {
+              "kind": "equipment"
+            },
+            "wornMask": 256,
+            "glyphChar": 41,
+            "semanticKind": "object",
+            "semanticKnown": true,
+            "semanticName": "spear"
+          }
+        },
+        {
+          "slotId": "ring.left",
+          "label": "Left ring",
+          "wornMask": 131072,
+          "publicStatus": "empty",
+          "blockedBy": [],
+          "actions": [
+            "put on ring"
+          ]
+        }
+      ]
+    }
+  }
+]

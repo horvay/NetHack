@@ -1,0 +1,40 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "object/asset-tooltip-crude-dagger",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current"
+  },
+  "level": {
+    "safeAreaAroundHero": 3,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [
+    {
+      "at": "east",
+      "object": {
+        "typeId": "ORCISH_DAGGER",
+        "identityKnown": false,
+        "beatitudeKnown": false
+      }
+    }
+  ],
+  "monsters": [],
+  "inventory": [
+    {
+      "typeId": "ORCISH_DAGGER",
+      "identityKnown": false,
+      "beatitudeKnown": false
+    }
+  ],
+  "expectedPublicFacts": {
+    "groundRows": [
+      "crude dagger"
+    ],
+    "messages": [
+      "crude dagger asset tooltip fixture loaded"
+    ]
+  }
+}

@@ -3090,6 +3090,10 @@ free_pickinv_cache(void)
     }
 }
 
+#ifdef SHIM_GRAPHICS
+static boolean electron_display_inventory_menu_context;
+#endif
+
 /*
  * Internal function used by display_inventory and getobj that can display
  * inventory and return a count as well as a letter.
@@ -3260,6 +3264,15 @@ display_pickinv(
 
 
     puzzling_count = check_for_puzzling_nonmerge(gi.invent);
+
+#ifdef SHIM_GRAPHICS
+    if (electron_display_inventory_menu_context && !program_state.gameover) {
+        shim_native_menu_context("inventory.displayInventory", "inventory",
+                                 "invent.c:display_pickinv", FALSE, FALSE,
+                                 -1, "");
+        electron_display_inventory_menu_context = FALSE;
+    }
+#endif
 
     start_menu(win, menu_behavior);
     any = cg.zeroany;
@@ -3474,6 +3487,7 @@ char
 display_inventory(const char *lets, boolean want_reply)
 {
     struct _cmd_queue *cmdq = cmdq_pop();
+    char ret;
 
     if (cmdq) {
         if (cmdq->typ == CMDQ_KEY) {
@@ -3494,8 +3508,15 @@ display_inventory(const char *lets, boolean want_reply)
         cmdq_clear(CQ_CANNED);
         return '\0';
     }
-    return display_pickinv(lets, (char *) 0, (char *) 0,
-                           FALSE, want_reply, (long *) 0);
+#ifdef SHIM_GRAPHICS
+    electron_display_inventory_menu_context = TRUE;
+#endif
+    ret = display_pickinv(lets, (char *) 0, (char *) 0,
+                          FALSE, want_reply, (long *) 0);
+#ifdef SHIM_GRAPHICS
+    electron_display_inventory_menu_context = FALSE;
+#endif
+    return ret;
 }
 
 void

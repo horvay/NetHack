@@ -1,0 +1,57 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "container/locked-chest-force-destroy-on-hero",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current"
+  },
+  "level": {
+    "safeAreaAroundHero": 2,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [
+    {
+      "at": "hero",
+      "object": {
+        "typeId": "CHEST",
+        "locked": true,
+        "trap": "none",
+        "contents": [
+          {
+            "typeId": "DAGGER"
+          }
+        ]
+      }
+    }
+  ],
+  "monsters": [],
+  "inventory": [
+    {
+      "typeId": "PICK_AXE",
+      "equipped": "wielded"
+    }
+  ],
+  "expectedPublicFacts": {
+    "contextActions": [
+      "open-container",
+      "force-container"
+    ],
+    "containerRows": [
+      "dagger"
+    ],
+    "inventoryRows": [
+      "pick-axe"
+    ],
+    "equipmentRows": [
+      "pick-axe"
+    ],
+    "mapAffordances": [
+      "container"
+    ],
+    "messages": [
+      "chest; pick-axe available for force"
+    ]
+  }
+}

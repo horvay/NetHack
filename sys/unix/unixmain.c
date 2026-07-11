@@ -812,6 +812,18 @@ port_insert_pastebuf(char *buf)
 unsigned long
 sys_random_seed(void)
 {
+#ifdef NH_ELECTRON_TEST_FIXTURES
+    const char *fixture_gate = nh_getenv("NH_ELECTRON_TEST_FIXTURES");
+    const char *forced_seed = nh_getenv("NETHACK_SEED");
+    if (forced_seed && *forced_seed && fixture_gate && !strcmp(fixture_gate, "1")) {
+        char *seed_end = (char *) 0;
+        unsigned long parsed_seed = strtoul(forced_seed, &seed_end, 0);
+        if (seed_end && *seed_end == '\0') {
+            has_strong_rngseed = FALSE;
+            return parsed_seed;
+        }
+    }
+#endif
     unsigned long seed = 0L;
     unsigned long pid = (unsigned long) getpid();
     boolean no_seed = TRUE;

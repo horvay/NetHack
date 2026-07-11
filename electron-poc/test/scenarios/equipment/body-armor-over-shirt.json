@@ -1,0 +1,31 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "equipment/body-armor-over-shirt",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current",
+    "role": "Valkyrie",
+    "race": "human",
+    "gender": "female",
+    "alignment": "lawful"
+  },
+  "level": {
+    "safeAreaAroundHero": 2,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    { "typeId": "LONG_SWORD", "identityKnown": true, "beatitude": "blessed", "beatitudeKnown": true, "enchantment": 1, "equipped": "wielded" },
+    { "typeId": "T_SHIRT", "beatitude": "uncursed", "beatitudeKnown": true, "equipped": "worn" },
+    { "typeId": "LEATHER_ARMOR", "beatitude": "uncursed", "beatitudeKnown": true, "equipped": "worn" }
+  ],
+  "expectedPublicFacts": {
+    "inventoryRows": ["blessed +1 long sword", "T-shirt", "leather armor"],
+    "equipmentRows": ["weapon", "shirt", "armor"],
+    "status": ["Valkyrie", "female", "lawful"],
+    "messages": ["body armor over shirt"]
+  }
+}

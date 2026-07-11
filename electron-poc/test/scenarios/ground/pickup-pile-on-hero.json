@@ -1,0 +1,60 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "ground/pickup-pile-on-hero",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current"
+  },
+  "level": {
+    "safeAreaAroundHero": 2,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [
+    {
+      "at": "hero",
+      "object": {
+        "typeId": "ARROW",
+        "quantity": 3
+      }
+    },
+    {
+      "at": "hero",
+      "object": {
+        "typeId": "DAGGER"
+      }
+    },
+    {
+      "at": "hero",
+      "object": {
+        "typeId": "FOOD_RATION",
+        "quantity": 2
+      }
+    }
+  ],
+  "monsters": [],
+  "inventory": [
+    {
+      "typeId": "SCR_IDENTIFY",
+      "identityKnown": true,
+      "beatitudeKnown": false
+    }
+  ],
+  "expectedPublicFacts": {
+    "contextActions": [
+      "pickup"
+    ],
+    "groundRows": [
+      "3 arrows",
+      "a dagger",
+      "2 food rations"
+    ],
+    "inventoryRows": [
+      "scroll of identify"
+    ],
+    "messages": [
+      "pile of 3 items"
+    ]
+  }
+}

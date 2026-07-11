@@ -1,0 +1,33 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "identity/valkyrie-equipped-inventory",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current",
+    "role": "Valkyrie",
+    "race": "human",
+    "gender": "female",
+    "alignment": "lawful"
+  },
+  "level": {
+    "safeAreaAroundHero": 2,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "keep"
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    { "typeId": "LONG_SWORD", "identityKnown": true, "beatitude": "blessed", "beatitudeKnown": true, "enchantment": 1, "equipped": "wielded" },
+    { "typeId": "SMALL_SHIELD", "beatitude": "uncursed", "beatitudeKnown": true, "equipped": "worn" },
+    { "typeId": "LEATHER_ARMOR", "beatitude": "uncursed", "beatitudeKnown": true, "equipped": "worn" },
+    { "typeId": "ARROW", "quantity": 12, "equipped": "quivered" },
+    { "typeId": "WAN_DIGGING", "charges": 3, "identityKnown": true }
+  ],
+  "expectedPublicFacts": {
+    "inventoryRows": ["blessed +1 long sword", "small shield", "leather armor", "12 arrows", "wand of digging"],
+    "equipmentRows": ["weapon", "wooden shield", "armor", "quiver"],
+    "status": ["Valkyrie", "female", "lawful"],
+    "messages": ["hermetic Valkyrie equipped inventory"]
+  }
+}

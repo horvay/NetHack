@@ -108,6 +108,44 @@ stairway_find_special_dir(boolean up)
     return tmp;
 }
 
+#ifdef NH_ELECTRON_TEST_FIXTURES
+void
+electron_test_force_downstairs_under_hero(void)
+{
+    stairway *down;
+    d_level dest;
+    const char *enabled = nh_getenv("NH_TEST_FORCE_DOWNSTAIRS_UNDER_HERO");
+
+    if (!enabled || !*enabled || !nh_getenv("NH_ELECTRON_TEST_FIXTURES"))
+        return;
+    down = stairway_find_dir(FALSE);
+    if (down) {
+        stairway *up = stairway_find_dir(TRUE);
+        coordxy oldx = down->sx, oldy = down->sy;
+        if (isok(oldx, oldy) && (oldx != u.ux || oldy != u.uy)) {
+            if (up && up->sx == u.ux && up->sy == u.uy) {
+                up->sx = oldx;
+                up->sy = oldy;
+                levl[oldx][oldy].typ = STAIRS;
+                levl[oldx][oldy].doormask = LA_UP;
+            } else {
+                levl[oldx][oldy].typ = ROOM;
+                levl[oldx][oldy].doormask = 0;
+            }
+            newsym(oldx, oldy);
+        }
+        down->sx = u.ux;
+        down->sy = u.uy;
+    } else {
+        get_level(&dest, depth(&u.uz) + 1);
+        stairway_add(u.ux, u.uy, FALSE, FALSE, &dest);
+    }
+    levl[u.ux][u.uy].typ = STAIRS;
+    levl[u.ux][u.uy].doormask = LA_DOWN;
+    newsym(u.ux, u.uy);
+}
+#endif
+
 /* place you on the special staircase */
 void
 u_on_sstairs(int upflag)
@@ -130,6 +168,9 @@ u_on_upstairs(void)
         u_on_newpos(stway->sx, stway->sy);
     else
         u_on_sstairs(0); /* destination upstairs implies moving down */
+#ifdef NH_ELECTRON_TEST_FIXTURES
+    electron_test_force_downstairs_under_hero();
+#endif
 }
 
 /* place you on dnstairs (or special equivalent) */

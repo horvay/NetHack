@@ -1,0 +1,29 @@
+{
+  "empty": {
+    "event": { "name": "shim_update_inventory", "reason": -1, "revision": 1, "items": [] },
+    "expected": { "revision": 1, "items": [] }
+  },
+  "stackedAndWorn": {
+    "event": {
+      "name": "shim_update_inventory",
+      "reason": 0,
+      "revision": 7,
+      "items": [
+        { "selector": 97, "objectId": 1001, "text": "a - 12 ya (in quiver)", "quantity": 12, "glyph": 812, "glyphChar": 41, "wornMask": 2048, "semanticKind": "object", "semanticName": "ya", "semanticKnown": true, "actionAffordances": ["quiver", "throw"] },
+        { "selector": 98, "objectId": 1002, "text": "b - a +0 splint mail (being worn)", "quantity": 1, "glyph": 900, "glyphChar": 91, "wornMask": 8, "semanticKind": "object", "semanticName": "splint mail", "semanticKnown": true, "actionAffordances": ["takeOff"] }
+      ]
+    },
+    "expected": { "revision": 7, "letters": ["a", "b"], "objectIds": [1001, 1002] }
+  },
+  "unidentifiedAppearance": {
+    "event": {
+      "name": "shim_update_inventory",
+      "reason": 0,
+      "revision": 8,
+      "items": [
+        { "selector": 99, "objectId": 1003, "text": "c - a milky potion", "quantity": 1, "glyph": 700, "glyphChar": 33, "semanticKind": "object", "semanticName": "potion of gain level", "semanticAppearance": "milky potion", "semanticKnown": false, "actionAffordances": ["quaff"] }
+      ]
+    },
+    "expected": { "revision": 8, "letters": ["c"], "displayName": "a milky potion", "forbiddenSemanticName": "potion of gain level" }
+  }
+}

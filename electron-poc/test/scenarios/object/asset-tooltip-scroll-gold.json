@@ -1,0 +1,42 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "object/asset-tooltip-scroll-gold",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current"
+  },
+  "level": {
+    "safeAreaAroundHero": 3,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [
+    {
+      "at": "east",
+      "object": {
+        "typeId": "SCR_REMOVE_CURSE",
+        "identityKnown": false,
+        "beatitudeKnown": false
+      }
+    },
+    {
+      "at": "west",
+      "object": {
+        "typeId": "GOLD_PIECE",
+        "quantity": 7
+      }
+    }
+  ],
+  "monsters": [],
+  "inventory": [],
+  "expectedPublicFacts": {
+    "groundRows": [
+      "scroll labeled",
+      "gold pieces"
+    ],
+    "messages": [
+      "asset tooltip fixture loaded"
+    ]
+  }
+}

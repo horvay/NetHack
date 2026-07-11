@@ -1,0 +1,58 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "door/locked-door-corridor",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current"
+  },
+  "level": {
+    "safeAreaAroundHero": 3,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none",
+    "terrain": [
+      {
+        "at": "east",
+        "type": "door-locked"
+      },
+      {
+        "at": {
+          "dx": 2,
+          "dy": 0
+        },
+        "type": "corridor"
+      },
+      {
+        "at": {
+          "dx": 3,
+          "dy": 0
+        },
+        "type": "floor"
+      }
+    ]
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    {
+      "typeId": "LOCK_PICK"
+    }
+  ],
+  "expectedPublicFacts": {
+    "contextActions": [
+      "open-door",
+      "kick-door",
+      "unlock-door"
+    ],
+    "inventoryRows": [
+      "lock pick"
+    ],
+    "mapAffordances": [
+      "locked door",
+      "corridor east"
+    ],
+    "messages": [
+      "locked door corridor fixture"
+    ]
+  }
+}

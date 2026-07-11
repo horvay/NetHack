@@ -20,6 +20,11 @@ staticfn NHFILE *currentlevel_rewrite(void);
 staticfn void familiar_level_msg(void);
 staticfn void final_level(void);
 staticfn void temperature_change_msg(schar);
+staticfn struct obj *terrain_inventory_obj_by_id(unsigned int);
+staticfn boolean terrain_request_matches_current_square(char *, size_t);
+#ifdef SHIM_GRAPHICS
+staticfn void electron_stairs_diag(const char *, const char *, d_level *, int);
+#endif
 staticfn boolean better_not_try_to_drop_that(struct obj *);
 
     /* static boolean badspot(coordxy,coordxy); */
@@ -39,6 +44,16 @@ dodrop(void)
     if (result)
         reset_occupations();
 
+    return result;
+}
+
+int
+direct_drop_inventory_object(struct obj *obj)
+{
+    int result = drop(obj);
+
+    if (result)
+        reset_occupations();
     return result;
 }
 
@@ -1106,6 +1121,19 @@ menu_drop(int retry)
     return (n_dropped ? ECMD_TIME : ECMD_OK);
 }
 
+#ifdef SHIM_GRAPHICS
+staticfn void
+electron_stairs_diag(const char *phase, const char *callsite, d_level *newlevel,
+                     int ledger)
+{
+    shim_native_command_diagnostic(phase, callsite, gc.cmd_key,
+                                   (int) svm.moves, depth(&u.uz),
+                                   newlevel ? newlevel->dnum : -1,
+                                   newlevel ? newlevel->dlevel : -1,
+                                   ledger);
+}
+#endif
+
 staticfn boolean
 u_stuck_cannot_go(const char *updn)
 {
@@ -1278,6 +1306,10 @@ dodown(void)
         You("%s %s the %s.", actn, down_or_thru,
             trap->ttyp == HOLE ? "hole" : "trap door");
     }
+#ifdef SHIM_GRAPHICS
+    electron_stairs_diag("stairs.down.before_transition", "do.c:dodown", NULL,
+                         0);
+#endif
     if (trap && Is_stronghold(&u.uz)) {
         goto_hell(FALSE, TRUE);
     } else if (trap && trap->dst.dlevel != -1) {
@@ -1343,12 +1375,254 @@ doup(void)
     return ECMD_TIME;
 }
 
+struct terrain_action_request_state {
+    boolean pending;
+    char action[32];
+    coordxy x, y;
+    char terrain[32];
+    unsigned int item_id;
+    char transaction_id[96];
+};
+
+struct terrain_action_result_state {
+    boolean available;
+    boolean success;
+    char action[32];
+    coordxy x, y;
+    char terrain[32];
+    unsigned int item_id;
+    char transaction_id[96];
+    char reason[160];
+};
+
+static struct terrain_action_request_state g_terrain_action_request;
+static struct terrain_action_result_state g_terrain_action_result;
+
+void
+terrain_action_set_request(const char *action, coordxy x, coordxy y,
+                           const char *terrain, unsigned int item_id,
+                           const char *transaction_id)
+{
+    g_terrain_action_request.pending = TRUE;
+    Snprintf(g_terrain_action_request.action,
+             sizeof g_terrain_action_request.action, "%s",
+             action ? action : "");
+    g_terrain_action_request.x = x;
+    g_terrain_action_request.y = y;
+    Snprintf(g_terrain_action_request.terrain,
+             sizeof g_terrain_action_request.terrain, "%s",
+             terrain ? terrain : "");
+    g_terrain_action_request.item_id = item_id;
+    Snprintf(g_terrain_action_request.transaction_id,
+             sizeof g_terrain_action_request.transaction_id, "%s",
+             transaction_id ? transaction_id : "");
+}
+
+boolean
+terrain_action_result_available(void)
+{
+    return g_terrain_action_result.available;
+}
+
+void
+terrain_action_take_result(boolean *success, char *action, size_t action_size,
+                           coordxy *x, coordxy *y, char *terrain,
+                           size_t terrain_size, unsigned int *item_id,
+                           char *transaction_id, size_t transaction_id_size,
+                           char *reason, size_t reason_size)
+{
+    if (success)
+        *success = g_terrain_action_result.success;
+    if (action && action_size)
+        Snprintf(action, action_size, "%s", g_terrain_action_result.action);
+    if (x)
+        *x = g_terrain_action_result.x;
+    if (y)
+        *y = g_terrain_action_result.y;
+    if (terrain && terrain_size)
+        Snprintf(terrain, terrain_size, "%s", g_terrain_action_result.terrain);
+    if (item_id)
+        *item_id = g_terrain_action_result.item_id;
+    if (transaction_id && transaction_id_size)
+        Snprintf(transaction_id, transaction_id_size, "%s",
+                 g_terrain_action_result.transaction_id);
+    if (reason && reason_size)
+        Snprintf(reason, reason_size, "%s", g_terrain_action_result.reason);
+    (void) memset(&g_terrain_action_result, 0,
+                  sizeof g_terrain_action_result);
+}
+
+static void
+terrain_action_finish(boolean success, const char *reason)
+{
+    g_terrain_action_result.available = TRUE;
+    g_terrain_action_result.success = success;
+    Snprintf(g_terrain_action_result.action,
+             sizeof g_terrain_action_result.action, "%s",
+             g_terrain_action_request.action);
+    g_terrain_action_result.x = g_terrain_action_request.x;
+    g_terrain_action_result.y = g_terrain_action_request.y;
+    Snprintf(g_terrain_action_result.terrain,
+             sizeof g_terrain_action_result.terrain, "%s",
+             g_terrain_action_request.terrain);
+    g_terrain_action_result.item_id = g_terrain_action_request.item_id;
+    Snprintf(g_terrain_action_result.transaction_id,
+             sizeof g_terrain_action_result.transaction_id, "%s",
+             g_terrain_action_request.transaction_id);
+    Snprintf(g_terrain_action_result.reason,
+             sizeof g_terrain_action_result.reason, "%s",
+             reason ? reason : (success ? "terrain action completed"
+                                        : "terrain action rejected"));
+    (void) memset(&g_terrain_action_request, 0,
+                  sizeof g_terrain_action_request);
+}
+
+staticfn struct obj *
+terrain_inventory_obj_by_id(unsigned int item_id)
+{
+    struct obj *otmp;
+
+    for (otmp = gi.invent; otmp; otmp = otmp->nobj)
+        if (otmp->o_id == item_id)
+            return otmp;
+    return (struct obj *) 0;
+}
+
+staticfn boolean
+terrain_request_matches_current_square(char *reason, size_t reason_size)
+{
+    stairway *stway = stairway_at(u.ux, u.uy);
+    const char *action = g_terrain_action_request.action;
+    const char *terrain = g_terrain_action_request.terrain;
+
+    if (g_terrain_action_request.x != u.ux
+        || g_terrain_action_request.y != u.uy) {
+        Snprintf(reason, reason_size, "%s",
+                 "hero is no longer at the requested terrain coordinate");
+        return FALSE;
+    }
+    if (!strcmp(action, "stairsDown")) {
+        if (stway && !stway->up && !stway->isladder
+            && !strcmp(terrain, "stairs.down"))
+            return TRUE;
+    } else if (!strcmp(action, "stairsUp")) {
+        if (stway && stway->up && !stway->isladder
+            && !strcmp(terrain, "stairs.up"))
+            return TRUE;
+    } else if (!strcmp(action, "ladderUp")) {
+        if (stway && stway->up && stway->isladder
+            && !strcmp(terrain, "ladder.up"))
+            return TRUE;
+    } else if (!strcmp(action, "drink") || !strcmp(action, "dip")) {
+        if (IS_FOUNTAIN(levl[u.ux][u.uy].typ) && !strcmp(terrain, "fountain"))
+            return TRUE;
+    }
+    Snprintf(reason, reason_size, "%s",
+             "public terrain no longer matches the requested action");
+    return FALSE;
+}
+
+int
+doshimterrainaction(void)
+{
+    char reason[BUFSZ];
+    const char *action;
+    const char *terrain;
+
+    reason[0] = '\0';
+    if (!g_terrain_action_request.pending) {
+        terrain_action_finish(FALSE, "no pending terrain action request");
+        return ECMD_OK;
+    }
+    if (!terrain_request_matches_current_square(reason, sizeof reason)) {
+        terrain_action_finish(FALSE, reason[0] ? reason
+                                               : "terrain action rejected");
+        return ECMD_OK;
+    }
+
+    action = g_terrain_action_request.action;
+    terrain = g_terrain_action_request.terrain;
+    if (!strcmp(action, "stairsDown")) {
+        int res = dodown();
+        terrain_action_finish(TRUE, "terrain movement down requested");
+        return res;
+    } else if (!strcmp(action, "stairsUp") || !strcmp(action, "ladderUp")) {
+        int res;
+        if (ledger_no(&u.uz) == 1 && !iflags.debug_fuzzer) {
+            terrain_action_finish(FALSE,
+                                  "leaving the dungeon requires the visible NetHack confirmation flow");
+            return ECMD_OK;
+        }
+        res = doup();
+        terrain_action_finish(TRUE, "terrain movement up requested");
+        return res;
+    } else if (!strcmp(action, "drink")) {
+        if (!can_reach_floor(FALSE)) {
+            terrain_action_finish(FALSE, "hero cannot reach that terrain to drink");
+            return ECMD_OK;
+        }
+        if (strcmp(terrain, "fountain")) {
+            terrain_action_finish(FALSE, "terrain drink is deferred for this terrain");
+            return ECMD_OK;
+        }
+        drinkfountain();
+        terrain_action_finish(TRUE, "terrain drink completed");
+        return ECMD_TIME;
+    } else if (!strcmp(action, "dip")) {
+        struct obj *obj;
+
+        if (!can_reach_floor(FALSE)) {
+            terrain_action_finish(FALSE, "hero cannot reach that terrain to dip");
+            return ECMD_OK;
+        }
+        obj = terrain_inventory_obj_by_id(g_terrain_action_request.item_id);
+        if (!obj || obj->where != OBJ_INVENT) {
+            terrain_action_finish(FALSE,
+                                  "item is no longer in the hero inventory");
+            return ECMD_OK;
+        }
+        if (obj->oclass == COIN_CLASS) {
+            terrain_action_finish(FALSE,
+                                  "gold cannot be dipped through this direct terrain route");
+            return ECMD_OK;
+        }
+        if (inaccessible_equipment(obj, "dip", FALSE)) {
+            terrain_action_finish(FALSE,
+                                  "item cannot be dipped from its current equipment state");
+            return ECMD_OK;
+        }
+        obj->pickup_prev = 0;
+        if (strcmp(terrain, "fountain")) {
+            terrain_action_finish(FALSE, "terrain dip is deferred for this terrain");
+            return ECMD_OK;
+        }
+        dipfountain(obj);
+        terrain_action_finish(TRUE, "terrain dip completed");
+        return ECMD_TIME;
+    }
+    terrain_action_finish(FALSE, "unsupported terrain action");
+    return ECMD_OK;
+}
+
 /* check that we can write out the current level */
 staticfn NHFILE *
 currentlevel_rewrite(void)
 {
     NHFILE *nhfp;
     char whynot[BUFSZ];
+#ifdef NH_ELECTRON_TEST_FIXTURES
+    static boolean test_failed_checkpoint_rewrite = FALSE;
+    const char *test_fail_checkpoint_rewrite = nh_getenv(
+        "NH_TEST_FAIL_CURRENTLEVEL_REWRITE_IN_CHECKPOINT_ONCE");
+
+    if (program_state.in_checkpoint && test_fail_checkpoint_rewrite
+        && *test_fail_checkpoint_rewrite && !test_failed_checkpoint_rewrite
+        && nh_getenv("NH_ELECTRON_TEST_FIXTURES")) {
+        test_failed_checkpoint_rewrite = TRUE;
+        pline("Test fixture: current level checkpoint write failed.");
+        return (NHFILE *) 0;
+    }
+#endif
 
     /* since level change might be a bit slow, flush any buffered screen
      *  output (like "you fall through a trap door") */
@@ -1382,11 +1656,19 @@ save_currentstate(void)
         return;
 
     program_state.in_checkpoint++;
+#if defined(NH_ELECTRON_LOCAL_LOCK_RECOVERY) && defined(SHIM_GRAPHICS)
+    if (!electron_local_lock_allows_checkpoint()) {
+        program_state.in_checkpoint--;
+        return;
+    }
+#endif
     if (flags.ins_chkpt) {
         /* write out just-attained level, with pets and everything */
         nhfp = currentlevel_rewrite();
-        if (!nhfp)
+        if (!nhfp) {
+            program_state.in_checkpoint--;
             return;
+        }
         if (nhfp->structlevel)
             bufon(nhfp->fd);
         nhfp->mode = WRITING;
@@ -1520,8 +1802,17 @@ goto_level(
         }
     }
     new_ledger = ledger_no(newlevel);
-    if (new_ledger <= 0)
+#ifdef SHIM_GRAPHICS
+    electron_stairs_diag("goto_level.target", "do.c:goto_level/ledger", newlevel,
+                         new_ledger);
+#endif
+    if (new_ledger <= 0) {
+#ifdef SHIM_GRAPHICS
+        electron_stairs_diag("goto_level.invalid_ledger_done", "do.c:goto_level/done(ESCAPED)",
+                             newlevel, new_ledger);
+#endif
         done(ESCAPED); /* in fact < 0 is impossible */
+    }
 
     /* If you have the amulet and are trying to get out of Gehennom,
      * going up a set of stairs sometimes does some very strange things!
@@ -1598,6 +1889,11 @@ goto_level(
     /* tethered movement makes level change while trapped feasible */
     if (u.utrap && u.utraptype == TT_BURIEDBALL)
         buried_ball_to_punishment(); /* (before we save/leave old level) */
+
+#if defined(NH_ELECTRON_LOCAL_LOCK_RECOVERY) && defined(SHIM_GRAPHICS)
+    if (!electron_local_lock_allows_checkpoint())
+        return;
+#endif
 
     nhfp = currentlevel_rewrite();
     if (!nhfp)
@@ -1776,6 +2072,9 @@ goto_level(
                 u_on_sstairs(0);
             else
                 u_on_upstairs();
+#ifdef NH_ELECTRON_TEST_FIXTURES
+            electron_test_force_downstairs_under_hero();
+#endif
             if (!u.dz) {
                 ; /* stayed on same level? (no transit effects) */
             } else if (Flying) {

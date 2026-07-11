@@ -19,6 +19,14 @@ staticfn void done_hangup(int);
 # endif
 #endif
 staticfn void disclose(int, boolean);
+#ifdef SHIM_GRAPHICS
+staticfn const char *end_how_name(int);
+staticfn void native_killer_summary(char *, unsigned, int);
+staticfn void emit_native_end_diag(const char *, int, const char *, boolean,
+                                   boolean, boolean);
+staticfn void emit_native_menu_context(const char *, const char *, const char *,
+                                       boolean, boolean, int);
+#endif
 staticfn void get_valuables(struct obj *) NO_NNARGS;
 staticfn void sort_valuables(struct valuable_data *, int);
 staticfn void artifact_score(struct obj *, boolean, winid);
@@ -61,6 +69,52 @@ static NEARDATA const char *ends[] = {
 };
 
 static boolean Schroedingers_cat = FALSE;
+
+#ifdef SHIM_GRAPHICS
+staticfn const char *
+end_how_name(int how)
+{
+    return (how >= 0 && how <= ASCENDED) ? deaths[how] : "unknown";
+}
+
+staticfn void
+native_killer_summary(char *buf, unsigned siz, int how)
+{
+    if (!buf || siz == 0)
+        return;
+    buf[0] = '\0';
+    if (how < 0 || how > ASCENDED || !svk.killer.name[0])
+        return;
+    formatkiller(buf, siz, how, TRUE);
+}
+
+staticfn void
+emit_native_end_diag(const char *phase, int how, const char *callsite,
+                     boolean final_flow, boolean disclosure_flow,
+                     boolean taken)
+{
+    char killbuf[BUFSZ];
+
+    native_killer_summary(killbuf, (unsigned) sizeof killbuf, how);
+    shim_native_end_diagnostic(phase, how, end_how_name(how), svk.killer.name,
+                               svk.killer.format, killbuf, callsite,
+                               final_flow, disclosure_flow, taken, gc.cmd_key,
+                               (int) svm.moves, depth(&u.uz), u.uz.dnum,
+                               u.uz.dlevel, program_state.gameover ? TRUE : FALSE);
+}
+
+staticfn void
+emit_native_menu_context(const char *purpose, const char *owner_kind,
+                         const char *callsite, boolean final_flow,
+                         boolean disclosure_flow, int how)
+{
+    shim_native_menu_context(purpose, owner_kind, callsite, final_flow,
+                             disclosure_flow, how, end_how_name(how));
+}
+#else
+#define emit_native_end_diag(phase, how, callsite, final_flow, disclosure_flow, taken) do { } while (0)
+#define emit_native_menu_context(purpose, owner_kind, callsite, final_flow, disclosure_flow, how) do { } while (0)
+#endif
 
 /* called as signal() handler, so sent at least one arg */
 /*ARGSUSED*/
@@ -622,6 +676,9 @@ staticfn void
 disclose(int how, boolean taken)
 {
     char c = '\0', defquery;
+
+    emit_native_end_diag("disclose.enter", how, "end.c:disclose", TRUE,
+                         TRUE, taken);
     char qbuf[QBUFSZ];
     boolean ask = FALSE;
 
@@ -638,6 +695,9 @@ disclose(int how, boolean taken)
             /* caller has already ID'd everything; we pass 'want_reply=True'
                to force display_pickinv() to avoid using WIN_INVENT */
             iflags.force_invmenu = FALSE;
+            emit_native_menu_context("disclosure.finalInventory", "disclosure",
+                                     "end.c:disclose/display_inventory", TRUE,
+                                     TRUE, how);
             (void) display_inventory((char *) 0, TRUE);
             container_contents(gi.invent, TRUE, TRUE, FALSE);
         }
@@ -650,10 +710,14 @@ disclose(int how, boolean taken)
         c = ask ? yn_function("Do you want to see your attributes?", ynqchars,
                               defquery, TRUE)
                 : defquery;
-        if (c == 'y')
+        if (c == 'y') {
+            emit_native_menu_context("disclosure.finalAttributes", "disclosure",
+                                     "end.c:disclose/enlightenment", TRUE,
+                                     TRUE, how);
             enlightenment((BASICENLIGHTENMENT | MAGICENLIGHTENMENT),
                           (how >= PANICKED) ? ENL_GAMEOVERALIVE
                                             : ENL_GAMEOVERDEAD);
+        }
         if (c == 'q')
             done_stopprint++;
     }
@@ -1024,6 +1088,9 @@ done(int how)
 {
     boolean survive = FALSE;
 
+    emit_native_end_diag("done.enter", how, "end.c:done", FALSE, FALSE,
+                         FALSE);
+
     if (how == TRICKED) {
         if (svk.killer.name[0]) {
             paniclog("trickery", svk.killer.name);
@@ -1120,10 +1187,14 @@ done(int how)
     }
 
     if (survive) {
+        emit_native_end_diag("done.survived", how, "end.c:done/survive",
+                             FALSE, FALSE, FALSE);
         svk.killer.name[0] = '\0';
         svk.killer.format = KILLED_BY_AN; /* reset to 0 */
         return;
     }
+    emit_native_end_diag("done.final", how, "end.c:done/really_done", TRUE,
+                         FALSE, FALSE);
     really_done(how);
     /*NOTREACHED*/
 }
@@ -1145,6 +1216,8 @@ really_done(int how)
      *  The game is now over...
      */
     program_state.gameover = 1;
+    emit_native_end_diag("really_done.enter", how, "end.c:really_done", TRUE,
+                         FALSE, FALSE);
     /* in case of a subsequent panic(), there's no point trying to save */
     program_state.something_worth_saving = 0;
 #ifdef HANGUPHANDLING
@@ -1233,6 +1306,9 @@ really_done(int how)
         svk.killer.format = NO_KILLER_PREFIX;
 
     fixup_death(how); /* actually, fixup gm.multi_reason */
+    emit_native_end_diag("really_done.final_killer", how,
+                         "end.c:really_done/final_killer", TRUE, FALSE,
+                         FALSE);
 
     if (how != PANICKED) {
         boolean silently = done_stopprint ? TRUE : FALSE;
@@ -1279,8 +1355,12 @@ really_done(int how)
             }
         }
 
-        if (strcmp(flags.end_disclose, "none"))
+        if (strcmp(flags.end_disclose, "none")) {
+            emit_native_end_diag("really_done.before_disclose", how,
+                                 "end.c:really_done/disclose", TRUE, TRUE,
+                                 taken);
             disclose(how, taken);
+        }
 
         /* it would be better to do this after killer.name fixups but
            that comes too late; included in final dumplog but might be

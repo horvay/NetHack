@@ -1,0 +1,166 @@
+{
+  "schema": "nethack-electron-input-recording/v2",
+  "seed": "789",
+  "playerSpec": "-uReplayV2-Val-Hum-Fem-Law",
+  "options": {
+    "NETHACKOPTIONS": "!tutorial"
+  },
+  "events": [
+    {
+      "type": "input",
+      "key": ".",
+      "keycode": 46,
+      "source": "test"
+    },
+    {
+      "type": "shim-event",
+      "event": {
+        "name": "shim_putstr",
+        "text": "Hello replay."
+      }
+    },
+    {
+      "type": "ui-protocol-event",
+      "event": {
+        "protocol": "nethack-electron-ui/v2",
+        "sequence": 1,
+        "eventId": "evt-replay-marker-1",
+        "eventType": "replay.marker",
+        "turn": 0,
+        "source": {
+          "layer": "replay"
+        },
+        "payload": {
+          "name": "recorded v2 evidence"
+        }
+      }
+    },
+    {
+      "type": "ui-protocol-event",
+      "event": {
+        "protocol": "nethack-electron-ui/v2",
+        "sequence": 2,
+        "eventId": "evt-replay-inventory-snapshot-1",
+        "eventType": "inventory.snapshot",
+        "turn": 0,
+        "source": {
+          "layer": "shim-bridge"
+        },
+        "revision": {
+          "inventory": 1
+        },
+        "payload": {
+          "revision": 1,
+          "items": [
+            {
+              "objectId": 1001,
+              "inventoryLetter": "a",
+              "displayName": "a milky potion",
+              "known": {
+                "identity": false,
+                "appearance": true
+              },
+              "appearanceName": "milky potion",
+              "semanticKind": "object",
+              "semanticAppearance": "milky potion",
+              "semanticKnown": false,
+              "location": {
+                "kind": "inventory"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "ui-protocol-event",
+      "event": {
+        "protocol": "nethack-electron-ui/v2",
+        "sequence": 3,
+        "eventId": "evt-replay-equipment-snapshot-1",
+        "eventType": "equipment.snapshot",
+        "turn": 0,
+        "source": {
+          "layer": "shim-bridge"
+        },
+        "revision": {
+          "equipment": 1,
+          "inventory": 1
+        },
+        "payload": {
+          "revision": 1,
+          "inventoryRevision": 1,
+          "slots": [
+            {
+              "slotId": "mainHand",
+              "label": "Weapon / main hand",
+              "objectId": 1002,
+              "wornMask": 256,
+              "publicStatus": "equipped",
+              "blockedBy": [],
+              "actions": [
+                "wield/change"
+              ],
+              "item": {
+                "objectId": 1002,
+                "inventoryLetter": "b",
+                "displayName": "a +0 spear",
+                "known": {
+                  "identity": true
+                },
+                "semanticKind": "object",
+                "semanticName": "spear",
+                "semanticKnown": true,
+                "location": {
+                  "kind": "equipment"
+                },
+                "wornMask": 256
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "ui-protocol-command",
+      "command": {
+        "protocol": "nethack-electron-ui/v2",
+        "commandId": "cmd-replay-control-1",
+        "commandType": "replay.control",
+        "payload": {
+          "mode": "preserve-only"
+        }
+      }
+    },
+    {
+      "type": "ui-protocol-ack",
+      "event": {
+        "protocol": "nethack-electron-ui/v2",
+        "sequence": 4,
+        "eventId": "evt-command-accepted-1",
+        "eventType": "command.accepted",
+        "turn": 0,
+        "payload": {
+          "commandId": "cmd-replay-control-1",
+          "status": "accepted",
+          "executionSource": "test-preserve-only",
+          "replayBehavior": "preserved evidence only; replay executes input events"
+        }
+      }
+    },
+    {
+      "type": "screenshot",
+      "name": "start",
+      "path": "test/replay-screenshots/sample/start.png"
+    },
+    {
+      "type": "state-sidecar",
+      "name": "start",
+      "path": "test/replay-screenshots/sample/start.state.json"
+    },
+    {
+      "type": "checkpoint",
+      "name": "after wait"
+    }
+  ]
+}

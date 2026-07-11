@@ -32,6 +32,10 @@ staticfn void savegamestate(NHFILE *);
 staticfn void savelev_core(NHFILE *, xint8);
 staticfn void save_msghistory(NHFILE *);
 staticfn void save_adjust_levelflags(void);
+#if defined(NH_ELECTRON_LOCAL_LOCK_RECOVERY) && defined(SHIM_GRAPHICS)
+staticfn boolean electron_lock_pid_is_active(int);
+staticfn boolean electron_recover_lock_pid_mismatch(int, const char *);
+#endif
 #if defined(HANGUPHANDLING)
 #define HUP if (!program_state.done_hup)
 #else
@@ -353,6 +357,74 @@ tricked_fileremoved(NHFILE *nhfp, char *whynot)
     return FALSE;
 }
 
+#if defined(NH_ELECTRON_LOCAL_LOCK_RECOVERY) && defined(SHIM_GRAPHICS)
+staticfn boolean
+electron_lock_pid_is_active(int lockpid)
+{
+#ifndef NO_SIGNAL
+    if (lockpid > 0 && lockpid != svh.hackpid && kill(lockpid, 0) == 0)
+        return TRUE;
+#endif
+    return FALSE;
+}
+
+boolean
+electron_local_lock_allows_checkpoint(void)
+{
+    int hpid = 0;
+    char whynot[BUFSZ];
+    NHFILE *nhfp;
+
+    nhfp = open_levelfile(0, whynot);
+    if (!nhfp)
+        return TRUE; /* let the existing fail-closed path handle this */
+
+    Sfi_int(nhfp, &hpid, "gamestate-hackpid");
+    close_nhfile(nhfp);
+    if (svh.hackpid == hpid || !electron_lock_pid_is_active(hpid))
+        return TRUE;
+
+    Sprintf(whynot, "Level #0 pid (%d) doesn't match ours (%d)!",
+            hpid, svh.hackpid);
+    shim_native_command_diagnostic("lock.pid_mismatch.active_pid.checkpoint_blocked",
+                                   "save.c:electron_local_lock_allows_checkpoint",
+                                   gc.cmd_key, (int) svm.moves, depth(&u.uz),
+                                   u.uz.dnum, u.uz.dlevel, 1);
+    paniclog("lock-pid-mismatch-active-checkpoint-blocked", whynot);
+    return FALSE;
+}
+
+staticfn boolean
+electron_recover_lock_pid_mismatch(int lockpid, const char *whynot)
+{
+    const char *phase = "lock.pid_mismatch.recovered";
+    int active_pid = 0;
+
+    if (electron_lock_pid_is_active(lockpid)) {
+        active_pid = 1;
+        phase = "lock.pid_mismatch.active_pid.skipped";
+    }
+
+    shim_native_command_diagnostic(phase, "save.c:savestateinlock", gc.cmd_key,
+                                   (int) svm.moves, depth(&u.uz), u.uz.dnum,
+                                   u.uz.dlevel, active_pid);
+    if (active_pid) {
+        /* Another live local process appears to own level.0.  Do not turn
+           this into a TRICKED death, but also do not overwrite that lock or
+           claim save/checkpoint safety. */
+        paniclog("lock-pid-mismatch-active-skip", whynot ? whynot : "");
+        return FALSE;
+    }
+
+    /* Electron/local libnh builds can be launched repeatedly from tests and
+       app restarts.  A stale or clobbered level.0 lock pid should not turn
+       live local play into a TRICKED death; recover narrowly by letting
+       savestateinlock() rewrite level.0 with this process's pid below. */
+    paniclog("lock-pid-mismatch-recovered", whynot ? whynot : "");
+    return TRUE;
+}
+#endif
+
 #ifdef INSURANCE
 void
 savestateinlock(void)
@@ -393,14 +465,24 @@ savestateinlock(void)
         if (svh.hackpid != hpid) {
             Sprintf(whynot, "Level #0 pid (%d) doesn't match ours (%d)!",
                     hpid, svh.hackpid);
+#if defined(NH_ELECTRON_LOCAL_LOCK_RECOVERY) && defined(SHIM_GRAPHICS)
+            if (!electron_recover_lock_pid_mismatch(hpid, whynot)) {
+                close_nhfile(nhfp);
+                program_state.saving--;
+                return;
+            }
+#else
             goto giveup;
+#endif
         }
         close_nhfile(nhfp);
 
         nhfp = create_levelfile(0, whynot);
         if (!nhfp) {
             pline1(whynot);
+#if !(defined(NH_ELECTRON_LOCAL_LOCK_RECOVERY) && defined(SHIM_GRAPHICS))
  giveup:
+#endif
             Strcpy(svk.killer.name, whynot);
             /* done(TRICKED) will return when running in wizard mode;
                clear the display-update-suppression flag before rather

@@ -1,0 +1,44 @@
+[
+  {
+    "protocol": "nethack-electron-ui/v2",
+    "commandId": "cmd-action-1",
+    "commandType": "action.execute",
+    "transactionId": "txn-action-1",
+    "actionId": "item.equip.wear",
+    "expectedRevision": { "inventory": 1, "equipment": 0 },
+    "targets": { "objectId": 1001, "slotId": "armor.body" },
+    "payload": { "promptPolicy": "allow-public-followup" }
+  },
+  {
+    "protocol": "nethack-electron-ui/v2",
+    "commandId": "cmd-menu-1",
+    "commandType": "menu.select",
+    "transactionId": "txn-menu-1",
+    "expectedRevision": { "prompt": 3 },
+    "targets": { "menuId": "menu-7-1", "selectors": ["a"] },
+    "payload": { "menuId": "menu-7-1", "selectors": ["a"] }
+  },
+  {
+    "protocol": "nethack-electron-ui/v2",
+    "commandId": "cmd-prompt-1",
+    "commandType": "prompt.answer",
+    "transactionId": "txn-prompt-1",
+    "payload": { "promptId": "prompt-y-1", "answer": "y" }
+  },
+  {
+    "protocol": "nethack-electron-ui/v2",
+    "commandId": "cmd-equipment-change-1",
+    "commandType": "equipment.change",
+    "transactionId": "txn-equipment-change-1",
+    "expectedRevision": { "inventory": 31, "equipment": 14 },
+    "payload": { "action": "putOnRing", "itemId": 1234, "slotId": "ring.left", "hand": "left" }
+  },
+  {
+    "protocol": "nethack-electron-ui/v2",
+    "commandId": "cmd-terrain-action-1",
+    "commandType": "terrain.action",
+    "transactionId": "txn-terrain-action-1",
+    "expectedRevision": { "map": 44, "inventory": 31 },
+    "payload": { "action": "dip", "coord": { "x": 42, "y": 12 }, "terrain": "fountain", "itemId": 1234 }
+  }
+]

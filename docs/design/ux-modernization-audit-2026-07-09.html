@@ -1,0 +1,1240 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Repo-grounded modernization audit for the NetHack Electron player experience, preserving classic rules, discovery, and keyboard efficiency.">
+  <title>NetHack Electron UX modernization audit</title>
+  <style>
+:root {
+  color-scheme: light;
+  --canvas: oklch(0.965 0.008 83);
+  --paper: oklch(0.992 0.005 83);
+  --ink: oklch(0.245 0.022 66);
+  --muted: oklch(0.48 0.018 65);
+  --quiet: oklch(0.68 0.014 68);
+  --line: oklch(0.855 0.018 72);
+  --line-strong: oklch(0.70 0.035 70);
+  --dungeon: oklch(0.235 0.025 62);
+  --dungeon-soft: oklch(0.31 0.03 62);
+  --gold: oklch(0.70 0.14 75);
+  --gold-deep: oklch(0.50 0.12 67);
+  --moss: oklch(0.43 0.08 132);
+  --focus: oklch(0.58 0.16 243);
+  --danger: oklch(0.49 0.16 29);
+  --warning: oklch(0.62 0.13 67);
+  --useful: oklch(0.47 0.08 202);
+  --polish: oklch(0.50 0.04 292);
+  --shadow: 0 16px 42px oklch(0.24 0.025 65 / 0.10);
+  --font-sans: Aptos, "Segoe UI Variable", "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 1.5rem; }
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.7;
+  text-rendering: optimizeLegibility;
+}
+
+.skip-link {
+  position: fixed;
+  z-index: 20;
+  top: 0.75rem;
+  left: 0.75rem;
+  transform: translateY(-180%);
+  background: var(--paper);
+  color: var(--ink);
+  border: 2px solid var(--focus);
+  border-radius: 0.45rem;
+  padding: 0.6rem 0.9rem;
+  font-weight: 700;
+}
+.skip-link:focus { transform: translateY(0); }
+
+.utility-bar {
+  background: var(--dungeon);
+  color: oklch(0.91 0.012 78);
+  border-bottom: 1px solid oklch(0.48 0.07 73);
+}
+.utility-inner {
+  width: min(94rem, calc(100% - 2rem));
+  margin: 0 auto;
+  min-height: 3.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.86rem;
+}
+.utility-brand { color: oklch(0.91 0.08 77); font-weight: 760; letter-spacing: 0.02em; }
+.utility-source { color: oklch(0.78 0.015 75); font-family: var(--font-mono); font-size: 0.75rem; }
+
+.report-layout {
+  width: min(94rem, calc(100% - 2rem));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(15rem, 19rem) minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 5.5rem);
+  align-items: start;
+}
+
+.toc-panel {
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
+  margin: 2rem 0;
+  background: oklch(0.985 0.008 82);
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 24px oklch(0.24 0.025 65 / 0.06);
+}
+.toc-panel summary {
+  cursor: pointer;
+  padding: 1rem 1.1rem 0.8rem;
+  color: var(--dungeon);
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.toc-panel nav { padding: 0 0.75rem 1.1rem; }
+.toc-list { list-style: none; margin: 0; padding: 0; }
+.toc-list li { margin: 0; line-height: 1.25; }
+.toc-list a {
+  display: block;
+  padding: 0.36rem 0.5rem;
+  border-radius: 0.35rem;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.78rem;
+}
+.toc-list a:hover { background: oklch(0.94 0.025 78); color: var(--gold-deep); }
+.toc-list a:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.toc-depth-1 { margin-top: 0.8rem !important; border-top: 1px solid var(--line); padding-top: 0.75rem; }
+.toc-depth-1 a, .toc-depth-2 a { font-weight: 720; color: var(--ink); }
+.toc-depth-3 a { padding-left: 1.05rem; }
+.toc-depth-4 a { padding-left: 1.65rem; font-size: 0.73rem; }
+
+main { min-width: 0; padding-bottom: 5rem; }
+.report-hero {
+  margin: 0 calc(clamp(1.5rem, 4vw, 4rem) * -1) clamp(3rem, 7vw, 5.5rem);
+  padding: clamp(3rem, 8vw, 7rem) clamp(1.5rem, 4vw, 4rem) clamp(2.5rem, 6vw, 5rem);
+  background: var(--dungeon);
+  color: oklch(0.94 0.012 78);
+  border-radius: 0 0 1.25rem 1.25rem;
+  box-shadow: var(--shadow);
+}
+.report-hero h1 {
+  max-width: 18ch;
+  margin: 0;
+  color: oklch(0.94 0.045 78);
+  font-size: clamp(2.35rem, 5.2vw, 5.4rem);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  font-weight: 780;
+}
+.report-meta {
+  max-width: 72ch;
+  margin: clamp(2rem, 4vw, 3.5rem) 0 0;
+  padding-top: 1.1rem;
+  border-top: 1px solid oklch(0.52 0.045 70);
+  color: oklch(0.82 0.016 78);
+  font-size: 0.96rem;
+}
+.report-meta strong { color: var(--gold); }
+
+article { max-width: 72rem; }
+article > h1:not(:first-child) {
+  margin: clamp(5rem, 10vw, 9rem) 0 2rem;
+  padding: clamp(2.5rem, 5vw, 4.5rem) 0 1rem;
+  border-top: 2px solid var(--dungeon);
+  color: var(--dungeon);
+  font-size: clamp(2.15rem, 4vw, 4.25rem);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+}
+h2, h3, h4 { position: relative; color: var(--dungeon); text-wrap: balance; }
+h2 {
+  margin: clamp(4rem, 8vw, 7rem) 0 1.25rem;
+  font-size: clamp(1.7rem, 2.8vw, 2.75rem);
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+}
+h3 {
+  margin: clamp(2.8rem, 6vw, 4.8rem) 0 1rem;
+  font-size: clamp(1.26rem, 1.8vw, 1.65rem);
+  line-height: 1.25;
+}
+h4 {
+  margin: 2.3rem 0 0.8rem;
+  font-size: 1.08rem;
+  line-height: 1.3;
+  color: var(--moss);
+}
+.heading-anchor {
+  position: absolute;
+  left: -1.35rem;
+  top: 0;
+  width: 1.2rem;
+  height: 1.4em;
+  color: var(--quiet);
+  text-decoration: none;
+  opacity: 0;
+}
+.heading-anchor::after { content: "§"; }
+h1:hover .heading-anchor, h2:hover .heading-anchor, h3:hover .heading-anchor, h4:hover .heading-anchor,
+.heading-anchor:focus { opacity: 1; }
+.heading-anchor:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+p { max-width: 74ch; margin: 0.8rem 0 1.2rem; }
+li { max-width: 78ch; margin: 0.34rem 0; }
+ul, ol { margin: 0.7rem 0 1.45rem; padding-left: 1.35rem; }
+ul ul, ol ul, ul ol, ol ol { margin: 0.35rem 0 0.6rem; }
+li::marker { color: var(--gold-deep); font-weight: 700; }
+strong { color: oklch(0.28 0.05 65); font-weight: 760; }
+a { color: var(--gold-deep); text-decoration-thickness: 0.08em; text-underline-offset: 0.16em; }
+a:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.87em;
+  color: oklch(0.35 0.08 67);
+  background: oklch(0.93 0.018 80);
+  border: 1px solid oklch(0.86 0.025 76);
+  border-radius: 0.28rem;
+  padding: 0.08em 0.3em;
+  overflow-wrap: anywhere;
+}
+pre {
+  max-width: 100%;
+  margin: 1.4rem 0 2rem;
+  padding: 1.2rem 1.35rem;
+  overflow: auto;
+  color: oklch(0.90 0.02 79);
+  background: var(--dungeon);
+  border: 1px solid oklch(0.39 0.045 66);
+  border-radius: 0.65rem;
+  box-shadow: 0 10px 24px oklch(0.24 0.025 65 / 0.10);
+  line-height: 1.55;
+}
+pre code { color: inherit; background: transparent; border: 0; padding: 0; overflow-wrap: normal; }
+
+.table-scroll {
+  max-width: 100%;
+  margin: 1.5rem 0 2.4rem;
+  overflow-x: auto;
+  border: 1px solid var(--line-strong);
+  border-radius: 0.65rem;
+  background: var(--paper);
+  box-shadow: 0 9px 24px oklch(0.24 0.025 65 / 0.06);
+}
+.table-scroll:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; line-height: 1.5; }
+th, td { min-width: 8rem; padding: 0.8rem 0.9rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+th { background: oklch(0.92 0.025 75); color: var(--dungeon); font-weight: 780; }
+tbody tr:nth-child(even) { background: oklch(0.975 0.008 78); }
+tbody tr:last-child td { border-bottom: 0; }
+
+.rating-key {
+  max-width: 74ch;
+  margin: 1.3rem 0 2.2rem;
+  padding: 1rem 1.1rem;
+  background: oklch(0.94 0.025 82);
+  border: 1px solid var(--line-strong);
+  border-radius: 0.55rem;
+}
+.rating-key p { margin: 0; }
+h3[id^="safe-"] {
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--line);
+}
+h3[id^="safe-"] + ul {
+  margin-top: 0;
+  padding: 1rem 1.15rem 1rem 2.3rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+}
+.priority-effort {
+  list-style: none;
+  margin: 0.95rem 0 0 -1.2rem;
+  padding: 0.65rem 0.75rem;
+  background: oklch(0.95 0.018 78);
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+}
+.priority-label { color: var(--muted); font-size: 0.82rem; }
+.priority-badge {
+  display: inline-block;
+  min-width: 4.9rem;
+  margin-left: 0.4rem;
+  padding: 0.15rem 0.48rem;
+  border-radius: 999px;
+  text-align: center;
+  background: var(--useful);
+  color: oklch(0.97 0.01 80);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+}
+.priority-badge strong { color: inherit; }
+.priority-effort.p0 .priority-badge { background: var(--danger); }
+.priority-effort.p1 .priority-badge { background: var(--warning); color: oklch(0.22 0.025 65); }
+.priority-effort.p2 .priority-badge { background: var(--useful); }
+.priority-effort.p3 .priority-badge { background: var(--polish); }
+
+.report-footer {
+  margin-top: 5rem;
+  padding: 1.5rem 0 3rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.report-footer code { font-size: 0.92em; }
+
+@media (max-width: 64rem) {
+  .report-layout { grid-template-columns: 1fr; width: min(54rem, calc(100% - 1.5rem)); gap: 0; }
+  .toc-panel { position: relative; top: auto; max-height: none; margin: 1rem 0 0; }
+  .toc-panel nav { columns: 2; column-gap: 1.5rem; }
+  .toc-list li { break-inside: avoid; }
+  .report-hero { margin-top: 1rem; border-radius: 0.9rem; }
+  .utility-source { display: none; }
+}
+
+@media (max-width: 42rem) {
+  body { font-size: 0.96rem; }
+  .utility-inner, .report-layout { width: min(100% - 1rem, 54rem); }
+  .utility-inner { min-height: 2.8rem; }
+  .report-hero { margin-left: -0.5rem; margin-right: -0.5rem; padding: 2.6rem 1.1rem 2.4rem; }
+  .report-hero h1 { font-size: clamp(2.15rem, 12vw, 3.45rem); }
+  .toc-panel nav { columns: 1; }
+  .toc-depth-3 a { padding-left: 0.7rem; }
+  h2 { margin-top: 3.5rem; }
+  h3 { margin-top: 2.6rem; }
+  .heading-anchor { position: static; display: inline-block; margin-left: 0.35rem; opacity: 0.45; }
+  h3[id^="safe-"] + ul { padding: 0.85rem 0.8rem 0.85rem 1.9rem; }
+  .priority-effort { margin-left: -1rem; }
+  th, td { min-width: 10rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+@page { size: auto; margin: 16mm 14mm 18mm; }
+@media print {
+  :root { --canvas: oklch(1 0 0); --paper: oklch(1 0 0); --ink: oklch(0.16 0 0); }
+  html { font-size: 9.5pt; }
+  body { background: var(--paper); color: var(--ink); line-height: 1.5; }
+  .skip-link, .utility-bar, .toc-panel, .heading-anchor { display: none !important; }
+  .report-layout { display: block; width: 100%; }
+  main { padding: 0; }
+  .report-hero {
+    margin: 0 0 2rem;
+    padding: 2rem;
+    color: oklch(0.12 0 0);
+    background: oklch(0.95 0 0);
+    border: 1px solid oklch(0.4 0 0);
+    border-radius: 0;
+    box-shadow: none;
+    break-after: page;
+  }
+  .report-hero h1 { color: oklch(0.12 0 0); font-size: 34pt; }
+  .report-meta, .report-meta strong { color: oklch(0.25 0 0); border-color: oklch(0.6 0 0); }
+  article { max-width: none; }
+  article > h1:not(:first-child) { break-before: page; }
+  h1, h2, h3, h4 { break-after: avoid-page; }
+  h3[id^="safe-"] + ul, .table-scroll, pre, .rating-key { break-inside: avoid-page; }
+  h3[id^="safe-"] + ul { background: transparent; }
+  .table-scroll { overflow: visible; border-radius: 0; box-shadow: none; }
+  table { font-size: 7.7pt; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  th, td { min-width: 0; padding: 0.45rem; }
+  pre { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink); background: oklch(0.95 0 0); border-color: oklch(0.55 0 0); box-shadow: none; }
+  code { color: var(--ink); background: oklch(0.95 0 0); border-color: oklch(0.8 0 0); }
+  a { color: inherit; text-decoration: none; }
+  .priority-badge { color: var(--ink) !important; background: transparent !important; border: 1px solid oklch(0.45 0 0); }
+  .report-footer { padding-bottom: 0; }
+}
+</style>
+</head>
+<body>
+  <a class="skip-link" href="#report">Skip to report</a>
+  <div class="utility-bar" aria-hidden="true">
+    <div class="utility-inner">
+      <span class="utility-brand">NetHack · Design review</span>
+      <span class="utility-source">docs/design/ux-modernization-audit-2026-07-09.md</span>
+    </div>
+  </div>
+  <div class="report-layout">
+    <details class="toc-panel" open>
+      <summary>Contents</summary>
+      <nav aria-label="Report contents">
+        <ol class="toc-list">
+          <li class="toc-depth-2"><a href="#executive-summary">Executive summary</a></li>
+<li class="toc-depth-2"><a href="#audit-basis-and-evidence">Audit basis and evidence</a></li>
+<li class="toc-depth-3"><a href="#repository-and-architecture-inspected">Repository and architecture inspected</a></li>
+<li class="toc-depth-3"><a href="#interactive-exercise-performed">Interactive exercise performed</a></li>
+<li class="toc-depth-3"><a href="#screenshot-inspection-notes-and-anomaly-correction">Screenshot inspection notes and anomaly correction</a></li>
+<li class="toc-depth-2"><a href="#product-guardrails">Product guardrails</a></li>
+<li class="toc-depth-2"><a href="#what-is-working-and-should-be-retained">What is working and should be retained</a></li>
+<li class="toc-depth-3"><a href="#1-public-state-contextual-actions">1. Public-state contextual actions</a></li>
+<li class="toc-depth-3"><a href="#2-named-prompt-choices-and-cancellation">2. Named prompt choices and cancellation</a></li>
+<li class="toc-depth-3"><a href="#3-public-snapshot-boundaries">3. Public snapshot boundaries</a></li>
+<li class="toc-depth-3"><a href="#4-distinctive-high-emotion-moments">4. Distinctive high-emotion moments</a></li>
+<li class="toc-depth-3"><a href="#5-real-scenario-and-screenshot-infrastructure">5. Real scenario and screenshot infrastructure</a></li>
+<li class="toc-depth-2"><a href="#current-experience-map">Current experience map</a></li>
+<li class="toc-depth-1 toc-root"><a href="#safe-presentation-and-interaction-recommendations">Safe presentation and interaction recommendations</a></li>
+<li class="toc-depth-2"><a href="#a-onboarding-and-discoverability">A. Onboarding and discoverability</a></li>
+<li class="toc-depth-3"><a href="#safe-01-add-an-optional-first-turn-field-guide">SAFE-01: Add an optional first-turn field guide</a></li>
+<li class="toc-depth-3"><a href="#safe-02-simplify-character-creation-retain-advanced-reproducibility">SAFE-02: Simplify character creation, retain advanced reproducibility</a></li>
+<li class="toc-depth-3"><a href="#safe-03-unify-help-commands-and-contextual-discovery">SAFE-03: Unify help, commands, and contextual discovery</a></li>
+<li class="toc-depth-2"><a href="#b-shell-visual-hierarchy-and-player-facing-status">B. Shell, visual hierarchy, and player-facing status</a></li>
+<li class="toc-depth-3"><a href="#safe-04-replace-transport-status-with-player-facing-outcome-status">SAFE-04: Replace transport status with player-facing outcome status</a></li>
+<li class="toc-depth-3"><a href="#safe-05-establish-a-map-first-hierarchy-that-is-true-in-practice">SAFE-05: Establish a map-first hierarchy that is true in practice</a></li>
+<li class="toc-depth-3"><a href="#safe-06-replace-one-off-css-with-design-tokens-and-state-contracts">SAFE-06: Replace one-off CSS with design tokens and state contracts</a></li>
+<li class="toc-depth-2"><a href="#c-movement-hotkeys-commands-and-advanced-player-efficiency">C. Movement, hotkeys, commands, and advanced-player efficiency</a></li>
+<li class="toc-depth-3"><a href="#safe-07-replace-the-all-in-one-actions-modal-with-a-searchable-command-palette">SAFE-07: Replace the all-in-one Actions modal with a searchable command palette</a></li>
+<li class="toc-depth-3"><a href="#safe-08-teach-keys-as-accelerators-not-prerequisites">SAFE-08: Teach keys as accelerators, not prerequisites</a></li>
+<li class="toc-depth-3"><a href="#safe-09-clarify-movement-modes-and-repeat-actions">SAFE-09: Clarify movement modes and repeat actions</a></li>
+<li class="toc-depth-2"><a href="#d-map-interaction-and-targeting">D. Map interaction and targeting</a></li>
+<li class="toc-depth-3"><a href="#safe-10-make-map-interaction-discoverable-without-right-click-knowledge">SAFE-10: Make map interaction discoverable without right-click knowledge</a></li>
+<li class="toc-depth-3"><a href="#safe-11-make-target-previews-honest-and-compact">SAFE-11: Make target previews honest and compact</a></li>
+<li class="toc-depth-3"><a href="#safe-12-improve-map-legibility-and-non-color-cues">SAFE-12: Improve map legibility and non-color cues</a></li>
+<li class="toc-depth-2"><a href="#e-inventory-equipment-containers-and-item-knowledge">E. Inventory, equipment, containers, and item knowledge</a></li>
+<li class="toc-depth-3"><a href="#safe-13-rebuild-the-equipment-layout-for-clarity-and-stability">SAFE-13: Rebuild the equipment layout for clarity and stability</a></li>
+<li class="toc-depth-3"><a href="#safe-14-standardize-inventory-item-interaction">SAFE-14: Standardize inventory item interaction</a></li>
+<li class="toc-depth-3"><a href="#safe-15-make-transfer-panels-keyboard-operable-dialogs">SAFE-15: Make transfer panels keyboard-operable dialogs</a></li>
+<li class="toc-depth-3"><a href="#safe-16-add-truthful-item-details-and-comparison">SAFE-16: Add truthful item details and comparison</a></li>
+<li class="toc-depth-3"><a href="#safe-17-separate-identity-appearance-and-player-naming">SAFE-17: Separate identity, appearance, and player naming</a></li>
+<li class="toc-depth-2"><a href="#f-combat-spells-skills-and-status-effects">F. Combat, spells, skills, and status effects</a></li>
+<li class="toc-depth-3"><a href="#safe-18-create-a-compact-consequence-feed-for-combat-and-hazards">SAFE-18: Create a compact consequence feed for combat and hazards</a></li>
+<li class="toc-depth-3"><a href="#safe-19-refine-spell-and-skill-presentation">SAFE-19: Refine spell and skill presentation</a></li>
+<li class="toc-depth-3"><a href="#safe-20-prioritize-urgent-status-and-move-static-stats-on-demand">SAFE-20: Prioritize urgent status and move static stats on demand</a></li>
+<li class="toc-depth-2"><a href="#g-prompts-menus-cancellation-and-failure-recovery">G. Prompts, menus, cancellation, and failure recovery</a></li>
+<li class="toc-depth-3"><a href="#safe-21-give-every-interaction-family-correct-semantics-and-a-consistent-shell">SAFE-21: Give every interaction family correct semantics and a consistent shell</a></li>
+<li class="toc-depth-3"><a href="#safe-22-standardize-close-cancel-back-continue-and-destructive-confirmation">SAFE-22: Standardize close, cancel, back, continue, and destructive confirmation</a></li>
+<li class="toc-depth-3"><a href="#safe-23-make-failures-actionable-and-preserve-state">SAFE-23: Make failures actionable and preserve state</a></li>
+<li class="toc-depth-2"><a href="#h-shops-pets-stairs-messages-saves-and-final-states">H. Shops, pets, stairs, messages, saves, and final states</a></li>
+<li class="toc-depth-3"><a href="#safe-24-give-shops-a-transaction-specific-bill-not-a-transfer-form">SAFE-24: Give shops a transaction-specific bill, not a transfer form</a></li>
+<li class="toc-depth-3"><a href="#safe-25-reduce-pet-creature-action-clutter-and-protect-peaceful-targets">SAFE-25: Reduce pet/creature action clutter and protect peaceful targets</a></li>
+<li class="toc-depth-3"><a href="#safe-26-make-level-transitions-feel-clear-without-hiding-danger">SAFE-26: Make level transitions feel clear without hiding danger</a></li>
+<li class="toc-depth-3"><a href="#safe-27-turn-messages-into-an-event-center-without-losing-the-canonical-log">SAFE-27: Turn messages into an event center without losing the canonical log</a></li>
+<li class="toc-depth-3"><a href="#safe-28-surface-save-restore-clearly-and-make-final-state-data-trustworthy">SAFE-28: Surface save/restore clearly and make final-state data trustworthy</a></li>
+<li class="toc-depth-2"><a href="#i-accessibility-responsive-behavior-motion-and-audio">I. Accessibility, responsive behavior, motion, and audio</a></li>
+<li class="toc-depth-3"><a href="#safe-29-complete-keyboard-focus-and-screen-reader-support">SAFE-29: Complete keyboard, focus, and screen-reader support</a></li>
+<li class="toc-depth-3"><a href="#safe-30-define-a-supported-responsive-window-strategy">SAFE-30: Define a supported responsive window strategy</a></li>
+<li class="toc-depth-3"><a href="#safe-31-add-purposeful-motion-optional-sound-and-reduced-motion-support">SAFE-31: Add purposeful motion, optional sound, and reduced-motion support</a></li>
+<li class="toc-depth-2"><a href="#design-system-and-consistency-opportunities">Design-system and consistency opportunities</a></li>
+<li class="toc-depth-3"><a href="#reusable-primitives">Reusable primitives</a></li>
+<li class="toc-depth-3"><a href="#current-inconsistencies-to-resolve">Current inconsistencies to resolve</a></li>
+<li class="toc-depth-3"><a href="#recommended-dependency-direction">Recommended dependency direction</a></li>
+<li class="toc-depth-2"><a href="#mechanics-affecting-ideas-that-require-explicit-approval">Mechanics-affecting ideas that require explicit approval</a></li>
+<li class="toc-depth-2"><a href="#technical-quality-snapshot">Technical quality snapshot</a></li>
+<li class="toc-depth-2"><a href="#prioritized-roadmap">Prioritized roadmap</a></li>
+<li class="toc-depth-3"><a href="#quick-wins-approximately-1-to-2-weeks-total">Quick wins, approximately 1 to 2 weeks total</a></li>
+<li class="toc-depth-3"><a href="#medium-projects-approximately-2-to-6-weeks-each">Medium projects, approximately 2 to 6 weeks each</a></li>
+<li class="toc-depth-3"><a href="#larger-initiatives-multi-sprint">Larger initiatives, multi-sprint</a></li>
+<li class="toc-depth-2"><a href="#recommended-first-implementation-batch">Recommended first implementation batch</a></li>
+<li class="toc-depth-3"><a href="#batch-player-facing-shell-clarity-and-operable-core-interactions">Batch: player-facing shell clarity and operable core interactions</a></li>
+<li class="toc-depth-3"><a href="#acceptance-criteria">Acceptance criteria</a></li>
+<li class="toc-depth-4"><a href="#behavior-and-semantics">Behavior and semantics</a></li>
+<li class="toc-depth-4"><a href="#visible-ux">Visible UX</a></li>
+<li class="toc-depth-4"><a href="#accessibility">Accessibility</a></li>
+<li class="toc-depth-4"><a href="#proof">Proof</a></li>
+<li class="toc-depth-2"><a href="#risks-and-caveats">Risks and caveats</a></li>
+<li class="toc-depth-2"><a href="#bottom-line">Bottom line</a></li>
+        </ol>
+      </nav>
+    </details>
+    <main id="report" aria-labelledby="nethack-electron-ux-modernization-audit" tabindex="-1">
+      <div id="report-content">
+        <header class="report-hero">
+          <h1 id="nethack-electron-ux-modernization-audit">NetHack Electron UX modernization audit<a class="heading-anchor" href="#nethack-electron-ux-modernization-audit" aria-label="Link to this section"></a></h1>
+<p class="report-meta"><strong>Date:</strong> 2026-07-09<br><strong>Scope:</strong> <code>electron-poc</code>, player-facing Electron experience<br><strong>Goal:</strong> Modernize usability and presentation while preserving NetHack rules, balance, player knowledge, discovery, keyboard play, and turn semantics.</p>
+
+        </header>
+        <article aria-label="NetHack Electron UX modernization audit">
+          <h2 id="executive-summary">Executive summary<a class="heading-anchor" href="#executive-summary" aria-label="Link to this section"></a></h2>
+<p>The app is no longer a thin terminal wrapper. It already has several strong modernization foundations:</p>
+<ul>
+<li>contextual actions based on public, player-visible state</li>
+<li>a tile map with semantic tooltips</li>
+<li>a paper-doll equipment screen with drag-and-drop and contextual item actions</li>
+<li>two-pane container and ground transfer panels</li>
+<li>named GUI choices for NetHack prompts instead of unexplained selector letters</li>
+<li>structured spell, skill, shop, status, save/restore, and game-over presentations</li>
+<li>classic NetHack keyboard input and menu-letter efficiency retained in parallel</li>
+</ul>
+<p>The biggest UX problem is not missing features. It is that many individually useful surfaces compete at once. The player sees a dense status ribbon, a permanent quick-action ribbon, a contextual action ribbon, an 80-column map dominated by unexplored void, a prominent message panel, and a movement pad. Overlays then introduce a second vocabulary of dialogs, custom panels, and pop-up menus. The result feels capable but implementation-led rather than player-led.</p>
+<p>The highest-value modernization is a <strong>presentation and interaction consolidation</strong>, not a mechanics redesign:</p>
+<ol>
+<li>Make the hero, current threat/state, map, and latest consequence the visual hierarchy.</li>
+<li>Replace internal lifecycle/status language with player-facing outcomes.</li>
+<li>Turn the all-in-one Actions modal into a searchable command surface with progressive disclosure.</li>
+<li>Make transfer and equipment flows keyboard-operable and visually stable.</li>
+<li>Add optional first-turn guidance that teaches movement, turns, messages, context actions, and cancellation without giving strategic advice.</li>
+<li>Build a small design system and accessibility/focus layer so every prompt does not invent its own behavior.</li>
+</ol>
+<p>The first implementation batch should address shell clarity, first-turn guidance, command discovery, and transfer accessibility. It can be completed without changing any NetHack rule or adding new gameplay knowledge.</p>
+<h2 id="audit-basis-and-evidence">Audit basis and evidence<a class="heading-anchor" href="#audit-basis-and-evidence" aria-label="Link to this section"></a></h2>
+<h3 id="repository-and-architecture-inspected">Repository and architecture inspected<a class="heading-anchor" href="#repository-and-architecture-inspected" aria-label="Link to this section"></a></h3>
+<ul>
+<li><code>electron-poc/src/renderer.html</code>: the complete static shell, 105 buttons and 8 native dialogs.</li>
+<li><code>electron-poc/src/renderer.js</code>: 10,365-line DOM adapter and workflow controller.</li>
+<li><code>electron-poc/src/styles.css</code>: 1,324 lines, with 289 hex color literals, 306 <code>rgba()</code> literals, 7 custom-property declarations, 8 media queries, one <code>:focus-visible</code> rule, and no <code>prefers-reduced-motion</code> handling.</li>
+<li><code>electron-poc/src/main.js</code>: Electron window, process, recovery, recording, and IPC setup.</li>
+<li><code>electron-poc/src/shared/*</code>: public UI protocol, game view state, inventory/equipment/ground/container snapshots, prompt rules, status HUD, action routing, transfer transactions, map presentation, and no-spoiler boundaries.</li>
+<li><code>electron-poc/src/shared/MODULE_MAP.md</code>: confirms <code>renderer.js</code> is a known over-broad adapter and documents the CommonJS/browser-global migration seam.</li>
+<li>Existing UX plans and audits, including <code>gui-input-audit-2026-06-29.md</code>, <code>equipment-screen-paper-doll.md</code>, <code>inventory-selection-gui-audit.md</code>, <code>context-action-bar-gui-first-plan.md</code>, and <code>docs/escape-dismissal-audit.md</code>.</li>
+</ul>
+<h3 id="interactive-exercise-performed">Interactive exercise performed<a class="heading-anchor" href="#interactive-exercise-performed" aria-label="Link to this section"></a></h3>
+<p>A real Electron, fixture-backed NetHack container scenario was rerun through the existing MCP/CDP test harness, including a follow-up evidence run after screenshot review:</p>
+<pre><code class="language-text">NH_SCENARIO_CONTAINER_OUT_DIR=/home/horvay/.config/ai-org/ai-org-dev-data/run-evidence/developer-phi-mapping-anchor-72/live-container \
+NH_SCENARIO_CONTAINER_CDP_PORT=9801 \
+NH_SCENARIO_CONTAINER_ID=container/unlocked-chest-on-hero \
+node scripts/real-scenario-container-mcp-test.js
+</code></pre>
+<p>Result: <strong>PASS</strong>. The run started a real shim game, clicked the visible <strong>Open chest</strong> action, opened the two-pane container, dragged a dagger from the chest to inventory, then dragged it back. Direct public <code>container.snapshot</code> and transfer paths were used without raw <code>#loot</code> or selector fallback.</p>
+<p>Accepted, personally inspected current-run frames:</p>
+<ul>
+<li>context action: <code>/home/horvay/.config/ai-org/ai-org-dev-data/run-evidence/developer-phi-mapping-anchor-72/live-container/stable/01-scenario-context-actions-stable.png</code></li>
+<li>initial container: <code>/home/horvay/.config/ai-org/ai-org-dev-data/run-evidence/developer-phi-mapping-anchor-72/live-container/stable/02-scenario-container-panel-stable.png</code></li>
+<li>settled open container: <code>/home/horvay/.config/ai-org/ai-org-dev-data/run-evidence/developer-phi-mapping-anchor-72/live-container/stable/03-after-container-open-no-readonly-chips-stable.png</code></li>
+<li>stable post-transfer frame with the complete window and dialog: <code>/home/horvay/.config/ai-org/ai-org-dev-data/run-evidence/developer-phi-mapping-anchor-72/live-container/stable/04-container-to-inventory-post-transfer-complete.jpg</code></li>
+<li>restored container preview: <code>/home/horvay/.config/ai-org/ai-org-dev-data/run-evidence/developer-phi-mapping-anchor-72/live-container/stable/05-restored-full-window-preview.png</code></li>
+<li>screenshot encoding/pixel QC: <code>/home/horvay/.config/ai-org/ai-org-dev-data/run-evidence/developer-phi-mapping-anchor-72/live-container/screenshot-qc.json</code></li>
+<li>diagnostic summary: <code>/home/horvay/.config/nethack-electron-poc/diagnostic-runs/2026-07-10T04-10-50-506Z-8adbe1d7/summary.json</code></li>
+</ul>
+<p>A separate real-input regression attempt from the original audit timed out during startup because its driver assumes a startup sequence that no longer matches the required startup-choice flow. It created no screenshots and is not acceptance evidence.</p>
+<h3 id="screenshot-inspection-notes-and-anomaly-correction">Screenshot inspection notes and anomaly correction<a class="heading-anchor" href="#screenshot-inspection-notes-and-anomaly-correction" aria-label="Link to this section"></a></h3>
+<p>Every screenshot from the follow-up run was opened and inspected. The earlier statement that all five source PNGs were clean was incorrect and has been withdrawn.</p>
+<ul>
+<li>The original full-size CDP PNG previews for frames 03, 04, and 05 can show large black bands with the dialog header/top controls apparently missing. Frame 04 is the acceptance-significant example reported in review.</li>
+<li>This is a screenshot encoding/preview interoperability artifact, not evidence of window displacement, cropping, renderer failure, or an unstable post-drag DOM state. Pillow decodes the complete 1360x920 RGB raster; lossless PNG transcodes are pixel-identical to the CDP captures; the captured state JSON reports an active container dialog and the expected rows; and the rerun reproduced the same raw screenshot hashes. The raw CDP files use many 4 KiB <code>IDAT</code> chunks, while a normal transcode/preview exposes the complete pixels.</li>
+<li>The accepted post-transfer derivative above was produced from that complete decoded raster and was opened successfully. It shows the full NetHack header, top controls, <strong>Open container</strong> title, <strong>Done</strong> button, both pane headings, food ration remaining in the container, and dagger present in inventory. The accepted restored preview shows the dagger returned to the container.</li>
+<li>The contextual <strong>Open chest</strong> action is clear and correctly distinguished from doors.</li>
+<li>The transfer panel shows real item names and stable panes with no raw fallback text.</li>
+<li>The panel tells players only to drag. Its double-click path is undocumented, and it has no visible keyboard transfer control.</li>
+<li>The header exposes internal state such as <code>container transfer panel ready</code>.</li>
+<li>The message log contains internal narration such as <code>GUI contextual action: Open chest.</code> alongside NetHack messages.</li>
+</ul>
+<p>The source CDP PNGs and view-safe derivatives are both retained under the current Run Evidence directory; the source captures must not be cited as clean visual evidence without the anomaly note and QC manifest.</p>
+<p>Representative existing screenshots were also opened and inspected for startup, character creation, intro, gameplay, full status, conditions, equipment, item context menus, Actions, spells, help, shops, pets, stairs, and game over. Specific references appear below.</p>
+<h2 id="product-guardrails">Product guardrails<a class="heading-anchor" href="#product-guardrails" aria-label="Link to this section"></a></h2>
+<p>All safe recommendations in this report follow these constraints:</p>
+<ol>
+<li><strong>The core decides truth.</strong> The renderer may explain only public facts emitted by NetHack or its no-spoiler adapters.</li>
+<li><strong>Unknown stays unknown.</strong> Unidentified appearance, BUC, trap, resistance, damage, price, container state, and monster facts remain hidden until NetHack reveals them.</li>
+<li><strong>A GUI action is an alternate input, not a new power.</strong> It must invoke the same command, prompt, turn cost, interruption, and result as classic input.</li>
+<li><strong>Classic efficiency remains first-class.</strong> <code>hjklyubn</code>, arrows, command letters, counts, menu letters, <code>#</code> commands, and Escape remain available.</li>
+<li><strong>No undo, rewind, duplicate saves, or outcome preview.</strong> Failure and permadeath remain meaningful.</li>
+<li><strong>No automation disguised as convenience.</strong> Auto-explore, auto-fight, automatic hazard avoidance, and tactical recommendations need separate approval.</li>
+<li><strong>Cancellation is explicit.</strong> Closing a renderer-only suggestion spends no turn; cancelling a NetHack-owned prompt follows NetHack&#39;s cancellation semantics.</li>
+</ol>
+<h2 id="what-is-working-and-should-be-retained">What is working and should be retained<a class="heading-anchor" href="#what-is-working-and-should-be-retained" aria-label="Link to this section"></a></h2>
+<h3 id="1-public-state-contextual-actions">1. Public-state contextual actions<a class="heading-anchor" href="#1-public-state-contextual-actions" aria-label="Link to this section"></a></h3>
+<p><code>actionsForCurrentCell</code>, <code>actionForAdjacentCell</code>, <code>buildContextActions</code>, and <code>runContextAction</code> in <code>renderer.js:1652-2164</code> are the strongest modernization seam. Stairs, containers, fountains, shops, doors, pets, and nearby creatures are translated into words without replacing NetHack&#39;s core resolution.</p>
+<p>The real stairs proof shows direct typed <code>terrain.action</code> commands and no raw <code>&lt;</code>/<code>&gt;</code> fallback. The real shop proof shows an itemized bill driven by native bill state. The current container proof shows direct snapshots and transfers. This architecture should be extended, not replaced by renderer heuristics.</p>
+<h3 id="2-named-prompt-choices-and-cancellation">2. Named prompt choices and cancellation<a class="heading-anchor" href="#2-named-prompt-choices-and-cancellation" aria-label="Link to this section"></a></h3>
+<p><code>interaction-model.js</code>, <code>prompt-rules.js</code>, and the shared interaction dialog translate item selectors, classes, directions, fixed choices, quantities, and text prompts into readable controls. <code>topmostEscapeLayer</code> and <code>handleTopmostEscapeKeydown</code> in <code>renderer.js:9977-10052</code> centralize layered Escape behavior. Existing menu-letter hotkeys preserve expert speed.</p>
+<h3 id="3-public-snapshot-boundaries">3. Public snapshot boundaries<a class="heading-anchor" href="#3-public-snapshot-boundaries" aria-label="Link to this section"></a></h3>
+<p>The inventory, equipment, ground pile, and container adapters expose stable IDs and known/unknown fields. These are the correct basis for richer UI because they avoid inferring hidden state from sprites or internal memory.</p>
+<h3 id="4-distinctive-high-emotion-moments">4. Distinctive high-emotion moments<a class="heading-anchor" href="#4-distinctive-high-emotion-moments" aria-label="Link to this section"></a></h3>
+<p>The startup choice, Book of Tyr intro, and final chronicle have a coherent dungeon tone. They are much more evocative than generic Electron dialogs. The visual identity should be retained while reducing overlong or diagnostic copy.</p>
+<h3 id="5-real-scenario-and-screenshot-infrastructure">5. Real scenario and screenshot infrastructure<a class="heading-anchor" href="#5-real-scenario-and-screenshot-infrastructure" aria-label="Link to this section"></a></h3>
+<p>There are 141 test scripts plus real Electron scenario fixtures. The discipline around public facts, raw fallback leakage, and screenshot evidence is unusually strong. The current view-safe container derivatives passed visual inspection, while the anomalous source PNG previews show why assertions and pixel decoding alone cannot replace opening the exact acceptance artifact.</p>
+<h2 id="current-experience-map">Current experience map<a class="heading-anchor" href="#current-experience-map" aria-label="Link to this section"></a></h2>
+<div class="table-scroll" role="region" aria-label="Scrollable data table" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">Journey stage</th>
+<th scope="col">Current surface and code</th>
+<th scope="col">Current assessment</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Launch/restore</td>
+<td><code>startup-choice-dialog</code>, <code>refreshStartupRecoveryState</code>, <code>continuePreviousGame</code></td>
+<td>Visually strong. Internal version status remains visible. Continue/new-game decisions are clear.</td>
+</tr>
+<tr>
+<td>Character creation</td>
+<td><code>character-dialog</code>, <code>character-options.js</code></td>
+<td>Valid combinations are constrained correctly. Seed and recording are too prominent. Default name <code>Electron</code> reads as developer data.</td>
+</tr>
+<tr>
+<td>Intro</td>
+<td><code>intro-dialog</code>, <code>renderIntroWindow</code></td>
+<td>Strong atmosphere, but it teaches lore, not play. Escape advances instead of behaving like ordinary dismissal.</td>
+</tr>
+<tr>
+<td>Core play</td>
+<td>status groups, quick actions, context bar, 80x21 map, log, movement pad</td>
+<td>Capable but crowded. The map is labeled primary while three ribbons and the log often dominate it.</td>
+</tr>
+<tr>
+<td>Movement/input</td>
+<td>direct keyboard forwarding, quick buttons, permanent movement pad, Actions movement mode</td>
+<td>Classic flow is preserved. New-player guidance and run/fight semantics are poorly explained.</td>
+</tr>
+<tr>
+<td>Map/targeting</td>
+<td>tile grid, hover tooltip, right-click cell sheet, target controls</td>
+<td>Tooltips and adjacent actions help. Right-click is hidden. Long-range target previews explicitly contain placeholder validity language.</td>
+</tr>
+<tr>
+<td>Inventory/equipment</td>
+<td>RPG paper doll, search, item rows, drag/drop, double-click, context menu</td>
+<td>Ambitious and useful. Current paper doll overlaps text and clips lower slots; interaction vocabulary is inconsistent.</td>
+</tr>
+<tr>
+<td>Ground/container</td>
+<td>two-pane transfer panel</td>
+<td>Real direct behavior works. Drag-only instruction and missing modal/focus semantics block keyboard-only use.</td>
+</tr>
+<tr>
+<td>Item decisions</td>
+<td>badges, action groups, known/appearance metadata</td>
+<td>Good basis. No genuine inspect/detail/compare view; current inspect path says protocol is missing.</td>
+</tr>
+<tr>
+<td>Combat</td>
+<td>map sprites, messages, status, contextual attack</td>
+<td>Core behavior remains faithful. Consequences are buried in a uniform log; no structured hit/miss/damage emphasis.</td>
+</tr>
+<tr>
+<td>Spells/skills</td>
+<td>structured menu rows with level, Pw, failure, rank filters</td>
+<td>One of the cleaner dialogs. No persistent spell/skill overview and no explanation of changing failure state.</td>
+</tr>
+<tr>
+<td>Status effects</td>
+<td>grouped chips with warning/danger classes</td>
+<td>Public conditions are visible, but every attribute/system fact competes equally and version is player-facing.</td>
+</tr>
+<tr>
+<td>Prompts/menus</td>
+<td>shared interaction dialog plus custom overlays/context menus</td>
+<td>Broad coverage. ARIA role, focus, action placement, and close vocabulary vary by content type.</td>
+</tr>
+<tr>
+<td>Shops</td>
+<td>contextual pay/chat, itemized bill, offer choices</td>
+<td>Functionally strong. Bill UI incorrectly uses transfer terminology; log and internal status compete with the transaction.</td>
+</tr>
+<tr>
+<td>Pets</td>
+<td>chat/attack context actions and semantic tooltip</td>
+<td>Pet recognition works. The bar can show many chat/attack actions at once; tooltip leaks glyph and map coordinates.</td>
+</tr>
+<tr>
+<td>Stairs</td>
+<td>explicit up/down/ladder actions and direct protocol</td>
+<td>Semantically excellent. Transition feedback is an internal status phrase rather than a brief player-facing transition.</td>
+</tr>
+<tr>
+<td>Messages/history</td>
+<td>bounded recent log, details history, document dialog</td>
+<td>Reliable but visually dominant. Lore and action messages are mixed; history is nested in multiple places.</td>
+</tr>
+<tr>
+<td>Save/restore/death</td>
+<td>startup recovery, Save action, final chronicle</td>
+<td>Restore is clear. Save is buried. Game-over screenshot shows generic cause, stale/full HP, <code>(hidden)</code> condition, and actions below the fold.</td>
+</tr>
+</tbody></table></div>
+<h1 id="safe-presentation-and-interaction-recommendations">Safe presentation and interaction recommendations<a class="heading-anchor" href="#safe-presentation-and-interaction-recommendations" aria-label="Link to this section"></a></h1>
+<aside class="rating-key" aria-label="Priority and effort key"><p>Priority uses P0 blocking, P1 major, P2 useful, P3 polish. Effort uses S (days), M (roughly 1 to 3 weeks), L (multi-sprint or protocol work).</p></aside>
+<h2 id="a-onboarding-and-discoverability">A. Onboarding and discoverability<a class="heading-anchor" href="#a-onboarding-and-discoverability" aria-label="Link to this section"></a></h2>
+<h3 id="safe-01-add-an-optional-first-turn-field-guide">SAFE-01: Add an optional first-turn field guide<a class="heading-anchor" href="#safe-01-add-an-optional-first-turn-field-guide" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> The polished intro ends at <strong>Begin the descent</strong>. The next screen does not teach that movement spends turns, messages explain consequences, contextual actions change with location, <code>i</code> opens inventory, and Escape cancels. Keyboard help is collapsed at the bottom. See <code>renderer.html:80-83</code>, <code>renderIntroWindow</code>, and <code>real-startup-no-blank-command/03-after-intro-dismiss-no-unknown-command.png</code>.</li>
+<li><strong>Proposed UX:</strong> On the first run only, show four lightweight anchored cues in sequence: move one square; read the latest consequence; use or inspect the <strong>Here</strong> actions; open and close Inventory. Include <strong>Skip guidance</strong> and <strong>Do not show again</strong>. Never require a specific strategic choice.</li>
+<li><strong>Semantics preserved:</strong> The guide does not issue input, grant items, alter turns, or reveal hidden facts. It observes public UI state and dismisses immediately on classic keyboard play.</li>
+<li><strong>Implementation:</strong> Add a local presentation-only onboarding state machine beside settings, driven by visible renderer events. Anchor cues to <code>#game-grid</code>, <code>#messages</code>, <code>#context-action-bar</code>, and <code>#inventory-equipment-button</code>. Persist completion in local GUI settings.</li>
+<li><strong>Dependencies/risks:</strong> Must not cover prompts or steal focus. Test both mouse and keyboard, and suppress during restored games unless explicitly requested.</li>
+<li class="priority-effort p1 effort-m"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P1 / M</strong></span>.</li>
+</ul>
+<h3 id="safe-02-simplify-character-creation-retain-advanced-reproducibility">SAFE-02: Simplify character creation, retain advanced reproducibility<a class="heading-anchor" href="#safe-02-simplify-character-creation-retain-advanced-reproducibility" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> The primary character dialog shows deterministic seed and replay recording beside identity choices. <code>Electron</code> is prefilled as the hero name. Four footer actions compete. Historical screenshot also shows <code>Version check failed</code> in the header. See <code>renderer.html:268-288</code> and <code>character-creation-valid-combos/01-valid-character-dialog-default.png</code>.</li>
+<li><strong>Proposed UX:</strong> Default name to blank with a thematic example. Keep <strong>Random hero</strong> and <strong>Enter dungeon</strong> primary. Move seed and replay recording into an <strong>Advanced run options</strong> disclosure. Show valid-combination changes inline, such as “Dwarf limits available roles,” rather than silently changing choices.</li>
+<li><strong>Semantics preserved:</strong> All NetHack character options and randomization remain unchanged. Seed and recording stay available to testers and advanced players.</li>
+<li><strong>Implementation:</strong> Restructure the existing dialog only. Reuse <code>character-options.js</code> to produce a short explanation when a choice constrains another field.</li>
+<li><strong>Dependencies/risks:</strong> Empty-name behavior needs an explicit random-name or validation policy. Do not alter NetHack&#39;s role/race legality.</li>
+<li class="priority-effort p1 effort-s"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P1 / S</strong></span>.</li>
+</ul>
+<h3 id="safe-03-unify-help-commands-and-contextual-discovery">SAFE-03: Unify help, commands, and contextual discovery<a class="heading-anchor" href="#safe-03-unify-help-commands-and-contextual-discovery" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> Help exists as keyboard details, <code>?</code>, a read-only menu, a document window, <code>#whatdoes</code>, and an all-in-one Actions modal. The document dialog says “no random press any key,” which explains implementation rather than helping the player. See <code>renderer.html:80-83, 290-298</code>, <code>renderDocumentWindow</code>, and <code>real-read-only-menu-lifecycle/03-read-only-help-document-open.png</code>.</li>
+<li><strong>Proposed UX:</strong> Create one <strong>Help and commands</strong> entry with tabs or sections for Basics, Keys, Commands, and NetHack manual text. Preserve searchable raw help as <strong>Manual</strong>. From any contextual action, expose its key as a secondary hint.</li>
+<li><strong>Semantics preserved:</strong> Documentation only; no commands are automated.</li>
+<li><strong>Implementation:</strong> Wrap existing help/document data in a common shell. Use the same command metadata that powers the command palette proposed below.</li>
+<li><strong>Dependencies/risks:</strong> NetHack help content remains monospaced and searchable. Avoid rewriting canonical manual claims.</li>
+<li class="priority-effort p2 effort-m"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P2 / M</strong></span>.</li>
+</ul>
+<h2 id="b-shell-visual-hierarchy-and-player-facing-status">B. Shell, visual hierarchy, and player-facing status<a class="heading-anchor" href="#b-shell-visual-hierarchy-and-player-facing-status" aria-label="Link to this section"></a></h2>
+<h3 id="safe-04-replace-transport-status-with-player-facing-outcome-status">SAFE-04: Replace transport status with player-facing outcome status<a class="heading-anchor" href="#safe-04-replace-transport-status-with-player-facing-outcome-status" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> The most prominent top-right status announces <code>version check passed</code>, <code>reading NetHack message</code>, <code>menu awaiting item selection</code>, <code>command completed: key y</code>, <code>container transfer panel ready</code>, and <code>terrain movement down requested</code>. These originate in <code>setStatus</code> and many workflow calls, including <code>renderer.js:7939</code> and <code>7214-7298</code>.</li>
+<li><strong>Proposed UX:</strong> Reserve the header status for concise states the player can act on: <strong>Your turn</strong>, <strong>Choose an item</strong>, <strong>Choose a direction</strong>, <strong>Game saved</strong>, <strong>Connection lost</strong>, <strong>Action could not be completed</strong>. Move protocol and transport detail to diagnostics only. Outcome text should come from the message/result event, not the key used.</li>
+<li><strong>Semantics preserved:</strong> Only wording and placement change. Raw diagnostics remain recorded.</li>
+<li><strong>Implementation:</strong> Introduce a small <code>PlayerNotice</code> presentation model with <code>info</code>, <code>success</code>, <code>warning</code>, and <code>error</code>. Map game-view effects and transaction outcomes to notices; stop setting the header directly from low-level events.</li>
+<li><strong>Dependencies/risks:</strong> Do not swallow actionable failures. Every rejected direct action must still provide a visible reason and log evidence.</li>
+<li class="priority-effort p0 effort-m"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P0 / M</strong></span>.</li>
+</ul>
+<h3 id="safe-05-establish-a-map-first-hierarchy-that-is-true-in-practice">SAFE-05: Establish a map-first hierarchy that is true in practice<a class="heading-anchor" href="#safe-05-establish-a-map-first-hierarchy-that-is-true-in-practice" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> “Map stays primary” is contradicted by two status rows, quick actions, context actions, and a large yellow log. At 1360x920, a small discovered room occupies a tiny portion of a vast 80x21 void. See <code>styles.css:37-70, 94-222, 363-423</code> and status/shop screenshots.</li>
+<li><strong>Proposed UX:</strong> Use a compact hero/vitals strip, a single context command row, the map, and a two-line event feed. Expand full attributes, gear, system facts, and history on demand. Keep the full 80x21 map authoritative, but offer a presentation-only <strong>Follow hero</strong> magnifier or inset that shows known cells at a larger scale while preserving full-map access.</li>
+<li><strong>Semantics preserved:</strong> No map information is added, hidden cells remain hidden, coordinates and movement remain unchanged. The full-level view remains one click/key away.</li>
+<li><strong>Implementation:</strong> Collapse quick actions into the command palette and context bar. Move attributes to a character sheet. Derive a magnified view solely from already rendered public cells.</li>
+<li><strong>Dependencies/risks:</strong> A zoomed view must not imply unseen bounds or alter click targeting. Keep classic players able to choose full-level view permanently.</li>
+<li class="priority-effort p1 effort-l"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P1 / L</strong></span> for full hierarchy; <strong>P1 / S</strong> for reducing the log and hiding system/version chips.</li>
+</ul>
+<h3 id="safe-06-replace-one-off-css-with-design-tokens-and-state-contracts">SAFE-06: Replace one-off CSS with design tokens and state contracts<a class="heading-anchor" href="#safe-06-replace-one-off-css-with-design-tokens-and-state-contracts" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> <code>styles.css</code> has hundreds of hard-coded color literals and only a handful of custom properties. Pills, borders, panels, dangerous states, and overlays use similar but non-identical values. Only one <code>:focus-visible</code> selector exists.</li>
+<li><strong>Proposed UX:</strong> Define tokens for surface layers, text hierarchy, gold/accent, semantic states, focus, spacing, radius, typography, overlay, and motion. Give buttons and choice rows consistent default, hover, focus, active, disabled, loading, selected, warning, and danger states.</li>
+<li><strong>Semantics preserved:</strong> Presentation only.</li>
+<li><strong>Implementation:</strong> Start with CSS variables and component classes without changing DOM behavior. Document tokens in a future <code>DESIGN.md</code>; none exists today.</li>
+<li><strong>Dependencies/risks:</strong> Incremental migration must avoid contrast regressions. Capture before/after screenshots for all major modal families.</li>
+<li class="priority-effort p1 effort-m"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P1 / M</strong></span>.</li>
+</ul>
+<h2 id="c-movement-hotkeys-commands-and-advanced-player-efficiency">C. Movement, hotkeys, commands, and advanced-player efficiency<a class="heading-anchor" href="#c-movement-hotkeys-commands-and-advanced-player-efficiency" aria-label="Link to this section"></a></h2>
+<h3 id="safe-07-replace-the-all-in-one-actions-modal-with-a-searchable-command-palette">SAFE-07: Replace the all-in-one Actions modal with a searchable command palette<a class="heading-anchor" href="#safe-07-replace-the-all-in-one-actions-modal-with-a-searchable-command-palette" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> <code>renderer.html:154-250</code> places use, equipment, repeat, movement, save/quit, history, spells, skills, options, transfers, object flows, special actions, and inspect/name actions in one scrollable two-column modal. In <code>real-escape-popup-mcp/04-real-actions-before-escape.png</code>, important commands are below the fold.</li>
+<li><strong>Proposed UX:</strong> A searchable palette opened by the existing button and <code>#</code>. Rank <strong>Available here</strong> and recent commands first, then categories. Show key hints, whether a prompt follows, and danger state. Keep dedicated Inventory and contextual actions outside it. Add expert aliases such as “quaff,” “drink potion,” and <code>q</code>.</li>
+<li><strong>Semantics preserved:</strong> Every entry sends the existing command or opens the same NetHack-owned prompt. Hidden commands are not invented; unavailable contextual commands are either omitted or disabled only when public state explains why.</li>
+<li><strong>Implementation:</strong> Extract command metadata now duplicated in HTML, <code>commandHelpOptions</code>, extended-command catalog, and contextual actions into a shared presentation catalog. Use the existing text/filter interaction patterns.</li>
+<li><strong>Dependencies/risks:</strong> Avoid claiming availability for commands whose prerequisites are unknown. Save/quit require clear danger/confirmation placement.</li>
+<li class="priority-effort p1 effort-m"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P1 / M</strong></span>.</li>
+</ul>
+<h3 id="safe-08-teach-keys-as-accelerators-not-prerequisites">SAFE-08: Teach keys as accelerators, not prerequisites<a class="heading-anchor" href="#safe-08-teach-keys-as-accelerators-not-prerequisites" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> Some buttons include keys, some tooltips include them, context menu hints expose internal strings such as <code>rf</code>, <code>wf</code>, and <code>#namef</code>, and many Actions buttons omit keys. Menu letters are visually prominent in item rows even when names are sufficient.</li>
+<li><strong>Proposed UX:</strong> Standardize secondary keycaps: <code>Read  R</code>, <code>Inventory  I</code>, <code>Cancel  Esc</code>. For multi-key internal routing, show the public command key only, not composed selector sequences. Add a setting to always show key hints for learners and experts.</li>
+<li><strong>Semantics preserved:</strong> Classic keys remain unchanged and faster than GUI flows.</li>
+<li><strong>Implementation:</strong> Command catalog owns display shortcut and internal execution separately. Keep selector letters in compact keycaps for advanced menu activation.</li>
+<li><strong>Dependencies/risks:</strong> Case matters in NetHack. Labels must distinguish <code>w</code>, <code>W</code>, <code>q</code>, <code>Q</code>, and control keys.</li>
+<li class="priority-effort p2 effort-s"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P2 / S</strong></span> after SAFE-07.</li>
+</ul>
+<h3 id="safe-09-clarify-movement-modes-and-repeat-actions">SAFE-09: Clarify movement modes and repeat actions<a class="heading-anchor" href="#safe-09-clarify-movement-modes-and-repeat-actions" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> Walk, Run, Fight, repeat counts, Wait/rest, and Search are buried inside Actions. The permanent movement pad has an unlabeled center dot and no visible explanation of turns. <code>renderDirectionHelper</code> keeps it visible even outside prompts.</li>
+<li><strong>Proposed UX:</strong> Keep the pad optional. A short tooltip or help sheet explains Walk, Run, Fight, count prefixes, and that most actions spend turns. Put repeat count in the command palette as an advanced parameter, not a permanent card.</li>
+<li><strong>Semantics preserved:</strong> Existing prefixes and count behavior remain exactly NetHack&#39;s.</li>
+<li><strong>Implementation:</strong> Use <code>movementPrefixForMode</code> and <code>sendRepeatedCommand</code>; change only presentation and help.</li>
+<li><strong>Dependencies/risks:</strong> Do not label waiting as “rest until healed,” which would imply automation not currently present.</li>
+<li class="priority-effort p2 effort-s"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P2 / S</strong></span>.</li>
+</ul>
+<h2 id="d-map-interaction-and-targeting">D. Map interaction and targeting<a class="heading-anchor" href="#d-map-interaction-and-targeting" aria-label="Link to this section"></a></h2>
+<h3 id="safe-10-make-map-interaction-discoverable-without-right-click-knowledge">SAFE-10: Make map interaction discoverable without right-click knowledge<a class="heading-anchor" href="#safe-10-make-map-interaction-discoverable-without-right-click-knowledge" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> Hover gives a tooltip, right-click opens map-cell actions, left-click is meaningful mainly during target mode, and the context bar works from the hero&#39;s square. The map has no visible inspect-mode affordance beyond a button. <code>showMapContextActionSheet</code> also exposes raw coordinates in its prompt.</li>
+<li><strong>Proposed UX:</strong> <strong>Inspect / look</strong> visibly enters inspect mode. Hover/focus shows a compact inspector; single click selects the cell and exposes valid, public actions. Right-click remains an accelerator. Remove glyph IDs and <code>map x,y</code> from player-facing tooltips, with an optional diagnostics overlay for testers.</li>
+<li><strong>Semantics preserved:</strong> Inspect spends no turn until NetHack&#39;s actual look/what-is command requires input. Actions remain limited to public state and the same commands.</li>
+<li><strong>Implementation:</strong> Reuse <code>mapTooltipInfoForCell</code> and the existing context sheet, but add a clear mode banner and selected-cell state. Separate diagnostic metadata from display metadata in <code>map-presentation.js</code>.</li>
+<li><strong>Dependencies/risks:</strong> A single ordinary click must not move or attack by default. That would be a mechanics/input-policy decision.</li>
+<li class="priority-effort p1 effort-m"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P1 / M</strong></span>.</li>
+</ul>
+<h3 id="safe-11-make-target-previews-honest-and-compact">SAFE-11: Make target previews honest and compact<a class="heading-anchor" href="#safe-11-make-target-previews-honest-and-compact" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> <code>targetPreviewDetails</code> tells players that line-of-effect, range, and route validity are placeholders. This is developer-facing and may imply safety or validity the core has not confirmed.</li>
+<li><strong>Proposed UX:</strong> Until authoritative target metadata exists, show only selected cell, distance, visible target name, and <strong>NetHack will validate this target</strong>. Do not draw a “projectile line” or “route” as if valid. When the core later supplies legal targets/LOS, distinguish confirmed legal cells from merely selected cells.</li>
+<li><strong>Semantics preserved:</strong> No range, LOS, hit chance, or path claim is made without core evidence. NetHack still accepts or rejects the target.</li>
+<li><strong>Implementation:</strong> Simplify <code>targetPreviewDetails</code> now. Later add typed <code>target.prompt</code> metadata to <code>ui-protocol-v2.js</code>.</li>
+<li><strong>Dependencies/risks:</strong> Sending raw cursor paths is fragile; typed stable targets should precede richer visuals.</li>
+<li class="priority-effort p0 effort-s"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P0 / S</strong></span> for removing placeholder claims; <strong>P1 / L</strong> for authoritative targeting.</li>
+</ul>
+<h3 id="safe-12-improve-map-legibility-and-non-color-cues">SAFE-12: Improve map legibility and non-color cues<a class="heading-anchor" href="#safe-12-improve-map-legibility-and-non-color-cues" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> Tiny 7px minimum cells, large dark void, subtle terrain textures, and color-heavy borders make the map difficult at distance, under zoom, or with low vision. The tooltip can cover nearby content.</li>
+<li><strong>Proposed UX:</strong> Add map scale controls, high-contrast terrain outlines, optional classic glyph overlay, stronger cursor/target rings, and tooltip placement that avoids the selected cell. Use shape plus color for player, pet, hostile, peaceful, trap, and target states when those states are publicly known.</li>
+<li><strong>Semantics preserved:</strong> Only known rendered layers are restyled.</li>
+<li><strong>Implementation:</strong> Extend <code>map-presentation.js</code> display roles and CSS. Keep glyph overlay sourced from existing public glyph chars.</li>
+<li><strong>Dependencies/risks:</strong> Do not use visual treatment to reveal attitude or traps before the core does.</li>
+<li class="priority-effort p1 effort-m"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P1 / M</strong></span>.</li>
+</ul>
+<h2 id="e-inventory-equipment-containers-and-item-knowledge">E. Inventory, equipment, containers, and item knowledge<a class="heading-anchor" href="#e-inventory-equipment-containers-and-item-knowledge" aria-label="Link to this section"></a></h2>
+<h3 id="safe-13-rebuild-the-equipment-layout-for-clarity-and-stability">SAFE-13: Rebuild the equipment layout for clarity and stability<a class="heading-anchor" href="#safe-13-rebuild-the-equipment-layout-for-clarity-and-stability" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> The paper doll is visually attractive but slot cards overlap the avatar and each other. Text such as <code>Two-weapon/alternate-weapon setup is...</code> clips. Armor, boots, quiver, and rings fall below the visible dialog; the close action can be off-screen. See <code>styles.css:841-920</code> and <code>real-equipment-screen-mcp/02-real-key-i-equipment-screen.png</code>.</li>
+<li><strong>Proposed UX:</strong> Use a stable body silhouette with compact slot anchors and a separate selected-slot detail panel. At narrower widths, switch to a semantic slot list rather than preserving absolute positioning. Keep inventory as a searchable list with direct action buttons.</li>
+<li><strong>Semantics preserved:</strong> NetHack&#39;s distinct armor layers, ring hands, quiver, alternate weapon, and blockers remain. Do not merge layers merely because the current visual uses one body card.</li>
+<li><strong>Implementation:</strong> Continue deriving slot truth from <code>equipment-snapshot-adapter.js</code> and action routing from <code>inventory-action-service.js</code>. Replace absolute slot cards with CSS grid/anchor layout and a slot detail region.</li>
+<li><strong>Dependencies/risks:</strong> The existing note that shirt/suit/cloak are routed separately must become a visible layering model before replacement actions are simplified.</li>
+<li class="priority-effort p0 effort-m"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P0 / M</strong></span>.</li>
+</ul>
+<h3 id="safe-14-standardize-inventory-item-interaction">SAFE-14: Standardize inventory item interaction<a class="heading-anchor" href="#safe-14-standardize-inventory-item-interaction" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> A row can support single click with no action, double-click primary action, drag to slot, right-click menu, Shift+F10 menu, a trailing action pill, and a selector hotkey. None is clearly dominant. Context menus can exceed the viewport and overlap the dialog. See <code>renderer.js:2588-3013, 7415-7560</code> and item context screenshots.</li>
+<li><strong>Proposed UX:</strong> Single click selects and opens an item detail/action pane. Enter does the same. A visible primary action button performs the most likely explicit action. Drag, double-click, right-click, Shift+F10, and selector letters remain accelerators. Context menus should be bounded, focus-managed, and restore focus.</li>
+<li><strong>Semantics preserved:</strong> No automatic action occurs on selection. Primary action labels come from public affordances and route through existing action services.</li>
+<li><strong>Implementation:</strong> Add selected-item state to the equipment dialog. Reuse existing grouped affordances inside a side panel instead of a floating fixed menu for most actions.</li>
+<li><strong>Dependencies/risks:</strong> Avoid choosing a dangerous action as primary. <code>Read</code>, <code>quaff</code>, <code>eat</code>, invoke, sacrifice, and unknown items may require explicit confirmation depending on current prompt semantics.</li>
+<li class="priority-effort p1 effort-m"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P1 / M</strong></span>.</li>
+</ul>
+<h3 id="safe-15-make-transfer-panels-keyboard-operable-dialogs">SAFE-15: Make transfer panels keyboard-operable dialogs<a class="heading-anchor" href="#safe-15-make-transfer-panels-keyboard-operable-dialogs" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> <code>#container-transfer-panel</code> is a fixed <code>&lt;section&gt;</code> without <code>role=&quot;dialog&quot;</code> or <code>aria-modal</code>. Rows transfer through drag and double-click; Enter produces an ordinary click. Opening does not establish a focus trap or initial focus. The current instruction says only “Drag items.” See <code>renderer.html:56</code>, <code>renderContainerItemRow</code>, and <code>renderContainerTransferPanel</code> at <code>renderer.js:6402-6459, 7214-7298</code>.</li>
+<li><strong>Proposed UX:</strong> Treat the panel as a proper modal. Selecting a row exposes <strong>Take</strong>, <strong>Put in</strong>, <strong>Pick up</strong>, or <strong>Drop</strong> based on side. Enter activates the visible transfer action; Space selects; arrows move rows; Tab stays within the dialog; Escape/Done closes one layer. Retain drag and double-click.</li>
+<li><strong>Semantics preserved:</strong> Each transfer still uses the authoritative direct command and transaction. No bulk action is added unless NetHack&#39;s existing multi-select semantics support it.</li>
+<li><strong>Implementation:</strong> Prefer a native <code>&lt;dialog&gt;</code> or add equivalent dialog semantics and focus management. Add visible per-row or central transfer buttons. Update instructions dynamically.</li>
+<li><strong>Dependencies/risks:</strong> Focus must survive authoritative pane refresh and selector remapping. Do not allow a second transfer while the first acknowledgement is pending.</li>
+<li class="priority-effort p0 effort-m"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P0 / M</strong></span>.</li>
+</ul>
+<h3 id="safe-16-add-truthful-item-details-and-comparison">SAFE-16: Add truthful item details and comparison<a class="heading-anchor" href="#safe-16-add-truthful-item-details-and-comparison" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> <code>executeInventoryAction</code> currently reports that inspect/details require structured protocol. The UI shows badges but has no durable detail view or comparison. Players cannot easily compare a candidate weapon/armor item with the relevant equipped slot.</li>
+<li><strong>Proposed UX:</strong> A side panel shows only known fields: visible name/appearance, quantity, weight if public, equipped state, known BUC, charges if known, unpaid price, applicable slot, and available actions. <strong>Compare with equipped</strong> aligns known fields and displays <code>Unknown</code> rather than inferred values. Add a short “Why unavailable” explanation for blocked actions.</li>
+<li><strong>Semantics preserved:</strong> Unknown identity, enchantment, BUC, damage, armor value, charges, and effects remain unknown. Comparison never predicts outcomes.</li>
+<li><strong>Implementation:</strong> Extend the public item schema in <code>ui-protocol-v2.js</code> only for facts NetHack already exposes to the player. Build an <code>ItemPresentation</code> adapter shared by inventory, ground, shop, and container rows.</li>
+<li><strong>Dependencies/risks:</strong> This is protocol-sensitive. A renderer-only text parser will leak or misstate knowledge. Ship a reduced known-facts panel first.</li>
+<li class="priority-effort p1 effort-l"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P1 / L</strong></span>.</li>
+</ul>
+<h3 id="safe-17-separate-identity-appearance-and-player-naming">SAFE-17: Separate identity, appearance, and player naming<a class="heading-anchor" href="#safe-17-separate-identity-appearance-and-player-naming" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> The current snapshots correctly carry semantic name/appearance/known state, but rows and tooltips inconsistently present articles, called names, appearances, and generic asset labels. Pet tooltip currently leaks <code>glyph 1165 · map 54,5</code>.</li>
+<li><strong>Proposed UX:</strong> Standard row grammar: primary public display name; secondary appearance or “called …” only when known; known-state badges; diagnostics hidden. For unidentified items, appearance remains primary, such as <strong>white potion</strong>, not a resolved potion type.</li>
+<li><strong>Semantics preserved:</strong> This makes the knowledge boundary visible rather than bypassing it.</li>
+<li><strong>Implementation:</strong> Centralize item naming in a shared presentation adapter instead of renderer regexes such as <code>menuItemName</code> and <code>cleanEquipmentText</code>.</li>
+<li><strong>Dependencies/risks:</strong> Must cover plural stacks, corpses, statues, artifact names, user-assigned names, and shop ownership.</li>
+<li class="priority-effort p1 effort-m"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P1 / M</strong></span>.</li>
+</ul>
+<h2 id="f-combat-spells-skills-and-status-effects">F. Combat, spells, skills, and status effects<a class="heading-anchor" href="#f-combat-spells-skills-and-status-effects" aria-label="Link to this section"></a></h2>
+<h3 id="safe-18-create-a-compact-consequence-feed-for-combat-and-hazards">SAFE-18: Create a compact consequence feed for combat and hazards<a class="heading-anchor" href="#safe-18-create-a-compact-consequence-feed-for-combat-and-hazards" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> Combat, failed actions, hunger, traps, and shop speech all enter the same yellow monospaced log. The latest high-impact consequence can be lost among lore and routine messages. There is no current structured combat event layer.</li>
+<li><strong>Proposed UX:</strong> Keep the canonical log, but show a two-line live consequence feed above or below the map. Emphasize damage, miss, resistance, status gained/lost, item breakage, kill, pet harm, and blocked action only after NetHack emits them. Briefly pulse the involved visible cells and HP/status region.</li>
+<li><strong>Semantics preserved:</strong> Feedback is post-result, not predictive. It does not alter turn timing or suppress canonical messages.</li>
+<li><strong>Implementation:</strong> First classify visible messages conservatively in a shared <code>message-presentation</code> module. Longer term, add public result event types. Use transform/opacity motion under 200ms and support reduced motion.</li>
+<li><strong>Dependencies/risks:</strong> Text parsing across NetHack variants is error-prone. Unclassified messages must still appear. Animation must not delay input or imply damage when none occurred.</li>
+<li class="priority-effort p1 effort-l"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P1 / L</strong></span>.</li>
+</ul>
+<h3 id="safe-19-refine-spell-and-skill-presentation">SAFE-19: Refine spell and skill presentation<a class="heading-anchor" href="#safe-19-refine-spell-and-skill-presentation" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> The spell dialog is comparatively good, with level, power, failure, and low/high failure filters. However, level is missing in some synthetic captures, failure lacks an explanation of current-state sensitivity, and spells/skills are buried in Actions. See <code>parseSpellMenuText</code>, <code>parseSkillMenuText</code>, <code>renderStructuredMenuOption</code>, and <code>inventory-selection-gui-audit/spell-menu-rows.png</code>.</li>
+<li><strong>Proposed UX:</strong> Add dedicated <strong>Spells</strong> and <strong>Skills</strong> command entries. Show current Pw, spell level, failure, and status as public data. Explain “Failure reflects your current equipment and condition” without revealing hidden calculations. Skills show current rank and <strong>Can advance</strong> only when NetHack says so.</li>
+<li><strong>Semantics preserved:</strong> Casting and advancement remain NetHack-owned menus; no recommendations or optimal-build advice.</li>
+<li><strong>Implementation:</strong> Reuse current parsers, then migrate to typed public spell/skill rows when available.</li>
+<li><strong>Dependencies/risks:</strong> Do not estimate failure or advancement from renderer state.</li>
+<li class="priority-effort p2 effort-m"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P2 / M</strong></span>.</li>
+</ul>
+<h3 id="safe-20-prioritize-urgent-status-and-move-static-stats-on-demand">SAFE-20: Prioritize urgent status and move static stats on demand<a class="heading-anchor" href="#safe-20-prioritize-urgent-status-and-move-static-stats-on-demand" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> Strength through Charisma, HP/Pw/AC/XL/XP, dungeon/gold/time, carry/terrain/conditions, gear, and NetHack version all appear as chips. In <code>real-status-condition/02-condition-status-trapped.png</code>, overloaded, stairs, trapped, confused, and blind compete with static attributes.</li>
+<li><strong>Proposed UX:</strong> Persistent HUD: HP/Pw, AC, level, dungeon, gold, hunger/burden, and urgent conditions. Character sheet: attributes, XP detail, full gear, conduct, and system/version. Urgent conditions use icon, text, and severity, and can be focused for a public explanation.</li>
+<li><strong>Semantics preserved:</strong> All displayed facts remain unchanged. No timer or duration is invented.</li>
+<li><strong>Implementation:</strong> Adjust <code>status-hud.js</code> grouping into persistent versus detail roles. Remove <code>System/Version</code> from play HUD.</li>
+<li><strong>Dependencies/risks:</strong> Experienced players may want dense mode. Offer Compact and Detailed HUD presets.</li>
+<li class="priority-effort p1 effort-m"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P1 / M</strong></span>.</li>
+</ul>
+<h2 id="g-prompts-menus-cancellation-and-failure-recovery">G. Prompts, menus, cancellation, and failure recovery<a class="heading-anchor" href="#g-prompts-menus-cancellation-and-failure-recovery" aria-label="Link to this section"></a></h2>
+<h3 id="safe-21-give-every-interaction-family-correct-semantics-and-a-consistent-shell">SAFE-21: Give every interaction family correct semantics and a consistent shell<a class="heading-anchor" href="#safe-21-give-every-interaction-family-correct-semantics-and-a-consistent-shell" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> <code>#interaction-options</code> is permanently <code>role=&quot;listbox&quot;</code>, but its children may be options, checkboxes, command buttons, context choices, directions, or document continuation. Native dialogs, the custom transfer overlay, and fixed context menus all use different focus and close behavior.</li>
+<li><strong>Proposed UX:</strong> Define shells for single-select list, multi-select list, command menu, form, alert/confirmation, document, and transfer dialog. Each owns correct ARIA roles, heading, description, focus entry, focus restoration, keyboard behavior, and action order.</li>
+<li><strong>Semantics preserved:</strong> Prompt ownership and answers are unchanged.</li>
+<li><strong>Implementation:</strong> Split <code>showInteractionDialog</code> into a shared shell plus typed content adapters. Keep <code>topmostEscapeLayer</code> as the central layer router.</li>
+<li><strong>Dependencies/risks:</strong> Prompt lifecycle regression risk is high. Migrate one family at a time with existing real menu-letter and Escape tests.</li>
+<li class="priority-effort p0 effort-l"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P0 / L</strong></span>.</li>
+</ul>
+<h3 id="safe-22-standardize-close-cancel-back-continue-and-destructive-confirmation">SAFE-22: Standardize close, cancel, back, continue, and destructive confirmation<a class="heading-anchor" href="#safe-22-standardize-close-cancel-back-continue-and-destructive-confirmation" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> Surfaces use Close, Close/Back, Cancel/Esc, Done, Continue, Ignore, Begin the descent, and non-dismissible behavior. Escape advances the intro. The startup and game-over dialogs intentionally consume Escape, but other differences feel arbitrary.</li>
+<li><strong>Proposed UX:</strong> Use <strong>Close</strong> for read-only renderer surfaces, <strong>Cancel</strong> for unsubmitted NetHack prompts, <strong>Back</strong> for hierarchical navigation, <strong>Continue</strong> for acknowledged NetHack text, and explicit verbs for final actions. Place the dismissal consistently. If Escape is intentionally blocked, explain it only at high-stakes final states, not routine dialogs.</li>
+<li><strong>Semantics preserved:</strong> One Escape still dismisses one layer and does not leak into dungeon input.</li>
+<li><strong>Implementation:</strong> Add action-kind metadata to dialog shells and use it in <code>topmostEscapeLayer</code>.</li>
+<li><strong>Dependencies/risks:</strong> Do not turn Escape into prompt acceptance. The intro should either have a true skip/close policy or retain Enter/Continue as the only progress action.</li>
+<li class="priority-effort p1 effort-m"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P1 / M</strong></span>.</li>
+</ul>
+<h3 id="safe-23-make-failures-actionable-and-preserve-state">SAFE-23: Make failures actionable and preserve state<a class="heading-anchor" href="#safe-23-make-failures-actionable-and-preserve-state" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> Direct actions can expose transport phrasing such as “snapshot,” “revision,” “selector,” “panel ready,” or “stale.” Transfer code has detailed recovery but surfaces technical text. A current real-input test timed out because its startup assumption drifted.</li>
+<li><strong>Proposed UX:</strong> Use player language: <strong>That item moved. Refresh the list and try again</strong>, <strong>The container is no longer here</strong>, <strong>Finish the current choice first</strong>, <strong>Game process stopped unexpectedly; recovery is available</strong>. Preserve the player&#39;s selection and scroll when safe. Add <strong>Copy diagnostics</strong> only behind a details disclosure.</li>
+<li><strong>Semantics preserved:</strong> No failed action is retried automatically if retry could spend a turn. Recovery choices remain explicit.</li>
+<li><strong>Implementation:</strong> Map <code>public-blockers.js</code>, transaction failure kinds, and recovery state to user copy. Keep technical detail in diagnostics.</li>
+<li><strong>Dependencies/risks:</strong> Automatic retries are unsafe unless the command is proven idempotent and turnless.</li>
+<li class="priority-effort p1 effort-m"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P1 / M</strong></span>.</li>
+</ul>
+<h2 id="h-shops-pets-stairs-messages-saves-and-final-states">H. Shops, pets, stairs, messages, saves, and final states<a class="heading-anchor" href="#h-shops-pets-stairs-messages-saves-and-final-states" aria-label="Link to this section"></a></h2>
+<h3 id="safe-24-give-shops-a-transaction-specific-bill-not-a-transfer-form">SAFE-24: Give shops a transaction-specific bill, not a transfer form<a class="heading-anchor" href="#safe-24-give-shops-a-transaction-specific-bill-not-a-transfer-form" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> The real payment picker is functional but says <strong>Source</strong>, <strong>Destination</strong>, and <strong>Transfer summary</strong>. The player must mentally translate a bill into inventory transfer terminology. The top status still says <code>menu awaiting item selection</code>.</li>
+<li><strong>Proposed UX:</strong> Use <strong>Shop bill</strong>, item prices, selected total, available gold, remaining debt, and <strong>Pay selected</strong>. For sell offers, keep the excellent Accept/Decline/Accept remaining/Stop selling choices and add ownership context only when public.</li>
+<li><strong>Semantics preserved:</strong> NetHack still sets prices, sale offers, debt, and payment outcomes.</li>
+<li><strong>Implementation:</strong> Specialize <code>transferPanelControls</code> and <code>transferSelectionSummary</code> when <code>model.shop</code> is true. Remove transfer destination cards.</li>
+<li><strong>Dependencies/risks:</strong> Partial payments and insufficient funds must mirror the core. Never estimate prices.</li>
+<li class="priority-effort p1 effort-s"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P1 / S</strong></span>.</li>
+</ul>
+<h3 id="safe-25-reduce-pet-creature-action-clutter-and-protect-peaceful-targets">SAFE-25: Reduce pet/creature action clutter and protect peaceful targets<a class="heading-anchor" href="#safe-25-reduce-pet-creature-action-clutter-and-protect-peaceful-targets" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> In the pet scenario, the context bar shows chat and attack entries for several directions at once. The Little Dog tooltip exposes glyph and map coordinates. The visual hierarchy does not clearly separate tame, peaceful, and hostile actions.</li>
+<li><strong>Proposed UX:</strong> Show at most one primary creature action plus a target chooser when several creatures are adjacent. Tame/pet: <strong>Chat</strong> or public safe action primary. Peaceful: <strong>Chat</strong> primary, attack under <strong>Dangerous actions</strong> with explicit confirmation. Hostile: <strong>Attack</strong> may be primary. Tooltip shows public name and attitude only.</li>
+<li><strong>Semantics preserved:</strong> No pet command, attitude, or attack result is invented. Moving into a creature and deliberate Fight commands retain NetHack semantics.</li>
+<li><strong>Implementation:</strong> Group creature actions in <code>buildContextActions</code> rather than emitting every direction as a separate top-level button. Reuse serious confirmation handling.</li>
+<li><strong>Dependencies/risks:</strong> Attitude must come from public affordances, never name/glyph heuristics. Current <code>actionForAdjacentCell</code> still falls back to signature matching and should prefer typed state.</li>
+<li class="priority-effort p1 effort-m"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P1 / M</strong></span>.</li>
+</ul>
+<h3 id="safe-26-make-level-transitions-feel-clear-without-hiding-danger">SAFE-26: Make level transitions feel clear without hiding danger<a class="heading-anchor" href="#safe-26-make-level-transitions-feel-clear-without-hiding-danger" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> Stair actions are excellent before the click. After descent, the header says <code>terrain movement down requested</code>, while the important confirmation is in the log and changed dungeon level. There is no brief transition focus.</li>
+<li><strong>Proposed UX:</strong> After the core confirms, briefly show <strong>Dungeon level 2</strong> and place focus on the new map. For special branches, show destination only if NetHack has revealed it. If ascent triggers a confirmation, present the real prompt with clear leave/cancel verbs.</li>
+<li><strong>Semantics preserved:</strong> No branch name or safety claim is shown early. Transition consumes the same turn and uses the same confirmation.</li>
+<li><strong>Implementation:</strong> Map successful terrain transaction plus status level change to a short outcome notice.</li>
+<li><strong>Dependencies/risks:</strong> Teleports, portals, level changes after falls, and branch transitions must use the same generic event path.</li>
+<li class="priority-effort p2 effort-s"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P2 / S</strong></span>.</li>
+</ul>
+<h3 id="safe-27-turn-messages-into-an-event-center-without-losing-the-canonical-log">SAFE-27: Turn messages into an event center without losing the canonical log<a class="heading-anchor" href="#safe-27-turn-messages-into-an-event-center-without-losing-the-canonical-log" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> Recent messages can show most of the intro lore and shop speech at once, while the newest line sits at the bottom. “Full history is collapsed below” is visually static. Message history also exists through <code>#prevmsg</code> and document windows.</li>
+<li><strong>Proposed UX:</strong> Show latest 2 to 4 lines by default with severity accents and a clear <strong>History</strong> button. History opens a searchable timeline grouped by turn when turn data exists. Preserve exact canonical text and offer a copy action. Lore can be collapsed under <strong>Opening chronicle</strong> after the intro closes.</li>
+<li><strong>Semantics preserved:</strong> No message is discarded or rewritten as the source of truth. Grouping is presentation only.</li>
+<li><strong>Implementation:</strong> Extend <code>message-log.js</code> beyond its current 33-line bounded store with public metadata references. Keep raw lines and add optional presentation tags.</li>
+<li><strong>Dependencies/risks:</strong> Do not collapse repeated messages that encode repeated turns unless the count is exact and reversible.</li>
+<li class="priority-effort p1 effort-m"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P1 / M</strong></span>.</li>
+</ul>
+<h3 id="safe-28-surface-save-restore-clearly-and-make-final-state-data-trustworthy">SAFE-28: Surface save/restore clearly and make final-state data trustworthy<a class="heading-anchor" href="#safe-28-surface-save-restore-clearly-and-make-final-state-data-trustworthy" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> Continue/new game is clear at launch, but Save is buried in Actions. The game-over screenshot shows generic <strong>You die...</strong>, full HP, <code>(hidden)</code> condition, and New game/Exit below the fold. <code>renderGameOverSummary</code> draws from the current status cache, which may be stale or incomplete.</li>
+<li><strong>Proposed UX:</strong> Put <strong>Save and exit</strong> in the command palette&#39;s Run section with explicit confirmation and success notice. Continue card shows hero, role, dungeon level, and save/recovery timestamp when public. Final chronicle prioritizes exact cause, score, turns, depth, conduct/highlights, and always-visible New game/Exit; omit unavailable fields instead of showing <code>(hidden)</code>.</li>
+<li><strong>Semantics preserved:</strong> NetHack&#39;s single-save/permadeath model remains. No duplicate slots, rewind, or autosave promise is added.</li>
+<li><strong>Implementation:</strong> Use native end-game payloads and finalized status/result events instead of renderer message inference wherever possible. Keep <code>deathCauseFromText</code> as fallback only.</li>
+<li><strong>Dependencies/risks:</strong> Exact cause and final statistics need a stronger native end protocol. Never imply a save succeeded until acknowledged.</li>
+<li class="priority-effort p0 effort-m"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P0 / M</strong></span> for final actions/unknown-field cleanup; <strong>P1 / L</strong> for authoritative final payload.</li>
+</ul>
+<h2 id="i-accessibility-responsive-behavior-motion-and-audio">I. Accessibility, responsive behavior, motion, and audio<a class="heading-anchor" href="#i-accessibility-responsive-behavior-motion-and-audio" aria-label="Link to this section"></a></h2>
+<h3 id="safe-29-complete-keyboard-focus-and-screen-reader-support">SAFE-29: Complete keyboard, focus, and screen-reader support<a class="heading-anchor" href="#safe-29-complete-keyboard-focus-and-screen-reader-support" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> The map is a focusable generic div with generic cell divs; context menus do not implement standard arrow navigation or focus restoration; transfer is keyboard-blocked; several simultaneous <code>aria-live</code> regions can announce status, context actions, messages, direction helper, and an entire transfer panel. Labels/badges reach 0.60 to 0.68rem.</li>
+<li><strong>Proposed UX:</strong> Define one polite live status and one assertive error channel. Give the map a documented application/grid pattern or a concise focused-cell inspector rather than 1,680 noisy gridcells. Add focus restoration, roving tabindex for menus, visible focus on every control, 44px touch targets where pointer use is expected, and a 200% text-zoom layout.</li>
+<li><strong>Semantics preserved:</strong> Input routes and commands stay unchanged.</li>
+<li><strong>Implementation:</strong> Add an accessibility/focus manager used by every overlay. Audit with keyboard-only and a screen reader after each dialog-family migration.</li>
+<li><strong>Dependencies/risks:</strong> A fully exposed 80x21 ARIA grid may be worse than a focused-cell model. Prototype with screen-reader users before committing.</li>
+<li class="priority-effort p0 effort-l"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P0 / L</strong></span>, with transfer and context-menu focus as first slices.</li>
+</ul>
+<h3 id="safe-30-define-a-supported-responsive-window-strategy">SAFE-30: Define a supported responsive window strategy<a class="heading-anchor" href="#safe-30-define-a-supported-responsive-window-strategy" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> <code>BrowserWindow</code> has no minimum dimensions. The map uses a 7px minimum tile size, so 80 columns require roughly 574px plus frame. Actions remain two columns. Below 960px the paper doll becomes a 680px absolute-positioned stage. Existing visual coverage is mostly 877px wide or larger.</li>
+<li><strong>Proposed UX:</strong> For this desktop game, explicitly support a minimum compact window, recommended 960x720. Above it, use the full desktop layout. At compact width, collapse static status and quick actions, stack inventory/detail, use list-based equipment, and keep map horizontal overflow impossible. If smaller windows remain allowed, provide an intentional compact mode rather than accidental clipping.</li>
+<li><strong>Semantics preserved:</strong> Only layout changes.</li>
+<li><strong>Implementation:</strong> Set <code>minWidth</code>/<code>minHeight</code> in <code>main.js</code> as an immediate guard, then add breakpoint screenshots and layout tests. Long term, make compact mode structural.</li>
+<li><strong>Dependencies/risks:</strong> Do not claim mobile/touch support unless Electron packaging and all prompts are validated there.</li>
+<li class="priority-effort p0 effort-s"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P0 / S</strong></span> for minimum window; <strong>P1 / L</strong> for compact mode.</li>
+</ul>
+<h3 id="safe-31-add-purposeful-motion-optional-sound-and-reduced-motion-support">SAFE-31: Add purposeful motion, optional sound, and reduced-motion support<a class="heading-anchor" href="#safe-31-add-purposeful-motion-optional-sound-and-reduced-motion-support" aria-label="Link to this section"></a></h3>
+<ul>
+<li><strong>Current friction:</strong> There is almost no state motion beyond a loading spinner and pane border transition. No app sound layer exists. Changes such as equipment transfer, HP loss, level transition, and prompt ownership can feel abrupt. The help dump reports <code>nosound</code>.</li>
+<li><strong>Proposed UX:</strong> Use brief transform/opacity feedback for confirmed item movement, HP/status changes, target selection, and level transitions. Add optional UI sounds only for confirmed actions, danger, prompt, and game over. Respect OS reduced motion and provide separate UI/game sound controls. Haptics are not relevant to standard desktop Electron unless controller support is explicitly added.</li>
+<li><strong>Semantics preserved:</strong> Motion and sound occur after or during visible state changes and never pace the turn loop.</li>
+<li><strong>Implementation:</strong> CSS motion tokens plus a small event-to-feedback adapter. Audio assets and licensing need a separate decision.</li>
+<li><strong>Dependencies/risks:</strong> Avoid repetitive sound fatigue, inaccessible color-only pulses, and input delay. No sound should imply a hidden trap or unseen result.</li>
+<li class="priority-effort p3 effort-m"><span class="priority-label"><strong>Priority/effort:</strong></span> <span class="priority-badge"><strong>P3 / M</strong></span> after hierarchy and event work.</li>
+</ul>
+<h2 id="design-system-and-consistency-opportunities">Design-system and consistency opportunities<a class="heading-anchor" href="#design-system-and-consistency-opportunities" aria-label="Link to this section"></a></h2>
+<h3 id="reusable-primitives">Reusable primitives<a class="heading-anchor" href="#reusable-primitives" aria-label="Link to this section"></a></h3>
+<ol>
+<li><strong>AppShell</strong>: hero summary, urgent status, current player notice, map, consequence feed.</li>
+<li><strong>CommandCatalog</strong>: label, aliases, visible shortcut, category, danger, availability source, prompt plan, internal route.</li>
+<li><strong>DialogShell</strong>: title, description, content role, primary/secondary/dismiss actions, focus entry/return, Escape policy.</li>
+<li><strong>ChoiceList</strong>: single select, multi-select, command menu, quantity row, selector keycap.</li>
+<li><strong>ItemPresentation</strong>: public display name, appearance, known state, quantity, ownership, equipment state, icon, actions.</li>
+<li><strong>ItemActionPanel</strong>: grouped safe/combat/location/management/magic/danger actions with disabled reasons.</li>
+<li><strong>TransferDialog</strong>: typed sides, selected row, explicit transfer verb, transaction pending/error state.</li>
+<li><strong>PlayerNotice</strong>: player-facing status derived from result, with diagnostics hidden behind details.</li>
+<li><strong>StatusToken</strong>: semantic severity plus icon/text, not color alone.</li>
+<li><strong>FocusLayer</strong>: modal stack, focus trap, initial focus, restoration, roving menu focus, one-Escape-one-layer.</li>
+<li><strong>MessageEvent</strong>: immutable canonical line plus optional turn, category, actor/target references, severity, and source.</li>
+<li><strong>MapInspector</strong>: selected public cell, visible layers, tooltip, contextual actions, diagnostics opt-in.</li>
+</ol>
+<h3 id="current-inconsistencies-to-resolve">Current inconsistencies to resolve<a class="heading-anchor" href="#current-inconsistencies-to-resolve" aria-label="Link to this section"></a></h3>
+<ul>
+<li>Header state alternates among player state, bridge state, transaction state, and test diagnostics.</li>
+<li>Quick actions and context actions duplicate Search, Wait, Pick up, Inventory, and More/Actions.</li>
+<li>Actions are defined in static HTML, extended-command fallback lists, help metadata, context actions, and item affordances.</li>
+<li>Overlay types include native <code>&lt;dialog&gt;</code>, a fixed section modal, and body/interaction-owned fixed context menus.</li>
+<li>Dismissal labels and action placement vary by surface.</li>
+<li>Shop bills inherit generic transfer language.</li>
+<li>Selector shortcuts range from helpful single letters to internal composed strings.</li>
+<li>Tooltips mix player facts with glyph IDs, asset taxonomy, and map coordinates.</li>
+<li>Status uses many nearly identical pill/card treatments, flattening hierarchy.</li>
+<li>Paper-doll layout preserves visual positions at the expense of readable slot content.</li>
+<li>The same gold gradient marks primary actions, startup controls, and many unrelated controls.</li>
+<li>There is no <code>PRODUCT.md</code> or <code>DESIGN.md</code>, so product audience, tone, density modes, supported window sizes, and design tokens are not canonicalized.</li>
+</ul>
+<h3 id="recommended-dependency-direction">Recommended dependency direction<a class="heading-anchor" href="#recommended-dependency-direction" aria-label="Link to this section"></a></h3>
+<pre><code class="language-text">NetHack/shim public facts
+  -&gt; shared protocol and snapshot reducers
+  -&gt; domain presentation models (item, action, message, status, map target)
+  -&gt; reusable UI primitives and focus layer
+  -&gt; renderer DOM adapter
+</code></pre>
+<p>Do not add more regex and DOM ownership to <code>renderer.js</code>. Its 10,365 lines currently combine map, messages, onboarding, context actions, shops, equipment, transfer choreography, prompts, menus, recording, recovery, targeting, and input routing. The next UI work should extract presentation models and component adapters one domain at a time while retaining existing shared contracts and real tests.</p>
+<h2 id="mechanics-affecting-ideas-that-require-explicit-approval">Mechanics-affecting ideas that require explicit approval<a class="heading-anchor" href="#mechanics-affecting-ideas-that-require-explicit-approval" aria-label="Link to this section"></a></h2>
+<p>The following may sound modern but should <strong>not</strong> be included in the safe modernization roadmap without a separate product/gameplay decision.</p>
+<div class="table-scroll" role="region" aria-label="Scrollable data table" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">Idea</th>
+<th scope="col">Why it changes or risks NetHack semantics</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Undo, rewind, checkpoint restore, multiple save slots</td>
+<td>Removes or weakens permadeath and irreversible decision-making.</td>
+</tr>
+<tr>
+<td>Autosave that can be copied or restored</td>
+<td>Changes save-scumming constraints even if presented as recovery.</td>
+</tr>
+<tr>
+<td>Auto-explore, click-to-auto-path through unknown terrain, auto-fight</td>
+<td>Automates discovery, risk, path choice, and turn expenditure. Existing travel should remain NetHack&#39;s command.</td>
+</tr>
+<tr>
+<td>Guaranteed safe path, hazard prediction, trap warnings</td>
+<td>Can reveal hidden traps, resistances, movement capability, or future outcomes.</td>
+</tr>
+<tr>
+<td>Hit chance, damage range, DPS, armor delta, “best item” ranking</td>
+<td>Exposes calculations or hidden properties not normally available and changes discovery/optimization.</td>
+</tr>
+<tr>
+<td>Automatic item identification or inferred identity from assets</td>
+<td>Directly breaks the identification game.</td>
+</tr>
+<tr>
+<td>Corpse safety, prayer safety, altar outcome, fountain outcome recommendations</td>
+<td>Reveals strategic knowledge and hidden timing/state. Public manual information can be explained, but the UI must not advise an outcome.</td>
+</tr>
+<tr>
+<td>Automatic pet feeding, pet health meters, pet command queue</td>
+<td>Adds control or information not currently guaranteed by NetHack.</td>
+</tr>
+<tr>
+<td>Confirm every attack or dangerous move</td>
+<td>Can materially change expert input cadence and accidental-risk character. Peaceful-target confirmation is reasonable as an optional safety setting, not a silent default change.</td>
+</tr>
+<tr>
+<td>Pause-free container/inventory management that ignores interruptions or turn costs</td>
+<td>Can alter interruption risk and action timing. Transfers must remain core-owned transactions.</td>
+</tr>
+<tr>
+<td>Branch destination labels before discovery</td>
+<td>Spoils dungeon structure. Show destinations only after public discovery.</td>
+</tr>
+<tr>
+<td>Rich LOS/range overlays inferred in the renderer</td>
+<td>Can be wrong and reveal blocked paths. Require authoritative prompt metadata.</td>
+</tr>
+<tr>
+<td>Quest checklist with future objectives or recipe encyclopedia</td>
+<td>Can spoil discovery and strategic knowledge beyond the current manual.</td>
+</tr>
+<tr>
+<td>Real-time combat animation that locks input</td>
+<td>Changes pacing and can interfere with turn-based command efficiency. Feedback must be brief and non-blocking.</td>
+</tr>
+</tbody></table></div>
+<h2 id="technical-quality-snapshot">Technical quality snapshot<a class="heading-anchor" href="#technical-quality-snapshot" aria-label="Link to this section"></a></h2>
+<p>This is not a release certification, but it helps prioritize work.</p>
+<div class="table-scroll" role="region" aria-label="Scrollable data table" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">Dimension</th>
+<th align="right">Score (0-4)</th>
+<th scope="col">Key finding</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Accessibility</td>
+<td align="right">2</td>
+<td>Some strong labels, keyboard paths, and centralized Escape handling, but transfer, roles, focus restoration, live regions, and text size have major gaps.</td>
+</tr>
+<tr>
+<td>Performance</td>
+<td align="right">2</td>
+<td>Incremental map rendering and bounded logs exist, but a 10k-line renderer and broad rerenders raise regression and interaction-cost risk.</td>
+</tr>
+<tr>
+<td>Theming/design system</td>
+<td align="right">1</td>
+<td>Dark visual identity is intentional, but color, surface, radius, and state values are overwhelmingly hard-coded.</td>
+</tr>
+<tr>
+<td>Responsive design</td>
+<td align="right">1</td>
+<td>A few breakpoints exist; minimum window and equipment/map behavior remain structurally unsafe.</td>
+</tr>
+<tr>
+<td>Anti-pattern resistance</td>
+<td align="right">2</td>
+<td>Distinctive NetHack tone and good dense rows, but excessive pills/cards, gradients, and simultaneous chrome flatten hierarchy.</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td align="right"><strong>8/20, poor</strong></td>
+<td>Modernization should consolidate and harden existing strengths, not add more surface area.</td>
+</tr>
+</tbody></table></div>
+<h2 id="prioritized-roadmap">Prioritized roadmap<a class="heading-anchor" href="#prioritized-roadmap" aria-label="Link to this section"></a></h2>
+<h3 id="quick-wins-approximately-1-to-2-weeks-total">Quick wins, approximately 1 to 2 weeks total<a class="heading-anchor" href="#quick-wins-approximately-1-to-2-weeks-total" aria-label="Link to this section"></a></h3>
+<ol>
+<li>Remove version/protocol/transaction phrases from the player header; keep them in diagnostics.</li>
+<li>Remove <code>System / Version</code> from the persistent HUD.</li>
+<li>Blank the <code>Electron</code> default name and move seed/replay under Advanced run options.</li>
+<li>Replace target placeholder copy with “NetHack will validate this target.”</li>
+<li>Remove glyph IDs, asset taxonomy, and map coordinates from normal tooltips.</li>
+<li>Specialize shop bill copy and remove Source/Destination/Transfer terminology.</li>
+<li>Set a tested minimum Electron window size.</li>
+<li>Add <code>prefers-reduced-motion</code> handling for the loading spinner and future motion.</li>
+<li>Standardize visible shortcuts to public command keys, not internal composed sequences.</li>
+<li>Fix game-over unavailable fields and keep New game/Exit visible without scrolling.</li>
+<li>Update the real-input regression startup driver to handle the required startup-choice dialog.</li>
+<li>Keep screenshot artifact manifests and explicit human inspection notes in every player-facing test result.</li>
+</ol>
+<h3 id="medium-projects-approximately-2-to-6-weeks-each">Medium projects, approximately 2 to 6 weeks each<a class="heading-anchor" href="#medium-projects-approximately-2-to-6-weeks-each" aria-label="Link to this section"></a></h3>
+<ol>
+<li>First-turn field guide with skip and persistent preference.</li>
+<li>Searchable command palette backed by one command catalog.</li>
+<li>Compact HUD and consequence feed with full character sheet/history on demand.</li>
+<li>Keyboard-operable, focus-managed transfer dialog.</li>
+<li>Equipment screen grid/list redesign with selected-item action pane.</li>
+<li>Unified help and commands surface.</li>
+<li>Typed dialog shells for select, multi-select, command, confirmation, form, and document workflows.</li>
+<li>Context-action grouping for multiple doors/creatures/items rather than 12 flat buttons.</li>
+<li>Public item naming/presentation adapter shared across inventory, ground, shop, and container.</li>
+<li>Compact desktop layout at the supported minimum size.</li>
+</ol>
+<h3 id="larger-initiatives-multi-sprint">Larger initiatives, multi-sprint<a class="heading-anchor" href="#larger-initiatives-multi-sprint" aria-label="Link to this section"></a></h3>
+<ol>
+<li>Structured, no-spoiler item details and comparison protocol.</li>
+<li>Authoritative targeting metadata for legal targets, LOS, range, and typed stable target IDs.</li>
+<li>Structured result/message events for combat, hazards, status changes, and final outcomes.</li>
+<li>Renderer decomposition into domain presentation modules and reusable UI primitives.</li>
+<li>Full accessibility program with screen-reader validation, 200% zoom, and input-mode testing.</li>
+<li>Optional map magnifier/follow-hero presentation with full-map parity.</li>
+<li>Optional sound and motion feedback system after structured result events exist.</li>
+<li>Authoritative native final-run payload for cause, score, turns, depth, conduct, and statistics.</li>
+</ol>
+<h2 id="recommended-first-implementation-batch">Recommended first implementation batch<a class="heading-anchor" href="#recommended-first-implementation-batch" aria-label="Link to this section"></a></h2>
+<h3 id="batch-player-facing-shell-clarity-and-operable-core-interactions">Batch: player-facing shell clarity and operable core interactions<a class="heading-anchor" href="#batch-player-facing-shell-clarity-and-operable-core-interactions" aria-label="Link to this section"></a></h3>
+<p>This batch offers the best usability gain without touching mechanics:</p>
+<ol>
+<li><strong>PlayerNotice layer</strong><ul>
+<li>Replace header transport text with player-facing Your turn, Choose…, success, warning, and failure notices.</li>
+<li>Move technical text to diagnostics.</li>
+</ul>
+</li>
+<li><strong>Compact persistent HUD</strong><ul>
+<li>Keep vitals, dungeon, gold, burden/hunger, and urgent conditions.</li>
+<li>Move attributes, gear, and version to detail surfaces.</li>
+</ul>
+</li>
+<li><strong>Character creation cleanup</strong><ul>
+<li>Blank/default-safe name.</li>
+<li>Advanced disclosure for seed and replay.</li>
+</ul>
+</li>
+<li><strong>Command palette first slice</strong><ul>
+<li>Search all currently visible Actions commands.</li>
+<li>Group Available here, Items, Equipment, Magic, Dungeon, Character, Run, Help.</li>
+<li>Show public key hints and danger state.</li>
+</ul>
+</li>
+<li><strong>Transfer accessibility first slice</strong><ul>
+<li>Proper modal semantics and focus management.</li>
+<li>Visible Take/Put in or Pick up/Drop action for selected row.</li>
+<li>Enter activation and focus restoration.</li>
+</ul>
+</li>
+<li><strong>Diagnostic copy cleanup</strong><ul>
+<li>Remove map coordinates/glyph IDs from normal tooltips.</li>
+<li>Remove targeting placeholder claims.</li>
+<li>Specialize shop bill terminology.</li>
+</ul>
+</li>
+<li><strong>Evidence hardening</strong><ul>
+<li>Fix real-input startup automation drift.</li>
+<li>Preserve screenshot manifests and mandatory manual-inspection notes for every player-facing run.</li>
+</ul>
+</li>
+</ol>
+<h3 id="acceptance-criteria">Acceptance criteria<a class="heading-anchor" href="#acceptance-criteria" aria-label="Link to this section"></a></h3>
+<h4 id="behavior-and-semantics">Behavior and semantics<a class="heading-anchor" href="#behavior-and-semantics" aria-label="Link to this section"></a></h4>
+<ul>
+<li>Classic movement, command keys, menu letters, counts, Escape, and <code>#</code> commands still work unchanged.</li>
+<li>Every palette command invokes the same existing command or prompt route; no new gameplay action is introduced.</li>
+<li>Contextual availability is derived only from public state.</li>
+<li>Unknown item identity and hidden terrain/monster/container facts do not appear in labels, badges, details, or disabled reasons.</li>
+<li>Selecting an inventory or transfer row does not spend a turn.</li>
+<li>Transfer occurs only after explicit button/Enter/double-click/drag activation and is blocked while a prior transaction is pending.</li>
+<li>Cancel closes one UI layer and never leaks an unintended dungeon command.</li>
+</ul>
+<h4 id="visible-ux">Visible UX<a class="heading-anchor" href="#visible-ux" aria-label="Link to this section"></a></h4>
+<ul>
+<li>During ordinary play the top header contains no <code>version check</code>, <code>menu awaiting</code>, <code>command completed: key</code>, <code>snapshot</code>, <code>selector</code>, <code>revision</code>, <code>panel ready</code>, or <code>requested</code> language.</li>
+<li>At 1360x920 and the declared minimum viewport, the map, latest messages, command access, and urgent statuses remain visible without horizontal clipping.</li>
+<li>The command palette finds commands by friendly name, NetHack name, and key; Save and Quit are clearly separated from ordinary actions.</li>
+<li>Character creation shows identity choices first; seed and replay are collapsed by default.</li>
+<li>Transfer panel announces itself as a dialog, focuses a useful control, stays keyboard-operable after pane refresh, and restores focus to the initiating action on close.</li>
+<li>Shop bill uses bill/payment language and displays selected/visible totals from core data.</li>
+<li>Tooltips contain player-facing public facts only.</li>
+<li>Game over keeps exact known cause and New game/Exit visible; unavailable facts are omitted.</li>
+</ul>
+<h4 id="accessibility">Accessibility<a class="heading-anchor" href="#accessibility" aria-label="Link to this section"></a></h4>
+<ul>
+<li>All batch controls have visible <code>:focus-visible</code> treatment.</li>
+<li>Dialogs trap focus, have an accessible name/description, and restore focus.</li>
+<li>Context menus support arrow/Home/End/Escape or are replaced by the selected-item action pane.</li>
+<li>Only scoped status/error live regions announce changes; rerendered maps and transfer panels do not produce announcement floods.</li>
+<li>Reduced-motion mode disables nonessential spinner/transition animation.</li>
+</ul>
+<h4 id="proof">Proof<a class="heading-anchor" href="#proof" aria-label="Link to this section"></a></h4>
+<p>Run real Electron scenarios for:</p>
+<ol>
+<li>new startup and character creation</li>
+<li>first normal turn and classic movement</li>
+<li>command palette search and command dispatch</li>
+<li>inventory open/close and item action</li>
+<li>container transfer using keyboard only</li>
+<li>ground pickup/drop using keyboard only</li>
+<li>shop bill and insufficient funds</li>
+<li>stairs transition</li>
+<li>save/restore</li>
+<li>game over</li>
+</ol>
+<p>Capture and personally inspect screenshots at 1360x920, the declared minimum size, and 200% text zoom for applicable dialogs. Screenshots with black/blank regions, clipped controls, internal diagnostic copy, stale overlays, raw selectors without names, generic death cause when a cause is available, or actions below an unreachable fold are failures even when assertions pass.</p>
+<h2 id="risks-and-caveats">Risks and caveats<a class="heading-anchor" href="#risks-and-caveats" aria-label="Link to this section"></a></h2>
+<ul>
+<li><code>renderer.js</code> is a high-coupling change surface. UI modernization should extract one presentation model at a time and keep the shared protocol boundary intact.</li>
+<li>Many existing tests validate synthetic renderer events. Player-facing completion still requires the real Electron path under <code>TESTING.md</code>.</li>
+<li>Some historical screenshots contain <code>Version check failed</code>, <code>Unknown command &#39; &#39;</code>, raw prompt history, generic death cause, overlap, or clipping. They should not be reused as clean acceptance evidence.</li>
+<li>The container behavior passed and contained no raw fallback copy, but the original CDP PNG previews are not a clean visual baseline: several can display black bands despite complete decoded pixels. Cite the view-safe inspected derivatives and <code>screenshot-qc.json</code>, and treat any black/blank preview as an evidence failure until recaptured or transcoded and reopened.</li>
+<li>The most valuable future item, targeting, combat, and final-state improvements require richer typed public events. Renderer inference should not be deepened as a shortcut.</li>
+<li>No <code>PRODUCT.md</code> or <code>DESIGN.md</code> currently defines audience, density modes, visual tokens, supported window sizes, or tone. Create them with stakeholder input before a broad visual redesign; this audit should be an input, not a substitute for product intent.</li>
+</ul>
+<h2 id="bottom-line">Bottom line<a class="heading-anchor" href="#bottom-line" aria-label="Link to this section"></a></h2>
+<p>NetHack&#39;s complexity is the product, not the defect. The modernization target should be <strong>recognition before recall, explicit state ownership, readable consequences, and optional acceleration</strong>, while leaving uncertainty, irreversible choices, discovery, and classic command efficiency intact.</p>
+<p>The repository already has the right semantic foundations. The next step is to consolidate the player experience around them: fewer simultaneous surfaces, stronger hierarchy, one command vocabulary, truthful public-state details, operable dialogs, and diagnostics that stay out of the dungeon.</p>
+
+        </article>
+      </div>
+      <footer class="report-footer">
+        Self-contained HTML edition. Source: <code>docs/design/ux-modernization-audit-2026-07-09.md</code>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

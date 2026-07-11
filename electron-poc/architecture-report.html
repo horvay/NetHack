@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NetHack Electron Architecture Improvement Report</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0d12; --panel:#141824; --panel2:#10131c; --text:#edf2ff; --muted:#a9b3c7; --line:#2a3244; --accent:#f6d365; --hi:#8bd5ff; --danger:#ff8f8f; --warn:#ffd479; --ok:#a8e6cf; }
+    * { box-sizing: border-box; }
+    body { margin:0; font: 15px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; color:var(--text); background: radial-gradient(circle at top left, #1d2333, var(--bg) 38rem); }
+    main { max-width: 1180px; margin: 0 auto; padding: 32px 22px 64px; }
+    header { margin-bottom: 28px; }
+    h1 { margin: 0 0 6px; font-size: clamp(2rem, 4vw, 3.25rem); line-height:1.05; letter-spacing:-0.04em; }
+    h2 { margin: 34px 0 14px; padding-top: 10px; border-top: 1px solid var(--line); color: var(--accent); }
+    h3 { margin: 0 0 8px; color: var(--hi); }
+    h4 { margin: 14px 0 4px; color: #dfe8ff; }
+    p { margin: 0 0 10px; }
+    a { color: var(--hi); }
+    code { color:#ffe7a6; background:#1a1f2d; border:1px solid #30384d; border-radius:4px; padding:0 4px; }
+    .meta, .summary, .card, .opp { border: 1px solid var(--line); background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.015)); border-radius: 16px; box-shadow: 0 14px 42px rgba(0,0,0,.22); }
+    .meta { display:grid; gap:10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); padding:16px; color:var(--muted); }
+    .summary { padding: 18px; margin: 18px 0; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(245px, 1fr)); gap: 12px; }
+    .card { padding: 15px; }
+    .tag { display:inline-block; font-size:.76rem; font-weight:800; letter-spacing:.02em; border-radius:999px; padding:3px 8px; margin-right:6px; border:1px solid var(--line); color:var(--muted); background:#101521; }
+    .p0 { color: var(--danger); border-color: rgba(255,143,143,.45); background: rgba(255,143,143,.09); }
+    .p1 { color: var(--warn); border-color: rgba(255,212,121,.42); background: rgba(255,212,121,.08); }
+    .p2 { color: var(--ok); border-color: rgba(168,230,207,.35); background: rgba(168,230,207,.07); }
+    .opp { padding: 18px; margin: 14px 0; }
+    .opp ul { margin: 6px 0 0 20px; padding: 0; }
+    .opp li { margin: 4px 0; }
+    .evidence { color: var(--muted); font-size:.92rem; }
+    .two { display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 780px) { .two { grid-template-columns: 1fr; } }
+    table { width:100%; border-collapse: collapse; overflow:hidden; border-radius: 12px; }
+    th, td { border:1px solid var(--line); padding:8px 10px; vertical-align:top; }
+    th { color:#fff7cf; background:#151b2a; text-align:left; }
+    td { background: rgba(12,15,23,.58); }
+    .small { color:var(--muted); font-size:.9rem; }
+  </style>
+</head>
+<body>
+<main>
+<header>
+  <h1>NetHack Electron Architecture Improvement Report</h1>
+  <p class="small">Scope: only the Electron app on top of NetHack. NetHack core/C architecture was not audited except for the Electron shim seam.</p>
+  <div class="meta">
+    <div><strong>Skill used</strong><br/>improve-codebase-architecture</div>
+    <div><strong>Architecture language</strong><br/>Module, Interface, Seam, Adapter, Depth, Leverage, Locality</div>
+    <div><strong>Domain docs</strong><br/>No <code>CONTEXT.md</code> or <code>docs/adr/</code> files found in the inspected tree.</div>
+    <div><strong>Primary app shape</strong><br/>Electron main + preload + monolithic renderer + C shim bridge + fixture/CDP scripts.</div>
+  </div>
+</header>
+
+<section class="summary">
+  <h2 style="margin-top:0;border-top:0">Executive summary</h2>
+  <p>The Electron app is a productive proof of concept with unusually good fixture/replay coverage for its age. The main architectural friction is that the renderer is one very large shallow module: UI widgets, game state, event interpretation, input safety, settings, tile selection, logging, prompt handling, recording, and browser-preview behavior all share global mutable state in <code>electron-poc/src/renderer.js</code> (2,018 lines). That gives quick iteration but weak locality: a change to item prompts can affect menus, recording, key routing, log panels, and automation hooks.</p>
+  <p>The strongest deepening opportunities are to create a small set of durable modules around the real domain seams already present: shim event stream, dungeon view model, prompt/menu interaction state, command/input gateway, asset resolver, recording/replay harness, and log/message store. The goal is not to add layers; it is to put more behavior behind smaller interfaces so tests and future UI work cross the same seams as the app.</p>
+</section>
+
+<section>
+  <h2>Inspected files and evidence highlights</h2>
+  <div class="grid">
+    <div class="card"><strong>Main process</strong><br/><span class="evidence"><code>src/main.js</code>: process lifecycle, IPC handlers, recording save, visual replay automation, child stdout/stderr parsing.</span></div>
+    <div class="card"><strong>Preload seam</strong><br/><span class="evidence"><code>src/preload.js</code>: exposes <code>netHackPOC</code> functions/events with almost no validation.</span></div>
+    <div class="card"><strong>Renderer</strong><br/><span class="evidence"><code>src/renderer.js</code>: 2,018 lines, many globals, map rendering, prompt/menu logic, status, logs, recording, keyboard routing, test hooks.</span></div>
+    <div class="card"><strong>View/style</strong><br/><span class="evidence"><code>src/renderer.html</code>, <code>src/styles.css</code>: static DOM IDs and tightly coupled style selectors.</span></div>
+    <div class="card"><strong>Shim adapter</strong><br/><span class="evidence"><code>shim-bridge/nh-shim-bridge.c</code>: newline JSON stdin/stdout, <code>shim_*</code> and <code>bridge_*</code> event names, callback glue.</span></div>
+    <div class="card"><strong>Tooling/tests</strong><br/><span class="evidence"><code>scripts/*.js</code>, <code>test/fixtures/*.jsonl</code>, replay recordings and screenshots: strong but duplicated parsing/state logic.</span></div>
+    <div class="card"><strong>Assets</strong><br/><span class="evidence"><code>assets/tiles/manifest.json</code>, <code>tile-map.json</code>, <code>README.md</code>: renderer-facing manifest and generated PNG integration.</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>Priority map</h2>
+  <table>
+    <tr><th>Priority</th><th>Meaning</th><th>Recommendations</th></tr>
+    <tr><td><span class="tag p0">P0</span></td><td>High leverage or safety-critical; should happen before the app grows much more.</td><td>1, 2, 3, 4, 5</td></tr>
+    <tr><td><span class="tag p1">P1</span></td><td>Medium refactors that improve locality and testability while preserving current UX.</td><td>6–15</td></tr>
+    <tr><td><span class="tag p2">P2</span></td><td>Quick wins and larger follow-ons that harden maintainability, packaging, or observability.</td><td>16–22</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>Deepening opportunities by area</h2>
+
+  <h2>A. Electron process, preload, and shim seams</h2>
+
+  <article class="opp">
+    <h3>1. Create a deep Game Process module in the main process <span class="tag p0">P0</span> <span class="tag">medium refactor</span></h3>
+    <p><strong>Problem.</strong> Child process lifecycle, seed/options normalization, shim startup, TTY startup, stdout/stderr routing, duplicate-key suppression, and recording save path construction are all in <code>src/main.js</code>. The deletion test says this code is earning its keep, but the current interface is not explicit; callers indirectly depend on globals <code>child</code>, <code>childMode</code>, <code>childSeq</code>, <code>childStopping</code>, and <code>lastShimKey</code>.</p>
+    <p class="evidence"><strong>Evidence.</strong> <code>src/main.js:18-23</code> global process state; <code>148-174</code> <code>attachChild</code>/<code>stopChild</code>; <code>194-227</code> TTY and shim launch handlers; <code>238-263</code> input routes.</p>
+    <p><strong>Recommended approach.</strong> Move lifecycle behavior behind one Game Process module with a small interface: start TTY, start shim, stop, status, write input, and subscribe to events. Keep Electron IPC as a thin adapter.</p>
+    <div class="two"><div><h4>Implementation steps</h4><ul><li>Extract pure normalization helpers first with tests.</li><li>Introduce a <code>game-process</code> module owning child state.</li><li>Make IPC handlers delegate only to that module.</li><li>Represent child output as typed app events before forwarding to renderer.</li></ul></div><div><h4>Risks/tradeoffs</h4><ul><li>Refactor touches launch behavior used by tests.</li><li>Over-abstracting before a second adapter exists would be shallow; keep one module, not many.</li></ul></div></div>
+    <p><strong>Suggested tests.</strong> Unit tests for seed/options; integration tests for one-child-at-a-time, expected stop exit, shim stdout parse errors, non-shim input rejection, and duplicate key suppression.</p>
+  </article>
+
+  <article class="opp">
+    <h3>2. Define and validate the preload Interface <span class="tag p0">P0</span> <span class="tag">quick win</span></h3>
+    <p><strong>Problem.</strong> The preload module exposes a powerful interface to the renderer without argument shape validation or unsubscribe handles for listeners. This is a shallow pass-through: its interface is almost identical to raw IPC.</p>
+    <p class="evidence"><strong>Evidence.</strong> <code>src/preload.js:3-16</code> exposes <code>startShimBridge</code>, <code>shimInput</code>, <code>saveRecording</code>, and event listeners directly.</p>
+    <p><strong>Recommended approach.</strong> Deepen the preload module: validate inputs, freeze payloads where useful, return unsubscribe functions for event subscriptions, and document the allowed message schema. Keep the Interface tiny and stable for renderer tests.</p>
+    <div class="two"><div><h4>Implementation steps</h4><ul><li>Add small validators for player spec, seed, options, recording, keycode payload.</li><li>Wrap <code>ipcRenderer.on</code> with listener removal.</li><li>Expose a versioned <code>netHackPOC</code> contract object.</li></ul></div><div><h4>Risks/tradeoffs</h4><ul><li>Validation can reject currently tolerated loose calls from tests; migrate tests simultaneously.</li><li>Do not duplicate all main-process validation; preload should reject gross shape errors only.</li></ul></div></div>
+    <p><strong>Suggested tests.</strong> Preload contract tests in a BrowserWindow: invalid payloads do not reach IPC; event listener unsubscribe works; valid keycode and start options pass unchanged.</p>
+  </article>
+
+  <article class="opp">
+    <h3>3. Version the shim event protocol at the Electron seam <span class="tag p0">P0</span> <span class="tag">larger improvement</span></h3>
+    <p><strong>Problem.</strong> Renderer logic branches directly on string event names such as <code>shim_print_glyph</code>, <code>bridge_direction_prompt</code>, and <code>shim_status_update</code>. The C shim and renderer are tightly coupled through an implicit, unversioned Interface.</p>
+    <p class="evidence"><strong>Evidence.</strong> <code>shim-bridge/nh-shim-bridge.c:114-121</code> event emission helpers; <code>423-677</code> callback emits many event shapes; <code>renderer.js:1385-1516</code> handles these names directly.</p>
+    <p><strong>Recommended approach.</strong> Treat the newline-delimited JSON stream as a versioned protocol module. Add a schema/version field or main-process normalization adapter that maps shim events into stable app events consumed by the renderer.</p>
+    <div class="two"><div><h4>Implementation steps</h4><ul><li>Inventory current event names and payload fields from fixtures.</li><li>Create a <code>shim-event-normalizer</code> in JS that accepts raw shim events and returns typed app events.</li><li>Emit protocol metadata from the bridge or attach it in main process.</li><li>Gradually make renderer consume app events, not raw shim callbacks.</li></ul></div><div><h4>Risks/tradeoffs</h4><ul><li>A second event vocabulary can cause confusion; name it carefully and keep raw logging available.</li><li>C changes are optional initially; start in Electron to avoid core/shim churn.</li></ul></div></div>
+    <p><strong>Suggested tests.</strong> Fixture-driven normalizer tests for every current event name; golden snapshots for accepted app events; compatibility tests against existing <code>test/fixtures/*.jsonl</code>.</p>
+  </article>
+
+  <article class="opp">
+    <h3>4. Split automation/replay orchestration out of normal app startup <span class="tag p1">P1</span> <span class="tag">medium refactor</span></h3>
+    <p><strong>Problem.</strong> Visual replay is embedded into <code>createWindow</code> and calls renderer globals via <code>executeJavaScript</code>. This gives useful leverage for tests but couples app startup, test timing, screenshot capture, and renderer internals.</p>
+    <p class="evidence"><strong>Evidence.</strong> <code>src/main.js:35-41</code> triggers visual replay after load; <code>50-110</code> captures pages and drives <code>window.__nethackAutomation</code>; <code>renderer.js:1934-1963</code> exposes automation hooks.</p>
+    <p><strong>Recommended approach.</strong> Create a Replay Runner module whose adapter is selected by environment. Main process should only detect replay mode and delegate. The runner's interface should use app-level commands, not ad hoc JavaScript strings.</p>
+    <div class="two"><div><h4>Implementation steps</h4><ul><li>Move env parsing and screenshot cadence into a replay module.</li><li>Route replay commands through the same input gateway used by UI.</li><li>Define a stable automation state shape shared with tests.</li></ul></div><div><h4>Risks/tradeoffs</h4><ul><li>Replay scripts may need updates.</li><li>More ceremony for one mode, but better locality for timing fixes.</li></ul></div></div>
+    <p><strong>Suggested tests.</strong> Unit tests for replay config defaults; end-to-end visual replay smoke; failure test for missing/unsupported recording schema.</p>
+  </article>
+
+  <h2>B. Renderer state and data flow</h2>
+
+  <article class="opp">
+    <h3>5. Replace the monolithic renderer with a small set of deep state modules <span class="tag p0">P0</span> <span class="tag">larger refactor</span></h3>
+    <p><strong>Problem.</strong> <code>renderer.js</code> mixes domain state, DOM rendering, input routing, prompt heuristics, asset lookup, settings, recording, and test hooks. This is the main locality problem: understanding one change requires scanning most of the file.</p>
+    <p class="evidence"><strong>Evidence.</strong> <code>renderer.js:11-104</code> DOM/global state declarations; <code>177-407</code> map and asset functions; <code>564-711</code> messages/settings/context prompts; <code>797-1378</code> dialogs/menus; <code>1385-1516</code> event reducer; <code>1712-1932</code> input routing.</p>
+    <p><strong>Recommended approach.</strong> Introduce deep modules with interfaces based on app concepts: Dungeon View Model, Prompt State, Menu State, Message Log, Status HUD, Command Gateway, Asset Resolver, Recorder, and Renderer Shell. The renderer shell wires modules to DOM.</p>
+    <div class="two"><div><h4>Implementation steps</h4><ul><li>Start with pure modules: asset resolver, prompt classifier, menu classifier, message log.</li><li>Move global state into explicit state objects.</li><li>Make <code>processShimGameEvent</code> call reducers that return render intents.</li><li>Keep DOM updates in existing file until models are stable, then extract view adapters.</li></ul></div><div><h4>Risks/tradeoffs</h4><ul><li>Big-bang extraction could break many UI paths; migrate one module per PR.</li><li>Too many tiny modules would be shallow. Each extracted module must pass the deletion test.</li></ul></div></div>
+    <p><strong>Suggested tests.</strong> Pure reducer tests using fixture events; renderer smoke tests verifying DOM outputs did not change; mutation-style tests for prompt/menu interactions after event sequences.</p>
+  </article>
+
+  <article class="opp">
+    <h3>6. Make shim event processing a reducer, not a DOM dispatcher <span class="tag p1">P1</span> <span class="tag">medium refactor</span></h3>
+    <p><strong>Problem.</strong> <code>processShimGameEvent</code> both interprets events and directly mutates UI state/DOM scheduling. This makes bugs hard to localize and forces tests to inspect browser globals rather than a stable state interface.</p>
+    <p class="evidence"><strong>Evidence.</strong> <code>renderer.js:1385-1516</code> updates map cells, messages, menus, prompts, status, windows, recordings, and render scheduling in one function.</p>
+    <p><strong>Recommended approach.</strong> Create a Game State reducer module. It consumes normalized app events and returns state plus render effects. DOM adapters subscribe to changed slices.</p>
+    <div class="two"><div><h4>Implementation steps</h4><ul><li>Define state slices for map, cursor, windows, menu, prompt, status, logs.</li><li>Convert one event family at a time.</li><li>Represent effects such as <code>openDocumentWindow</code>, <code>flushMapRenderNow</code>, and <code>recordMilestone</code> explicitly.</li></ul></div><div><h4>Risks/tradeoffs</h4><ul><li>Effect modeling can become over-engineered; keep effects as simple tagged objects.</li><li>Initial duplication with existing globals during migration.</li></ul></div></div>
+    <p><strong>Suggested tests.</strong> Given event sequences, assert final game state and effects; re-use fixture JSONL files as reducer tests independent of Electron.</p>
+  </article>
+
+  <article class="opp">
+    <h3>7. Build a single Command Gateway for all player input <span class="tag p0">P0</span> <span class="tag">medium refactor</span></h3>
+    <p><strong>Problem.</strong> Input safety is spread across keyboard events, quick actions, dialogs, direction helper, contextual prompts, automation, recording, and main-process duplicate filtering. The same conceptual command can travel through multiple paths.</p>
+    <p class="evidence"><strong>Evidence.</strong> <code>renderer.js:1712-1776</code> key support, de-duplication, text sending, recording; <code>1779-1932</code> quick actions, modal key routing, document keydown; <code>main.js:250-257</code> second duplicate suppression path.</p>
+    <p><strong>Recommended approach.</strong> Create a Command Gateway module that accepts intent objects (key, text, menu selection, cancel, contextual action) and is the only module that writes to <code>shimInput</code>. UI and automation become adapters.</p>
+    <div class="two"><div><h4>Implementation steps</h4><ul><li>Define accepted command intents and validation rules.</li><li>Move <code>isSupportedPlayableKey</code>, duplicate suppression, recording calls, and <code>rememberWorldKey</code> into the gateway.</li><li>Make quick actions/dialogs/automation call the gateway.</li><li>Keep main-process validation as a last safety net.</li></ul></div><div><h4>Risks/tradeoffs</h4><ul><li>Input bugs are user-visible; migrate with exhaustive input-safety tests.</li><li>Need to decide which duplicate suppression belongs in renderer vs main; document the invariant.</li></ul></div></div>
+    <p><strong>Suggested tests.</strong> Existing <code>test:input-safety</code>, plus unit cases for repeated keys, Ctrl-D, Escape, text entries, modal focus, automation keycode, and recording source attribution.</p>
+  </article>
+
+  <article class="opp">
+    <h3>8. Deepen the prompt/menu interaction module <span class="tag p1">P1</span> <span class="tag">medium refactor</span></h3>
+    <p><strong>Problem.</strong> Prompt and menu behavior is feature-rich but embedded in many functions with shared globals <code>activePrompt</code>, <code>currentMenu</code>, <code>cachedInventoryChoices</code>, and <code>activeContextualPrompt</code>. Heuristics for questions, inventory actions, item classes, menus, and direction prompts are interleaved with DOM dialog rendering.</p>
+    <p class="evidence"><strong>Evidence.</strong> <code>renderer.js:949-1183</code> prompt classification; <code>1184-1378</code> menu classification/rendering; <code>1385-1479</code> event handling updates these states.</p>
+    <p><strong>Recommended approach.</strong> Create an Interaction State module that converts prompt/menu events into a presentation model: kind, title, prompt copy, option rows, text-entry mode, selected keys, and command intents. Dialog DOM becomes an adapter for that model.</p>
+    <div class="two"><div><h4>Implementation steps</h4><ul><li>Extract prompt/menu classifiers into pure functions.</li><li>Represent inventory rows and object-class rows as typed option objects.</li><li>Move selection expression parsing into the module.</li><li>Render the same model in the existing dialog.</li></ul></div><div><h4>Risks/tradeoffs</h4><ul><li>NetHack prompt text is varied; keep raw query and choices available for unknown prompts.</li><li>Some heuristics may belong in fixtures rather than hard-coded regexes long term.</li></ul></div></div>
+    <p><strong>Suggested tests.</strong> Fixture tests for action inventory, item use prompts, drop menu, ground pickup, yes/no, line input, extended command, direction helper, and cancellation.</p>
+  </article>
+
+  <article class="opp">
+    <h3>9. Make dungeon map rendering consume a view model <span class="tag p1">P1</span> <span class="tag">medium refactor</span></h3>
+    <p><strong>Problem.</strong> Map state, tile choice, terrain CSS classes, dirty-cell tracking, tooltip data, and DOM writes are tightly coupled. This reduces locality when changing tile composition or performance behavior.</p>
+    <p class="evidence"><strong>Evidence.</strong> <code>renderer.js:164-173</code> map state; <code>208-310</code> tile/terrain logic; <code>333-400</code> DOM cell application; <code>411-493</code> tooltip logic; <code>504-560</code> full/partial rendering.</p>
+    <p><strong>Recommended approach.</strong> Create a Dungeon View Model module that maps game cells to render cells: glyph, tile id, base tile id, terrain classes, ARIA label, tooltip content. A DOM adapter only applies render cells.</p>
+    <div class="two"><div><h4>Implementation steps</h4><ul><li>Extract <code>normalizeCell</code>, tile selection, terrain classes, and tooltip info into pure functions.</li><li>Return render-cell objects instead of mutating elements.</li><li>Keep dirty-cell scheduler but feed it render-cell diffs.</li></ul></div><div><h4>Risks/tradeoffs</h4><ul><li>Potential performance overhead if render-cell objects are allocated for all cells too often; benchmark with existing render performance script.</li><li>CSS-class compatibility must be preserved.</li></ul></div></div>
+    <p><strong>Suggested tests.</strong> Unit tests for representative cells; map tooltip tests; render performance budget tests; visual screenshots for doors, floors, overlay sprites, unknown glyph fallback.</p>
+  </article>
+
+  <article class="opp">
+    <h3>10. Make status parsing a Status HUD module <span class="tag p2">P2</span> <span class="tag">quick win</span></h3>
+    <p><strong>Problem.</strong> NetHack status fields and rendering are directly embedded in the renderer. It is small enough today, but condition masks and field labels are domain rules that deserve a stable test surface.</p>
+    <p class="evidence"><strong>Evidence.</strong> <code>renderer.js:711-795</code> field names, value cleaning, condition mask decoding, HP class, status render.</p>
+    <p><strong>Recommended approach.</strong> Extract a Status HUD module with input <code>statusValues/statusLabels</code> and output chips/raw status lines. This gives leverage for future status UI without touching event handling.</p>
+    <p><strong>Implementation steps.</strong> Move constants and functions; return chip descriptors; DOM adapter renders descriptors.</p>
+    <p><strong>Risks/tradeoffs.</strong> Low risk; avoid premature support for every NetHack status variant until fixtures reveal it.</p>
+    <p><strong>Suggested tests.</strong> Condition mask decoding; HP danger/warning/healthy; gold value cleaning; empty HUD state.</p>
+  </article>
+
+  <article class="opp">
+    <h3>11. Turn message history into a Message Log module <span class="tag p1">P1</span> <span class="tag">quick win</span></h3>
+    <p><strong>Problem.</strong> The log deduplicates, filters generic direction prompts, limits history, renders two panels, and triggers contextual prompts. These are multiple responsibilities hidden in <code>appendMessage</code>.</p>
+    <p class="evidence"><strong>Evidence.</strong> <code>renderer.js:564-581</code> rendering; <code>652-668</code> message normalization/dedup/history cap; <code>673-711</code> locked-door contextual prompt trigger.</p>
+    <p><strong>Recommended approach.</strong> A Message Log module should own append/filter/dedup/history limit and emit optional observations such as “locked door mentioned.” Contextual action UI should subscribe to observations, not live inside append.</p>
+    <p><strong>Implementation steps.</strong> Extract log state and append result; move locked-door detector to a contextual-actions module; keep DOM render unchanged initially.</p>
+    <p><strong>Risks/tradeoffs.</strong> Too much event indirection can obscure simple log behavior; use simple return values.</p>
+    <p><strong>Suggested tests.</strong> Duplicate suppression; history cap at 240; recent window at 80; generic direction prompt filtering; scroll position preservation using existing log-panel script.</p>
+  </article>
+
+  <h2>C. Asset integration points</h2>
+
+  <article class="opp">
+    <h3>12. Create a Tile Asset Resolver module <span class="tag p1">P1</span> <span class="tag">medium refactor</span></h3>
+    <p><strong>Problem.</strong> Asset lookup combines manifest state, default maps, semantic aliases, glyph numbers, category rules, overlay/base composition, and browser-preview fallback inside renderer globals. Tests duplicate parts of this logic.</p>
+    <p class="evidence"><strong>Evidence.</strong> <code>renderer.js:85-122</code> manifest/map defaults; <code>123-145</code> semantic mapping; <code>221-249</code> URL/overlay/base tile logic; <code>1518-1554</code> manifest fetch and fallback; <code>scripts/fixture-view-test.js:21-28</code> duplicated asset mapping.</p>
+    <p><strong>Recommended approach.</strong> Define Tile Asset Resolver as a deep module: load manifest/map, resolve cell to asset/base/overlay information, expose diagnostics for missing mappings. Both renderer and fixture tooling use it.</p>
+    <div class="two"><div><h4>Implementation steps</h4><ul><li>Extract resolver with no DOM dependency.</li><li>Move default tile map into a JSON or JS data file used by both app and tests.</li><li>Expose missing-asset telemetry for QA.</li><li>Keep browser-preview fallback as an adapter.</li></ul></div><div><h4>Risks/tradeoffs</h4><ul><li>Loading JSON in Electron/browser/test contexts needs a small adapter.</li><li>Resolver should not know CSS details beyond semantic output.</li></ul></div></div>
+    <p><strong>Suggested tests.</strong> Manifest coverage; glyph number mapping; semantic alias mapping; overlay/base composition; missing asset fallback; fixture-view tests using the shared resolver.</p>
+  </article>
+
+  <article class="opp">
+    <h3>13. Add an asset manifest validation seam before renderer load <span class="tag p1">P1</span> <span class="tag">quick win</span></h3>
+    <p><strong>Problem.</strong> Renderer tolerates manifest fetch failure and falls back for browser preview, but production asset issues can silently degrade to ASCII or missing art. Asset QA exists, but runtime manifest validation is separate.</p>
+    <p class="evidence"><strong>Evidence.</strong> <code>renderer.js:1518-1554</code> catch block logs warning and supplies limited preview assets; <code>package.json</code> has <code>test:manifest</code> and visual QA scripts.</p>
+    <p><strong>Recommended approach.</strong> Validate manifest shape, installed paths, duplicate ids, category consistency, and mapping references in one module invoked by tests and optionally in dev runtime.</p>
+    <p><strong>Implementation steps.</strong> Add manifest schema checks; wire to <code>test:manifest</code>; surface validation summary in debug panel for development builds.</p>
+    <p><strong>Risks/tradeoffs.</strong> Strict validation may fail while assets are actively being generated; support a warning mode for incomplete work.</p>
+    <p><strong>Suggested tests.</strong> Duplicate id fixture; missing installedPath; tile-map reference to unknown asset; invalid workflow/category metadata.</p>
+  </article>
+
+  <h2>D. Replay, fixtures, and test tooling</h2>
+
+  <article class="opp">
+    <h3>14. Share app modules with fixture tests instead of duplicating behavior <span class="tag p0">P0</span> <span class="tag">medium refactor</span></h3>
+    <p><strong>Problem.</strong> Fixture scripts re-implement asset resolution, prompt parsing, menu classification, and state updates. That catches regressions, but it can also become a parallel implementation that drifts from the app.</p>
+    <p class="evidence"><strong>Evidence.</strong> <code>scripts/fixture-view-test.js:21-76</code> duplicates <code>slugifySemanticName</code>, <code>assetFor</code>, <code>promptSelectorSet</code>, <code>isInventoryActionPrompt</code>, <code>menuKind</code>, and ground-menu suppression.</p>
+    <p><strong>Recommended approach.</strong> After extracting pure modules, make fixture tests import the same modules and assert state/view-model outputs. Keep a small number of independent end-to-end tests for true black-box coverage.</p>
+    <div class="two"><div><h4>Implementation steps</h4><ul><li>Convert pure modules to CommonJS first to match current package type.</li><li>Replace duplicated helpers in scripts with imports.</li><li>Keep JSONL fixture parsing in scripts.</li><li>Add golden app-state snapshots for fixture sequences.</li></ul></div><div><h4>Risks/tradeoffs</h4><ul><li>Shared code tests can miss bugs shared by app and tests. Preserve a few browser/CDP tests as independent verification.</li><li>Importing renderer-only modules into Node requires DOM-free design.</li></ul></div></div>
+    <p><strong>Suggested tests.</strong> Existing fixture suite should pass unchanged in assertions; add drift test that fixture helper imports are the source of truth.</p>
+  </article>
+
+  <article class="opp">
+    <h3>15. Treat recordings as versioned artifacts with validation <span class="tag p1">P1</span> <span class="tag">quick win</span></h3>
+    <p><strong>Problem.</strong> Recording schema is named, but validation is minimal and split between renderer and main. Invalid or huge recordings could be saved, and visual replay only validates a few fields.</p>
+    <p class="evidence"><strong>Evidence.</strong> <code>renderer.js:1611-1655</code> creates/saves recording objects; <code>main.js:230-236</code> writes whatever object it receives; <code>main.js:63-68</code> replay schema checks are limited.</p>
+    <p><strong>Recommended approach.</strong> Create a Recording module with versioned schema validation, normalization, max sizes, and migration hooks. Main process should validate before writing; replay should validate before playback.</p>
+    <p><strong>Implementation steps.</strong> Define recording v1 schema; cap inputs/milestones/string lengths; sanitize character fields; add validator used by renderer, main, and replay scripts.</p>
+    <p><strong>Risks/tradeoffs.</strong> Old recordings may fail strict validation; allow a migration or lenient read mode.</p>
+    <p><strong>Suggested tests.</strong> Valid seeded recording; missing inputs; unsupported schema; oversized inputs; malformed keycodes; migration/no-op path for current fixtures.</p>
+  </article>
+
+  <article class="opp">
+    <h3>16. Consolidate CDP/Electron test harness utilities <span class="tag p2">P2</span> <span class="tag">quick win</span></h3>
+    <p><strong>Problem.</strong> Many scripts launch Electron/CDP, wait for globals, evaluate snippets, and collect screenshots/metrics with similar code. Harness details are shallow modules repeated across tests.</p>
+    <p class="evidence"><strong>Evidence.</strong> <code>scripts/direction-helper-layout-test.js</code>, <code>log-panel-behavior-test.js</code>, <code>prompt-spam-state-test.js</code>, <code>map-tooltip-test.js</code>, and <code>render-performance-test.js</code> all use CDP/evaluate patterns; grep shows repeated waits for <code>window.__nethackPromptTest</code>.</p>
+    <p><strong>Recommended approach.</strong> Create <code>scripts/lib/electron-harness.js</code> as a deep test module: launch app, attach CDP, wait for automation object, evaluate, screenshot, cleanup.</p>
+    <p><strong>Implementation steps.</strong> Extract common launch/wait/cleanup; migrate one script; then migrate the rest.</p>
+    <p><strong>Risks/tradeoffs.</strong> A broken harness breaks many tests. Keep scripts readable and avoid hiding assertion logic.</p>
+    <p><strong>Suggested tests.</strong> Harness self-test that launches, checks readiness, evaluates a trivial expression, and cleans up child processes.</p>
+  </article>
+
+  <article class="opp">
+    <h3>17. Promote automation hooks into a documented Test Adapter <span class="tag p1">P1</span> <span class="tag">medium refactor</span></h3>
+    <p><strong>Problem.</strong> Test hooks are attached to <code>window</code> and expose internals. They are useful, but their Interface is implicit and can constrain refactors accidentally.</p>
+    <p class="evidence"><strong>Evidence.</strong> <code>renderer.js:1934-1988</code> exposes <code>__nethackAutomation</code>, <code>__nethackPromptTest</code>, and <code>__nethackTooltipTest</code>; test scripts depend on these exact names.</p>
+    <p><strong>Recommended approach.</strong> Create a documented Test Adapter module that exposes stable test commands and read-only state snapshots. Keep private internals private.</p>
+    <p><strong>Implementation steps.</strong> Define state snapshot shape; keep old hook names as compatibility aliases; make scripts consume the stable adapter.</p>
+    <p><strong>Risks/tradeoffs.</strong> Too narrow a test adapter may force tests back to DOM scraping. Include both domain state and selected DOM metrics.</p>
+    <p><strong>Suggested tests.</strong> Contract test for adapter presence, snapshot fields, prompt event injection, tooltip setup, replay start/stop.</p>
+  </article>
+
+  <h2>E. Prompt/input handling and UX state</h2>
+
+  <article class="opp">
+    <h3>18. Model modal/focus state explicitly <span class="tag p1">P1</span> <span class="tag">medium refactor</span></h3>
+    <p><strong>Problem.</strong> Keyboard routing depends on DOM state checks, globals, and implicit priority among intro dialog, interaction dialog, direction helper, text inputs, buttons, and game grid. Focus bugs are likely as UI grows.</p>
+    <p class="evidence"><strong>Evidence.</strong> <code>renderer.js:797-864</code> interaction dialog setup; <code>941-944</code> document/intro key stop propagation; <code>1791-1932</code> cancel/key routing and text-edit checks.</p>
+    <p><strong>Recommended approach.</strong> Introduce a Focus/Mode module with explicit modes: world, prompt, menu, text entry, intro, document, contextual prompt, stopped. Command Gateway asks this module whether a key should become a NetHack command.</p>
+    <p><strong>Implementation steps.</strong> Define mode derivation from state; replace scattered <code>dialog.open</code>/<code>activePrompt</code> checks; add debug exposure of current mode.</p>
+    <p><strong>Risks/tradeoffs.</strong> Derived mode can get stale if not centralized; use selectors over duplicated mutable state.</p>
+    <p><strong>Suggested tests.</strong> Text input does not send commands; Escape cancels correct mode; intro space/continue behavior; active button outside direction helper is ignored; direction helper keys route correctly.</p>
+  </article>
+
+  <article class="opp">
+    <h3>19. Replace prompt regex scatter with named domain rules <span class="tag p2">P2</span> <span class="tag">quick win</span></h3>
+    <p><strong>Problem.</strong> Regexes encode important NetHack prompt knowledge but are hard to audit. Some patterns are duplicated in tests.</p>
+    <p class="evidence"><strong>Evidence.</strong> <code>renderer.js:963-1083</code> prompt/menu title regexes; <code>1184-1191</code> menu kind regexes; <code>scripts/fixture-view-test.js:44-60</code> duplicates a subset.</p>
+    <p><strong>Recommended approach.</strong> Create a Prompt Rules module with named rules and examples: direction prompt, inventory action, item class, yes/no, file/name prompt, ground menu, passive ground look.</p>
+    <p><strong>Implementation steps.</strong> Move regexes into data objects with names and comments; tests assert each rule's positive/negative examples.</p>
+    <p><strong>Risks/tradeoffs.</strong> NetHack text can vary; rules should fail open to generic input, not block play.</p>
+    <p><strong>Suggested tests.</strong> Table-driven prompt examples from fixtures and hand-curated negative examples.</p>
+  </article>
+
+  <h2>F. Log/message handling and observability</h2>
+
+  <article class="opp">
+    <h3>20. Separate raw shim log from user message log <span class="tag p1">P1</span> <span class="tag">quick win</span></h3>
+    <p><strong>Problem.</strong> Raw shim event display and player-facing messages are both managed in renderer globals. They have different retention, redaction, and UI needs.</p>
+    <p class="evidence"><strong>Evidence.</strong> <code>renderer.js:80-84</code> shim log state; <code>1556-1561</code> exit appends raw status; <code>1565-1581</code> raw shim flush; <code>652-668</code> user message append.</p>
+    <p><strong>Recommended approach.</strong> Build two modules: Message Log for player messages and Diagnostics Log for raw event stream. Diagnostics can keep event counts, seen names, sample payloads, parse errors, and caps.</p>
+    <p><strong>Implementation steps.</strong> Extract <code>flushShimEvents</code> and raw log state; add parse-error event from main normalizer; expose diagnostics to debug panel.</p>
+    <p><strong>Risks/tradeoffs.</strong> Extra debug structure should not slow hot event handling; batch updates remain important.</p>
+    <p><strong>Suggested tests.</strong> Raw log cap at 400; seen names sorted; user message cap unaffected; parse-error payload displays safely.</p>
+  </article>
+
+  <article class="opp">
+    <h3>21. Add structured app diagnostics for architectural seams <span class="tag p2">P2</span> <span class="tag">larger improvement</span></h3>
+    <p><strong>Problem.</strong> Debug panel shows useful raw output, but it does not summarize health of the main seams: process, protocol, reducer state, asset resolver, command gateway, and render performance.</p>
+    <p class="evidence"><strong>Evidence.</strong> <code>renderer.html:98-125</code> debug panel sections; <code>renderer.js:177-190</code> automation state; <code>renderer.js:173-174</code> render stats.</p>
+    <p><strong>Recommended approach.</strong> Add a Diagnostics Snapshot module that collects state from each deep module and feeds both debug UI and automation tests.</p>
+    <p><strong>Implementation steps.</strong> Define snapshot fields; reuse in <code>automationState</code>; display summarized status in debug panel.</p>
+    <p><strong>Risks/tradeoffs.</strong> Diagnostics can become a dumping ground; keep it read-only and derived.</p>
+    <p><strong>Suggested tests.</strong> Snapshot contains module health fields after startup, after shim start, after fixture events, and after stop.</p>
+  </article>
+
+  <h2>G. Build/package and migration posture</h2>
+
+  <article class="opp">
+    <h3>22. Introduce a documented module map and migration checklist <span class="tag p2">P2</span> <span class="tag">quick win</span></h3>
+    <p><strong>Problem.</strong> The app has grown through focused fixes and tests, but there is no visible architecture map. Future contributors will keep adding to <code>renderer.js</code> because that is where every precedent lives.</p>
+    <p class="evidence"><strong>Evidence.</strong> No architecture doc was found; <code>renderer.js</code> contains all major renderer behaviors; package scripts indicate multiple test categories but no module ownership guide.</p>
+    <p><strong>Recommended approach.</strong> Add an Electron architecture README that names modules, seams, allowed dependencies, test surfaces, and fixture workflow. This report can be the seed.</p>
+    <p><strong>Implementation steps.</strong> Create <code>electron-poc/docs/architecture.md</code>; include module map, event flow, command flow, asset flow, and testing matrix; update as extractions land.</p>
+    <p><strong>Risks/tradeoffs.</strong> Docs can rot; make it part of code review and link test commands.</p>
+    <p><strong>Suggested tests.</strong> Not code tests; add a lightweight docs checklist to PR template or task checklist.</p>
+  </article>
+</section>
+
+<section>
+  <h2>Suggested implementation sequence</h2>
+  <ol>
+    <li><strong>Quick wins:</strong> document architecture map; validate preload shapes; extract prompt rules, message log, status HUD, and manifest validation.</li>
+    <li><strong>Medium refactors:</strong> asset resolver, command gateway, interaction state, test harness library, recording validator.</li>
+    <li><strong>Large improvements:</strong> game process module, shim event protocol normalizer, game state reducer, dungeon view model, replay runner.</li>
+  </ol>
+  <p>The safest path is inside-out: first extract pure modules with fixture tests, then move DOM/process adapters. Avoid creating hypothetical seams with one adapter unless the module provides clear depth, leverage, and locality.</p>
+</section>
+
+<section>
+  <h2>Recommended test matrix after refactors</h2>
+  <table>
+    <tr><th>Area</th><th>Tests</th></tr>
+    <tr><td>Process and IPC</td><td>Seed/options normalization; one child at a time; stop semantics; malformed stdout; input validation; recording save path.</td></tr>
+    <tr><td>Protocol/reducer</td><td>JSONL fixtures through normalizer and reducer; unknown event handling; status/menu/prompt/map final state snapshots.</td></tr>
+    <tr><td>Command gateway</td><td>Keyboard, quick actions, dialogs, automation, duplicate suppression, blocked controls, recording attribution.</td></tr>
+    <tr><td>Assets/map</td><td>Manifest schema; tile-map references; overlay/base composition; tooltip content; render performance; visual screenshots.</td></tr>
+    <tr><td>Replay</td><td>Recording schema; visual replay smoke; configurable delay/cadence; missing file/error paths.</td></tr>
+    <tr><td>UI state</td><td>Focus/mode routing; modal cancellation; log scroll behavior; direction helper layout; prompt spam state.</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>Caveats</h2>
+  <ul>
+    <li>This report did not alter production code.</li>
+    <li>No project <code>CONTEXT.md</code> or ADRs were found to inform or constrain recommendations.</li>
+    <li>NetHack core architecture was intentionally not audited; C observations are limited to the Electron shim adapter.</li>
+    <li>Line numbers reflect the files as inspected for this report and may drift after future edits.</li>
+  </ul>
+</section>
+
+</main>
+</body>
+</html>

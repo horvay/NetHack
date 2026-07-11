@@ -1,0 +1,30 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "stairs/up-on-hero",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current",
+    "role": "Wizard",
+    "race": "elf",
+    "gender": "male",
+    "alignment": "chaotic"
+  },
+  "level": {
+    "safeAreaAroundHero": 3,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none",
+    "terrain": [
+      { "at": "hero", "type": "stairs-up" }
+    ]
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [],
+  "expectedPublicFacts": {
+    "contextActions": ["Go up stairs"],
+    "mapAffordances": ["up stairs"],
+    "messages": ["up stairs context fixture"],
+    "status": ["Dlvl:1"]
+  }
+}

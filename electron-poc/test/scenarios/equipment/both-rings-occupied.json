@@ -1,0 +1,20 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "equipment/both-rings-occupied",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": { "placement": "current", "role": "Valkyrie", "race": "human", "gender": "female", "alignment": "lawful" },
+  "level": { "safeAreaAroundHero": 2, "lit": true, "suppressAdjacentMonsters": true, "pet": "none" },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    { "typeId": "LONG_SWORD", "identityKnown": true, "beatitudeKnown": true, "beatitude": "uncursed", "enchantment": 1, "equipped": "wielded" },
+    { "typeId": "RIN_PROTECTION", "identityKnown": true, "beatitudeKnown": true, "beatitude": "uncursed", "enchantment": 1, "equipped": "left-ring" },
+    { "typeId": "RIN_ADORNMENT", "identityKnown": true, "beatitudeKnown": true, "beatitude": "uncursed", "equipped": "right-ring" },
+    { "typeId": "RIN_ADORNMENT", "identityKnown": true, "beatitudeKnown": true, "beatitude": "uncursed" }
+  ],
+  "expectedPublicFacts": {
+    "inventoryRows": ["ring of protection", "ring of adornment", "long sword"],
+    "equipmentRows": ["Left ring", "Right ring"],
+    "messages": ["both rings occupied"]
+  }
+}

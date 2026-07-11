@@ -1,0 +1,33 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "fountain/monster-sense-tip",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": { "placement": "current" },
+  "level": {
+    "safeAreaAroundHero": 4,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none",
+    "terrain": [
+      { "at": "hero", "type": "fountain" },
+      { "at": "east", "type": "floor" },
+      { "at": { "dx": 3, "dy": 0 }, "type": "floor" },
+      { "at": { "dx": 5, "dy": 0 }, "type": "wall" },
+      { "at": { "dx": 8, "dy": 0 }, "type": "floor" }
+    ]
+  },
+  "ground": [],
+  "monsters": [
+    { "typeId": "JACKAL", "at": { "dx": 3, "dy": 0 }, "attitude": "hostile", "asleep": false, "hp": 4, "maxHp": 4 },
+    { "typeId": "GRID_BUG", "at": { "dx": 8, "dy": 0 }, "attitude": "hostile", "asleep": false, "hp": 2, "maxHp": 2 }
+  ],
+  "inventory": [],
+  "eventResults": [
+    { "event": "drink-fountain", "result": "monster-detection" }
+  ],
+  "expectedPublicFacts": {
+    "mapAffordances": ["fountain", "forced fountain monster detection"],
+    "monsterRows": ["jackal", "grid bug"],
+    "messages": ["fountain monster-sense fixture"]
+  }
+}

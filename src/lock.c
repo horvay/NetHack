@@ -208,6 +208,10 @@ breakchestlock(struct obj *box, boolean destroyit)
         if (loss)
             You("owe %ld %s for objects destroyed.", loss, currency(loss));
         delobj(box);
+        /* Force a redraw even when the hero is standing on the square: the
+           visible hero glyph may be unchanged, but floor object layers and
+           context actions need to forget the destroyed container. */
+        newsym_force(u.ux, u.uy);
     }
 }
 

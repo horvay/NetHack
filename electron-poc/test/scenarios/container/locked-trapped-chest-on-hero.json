@@ -1,0 +1,54 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "container/locked-trapped-chest-on-hero",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current"
+  },
+  "level": {
+    "safeAreaAroundHero": 2,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [
+    {
+      "at": "hero",
+      "object": {
+        "typeId": "LARGE_BOX",
+        "locked": true,
+        "trap": "armed",
+        "contents": [
+          {
+            "typeId": "DAGGER"
+          }
+        ]
+      }
+    }
+  ],
+  "monsters": [],
+  "inventory": [
+    {
+      "typeId": "TIN_OPENER"
+    }
+  ],
+  "expectedPublicFacts": {
+    "contextActions": [
+      "open-container",
+      "force-container",
+      "untrap-container"
+    ],
+    "containerRows": [
+      "dagger"
+    ],
+    "inventoryRows": [
+      "tin opener"
+    ],
+    "mapAffordances": [
+      "container"
+    ],
+    "messages": [
+      "large box"
+    ]
+  }
+}

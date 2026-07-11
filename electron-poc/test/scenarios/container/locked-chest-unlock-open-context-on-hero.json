@@ -1,0 +1,67 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "container/locked-chest-unlock-open-context-on-hero",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current"
+  },
+  "level": {
+    "safeAreaAroundHero": 2,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [
+    {
+      "at": "hero",
+      "object": {
+        "typeId": "CHEST",
+        "locked": true,
+        "trap": "none",
+        "contents": [
+          {
+            "typeId": "FOOD_RATION"
+          },
+          {
+            "typeId": "DAGGER"
+          }
+        ]
+      }
+    }
+  ],
+  "monsters": [],
+  "inventory": [
+    {
+      "typeId": "SKELETON_KEY"
+    },
+    {
+      "typeId": "TIN_OPENER"
+    },
+    {
+      "typeId": "SCR_IDENTIFY",
+      "identityKnown": true,
+      "beatitudeKnown": false
+    }
+  ],
+  "expectedPublicFacts": {
+    "contextActions": [
+      "open-container",
+      "force-container"
+    ],
+    "containerRows": [
+      "food ration",
+      "dagger"
+    ],
+    "inventoryRows": [
+      "skeleton key",
+      "tin opener",
+      "scroll of identify"
+    ],
+    "mapAffordances": [
+      "container"
+    ],
+    "messages": [
+      "locked chest containing 2 items"
+    ]
+  }
+}

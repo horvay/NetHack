@@ -1,0 +1,1146 @@
+{
+  "auditedAt": "2026-07-07T01:05:47.265Z",
+  "summary": {
+    "fixed": 30,
+    "needs asset regeneration/replacement": 1,
+    "false positive / acceptable current policy": 1
+  },
+  "rows": [
+    {
+      "id": "sink-glyph-4013",
+      "note": "Boss screenshot case: sink fixture glyph should resolve to sink art, not shared fountain or opaque terrain fallback.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "{",
+        "glyph": 4013,
+        "semanticKind": "fixture",
+        "semanticName": "sink"
+      },
+      "assetId": "sink",
+      "categorySlug": "terrain-features",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "sink.png",
+      "ariaLabel": "sink over dungeon floor",
+      "tooltip": {
+        "title": "Sink",
+        "description": "Fixture · Terrain and features · glyph 4013 · map 1,1",
+        "assetId": "sink",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "fountain-glyph-4014",
+      "note": "Nearby fixture feature keeps its own transparent fountain art.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "{",
+        "glyph": 4014,
+        "semanticKind": "fixture",
+        "semanticName": "fountain"
+      },
+      "assetId": "fountain",
+      "categorySlug": "terrain-features",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "fountain.png",
+      "ariaLabel": "fountain over dungeon floor",
+      "tooltip": {
+        "title": "Fountain",
+        "description": "Fixture · Terrain and features · glyph 4014 · map 1,1",
+        "assetId": "fountain",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "altar-feature",
+      "note": "Nearby floor feature keeps altar art despite shared object/iron-chain glyph.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "_",
+        "semanticKind": "feature",
+        "semanticName": "altar"
+      },
+      "assetId": "altar",
+      "categorySlug": "terrain-features",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "altar.png",
+      "ariaLabel": "altar over dungeon floor",
+      "tooltip": {
+        "title": "Altar",
+        "description": "Feature · Terrain and features · map 1,1",
+        "assetId": "altar",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "thin-spellbook-plus",
+      "note": "Prior Boss report: unidentified + spellbook must not fall through to closed-door.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "+",
+        "glyph": 3854,
+        "semanticKind": "object",
+        "semanticName": "jumping",
+        "semanticKnown": false,
+        "semanticAppearance": "thin"
+      },
+      "assetId": "spellbook-class-icon",
+      "categorySlug": "objects-inventory",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "spellbook-class-icon.png",
+      "ariaLabel": "thin spellbook over dungeon floor",
+      "tooltip": {
+        "title": "Thin Spellbook",
+        "description": "Object · Objects and inventory items · glyph 3854 · map 1,1",
+        "assetId": "spellbook-class-icon",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "unlisted-spellbook-plus",
+      "note": "Any object + should remain spellbook class art even if the cover adjective is missing from the slug allow-list.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "+",
+        "glyph": 3854,
+        "semanticKind": "object",
+        "semanticName": "unknown spell",
+        "semanticKnown": false,
+        "semanticAppearance": "strange"
+      },
+      "assetId": "spellbook-class-icon",
+      "categorySlug": "objects-inventory",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "spellbook-class-icon.png",
+      "ariaLabel": "strange spellbook over dungeon floor",
+      "tooltip": {
+        "title": "Strange Spellbook",
+        "description": "Object · Objects and inventory items · glyph 3854 · map 1,1",
+        "assetId": "spellbook-class-icon",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "unknown-wand-slash",
+      "note": "Object / shares the open-door glyph and should use wand class art without revealing hidden identity.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "/",
+        "glyph": 3860,
+        "semanticKind": "object",
+        "semanticName": "death",
+        "semanticKnown": false,
+        "semanticAppearance": "long"
+      },
+      "assetId": "wand-class-icon",
+      "categorySlug": "objects-inventory",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "wand-class-icon.png",
+      "ariaLabel": "long wand over dungeon floor",
+      "tooltip": {
+        "title": "Long Wand",
+        "description": "Object · Objects and inventory items · glyph 3860 · map 1,1",
+        "assetId": "wand-class-icon",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "missing-appearance-wand",
+      "note": "Unidentified / wand with missing appearance metadata should fail closed to wand class art/title, not hidden identity.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "/",
+        "glyph": 3860,
+        "semanticKind": "object",
+        "semanticName": "death",
+        "semanticKnown": false
+      },
+      "assetId": "wand-class-icon",
+      "categorySlug": "objects-inventory",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "wand-class-icon.png",
+      "ariaLabel": "wand over dungeon floor",
+      "tooltip": {
+        "title": "Wand",
+        "description": "Object · Objects and inventory items · glyph 3860 · map 1,1",
+        "assetId": "wand-class-icon",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "missing-appearance-scroll",
+      "note": "Unidentified scroll with missing appearance metadata should fail closed to scroll class art/title, not hidden identity.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "?",
+        "glyph": 3772,
+        "semanticKind": "object",
+        "semanticName": "destroy armor",
+        "semanticKnown": false
+      },
+      "assetId": "scroll-class-icon",
+      "categorySlug": "objects-inventory",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "scroll-class-icon.png",
+      "ariaLabel": "scroll over dungeon floor",
+      "tooltip": {
+        "title": "Scroll",
+        "description": "Object · Objects and inventory items · glyph 3772 · map 1,1",
+        "assetId": "scroll-class-icon",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "unknown-potion",
+      "note": "Public potion appearance keeps potion class icon and noun.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "!",
+        "glyph": 3700,
+        "semanticKind": "object",
+        "semanticName": "healing",
+        "semanticKnown": false,
+        "semanticAppearance": "purple-red"
+      },
+      "assetId": "potion-class-icon",
+      "categorySlug": "objects-inventory",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "potion-class-icon.png",
+      "ariaLabel": "purple red potion over dungeon floor",
+      "tooltip": {
+        "title": "Purple Red Potion",
+        "description": "Object · Objects and inventory items · glyph 3700 · map 1,1",
+        "assetId": "potion-class-icon",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "unknown-ruby-potion",
+      "note": "Boss screenshot case: public `ruby` potion appearance should use potion class art, not ruby gem art.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "!",
+        "glyph": 3755,
+        "semanticKind": "object",
+        "semanticName": "gain level",
+        "semanticKnown": false,
+        "semanticAppearance": "ruby"
+      },
+      "assetId": "potion-class-icon",
+      "categorySlug": "objects-inventory",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "potion-class-icon.png",
+      "ariaLabel": "ruby potion over dungeon floor",
+      "tooltip": {
+        "title": "Ruby Potion",
+        "description": "Object · Objects and inventory items · glyph 3755 · map 1,1",
+        "assetId": "potion-class-icon",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "unknown-ring",
+      "note": "Public ring appearance keeps ring class icon and noun.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "=",
+        "glyph": 3610,
+        "semanticKind": "object",
+        "semanticName": "teleportation",
+        "semanticKnown": false,
+        "semanticAppearance": "gold"
+      },
+      "assetId": "ring-class-icon",
+      "categorySlug": "objects-inventory",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "ring-class-icon.png",
+      "ariaLabel": "gold ring over dungeon floor",
+      "tooltip": {
+        "title": "Gold Ring",
+        "description": "Object · Objects and inventory items · glyph 3610 · map 1,1",
+        "assetId": "ring-class-icon",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "unknown-amulet",
+      "note": "Public amulet appearance keeps amulet class icon and noun.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "\"",
+        "glyph": 3640,
+        "semanticKind": "object",
+        "semanticName": "life saving",
+        "semanticKnown": false,
+        "semanticAppearance": "spherical"
+      },
+      "assetId": "amulet-class-icon",
+      "categorySlug": "objects-inventory",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "amulet-class-icon.png",
+      "ariaLabel": "spherical amulet over dungeon floor",
+      "tooltip": {
+        "title": "Spherical Amulet",
+        "description": "Object · Objects and inventory items · glyph 3640 · map 1,1",
+        "assetId": "amulet-class-icon",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "unknown-gem",
+      "note": "Public gem appearance keeps gem class icon and noun.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "*",
+        "glyph": 3900,
+        "semanticKind": "object",
+        "semanticName": "diamond",
+        "semanticKnown": false,
+        "semanticAppearance": "white"
+      },
+      "assetId": "gem-class-icon",
+      "categorySlug": "objects-inventory",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "gem-class-icon.png",
+      "ariaLabel": "white gem over dungeon floor",
+      "tooltip": {
+        "title": "White Gem",
+        "description": "Object · Objects and inventory items · glyph 3900 · map 1,1",
+        "assetId": "gem-class-icon",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "read-me-scroll",
+      "note": "Unidentified READ ME scroll should use public label art, not hidden scroll identity.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "?",
+        "glyph": 3772,
+        "semanticKind": "object",
+        "semanticName": "destroy armor",
+        "semanticKnown": false,
+        "semanticAppearance": "scroll labeled READ ME"
+      },
+      "assetId": "read-me",
+      "categorySlug": "full-source-objects",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "read-me.png",
+      "ariaLabel": "scroll labeled READ ME over dungeon floor",
+      "tooltip": {
+        "title": "Scroll Labeled READ ME",
+        "description": "Object · Objects and inventory items · glyph 3772 · map 1,1",
+        "assetId": "read-me",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "strc-prst-screenshot-scroll",
+      "note": "Boss screenshot case: public STRC label has an unsafe non-scroll exact asset and should fail closed to the class icon.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "?",
+        "glyph": 3780,
+        "semanticKind": "object",
+        "semanticName": "scroll labeled STRC PRST SKRZ KRK",
+        "semanticKnown": false
+      },
+      "assetId": "scroll-class-icon",
+      "categorySlug": "objects-inventory",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "scroll-class-icon.png",
+      "ariaLabel": "scroll labeled STRC PRST SKRZ KRK over dungeon floor",
+      "tooltip": {
+        "title": "Scroll Labeled STRC PRST SKRZ KRK",
+        "description": "Object · Objects and inventory items · glyph 3780 · map 1,1",
+        "assetId": "scroll-class-icon",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "unsafe-exact-label-scroll",
+      "note": "Exact full-source label assets that are tools/books/relics should not be used for unidentified scroll appearances.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "?",
+        "semanticKind": "object",
+        "semanticName": "create monster",
+        "semanticKnown": false,
+        "semanticAppearance": "scroll labeled FOOBIE BLETCH"
+      },
+      "assetId": "scroll-class-icon",
+      "categorySlug": "objects-inventory",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "scroll-class-icon.png",
+      "ariaLabel": "scroll labeled FOOBIE BLETCH over dungeon floor",
+      "tooltip": {
+        "title": "Scroll Labeled FOOBIE BLETCH",
+        "description": "Object · Objects and inventory items · map 1,1",
+        "assetId": "scroll-class-icon",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "unsafe-exact-label-spellbook-garven",
+      "note": "Exact label asset prompt says spellbook/book leather, so it must not be used for an unidentified scroll.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "?",
+        "semanticKind": "object",
+        "semanticName": "identify",
+        "semanticKnown": false,
+        "semanticAppearance": "scroll labeled GARVEN DEH"
+      },
+      "assetId": "scroll-class-icon",
+      "categorySlug": "objects-inventory",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "scroll-class-icon.png",
+      "ariaLabel": "scroll labeled GARVEN DEH over dungeon floor",
+      "tooltip": {
+        "title": "Scroll Labeled GARVEN DEH",
+        "description": "Object · Objects and inventory items · map 1,1",
+        "assetId": "scroll-class-icon",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "unsafe-exact-label-spellbook-hapax",
+      "note": "Exact label asset prompt says spellbook/book leather, so it must not be used for an unidentified scroll.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "?",
+        "semanticKind": "object",
+        "semanticName": "magic mapping",
+        "semanticKnown": false,
+        "semanticAppearance": "scroll labeled HAPAX LEGOMENON"
+      },
+      "assetId": "scroll-class-icon",
+      "categorySlug": "objects-inventory",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "scroll-class-icon.png",
+      "ariaLabel": "scroll labeled HAPAX LEGOMENON over dungeon floor",
+      "tooltip": {
+        "title": "Scroll Labeled HAPAX LEGOMENON",
+        "description": "Object · Objects and inventory items · map 1,1",
+        "assetId": "scroll-class-icon",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "unsafe-exact-label-seeded-xor",
+      "note": "Seeded real scenario label XOR OTA has crystal/tool full-source art and should fail closed to scroll class art.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "?",
+        "glyph": 3775,
+        "semanticKind": "object",
+        "semanticName": "remove curse",
+        "semanticKnown": false,
+        "semanticAppearance": "scroll labeled XOR OTA"
+      },
+      "assetId": "scroll-class-icon",
+      "categorySlug": "objects-inventory",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "scroll-class-icon.png",
+      "ariaLabel": "scroll labeled XOR OTA over dungeon floor",
+      "tooltip": {
+        "title": "Scroll Labeled XOR OTA",
+        "description": "Object · Objects and inventory items · glyph 3775 · map 1,1",
+        "assetId": "scroll-class-icon",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "gold-piece",
+      "note": "Gold should use installed coin art, not food/ration fallback.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "$",
+        "glyph": 3886,
+        "semanticKind": "object",
+        "semanticName": "gold piece"
+      },
+      "assetId": "gold-piece",
+      "categorySlug": "full-source-objects",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "gold-piece.png",
+      "ariaLabel": "gold piece over dungeon floor",
+      "tooltip": {
+        "title": "Gold Piece",
+        "description": "Object · Objects and inventory items · glyph 3886 · map 1,1",
+        "assetId": "gold-piece",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "known-iron-chain",
+      "note": "Known chain object shares altar glyph but has exact object art.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "_",
+        "semanticKind": "object",
+        "semanticName": "iron chain"
+      },
+      "assetId": "iron-chain",
+      "categorySlug": "full-source-objects",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "iron-chain.png",
+      "ariaLabel": "iron chain over dungeon floor",
+      "tooltip": {
+        "title": "Iron Chain",
+        "description": "Object · Objects and inventory items · map 1,1",
+        "assetId": "iron-chain",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "bare-chain-class",
+      "note": "Bare object _ should prefer the one real chain object over altar terrain.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "_",
+        "semanticKind": "object",
+        "semanticKnown": false
+      },
+      "assetId": "iron-chain",
+      "categorySlug": "full-source-objects",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "iron-chain.png",
+      "ariaLabel": "iron chain over dungeon floor",
+      "tooltip": {
+        "title": "Iron Chain",
+        "description": "Object · Objects and inventory items · map 1,1",
+        "assetId": "iron-chain",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "known-venom",
+      "note": "Known venom semantic name maps to object splash art despite floor glyph.",
+      "classification": "fixed",
+      "cell": {
+        "ch": ".",
+        "semanticKind": "object",
+        "semanticName": "splash of acid venom"
+      },
+      "assetId": "splash-of-acid-venom",
+      "categorySlug": "full-source-objects",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile"
+      ],
+      "image": "splash-of-acid-venom.png",
+      "ariaLabel": "splash of acid venom",
+      "tooltip": {
+        "title": "Splash Of Acid Venom",
+        "description": "Object · Objects and inventory items · map 1,1",
+        "assetId": "splash-of-acid-venom",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "bare-venom-class",
+      "note": "Bare object . still has no neutral venom class icon; exact acid/blinding names work, but missing metadata falls through to floor.",
+      "classification": "needs asset regeneration/replacement",
+      "cell": {
+        "ch": ".",
+        "semanticKind": "object",
+        "semanticKnown": false
+      },
+      "assetId": "room-floor",
+      "categorySlug": "terrain-features",
+      "useCssTerrain": true,
+      "classes": [
+        "tile-cell",
+        "terrain-floor"
+      ],
+      "image": "",
+      "ariaLabel": "Room floor",
+      "tooltip": {
+        "title": "Room Floor",
+        "description": "Object · Terrain and features · map 1,1",
+        "assetId": "room-floor",
+        "useCssTerrain": true,
+        "terrainClasses": [
+          "terrain-floor"
+        ]
+      },
+      "flags": {
+        "objectToTerrain": true,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "trap-fire-collision",
+      "note": "Trap semantic name fire collides with object fire asset and should resolve to fire-trap.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "^",
+        "semanticKind": "trap",
+        "semanticName": "fire"
+      },
+      "assetId": "fire-trap",
+      "categorySlug": "traps-hazards",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "fire-trap.png",
+      "ariaLabel": "fire over dungeon floor",
+      "tooltip": {
+        "title": "Fire",
+        "description": "Trap · Traps and hazards · map 1,1",
+        "assetId": "fire-trap",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "trap-polymorph-collision",
+      "note": "Trap semantic name polymorph collides with object spellbook/wand names and should resolve to polymorph-trap.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "^",
+        "semanticKind": "trap",
+        "semanticName": "polymorph"
+      },
+      "assetId": "polymorph-trap",
+      "categorySlug": "traps-hazards",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "polymorph-trap.png",
+      "ariaLabel": "polymorph over dungeon floor",
+      "tooltip": {
+        "title": "Polymorph",
+        "description": "Trap · Traps and hazards · map 1,1",
+        "assetId": "polymorph-trap",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "trap-dart-collision",
+      "note": "Trap semantic name dart collides with object dart asset and should resolve to dart-trap.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "^",
+        "semanticKind": "trap",
+        "semanticName": "dart"
+      },
+      "assetId": "dart-trap",
+      "categorySlug": "traps-hazards",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "dart-trap.png",
+      "ariaLabel": "dart over dungeon floor",
+      "tooltip": {
+        "title": "Dart",
+        "description": "Trap · Traps and hazards · map 1,1",
+        "assetId": "dart-trap",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "trap-arrow-collision",
+      "note": "Trap semantic name arrow collides with object arrow asset and should resolve to arrow-trap.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "^",
+        "semanticKind": "trap",
+        "semanticName": "arrow"
+      },
+      "assetId": "arrow-trap",
+      "categorySlug": "traps-hazards",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "arrow-trap.png",
+      "ariaLabel": "arrow over dungeon floor",
+      "tooltip": {
+        "title": "Arrow",
+        "description": "Trap · Traps and hazards · map 1,1",
+        "assetId": "arrow-trap",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "trap-statue-collision",
+      "note": "Trap semantic name statue collides with object statue asset and should resolve to statue-trap.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "^",
+        "semanticKind": "trap",
+        "semanticName": "statue"
+      },
+      "assetId": "statue-trap",
+      "categorySlug": "traps-hazards",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "statue-trap.png",
+      "ariaLabel": "statue over dungeon floor",
+      "tooltip": {
+        "title": "Statue",
+        "description": "Trap · Traps and hazards · map 1,1",
+        "assetId": "statue-trap",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "jackal-corpse",
+      "note": "Corpse keeps recognizable monster art with corpse overlay.",
+      "classification": "false positive / acceptable current policy",
+      "cell": {
+        "ch": "%",
+        "semanticKind": "corpse",
+        "semanticName": "jackal"
+      },
+      "assetId": "jackal",
+      "categorySlug": "common-early-monsters",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay",
+        "corpse-tile",
+        "corpse-overlay"
+      ],
+      "image": "jackal.png",
+      "ariaLabel": "jackal corpse over dungeon floor",
+      "tooltip": {
+        "title": "Jackal Corpse",
+        "description": "Common early monsters · map 1,1",
+        "assetId": "jackal",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "unknown-species-corpse",
+      "note": "Unknown corpse species falls to generic corpse, not food ration.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "%",
+        "semanticKind": "corpse",
+        "semanticName": "cave dweller"
+      },
+      "assetId": "corpse",
+      "categorySlug": "objects-inventory",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay",
+        "corpse-tile",
+        "corpse-overlay"
+      ],
+      "image": "corpse.png",
+      "ariaLabel": "cave dweller corpse over dungeon floor",
+      "tooltip": {
+        "title": "Cave Dweller Corpse",
+        "description": "Objects and inventory items · map 1,1",
+        "assetId": "corpse",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "statue-of-jackal",
+      "note": "Statue phrased as \"statue of\" should still resolve the monster subject, not boulder.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "`",
+        "semanticKind": "statue",
+        "semanticName": "statue of a jackal"
+      },
+      "assetId": "jackal",
+      "categorySlug": "common-early-monsters",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay",
+        "statue-tile",
+        "statue-overlay"
+      ],
+      "image": "jackal.png",
+      "ariaLabel": "statue of a jackal over dungeon floor",
+      "tooltip": {
+        "title": "Statue Of A Jackal",
+        "description": "Common early monsters · map 1,1",
+        "assetId": "jackal",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    }
+  ]
+}

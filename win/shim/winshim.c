@@ -144,6 +144,30 @@ VDECLCB(shim_update_positionbar,(char *posbar), "vs", P2V posbar)
 VDECLCB(shim_print_glyph,(winid w, coordxy x, coordxy y, const glyph_info *glyphinfo, const glyph_info *bkglyphinfo), "vi11pp", A2P w, A2P x, A2P y, P2V glyphinfo, P2V bkglyphinfo)
 VDECLCB(shim_raw_print,(const char *str), "vs", P2V str)
 VDECLCB(shim_raw_print_bold,(const char *str), "vs", P2V str)
+VDECLCB(shim_native_end_diagnostic,
+    (const char *phase, int how, const char *reason, const char *killer_name,
+     int killer_format, const char *killer, const char *callsite,
+     boolean final_flow, boolean disclosure_flow, boolean taken,
+     int cmd_key, int moves, int depth_value, int dnum, int dlevel,
+     boolean gameover),
+    "vsississbbbiiiiib",
+    P2V phase, A2P how, P2V reason, P2V killer_name, A2P killer_format,
+    P2V killer, P2V callsite, A2P final_flow, A2P disclosure_flow,
+    A2P taken, A2P cmd_key, A2P moves, A2P depth_value,
+    A2P dnum, A2P dlevel, A2P gameover)
+VDECLCB(shim_native_menu_context,
+    (const char *purpose, const char *owner_kind, const char *callsite,
+     boolean final_flow, boolean disclosure_flow, int how,
+     const char *reason),
+    "vsssbbis",
+    P2V purpose, P2V owner_kind, P2V callsite, A2P final_flow,
+    A2P disclosure_flow, A2P how, P2V reason)
+VDECLCB(shim_native_command_diagnostic,
+    (const char *phase, const char *callsite, int cmd_key, int moves,
+     int depth_value, int dnum, int dlevel, int pending_input_queue),
+    "vssiiiiii",
+    P2V phase, P2V callsite, A2P cmd_key, A2P moves, A2P depth_value,
+    A2P dnum, A2P dlevel, A2P pending_input_queue)
 DECLCB(int, shim_nhgetch,(void), "i")
 DECLCB(int, shim_nh_poskey,(coordxy *x, coordxy *y, int *mod), "ippp", P2V x, P2V y, P2V mod)
 VDECLCB(shim_nhbell,(void), "v")

@@ -1,0 +1,77 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "pet/dog-asset-variants",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current"
+  },
+  "level": {
+    "safeAreaAroundHero": 4,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none",
+    "terrain": [
+      {
+        "at": "east",
+        "type": "floor"
+      },
+      {
+        "at": "north",
+        "type": "floor"
+      },
+      {
+        "at": "west",
+        "type": "floor"
+      },
+      {
+        "at": "south",
+        "type": "floor"
+      }
+    ]
+  },
+  "ground": [],
+  "monsters": [
+    {
+      "typeId": "DOG",
+      "at": "east",
+      "attitude": "tame",
+      "asleep": false
+    },
+    {
+      "typeId": "LITTLE_DOG",
+      "at": "north",
+      "attitude": "hostile",
+      "asleep": false
+    },
+    {
+      "typeId": "LARGE_DOG",
+      "at": "west",
+      "attitude": "hostile",
+      "asleep": false
+    },
+    {
+      "typeId": "LITTLE_DOG",
+      "at": "south",
+      "attitude": "tame",
+      "asleep": false
+    }
+  ],
+  "inventory": [],
+  "expectedPublicFacts": {
+    "monsterRows": [
+      "tame dog glyph 1167",
+      "hostile little dog",
+      "hostile large dog",
+      "tame little dog"
+    ],
+    "mapAffordances": [
+      "adjacent tame adult dog",
+      "adjacent hostile little dog",
+      "adjacent hostile large dog",
+      "adjacent tame little dog"
+    ],
+    "messages": [
+      "dog asset variants fixture"
+    ]
+  }
+}

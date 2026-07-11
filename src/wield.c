@@ -461,6 +461,49 @@ dowield(void)
     return result;
 }
 
+int
+shim_direct_wield_main(struct obj *wep)
+{
+    struct obj *oldwep;
+    int result;
+
+    gm.multi = 0;
+    if (cantwield(gy.youmonst.data)) {
+        pline("Don't be ridiculous!");
+        return ECMD_FAIL;
+    }
+    if (!wep || wep->where != OBJ_INVENT) {
+        You("are not carrying that.");
+        return ECMD_FAIL;
+    }
+    if (wep == uwep) {
+        You("are already wielding that!");
+        if (is_weptool(wep) || is_wet_towel(wep))
+            gu.unweapon = FALSE;
+        return ECMD_OK;
+    }
+    if (welded(uwep)) {
+        weldmsg(uwep);
+        reset_remarm();
+        return ECMD_FAIL;
+    }
+    if (wep == uswapwep || wep == uquiver) {
+        You("must use the normal NetHack flow for that equipment change.");
+        return ECMD_FAIL;
+    }
+    if (wep->owornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE)) {
+        You("cannot wield that!");
+        return ECMD_FAIL;
+    }
+
+    oldwep = uwep;
+    result = ready_weapon(wep);
+    if (flags.pushweapon && oldwep && uwep != oldwep)
+        setuswapwep(oldwep);
+    untwoweapon();
+    return result;
+}
+
 /* the #swap command - swap wielded and secondary weapons */
 int
 doswapweapon(void)
@@ -681,6 +724,40 @@ doquiver_core(const char *verb) /* "ready" or "fire" */
         res = 1;
     }
     return res ? ECMD_TIME : ECMD_OK;
+}
+
+int
+shim_direct_set_quiver(struct obj *newquiver)
+{
+    gm.multi = 0;
+    if (!newquiver) {
+        if (uquiver) {
+            You("now have no ammunition readied.");
+            setuqwep((struct obj *) 0);
+        } else {
+            You("already have no ammunition readied!");
+        }
+        return ECMD_OK;
+    }
+    if (newquiver->where != OBJ_INVENT) {
+        You("are not carrying that.");
+        return ECMD_FAIL;
+    }
+    if (newquiver == uquiver) {
+        pline("That ammunition is already readied!");
+        return ECMD_OK;
+    }
+    if (newquiver->owornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE)) {
+        You("cannot ready that!");
+        return ECMD_FAIL;
+    }
+    if (newquiver == uwep || newquiver == uswapwep) {
+        You("must use the normal NetHack flow to move wielded equipment into the quiver.");
+        return ECMD_FAIL;
+    }
+    setuqwep(newquiver);
+    prinv((char *) 0, newquiver, 0L);
+    return ECMD_OK;
 }
 
 /* used for #rub and for applying pick-axe, whip, grappling hook or polearm */

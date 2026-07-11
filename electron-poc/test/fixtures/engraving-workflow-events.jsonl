@@ -1,0 +1,9 @@
+{"name":"shim_start_menu","window":12}
+{"name":"shim_add_menu","window":12,"selector":97,"text":"a - a wand of digging (0:4)","glyph":2045,"glyphChar":47,"semanticKind":"object","semanticName":"wand"}
+{"name":"shim_add_menu","window":12,"selector":98,"text":"b - a magic marker (0:45)","glyph":2065,"glyphChar":40,"semanticKind":"object","semanticName":"magic marker"}
+{"name":"shim_add_menu","window":12,"selector":99,"text":"c - a dagger (weapon in hand)","glyph":1803,"glyphChar":41,"semanticKind":"object","semanticName":"dagger"}
+{"name":"shim_end_menu","window":12,"prompt":"Inventory:"}
+{"name":"shim_yn_function","query":"What do you want to write with? [- abc or ?*]","choices":"-abc?*\u001b"}
+{"name":"bridge_prompt_answer","keycode":98}
+{"name":"shim_getlin","query":"What do you want to engrave in the floor here?"}
+{"name":"bridge_line_answer","value":"Elbereth"}

@@ -1,0 +1,20 @@
+{"name":"shim_create_nhwindow","return":1,"windowType":3}
+{"name":"shim_putstr","window":1,"text":"You see here several objects."}
+{"name":"shim_start_menu","window":7}
+{"name":"shim_add_menu","window":7,"selector":97,"text":"a food ration","glyph":2145,"glyphChar":37,"semanticKind":"object","semanticName":"food ration"}
+{"name":"shim_add_menu","window":7,"selector":98,"text":"a bubbly potion","glyph":2201,"glyphChar":33,"semanticKind":"object","semanticName":"potion"}
+{"name":"shim_end_menu","window":7,"prompt":"Things that are here:"}
+{"name":"shim_select_menu","window":7,"how":0}
+{"name":"shim_display_nhwindow","window":7,"blocking":0}
+{"name":"shim_start_menu","window":8}
+{"name":"shim_add_menu","window":8,"selector":97,"text":"a food ration","glyph":2145,"glyphChar":37,"semanticKind":"object","semanticName":"food ration"}
+{"name":"shim_add_menu","window":8,"selector":98,"text":"a bubbly potion","glyph":2201,"glyphChar":33,"semanticKind":"object","semanticName":"potion"}
+{"name":"shim_end_menu","window":8,"prompt":"Pick up what?"}
+{"name":"shim_select_menu","window":8,"how":2}
+{"name":"bridge_menu_answer","return":0,"selectors":""}
+{"name":"shim_start_menu","window":9}
+{"name":"shim_add_menu","window":9,"selector":97,"text":"a food ration","glyph":2145,"glyphChar":37,"semanticKind":"object","semanticName":"food ration"}
+{"name":"shim_add_menu","window":9,"selector":98,"text":"a bubbly potion","glyph":2201,"glyphChar":33,"semanticKind":"object","semanticName":"potion"}
+{"name":"shim_end_menu","window":9,"prompt":"Pick up what?"}
+{"name":"shim_select_menu","window":9,"how":2}
+{"name":"bridge_menu_answer","return":1,"selectors":"a","selector":97}

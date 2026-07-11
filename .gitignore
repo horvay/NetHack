@@ -98,3 +98,38 @@ util/*.lib
 util/*.exp
 submodules/CHKSUMS.tmp
 sys/amiga/regex/
+
+# Local Electron POC/test artifacts
+.tmp/
+electron-poc/node_modules/
+playground/
+electron-poc/shim-bridge/nh-shim-bridge
+electron-poc/test-output*/
+electron-poc/test-output*.log
+electron-poc/test/direction-helper-layout/
+electron-poc/test/game-over/
+electron-poc/test/gui-input-workflow/
+electron-poc/test/log-panel-behavior/
+electron-poc/test/map-tooltip/
+electron-poc/test/prompt-spam/
+electron-poc/test/replay-screenshots/
+electron-poc/test/recordings/*
+!electron-poc/test/recordings/seeded-smoke.nhrec.json
+!electron-poc/test/recordings/seeded-smoke-v2.nhrec.json
+
+# Local AI-agent, test, and runtime evidence
+.mcp.json
+ai-org-employee-extension.log
+evidence/
+logs/
+subagent-runs/
+
+# Asset-generation intermediates and backups
+asset-generation/backups/
+asset-generation/logs/
+asset-generation/scripts/__pycache__/
+asset-generation/workflows/*.bak-*
+electron-poc/assets/tiles/generated/*-backup-*/
+
+# Employee run reports are preserved by AI Org outside the repository
+employee-result*.md

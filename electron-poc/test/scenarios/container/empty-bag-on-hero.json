@@ -1,0 +1,62 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "container/empty-bag-on-hero",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current"
+  },
+  "level": {
+    "safeAreaAroundHero": 2,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [
+    {
+      "at": "hero",
+      "object": {
+        "typeId": "SACK",
+        "locked": false,
+        "trap": "none",
+        "contents": []
+      }
+    }
+  ],
+  "monsters": [],
+  "inventory": [
+    {
+      "typeId": "DAGGER",
+      "enchantment": 0,
+      "equipped": "wielded"
+    },
+    {
+      "typeId": "LEATHER_ARMOR",
+      "equipped": "worn"
+    },
+    {
+      "typeId": "SMALL_SHIELD",
+      "equipped": "worn"
+    },
+    {
+      "typeId": "POT_HEALING",
+      "quantity": 2,
+      "identityKnown": true,
+      "beatitudeKnown": true,
+      "beatitude": "uncursed"
+    }
+  ],
+  "expectedPublicFacts": {
+    "contextActions": [
+      "open-container"
+    ],
+    "inventoryRows": [
+      "dagger",
+      "leather armor",
+      "wooden shield",
+      "potions of healing"
+    ],
+    "messages": [
+      "empty bag on hero"
+    ]
+  }
+}

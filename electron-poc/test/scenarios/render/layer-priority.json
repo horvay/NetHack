@@ -1,0 +1,71 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "render/layer-priority",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current",
+    "role": "Valkyrie",
+    "race": "human",
+    "gender": "female",
+    "alignment": "lawful"
+  },
+  "level": {
+    "safeAreaAroundHero": 3,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [
+    {
+      "at": "hero",
+      "object": {
+        "typeId": "LARGE_BOX",
+        "locked": false,
+        "trap": "none",
+        "contents": []
+      }
+    },
+    {
+      "at": "west",
+      "object": {
+        "typeId": "APPLE"
+      }
+    },
+    {
+      "at": "east",
+      "object": {
+        "typeId": "CHEST",
+        "locked": false,
+        "trap": "none",
+        "contents": []
+      }
+    }
+  ],
+  "monsters": [
+    {
+      "typeId": "JACKAL",
+      "at": "east",
+      "attitude": "hostile",
+      "hp": 5,
+      "maxHp": 5
+    }
+  ],
+  "inventory": [],
+  "expectedPublicFacts": {
+    "mapAffordances": [
+      "container",
+      "monster.hostile-unknown"
+    ],
+    "messages": [
+      "render layering fixture"
+    ],
+    "groundRows": [
+      "apple",
+      "large box",
+      "chest"
+    ],
+    "monsterRows": [
+      "jackal"
+    ]
+  }
+}

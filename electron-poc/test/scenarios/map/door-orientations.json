@@ -1,0 +1,63 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "map/door-orientations",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current"
+  },
+  "level": {
+    "safeAreaAroundHero": 10,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none",
+    "terrain": [
+      {
+        "at": {
+          "dx": -4,
+          "dy": -3
+        },
+        "type": "door-none"
+      },
+      {
+        "at": {
+          "dx": 0,
+          "dy": -2
+        },
+        "type": "door-none"
+      }
+    ],
+    "map": {
+      "topLeft": {
+        "dx": -12,
+        "dy": -4
+      },
+      "rows": [
+        "........|.......|...|....",
+        "...-+-.....-/-../...+.-.-",
+        "........|..-.-..|...|....",
+        ".........................",
+        "............@............",
+        ".........................",
+        ".........................",
+        ".........................",
+        "........................."
+      ]
+    }
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [],
+  "expectedPublicFacts": {
+    "mapAffordances": [
+      "horizontal closed door",
+      "vertical closed door",
+      "horizontal open door",
+      "vertical open door",
+      "empty doorway",
+      "horizontal empty doorway"
+    ],
+    "messages": [
+      "door orientation fixture loaded"
+    ]
+  }
+}

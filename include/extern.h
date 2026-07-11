@@ -105,6 +105,9 @@ extern void stop_occupation(void);
 extern void init_sound_disp_gamewindows(void);
 extern void newgame(void);
 extern void welcome(boolean);
+#ifdef NH_ELECTRON_TEST_FIXTURES
+extern boolean electron_test_consume_event_result(const char *, const char *);
+#endif
 extern long timet_to_seconds(time_t);
 extern long timet_delta(time_t, time_t);
 
@@ -653,6 +656,7 @@ extern int fn_cmap_to_glyph(int);
 /* ### do.c ### */
 
 extern int dodrop(void);
+extern int direct_drop_inventory_object(struct obj *) NONNULLARG1;
 extern boolean boulder_hits_pool(struct obj *, coordxy, coordxy, boolean);
 extern boolean flooreffects(struct obj *, coordxy, coordxy,
                             const char *) NONNULLPTRS;
@@ -782,6 +786,10 @@ extern int armoroff(struct obj *);
 extern int canwearobj(struct obj *, long *, boolean) NONNULLPTRS;
 extern int dowear(void);
 extern int doputon(void);
+extern int doshimequipmentchange(void);
+extern void equipment_change_set_request(unsigned int, const char *, const char *, const char *, const char *);
+extern boolean equipment_change_result_available(void);
+extern void equipment_change_take_result(boolean *, unsigned int *, char *, size_t, char *, size_t, char *, size_t, char *, size_t, char *, size_t);
 extern void find_ac(void);
 extern void glibr(void);
 extern struct obj *some_armor(struct monst *) NONNULLARG1;
@@ -1004,6 +1012,17 @@ ATTRNORETURN extern void panic(const char *, ...) PRINTF_F(1, 2) NORETURN;
 #endif
 #if !defined(MAKEDEFS_C) && !defined(MDLIB_C) && !defined(CPPREGEX_C)
 extern void done(int);
+#ifdef SHIM_GRAPHICS
+extern void shim_native_end_diagnostic(const char *, int, const char *,
+                                       const char *, int, const char *,
+                                       const char *, boolean, boolean,
+                                       boolean, int, int, int, int, int,
+                                       boolean);
+extern void shim_native_menu_context(const char *, const char *, const char *,
+                                     boolean, boolean, int, const char *);
+extern void shim_native_command_diagnostic(const char *, const char *, int,
+                                           int, int, int, int, int);
+#endif
 extern void container_contents(struct obj *, boolean, boolean, boolean);
 ATTRNORETURN extern void nh_terminate(int) NORETURN;
 extern void delayed_killer(int, int, const char *);
@@ -2474,6 +2493,22 @@ extern boolean container_gone(int(*)(struct obj *)) NONNULLARG1;
 extern boolean u_handsy(void);
 extern int use_container(struct obj **, boolean, boolean) NONNULLARG1;
 extern int loot_mon(struct monst *, int *, boolean *) NO_NNARGS;
+extern int doshimgroundtransfer(void);
+extern int doshimcontainertransfer(void);
+extern int doshimcontainersnapshot(void);
+extern int doshimterrainaction(void);
+extern void ground_transfer_set_request(unsigned int, const char *, int, int, const char *);
+extern boolean ground_transfer_result_available(void);
+extern void ground_transfer_take_result(boolean *, unsigned int *, int *, int *, char *, size_t, char *, size_t, char *, size_t);
+extern void container_transfer_set_request(unsigned int, unsigned int, const char *, const char *);
+extern boolean container_transfer_result_available(void);
+extern void container_transfer_take_result(boolean *, unsigned int *, unsigned int *, char *, size_t, char *, size_t, char *, size_t);
+extern void container_snapshot_set_request(unsigned int, const char *);
+extern boolean container_snapshot_result_available(void);
+extern void container_snapshot_take_result(boolean *, unsigned int *, char *, size_t, char *, size_t);
+extern void terrain_action_set_request(const char *, coordxy, coordxy, const char *, unsigned int, const char *);
+extern boolean terrain_action_result_available(void);
+extern void terrain_action_take_result(boolean *, char *, size_t, coordxy *, coordxy *, char *, size_t, unsigned int *, char *, size_t, char *, size_t);
 extern int dotip(void);
 extern struct autopickup_exception *check_autopickup_exceptions(struct obj *) NONNULLARG1;
 extern boolean autopick_testobj(struct obj *, boolean) NONNULLARG1;
@@ -2848,6 +2883,9 @@ extern void free_CapMons(void);
 extern int dosave(void);
 extern int dosave0(void);
 extern boolean tricked_fileremoved(NHFILE *, char *) NONNULLARG2;
+#if defined(NH_ELECTRON_LOCAL_LOCK_RECOVERY) && defined(SHIM_GRAPHICS)
+extern boolean electron_local_lock_allows_checkpoint(void);
+#endif
 #ifdef INSURANCE
 extern void savestateinlock(void);
 #endif
@@ -3137,6 +3175,9 @@ extern stairway *stairway_find_special_dir(boolean);
 extern void u_on_sstairs(int);
 extern void u_on_upstairs(void);
 extern void u_on_dnstairs(void);
+#ifdef NH_ELECTRON_TEST_FIXTURES
+extern void electron_test_force_downstairs_under_hero(void);
+#endif
 extern boolean On_stairs(coordxy, coordxy);
 extern boolean On_ladder(coordxy, coordxy);
 extern boolean On_stairs_up(coordxy, coordxy);
@@ -3788,6 +3829,8 @@ extern int dowield(void);
 extern int doswapweapon(void);
 extern int dowieldquiver(void);
 extern int doquiver_core(const char *) NONNULLARG1;
+extern int shim_direct_wield_main(struct obj *) NONNULLARG1;
+extern int shim_direct_set_quiver(struct obj *) NO_NNARGS;
 extern boolean wield_tool(struct obj *, const char *) NONNULLARG1;
 extern int can_twoweapon(void);
 extern void drop_uswapwep(void);

@@ -1,0 +1,9 @@
+{"name":"shim_create_nhwindow","return":2,"windowType":2}
+{"name":"shim_start_menu","window":2,"behavior":0}
+{"name":"shim_add_menu","window":2,"selector":97,"text":"a - a scroll labeled VELOX NEB","glyph":1400,"glyphChar":63,"semanticKind":"object","semanticName":"scroll"}
+{"name":"shim_add_menu","window":2,"selector":98,"text":"b - a food ration","glyph":1401,"glyphChar":37,"semanticKind":"object","semanticName":"food ration"}
+{"name":"shim_add_menu","window":2,"selector":99,"text":"c - a potion of healing","glyph":1402,"glyphChar":33,"semanticKind":"object","semanticName":"potion of healing"}
+{"name":"shim_end_menu","window":2,"prompt":"Inventory:"}
+{"name":"shim_select_menu","window":2,"how":0,"awaitingSelection":true}
+{"name":"bridge_menu_answer","window":2,"return":0,"selector":0,"selectors":""}
+{"name":"shim_yn_function","query":"What do you want to read? [a or ?*]","choices":"a?*\u001b"}

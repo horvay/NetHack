@@ -1,0 +1,26 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "object/gray-stone-public-rub-candidates",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current"
+  },
+  "level": {
+    "safeAreaAroundHero": 2,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    { "typeId": "FLINT", "identityKnown": false, "beatitudeKnown": false },
+    { "typeId": "TOUCHSTONE", "identityKnown": false, "beatitudeKnown": false },
+    { "typeId": "LUCKSTONE", "identityKnown": false, "beatitudeKnown": false },
+    { "typeId": "LOADSTONE", "identityKnown": false, "beatitudeKnown": false }
+  ],
+  "expectedPublicFacts": {
+    "inventoryRows": ["gray stone"],
+    "messages": ["gray stone public rub candidates"]
+  }
+}

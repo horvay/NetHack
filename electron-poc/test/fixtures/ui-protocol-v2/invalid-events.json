@@ -1,0 +1,1044 @@
+[
+  {
+    "case": "wrong protocol and unknown event type",
+    "event": {
+      "protocol": "nethack-electron-ui/v1",
+      "sequence": 1,
+      "eventId": "evt-bad-protocol",
+      "eventType": "inventory.omniscientSpoiler",
+      "turn": 1,
+      "payload": {}
+    }
+  },
+  {
+    "case": "missing monotonic sequence",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "eventId": "evt-no-sequence",
+      "eventType": "inventory.snapshot",
+      "turn": 1,
+      "payload": {
+        "items": []
+      }
+    }
+  },
+  {
+    "case": "payload is not an object",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 3,
+      "eventId": "evt-null-payload",
+      "eventType": "inventory.snapshot",
+      "turn": 1,
+      "payload": null
+    }
+  },
+  {
+    "case": "inventory item lacks public display name",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 4,
+      "eventId": "evt-bad-item",
+      "eventType": "inventory.snapshot",
+      "turn": 1,
+      "payload": {
+        "items": [
+          {
+            "objectId": 99
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "inventory item contains hidden/spoiler fields",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 5,
+      "eventId": "evt-spoiler-item",
+      "eventType": "inventory.snapshot",
+      "turn": 1,
+      "payload": {
+        "items": [
+          {
+            "objectId": 99,
+            "displayName": "an amulet",
+            "baseType": "amulet of life saving",
+            "beatitude": "cursed",
+            "enchantment": 7,
+            "charges": 3
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "inventory delta contains hidden/spoiler fields",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 6,
+      "eventId": "evt-spoiler-delta",
+      "eventType": "inventory.delta",
+      "turn": 1,
+      "payload": {
+        "items": [
+          {
+            "objectId": 99,
+            "displayName": "an amulet",
+            "baseType": "amulet of life saving",
+            "beatitude": "cursed"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "equipment delta contains hidden/spoiler fields",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 7,
+      "eventId": "evt-spoiler-equipment-delta",
+      "eventType": "equipment.delta",
+      "turn": 1,
+      "payload": {
+        "slots": [
+          {
+            "slotId": "amulet",
+            "item": {
+              "objectId": 99,
+              "displayName": "an amulet",
+              "baseType": "amulet of life saving",
+              "beatitude": "cursed"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "menu item leaks hidden semantic name",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 8,
+      "eventId": "evt-spoiler-menu-item",
+      "eventType": "menu.item",
+      "turn": 1,
+      "payload": {
+        "menuId": "menu-1",
+        "item": {
+          "selector": "a",
+          "text": "a - a milky potion",
+          "semanticKnown": false,
+          "semanticAppearance": "milky potion",
+          "semanticName": "potion of gain level"
+        }
+      }
+    }
+  },
+  {
+    "case": "inventory snapshot item leaks hidden semantic name",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 9,
+      "eventId": "evt-spoiler-inventory-semantic-name",
+      "eventType": "inventory.snapshot",
+      "turn": 1,
+      "payload": {
+        "items": [
+          {
+            "displayName": "a milky potion",
+            "semanticKnown": false,
+            "semanticAppearance": "milky potion",
+            "semanticName": "potion of gain level"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "equipment snapshot item leaks hidden semantic name",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 10,
+      "eventId": "evt-spoiler-equipment-semantic-name",
+      "eventType": "equipment.snapshot",
+      "turn": 1,
+      "payload": {
+        "slots": [
+          {
+            "slotId": "ring.left",
+            "item": {
+              "displayName": "a pearl ring",
+              "semanticKnown": false,
+              "semanticAppearance": "pearl ring",
+              "semanticName": "ring of polymorph control"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "ground pile item leaks hidden semantic name",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 11,
+      "eventId": "evt-spoiler-ground-semantic-name",
+      "eventType": "ground.pile.snapshot",
+      "turn": 1,
+      "payload": {
+        "coord": {
+          "x": 1,
+          "y": 2
+        },
+        "items": [
+          {
+            "displayName": "a scroll labeled PRATYAVAYAH",
+            "semanticKnown": false,
+            "semanticAppearance": "scroll labeled PRATYAVAYAH",
+            "semanticName": "scroll of remove curse"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "container contents item leaks hidden semantic name",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 12,
+      "eventId": "evt-spoiler-container-semantic-name",
+      "eventType": "container.contents.snapshot",
+      "turn": 1,
+      "payload": {
+        "sessionId": "container-session-1",
+        "items": [
+          {
+            "displayName": "a swirly potion",
+            "semanticKnown": false,
+            "semanticAppearance": "swirly potion",
+            "semanticName": "potion of full healing"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "public item rejects alternate hidden trueName field",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 13,
+      "eventId": "evt-spoiler-true-name",
+      "eventType": "inventory.snapshot",
+      "turn": 1,
+      "payload": {
+        "items": [
+          {
+            "displayName": "a milky potion",
+            "trueName": "potion of gain level"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "public item rejects unknown hidden charge alias",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 14,
+      "eventId": "evt-spoiler-charge-alias",
+      "eventType": "inventory.snapshot",
+      "turn": 1,
+      "payload": {
+        "items": [
+          {
+            "displayName": "a wand",
+            "remainingCharges": 3
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "public item rejects unknown arbitrary field",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 15,
+      "eventId": "evt-spoiler-unknown-item-field",
+      "eventType": "inventory.snapshot",
+      "turn": 1,
+      "payload": {
+        "items": [
+          {
+            "displayName": "a wand",
+            "rendererPrivateGuess": "wand of death"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "public item rejects nested location spoiler",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 16,
+      "eventId": "evt-spoiler-location-nested",
+      "eventType": "inventory.snapshot",
+      "turn": 1,
+      "payload": {
+        "items": [
+          {
+            "displayName": "a milky potion",
+            "location": {
+              "kind": "inventory",
+              "trueName": "potion of gain level"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "public item rejects object action affordance spoiler",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 17,
+      "eventId": "evt-spoiler-action-object",
+      "eventType": "inventory.snapshot",
+      "turn": 1,
+      "payload": {
+        "items": [
+          {
+            "displayName": "a milky potion",
+            "actionAffordances": [
+              {
+                "label": "quaff",
+                "trueName": "potion of gain level"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "public item rejects object action hint spoiler",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 18,
+      "eventId": "evt-spoiler-action-hint-object",
+      "eventType": "inventory.snapshot",
+      "turn": 1,
+      "payload": {
+        "items": [
+          {
+            "displayName": "a milky potion",
+            "publicActionHints": [
+              {
+                "trueName": "potion of gain level"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "menu item rejects alternate hidden fields",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 19,
+      "eventId": "evt-spoiler-menu-item-true-name",
+      "eventType": "menu.item",
+      "turn": 1,
+      "payload": {
+        "menuId": "menu-1",
+        "item": {
+          "selector": "a",
+          "text": "a - a milky potion",
+          "trueName": "potion of gain level",
+          "remainingCharges": 3
+        }
+      }
+    }
+  },
+  {
+    "case": "public item rejects object semantic name",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 20,
+      "eventId": "evt-spoiler-object-semantic-name",
+      "eventType": "inventory.snapshot",
+      "turn": 1,
+      "payload": {
+        "items": [
+          {
+            "displayName": "a milky potion",
+            "semanticKnown": true,
+            "semanticName": {
+              "trueName": "potion of gain level"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "public item rejects object semantic kind",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 21,
+      "eventId": "evt-spoiler-object-semantic-kind",
+      "eventType": "inventory.snapshot",
+      "turn": 1,
+      "payload": {
+        "items": [
+          {
+            "displayName": "a milky potion",
+            "semanticKind": {
+              "trueName": "potion of gain level"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "public item rejects spoiler known flag key",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 22,
+      "eventId": "evt-spoiler-known-key",
+      "eventType": "inventory.snapshot",
+      "turn": 1,
+      "payload": {
+        "items": [
+          {
+            "displayName": "a milky potion",
+            "known": {
+              "potionOfGainLevel": true
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "menu item rejects object semantic name",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 23,
+      "eventId": "evt-spoiler-menu-object-semantic-name",
+      "eventType": "menu.item",
+      "turn": 1,
+      "payload": {
+        "menuId": "menu-1",
+        "item": {
+          "selector": "a",
+          "text": "a - a milky potion",
+          "semanticKnown": true,
+          "semanticName": {
+            "trueName": "potion of gain level"
+          }
+        }
+      }
+    }
+  },
+  {
+    "case": "menu lifecycle rejects object menuPurpose",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 24,
+      "eventId": "evt-spoiler-menu-purpose-object",
+      "eventType": "menu.opened",
+      "turn": 1,
+      "payload": {
+        "menuId": "menu-1",
+        "menuPurpose": {
+          "trueName": "potion of gain level"
+        },
+        "selectionMode": "one"
+      }
+    }
+  },
+  {
+    "case": "menu lifecycle rejects unknown requestSource field",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 25,
+      "eventId": "evt-spoiler-menu-request-source",
+      "eventType": "menu.ready",
+      "turn": 1,
+      "payload": {
+        "menuId": "menu-1",
+        "menuPurpose": "inventory.overview",
+        "requestSource": {
+          "layer": "renderer",
+          "trueName": "potion of gain level"
+        }
+      }
+    }
+  },
+  {
+    "case": "menu lifecycle rejects unknown payload field",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 26,
+      "eventId": "evt-spoiler-menu-extra-field",
+      "eventType": "menu.selecting",
+      "turn": 1,
+      "payload": {
+        "menuId": "menu-1",
+        "menuPurpose": "inventory.overview",
+        "trueName": "potion of gain level"
+      }
+    }
+  },
+  {
+    "case": "prompt opened rejects unknown payload field",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 27,
+      "eventId": "evt-spoiler-prompt-extra-field",
+      "eventType": "prompt.opened",
+      "turn": 1,
+      "payload": {
+        "promptId": "prompt-1",
+        "promptType": "question",
+        "message": "Really drink it?",
+        "choices": [
+          "y",
+          "n"
+        ],
+        "trueName": "potion of gain level"
+      }
+    }
+  },
+  {
+    "case": "prompt opened rejects unknown requestSource field",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 28,
+      "eventId": "evt-spoiler-prompt-request-source",
+      "eventType": "prompt.opened",
+      "turn": 1,
+      "payload": {
+        "promptId": "prompt-1",
+        "promptType": "question",
+        "message": "Really drink it?",
+        "choices": [
+          "y",
+          "n"
+        ],
+        "requestSource": {
+          "layer": "renderer",
+          "trueName": "potion of gain level"
+        }
+      }
+    }
+  },
+  {
+    "case": "prompt opened rejects object choice",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 29,
+      "eventId": "evt-spoiler-prompt-object-choice",
+      "eventType": "prompt.opened",
+      "turn": 1,
+      "payload": {
+        "promptId": "prompt-1",
+        "promptType": "question",
+        "message": "Really drink it?",
+        "choices": [
+          {
+            "label": "yes",
+            "trueName": "potion of gain level"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "bad source layer",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 30,
+      "eventId": "evt-bad-source",
+      "eventType": "replay.marker",
+      "turn": 1,
+      "source": {
+        "layer": "omniscient-debugger"
+      },
+      "payload": {
+        "name": "bad source"
+      }
+    }
+  },
+  {
+    "case": "inventory snapshot rejects missing revision",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 31,
+      "eventId": "evt-inventory-no-revision-golden",
+      "eventType": "inventory.snapshot",
+      "turn": 1,
+      "payload": {
+        "items": []
+      }
+    }
+  },
+  {
+    "case": "inventory snapshot rejects unknown payload field",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 32,
+      "eventId": "evt-inventory-extra-payload-golden",
+      "eventType": "inventory.snapshot",
+      "turn": 1,
+      "payload": {
+        "revision": 1,
+        "items": [],
+        "contents": [
+          {
+            "trueName": "potion of gain level"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "inventory delta rejects missing revision",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 33,
+      "eventId": "evt-inventory-delta-no-revision-golden",
+      "eventType": "inventory.delta",
+      "turn": 1,
+      "payload": {
+        "added": [
+          {
+            "displayName": "a food ration"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "inventory delta rejects non-public removed object id",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 34,
+      "eventId": "evt-inventory-delta-bad-removed-golden",
+      "eventType": "inventory.delta",
+      "turn": 1,
+      "payload": {
+        "revision": 2,
+        "removed": [
+          {
+            "trueName": "potion of gain level"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "inventory snapshot rejects mismatched envelope revision",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 35,
+      "eventId": "evt-inventory-revision-mismatch-golden",
+      "eventType": "inventory.snapshot",
+      "turn": 1,
+      "revision": {
+        "inventory": 999
+      },
+      "payload": {
+        "revision": 1,
+        "items": []
+      }
+    }
+  },
+  {
+    "case": "equipment snapshot envelope revision mismatch",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 36,
+      "eventId": "evt-equipment-revision-mismatch",
+      "eventType": "equipment.snapshot",
+      "turn": 1,
+      "revision": {
+        "equipment": 4,
+        "inventory": 2
+      },
+      "payload": {
+        "revision": 3,
+        "inventoryRevision": 2,
+        "slots": []
+      }
+    }
+  },
+  {
+    "case": "equipment snapshot inventory revision mismatch",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 37,
+      "eventId": "evt-equipment-inventory-revision-mismatch",
+      "eventType": "equipment.snapshot",
+      "turn": 1,
+      "revision": {
+        "equipment": 3,
+        "inventory": 9
+      },
+      "payload": {
+        "revision": 3,
+        "inventoryRevision": 2,
+        "slots": []
+      }
+    }
+  },
+  {
+    "case": "equipment snapshot rejects unknown slot id",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 38,
+      "eventId": "evt-equipment-unknown-slot",
+      "eventType": "equipment.snapshot",
+      "turn": 1,
+      "payload": {
+        "revision": 1,
+        "slots": [
+          {
+            "slotId": "amulet.trueIdentity",
+            "publicStatus": "empty"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "equipment snapshot rejects object blocker",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 39,
+      "eventId": "evt-equipment-object-blocker",
+      "eventType": "equipment.snapshot",
+      "turn": 1,
+      "payload": {
+        "revision": 1,
+        "slots": [
+          {
+            "slotId": "armor.body",
+            "blockedBy": [
+              {
+                "trueName": "cursed cloak"
+              }
+            ],
+            "publicStatus": "blocked"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "equipment snapshot rejects hidden payload field",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 40,
+      "eventId": "evt-equipment-hidden-payload",
+      "eventType": "equipment.snapshot",
+      "turn": 1,
+      "payload": {
+        "revision": 1,
+        "slots": [],
+        "curseState": "cursed"
+      }
+    }
+  },
+  {
+    "case": "action affordance rejects hidden disabled reason token",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 41,
+      "eventId": "evt-action-affordance-rejects-hidden-disabled-reason-token",
+      "eventType": "action.affordances",
+      "turn": 1,
+      "payload": {
+        "actions": [
+          {
+            "actionId": "item.wield.mainHand",
+            "label": "Wield in main hand",
+            "enabled": false,
+            "disabledReasonToken": "blocked.cursed",
+            "blockerTokens": [
+              "blocked.hands.shieldEquipped"
+            ],
+            "blockerLabels": [
+              "A shield is equipped; remove it before using a two-handed or offhand setup."
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "action affordance rejects hidden blocker token",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 42,
+      "eventId": "evt-action-affordance-rejects-hidden-blocker-token",
+      "eventType": "action.affordances",
+      "turn": 1,
+      "payload": {
+        "actions": [
+          {
+            "actionId": "item.wield.mainHand",
+            "label": "Wield in main hand",
+            "enabled": false,
+            "disabledReasonToken": "blocked.hands.shieldEquipped",
+            "blockerTokens": [
+              "blocked.welded",
+              "blocked.hands.shieldEquipped"
+            ],
+            "blockerLabels": [
+              "A shield is equipped; remove it before using a two-handed or offhand setup."
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "action affordance rejects unapproved blocker label",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 43,
+      "eventId": "evt-action-affordance-rejects-unapproved-blocker-label",
+      "eventType": "action.affordances",
+      "turn": 1,
+      "payload": {
+        "actions": [
+          {
+            "actionId": "item.wield.mainHand",
+            "label": "Wield in main hand",
+            "enabled": false,
+            "disabledReasonToken": "blocked.hands.shieldEquipped",
+            "blockerTokens": [
+              "blocked.hands.shieldEquipped"
+            ],
+            "blockerLabels": [
+              "This item is cursed/welded internally."
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "action affordance rejects unapproved disabled reason label",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 44,
+      "eventId": "evt-action-affordance-hidden-disabled-reason-label",
+      "eventType": "action.affordances",
+      "turn": 1,
+      "payload": {
+        "actions": [
+          {
+            "actionId": "item.wield.mainHand",
+            "label": "Wield in main hand",
+            "enabled": false,
+            "disabledReasonToken": "blocked.hands.shieldEquipped",
+            "disabledReasonLabel": "This item is cursed/welded internally.",
+            "blockerTokens": [
+              "blocked.hands.shieldEquipped"
+            ],
+            "blockerLabels": [
+              "A shield is equipped; remove it before using a two-handed or offhand setup."
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "action affordance rejects hidden extra action field",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 45,
+      "eventId": "evt-action-affordance-rejects-hidden-extra-action-field",
+      "eventType": "action.affordances",
+      "turn": 1,
+      "payload": {
+        "actions": [
+          {
+            "actionId": "item.wield.mainHand",
+            "label": "Wield in main hand",
+            "enabled": false,
+            "disabledReasonToken": "blocked.hands.shieldEquipped",
+            "disabledReasonLabel": "A shield is equipped; remove it before using a two-handed or offhand setup.",
+            "blockerTokens": [
+              "blocked.hands.shieldEquipped"
+            ],
+            "blockerLabels": [
+              "A shield is equipped; remove it before using a two-handed or offhand setup."
+            ],
+            "curseState": "cursed"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "action affordance rejects freeform disabled reason",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 46,
+      "eventId": "evt-action-affordance-rejects-freeform-disabled-reason",
+      "eventType": "action.affordances",
+      "turn": 1,
+      "payload": {
+        "actions": [
+          {
+            "actionId": "item.wield.mainHand",
+            "label": "Wield in main hand",
+            "enabled": false,
+            "disabledReasonToken": "blocked.hands.shieldEquipped",
+            "disabledReasonLabel": "A shield is equipped; remove it before using a two-handed or offhand setup.",
+            "blockerTokens": [
+              "blocked.hands.shieldEquipped"
+            ],
+            "blockerLabels": [
+              "A shield is equipped; remove it before using a two-handed or offhand setup."
+            ],
+            "disabledReason": "This item is cursed/welded internally."
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "action affordance rejects mismatched disabled reason token and label",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 146,
+      "eventId": "evt-action-affordance-rejects-mismatched-disabled-token-label",
+      "eventType": "action.affordances",
+      "turn": 1,
+      "payload": {
+        "actions": [
+          {
+            "actionId": "item.wield.mainHand",
+            "label": "Wield in main hand",
+            "enabled": false,
+            "disabledReasonToken": "blocked.hands.shieldEquipped",
+            "disabledReasonLabel": "A two-handed weapon uses both hands; change the main hand before using the offhand.",
+            "blockerTokens": [
+              "blocked.hands.shieldEquipped"
+            ],
+            "blockerLabels": [
+              "A shield is equipped; remove it before using a two-handed or offhand setup."
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "action affordance rejects mismatched blocker token and label arrays",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 147,
+      "eventId": "evt-action-affordance-rejects-mismatched-blocker-token-labels",
+      "eventType": "action.affordances",
+      "turn": 1,
+      "payload": {
+        "actions": [
+          {
+            "actionId": "item.wield.mainHand",
+            "label": "Wield in main hand",
+            "enabled": false,
+            "disabledReasonToken": "blocked.hands.shieldEquipped",
+            "disabledReasonLabel": "A shield is equipped; remove it before using a two-handed or offhand setup.",
+            "blockerTokens": [
+              "blocked.hands.shieldEquipped"
+            ],
+            "blockerLabels": [
+              "A two-handed weapon uses both hands; change the main hand before using the offhand."
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "command accepted ack rejects mismatched status",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 47,
+      "eventId": "evt-command-accepted-bad-status",
+      "eventType": "command.accepted",
+      "turn": 1,
+      "payload": {
+        "commandId": "cmd-bad-ack-status",
+        "status": "rejected",
+        "executionSource": "bridge-ui-command",
+        "replayBehavior": "replay executes recorded input events only"
+      }
+    }
+  },
+  {
+    "case": "command ack rejects unknown execution source",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 48,
+      "eventId": "evt-command-ack-bad-execution-source",
+      "eventType": "command.accepted",
+      "turn": 1,
+      "payload": {
+        "commandId": "cmd-bad-execution-source",
+        "status": "accepted",
+        "executionSource": "hidden-oracle",
+        "replayBehavior": "replay executes recorded input events only"
+      }
+    }
+  },
+  {
+    "case": "command ack rejects arbitrary replay behavior",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 49,
+      "eventId": "evt-command-ack-bad-replay-behavior",
+      "eventType": "command.rejected",
+      "turn": 1,
+      "payload": {
+        "commandId": "cmd-bad-replay-behavior",
+        "status": "rejected",
+        "reason": "unsupported route",
+        "blockerToken": "blocked.public.tryInNetHack",
+        "executionSource": "bridge-ui-command",
+        "replayBehavior": "semantic command magically replays itself"
+      }
+    }
+  },
+  {
+    "case": "command completed ack rejects hidden result content",
+    "event": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 50,
+      "eventId": "evt-command-ack-hidden-result",
+      "eventType": "command.completed",
+      "turn": 1,
+      "payload": {
+        "commandId": "cmd-hidden-result",
+        "status": "success",
+        "executionSource": "public-state-transaction",
+        "replayBehavior": "replay executes recorded input events only",
+        "result": {
+          "status": "success",
+          "kind": "public-state-updated",
+          "reason": "internal cursed/welded result leaked"
+        }
+      }
+    }
+  }
+]

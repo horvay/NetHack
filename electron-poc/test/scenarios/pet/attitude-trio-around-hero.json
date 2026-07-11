@@ -1,0 +1,78 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "pet/attitude-trio-around-hero",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current"
+  },
+  "level": {
+    "safeAreaAroundHero": 4,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none",
+    "terrain": [
+      {
+        "at": "west",
+        "type": "floor"
+      },
+      {
+        "at": "north",
+        "type": "floor"
+      },
+      {
+        "at": "east",
+        "type": "floor"
+      }
+    ]
+  },
+  "ground": [],
+  "monsters": [
+    {
+      "typeId": "KITTEN",
+      "at": "west",
+      "attitude": "tame",
+      "asleep": false
+    },
+    {
+      "typeId": "LICHEN",
+      "at": "north",
+      "attitude": "peaceful",
+      "asleep": true,
+      "hp": 3,
+      "maxHp": 3
+    },
+    {
+      "typeId": "GOBLIN",
+      "at": "east",
+      "attitude": "hostile",
+      "asleep": false,
+      "hp": 6,
+      "maxHp": 6
+    }
+  ],
+  "inventory": [
+    {
+      "typeId": "DAGGER",
+      "equipped": "wielded"
+    }
+  ],
+  "expectedPublicFacts": {
+    "monsterRows": [
+      "kitten",
+      "tame",
+      "peaceful lichen",
+      "hostile goblin"
+    ],
+    "inventoryRows": [
+      "dagger"
+    ],
+    "mapAffordances": [
+      "adjacent tame monster",
+      "adjacent peaceful monster",
+      "adjacent hostile monster"
+    ],
+    "messages": [
+      "monster attitude trio fixture"
+    ]
+  }
+}

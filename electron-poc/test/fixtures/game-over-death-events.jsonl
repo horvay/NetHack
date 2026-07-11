@@ -1,0 +1,23 @@
+{"name":"shim_status_enablefield","field":0,"label":"Title"}
+{"name":"shim_status_enablefield","field":8,"label":"Score"}
+{"name":"shim_status_enablefield","field":16,"label":"Time"}
+{"name":"shim_status_enablefield","field":20,"label":"Dungeon"}
+{"name":"shim_status_enablefield","field":13,"label":"XP"}
+{"name":"shim_status_update","field":0,"value":"Electron the Valkyrie"}
+{"name":"shim_status_update","field":8,"value":"42"}
+{"name":"shim_status_update","field":16,"value":"123"}
+{"name":"shim_status_update","field":20,"value":"Dlvl:1"}
+{"name":"shim_status_update","field":13,"value":"1"}
+{"name":"shim_putstr","window":1,"text":"You were killed by a jackal."}
+{"name":"shim_yn_function","query":"Do you want your possessions identified?","choices":"ynq"}
+{"name":"bridge_prompt_answer","keycode":121}
+{"name":"shim_create_nhwindow","return":7,"windowType":4}
+{"name":"shim_putstr","window":7,"text":"Goodbye Electron the Valkyrie..."}
+{"name":"shim_putstr","window":7,"text":"You died in The Dungeons of Doom on dungeon level 1 with 42 points."}
+{"name":"shim_display_nhwindow","window":7}
+{"name":"shim_create_nhwindow","return":8,"windowType":2}
+{"name":"shim_start_menu","window":8}
+{"name":"shim_add_menu","window":8,"selector":0,"text":"Vanquished creatures:"}
+{"name":"shim_add_menu","window":8,"selector":0,"text":"  a jackal"}
+{"name":"shim_end_menu","window":8,"prompt":"Final statistics"}
+{"name":"shim_select_menu","window":8,"how":0}

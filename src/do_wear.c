@@ -2468,6 +2468,294 @@ doputon(void)
     return otmp ? accessory_or_armor_on(otmp) : ECMD_CANCEL;
 }
 
+struct equipment_change_request_state {
+    boolean pending;
+    unsigned int item_id;
+    char action[32];
+    char slot_id[32];
+    char hand[16];
+    char transaction_id[96];
+};
+
+struct equipment_change_result_state {
+    boolean available;
+    boolean success;
+    unsigned int item_id;
+    char action[32];
+    char slot_id[32];
+    char hand[16];
+    char transaction_id[96];
+    char reason[160];
+};
+
+static struct equipment_change_request_state g_equipment_change_request;
+static struct equipment_change_result_state g_equipment_change_result;
+
+staticfn struct obj *equipment_inventory_obj_by_id(unsigned int);
+staticfn boolean equipment_slot_matches_obj(const char *, struct obj *);
+staticfn int direct_puton_ring_hand(struct obj *, const char *);
+
+void
+equipment_change_set_request(unsigned int item_id, const char *action,
+                             const char *slot_id, const char *hand,
+                             const char *transaction_id)
+{
+    (void) memset(&g_equipment_change_result, 0,
+                  sizeof g_equipment_change_result);
+    g_equipment_change_request.pending = TRUE;
+    g_equipment_change_request.item_id = item_id;
+    Snprintf(g_equipment_change_request.action,
+             sizeof g_equipment_change_request.action, "%s",
+             action ? action : "");
+    Snprintf(g_equipment_change_request.slot_id,
+             sizeof g_equipment_change_request.slot_id, "%s",
+             slot_id ? slot_id : "");
+    Snprintf(g_equipment_change_request.hand,
+             sizeof g_equipment_change_request.hand, "%s", hand ? hand : "");
+    Snprintf(g_equipment_change_request.transaction_id,
+             sizeof g_equipment_change_request.transaction_id, "%s",
+             transaction_id ? transaction_id : "");
+}
+
+boolean
+equipment_change_result_available(void)
+{
+    return g_equipment_change_result.available;
+}
+
+void
+equipment_change_take_result(boolean *success, unsigned int *item_id,
+                             char *action, size_t action_size,
+                             char *slot_id, size_t slot_id_size,
+                             char *hand, size_t hand_size,
+                             char *transaction_id,
+                             size_t transaction_id_size, char *reason,
+                             size_t reason_size)
+{
+    if (success)
+        *success = g_equipment_change_result.success;
+    if (item_id)
+        *item_id = g_equipment_change_result.item_id;
+    if (action && action_size)
+        Snprintf(action, action_size, "%s", g_equipment_change_result.action);
+    if (slot_id && slot_id_size)
+        Snprintf(slot_id, slot_id_size, "%s", g_equipment_change_result.slot_id);
+    if (hand && hand_size)
+        Snprintf(hand, hand_size, "%s", g_equipment_change_result.hand);
+    if (transaction_id && transaction_id_size)
+        Snprintf(transaction_id, transaction_id_size, "%s",
+                 g_equipment_change_result.transaction_id);
+    if (reason && reason_size)
+        Snprintf(reason, reason_size, "%s", g_equipment_change_result.reason);
+    (void) memset(&g_equipment_change_result, 0,
+                  sizeof g_equipment_change_result);
+}
+
+static void
+equipment_change_finish(boolean success, const char *reason)
+{
+    g_equipment_change_result.available = TRUE;
+    g_equipment_change_result.success = success;
+    g_equipment_change_result.item_id = g_equipment_change_request.item_id;
+    Snprintf(g_equipment_change_result.action,
+             sizeof g_equipment_change_result.action, "%s",
+             g_equipment_change_request.action);
+    Snprintf(g_equipment_change_result.slot_id,
+             sizeof g_equipment_change_result.slot_id, "%s",
+             g_equipment_change_request.slot_id);
+    Snprintf(g_equipment_change_result.hand,
+             sizeof g_equipment_change_result.hand, "%s",
+             g_equipment_change_request.hand);
+    Snprintf(g_equipment_change_result.transaction_id,
+             sizeof g_equipment_change_result.transaction_id, "%s",
+             g_equipment_change_request.transaction_id);
+    Snprintf(g_equipment_change_result.reason,
+             sizeof g_equipment_change_result.reason, "%s",
+             reason ? reason : (success ? "equipment change completed"
+                                        : "equipment change rejected"));
+    (void) memset(&g_equipment_change_request, 0,
+                  sizeof g_equipment_change_request);
+}
+
+staticfn struct obj *
+equipment_inventory_obj_by_id(unsigned int item_id)
+{
+    struct obj *otmp;
+
+    if (!item_id)
+        return (struct obj *) 0;
+    for (otmp = gi.invent; otmp; otmp = otmp->nobj)
+        if (otmp->o_id == item_id)
+            return otmp;
+    return (struct obj *) 0;
+}
+
+staticfn boolean
+equipment_slot_matches_obj(const char *slot_id, struct obj *obj)
+{
+    if (!slot_id || !*slot_id || !obj)
+        return TRUE;
+    if (!strcmp(slot_id, "mainHand") || !strcmp(slot_id, "main-hand"))
+        return obj == uwep;
+    if (!strcmp(slot_id, "quiver"))
+        return obj == uquiver;
+    if (!strcmp(slot_id, "ring.left") || !strcmp(slot_id, "left-ring"))
+        return obj == uleft;
+    if (!strcmp(slot_id, "ring.right") || !strcmp(slot_id, "right-ring"))
+        return obj == uright;
+    if (!strcmp(slot_id, "amulet"))
+        return obj == uamul;
+    if (!strcmp(slot_id, "eyes"))
+        return obj == ublindf;
+    if (!strcmp(slot_id, "armor.body") || !strcmp(slot_id, "armor-suit"))
+        return obj == uarm;
+    if (!strcmp(slot_id, "armor.cloak") || !strcmp(slot_id, "cloak"))
+        return obj == uarmc;
+    if (!strcmp(slot_id, "armor.shirt") || !strcmp(slot_id, "shirt"))
+        return obj == uarmu;
+    if (!strcmp(slot_id, "armor.helm") || !strcmp(slot_id, "helmet"))
+        return obj == uarmh;
+    if (!strcmp(slot_id, "armor.gloves") || !strcmp(slot_id, "gloves"))
+        return obj == uarmg;
+    if (!strcmp(slot_id, "armor.boots") || !strcmp(slot_id, "boots"))
+        return obj == uarmf;
+    if (!strcmp(slot_id, "armor.shield") || !strcmp(slot_id, "shield"))
+        return obj == uarms;
+    return FALSE;
+}
+
+staticfn int
+direct_puton_ring_hand(struct obj *obj, const char *hand)
+{
+    long mask = 0L;
+    int res = 0;
+
+    if (!obj || obj->where != OBJ_INVENT) {
+        You("are not carrying that.");
+        return ECMD_FAIL;
+    }
+    if (obj->owornmask & (W_ACCESSORY | W_ARMOR)) {
+        already_wearing(c_that_);
+        return ECMD_OK;
+    }
+    if (!(obj->oclass == RING_CLASS || obj->otyp == MEAT_RING)) {
+        You_cant("wear that!");
+        return ECMD_OK;
+    }
+    if (!strcmp(hand, "left")) {
+        if (uleft) {
+            You("already have a ring on your left %s.", body_part(HAND));
+            return ECMD_OK;
+        }
+        mask = LEFT_RING;
+    } else if (!strcmp(hand, "right")) {
+        if (uright) {
+            You("already have a ring on your right %s.", body_part(HAND));
+            return ECMD_OK;
+        }
+        mask = RIGHT_RING;
+    } else {
+        You("must choose a ring hand.");
+        return ECMD_FAIL;
+    }
+    if (nolimbs(gy.youmonst.data)) {
+        You("cannot make the ring stick to your body.");
+        return ECMD_OK;
+    }
+    if (uarmg && Glib) {
+        Your("%s are too slippery to remove, so you cannot put on the ring.",
+             gloves_simple_name(uarmg));
+        return ECMD_TIME;
+    }
+    if (uarmg && uarmg->cursed) {
+        res = !uarmg->bknown;
+        set_bknown(uarmg, 1);
+        You("cannot remove your %s to put on the ring.", c_gloves);
+        return res ? ECMD_TIME : ECMD_OK;
+    }
+    if (uwep) {
+        res = !uwep->bknown;
+        if (((mask == RIGHT_RING && URIGHTY)
+             || (mask == LEFT_RING && ULEFTY)
+             || bimanual(uwep)) && welded(uwep)) {
+            const char *handpart = body_part(HAND);
+
+            if (bimanual(uwep))
+                handpart = makeplural(handpart);
+            You("cannot free your weapon %s to put on the ring.", handpart);
+            return res ? ECMD_TIME : ECMD_OK;
+        }
+    }
+    if (!retouch_object(&obj, FALSE))
+        return ECMD_TIME;
+    setworn(obj, mask);
+    Ring_on(obj);
+    if (is_worn(obj))
+        on_msg(obj);
+    return ECMD_TIME;
+}
+
+int
+doshimequipmentchange(void)
+{
+    struct obj *obj = (struct obj *) 0;
+    int result = ECMD_OK;
+    boolean success = FALSE;
+    const char *action;
+
+    if (!g_equipment_change_request.pending) {
+        equipment_change_finish(FALSE, "no pending equipment change request");
+        return ECMD_OK;
+    }
+    action = g_equipment_change_request.action;
+    if (!strcmp(action, "clearQuiver")) {
+        result = shim_direct_set_quiver((struct obj *) 0);
+        success = (uquiver == 0);
+        update_inventory();
+        equipment_change_finish(success, success ? "quiver cleared"
+                                                 : "NetHack refused that equipment change");
+        return success && result == ECMD_TIME ? ECMD_TIME : ECMD_OK;
+    }
+
+    obj = equipment_inventory_obj_by_id(g_equipment_change_request.item_id);
+    if (!obj) {
+        equipment_change_finish(FALSE, "item is no longer in public inventory");
+        return ECMD_OK;
+    }
+    if (!strcmp(action, "takeOff") || !strcmp(action, "removeAccessory")) {
+        if (!equipment_slot_matches_obj(g_equipment_change_request.slot_id, obj)) {
+            equipment_change_finish(FALSE, "equipment slot target is stale");
+            return ECMD_OK;
+        }
+        if (!strcmp(action, "removeAccessory")
+            && !(obj->owornmask & W_ACCESSORY)) {
+            equipment_change_finish(FALSE, "selected item is not a removable accessory");
+            return ECMD_OK;
+        }
+        result = armor_or_accessory_off(obj);
+        success = !(obj->owornmask & (W_ARMOR | W_ACCESSORY));
+    } else if (!strcmp(action, "wieldMain")) {
+        result = shim_direct_wield_main(obj);
+        success = (uwep == obj);
+    } else if (!strcmp(action, "quiver")) {
+        result = shim_direct_set_quiver(obj);
+        success = (uquiver == obj);
+    } else if (!strcmp(action, "putOnRing")) {
+        result = direct_puton_ring_hand(obj, g_equipment_change_request.hand);
+        success = (!strcmp(g_equipment_change_request.hand, "left") && uleft == obj)
+                  || (!strcmp(g_equipment_change_request.hand, "right") && uright == obj);
+    } else {
+        equipment_change_finish(FALSE, "unsupported equipment change action");
+        return ECMD_OK;
+    }
+    update_inventory();
+    newsym(u.ux, u.uy);
+    equipment_change_finish(success,
+                            success ? "equipment change completed"
+                                    : "NetHack refused that equipment change");
+    return success && result == ECMD_TIME ? ECMD_TIME : ECMD_OK;
+}
+
 /* calculate current armor class */
 void
 find_ac(void)

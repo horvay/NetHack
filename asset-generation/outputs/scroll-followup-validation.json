@@ -1,0 +1,256 @@
+{
+  "assets": [
+    {
+      "id": "charging",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/charging.png",
+      "outputPath": "asset-generation/outputs/full-source-objects/charging.png",
+      "rawGeneratedPath": null,
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "installedSha256": "15a715fdc32f80f1e0108f4fc1cf009cdb2f3f74df2f296e15f594fdc1c69d00",
+      "outputMatchesInstalled": true,
+      "visibleGreenPixels": 2
+    },
+    {
+      "id": "create-monster",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/create-monster.png",
+      "outputPath": "asset-generation/outputs/full-source-objects/create-monster.png",
+      "rawGeneratedPath": null,
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "installedSha256": "35415a481b6dbb6b3089b65a655c355bb3d57cabe7790ddbc8ccfab0f3b1ddbd",
+      "outputMatchesInstalled": true,
+      "visibleGreenPixels": 0
+    },
+    {
+      "id": "food-detection",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/food-detection.png",
+      "outputPath": "asset-generation/outputs/full-source-objects/food-detection.png",
+      "rawGeneratedPath": "asset-generation/outputs/scroll-followup-raw1024/food-detection.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "installedSha256": "d05c250e23c886db9643d518c793b15227c58ec67518e25300c105e1a5d19dc0",
+      "outputMatchesInstalled": true,
+      "visibleGreenPixels": 0
+    },
+    {
+      "id": "punishment",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/punishment.png",
+      "outputPath": "asset-generation/outputs/full-source-objects/punishment.png",
+      "rawGeneratedPath": "asset-generation/outputs/scroll-followup-raw1024/punishment.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "installedSha256": "fdb2a0ecddef16cdb9af859212b84a7c8a2b34e9ed5493a325f4d243e29365d1",
+      "outputMatchesInstalled": true,
+      "visibleGreenPixels": 0
+    },
+    {
+      "id": "read-me",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/read-me.png",
+      "outputPath": "asset-generation/outputs/full-source-objects/read-me.png",
+      "rawGeneratedPath": "asset-generation/outputs/scroll-followup-raw1024/read-me.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "installedSha256": "ef75bfda37d35b212fb924a7ac74e217d3daff7b0d1f0b60ec629c4db4098c14",
+      "outputMatchesInstalled": true,
+      "visibleGreenPixels": 0
+    },
+    {
+      "id": "remove-curse",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/remove-curse.png",
+      "outputPath": "asset-generation/outputs/full-source-objects/remove-curse.png",
+      "rawGeneratedPath": "asset-generation/outputs/scroll-followup-raw1024/remove-curse.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "installedSha256": "f738d90282bc9a3b9a9efac08f4d97005d59417769a3b5f3c4dd9975245d81d1",
+      "outputMatchesInstalled": true,
+      "visibleGreenPixels": 0
+    },
+    {
+      "id": "scroll-class-icon",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/scroll-class-icon.png",
+      "outputPath": "asset-generation/outputs/objects-inventory/scroll-class-icon.png",
+      "rawGeneratedPath": null,
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "installedSha256": "ae2cf30b67dc01435b222f896adf9f6be4bd1777fc59e9fa1da0b2fc98461dfc",
+      "outputMatchesInstalled": true,
+      "visibleGreenPixels": 0
+    },
+    {
+      "id": "scroll-of-enchant-armor",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/scroll-of-enchant-armor.png",
+      "outputPath": "asset-generation/outputs/objects-inventory/scroll-of-enchant-armor.png",
+      "rawGeneratedPath": null,
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "installedSha256": "13f4433b451051ae47dcc9c8c7948f3906eae3fdddfddd0ab17560a2bc4c8993",
+      "outputMatchesInstalled": true,
+      "visibleGreenPixels": 0
+    },
+    {
+      "id": "scroll-of-enchant-weapon",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/scroll-of-enchant-weapon.png",
+      "outputPath": "asset-generation/outputs/objects-inventory/scroll-of-enchant-weapon.png",
+      "rawGeneratedPath": null,
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "installedSha256": "c59744380fe42eaf549ec520e8d662d3c9d5c9b8fd54a17cb648c8b88aa8c54f",
+      "outputMatchesInstalled": true,
+      "visibleGreenPixels": 0
+    },
+    {
+      "id": "scroll-of-identify",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/scroll-of-identify.png",
+      "outputPath": "asset-generation/outputs/objects-inventory/scroll-of-identify.png",
+      "rawGeneratedPath": null,
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "installedSha256": "2e6ff0e4ff0ac35fd621d31aa48e82f27018b35e61f1b976fe202d9b19237c15",
+      "outputMatchesInstalled": true,
+      "visibleGreenPixels": 0
+    },
+    {
+      "id": "scroll-of-light",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/scroll-of-light.png",
+      "outputPath": "asset-generation/outputs/objects-inventory/scroll-of-light.png",
+      "rawGeneratedPath": null,
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "installedSha256": "66ba74113b0f492f60c0217e54706d5dcda704a889746a08fc7d545fff02e8d7",
+      "outputMatchesInstalled": true,
+      "visibleGreenPixels": 0
+    },
+    {
+      "id": "scroll-of-teleportation",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/scroll-of-teleportation.png",
+      "outputPath": "asset-generation/outputs/objects-inventory/scroll-of-teleportation.png",
+      "rawGeneratedPath": null,
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "installedSha256": "fb5ff6e9d6debf263fcd10b9bda00425f0dc814f336347f99045f25e236eddac",
+      "outputMatchesInstalled": true,
+      "visibleGreenPixels": 0
+    },
+    {
+      "id": "taming",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/taming.png",
+      "outputPath": "asset-generation/outputs/full-source-objects/taming.png",
+      "rawGeneratedPath": "asset-generation/outputs/scroll-followup-raw1024/taming.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "installedSha256": "179ee25c9d4c880c30281108fa99bc1b3c37e35c63671f5e2c6cc479cb0c59b2",
+      "outputMatchesInstalled": true,
+      "visibleGreenPixels": 3
+    },
+    {
+      "id": "teleport-away",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/teleport-away.png",
+      "outputPath": "asset-generation/outputs/full-source-objects/teleport-away.png",
+      "rawGeneratedPath": "asset-generation/outputs/scroll-followup-raw1024/teleport-away.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "installedSha256": "fad53c143bf8ec04085b620d246d4a93a4864e1b68de52561bb56f41deedb714",
+      "outputMatchesInstalled": true,
+      "visibleGreenPixels": 0
+    },
+    {
+      "id": "teleport-control",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/teleport-control.png",
+      "outputPath": "asset-generation/outputs/full-source-objects/teleport-control.png",
+      "rawGeneratedPath": "asset-generation/outputs/scroll-followup-raw1024/teleport-control.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "installedSha256": "80ec8f490b569db3ce807092464b3b9b7609eb8ccc897192b190e4e5070b0682",
+      "outputMatchesInstalled": true,
+      "visibleGreenPixels": 1
+    },
+    {
+      "id": "teleportation",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/teleportation.png",
+      "outputPath": "asset-generation/outputs/full-source-objects/teleportation.png",
+      "rawGeneratedPath": "asset-generation/outputs/scroll-followup-raw1024/teleportation.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "installedSha256": "68e9408e02d440fddc1f96120a1ab6d7c9b297a4d625188c431bdb8d8f119c13",
+      "outputMatchesInstalled": true,
+      "visibleGreenPixels": 0
+    },
+    {
+      "id": "temov",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/temov.png",
+      "outputPath": "asset-generation/outputs/full-source-objects/temov.png",
+      "rawGeneratedPath": "asset-generation/outputs/scroll-followup-raw1024/temov.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "installedSha256": "9d9d8aca121e0454fa74fcf0f44898c22bb77e744fb0c699e09404503034fc71",
+      "outputMatchesInstalled": true,
+      "visibleGreenPixels": 0
+    },
+    {
+      "id": "zlorfik",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/zlorfik.png",
+      "outputPath": "asset-generation/outputs/full-source-objects/zlorfik.png",
+      "rawGeneratedPath": "asset-generation/outputs/scroll-followup-raw1024/zlorfik.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "installedSha256": "2cfdfc920b59e1da7744e405c77d1afe8a57fbd279967acfcc539200e75ca59e",
+      "outputMatchesInstalled": true,
+      "visibleGreenPixels": 0
+    }
+  ]
+}

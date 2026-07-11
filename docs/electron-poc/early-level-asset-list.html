@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NetHack Early-Level Asset Planning List</title>
+<style>
+  :root { color-scheme: dark; --bg:#151720; --panel:#202433; --ink:#eef2ff; --muted:#aeb8d6; --line:#394258; --p0:#ffdf6b; --p1:#7ee787; --p2:#79c0ff; --p3:#d2a8ff; }
+  body { margin:0; font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif; background:var(--bg); color:var(--ink); line-height:1.45; }
+  header { padding:28px 34px; background:linear-gradient(135deg,#252a3b,#171a25); border-bottom:1px solid var(--line); }
+  h1 { margin:0 0 8px; font-size:1.9rem; } h2 { margin:28px 0 10px; border-bottom:1px solid var(--line); padding-bottom:6px; } h3 { margin:18px 0 8px; color:#dce6ff; }
+  main { padding:22px 34px 42px; max-width:1200px; margin:auto; }
+  .lead, .note { color:var(--muted); } .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+  table { width:100%; border-collapse:collapse; margin:10px 0 20px; background:#1a1e2b; border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+  th, td { padding:8px 10px; border-bottom:1px solid #30384b; vertical-align:top; } th { text-align:left; background:#252b3c; color:#f5f7ff; } tr:last-child td { border-bottom:0; }
+  code, .glyph { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background:#11141c; border:1px solid #30384b; border-radius:5px; padding:1px 5px; }
+  .p0 { color:var(--p0); font-weight:700; } .p1 { color:var(--p1); font-weight:700; } .p2 { color:var(--p2); font-weight:700; } .p3 { color:var(--p3); font-weight:700; }
+  .tag { display:inline-block; border-radius:999px; padding:2px 8px; margin:1px 3px 1px 0; background:#2d3448; color:#dce6ff; font-size:.86rem; }
+  ul { margin-top:6px; } .small { font-size:.92rem; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Early Dungeon Asset List for Electron Tile Renderer POC</h1>
+  <p class="lead">Planning pass only: image/tile assets to create for the first few NetHack dungeon levels and initial game UI, derived from NetHack source/data plus the current shim bridge renderer.</p>
+</header>
+<main>
+<section class="grid">
+  <div class="card"><strong>Scope assumption</strong><br>Prioritize dungeon levels 1–4, character level 1–3, ordinary room/corridor levels, starting inventory/pets, and common random objects/monsters. Include a few difficulty-4/level-3+ monsters because they can appear early by generation difficulty, groups, or branches.</div>
+  <div class="card"><strong>Renderer assumption</strong><br>The shim currently streams <code>shim_print_glyph</code> with ASCII <code>char</code>, coordinates, cursor, text, and status fields. First tile pass should map glyph/char/class metadata to sprites while preserving the ASCII fallback.</div>
+  <div class="card"><strong>Priority key</strong><br><span class="p0">P0</span> required for first playable visual pass · <span class="p1">P1</span> common early gameplay · <span class="p2">P2</span> useful near-early/edge cases · <span class="p3">P3</span> placeholder acceptable.</div>
+</section>
+
+<h2>Terrain, dungeon features, and map effects</h2>
+<table>
+<tr><th>Priority</th><th>Asset / glyph</th><th>Why it matters early</th><th>Rendering notes for shim bridge</th></tr>
+<tr><td class="p0">P0</td><td>Unexplored stone / void <span class="glyph"> </span></td><td>Default unknown map background.</td><td>Use dark tile; distinguish from lit floor.</td></tr>
+<tr><td class="p0">P0</td><td>Room floor <span class="glyph">.</span>, dark room <span class="glyph">.</span></td><td>Dominant ordinary level terrain.</td><td>Same base sprite with light/dark tint from glyph/symbol where available.</td></tr>
+<tr><td class="p0">P0</td><td>Walls <span class="glyph">| -</span> plus corners/junctions</td><td>Room boundaries on every level.</td><td>Source has separate S_vwall, S_hwall, corner and tee symbols; tile renderer can begin with one wall tile, then add autotiling.</td></tr>
+<tr><td class="p0">P0</td><td>Corridors <span class="glyph">#</span> dark/lit</td><td>Connect rooms; frequent movement path.</td><td>Use narrow passage/floor variant; keep <code>#</code> fallback for unknown glyphs.</td></tr>
+<tr><td class="p0">P0</td><td>Doors: closed/open/broken/no-door <span class="glyph">+ | - .</span></td><td>Common interaction in early rooms.</td><td>Door orientation comes through symbol/char; render vertical/horizontal open doors separately when possible.</td></tr>
+<tr><td class="p0">P0</td><td>Up and down stairs <span class="glyph">&lt; &gt;</span></td><td>Level navigation starts immediately.</td><td>Make direction visually obvious; branch stairs can use tinted variant later.</td></tr>
+<tr><td class="p1">P1</td><td>Fountain <span class="glyph">{</span>, sink <span class="glyph">{</span>, altar <span class="glyph">_</span>, grave <span class="glyph">|</span></td><td>Can appear on ordinary early levels and influence decisions.</td><td>Use distinct sprites despite shared ASCII for fountain/sink.</td></tr>
+<tr><td class="p1">P1</td><td>Engraving <span class="glyph">`</span>, iron bars/tree <span class="glyph">#</span></td><td>Occasional early features or messages; important for look command.</td><td>Low-cost overlays on floor/wall.</td></tr>
+<tr><td class="p2">P2</td><td>Pool/water/ice/lava/drawbridge</td><td>Less common on first ordinary levels, but possible via special levels/branches.</td><td>Use placeholders until special-level support is a goal.</td></tr>
+<tr><td class="p2">P2</td><td>Beam/effects: zap beams, flash, poison cloud, shield</td><td>Needed for wands/spells, not basic movement.</td><td>Animated overlay layer; can defer after static map tiles.</td></tr>
+</table>
+
+<h2>Traps and hidden hazards</h2>
+<p class="note">All visible traps use trap glyphs from <code>include/defsym.h</code>. <code>src/mklev.c</code> gates random trap types by level difficulty: level &lt;2 excludes rolling boulder and sleeping gas; level &lt;5 excludes level teleport/spiked pit; level &lt;6 excludes land mines; level &lt;7 usually excludes webs; fire traps require Gehennom.</p>
+<table>
+<tr><th>Priority</th><th>Asset</th><th>Early likelihood / notes</th><th>Rendering notes</th></tr>
+<tr><td class="p1">P1</td><td>Arrow trap, dart trap, falling rock trap <span class="glyph">^</span></td><td>Core early trap set; also directly referenced by trap effects.</td><td>Distinct icon silhouettes or color accents: metal arrow/dart, gray rock.</td></tr>
+<tr><td class="p1">P1</td><td>Squeaky board, bear trap, pit, trap door, hole <span class="glyph">^</span></td><td>Ordinary random traps; pits/holes affect movement and visibility.</td><td>Use floor overlay; hidden state should render as underlying terrain until discovered.</td></tr>
+<tr><td class="p1">P1</td><td>Sleeping gas trap, rolling boulder trap, rust trap, teleport trap <span class="glyph">^</span></td><td>Possible after the very first level; visually useful in early exploration.</td><td>Color/tint from symbols: gas, gray boulder, blue rust, magenta teleport.</td></tr>
+<tr><td class="p2">P2</td><td>Magic, anti-magic, polymorph, statue, web, land mine, level teleporter</td><td>Mostly later by source gates, but assets prevent blank tiles if generated by special cases.</td><td>Can share a generic magical trap placeholder initially.</td></tr>
+<tr><td class="p3">P3</td><td>Trapped door / trapped chest markers</td><td>Not map traps; shown by detection/memory only.</td><td>Overlay warning badge on door/chest object.</td></tr>
+</table>
+
+<h2>Player, pets, roles, and status identity</h2>
+<table>
+<tr><th>Priority</th><th>Asset</th><th>Source-derived coverage</th><th>Rendering notes</th></tr>
+<tr><td class="p0">P0</td><td>Hero/player avatar <span class="glyph">@</span></td><td>All starts need a visible player. Roles in <code>src/role.c</code>: Archeologist, Barbarian, Caveman/Cavewoman, Healer, Knight, Monk, Priest/Priestess, Rogue, Ranger, Samurai, Tourist, Valkyrie, Wizard.</td><td>Start with one readable @ hero tile; later add role/race/gender variants.</td></tr>
+<tr><td class="p1">P1</td><td>Role variants</td><td>Starting equipment themes make role silhouettes useful even in early game.</td><td>Recommended first variants: wizard robe/hat, knight armor, barbarian/caveman weapon, rogue hood, tourist shirt/camera, healer/priest robe, valkyrie/samurai armor.</td></tr>
+<tr><td class="p1">P1</td><td>Race variants: human, elf, dwarf, gnome, orc</td><td>Defined in <code>src/role.c</code>; affects player identity and monster glyph overlap.</td><td>Use palette/body-shape variants; do not block initial renderer on all combinations.</td></tr>
+<tr><td class="p0">P0</td><td>Starting pets: kitten <span class="glyph">f</span>, little dog <span class="glyph">d</span>, pony <span class="glyph">u</span></td><td>Roles can begin with domestic pet; Caveman/Knight specifically show little dog/pony in role data.</td><td>Need friendly/pet outline or badge because pets share monster classes.</td></tr>
+<tr><td class="p0">P0</td><td>Cursor/selection indicator</td><td>Current renderer uses cursor coordinates from <code>shim_curs</code>.</td><td>Draw focus ring/underline independent of tile sprite.</td></tr>
+</table>
+
+<h2>Common early monsters</h2>
+<p class="note">Candidate list was extracted from <code>include/monsters.h</code> by selecting normally generated monsters with base level ≤3 or difficulty ≤4, then grouped/prioritized by frequency and early recognizability. Colors/classes are useful for initial palette decisions.</p>
+<table>
+<tr><th>Priority</th><th>Monster assets</th><th>Glyph classes</th><th>Notes</th></tr>
+<tr><td class="p0">P0</td><td>jackal, fox, coyote, little dog; kitten; sewer rat, giant rat; grid bug; lichen; newt, gecko, iguana</td><td><span class="glyph">d f r x F :</span></td><td>Most iconic first-floor threats and domestic pet classes. Make these distinct before broad monster coverage.</td></tr>
+<tr><td class="p0">P0</td><td>goblin, kobold, large kobold; hobbit, dwarf; gnome</td><td><span class="glyph">o k h G</span></td><td>Common humanoids/early equipment carriers; need weapon/armor-bearing silhouettes.</td></tr>
+<tr><td class="p1">P1</td><td>acid blob, gas spore, floating eye; cave spider, centipede; bat; garter snake</td><td><span class="glyph">b e s B S</span></td><td>Early monsters with unique tactical meaning; should be recognizable even at small tile size.</td></tr>
+<tr><td class="p1">P1</td><td>manes, homunculus, imp; hobgoblin, hill orc, orc shaman; kobold shaman</td><td><span class="glyph">i o k</span></td><td>Early difficulty/level-2–3 enemies; magic users need visual accent.</td></tr>
+<tr><td class="p1">P1</td><td>rothe, rabid rat, rock mole, pony, fog cloud, yellow light</td><td><span class="glyph">q r u v y</span></td><td>Common enough by difficulty/frequency; fog/light can use simple effect sprites.</td></tr>
+<tr><td class="p1">P1</td><td>brown/yellow/green/red mold, shrieker, violet fungus</td><td><span class="glyph">F</span></td><td>Can share fungal base with color variants; lichen remains P0.</td></tr>
+<tr><td class="p2">P2</td><td>giant ant, killer bee, soldier ant, fire ant; bugbear; quasit; leprechaun; nymphs; rock piercer; gray ooze; kobold mummy; zombies; straw/paper golem; wererat/werejackal</td><td><span class="glyph">a h i l n p P M Z ' @</span></td><td>Possible early through difficulty, groups, or special cases but can use class placeholders after P0/P1.</td></tr>
+</table>
+
+<h2>Objects and inventory/world item tiles</h2>
+<p class="note">Object priorities combine object-class glyphs from <code>include/defsym.h</code>, generation probabilities in <code>include/objects.h</code>, and likely starting equipment/early drops. Unknown randomized appearances should retain class-readable silhouettes.</p>
+<table>
+<tr><th>Priority</th><th>Asset</th><th>Glyph</th><th>Notes</th></tr>
+<tr><td class="p0">P0</td><td>Generic class icons: weapon, armor, tool, food, potion, scroll, spellbook, wand, ring, amulet, coins, gem/rock, boulder/statue</td><td><span class="glyph">) [ ( % ! ? + / = &quot; $ * `</span></td><td>Minimum to replace ASCII map objects without knowing exact object ID in the renderer.</td></tr>
+<tr><td class="p0">P0</td><td>Coins/gold pile; food ration, tripe ration, egg, apple/carrot/fruit, tin, corpse</td><td><span class="glyph">$ %</span></td><td>Food ration has very high object probability; corpses are generated by monster deaths.</td></tr>
+<tr><td class="p0">P0</td><td>Common weapons: arrow, crossbow bolt, dart, spear, dagger, knife, axe, long sword, mace, flail, bow, sling, crossbow, rock</td><td><span class="glyph">) *</span></td><td>High probabilities and/or common starting/monster equipment.</td></tr>
+<tr><td class="p1">P1</td><td>Common armor: leather armor, ring/scale/chain mail, helmet/boots/gloves/cloak/shield placeholders</td><td><span class="glyph">[</span></td><td>Specific armor pieces are valuable in inventory/UI even if world tile is generic at first.</td></tr>
+<tr><td class="p1">P1</td><td>Tools: skeleton key, lock pick, lamp/lantern/candle, leash, stethoscope, mirror, whistle, pick-axe, expensive camera</td><td><span class="glyph">(</span></td><td>Early role starts and common utility objects; camera for Tourist, pick/whip for Archeologist style.</td></tr>
+<tr><td class="p1">P1</td><td>Potions/scrolls/wands by appearance color/material; key early exact types: healing, water, identify, light, enchant weapon/armor, teleportation, wand of light/create monster/slow monster/magic missile</td><td><span class="glyph">! ? /</span></td><td>Renderer can start with randomized appearance color chips; exact type label appears in inventory/messages.</td></tr>
+<tr><td class="p1">P1</td><td>Gems and rocks: worthless glass colors, flint, luck/load/touchstone, boulder, statue</td><td><span class="glyph">* `</span></td><td>Early mines/gnome contexts benefit; boulder is terrain-sized object and should block floor visually.</td></tr>
+<tr><td class="p2">P2</td><td>Rings, amulets, spellbooks, rare weapons/armor variants</td><td><span class="glyph">= &quot; +</span></td><td>Use generic sprites first; exact variants can be inventory icons later.</td></tr>
+</table>
+
+<h2>UI/status/message assets</h2>
+<table>
+<tr><th>Priority</th><th>Element</th><th>Source/current bridge</th><th>Rendering notes</th></tr>
+<tr><td class="p0">P0</td><td>Message log panel</td><td>Current renderer appends <code>shim_putstr</code>, <code>shim_raw_print</code>, bold raw print.</td><td>Readable serif/sans text; severity colors for warnings later.</td></tr>
+<tr><td class="p0">P0</td><td>Status strip fields</td><td>Current renderer receives <code>shim_status_enablefield</code> and <code>shim_status_update</code>.</td><td>Show name/role/race/title, HP, Pw, AC, XP/level, gold, dungeon level, attributes, hunger/conditions.</td></tr>
+<tr><td class="p0">P0</td><td>Health/power bars and condition badges</td><td>Status updates include percent/color fields.</td><td>Use text fallback plus color bar; badges for hunger, burdened, confused, blind, stun, hallucination, poison/sick.</td></tr>
+<tr><td class="p1">P1</td><td>Inventory/equipment icons</td><td>Object classes above; inventory windows will be separate from map window.</td><td>Small class icons reused from object tiles; selected item highlight.</td></tr>
+<tr><td class="p1">P1</td><td>Action affordances</td><td>Current POC supports wait and vi/arrow movement through shim keys.</td><td>Button icons for wait, movement hints, stairs up/down, open door, pickup can be UI-only initially.</td></tr>
+<tr><td class="p2">P2</td><td>Debug overlays</td><td>JSON shim event panel remains in POC.</td><td>Optional glyph ID/class label overlay helps tile mapping validation.</td></tr>
+</table>
+
+<h2>Recommended first asset batch</h2>
+<ol>
+  <li><strong>Tileset base:</strong> floor/dark floor, wall, corridor, closed/open door, stairs up/down, unknown stone, cursor overlay.</li>
+  <li><strong>Actors:</strong> hero @, kitten, little dog, jackal, goblin, kobold, grid bug, lichen, sewer/giant rat, newt, gnome/dwarf/hobbit.</li>
+  <li><strong>Object classes:</strong> one clear tile for each object class glyph; then food ration, gold, common weapon, common armor, potion, scroll, wand.</li>
+  <li><strong>UI:</strong> status strip with HP/Pw bars, message panel styling, condition badge set, pet/friendly marker overlay.</li>
+  <li><strong>Second pass:</strong> traps, fountains/sinks/altars/graves, mold/blob/eye/spider/bat/snake variants, role-themed hero sprites.</li>
+</ol>
+
+<h2>How this list was derived</h2>
+<ul class="small">
+  <li><code>include/defsym.h</code>: canonical terrain symbols, trap symbols, monster class glyphs, and object class glyphs/descriptions.</li>
+  <li><code>include/rm.h</code>: level terrain types and flags for walls, doors, stairs, furniture, water/lava/ice, and room/corridor semantics.</li>
+  <li><code>include/trap.h</code> and <code>src/mklev.c</code>: trap type enum and random trap gating by level difficulty.</li>
+  <li><code>include/monsters.h</code> / <code>src/monst.c</code>: monster generation flags, frequency bits, base level, difficulty, symbol, and color. A quick extraction selected normally generated monsters with base level ≤3 or difficulty ≤4.</li>
+  <li><code>include/objects.h</code>: object classes, probabilities, names/descriptions, and common early equipment/consumables.</li>
+  <li><code>src/role.c</code>: roles, starting pet references, races, genders, and alignments used for player identity and status/UI.</li>
+  <li><code>electron-poc/src/renderer.js</code>, <code>electron-poc/src/styles.css</code>, and <code>electron-poc/shim-bridge/nh-shim-bridge.c</code>: current POC consumes map glyph chars, cursor, status, and message events; asset plan targets that bridge rather than a native NetHack tile pipeline yet.</li>
+</ul>
+</main>
+</body>
+</html>

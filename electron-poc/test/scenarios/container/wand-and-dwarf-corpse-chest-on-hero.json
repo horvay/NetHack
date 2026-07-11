@@ -1,0 +1,56 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "container/wand-and-dwarf-corpse-chest-on-hero",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current"
+  },
+  "level": {
+    "safeAreaAroundHero": 2,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [
+    {
+      "at": "hero",
+      "object": {
+        "typeId": "CHEST",
+        "locked": false,
+        "trap": "none",
+        "contents": [
+          {
+            "typeId": "CORPSE",
+            "corpseMonsterTypeId": "DWARF"
+          },
+          {
+            "typeId": "WAN_DIGGING",
+            "charges": 3,
+            "identityKnown": true
+          }
+        ]
+      }
+    }
+  ],
+  "monsters": [],
+  "inventory": [
+    {
+      "typeId": "TIN_OPENER"
+    }
+  ],
+  "expectedPublicFacts": {
+    "contextActions": [
+      "open-container"
+    ],
+    "containerRows": [
+      "dwarf corpse",
+      "wand of digging"
+    ],
+    "inventoryRows": [
+      "tin opener"
+    ],
+    "messages": [
+      "unlocked chest containing 2 items"
+    ]
+  }
+}

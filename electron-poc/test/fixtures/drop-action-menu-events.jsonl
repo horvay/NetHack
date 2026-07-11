@@ -1,0 +1,5 @@
+{"name":"shim_start_menu","window":5}
+{"name":"shim_add_menu","window":5,"selector":97,"text":"a - a +1 long sword (weapon in hand)","glyph":1234,"glyphChar":41,"semanticKind":"object","semanticName":"long sword"}
+{"name":"shim_add_menu","window":5,"selector":98,"text":"b - a food ration","glyph":1401,"glyphChar":37,"semanticKind":"object","semanticName":"food ration"}
+{"name":"shim_end_menu","window":5,"prompt":"What do you want to drop?"}
+{"name":"shim_select_menu","window":5,"how":2,"awaitingSelection":true}

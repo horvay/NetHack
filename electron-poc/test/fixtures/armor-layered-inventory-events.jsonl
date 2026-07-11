@@ -1,0 +1,8 @@
+{"name":"shim_create_nhwindow","return":90,"windowType":2}
+{"name":"shim_start_menu","window":90,"behavior":0}
+{"name":"shim_add_menu","window":90,"selector":99,"text":"c - an uncursed ring mail (being worn)","glyph":1400,"glyphChar":91,"semanticKind":"object","semanticName":"ring mail"}
+{"name":"shim_add_menu","window":90,"selector":100,"text":"d - an uncursed cloak of protection (being worn)","glyph":1401,"glyphChar":91,"semanticKind":"object","semanticName":"cloak"}
+{"name":"shim_add_menu","window":90,"selector":112,"text":"p - an uncursed splint mail","glyph":1402,"glyphChar":91,"semanticKind":"object","semanticName":"splint mail"}
+{"name":"shim_add_menu","window":90,"selector":113,"text":"q - a Hawaiian shirt","glyph":1403,"glyphChar":91,"semanticKind":"object","semanticName":"Hawaiian shirt"}
+{"name":"shim_add_menu","window":90,"selector":114,"text":"r - a T-shirt (being worn)","glyph":1404,"glyphChar":91,"semanticKind":"object","semanticName":"T-shirt"}
+{"name":"shim_end_menu","window":90,"prompt":"Inventory:"}

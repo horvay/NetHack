@@ -1,0 +1,32 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "identity/archeologist-loaded-avatar",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current",
+    "role": "Archeologist",
+    "race": "human",
+    "gender": "male",
+    "alignment": "lawful"
+  },
+  "level": {
+    "safeAreaAroundHero": 2,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    { "typeId": "PICK_AXE", "identityKnown": true, "beatitude": "uncursed", "beatitudeKnown": true, "equipped": "wielded" },
+    { "typeId": "DAGGER", "identityKnown": true, "beatitude": "uncursed", "beatitudeKnown": true },
+    { "typeId": "LEATHER_ARMOR", "beatitude": "uncursed", "beatitudeKnown": true, "equipped": "worn" },
+    { "typeId": "FOOD_RATION", "quantity": 2 }
+  ],
+  "expectedPublicFacts": {
+    "inventoryRows": ["pick-axe", "dagger", "leather armor", "2 food rations"],
+    "equipmentRows": ["weapon", "armor"],
+    "status": ["Archeologist", "male", "lawful"],
+    "messages": ["loaded-game hero avatar regression"]
+  }
+}

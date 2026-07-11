@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fresh NetHack Electron Architecture Review</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101216; --panel:#181c22; --ink:#e8edf4; --muted:#aab6c5; --accent:#8ec5ff; --warn:#ffd38e; --ok:#a6e3a1; --border:#2f3946; }
+    body { margin:0; font:16px/1.55 system-ui, -apple-system, Segoe UI, sans-serif; background:var(--bg); color:var(--ink); }
+    main { max-width:1100px; margin:0 auto; padding:32px 20px 56px; }
+    h1,h2,h3 { line-height:1.2; }
+    h1 { margin-top:0; font-size:2rem; }
+    h2 { margin-top:2rem; border-top:1px solid var(--border); padding-top:1.25rem; }
+    h3 { color:var(--accent); margin-bottom:.35rem; }
+    code { background:#0c0e12; border:1px solid var(--border); border-radius:4px; padding:.08rem .28rem; }
+    .meta, .candidate, .note { background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:16px 18px; margin:14px 0; }
+    .meta ul, .candidate ul { margin:.35rem 0 .25rem 1.25rem; }
+    .badge { display:inline-block; border:1px solid var(--border); border-radius:999px; padding:.1rem .55rem; margin:.1rem .25rem .1rem 0; color:var(--muted); }
+    .ok { color:var(--ok); } .warn { color:var(--warn); }
+    table { width:100%; border-collapse:collapse; margin:10px 0; }
+    th,td { border:1px solid var(--border); padding:8px 10px; vertical-align:top; }
+    th { background:#12161c; text-align:left; }
+    .small { color:var(--muted); font-size:.92rem; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Fresh NetHack Electron Architecture Review</h1>
+
+  <section class="meta">
+    <p><strong>Scope:</strong> independent local-file review of the current Electron proof of concept code and tests.</p>
+    <p><strong>Independence confirmation:</strong> I did <strong>not</strong> read prior architecture reports, checklists, critiques, or similar prior architecture artifacts, including <code>electron-poc/architecture-report.html</code>, <code>electron-poc/architecture-improvement-checklist.md</code>, or <code>subagent-runs/critique-1782759564686/subagent-result.md</code>.</p>
+    <p><strong>Skill/source used:</strong> <code>improve-codebase-architecture</code> from <code>/home/horvay/.config/ai-org/ai-org-dev-data/employee-pi-homes/developer/skills/improve-codebase-architecture/SKILL.md</code>, plus its local <code>LANGUAGE.md</code>. No fetch failure occurred while loading that local skill source.</p>
+    <p><strong>Domain docs:</strong> no <code>CONTEXT.md</code> or <code>docs/adr/</code> files were present in this checkout, so this review uses the domain vocabulary visible in the Electron code: shim bridge events, tile map, prompts, menus, recording, replay, and preload contract.</p>
+    <p><strong>Production code:</strong> not modified. Only this report artifact was added.</p>
+  </section>
+
+  <h2>Files inspected</h2>
+  <div class="meta small">
+    <p><span class="badge">package/tests</span> <code>electron-poc/package.json</code>, <code>electron-poc/test/shared/architecture-modules-test.js</code>, <code>electron-poc/scripts/fixture-view-test.js</code>, <code>electron-poc/scripts/ui-regression-test.js</code>, <code>electron-poc/scripts/input-safety-test.js</code>, <code>electron-poc/scripts/gui-input-workflow-test.js</code>, <code>electron-poc/scripts/map-tooltip-test.js</code></p>
+    <p><span class="badge">main/preload</span> <code>electron-poc/src/main.js</code>, <code>electron-poc/src/main/game-process.js</code>, <code>electron-poc/src/main/electron-security.js</code>, <code>electron-poc/src/main/replay-runner.js</code>, <code>electron-poc/src/preload.js</code></p>
+    <p><span class="badge">renderer/shared</span> <code>electron-poc/src/renderer.html</code>, <code>electron-poc/src/renderer.js</code>, <code>electron-poc/src/shared/MODULE_MAP.md</code>, <code>electron-poc/src/shared/command-gateway.js</code>, <code>electron-poc/src/shared/message-log.js</code>, <code>electron-poc/src/shared/module-system.js</code>, <code>electron-poc/src/shared/preload-contract.js</code>, <code>electron-poc/src/shared/prompt-rules.js</code>, <code>electron-poc/src/shared/recording-schema.js</code>, <code>electron-poc/src/shared/shim-protocol.js</code>, <code>electron-poc/src/shared/status-hud.js</code>, <code>electron-poc/src/shared/test-harness.js</code>, <code>electron-poc/src/shared/tile-assets.js</code></p>
+    <p><span class="badge">bridge</span> <code>electron-poc/shim-bridge/nh-shim-bridge.c</code></p>
+  </div>
+
+  <h2>Checks run</h2>
+  <div class="meta">
+    <ul>
+      <li><code>cd electron-poc &amp;&amp; npm run test:architecture</code> — <span class="ok">passed</span></li>
+      <li><code>cd electron-poc &amp;&amp; npm run test:input-safety</code> — <span class="ok">passed</span></li>
+      <li><code>cd electron-poc &amp;&amp; npm run test:fixtures</code> — <span class="ok">passed</span></li>
+    </ul>
+  </div>
+
+  <h2>Architecture readout</h2>
+  <p>The Electron POC has already established useful seams: child process ownership is in <code>main/game-process.js</code>, security hardening is in <code>main/electron-security.js</code>, replay automation is in <code>main/replay-runner.js</code>, and several renderer rules have been extracted into frozen CommonJS/browser-global shared modules. The strongest current risk is that <code>renderer.js</code> remains the high-change module where several independent concepts meet: shim event interpretation, NetHack prompt/menu state, tile terrain presentation, recording, keyboard routing, test adapters, and DOM rendering.</p>
+  <p>The most valuable next work is not to create more tiny pass-through modules. It is to deepen a few modules so the renderer becomes a DOM adapter over tested NetHack view state.</p>
+
+  <h2>Deepening opportunities</h2>
+
+  <article class="candidate">
+    <h3>1. Deepen a shim game view-state module</h3>
+    <p><strong>Files/modules:</strong> <code>src/renderer.js</code>, <code>src/shared/shim-protocol.js</code>, <code>scripts/fixture-view-test.js</code>, <code>test/fixtures/*.jsonl</code>, <code>shim-bridge/nh-shim-bridge.c</code>.</p>
+    <p><strong>Problem:</strong> the renderer directly consumes shim events and mutates many state stores: map cells, cursor, status fields, menus, prompts, text windows, cached inventory choices, and message history. The fixture script independently re-implements a smaller version of the same event interpretation. That gives tests independence, but it also splits behaviour across two implementations and makes the renderer the only place where the real event ordering invariants are visible.</p>
+    <p><strong>Solution:</strong> create a deep shared module that accepts normalized shim events and returns a NetHack view-state snapshot plus high-level effects such as “show prompt”, “open document window”, “mark cells dirty”, or “record milestone”. Keep DOM writes and Electron calls in the renderer adapter. The C shim remains an adapter that emits raw events; <code>shim-protocol.js</code> becomes the event normalization seam feeding the view-state module.</p>
+    <p><strong>Benefits:</strong> locality improves because event ordering, menu-window lookup, prompt cancellation, and status semantics live in one implementation. Leverage improves because fixture tests, browser automation, replay, and the renderer can exercise the same interface. The deletion test suggests this module would earn its keep: deleting it would force event-state complexity back into every caller and test.</p>
+  </article>
+
+  <article class="candidate">
+    <h3>2. Turn prompt/menu rules into an interaction model module</h3>
+    <p><strong>Files/modules:</strong> <code>src/renderer.js</code>, <code>src/shared/prompt-rules.js</code>, <code>src/shared/command-gateway.js</code>, <code>scripts/fixture-view-test.js</code>, <code>scripts/gui-input-workflow-test.js</code>.</p>
+    <p><strong>Problem:</strong> <code>prompt-rules.js</code> is useful but still shallow: it exposes regex predicates while the renderer owns the harder implementation — inventory-cache use, action prompt titles, item-class rows, direction-helper suppression, menu selection feedback, passive ground-menu suppression, and cancellation behaviour. The same concepts appear in fixture checks and UI automation scripts.</p>
+    <p><strong>Solution:</strong> deepen this into a prompt/menu interaction model module. Given active NetHack prompt/menu state and cached inventory choices, it should produce a plain interaction description: title, prompt copy, options, text-entry mode, selection semantics, and cancellation behaviour. The renderer adapter renders that description into dialogs/buttons.</p>
+    <p><strong>Benefits:</strong> locality improves for the highest-risk UX rules: NetHack prompt interpretation. Leverage improves because tests can assert interaction descriptions without launching Electron for every case, while browser tests can focus on DOM fidelity. This also narrows the renderer interface to “render this interaction model” instead of “know NetHack prompt grammar”.</p>
+  </article>
+
+  <article class="candidate">
+    <h3>3. Move tile/cell presentation from renderer fallback logic into a map presentation module</h3>
+    <p><strong>Files/modules:</strong> <code>src/renderer.js</code>, <code>src/shared/tile-assets.js</code>, <code>scripts/map-tooltip-test.js</code>, <code>assets/tiles/manifest.json</code>, <code>assets/tiles/tile-map.json</code>.</p>
+    <p><strong>Problem:</strong> <code>tile-assets.js</code> resolves asset ids and overlay/base rules, but the renderer still owns terrain CSS classes, wall/door neighborhood dependencies, tooltip significance rules, fallback glyph behaviour, and ARIA labeling. That spreads map presentation knowledge across a shared module and DOM code.</p>
+    <p><strong>Solution:</strong> deepen a map presentation module that converts a normalized cell plus neighborhood context into a cell view model: terrain classes, tile id, base tile id, fallback glyph, tooltip model, and accessibility label. The renderer should only apply that model to an element.</p>
+    <p><strong>Benefits:</strong> locality improves for tile QA fixes and asset semantics. Leverage improves because map tooltip tests, fixture rendering checks, and visual replay assertions can exercise the same presentation interface without duplicating renderer details.</p>
+  </article>
+
+  <article class="candidate">
+    <h3>4. Make shim protocol events a versioned contract, not only a wrapper</h3>
+    <p><strong>Files/modules:</strong> <code>shim-bridge/nh-shim-bridge.c</code>, <code>src/shared/shim-protocol.js</code>, <code>test/fixtures/*.jsonl</code>, <code>scripts/bridge-input-behavior-test.js</code>, <code>scripts/fixture-view-test.js</code>.</p>
+    <p><strong>Problem:</strong> the C shim emits ad hoc JSON fields and <code>shim-protocol.js</code> mostly wraps them with <code>kind</code>, <code>known</code>, and raw payload preservation. The interface callers must know includes field presence, numeric ranges, event ordering, callback-specific semantics, and when bridge events answer prompts. Those invariants are mostly implicit.</p>
+    <p><strong>Solution:</strong> define a versioned shim event contract in JS with per-event normalization/validation for high-value events. Keep raw events for diagnostics, but give callers a stable normalized payload. Fixtures can then be validated against the contract before view-state tests run.</p>
+    <p><strong>Benefits:</strong> locality improves when C shim fields change. Leverage improves because both renderer and tests can rely on one normalized interface. This is a real seam because there are already multiple adapters/callers: C shim output, fixture replay, renderer consumption, and behavior tests.</p>
+  </article>
+
+  <article class="candidate">
+    <h3>5. Replace preload validator duplication with an explicit generation/embedding seam</h3>
+    <p><strong>Files/modules:</strong> <code>src/preload.js</code>, <code>src/shared/preload-contract.js</code>, <code>test/shared/architecture-modules-test.js</code>.</p>
+    <p><strong>Problem:</strong> <code>preload.js</code> duplicates validator logic from <code>preload-contract.js</code> because sandboxed preloads cannot require local files. The current comment/documentation makes the reason clear, but the interface can drift: tests import the shared copy while production executes the inline copy.</p>
+    <p><strong>Solution:</strong> add a small build/check module that treats <code>preload-contract.js</code> as the source and embeds or verifies the preload copy. If no build step is desired, add a test that compares the two validator bodies or generated hashes.</p>
+    <p><strong>Benefits:</strong> locality improves for IPC validation. Leverage improves because the existing Node-testable interface would become the actual production source rather than a parallel copy.</p>
+  </article>
+
+  <article class="candidate">
+    <h3>6. Deepen the Electron/CDP test harness before adding more browser workflow scripts</h3>
+    <p><strong>Files/modules:</strong> <code>src/shared/test-harness.js</code>, <code>scripts/gui-input-workflow-test.js</code>, <code>scripts/map-tooltip-test.js</code>, <code>scripts/direction-helper-layout-test.js</code>, <code>scripts/log-panel-behavior-test.js</code>, <code>scripts/prompt-spam-state-test.js</code>.</p>
+    <p><strong>Problem:</strong> <code>test-harness.js</code> is currently shallow compared with the repeated implementation in browser workflow scripts: spawn Electron, wait for CDP, connect WebSocket, evaluate JS, capture screenshots, cleanup. The repeated code is understandable for a POC, but every new visual workflow inherits the same timeout and cleanup surface.</p>
+    <p><strong>Solution:</strong> deepen <code>test-harness.js</code> into the one module that owns Electron/CDP workflow setup, evaluation, screenshot capture, and cleanup. Scripts should provide scenario steps and assertions, not transport mechanics.</p>
+    <p><strong>Benefits:</strong> locality improves for flaky-test fixes and port/env handling. Leverage improves because each new scenario gets a smaller interface and fewer ways to leak processes or diverge on timeout behaviour.</p>
+  </article>
+
+  <h2>Caveats</h2>
+  <div class="note">
+    <ul>
+      <li>This was a local static/dynamic review of the Electron POC, not a full NetHack core review.</li>
+      <li>I did not run the full visual/UI suite because the requested task was architecture review; I ran representative local architecture, input-safety, and fixture tests.</li>
+      <li>No prior architecture artifacts were read, so this report may repeat or contradict earlier recommendations that I intentionally did not inspect.</li>
+      <li>No <code>CONTEXT.md</code> or ADRs were available to constrain terminology or known decisions.</li>
+    </ul>
+  </div>
+
+  <h2>Suggested next step</h2>
+  <p>Choose one candidate to explore first. My recommended first pick is <strong>Candidate 1: deepen a shim game view-state module</strong>, because it would create the highest-leverage seam for prompt/menu, map, recording, replay, and fixture tests.</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,332 @@
+{
+  "auditedAt": "2026-07-10T02:08:45.989Z",
+  "auditedIds": [
+    "engraving",
+    "sink",
+    "fountain",
+    "altar",
+    "spellbook-class-icon",
+    "scroll-class-icon",
+    "scroll-of-identify",
+    "scroll-of-light",
+    "scroll-of-enchant-weapon",
+    "scroll-of-enchant-armor",
+    "scroll-of-teleportation",
+    "charging",
+    "create-monster",
+    "food-detection",
+    "genocide",
+    "gold-detection",
+    "magic-mapping",
+    "punishment",
+    "read-me",
+    "remove-curse",
+    "taming",
+    "teleport-away",
+    "teleport-control",
+    "teleportation",
+    "temov",
+    "zlorfik",
+    "strc-prst-skrz-krk",
+    "foobie-bletch",
+    "garven-deh",
+    "hapax-legomenon",
+    "xor-ota",
+    "level-teleporter",
+    "helmet",
+    "shield",
+    "water",
+    "death-object"
+  ],
+  "rows": [
+    {
+      "id": "engraving",
+      "outputPath": "asset-generation/outputs/terrain-features/engraving.png",
+      "installedPath": "electron-poc/assets/tiles/generated/terrain-features/engraving.png",
+      "sha256": "b48d77c63416ad61d3801cd8dd8e84379cb2433088d19c9fdaa5c0da257e28d7",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/terrain-features/engraving.png?v=b48d77c63416ad61d380')"
+    },
+    {
+      "id": "sink",
+      "outputPath": "asset-generation/outputs/terrain-features/sink.png",
+      "installedPath": "electron-poc/assets/tiles/generated/terrain-features/sink.png",
+      "sha256": "4e9d7dd91152afcadbab916a624702ad456283fd05f0edeb840a7c5bb8152d14",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/terrain-features/sink.png?v=4e9d7dd91152afcadbab')"
+    },
+    {
+      "id": "fountain",
+      "outputPath": "asset-generation/outputs/terrain-features/fountain.png",
+      "installedPath": "electron-poc/assets/tiles/generated/terrain-features/fountain.png",
+      "sha256": "790647d1a9b1fa8daf393a313436e3a79473bc41603f9fdf0d43d6a27beaa0da",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/terrain-features/fountain.png?v=790647d1a9b1fa8daf39')"
+    },
+    {
+      "id": "altar",
+      "outputPath": "asset-generation/outputs/terrain-features/altar.png",
+      "installedPath": "electron-poc/assets/tiles/generated/terrain-features/altar.png",
+      "sha256": "ebcec157e726172abc8963a7f2db8fa27b93a369e079b1cbc31b50166ae75180",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/terrain-features/altar.png?v=ebcec157e726172abc89')"
+    },
+    {
+      "id": "spellbook-class-icon",
+      "outputPath": "asset-generation/outputs/objects-inventory/spellbook-class-icon.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/spellbook-class-icon.png",
+      "sha256": "b50c07d5c97b255b827759bc85d9869616723673fec237c124cea13d9fcc7438",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/objects-inventory/spellbook-class-icon.png?v=2026-06-29T16%3A45%3A49Z')"
+    },
+    {
+      "id": "scroll-class-icon",
+      "outputPath": "asset-generation/outputs/objects-inventory/scroll-class-icon.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/scroll-class-icon.png",
+      "sha256": "ae2cf30b67dc01435b222f896adf9f6be4bd1777fc59e9fa1da0b2fc98461dfc",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/objects-inventory/scroll-class-icon.png?v=2026-06-29T16%3A39%3A54Z')"
+    },
+    {
+      "id": "scroll-of-identify",
+      "outputPath": "asset-generation/outputs/objects-inventory/scroll-of-identify.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/scroll-of-identify.png",
+      "sha256": "2e6ff0e4ff0ac35fd621d31aa48e82f27018b35e61f1b976fe202d9b19237c15",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/objects-inventory/scroll-of-identify.png?v=2026-06-29T16%3A41%3A36Z')"
+    },
+    {
+      "id": "scroll-of-light",
+      "outputPath": "asset-generation/outputs/objects-inventory/scroll-of-light.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/scroll-of-light.png",
+      "sha256": "66ba74113b0f492f60c0217e54706d5dcda704a889746a08fc7d545fff02e8d7",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/objects-inventory/scroll-of-light.png?v=2026-06-29T16%3A42%3A10Z')"
+    },
+    {
+      "id": "scroll-of-enchant-weapon",
+      "outputPath": "asset-generation/outputs/objects-inventory/scroll-of-enchant-weapon.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/scroll-of-enchant-weapon.png",
+      "sha256": "c59744380fe42eaf549ec520e8d662d3c9d5c9b8fd54a17cb648c8b88aa8c54f",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/objects-inventory/scroll-of-enchant-weapon.png?v=2026-06-29T16%3A41%3A02Z')"
+    },
+    {
+      "id": "scroll-of-enchant-armor",
+      "outputPath": "asset-generation/outputs/objects-inventory/scroll-of-enchant-armor.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/scroll-of-enchant-armor.png",
+      "sha256": "13f4433b451051ae47dcc9c8c7948f3906eae3fdddfddd0ab17560a2bc4c8993",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/objects-inventory/scroll-of-enchant-armor.png?v=2026-06-29T16%3A40%3A28Z')"
+    },
+    {
+      "id": "scroll-of-teleportation",
+      "outputPath": "asset-generation/outputs/objects-inventory/scroll-of-teleportation.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/scroll-of-teleportation.png",
+      "sha256": "fb5ff6e9d6debf263fcd10b9bda00425f0dc814f336347f99045f25e236eddac",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/objects-inventory/scroll-of-teleportation.png?v=2026-06-29T16%3A42%3A46Z')"
+    },
+    {
+      "id": "charging",
+      "outputPath": "asset-generation/outputs/full-source-objects/charging.png",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/charging.png",
+      "sha256": "15a715fdc32f80f1e0108f4fc1cf009cdb2f3f74df2f296e15f594fdc1c69d00",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/full-source-objects/charging.png?v=2026-06-30T13%3A51%3A17Z')"
+    },
+    {
+      "id": "create-monster",
+      "outputPath": "asset-generation/outputs/full-source-objects/create-monster.png",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/create-monster.png",
+      "sha256": "35415a481b6dbb6b3089b65a655c355bb3d57cabe7790ddbc8ccfab0f3b1ddbd",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/full-source-objects/create-monster.png?v=2026-06-30T14%3A05%3A11Z')"
+    },
+    {
+      "id": "food-detection",
+      "outputPath": "asset-generation/outputs/full-source-objects/food-detection.png",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/food-detection.png",
+      "sha256": "d05c250e23c886db9643d518c793b15227c58ec67518e25300c105e1a5d19dc0",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/full-source-objects/food-detection.png?v=d05c250e23c886db9643')"
+    },
+    {
+      "id": "genocide",
+      "outputPath": "asset-generation/outputs/full-source-objects/genocide.png",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/genocide.png",
+      "sha256": "e47787b49b05af0e66ae254a375dc8c42632ac5c11a13915b11016afaed3cd06",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/full-source-objects/genocide.png?v=e47787b49b05af0e66ae')"
+    },
+    {
+      "id": "gold-detection",
+      "outputPath": "asset-generation/outputs/full-source-objects/gold-detection.png",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/gold-detection.png",
+      "sha256": "9e26168ba28639a2617c48575b11d2e8bba6fa2e6acccac2b194e2eb782c301c",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/full-source-objects/gold-detection.png?v=9e26168ba28639a2617c')"
+    },
+    {
+      "id": "magic-mapping",
+      "outputPath": "asset-generation/outputs/full-source-objects/magic-mapping.png",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/magic-mapping.png",
+      "sha256": "021507e6463e29dcd63503dfdd76143090af5f8b56a5967ee0935085c83ffef5",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/full-source-objects/magic-mapping.png?v=021507e6463e29dcd635')"
+    },
+    {
+      "id": "punishment",
+      "outputPath": "asset-generation/outputs/full-source-objects/punishment.png",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/punishment.png",
+      "sha256": "fdb2a0ecddef16cdb9af859212b84a7c8a2b34e9ed5493a325f4d243e29365d1",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/full-source-objects/punishment.png?v=fdb2a0ecddef16cdb9af')"
+    },
+    {
+      "id": "read-me",
+      "outputPath": "asset-generation/outputs/full-source-objects/read-me.png",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/read-me.png",
+      "sha256": "ef75bfda37d35b212fb924a7ac74e217d3daff7b0d1f0b60ec629c4db4098c14",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/full-source-objects/read-me.png?v=ef75bfda37d35b212fb9')"
+    },
+    {
+      "id": "remove-curse",
+      "outputPath": "asset-generation/outputs/full-source-objects/remove-curse.png",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/remove-curse.png",
+      "sha256": "f738d90282bc9a3b9a9efac08f4d97005d59417769a3b5f3c4dd9975245d81d1",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/full-source-objects/remove-curse.png?v=f738d90282bc9a3b9a9e')"
+    },
+    {
+      "id": "taming",
+      "outputPath": "asset-generation/outputs/full-source-objects/taming.png",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/taming.png",
+      "sha256": "179ee25c9d4c880c30281108fa99bc1b3c37e35c63671f5e2c6cc479cb0c59b2",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/full-source-objects/taming.png?v=179ee25c9d4c880c3028')"
+    },
+    {
+      "id": "teleport-away",
+      "outputPath": "asset-generation/outputs/full-source-objects/teleport-away.png",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/teleport-away.png",
+      "sha256": "fad53c143bf8ec04085b620d246d4a93a4864e1b68de52561bb56f41deedb714",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/full-source-objects/teleport-away.png?v=fad53c143bf8ec04085b')"
+    },
+    {
+      "id": "teleport-control",
+      "outputPath": "asset-generation/outputs/full-source-objects/teleport-control.png",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/teleport-control.png",
+      "sha256": "80ec8f490b569db3ce807092464b3b9b7609eb8ccc897192b190e4e5070b0682",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/full-source-objects/teleport-control.png?v=80ec8f490b569db3ce80')"
+    },
+    {
+      "id": "teleportation",
+      "outputPath": "asset-generation/outputs/full-source-objects/teleportation.png",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/teleportation.png",
+      "sha256": "68e9408e02d440fddc1f96120a1ab6d7c9b297a4d625188c431bdb8d8f119c13",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/full-source-objects/teleportation.png?v=68e9408e02d440fddc1f')"
+    },
+    {
+      "id": "temov",
+      "outputPath": "asset-generation/outputs/full-source-objects/temov.png",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/temov.png",
+      "sha256": "9d9d8aca121e0454fa74fcf0f44898c22bb77e744fb0c699e09404503034fc71",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/full-source-objects/temov.png?v=9d9d8aca121e0454fa74')"
+    },
+    {
+      "id": "zlorfik",
+      "outputPath": "asset-generation/outputs/full-source-objects/zlorfik.png",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/zlorfik.png",
+      "sha256": "2cfdfc920b59e1da7744e405c77d1afe8a57fbd279967acfcc539200e75ca59e",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/full-source-objects/zlorfik.png?v=2cfdfc920b59e1da7744')"
+    },
+    {
+      "id": "strc-prst-skrz-krk",
+      "outputPath": "asset-generation/outputs/full-source-objects/strc-prst-skrz-krk.png",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/strc-prst-skrz-krk.png",
+      "sha256": "bb4f2f6ed37a99acdcf1cb0bcdb5f95cd14b049069ef7c6701648165083b56a4",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/full-source-objects/strc-prst-skrz-krk.png?v=bb4f2f6ed37a99acdcf1')"
+    },
+    {
+      "id": "foobie-bletch",
+      "outputPath": "asset-generation/outputs/full-source-objects/foobie-bletch.png",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/foobie-bletch.png",
+      "sha256": "959d897dd16dc6068f11cb9ddd44ab7abf5dcd8841be4cc753c45c3459450be1",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/full-source-objects/foobie-bletch.png?v=959d897dd16dc6068f11')"
+    },
+    {
+      "id": "garven-deh",
+      "outputPath": "asset-generation/outputs/full-source-objects/garven-deh.png",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/garven-deh.png",
+      "sha256": "de0f5d23ad05dc10eae147bf582408fc8e2ef334fc9fd449d51cd5585e91b481",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/full-source-objects/garven-deh.png?v=de0f5d23ad05dc10eae1')"
+    },
+    {
+      "id": "hapax-legomenon",
+      "outputPath": "asset-generation/outputs/full-source-objects/hapax-legomenon.png",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/hapax-legomenon.png",
+      "sha256": "139d485f4d433054567d129c28458c80214503fb8cc613984b54a997689c2254",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/full-source-objects/hapax-legomenon.png?v=139d485f4d433054567d')"
+    },
+    {
+      "id": "xor-ota",
+      "outputPath": "asset-generation/outputs/full-source-objects/xor-ota.png",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/xor-ota.png",
+      "sha256": "13392cbb28de824f75671b4ce570c8649308c1c8559870d91b447ffa34df651d",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/full-source-objects/xor-ota.png?v=13392cbb28de824f7567')"
+    },
+    {
+      "id": "level-teleporter",
+      "outputPath": "asset-generation/outputs/traps-hazards/level-teleporter.png",
+      "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/level-teleporter.png",
+      "sha256": "1ece20715d0f3045ba89179fb8b51b9a4e68d91416cb2cd1eea3474bade2cfed",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/traps-hazards/level-teleporter.png?v=2026-06-29T19%3A37%3A17Z')"
+    },
+    {
+      "id": "helmet",
+      "outputPath": "asset-generation/outputs/objects-inventory/helmet.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/helmet.png",
+      "sha256": "1ec055f34a51566ae496d8824543c4e030cbb5a9576d744ceb04c63c13825f52",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/objects-inventory/helmet.png?v=2026-06-29T15%3A41%3A03Z')"
+    },
+    {
+      "id": "shield",
+      "outputPath": "asset-generation/outputs/objects-inventory/shield.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/shield.png",
+      "sha256": "c6ef0ec6137228802a292d331d7e0398729875db1f1cfced2f4fc813262445a0",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/objects-inventory/shield.png?v=2026-06-29T16%3A43%3A23Z')"
+    },
+    {
+      "id": "water",
+      "outputPath": "asset-generation/outputs/full-source-objects/water.png",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/water.png",
+      "sha256": "6d0a8632e3e3f661989e99092d39ed175a092579b61d67fe0d425069a8d9ee5e",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/full-source-objects/water.png?v=6d0a8632e3e3f661989e')"
+    },
+    {
+      "id": "death-object",
+      "outputPath": "asset-generation/outputs/full-source-objects/death-object.png",
+      "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/death-object.png",
+      "sha256": "74acb6b8819ed30f7d67377887976a9b2f37f8ce69ee3a60ee20496ee7039455",
+      "outputMatchesInstalled": true,
+      "tileUrl": "url('../assets/tiles/generated/full-source-objects/death-object.png?v=74acb6b8819ed30f7d67')"
+    }
+  ],
+  "errors": []
+}

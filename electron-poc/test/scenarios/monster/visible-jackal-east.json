@@ -1,0 +1,32 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "monster/visible-jackal-east",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": { "placement": "current" },
+  "level": {
+    "safeAreaAroundHero": 4,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none",
+    "terrain": [
+      { "at": "east", "type": "floor" },
+      { "at": "west", "type": "floor" },
+      { "at": "north", "type": "floor" },
+      { "at": "south", "type": "floor" }
+    ]
+  },
+  "ground": [],
+  "monsters": [
+    { "typeId": "JACKAL", "at": "east", "attitude": "hostile", "asleep": false, "hp": 4, "maxHp": 4 },
+    { "typeId": "DWARF", "at": "north", "attitude": "hostile", "asleep": false, "hp": 8, "maxHp": 8 },
+    { "typeId": "HUMAN_WEREJACKAL", "at": "south", "attitude": "hostile", "asleep": false, "hp": 4, "maxHp": 4 },
+    { "typeId": "KITTEN", "at": "west", "attitude": "tame", "asleep": false }
+  ],
+  "inventory": [ { "typeId": "DAGGER", "equipped": "wielded" } ],
+  "expectedPublicFacts": {
+    "monsterRows": ["jackal", "dwarf", "werejackal", "kitten", "tame"],
+    "mapAffordances": ["visible hostile monster", "visible tame monster"],
+    "inventoryRows": ["dagger"],
+    "messages": ["visible monster fixture"]
+  }
+}

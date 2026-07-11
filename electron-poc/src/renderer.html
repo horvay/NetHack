@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' file:; img-src 'self' file: data:; style-src 'self' 'unsafe-inline' file:; script-src 'self' 'unsafe-inline' file:; connect-src 'self' file:; object-src 'none'; base-uri 'none'; form-action 'none'" />
+    <title>NetHack Electron POC</title>
+    <link rel="stylesheet" href="../node_modules/@xterm/xterm/css/xterm.css" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1>NetHack</h1>
+        <p id="paths">Loading project paths…</p>
+      </div>
+      <div class="controls">
+        <button id="start-shim" class="primary">New game</button>
+        <button id="shim-wait" hidden>Wait (.)</button>
+        <button id="shim-esc" hidden>Esc</button>
+        <button id="stop" hidden>Stop</button>
+        <button id="settings-button" class="secondary">Settings</button>
+        <button id="version" class="secondary">Smoke check</button>
+        <button id="start" class="secondary">TTY</button>
+        <span id="status" role="status">initializing</span>
+      </div>
+    </header>
+    <main>
+      <section aria-label="NetHack shim game view" class="game-view-section">
+        <div id="top-bar">
+          <div id="stats-panel" aria-label="Complete NetHack status area"></div>
+          <div id="context-strip" aria-live="polite">
+            <span id="prompt-panel" hidden>No active prompt.</span>
+            <span id="menu-panel" hidden>No active menu.</span>
+          </div>
+        </div>
+        <div id="quick-actions" aria-label="Compact common NetHack actions">
+          <button type="button" id="inventory-equipment-button" class="primary compact-action-button" data-command-key="i" title="Open the RPG hero equipment and carried inventory screen (keyboard shortcut: i)">Inventory / Equipment (i)</button>
+          <button type="button" id="open-actions" class="primary compact-action-button" aria-haspopup="dialog" aria-controls="action-dialog">Use item / Actions</button>
+          <button type="button" data-command-key=",">Pick up</button>
+          <button type="button" data-command-key="s">Search</button>
+          <button type="button" data-command-key=".">Wait</button>
+          <button type="button" data-command-code="27">Esc / Stop</button>
+          <button type="button" data-command-key="#">Command #</button>
+          <span class="shortcut-hint">Map stays primary. More commands are in Use item / Actions.</span>
+        </div>
+        <section id="recording-toolbar" class="recording-toolbar" aria-label="Active replay recording controls" aria-live="polite" hidden>
+          <strong>Recording replay</strong>
+          <span id="recording-toolbar-status">0 inputs, 0 checkpoints recorded.</span>
+          <button id="record-checkpoint-primary" type="button" class="primary">Add screenshot checkpoint</button>
+          <button id="save-recording-primary" type="button">Save recording</button>
+        </section>
+        <div id="context-action-bar" aria-label="Contextual actions for current position" aria-live="polite"></div>
+        <div id="play-area">
+          <div id="game-grid" data-testid="game-grid" aria-label="Tile NetHack full-level dungeon grid"></div>
+          <section id="container-transfer-panel" class="container-transfer-panel" aria-label="Open container inventory" aria-live="polite" hidden></section>
+          <div id="map-tooltip" class="map-tooltip" role="tooltip" hidden>
+            <div id="map-tooltip-icon" class="map-tooltip-icon" aria-hidden="true"></div>
+            <div class="map-tooltip-copy">
+              <strong id="map-tooltip-title"></strong>
+              <span id="map-tooltip-description"></span>
+            </div>
+          </div>
+        </div>
+        <section id="log-panel" aria-label="NetHack message log">
+          <div class="log-heading">
+            <strong>Recent messages</strong>
+            <span>Full history is collapsed below.</span>
+          </div>
+          <aside id="direction-helper" aria-live="polite" aria-label="Direction/action helper" hidden>
+            <div class="direction-helper-heading">
+              <strong id="direction-helper-title">Choose direction</strong>
+            </div>
+            <div id="direction-helper-options" class="direction-pad"></div>
+          </aside>
+          <div id="messages" data-testid="messages" aria-live="polite">No shim messages yet.</div>
+          <details id="message-history" class="hint">
+            <summary>Full message history</summary>
+            <pre id="message-history-body" data-testid="message-history-body"></pre>
+          </details>
+        </section>
+        <details id="keyboard-help" class="hint">
+          <summary>Keyboard help</summary>
+          <p><strong>Movement:</strong> arrows/hjkl+yubn. <strong>Common:</strong> <kbd>,</kbd> pickup, <kbd>.</kbd> wait, <kbd>i</kbd> inventory, <kbd>a</kbd> apply, <kbd>w</kbd> wield, <kbd>q</kbd> quaff, <kbd>r</kbd> read, <kbd>e</kbd> eat, <kbd>d</kbd> drop, <kbd>o/c</kbd> open/close, <kbd>Ctrl-D</kbd> kick a door/object then choose a direction, <kbd>Esc</kbd> cancel.</p>
+        </details>
+      </section>
+      <details id="debug-panel" hidden>
+        <summary>Developer diagnostics</summary>
+        <section aria-label="Smoke check output">
+          <h2>Smoke output</h2>
+          <pre id="output" data-testid="smoke-output"></pre>
+        </section>
+        <section aria-label="Raw status lines">
+          <h2>Raw status</h2>
+          <div id="status-lines" data-testid="status-lines">No shim status yet.</div>
+        </section>
+        <section aria-label="Command help">
+          <h2>Command help</h2>
+          <div id="command-help"></div>
+        </section>
+        <section aria-label="NetHack terminal">
+          <h2>Terminal bridge</h2>
+          <div id="terminal"></div>
+        </section>
+        <section aria-label="Input recording and replay">
+          <h2>Input recording</h2>
+          <p class="hint">Record from the New Game modal. When recording is active, the main game view shows the primary checkpoint and save controls; these debug buttons mirror the same actions.</p>
+          <button id="record-checkpoint" type="button" hidden>Add screenshot checkpoint</button>
+          <button id="save-recording" type="button">Save recording now</button>
+          <span id="recording-status">No active recording.</span>
+        </section>
+        <section aria-label="NetHack shim bridge events">
+          <h2>Shim bridge events</h2>
+          <pre id="shim-output" data-testid="shim-output"></pre>
+        </section>
+      </details>
+    </main>
+
+
+    <dialog id="startup-choice-dialog" class="startup-choice-dialog" aria-labelledby="startup-choice-title" data-testid="startup-choice-dialog">
+      <form method="dialog" id="startup-choice-form">
+        <div class="startup-choice-frame">
+          <p class="startup-kicker">Dungeons of Doom</p>
+          <h2 id="startup-choice-title">Choose your path</h2>
+          <p id="startup-choice-summary" class="startup-choice-summary" aria-live="polite">Checking for a previous game…</p>
+          <section id="startup-continue-card" class="startup-choice-card" hidden>
+            <span class="startup-choice-label">Previous game found</span>
+            <strong id="startup-continue-title">Continue your last run</strong>
+            <p id="startup-continue-detail">A saved or recoverable game is available.</p>
+          </section>
+          <section id="startup-new-card" class="startup-choice-card">
+            <span class="startup-choice-label">Fresh start</span>
+            <strong>Start a new adventurer</strong>
+            <p>Choose a hero, seed, and recording options before entering the dungeon.</p>
+          </section>
+        </div>
+        <menu class="dialog-actions startup-choice-actions">
+          <button type="button" id="startup-continue-game" class="primary" hidden>Continue previous game</button>
+          <button type="button" id="startup-new-game">Start new game</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <dialog id="action-dialog" class="action-dialog" aria-labelledby="action-dialog-title">
+      <form method="dialog" id="action-dialog-form">
+        <div class="action-dialog-heading">
+          <div>
+            <h2 id="action-dialog-title">Use item / Actions</h2>
+            <p class="modal-copy">Choose an action.</p>
+          </div>
+          <button type="button" id="action-dialog-close" aria-label="Close actions">Close</button>
+        </div>
+        <div class="action-dialog-grid">
+          <section id="item-actions" aria-label="Item, equipment, and spell actions" class="action-card">
+            <span class="item-actions-label">Use item</span>
+            <button type="button" data-command-key="e">Eat</button>
+            <button type="button" data-command-key="q">Quaff</button>
+            <button type="button" data-command-key="r">Read</button>
+            <button type="button" data-command-key="a">Apply</button>
+            <button type="button" data-command-key="z">Zap</button>
+            <button type="button" data-command-key="t">Throw / fire</button>
+            <span class="item-actions-label">Equipment</span>
+            <button type="button" data-command-key="w">Wield</button>
+            <button type="button" data-command-key="x">Swap weapon</button>
+            <button type="button" data-command-key="W">Wear armor</button>
+            <button type="button" data-command-key="T">Take off armor</button>
+            <button type="button" data-command-key="P">Put on ring/amulet</button>
+            <button type="button" data-command-key="R">Remove ring/amulet</button>
+            <button type="button" data-command-key="Q">Set quiver</button>
+            <button type="button" data-command-key="Z">Cast spell</button>
+          </section>
+          <section id="equipment-slots" aria-label="Current equipment slots" class="action-card equipment-card"></section>
+          <section id="repeat-actions" aria-label="Repeat common actions without typing count prefixes" class="action-card repeat-card">
+            <label for="repeat-count">Repeat</label>
+            <button type="button" class="repeat-preset" data-repeat-count="5">5</button>
+            <button type="button" class="repeat-preset" data-repeat-count="10">10</button>
+            <button type="button" class="repeat-preset" data-repeat-count="20">20</button>
+            <input id="repeat-count" type="number" min="1" max="999" value="10" aria-label="Repeat count" />
+            <button type="button" data-repeat-command=".">Wait/rest</button>
+            <button type="button" data-repeat-command="s">Search</button>
+          </section>
+          <section id="movement-actions" aria-label="Collapsed movement, run, and fight controls" class="action-card movement-card">
+            <span class="movement-label">Move mode</span>
+            <button type="button" class="movement-mode selected" data-movement-mode="walk" aria-pressed="true">Walk</button>
+            <button type="button" class="movement-mode" data-movement-mode="run" aria-pressed="false">Run</button>
+            <button type="button" class="movement-mode" data-movement-mode="fight" aria-pressed="false">Fight</button>
+            <div class="movement-pad" aria-label="Choose movement direction">
+              <button type="button" data-move-direction="y" aria-label="Northwest">↖</button>
+              <button type="button" data-move-direction="k" aria-label="North">↑</button>
+              <button type="button" data-move-direction="u" aria-label="Northeast">↗</button>
+              <button type="button" data-move-direction="h" aria-label="West">←</button>
+              <span aria-hidden="true">@</span>
+              <button type="button" data-move-direction="l" aria-label="East">→</button>
+              <button type="button" data-move-direction="b" aria-label="Southwest">↙</button>
+              <button type="button" data-move-direction="j" aria-label="South">↓</button>
+              <button type="button" data-move-direction="n" aria-label="Southeast">↘</button>
+            </div>
+          </section>
+          <section id="system-actions" aria-label="Lifecycle, info, spell, skill, option, container, and shop actions" class="action-card system-card">
+            <span class="system-actions-label">Dungeon</span>
+            <button type="button" data-command-key="o">Open</button>
+            <button type="button" data-command-key="c">Close</button>
+            <button type="button" data-command-code="4" title="Kick a nearby door or object; NetHack will ask for a direction.">Kick door (Ctrl-D)</button>
+            <button type="button" data-command-key=">">Down stairs</button>
+            <button type="button" data-command-key="<">Up stairs</button>
+            <button type="button" data-command-key="?">Help</button>
+            <span class="system-actions-label">Run</span>
+            <button type="button" data-command-key="S" data-workflow-label="Save and exit">Save game</button>
+            <button type="button" data-command-key="Q" data-workflow-label="Quit game">Quit game</button>
+            <span class="system-actions-label">Info/history</span>
+            <button type="button" data-ext-command="attributes" data-workflow-label="Attributes panel">Attributes</button>
+            <button type="button" data-ext-command="conduct" data-workflow-label="Conduct record">Conduct</button>
+            <button type="button" data-ext-command="prevmsg" data-workflow-label="Previous messages">Message history</button>
+            <button type="button" data-ext-command="history" data-workflow-label="NetHack history">History</button>
+            <button type="button" data-ext-command="version" data-workflow-label="Version information">Version</button>
+            <span class="system-actions-label">Character panels</span>
+            <button type="button" data-ext-command="showspells">Spellbook</button>
+            <button type="button" data-ext-command="enhance">Skills</button>
+            <button type="button" data-ext-command="options">Options</button>
+            <button type="button" data-ext-command="toggle">Toggle options</button>
+            <span class="system-actions-label">Transfers</span>
+            <button type="button" data-ext-command="loot">Loot container</button>
+            <button type="button" data-ext-command="tip">Tip container</button>
+            <button type="button" data-ext-command="pay">Pay shop bill</button>
+            <span class="system-actions-label">Object flows</span>
+            <button type="button" data-ext-command="dip" data-workflow-label="Dip object">Dip</button>
+            <button type="button" data-ext-command="invoke" data-workflow-label="Invoke object">Invoke</button>
+            <button type="button" data-ext-command="rub" data-workflow-label="Rub object">Rub</button>
+            <button type="button" data-ext-command="force" data-workflow-label="Force lock">Force lock</button>
+            <button type="button" data-ext-command="offer" data-workflow-label="Offer sacrifice">Offer</button>
+            <button type="button" data-ext-command="chat" data-workflow-label="Chat">Chat</button>
+            <button type="button" data-ext-command="untrap" data-workflow-label="Untrap">Untrap</button>
+            <span class="system-actions-label">Special actions</span>
+            <button type="button" data-ext-command="jump" data-workflow-label="Jump target">Jump</button>
+            <button type="button" data-ext-command="ride" data-workflow-label="Ride">Ride</button>
+            <button type="button" data-ext-command="turn" data-workflow-label="Turn undead">Turn undead</button>
+            <button type="button" data-ext-command="wipe" data-workflow-label="Wipe face">Wipe face</button>
+            <button type="button" data-ext-command="monster" data-workflow-label="Monster ability">Monster ability</button>
+            <button type="button" data-ext-command="pray" data-workflow-label="Pray">Pray</button>
+            <button type="button" data-ext-command="sit" data-workflow-label="Sit">Sit</button>
+            <span class="system-actions-label">Inspect/name</span>
+            <button type="button" data-ext-command="whatis" data-workflow-label="Identify map/object">What is?</button>
+            <button type="button" data-ext-command="whatdoes" data-workflow-label="Command help">What does?</button>
+            <button type="button" data-ext-command="name" data-workflow-label="Name object or monster">Name/call</button>
+            <button type="button" data-ext-command="annotate" data-workflow-label="Annotate level">Annotate</button>
+            <button type="button" data-ext-command="autopickup" data-workflow-label="Toggle autopickup">Autopickup</button>
+          </section>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="settings-dialog" class="settings-dialog" aria-labelledby="settings-title">
+      <form method="dialog" id="settings-form">
+        <h2 id="settings-title">Settings</h2>
+        <p class="modal-copy">These GUI settings are saved locally. NetHack options are allowlisted and applied when a new tile game starts.</p>
+        <div class="settings-grid">
+          <label class="checkbox-row"><input id="setting-contextual-menus" type="checkbox" /> <span><strong>Contextual action prompts</strong><small>Show helpful prompts such as “Door is locked. Kick it?” when NetHack messages reveal an obvious action.</small></span></label>
+          <label class="checkbox-row"><input id="setting-auto-loot-gold" type="checkbox" /> <span><strong>Auto-loot gold only</strong><small>Start NetHack with safe pickup options: autopickup enabled for gold ($) only.</small></span></label>
+        </div>
+        <menu class="dialog-actions">
+          <button type="button" id="settings-reset">Reset defaults</button>
+          <button value="cancel">Cancel</button>
+          <button id="settings-save" value="save" class="primary">Save settings</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <dialog id="character-dialog" class="character-dialog" aria-labelledby="character-title">
+      <form method="dialog" id="character-form">
+        <h2 id="character-title">Create your adventurer</h2>
+        <p class="modal-copy">Choose a character for this run, or randomize and jump straight into the dungeon.</p>
+        <div class="character-grid">
+          <label>Name <input id="player-name" maxlength="24" value="Electron" /></label>
+          <label>Role <select id="player-role"><option value="Val">Valkyrie</option><option value="Arc">Archeologist</option><option value="Bar">Barbarian</option><option value="Hea">Healer</option><option value="Kni">Knight</option><option value="Mon">Monk</option><option value="Pri">Priest</option><option value="Ran">Ranger</option><option value="Rog">Rogue</option><option value="Sam">Samurai</option><option value="Tou">Tourist</option><option value="Wiz">Wizard</option></select></label>
+          <label>Race <select id="player-race"><option value="Hum">Human</option><option value="Dwa">Dwarf</option><option value="Elf">Elf</option><option value="Gno">Gnome</option><option value="Orc">Orc</option></select></label>
+          <label>Gender <select id="player-gender"><option value="Fem">Female</option><option value="Mal">Male</option></select></label>
+          <label>Alignment <select id="player-align"><option value="Law">Lawful</option><option value="Neu">Neutral</option><option value="Cha">Chaotic</option></select></label>
+          <label class="seed-field">Seed <input id="game-seed" inputmode="numeric" maxlength="20" placeholder="random" aria-describedby="seed-help" /><span id="seed-help" class="field-help">Optional deterministic seed. Leave blank/random and Electron chooses a random seed for this run and records it in diagnostics.</span></label>
+          <label class="checkbox-row recording-row"><input id="record-inputs" type="checkbox" /> <span>Record inputs for replay</span></label>
+        </div>
+        <menu class="dialog-actions">
+          <button type="button" id="randomize-character">Randomize choices</button>
+          <button type="button" id="start-random-character">Start random adventurer</button>
+          <button value="cancel">Cancel</button>
+          <button id="confirm-character" value="start" class="primary">Start selected adventurer</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <dialog id="document-dialog" class="document-dialog" aria-labelledby="document-title">
+      <form method="dialog">
+        <h2 id="document-title">NetHack window</h2>
+        <p class="modal-copy document-copy">Read-only NetHack information. Use the visible Close / Back button; no random “press any key” terminal dismissal is required.</p>
+        <label class="interaction-text-row">Search/filter <input id="document-filter" autocomplete="off" /></label>
+        <pre id="document-body" data-testid="document-body"></pre>
+        <menu class="dialog-actions"><button id="document-close" value="close" class="primary">Close / Back</button></menu>
+      </form>
+    </dialog>
+
+    <dialog id="intro-dialog" class="intro-dialog" aria-labelledby="intro-title" data-testid="intro-dialog">
+      <form method="dialog" id="intro-form">
+        <div class="intro-frame" aria-live="polite">
+          <div class="intro-kicker">Chronicle of the Dungeons of Doom</div>
+          <h2 id="intro-title">The Book of Tyr</h2>
+          <div class="intro-seal" aria-hidden="true">⚔</div>
+          <div id="intro-body" class="intro-body" data-testid="intro-body"></div>
+          <div class="intro-objective">
+            <span class="objective-label">Quest</span>
+            <strong>Recover the Amulet of Yendor</strong>
+          </div>
+        </div>
+        <menu class="dialog-actions intro-actions"><button id="intro-continue" value="continue" class="primary">Begin the descent</button></menu>
+      </form>
+    </dialog>
+
+    <dialog id="interaction-dialog" class="interaction-dialog" aria-labelledby="interaction-title">
+      <form method="dialog" id="interaction-form">
+        <h2 id="interaction-title">NetHack choice</h2>
+        <p id="interaction-prompt"></p>
+        <section id="interaction-context" class="interaction-context" aria-label="Recent NetHack context" hidden></section>
+        <label id="interaction-text-row" class="interaction-text-row" hidden><span id="interaction-text-label">Filter choices</span><input id="interaction-text" aria-describedby="interaction-feedback" autocomplete="off" /></label>
+        <p id="interaction-feedback" class="modal-copy" aria-live="polite"></p>
+        <div id="interaction-panel-controls" class="interaction-panel-controls" hidden aria-label="Panel filters and summaries"></div>
+        <div id="interaction-options" role="listbox" aria-label="NetHack choices"></div>
+        <menu class="dialog-actions">
+          <button type="button" id="interaction-select-all" hidden>Select visible</button>
+          <button type="button" id="interaction-clear" hidden>Clear selection</button>
+          <button type="button" id="interaction-confirm" class="primary" hidden>Confirm selection</button>
+          <button id="interaction-cancel" value="cancel">Cancel / Esc</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <dialog id="game-over-dialog" class="game-over-dialog" aria-labelledby="game-over-title" data-testid="game-over-dialog">
+      <div class="game-over-frame">
+        <div class="gravestone" aria-hidden="true">
+          <div class="gravestone-arch"></div>
+          <div class="gravestone-face">
+            <div class="gravestone-rip">RIP</div>
+            <div id="game-over-stone-name" class="gravestone-name">Adventurer</div>
+            <div id="game-over-stone-cause" class="gravestone-cause">The dungeon claimed them</div>
+            <div id="game-over-stone-score" class="gravestone-score">Score 0</div>
+          </div>
+        </div>
+        <section class="game-over-copy">
+          <p class="game-over-kicker">Final Chronicle</p>
+          <h2 id="game-over-title">Game over</h2>
+          <p id="game-over-cause" class="death-cause" data-testid="game-over-cause">The dungeon has claimed another hero.</p>
+          <p class="game-over-escape-note">This run has ended, so Escape keeps the final chronicle open. Choose New game or Exit to leave safely.</p>
+          <div id="game-over-summary" class="game-over-summary" aria-label="Final statistics"></div>
+        </section>
+        <section class="game-over-sections" aria-label="Detailed game-over statistics">
+          <h3>All available statistics</h3>
+          <div id="game-over-sections"></div>
+        </section>
+        <menu class="dialog-actions game-over-actions">
+          <button type="button" id="game-over-new" class="primary">New game</button>
+          <button type="button" id="game-over-exit">Exit</button>
+        </menu>
+      </div>
+    </dialog>
+    <script src="../node_modules/@xterm/xterm/lib/xterm.js"></script>
+    <script src="./shared/module-system.js"></script>
+    <script src="./shared/command-gateway.js"></script>
+    <script src="./shared/message-log.js"></script>
+    <script src="./shared/prompt-rules.js"></script>
+    <script src="./shared/tile-assets.js"></script>
+    <script src="./shared/character-options.js"></script>
+    <script src="./shared/interaction-model.js"></script>
+    <script src="./shared/public-blockers.js"></script>
+    <script src="./shared/inventory-action-service.js"></script>
+    <script src="./shared/map-presentation.js"></script>
+    <script src="./shared/shim-protocol.js"></script>
+    <script src="./shared/ui-protocol-v2.js"></script>
+    <script src="./shared/menu-metadata-adapter.js"></script>
+    <script src="./shared/inventory-snapshot-adapter.js"></script>
+    <script src="./shared/equipment-snapshot-adapter.js"></script>
+    <script src="./shared/ground-pile-snapshot-adapter.js"></script>
+    <script src="./shared/container-contents-snapshot-adapter.js"></script>
+    <script src="./shared/command-transaction-model.js"></script>
+    <script src="./shared/transfer-transaction-model.js"></script>
+    <script src="./shared/game-view-state.js"></script>
+    <script src="./shared/recording-schema.js"></script>
+    <script src="./shared/status-hud.js"></script>
+    <script src="./renderer.js"></script>
+  </body>
+</html>

@@ -1,0 +1,42 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "status/condition-trap",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current",
+    "role": "Valkyrie",
+    "race": "human",
+    "gender": "female",
+    "alignment": "lawful"
+  },
+  "level": {
+    "safeAreaAroundHero": 3,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none",
+    "map": {
+      "topLeft": { "dx": -2, "dy": -1 },
+      "rows": [
+        ".....",
+        "..@^.",
+        "....."
+      ]
+    },
+    "terrain": [
+      { "at": "east", "type": "floor", "trap": "web" },
+      { "at": "south", "type": "ice" },
+      { "at": "west", "type": "floor" }
+    ]
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    { "typeId": "LONG_SWORD", "identityKnown": true, "equipped": "wielded" },
+    { "typeId": "LEATHER_ARMOR", "beatitude": "uncursed", "beatitudeKnown": true, "equipped": "worn" }
+  ],
+  "expectedPublicFacts": {
+    "status": ["Trapped", "Terrain", "HP", "Str"],
+    "mapAffordances": ["web", "ice"],
+    "messages": ["status condition trap fixture"]
+  }
+}

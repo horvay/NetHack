@@ -35,6 +35,11 @@ staticfn void do_boh_explosion(struct obj *, boolean);
 staticfn long boh_loss(struct obj *, boolean);
 staticfn int in_container(struct obj *);
 staticfn int out_container(struct obj *);
+staticfn struct obj *floor_container_by_id(unsigned int);
+staticfn struct obj *contained_obj_by_id(struct obj *, unsigned int);
+staticfn boolean direct_container_blind_cockatrice_floor(void);
+staticfn boolean direct_container_can_lift_all(struct obj *, struct obj *,
+                                              char *, size_t);
 staticfn long mbag_item_gone(boolean, struct obj *, boolean);
 staticfn int stash_ok(struct obj *);
 staticfn void explain_container_prompt(boolean);
@@ -2558,6 +2563,759 @@ boh_loss(struct obj *container, boolean held)
         return loss;
     }
     return 0;
+}
+
+struct container_transfer_request_state {
+    boolean pending;
+    unsigned int container_id;
+    unsigned int item_id;
+    char direction[32];
+    char transaction_id[96];
+};
+
+struct container_transfer_result_state {
+    boolean available;
+    boolean success;
+    unsigned int container_id;
+    unsigned int item_id;
+    char direction[32];
+    char transaction_id[96];
+    char reason[160];
+};
+
+struct container_snapshot_request_state {
+    boolean pending;
+    unsigned int container_id;
+    char transaction_id[96];
+};
+
+struct container_snapshot_result_state {
+    boolean available;
+    boolean success;
+    unsigned int container_id;
+    char transaction_id[96];
+    char reason[160];
+};
+
+struct ground_transfer_request_state {
+    boolean pending;
+    unsigned int item_id;
+    int x;
+    int y;
+    char direction[32];
+    char transaction_id[96];
+};
+
+struct ground_transfer_result_state {
+    boolean available;
+    boolean success;
+    unsigned int item_id;
+    int x;
+    int y;
+    char direction[32];
+    char transaction_id[96];
+    char reason[160];
+};
+
+static struct container_transfer_request_state g_container_transfer_request;
+static struct container_transfer_result_state g_container_transfer_result;
+static struct container_snapshot_request_state g_container_snapshot_request;
+static struct container_snapshot_result_state g_container_snapshot_result;
+static struct ground_transfer_request_state g_ground_transfer_request;
+static struct ground_transfer_result_state g_ground_transfer_result;
+
+staticfn struct obj *inventory_obj_by_id(unsigned int);
+staticfn struct obj *floor_obj_by_id_at(unsigned int, int, int);
+staticfn boolean direct_container_common_checks(unsigned int, boolean,
+                                               struct obj **, char *, size_t);
+staticfn boolean direct_ground_common_checks(int, int, char *, size_t);
+
+staticfn struct obj *
+floor_container_by_id(unsigned int container_id)
+{
+    struct obj *otmp;
+
+    if (!isok(u.ux, u.uy))
+        return (struct obj *) 0;
+    for (otmp = svl.level.objects[u.ux][u.uy]; otmp; otmp = otmp->nexthere)
+        if (Is_container(otmp) && otmp->o_id == container_id)
+            return otmp;
+    return (struct obj *) 0;
+}
+
+staticfn struct obj *
+contained_obj_by_id(struct obj *container, unsigned int item_id)
+{
+    struct obj *otmp;
+
+    if (!container)
+        return (struct obj *) 0;
+    for (otmp = container->cobj; otmp; otmp = otmp->nobj)
+        if (otmp->o_id == item_id)
+            return otmp;
+    return (struct obj *) 0;
+}
+
+staticfn struct obj *
+inventory_obj_by_id(unsigned int item_id)
+{
+    struct obj *otmp;
+
+    for (otmp = gi.invent; otmp; otmp = otmp->nobj)
+        if (otmp->o_id == item_id)
+            return otmp;
+    return (struct obj *) 0;
+}
+
+staticfn struct obj *
+floor_obj_by_id_at(unsigned int item_id, int x, int y)
+{
+    struct obj *otmp;
+
+    if (!isok(x, y))
+        return (struct obj *) 0;
+    for (otmp = svl.level.objects[x][y]; otmp; otmp = otmp->nexthere)
+        if (otmp->o_id == item_id)
+            return otmp;
+    return (struct obj *) 0;
+}
+
+staticfn boolean
+direct_container_blind_cockatrice_floor(void)
+{
+    struct obj *otmp;
+
+    if (!Blind || uarmg)
+        return FALSE;
+    for (otmp = sobj_at(CORPSE, u.ux, u.uy); otmp;
+         otmp = nxtobj(otmp, CORPSE, TRUE))
+        if (will_feel_cockatrice(otmp, FALSE))
+            return TRUE;
+    return FALSE;
+}
+
+staticfn boolean
+direct_container_can_lift_all(struct obj *obj, struct obj *container,
+                              char *reason, size_t reason_size)
+{
+    long count, can_carry;
+    int old_wt, new_wt, prev_encumbr, next_encumbr;
+
+    if (!obj || !container) {
+        Snprintf(reason, reason_size, "%s", "missing container transfer target");
+        return FALSE;
+    }
+    if (obj->otyp == BOULDER && Sokoban) {
+        Snprintf(reason, reason_size, "%s",
+                 "boulders in Sokoban require the normal NetHack loot flow");
+        return FALSE;
+    }
+    if (obj->otyp == LOADSTONE
+        || (obj->otyp == BOULDER && throws_rocks(gy.youmonst.data))) {
+        if (inv_cnt(FALSE) < invlet_basic || !carrying(obj->otyp)
+            || merge_choice(gi.invent, obj))
+            return TRUE;
+        Snprintf(reason, reason_size, "%s",
+                 "hero's knapsack cannot accommodate the selected item");
+        return FALSE;
+    }
+
+    count = obj->quan;
+    can_carry = carry_count(obj, container, count, FALSE, &old_wt, &new_wt);
+    if (can_carry < count) {
+        Snprintf(reason, reason_size, "%s",
+                 "direct transfer requires carrying the whole selected stack");
+        return FALSE;
+    }
+    if (obj->oclass != COIN_CLASS && inv_cnt(FALSE) >= invlet_basic
+        && !merge_choice(gi.invent, obj)) {
+        Snprintf(reason, reason_size, "%s",
+                 "hero's knapsack cannot accommodate any more items");
+        return FALSE;
+    }
+    prev_encumbr = near_capacity();
+    if (prev_encumbr < flags.pickup_burden)
+        prev_encumbr = flags.pickup_burden;
+    next_encumbr = calc_capacity(new_wt - old_wt);
+    if (next_encumbr > prev_encumbr) {
+        Snprintf(reason, reason_size, "%s",
+                 "direct transfer would require an encumbrance confirmation");
+        return FALSE;
+    }
+    return TRUE;
+}
+
+void
+container_transfer_set_request(unsigned int container_id, unsigned int item_id,
+                               const char *direction,
+                               const char *transaction_id)
+{
+    g_container_transfer_request.pending = TRUE;
+    g_container_transfer_request.container_id = container_id;
+    g_container_transfer_request.item_id = item_id;
+    Snprintf(g_container_transfer_request.direction,
+             sizeof g_container_transfer_request.direction, "%s",
+             direction ? direction : "container-to-inventory");
+    Snprintf(g_container_transfer_request.transaction_id,
+             sizeof g_container_transfer_request.transaction_id, "%s",
+             transaction_id ? transaction_id : "");
+}
+
+boolean
+container_transfer_result_available(void)
+{
+    return g_container_transfer_result.available;
+}
+
+void
+container_transfer_take_result(boolean *success, unsigned int *container_id,
+                               unsigned int *item_id, char *direction,
+                               size_t direction_size, char *transaction_id,
+                               size_t transaction_id_size, char *reason,
+                               size_t reason_size)
+{
+    if (success)
+        *success = g_container_transfer_result.success;
+    if (container_id)
+        *container_id = g_container_transfer_result.container_id;
+    if (item_id)
+        *item_id = g_container_transfer_result.item_id;
+    if (direction && direction_size)
+        Snprintf(direction, direction_size, "%s",
+                 g_container_transfer_result.direction);
+    if (transaction_id && transaction_id_size)
+        Snprintf(transaction_id, transaction_id_size, "%s",
+                 g_container_transfer_result.transaction_id);
+    if (reason && reason_size)
+        Snprintf(reason, reason_size, "%s", g_container_transfer_result.reason);
+    (void) memset(&g_container_transfer_result, 0,
+                  sizeof g_container_transfer_result);
+}
+
+static void
+container_transfer_finish(boolean success, const char *reason)
+{
+    g_container_transfer_result.available = TRUE;
+    g_container_transfer_result.success = success;
+    g_container_transfer_result.container_id = g_container_transfer_request.container_id;
+    g_container_transfer_result.item_id = g_container_transfer_request.item_id;
+    Snprintf(g_container_transfer_result.direction,
+             sizeof g_container_transfer_result.direction, "%s",
+             g_container_transfer_request.direction);
+    Snprintf(g_container_transfer_result.transaction_id,
+             sizeof g_container_transfer_result.transaction_id, "%s",
+             g_container_transfer_request.transaction_id);
+    Snprintf(g_container_transfer_result.reason,
+             sizeof g_container_transfer_result.reason, "%s",
+             reason ? reason : (success ? "container transfer completed"
+                                        : "container transfer rejected"));
+    (void) memset(&g_container_transfer_request, 0,
+                  sizeof g_container_transfer_request);
+}
+
+void
+container_snapshot_set_request(unsigned int container_id,
+                               const char *transaction_id)
+{
+    g_container_snapshot_request.pending = TRUE;
+    g_container_snapshot_request.container_id = container_id;
+    Snprintf(g_container_snapshot_request.transaction_id,
+             sizeof g_container_snapshot_request.transaction_id, "%s",
+             transaction_id ? transaction_id : "");
+}
+
+boolean
+container_snapshot_result_available(void)
+{
+    return g_container_snapshot_result.available;
+}
+
+void
+container_snapshot_take_result(boolean *success, unsigned int *container_id,
+                               char *transaction_id,
+                               size_t transaction_id_size, char *reason,
+                               size_t reason_size)
+{
+    if (success)
+        *success = g_container_snapshot_result.success;
+    if (container_id)
+        *container_id = g_container_snapshot_result.container_id;
+    if (transaction_id && transaction_id_size)
+        Snprintf(transaction_id, transaction_id_size, "%s",
+                 g_container_snapshot_result.transaction_id);
+    if (reason && reason_size)
+        Snprintf(reason, reason_size, "%s", g_container_snapshot_result.reason);
+    (void) memset(&g_container_snapshot_result, 0,
+                  sizeof g_container_snapshot_result);
+}
+
+static void
+container_snapshot_finish(boolean success, const char *reason)
+{
+    g_container_snapshot_result.available = TRUE;
+    g_container_snapshot_result.success = success;
+    g_container_snapshot_result.container_id = g_container_snapshot_request.container_id;
+    Snprintf(g_container_snapshot_result.transaction_id,
+             sizeof g_container_snapshot_result.transaction_id, "%s",
+             g_container_snapshot_request.transaction_id);
+    Snprintf(g_container_snapshot_result.reason,
+             sizeof g_container_snapshot_result.reason, "%s",
+             reason ? reason : (success ? "container snapshot refreshed"
+                                        : "container snapshot rejected"));
+    (void) memset(&g_container_snapshot_request, 0,
+                  sizeof g_container_snapshot_request);
+}
+
+void
+ground_transfer_set_request(unsigned int item_id, const char *direction,
+                            int x, int y, const char *transaction_id)
+{
+    g_ground_transfer_request.pending = TRUE;
+    g_ground_transfer_request.item_id = item_id;
+    g_ground_transfer_request.x = x;
+    g_ground_transfer_request.y = y;
+    Snprintf(g_ground_transfer_request.direction,
+             sizeof g_ground_transfer_request.direction, "%s",
+             direction ? direction : "ground-to-inventory");
+    Snprintf(g_ground_transfer_request.transaction_id,
+             sizeof g_ground_transfer_request.transaction_id, "%s",
+             transaction_id ? transaction_id : "");
+}
+
+boolean
+ground_transfer_result_available(void)
+{
+    return g_ground_transfer_result.available;
+}
+
+void
+ground_transfer_take_result(boolean *success, unsigned int *item_id, int *x,
+                            int *y, char *direction, size_t direction_size,
+                            char *transaction_id,
+                            size_t transaction_id_size, char *reason,
+                            size_t reason_size)
+{
+    if (success)
+        *success = g_ground_transfer_result.success;
+    if (item_id)
+        *item_id = g_ground_transfer_result.item_id;
+    if (x)
+        *x = g_ground_transfer_result.x;
+    if (y)
+        *y = g_ground_transfer_result.y;
+    if (direction && direction_size)
+        Snprintf(direction, direction_size, "%s",
+                 g_ground_transfer_result.direction);
+    if (transaction_id && transaction_id_size)
+        Snprintf(transaction_id, transaction_id_size, "%s",
+                 g_ground_transfer_result.transaction_id);
+    if (reason && reason_size)
+        Snprintf(reason, reason_size, "%s", g_ground_transfer_result.reason);
+    (void) memset(&g_ground_transfer_result, 0,
+                  sizeof g_ground_transfer_result);
+}
+
+static void
+ground_transfer_finish(boolean success, const char *reason)
+{
+    g_ground_transfer_result.available = TRUE;
+    g_ground_transfer_result.success = success;
+    g_ground_transfer_result.item_id = g_ground_transfer_request.item_id;
+    g_ground_transfer_result.x = g_ground_transfer_request.x;
+    g_ground_transfer_result.y = g_ground_transfer_request.y;
+    Snprintf(g_ground_transfer_result.direction,
+             sizeof g_ground_transfer_result.direction, "%s",
+             g_ground_transfer_request.direction);
+    Snprintf(g_ground_transfer_result.transaction_id,
+             sizeof g_ground_transfer_result.transaction_id, "%s",
+             g_ground_transfer_request.transaction_id);
+    Snprintf(g_ground_transfer_result.reason,
+             sizeof g_ground_transfer_result.reason, "%s",
+             reason ? reason : (success ? "ground transfer completed"
+                                        : "ground transfer rejected"));
+    (void) memset(&g_ground_transfer_request, 0,
+                  sizeof g_ground_transfer_request);
+}
+
+staticfn boolean
+direct_container_common_checks(unsigned int container_id,
+                               boolean require_observed_contents,
+                               struct obj **container_out,
+                               char *reason, size_t reason_size)
+{
+    struct obj *container;
+
+    if (container_out)
+        *container_out = (struct obj *) 0;
+    if (gc.current_container) {
+        Snprintf(reason, reason_size, "%s", "another container operation is active");
+        return FALSE;
+    }
+    if (check_capacity((char *) 0)) {
+        Snprintf(reason, reason_size, "%s", "hero is carrying too much to loot directly");
+        return FALSE;
+    }
+    if (Confusion) {
+        Snprintf(reason, reason_size, "%s", "confused heroes must use the normal NetHack loot flow");
+        return FALSE;
+    }
+    if (u.uswallow || u.uburied) {
+        Snprintf(reason, reason_size, "%s", "hero cannot access floor containers right now");
+        return FALSE;
+    }
+    if (!u_handsy()) {
+        Snprintf(reason, reason_size, "%s", "hero cannot manipulate containers right now");
+        return FALSE;
+    }
+    if (!able_to_loot(u.ux, u.uy, TRUE)) {
+        Snprintf(reason, reason_size, "%s", "hero cannot loot at the current square");
+        return FALSE;
+    }
+    if (direct_container_blind_cockatrice_floor()) {
+        Snprintf(reason, reason_size, "%s", "blind cockatrice-feel checks require the normal NetHack loot flow");
+        return FALSE;
+    }
+    container = floor_container_by_id(container_id);
+    if (!container) {
+        Snprintf(reason, reason_size, "%s", "container is no longer at the hero's square");
+        return FALSE;
+    }
+    if (container->where != OBJ_FLOOR || container->ox != u.ux
+        || container->oy != u.uy) {
+        Snprintf(reason, reason_size, "%s", "container location is stale");
+        return FALSE;
+    }
+    if (container->olocked) {
+        Snprintf(reason, reason_size, "%s", "container is locked");
+        return FALSE;
+    }
+    if (container->otrapped) {
+        Snprintf(reason, reason_size, "%s", "container is trapped");
+        return FALSE;
+    }
+    if (container->otyp == BAG_OF_TRICKS) {
+        Snprintf(reason, reason_size, "%s", "bags of tricks require the normal NetHack loot flow");
+        return FALSE;
+    }
+    if (require_observed_contents && !container->cknown) {
+        Snprintf(reason, reason_size, "%s", "container contents have not been legitimately observed");
+        return FALSE;
+    }
+    if (SchroedingersBox(container)) {
+        Snprintf(reason, reason_size, "%s", "Schroedinger boxes require the normal NetHack loot flow");
+        return FALSE;
+    }
+    if (Is_mbag(container) && container->cursed && Has_contents(container)) {
+        Snprintf(reason, reason_size, "%s", "cursed magic bags require the normal NetHack loot flow");
+        return FALSE;
+    }
+    if (container_out)
+        *container_out = container;
+    return TRUE;
+}
+
+staticfn boolean
+direct_ground_common_checks(int x, int y, char *reason, size_t reason_size)
+{
+    if (x != u.ux || y != u.uy) {
+        Snprintf(reason, reason_size, "%s", "ground transfer coordinate is stale");
+        return FALSE;
+    }
+    if (!isok(x, y)) {
+        Snprintf(reason, reason_size, "%s", "ground transfer coordinate is invalid");
+        return FALSE;
+    }
+    if (gc.current_container) {
+        Snprintf(reason, reason_size, "%s", "another container operation is active");
+        return FALSE;
+    }
+    if (check_capacity((char *) 0)) {
+        Snprintf(reason, reason_size, "%s", "hero is carrying too much for direct ground transfer");
+        return FALSE;
+    }
+    if (u.uswallow || u.uburied) {
+        Snprintf(reason, reason_size, "%s", "hero cannot access the ground right now");
+        return FALSE;
+    }
+    if (!u_handsy()) {
+        Snprintf(reason, reason_size, "%s", "hero cannot manipulate items right now");
+        return FALSE;
+    }
+    if (costly_spot(x, y) || *u.ushops) {
+        Snprintf(reason, reason_size, "%s", "shop pickup and drop require the normal NetHack flow");
+        return FALSE;
+    }
+    if (!can_reach_floor(TRUE)) {
+        Snprintf(reason, reason_size, "%s", "hero cannot reach the floor for direct ground transfer");
+        return FALSE;
+    }
+    return TRUE;
+}
+
+staticfn boolean
+direct_ground_can_lift_all(struct obj *obj, char *reason, size_t reason_size)
+{
+    long count, can_carry;
+    int old_wt, new_wt, prev_encumbr, next_encumbr;
+
+    if (!obj) {
+        Snprintf(reason, reason_size, "%s", "missing ground transfer target");
+        return FALSE;
+    }
+    if (obj->otyp == BOULDER && Sokoban) {
+        Snprintf(reason, reason_size, "%s",
+                 "boulders in Sokoban require the normal NetHack pickup flow");
+        return FALSE;
+    }
+    if (obj->otyp == SCR_SCARE_MONSTER) {
+        Snprintf(reason, reason_size, "%s",
+                 "scare monster scroll pickup requires the normal NetHack flow");
+        return FALSE;
+    }
+    if (obj->otyp == LOADSTONE
+        || (obj->otyp == BOULDER && throws_rocks(gy.youmonst.data))) {
+        if (inv_cnt(FALSE) < invlet_basic || !carrying(obj->otyp)
+            || merge_choice(gi.invent, obj))
+            return TRUE;
+        Snprintf(reason, reason_size, "%s",
+                 "hero's knapsack cannot accommodate the selected item");
+        return FALSE;
+    }
+
+    count = obj->quan;
+    can_carry = carry_count(obj, (struct obj *) 0, count, FALSE,
+                            &old_wt, &new_wt);
+    if (can_carry < count) {
+        Snprintf(reason, reason_size, "%s",
+                 "direct ground transfer requires carrying the whole selected stack");
+        return FALSE;
+    }
+    if (obj->oclass != COIN_CLASS && inv_cnt(FALSE) >= invlet_basic
+        && !merge_choice(gi.invent, obj)) {
+        Snprintf(reason, reason_size, "%s",
+                 "hero's knapsack cannot accommodate any more items");
+        return FALSE;
+    }
+    prev_encumbr = near_capacity();
+    if (prev_encumbr < flags.pickup_burden)
+        prev_encumbr = flags.pickup_burden;
+    next_encumbr = calc_capacity(new_wt - old_wt);
+    if (next_encumbr > prev_encumbr) {
+        Snprintf(reason, reason_size, "%s",
+                 "direct ground transfer would require an encumbrance confirmation");
+        return FALSE;
+    }
+    return TRUE;
+}
+
+staticfn int in_container(struct obj *);
+staticfn int out_container(struct obj *);
+
+int
+doshimgroundtransfer(void)
+{
+    struct obj *obj = (struct obj *) 0;
+    char reason[BUFSZ];
+    int res;
+    boolean picking_up;
+
+    reason[0] = '\0';
+    if (!g_ground_transfer_request.pending) {
+        ground_transfer_finish(FALSE, "no pending ground transfer request");
+        return ECMD_OK;
+    }
+    picking_up = strcmp(g_ground_transfer_request.direction,
+                        "inventory-to-ground") != 0;
+    if (!picking_up
+        && strcmp(g_ground_transfer_request.direction,
+                  "inventory-to-ground")) {
+        ground_transfer_finish(FALSE, "unsupported ground transfer direction");
+        return ECMD_OK;
+    }
+    if (!direct_ground_common_checks(g_ground_transfer_request.x,
+                                     g_ground_transfer_request.y,
+                                     reason, sizeof reason)) {
+        ground_transfer_finish(FALSE, reason[0] ? reason
+                                                : "ground transfer rejected");
+        return ECMD_OK;
+    }
+
+    if (picking_up) {
+        obj = floor_obj_by_id_at(g_ground_transfer_request.item_id,
+                                 g_ground_transfer_request.x,
+                                 g_ground_transfer_request.y);
+        if (!obj || obj->where != OBJ_FLOOR || obj->ox != u.ux
+            || obj->oy != u.uy) {
+            ground_transfer_finish(FALSE, "item is no longer on the hero's square");
+            return ECMD_OK;
+        }
+        if (!obj->dknown) {
+            ground_transfer_finish(FALSE, "item is not public at the hero's square");
+            return ECMD_OK;
+        }
+        if (obj->oartifact) {
+            ground_transfer_finish(FALSE, "artifacts require the normal NetHack pickup flow");
+            return ECMD_OK;
+        }
+        if (!u_safe_from_fatal_corpse(obj, st_all)) {
+            ground_transfer_finish(FALSE, "fatal corpse touch checks require the normal NetHack pickup flow");
+            return ECMD_OK;
+        }
+        if (!direct_ground_can_lift_all(obj, reason, sizeof reason)) {
+            ground_transfer_finish(FALSE, reason[0] ? reason : "hero cannot carry the selected item directly");
+            return ECMD_OK;
+        }
+        gp.pickup_encumbrance = 0;
+        res = pickup_object(obj, obj->quan, FALSE);
+    } else {
+        obj = inventory_obj_by_id(g_ground_transfer_request.item_id);
+        if (!obj || obj->where != OBJ_INVENT) {
+            ground_transfer_finish(FALSE, "item is no longer in the hero inventory");
+            return ECMD_OK;
+        }
+        if (obj == uball || obj == uchain || obj->owornmask) {
+            ground_transfer_finish(FALSE, "worn or attached items are not supported by direct drop");
+            return ECMD_OK;
+        }
+        if (is_unpaid(obj)) {
+            ground_transfer_finish(FALSE, "unpaid items require the normal NetHack drop flow");
+            return ECMD_OK;
+        }
+        if (obj->otyp == CORPSE && !u_safe_from_fatal_corpse(obj, st_all)) {
+            ground_transfer_finish(FALSE, "fatal corpse drop checks require the normal NetHack drop flow");
+            return ECMD_OK;
+        }
+        if ((obj->oclass == RING_CLASS || obj->otyp == MEAT_RING)
+            && IS_SINK(levl[u.ux][u.uy].typ)) {
+            ground_transfer_finish(FALSE, "sink drops require the normal NetHack drop flow");
+            return ECMD_OK;
+        }
+        if (IS_ALTAR(levl[u.ux][u.uy].typ)) {
+            ground_transfer_finish(FALSE, "altar drops require the normal NetHack drop flow");
+            return ECMD_OK;
+        }
+        if (!canletgo(obj, "drop")) {
+            ground_transfer_finish(FALSE, "NetHack refused to let go of the selected item");
+            return ECMD_OK;
+        }
+        res = direct_drop_inventory_object(obj);
+    }
+
+    update_inventory();
+    newsym(u.ux, u.uy);
+    if (res > 0 || (res & ECMD_TIME)) {
+        ground_transfer_finish(TRUE, picking_up ? "ground item picked up"
+                                                : "inventory item dropped");
+        return ECMD_TIME;
+    }
+    ground_transfer_finish(FALSE, res < 0 ? "NetHack stopped the ground transfer"
+                                          : "NetHack did not move the selected item");
+    return ECMD_OK;
+}
+
+int
+doshimcontainersnapshot(void)
+{
+    struct obj *container = (struct obj *) 0;
+    char reason[BUFSZ];
+    boolean learned;
+
+    reason[0] = '\0';
+    if (!g_container_snapshot_request.pending) {
+        container_snapshot_finish(FALSE, "no pending container snapshot request");
+        return ECMD_OK;
+    }
+    if (!direct_container_common_checks(g_container_snapshot_request.container_id,
+                                        FALSE, &container, reason,
+                                        sizeof reason)) {
+        container_snapshot_finish(FALSE, reason[0] ? reason
+                                                   : "container snapshot rejected");
+        return ECMD_OK;
+    }
+    learned = !container->cknown;
+    container->cknown = 1;
+    update_inventory();
+    newsym(u.ux, u.uy);
+    container_snapshot_finish(TRUE, learned ? "container contents observed"
+                                            : "container contents refreshed");
+    return learned ? ECMD_TIME : ECMD_OK;
+}
+
+int
+doshimcontainertransfer(void)
+{
+    struct obj *container = (struct obj *) 0, *obj = (struct obj *) 0;
+    char reason[BUFSZ];
+    int res;
+    boolean taking_out;
+
+    reason[0] = '\0';
+    if (!g_container_transfer_request.pending) {
+        container_transfer_finish(FALSE, "no pending container transfer request");
+        return ECMD_OK;
+    }
+    taking_out = strcmp(g_container_transfer_request.direction,
+                        "inventory-to-container") != 0;
+    if (!taking_out
+        && strcmp(g_container_transfer_request.direction,
+                  "inventory-to-container")) {
+        container_transfer_finish(FALSE, "unsupported container transfer direction");
+        return ECMD_OK;
+    }
+    if (!direct_container_common_checks(g_container_transfer_request.container_id,
+                                        TRUE, &container, reason,
+                                        sizeof reason)) {
+        container_transfer_finish(FALSE, reason[0] ? reason
+                                                   : "container transfer rejected");
+        return ECMD_OK;
+    }
+
+    if (taking_out) {
+        obj = contained_obj_by_id(container, g_container_transfer_request.item_id);
+        if (!obj || obj->where != OBJ_CONTAINED || obj->ocontainer != container) {
+            container_transfer_finish(FALSE, "item is no longer in the selected container");
+            return ECMD_OK;
+        }
+        if (obj->oartifact) {
+            container_transfer_finish(FALSE, "artifacts require the normal NetHack loot flow");
+            return ECMD_OK;
+        }
+        if (!u_safe_from_fatal_corpse(obj, st_all)) {
+            container_transfer_finish(FALSE, "fatal corpse touch checks require the normal NetHack loot flow");
+            return ECMD_OK;
+        }
+        if (!direct_container_can_lift_all(obj, container, reason, sizeof reason)) {
+            container_transfer_finish(FALSE, reason[0] ? reason : "hero cannot carry the selected item directly");
+            return ECMD_OK;
+        }
+    } else {
+        obj = inventory_obj_by_id(g_container_transfer_request.item_id);
+        if (!obj || obj->where != OBJ_INVENT) {
+            container_transfer_finish(FALSE, "item is no longer in the hero inventory");
+            return ECMD_OK;
+        }
+    }
+
+    gp.pickup_encumbrance = 0;
+    gs.sellobj_first = TRUE;
+    gc.current_container = container;
+    res = taking_out ? out_container(obj) : in_container(obj);
+    if (gc.current_container)
+        gc.current_container->cknown = 1;
+    update_inventory();
+    newsym(u.ux, u.uy);
+    sellobj_state(SELL_NORMAL);
+    gc.current_container = (struct obj *) 0;
+
+    if (res == 1) {
+        container_transfer_finish(TRUE, taking_out
+                                      ? "container item taken out"
+                                      : "inventory item put in container");
+        return ECMD_TIME;
+    }
+    container_transfer_finish(FALSE, res < 0 ? "NetHack stopped the container transfer"
+                                             : "NetHack did not move the selected item");
+    return ECMD_OK;
 }
 
 /* Returns: -1 to stop, 1 item was inserted, 0 item was not inserted. */

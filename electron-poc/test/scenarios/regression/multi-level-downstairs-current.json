@@ -1,0 +1,32 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "regression/multi-level-downstairs-current",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current",
+    "role": "Wizard",
+    "race": "elf",
+    "gender": "male",
+    "alignment": "chaotic"
+  },
+  "level": {
+    "safeAreaAroundHero": 3,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none",
+    "terrain": [
+      { "at": "hero", "type": "stairs-down" }
+    ]
+  },
+  "ground": [],
+  "monsters": [
+    { "typeId": "GRID_BUG", "at": "east", "attitude": "hostile", "hp": 1, "maxHp": 1 }
+  ],
+  "inventory": [],
+  "expectedPublicFacts": {
+    "mapAffordances": ["stairs"],
+    "monsterRows": ["grid bug"],
+    "messages": ["multi-level downstairs regression fixture"],
+    "status": ["Dlvl:1"]
+  }
+}

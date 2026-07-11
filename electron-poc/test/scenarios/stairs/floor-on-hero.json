@@ -1,0 +1,29 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "stairs/floor-on-hero",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current",
+    "role": "Wizard",
+    "race": "elf",
+    "gender": "male",
+    "alignment": "chaotic"
+  },
+  "level": {
+    "safeAreaAroundHero": 3,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none",
+    "terrain": [
+      { "at": "hero", "type": "floor" }
+    ]
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [],
+  "expectedPublicFacts": {
+    "mapAffordances": ["floor"],
+    "messages": ["non-stair floor context fixture"],
+    "status": ["Dlvl:1"]
+  }
+}

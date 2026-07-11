@@ -1,0 +1,34 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "status/full-hud",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current",
+    "role": "Valkyrie",
+    "race": "human",
+    "gender": "female",
+    "alignment": "lawful"
+  },
+  "level": {
+    "safeAreaAroundHero": 3,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    { "typeId": "LONG_SWORD", "identityKnown": true, "beatitude": "blessed", "beatitudeKnown": true, "enchantment": 1, "equipped": "wielded" },
+    { "typeId": "CHAIN_MAIL", "beatitude": "uncursed", "beatitudeKnown": true, "equipped": "worn" },
+    { "typeId": "SMALL_SHIELD", "beatitude": "uncursed", "beatitudeKnown": true, "equipped": "worn" },
+    { "typeId": "ARROW", "quantity": 12, "equipped": "quivered" },
+    { "typeId": "BOULDER", "quantity": 1 },
+    { "typeId": "WAN_DIGGING", "charges": 3, "identityKnown": true }
+  ],
+  "expectedPublicFacts": {
+    "status": ["Str", "Dex", "Con", "Int", "Wis", "Cha", "HP", "Power", "AC", "Gold", "Valkyrie"],
+    "inventoryRows": ["blessed +1 long sword", "chain mail", "small shield", "12 arrows", "boulder", "wand of digging"],
+    "mapAffordances": ["open room"],
+    "messages": ["full status HUD fixture"]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema": "nethack-electron-input-recording/v1",
+  "startedAt": "2026-06-28T00:00:00.000Z",
+  "seed": "123456789",
+  "seedSource": "NETHACK_SEED",
+  "character": { "name": "ReplaySmoke", "role": "Val", "race": "Hum", "gender": "Fem", "alignment": "Law" },
+  "playerSpec": "-uReplaySmoke-Val-Hum-Fem-Law",
+  "options": { "NETHACKOPTIONS": "!tutorial" },
+  "inputs": [
+    { "t": 1000, "key": ".", "keycode": 46, "source": "smoke" }
+  ],
+  "milestones": []
+}

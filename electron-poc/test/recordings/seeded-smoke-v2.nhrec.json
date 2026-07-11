@@ -1,0 +1,27 @@
+{
+  "schema": "nethack-electron-input-recording/v2",
+  "startedAt": "2026-07-02T00:00:00.000Z",
+  "seed": "123456789",
+  "seedSource": "NETHACK_SEED",
+  "character": { "name": "ReplaySmokeV2", "role": "Val", "race": "Hum", "gender": "Fem", "alignment": "Law" },
+  "playerSpec": "-uReplaySmokeV2-Val-Hum-Fem-Law",
+  "options": { "NETHACKOPTIONS": "!tutorial" },
+  "settings": { "contextualMenus": true, "autoLootGold": false },
+  "window": { "width": 1100, "height": 760, "devicePixelRatio": 1 },
+  "metadata": {
+    "recorder": "electron-poc-renderer",
+    "caveats": [
+      "Renderer-only UI state is checkpoint review metadata, not replayed authoritative state.",
+      "Direct non-keycode shim inputs are unsupported in this first slice."
+    ]
+  },
+  "events": [
+    { "type": "checkpoint", "t": 1000, "name": "dungeon-start" },
+    { "type": "input", "t": 1200, "key": ".", "keycode": 46, "source": "smoke" },
+    { "type": "checkpoint", "t": 1700, "name": "after-wait" }
+  ],
+  "inputs": [
+    { "t": 1200, "key": ".", "keycode": 46, "source": "smoke" }
+  ],
+  "milestones": []
+}

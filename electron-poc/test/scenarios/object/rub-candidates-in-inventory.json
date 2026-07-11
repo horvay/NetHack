@@ -1,0 +1,26 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "object/rub-candidates-in-inventory",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current"
+  },
+  "level": {
+    "safeAreaAroundHero": 2,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    { "typeId": "OIL_LAMP", "identityKnown": true, "beatitude": "uncursed", "beatitudeKnown": true },
+    { "typeId": "MAGIC_MARKER", "identityKnown": true, "beatitude": "uncursed", "beatitudeKnown": true, "charges": 19 },
+    { "typeId": "TOWEL", "identityKnown": true, "beatitude": "uncursed", "beatitudeKnown": true },
+    { "typeId": "ROCK", "quantity": 2 }
+  ],
+  "expectedPublicFacts": {
+    "inventoryRows": ["oil lamp", "magic marker", "towel", "rocks"],
+    "messages": ["hermetic rub candidates inventory"]
+  }
+}
