@@ -36,7 +36,7 @@ async function main() {
       const helperNotClipped = helper.scrollWidth <= helper.clientWidth + 1 && helper.scrollHeight <= helper.clientHeight + 1;
       const cellText = cells.map((el) => el.innerText.trim());
       const cellKeys = cells.map((el) => el.dataset.key || '.');
-      const onlyArrowGlyphs = buttons.every((b) => /^[↖↑↗←→↙↓↘]$/.test(b.innerText.trim()));
+      const onlyArrowGlyphs = buttons.filter((button) => !button.matches('[data-compass-run]')).every((button) => /^[↖↑↗←→↙↓↘]$/.test(button.innerText.trim()));
       const requiredMessageHeight = innerHeight <= 450 ? 50 : 72;
       return {
         viewport: { width: innerWidth, height: innerHeight },
@@ -55,13 +55,44 @@ async function main() {
         helperWithinViewport, helperWithinLog, helperNotClipped,
         requiredMessageHeight,
         logReadable: document.getElementById('messages').clientHeight >= requiredMessageHeight,
-        compactSquare: helperRect.width <= 90 && helperRect.height <= 90 && Math.abs(helperRect.width - helperRect.height) <= 4,
+        compactSquare: helperRect.width <= 144 && helperRect.height <= 160,
         properCompassOrder: cellKeys.join('') === 'ykuh.lbjn',
-        properCompassLabels: cellText.join('|') === '↖|↑|↗|←|·|→|↙|↓|↘',
+        properCompassLabels: cellText.join('|') === '↖|↑|↗|←|RUN|→|↙|↓|↘',
         onlyArrowGlyphs,
-        pass: helperWithinViewport && helperWithinLog && helperNotClipped && gridRect.width >= innerWidth - 40 && buttons.length === 8 && cellKeys.join('') === 'ykuh.lbjn' && cellText.join('|') === '↖|↑|↗|←|·|→|↙|↓|↘' && onlyArrowGlyphs && document.getElementById('messages').clientHeight >= requiredMessageHeight && helperRect.width <= 90 && helperRect.height <= 90 && !helper.querySelector('#direction-helper-copy') && !/Esc|Choose a direction or map target|Dungeon remains playable|North|South|East|West|NW|NE|SW|SE/i.test(helper.innerText) && !buttons.some((b) => b.id === 'direction-helper-cancel' || /\bEsc\b/i.test(b.innerText.trim())),
+        pass: helperWithinViewport && helperWithinLog && helperNotClipped && gridRect.width >= innerWidth - 40 && buttons.length === 9 && cellKeys.join('') === 'ykuh.lbjn' && cellText.join('|') === '↖|↑|↗|←|RUN|→|↙|↓|↘' && onlyArrowGlyphs && document.getElementById('messages').clientHeight >= requiredMessageHeight && helperRect.width <= 144 && helperRect.height <= 160 && !helper.querySelector('#direction-helper-copy') && !/Esc|Choose a direction or map target|Dungeon remains playable|North|South|East|West|NW|NE|SW|SE/i.test(helper.innerText) && !buttons.some((button) => button.id === 'direction-helper-cancel' || /\bEsc\b/i.test(button.innerText.trim())),
       };
     })()`);
+    metrics.defaultCompass = await page.evalValue(`(() => {
+      const t = window.__nethackPromptTest;
+      t.reset(); t.setRunning(true);
+      document.querySelector('#direction-helper [data-key="l"]').click();
+      const walkSent = t.sentInputs().join('');
+      t.reset(); t.setRunning(true);
+      const run = document.querySelector('#direction-helper [data-compass-run]');
+      run.click();
+      const armed = { pressed: run.getAttribute('aria-pressed'), selected: run.classList.contains('selected'), label: run.textContent.trim() };
+      run.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      const cancelled = { sent: t.sentInputs().join(''), pressed: run.getAttribute('aria-pressed'), selected: run.classList.contains('selected'), label: run.textContent.trim() };
+      run.click();
+      document.querySelector('#direction-helper [data-key="k"]').click();
+      const runSent = t.sentInputs().join('');
+      const disarmed = { pressed: run.getAttribute('aria-pressed'), selected: run.classList.contains('selected') };
+      document.querySelector('#direction-helper [data-key="u"]').click();
+      return { walkSent, runSent, afterSecondDirection: t.sentInputs().join(''), armed, cancelled, disarmed };
+    })()`);
+    metrics.defaultCompassPass = metrics.defaultCompass.walkSent === 'l'
+      && metrics.defaultCompass.runSent === 'K'
+      && metrics.defaultCompass.afterSecondDirection === 'Ku'
+      && metrics.defaultCompass.armed.label === 'Go'
+      && metrics.defaultCompass.armed.pressed === 'true'
+      && metrics.defaultCompass.armed.selected
+      && metrics.defaultCompass.cancelled.sent === ''
+      && metrics.defaultCompass.cancelled.pressed === 'false'
+      && !metrics.defaultCompass.cancelled.selected
+      && metrics.defaultCompass.cancelled.label === 'Run'
+      && metrics.defaultCompass.disarmed.pressed === 'false'
+      && !metrics.defaultCompass.disarmed.selected;
+    metrics.pass = metrics.pass && metrics.defaultCompassPass;
     fs.writeFileSync(path.join(outDir, 'direction-helper-layout-metrics.json'), JSON.stringify(metrics, null, 2));
     if (saveScreenshot) {
       await page.screenshot(path.join(outDir, 'after-direction-helper-compact-log.png'));

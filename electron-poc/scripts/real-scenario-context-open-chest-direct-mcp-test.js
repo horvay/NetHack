@@ -7,7 +7,7 @@ const {
 } = require('./lib/electron-test-harness');
 
 const root = path.resolve(__dirname, '..');
-const outDir = path.join(root, 'test-output', 'real-scenario-context-open-chest-direct');
+const outDir = process.env.NH_SCENARIO_CONTEXT_OPEN_CHEST_DIRECT_OUT_DIR || path.join(root, 'test-output', 'real-scenario-context-open-chest-direct');
 const scenarioId = 'container/unlocked-chest-on-hero';
 const port = Number(process.env.NH_SCENARIO_CONTEXT_OPEN_CHEST_DIRECT_CDP_PORT || 9651);
 

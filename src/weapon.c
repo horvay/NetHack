@@ -15,6 +15,7 @@ staticfn void finish_towel_change(struct obj *obj, int) NONNULLARG1;
 staticfn boolean could_advance(int);
 staticfn boolean peaked_skill(int);
 staticfn int slots_required(int);
+staticfn const char *skill_level_name_for_rank(int);
 staticfn void skill_advance(int);
 staticfn void add_skills_to_menu(winid, boolean, boolean);
 
@@ -1087,13 +1088,12 @@ dry_a_towel(
         finish_towel_change(obj, newspe);
 }
 
-/* copy the skill level name into the given buffer */
-char *
-skill_level_name(int skill, char *buf)
+staticfn const char *
+skill_level_name_for_rank(int rank)
 {
     const char *ptr;
 
-    switch (P_SKILL(skill)) {
+    switch (rank) {
     case P_UNSKILLED:
         ptr = "Unskilled";
         break;
@@ -1117,7 +1117,14 @@ skill_level_name(int skill, char *buf)
         ptr = "Unknown";
         break;
     }
-    Strcpy(buf, ptr);
+    return ptr;
+}
+
+/* copy the skill level name into the given buffer */
+char *
+skill_level_name(int skill, char *buf)
+{
+    Strcpy(buf, skill_level_name_for_rank(P_SKILL(skill)));
     return buf;
 }
 
@@ -1295,10 +1302,22 @@ add_skills_to_menu(winid win, boolean selectable, boolean speedy)
                              " %s%s\t[%s]", prefix, P_NAME(i),
                              sklnambuf);
             }
-            any.a_int = selectable && can_advance(i, speedy) ? i + 1 : 0;
+            boolean advanceable = can_advance(i, speedy);
+            any.a_int = selectable && advanceable ? i + 1 : 0;
             add_menu(win, &nul_glyphinfo, &any, 0, 0,
                      ATR_NONE, clr, buf, MENU_ITEMFLAGS_NONE);
+#ifdef SHIM_GRAPHICS
+            shim_native_skill_row(win, P_NAME(i), any.a_int, sklnambuf,
+                                  advanceable
+                                      ? skill_level_name_for_rank(P_SKILL(i) + 1)
+                                      : (const char *) 0,
+                                  advanceable ? slots_required(i) : -1,
+                                  advanceable);
+#endif
         }
+#ifdef SHIM_GRAPHICS
+    shim_native_skill_rows_ready(win);
+#endif
 }
 
 /* Displays a skill list for dumplog purposes. */
@@ -1309,6 +1328,10 @@ show_skills(void)
     menu_item *selected;
 
     pline("Skills:");
+#ifdef SHIM_GRAPHICS
+    shim_native_menu_context("skill.rows", "system", "weapon.c:show_skills",
+                             FALSE, FALSE, PICK_NONE, "public skill rows");
+#endif
     win = create_nhwindow(NHW_MENU);
     start_menu(win, MENU_BEHAVE_STANDARD);
     add_skills_to_menu(win, FALSE, FALSE);
@@ -1354,6 +1377,12 @@ enhance_weapon_skill(void)
                 maxxed_cnt++;
         }
 
+#ifdef SHIM_GRAPHICS
+        shim_native_menu_context("skill.rows", "system",
+                                 "weapon.c:enhance_weapon_skill", FALSE,
+                                 FALSE, to_advance ? PICK_ONE : PICK_NONE,
+                                 "public skill rows");
+#endif
         win = create_nhwindow(NHW_MENU);
         start_menu(win, MENU_BEHAVE_STANDARD);
 

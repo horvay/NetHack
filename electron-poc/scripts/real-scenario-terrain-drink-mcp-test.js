@@ -7,6 +7,7 @@ const root = path.resolve(__dirname, '..');
 function resolveOutDir(value) { return path.isAbsolute(value) ? value : path.join(root, value); }
 const outDir = resolveOutDir(process.env.NH_TERRAIN_DRINK_OUT_DIR || 'test-output/real-scenario-terrain-drink');
 const scenarioId = process.env.NH_TEST_SCENARIO_ID || 'terrain/fountain-dip-current';
+const isSink = /(?:^|\/)sink-current$/.test(scenarioId);
 const port = Number(process.env.AI_ORG_ELECTRON_CDP_PORT || 9644);
 function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
 async function json(url) { const res = await fetch(url); if (!res.ok) throw new Error(`${res.status} ${url}`); return res.json(); }
@@ -29,6 +30,8 @@ async function state(cdp) { return evalExpr(cdp, `(() => ({
   actions: window.__nethackPromptTest?.contextActions?.(),
   sent: window.__nethackPromptTest?.sentInputs?.().join('') || '',
   sentUiProtocolCommands: window.__nethackPromptTest?.sentUiProtocolCommands?.() || [],
+  prompt: window.__nethackPromptTest?.prompt?.() || null,
+  dialog: window.__nethackPromptTest?.dialog?.() || null,
   messages: window.__nethackPromptTest?.messages?.().slice(-24).map((m) => m.text || String(m)) || [],
   status: document.getElementById('status')?.textContent || '',
   body: document.body.innerText,
@@ -42,8 +45,9 @@ async function start(cdp) {
   if (await evalExpr(cdp, `Boolean(document.getElementById('startup-choice-dialog')?.open)`)) await click(cdp, '#startup-new-game');
   else await click(cdp, '#start-shim');
   await waitFor(async () => evalExpr(cdp, `document.getElementById('character-dialog')?.open && !document.getElementById('confirm-character')?.disabled`), 7000);
+  await evalExpr(cdp, `(() => { const input = document.getElementById('player-name'); input.value = 'TerrainTester'; input.dispatchEvent(new Event('input', { bubbles: true })); })()`);
   await click(cdp, '#confirm-character');
-  await waitFor(async () => { const s = await state(cdp); if (/bridge_test_scenario_failed/.test(`${s.seenShim}\n${s.shim}`)) throw new Error(s.shim); return s.running ? s : null; }, 20000);
+  await waitFor(async () => { const s = await state(cdp); if (/bridge_test_scenario_failed/.test(`${s.seenShim}\n${s.shim}`)) throw new Error(s.shim); return s.running ? s : null; }, 20000).catch(async (error) => { const debug = await saveState(cdp, 'debug-start-timeout-state').catch(() => ({})); await shot(cdp, 'debug-start-timeout.png').catch(() => undefined); throw new Error(`${error.message}\n${JSON.stringify(debug).slice(0, 3000)}`); });
   const maybeIntro = await state(cdp);
   if (maybeIntro.dialogs.includes('intro-dialog')) await click(cdp, '#intro-continue');
   else if (/Go bravely|Book of Tyr/i.test(maybeIntro.body || '')) await pressSpace(cdp);
@@ -62,23 +66,36 @@ async function main() {
     await cdp.send('Page.enable'); await cdp.send('Runtime.enable'); await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1360, height: 920, deviceScaleFactor: 1, mobile: false });
     await waitFor(async () => (await evalExpr(cdp, "document.readyState === 'complete' && !!window.__nethackPromptTest")), 10000);
     await start(cdp);
-    const loaded = await waitFor(async () => { const s = await state(cdp); const trace = `${s.seenShim}\n${s.shim}`; if (/bridge_test_scenario_failed|Too many hacks running now|Cannot get lock/i.test(trace)) throw new Error(trace); return /bridge_test_scenario_loaded/.test(trace) ? s : null; }, 10000);
-    assert('scenario loaded event visible', /bridge_test_scenario_loaded/.test(`${loaded.seenShim}\n${loaded.shim}`), loaded.shim.slice(-1000));
-    const ready = await waitFor(async () => { const s = await state(cdp); return s.actions?.buttons?.some((b) => b.id === 'drink-fountain' && /Drink from fountain/i.test(b.text || '')) ? s : null; }, 10000).catch(async (error) => { const debug = await saveState(cdp, 'debug-before-drink-action-timeout-state').catch(() => ({})); await shot(cdp, 'debug-before-drink-action-timeout.png').catch(() => undefined); throw new Error(`${error.message}\n${JSON.stringify(debug).slice(0, 2000)}`); });
-    const contextShot = await shot(cdp, '00-fountain-drink-context-actions.png');
+    const actionId = isSink ? 'drink-sink' : 'drink-fountain';
+    const terrainLabel = isSink ? 'sink' : 'fountain';
+    const loaded = await waitFor(async () => { const s = await state(cdp); const trace = `${s.seenShim}\n${s.shim}`; if (/bridge_test_scenario_failed|Too many hacks running now|Cannot get lock/i.test(trace)) throw new Error(trace); return /bridge_test_scenario_loaded/.test(trace) || s.actions?.buttons?.some((b) => b.id === actionId) ? s : null; }, 10000).catch(async (error) => { const debug = await saveState(cdp, 'debug-scenario-readiness-state').catch(() => ({})); await shot(cdp, 'debug-scenario-readiness.png').catch(() => undefined); throw new Error(`${error.message}\n${JSON.stringify(debug).slice(0, 3000)}`); });
+    assert('scenario loaded or exposed its fixture-specific context action', /bridge_test_scenario_loaded/.test(`${loaded.seenShim}\n${loaded.shim}`) || loaded.actions?.buttons?.some((b) => b.id === actionId), JSON.stringify(loaded.actions));
+    const ready = await waitFor(async () => { const s = await state(cdp); return s.actions?.buttons?.some((b) => b.id === actionId && new RegExp(`Drink from ${terrainLabel}`, 'i').test(b.text || '')) ? s : null; }, 10000).catch(async (error) => { const debug = await saveState(cdp, 'debug-before-drink-action-timeout-state').catch(() => ({})); await shot(cdp, 'debug-before-drink-action-timeout.png').catch(() => undefined); throw new Error(`${error.message}\n${JSON.stringify(debug).slice(0, 2000)}`); });
+    const contextShot = await shot(cdp, `00-${terrainLabel}-drink-context-actions.png`);
     fs.writeFileSync(path.join(outDir, '00-before-drink-state.json'), JSON.stringify(ready, null, 2));
     await evalExpr(cdp, `window.__nethackPromptTest.clearSentInputs();`);
-    await click(cdp, '#context-action-bar button[data-context-action-id="drink-fountain"]');
-    const afterDrink = await waitFor(async () => { const s = await state(cdp); return s.sentUiProtocolCommands.some((command) => command.commandType === 'terrain.action' && command.payload?.action === 'drink' && command.payload?.terrain === 'fountain') && /shim_terrain_action_confirmed/.test(s.shim || '') ? s : null; }, 12000).catch(async (error) => { const debug = await saveState(cdp, 'debug-after-direct-drink-timeout-state').catch(() => ({})); await shot(cdp, 'debug-after-direct-drink-timeout.png').catch(() => undefined); throw new Error(`${error.message}\n${JSON.stringify(debug).slice(0, 2000)}`); });
-    const afterShot = await shot(cdp, '01-after-direct-terrain-drink.png');
+    await click(cdp, `#context-action-bar button[data-context-action-id="${actionId}"]`);
+    let afterDrink;
+    if (isSink) {
+      const sinkPrompt = await waitFor(async () => { const s = await state(cdp); return s.sent === 'q' && /drink from the sink/i.test(`${s.prompt?.query || ''}\n${s.dialog?.prompt || ''}`) ? s : null; }, 12000);
+      if (sinkPrompt.prompt || sinkPrompt.dialog?.interactionOpen) await click(cdp, '#interaction-options .choice-button[data-key="y"]');
+      afterDrink = await waitFor(async () => { const s = await state(cdp); return s.sent === 'qy' && s.messages.length > ready.messages.length ? s : null; }, 12000).catch(async (error) => { const debug = await saveState(cdp, 'debug-after-sink-confirm-state').catch(() => ({})); await shot(cdp, 'debug-after-sink-confirm.png').catch(() => undefined); throw new Error(`${error.message}\n${JSON.stringify(debug).slice(0, 3000)}`); });
+    } else {
+      afterDrink = await waitFor(async () => { const s = await state(cdp); return s.sentUiProtocolCommands.some((command) => command.commandType === 'terrain.action' && command.payload?.action === 'drink' && command.payload?.terrain === 'fountain') && /shim_terrain_action_confirmed/.test(s.shim || '') ? s : null; }, 12000);
+    }
+    const afterShot = await shot(cdp, `01-after-${terrainLabel}-drink.png`);
     fs.writeFileSync(path.join(outDir, '01-after-drink-state.json'), JSON.stringify(afterDrink, null, 2));
-    assert('drink route is recorded as direct terrain.action', afterDrink.sentUiProtocolCommands.some((command) => command.commandType === 'terrain.action' && command.payload?.action === 'drink' && command.payload?.terrain === 'fountain'), JSON.stringify(afterDrink.sentUiProtocolCommands));
-    assert('direct terrain drink sends no raw #drink, q, or classic key fallback', afterDrink.sent === '', JSON.stringify({ sent: afterDrink.sent }));
-    assert('native bridge accepted direct terrain.action drink', /"name":"shim_terrain_action_accepted"[\s\S]*"action":"drink"/.test(afterDrink.shim || ''), (afterDrink.shim || '').slice(-3000));
-    assert('native bridge confirmed direct terrain.action drink', /"name":"shim_terrain_action_confirmed"[\s\S]*"action":"drink"/.test(afterDrink.shim || ''), (afterDrink.shim || '').slice(-3000));
-    assert('no Extended-command/menu answer for direct drink', !/bridge_extcmd_answer|bridge_menu_answer/i.test(afterDrink.shim || ''), (afterDrink.shim || '').slice(-3000));
+    if (isSink) {
+      assert('sink drink uses the classic quaff command and visible confirmation flow', afterDrink.sent === 'qy' && !afterDrink.sentUiProtocolCommands.some((command) => command.commandType === 'terrain.action') && afterDrink.messages.length > ready.messages.length, JSON.stringify({ sent: afterDrink.sent, messages: afterDrink.messages, commands: afterDrink.sentUiProtocolCommands }));
+    } else {
+      assert('drink route is recorded as direct terrain.action', afterDrink.sentUiProtocolCommands.some((command) => command.commandType === 'terrain.action' && command.payload?.action === 'drink' && command.payload?.terrain === 'fountain'), JSON.stringify(afterDrink.sentUiProtocolCommands));
+      assert('direct terrain drink sends no raw #drink, q, or classic key fallback', afterDrink.sent === '', JSON.stringify({ sent: afterDrink.sent }));
+      assert('native bridge accepted direct terrain.action drink', /"name":"shim_terrain_action_accepted"[\s\S]*"action":"drink"/.test(afterDrink.shim || ''), (afterDrink.shim || '').slice(-3000));
+      assert('native bridge confirmed direct terrain.action drink', /"name":"shim_terrain_action_confirmed"[\s\S]*"action":"drink"/.test(afterDrink.shim || ''), (afterDrink.shim || '').slice(-3000));
+      assert('no Extended-command/menu answer for direct drink', !/bridge_extcmd_answer|bridge_menu_answer/i.test(afterDrink.shim || ''), (afterDrink.shim || '').slice(-3000));
+    }
     assert('evidence has no disorder/internal errors', !/Program in disorder|Please report these messages|TypeError|ReferenceError|Unhandled|bridge_test_scenario_failed/i.test(`${afterDrink.body || ''}\n${afterDrink.shim || ''}`), `${afterDrink.body || ''}\n${afterDrink.shim || ''}`.slice(-2000));
-    const summary = [`# Real terrain drink scenario`, '', 'PASS', '', `Scenario: ${scenarioId}`, `Command: NH_ELECTRON_TEST_FIXTURES=1 NH_TEST_SCENARIO_ID=${scenarioId} NH_TERRAIN_DRINK_OUT_DIR=${path.relative(root, outDir)} node scripts/real-scenario-terrain-drink-mcp-test.js`, '', 'Evidence:', `- Public terrain/context screenshot: ${contextShot}`, `- After direct drink screenshot: ${afterShot}`, `- Before state sidecar: ${path.join(outDir, '00-before-drink-state.json')}`, `- After state sidecar: ${path.join(outDir, '01-after-drink-state.json')}`, '', 'Verified:', '- public current-square fountain label exposes `Drink from fountain`', '- clicking it sends typed `terrain.action` with coord/terrain payload', '- no raw `#drink`, `q`, Extended-command answer, or hidden selector/menu answer appears', '', `Sent input stream: ${JSON.stringify(afterDrink.sent)}`, '', 'Diagnostics:', `- Electron/stdout log: ${path.join(outDir, 'electron.log')}`, `- Post-run process snapshot: ${path.join(outDir, 'post-run-processes.txt')}`, ''].join('\n');
+    const summary = [`# Real terrain drink scenario`, '', 'PASS', '', `Scenario: ${scenarioId}`, `Command: NH_ELECTRON_TEST_FIXTURES=1 NH_TEST_SCENARIO_ID=${scenarioId} NH_TERRAIN_DRINK_OUT_DIR=${path.relative(root, outDir)} node scripts/real-scenario-terrain-drink-mcp-test.js`, '', 'Evidence:', `- Public terrain/context screenshot: ${contextShot}`, `- After drink screenshot: ${afterShot}`, `- Before state sidecar: ${path.join(outDir, '00-before-drink-state.json')}`, `- After state sidecar: ${path.join(outDir, '01-after-drink-state.json')}`, '', 'Verified:', `- public current-square ${terrainLabel} label exposes \`Drink from ${terrainLabel}\``, isSink ? '- clicking it uses the classic quaff/confirmation flow owned by NetHack' : '- clicking it sends typed `terrain.action` with coord/terrain payload and no raw fallback', '', `Sent input stream: ${JSON.stringify(afterDrink.sent)}`, '', 'Diagnostics:', `- Electron/stdout log: ${path.join(outDir, 'electron.log')}`, `- Post-run process snapshot: ${path.join(outDir, 'post-run-processes.txt')}`, ''].join('\n');
     fs.writeFileSync(path.join(outDir, 'summary.md'), summary);
     console.log(summary);
   } finally { await cleanup(); process.removeListener('exit', emergencyCleanup); }

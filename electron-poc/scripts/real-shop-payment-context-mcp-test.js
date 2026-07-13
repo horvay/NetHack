@@ -16,6 +16,11 @@ async function waitFor(fn, timeoutMs = 20000, stepMs = 120) { const started = Da
 async function connect(wsUrl) { const ws = new WebSocket(wsUrl); await new Promise((resolve, reject) => { ws.addEventListener('open', resolve, { once: true }); ws.addEventListener('error', reject, { once: true }); }); let id = 0; const pending = new Map(); ws.addEventListener('message', (event) => { const message = JSON.parse(event.data); if (!message.id || !pending.has(message.id)) return; const request = pending.get(message.id); pending.delete(message.id); message.error ? request.reject(new Error(JSON.stringify(message.error))) : request.resolve(message.result); }); return { send(method, params = {}) { const callId = ++id; ws.send(JSON.stringify({ id: callId, method, params })); return new Promise((resolve, reject) => pending.set(callId, { resolve, reject })); }, close() { ws.close(); } }; }
 async function evaluate(cdp, expression) { const result = await cdp.send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }); if (result.exceptionDetails) throw new Error(JSON.stringify(result.exceptionDetails)); return result.result.value; }
 async function click(cdp, selector) { const point = await evaluate(cdp, `(() => { const element = document.querySelector(${JSON.stringify(selector)}); element?.scrollIntoView?.({block:'center',inline:'center'}); const rect = element?.getBoundingClientRect?.(); return rect ? {x:rect.left+rect.width/2,y:rect.top+rect.height/2} : null; })()`); if (!point) throw new Error(`missing ${selector}`); await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: point.x, y: point.y, button: 'left', clickCount: 1 }); await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: point.x, y: point.y, button: 'left', clickCount: 1 }); }
+async function press(cdp, key, code = `Key${key.toUpperCase()}`, text = key) {
+  const vk = key.length === 1 ? key.toUpperCase().charCodeAt(0) : (key === 'Escape' ? 27 : 0);
+  await cdp.send('Input.dispatchKeyEvent', { type:'keyDown', key, code, text, windowsVirtualKeyCode:vk, nativeVirtualKeyCode:vk });
+  await cdp.send('Input.dispatchKeyEvent', { type:'keyUp', key, code, windowsVirtualKeyCode:vk, nativeVirtualKeyCode:vk });
+}
 async function screenshot(cdp, name) {
   await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
   await delay(250);
@@ -119,11 +124,12 @@ async function main() {
   fs.mkdirSync(path.join(outDir, 'raw-captures'), { recursive: true });
   fs.mkdirSync(path.join(outDir, 'lossless-transcodes'), { recursive: true });
   fs.mkdirSync(path.join(outDir, 'view-safe'), { recursive: true });
-  const evidence = { outDir, screenshots: {}, rawScreenshots: {}, checks: {} };
+  const evidence = { evidenceKind: 'REAL Electron + real NetHack core in test-gated native shop scenes; actual player commands/actions except the explicitly labeled stale/recipient-safety renderer supplement', outDir, screenshots: {}, rawScreenshots: {}, checks: {} };
   for (const [stage, name] of Object.entries({
     beforePayment: '01-unpaid-items-adjacent-shopkeeper.png',
     paymentMenu: '02-shop-payment-item-picker.png',
     afterPayment: '03-paid-inventory-action-removed.png',
+    shopOffer: '03b-real-shop-sell-offer.png',
     insufficient: '04-insufficient-funds-message.png',
   })) evidence.rawScreenshots[stage] = path.join(outDir, 'raw-captures', name);
   let run;
@@ -148,6 +154,16 @@ async function main() {
     await click(run.cdp, '#interaction-confirm');
     evidence.afterPayment = await waitFor(async () => { const current = await state(run.cdp); return current.inventory?.unpaidItemCount === 0 && !current.actions?.buttons?.some((button) => /^pay-shopkeeper-/.test(button.id || '')) ? current : null; }, 10000);
     evidence.screenshots.afterPayment = await screenshot(run.cdp, '03-paid-inventory-action-removed.png');
+
+    await evaluate(run.cdp, `document.getElementById('game-grid')?.focus?.(); window.__nethackPromptTest.clearSentInputs(); true`);
+    await press(run.cdp, 'd');
+    const dropMenu = await waitFor(async () => { const current=await state(run.cdp); return current.dialogs.includes('interaction-dialog') && /drop/i.test(`${current.dialog?.title||''}\n${current.dialog?.prompt||''}`) ? current : null; }, 8000);
+    const sellRow = (dropMenu.dialog?.options || []).find((option) => option.key && /food ration|potion of healing/i.test(option.text || '')) || (dropMenu.dialog?.options || []).find((option) => option.key && !/gold|zorkmid|wielded|worn/i.test(option.text || ''));
+    if (!sellRow) throw new Error(`real shop offer setup found no droppable owned item: ${JSON.stringify(dropMenu.dialog)}`);
+    await click(run.cdp, `#interaction-options .choice-button[data-key="${sellRow.key}"]`);
+    evidence.shopOffer = await waitFor(async () => { const current=await state(run.cdp); return current.dialogs.includes('interaction-dialog') && /offers?|sell it/i.test(`${current.dialog?.title||''}\n${current.dialog?.prompt||''}`) ? current : null; }, 8000);
+    evidence.screenshots.shopOffer = await screenshot(run.cdp, '03b-real-shop-sell-offer.png');
+    await click(run.cdp, '#interaction-cancel');
     await stop(run, 'sufficient');
     run = null;
 
@@ -156,7 +172,9 @@ async function main() {
     const insufficientButton = evidence.beforeInsufficient.actions.buttons.find((button) => /^pay-shopkeeper-/.test(button.id || ''));
     await evaluate(run.cdp, 'window.__nethackPromptTest.clearSentInputs()');
     await click(run.cdp, `#context-action-bar button[data-context-action-id="${insufficientButton.id}"]`);
-    evidence.insufficient = await waitFor(async () => { const current = await state(run.cdp); return /no gold or credit/i.test(current.messages.join('\n')) ? current : null; }, 8000);
+    evidence.insufficient = await waitFor(async () => { const current = await state(run.cdp); return /no gold or credit/i.test(current.messages.join('\n')) ? current : null; }, 8000).catch(async (error) => {
+      throw new Error(`insufficient-funds payment did not reach the expected public message: ${error.message}; state=${JSON.stringify(await state(run.cdp))}`);
+    });
     await click(run.cdp, '#context-action-bar button[data-context-action-id="more"]');
     await waitFor(() => evaluate(run.cdp, `document.getElementById('action-dialog')?.open === true`), 5000);
     await click(run.cdp, '#action-dialog-close');
@@ -172,6 +190,7 @@ async function main() {
       staleButton?.click();
       return new Promise((resolve) => setTimeout(() => resolve({ sent: test.sentInputs().join(''), actions: test.contextActions(), status: document.getElementById('status')?.textContent || '', messages: test.messages().slice(-8).map((entry) => entry.text || String(entry)) }), 120));
     })()`);
+    evidence.stale.evidenceKind = 'SYNTHETIC/INJECTED stale controller supplement; not actual-player proof';
     evidence.recipientSafety = await evaluate(run.cdp, `(() => {
       const test = window.__nethackPromptTest;
       const revision = (test.inventory().snapshotRevision || 0) + 1;
@@ -186,6 +205,7 @@ async function main() {
       return { ambiguous, replacement, sent: test.sentInputs().join('') };
     })()`);
 
+    evidence.recipientSafety.evidenceKind = 'SYNTHETIC/INJECTED recipient-safety controller supplement; not actual-player proof';
     const beforeLabels = evidence.beforePayment.actions?.buttons?.map((button) => button.text) || [];
     const menuText = `${evidence.paymentMenu.dialog?.prompt || ''}\n${(evidence.paymentMenu.dialog?.options || []).map((option) => option.text).join('\n')}`;
     const afterMessages = evidence.afterPayment.messages.join('\n');
@@ -203,6 +223,8 @@ async function main() {
       successfulPaymentRemovesContextAction: !evidence.afterPayment.actions.buttons.some((button) => /^pay-shopkeeper-/.test(button.id || '')),
       successfulPaymentHasNativeFeedback: /bought|thank you for shopping/i.test(afterMessages),
       successfulPaymentUsesPlayerFacingStatus: evidence.afterPayment.status === 'Payment complete',
+      realDropCommandOpensCoreShopOffer: evidence.shopOffer.sent.startsWith('d') && /offers?|sell it/i.test(`${evidence.shopOffer.dialog?.title||''}\n${evidence.shopOffer.dialog?.prompt||''}`),
+      shopOfferUsesConfirmationButtons: (evidence.shopOffer.dialog?.options || []).some((option)=>/Accept offer/i.test(option.text||'')) && (evidence.shopOffer.dialog?.options || []).some((option)=>/Decline offer/i.test(option.text||'')),
       insufficientFundsAreReported: /no gold or credit/i.test(evidence.insufficient.messages.join('\n')),
       insufficientFundsStatusUsesNativeResult: /no gold or credit/i.test(evidence.insufficient.status),
       insufficientFundsDoNotHang: !evidence.insufficient.dialogs.includes('interaction-dialog') && !evidence.insufficient.activePrompt,
@@ -246,7 +268,9 @@ async function main() {
       `Output: ${outDir}`, '',
       '## Native setup',
       '- Test-fixture build created a real tended general store, placed the hero beside its real shopkeeper, and picked up two real stock objects through `pick_obj()` and `addtobill()`.',
-      '- The renderer received ordinary live map and inventory events. Payment ran through NetHack `#pay`, its itemized bill menu, and native gold/bill mutation.', '',
+      '- The renderer received ordinary live map and inventory events. Payment ran through NetHack `#pay`, its itemized bill menu, and native gold/bill mutation.',
+      '- The sell-offer frame uses the actual player `d` command on a paid item inside the real test-gated shop; NetHack itself emitted the offer prompt.',
+      '- Stale-detached-action and recipient-safety checks are explicitly synthetic/injected controller supplements; they are not presented as actual-player proof.', '',
       '## Checks', ...Object.entries(evidence.checks).map(([name, passed]) => `- ${passed ? 'PASS' : 'FAIL'} ${name}`), '',
       '## Accepted view-safe screenshots', ...Object.entries(evidence.screenshots).map(([name, file]) => `- ${name}: ${file}`), '',
       '## Raw capture anomaly',

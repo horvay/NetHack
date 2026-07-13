@@ -78,9 +78,12 @@ async function state(cdp) {
 async function startGame(cdp) {
   await click(cdp, '#start-shim');
   await delay(250);
+  if (await evalExpr(cdp, `document.getElementById('startup-choice-dialog')?.open === true`)) await click(cdp, '#startup-new-game');
+  await waitFor(async () => evalExpr(cdp, `document.getElementById('character-dialog')?.open === true`), 5000);
   await click(cdp, '#confirm-character');
   await waitFor(async () => (await state(cdp)).running, 20000);
-  await evalExpr(cdp, `(() => { document.getElementById('intro-dialog')?.close?.('continue'); document.getElementById('document-dialog')?.close?.('close'); document.getElementById('game-grid')?.focus?.(); return true; })()`);
+  if (/intro-dialog/.test((await state(cdp)).body) || await evalExpr(cdp, `document.getElementById('intro-dialog')?.open === true`)) await click(cdp, '#intro-continue');
+  await evalExpr(cdp, `(() => { document.getElementById('game-grid')?.focus?.(); return true; })()`);
 }
 function assert(name, condition, detail = '') { if (!condition) throw new Error(`${name}${detail ? `: ${detail}` : ''}`); }
 
@@ -143,6 +146,15 @@ async function main() {
       await pressKey(cdp, { key: '-', code: 'Minus', text: '-', windowsVirtualKeyCode: 189 });
     }
     await waitFor(async () => /what do you want to write|write in the dust|write\?/i.test((await state(cdp)).body), 7000);
+    const freeTextScreenshot = await screenshot(cdp, '00-real-engraving-free-text-prompt.png');
+    if (process.env.NH_REAL_FREE_TEXT_PROMPT_ONLY === '1') {
+      const promptState = await evalExpr(cdp, `(() => ({ title:document.getElementById('interaction-title')?.textContent||'', prompt:document.getElementById('interaction-prompt')?.textContent||'', textEntry:!document.getElementById('interaction-text-row')?.hidden, textLabel:document.getElementById('interaction-text-label')?.textContent||'', inputVisible:Boolean(document.getElementById('interaction-text')?.getClientRects?.().length), sent:window.__nethackPromptTest?.sentInputs?.().join('')||'' }))()`);
+      const result = { ok:true, evidenceKind:'REAL Electron and real NetHack uppercase E engrave command; no renderer prompt injection', scope:'UXM-01 actual-player free-text prompt only', seed, heroBefore, prompt:promptState, screenshots:{ freeTextScreenshot } };
+      fs.writeFileSync(path.join(outDir, 'real-free-text-prompt-result.json'), JSON.stringify(result, null, 2));
+      fs.writeFileSync(path.join(outDir, 'real-free-text-prompt-summary.md'), `# Real free-text prompt proof\n\nPASS\n\n${freeTextScreenshot}\n`);
+      console.log(JSON.stringify(result, null, 2));
+      return;
+    }
     await typeText(cdp, 'AI ORG');
     await pressKey(cdp, { key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 });
     await waitFor(async () => {
@@ -197,9 +209,9 @@ async function main() {
     assert('engraving tooltip identifies public feature', /engraving/i.test(`${tooltip.title} ${tooltip.text}`) && tooltip.iconTileId === 'engraving', JSON.stringify(tooltip));
     assert('engraving tooltip does not call it boulder', !/boulder/i.test(`${tooltip.title} ${tooltip.text} ${tooltip.iconImage}`), JSON.stringify(tooltip));
     const hoverScreenshot = await screenshot(cdp, '01-real-engraving-tooltip.png');
-    const result = { ok: true, seed, heroBefore, move, cell, tooltip, screenshots: { beforeScreenshot, hoverScreenshot }, note: 'The target is a visible engraving feature made through the real NetHack engrave command. NetHack does not automatically repeat a descriptive movement message every time the hero steps onto an engraving; explicit look/read/farlook or this UI tooltip identifies it.' };
+    const result = { ok: true, evidenceKind: 'REAL Electron and real NetHack E engrave command; no renderer prompt injection', seed, heroBefore, move, cell, tooltip, screenshots: { freeTextScreenshot, beforeScreenshot, hoverScreenshot }, note: 'The target is a visible engraving feature made through the real NetHack engrave command. NetHack does not automatically repeat a descriptive movement message every time the hero steps onto an engraving; explicit look/read/farlook or this UI tooltip identifies it.' };
     fs.writeFileSync(path.join(outDir, 'engraving-tooltip-result.json'), JSON.stringify(result, null, 2));
-    fs.writeFileSync(path.join(outDir, 'real-engraving-tooltip-summary.md'), [`# Real engraving tooltip MCP proof`, '', 'PASS', '', `Seed: ${seed}`, `Map screenshot: ${beforeScreenshot}`, `Tooltip screenshot: ${hoverScreenshot}`, '', 'Verified a real shim-rendered engraving cell:', '```json', JSON.stringify({ cell, tooltip }, null, 2), '```', ''].join('\n'));
+    fs.writeFileSync(path.join(outDir, 'real-engraving-tooltip-summary.md'), [`# Real engraving tooltip MCP proof`, '', 'PASS', '', `Seed: ${seed}`, `Free-text prompt screenshot: ${freeTextScreenshot}`, `Map screenshot: ${beforeScreenshot}`, `Tooltip screenshot: ${hoverScreenshot}`, '', 'Verified a real shim-rendered engraving cell:', '```json', JSON.stringify({ cell, tooltip }, null, 2), '```', ''].join('\n'));
     console.log(JSON.stringify(result, null, 2));
   } finally {
     cleanup();

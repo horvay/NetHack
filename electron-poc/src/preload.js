@@ -1,10 +1,31 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 const version = 'nethack-preload-contract/v1';
-function isPlainObject(value) { return Boolean(value) && typeof value === 'object' && !Array.isArray(value); }
-function cloneFreeze(value) {
-  if (!isPlainObject(value) && !Array.isArray(value)) return value;
-  return Object.freeze(JSON.parse(JSON.stringify(value)));
+function isPlainObject(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const prototype = Reflect.getPrototypeOf(value);
+  return prototype === null || prototype === Object.prototype;
+}
+function cloneFreeze(value, seen = new WeakSet()) {
+  const valueType = typeof value;
+  if (value === null || valueType === 'undefined' || valueType === 'boolean' || valueType === 'number' || valueType === 'string' || valueType === 'bigint') return value;
+  const isArray = Array.isArray(value);
+  if (isArray ? Reflect.getPrototypeOf(value) !== Array.prototype : !isPlainObject(value)) throw new TypeError('IPC payload must contain only plain objects, standard arrays, and primitive values');
+  if (seen.has(value)) throw new TypeError('IPC payload must not contain cycles');
+  seen.add(value);
+  const keys = Reflect.ownKeys(value);
+  if (keys.some((key) => typeof key === 'symbol')) throw new TypeError('IPC payload must not contain symbol-keyed properties');
+  const cloned = isArray ? new Array(value.length) : {};
+  for (const key of keys) {
+    if (isArray && key === 'length') continue;
+    const descriptor = Reflect.getOwnPropertyDescriptor(value, key);
+    if (!descriptor || !Object.prototype.hasOwnProperty.call(descriptor, 'value') || !descriptor.enumerable) {
+      throw new TypeError('IPC payload properties must be enumerable own data properties');
+    }
+    Object.defineProperty(cloned, key, { value: cloneFreeze(descriptor.value, seen), enumerable: true, writable: true, configurable: true });
+  }
+  seen.delete(value);
+  return Object.freeze(cloned);
 }
 function validStartSize(size = {}) {
   if (!isPlainObject(size)) return {};
@@ -80,6 +101,10 @@ contextBridge.exposeInMainWorld('netHackPOC', Object.freeze({
   saveRecording: (recording) => ipcRenderer.invoke('nethack:saveRecording', validRecording(recording)),
   diagnosticEvent: (event) => ipcRenderer.invoke('nethack:diagnosticEvent', validDiagnosticEvent(event)),
   activeDiagnosticRun: () => ipcRenderer.invoke('nethack:activeDiagnosticRun'),
+  ...(process.env.NH_ELECTRON_TEST_FIXTURES === '1' && process.env.NH_TEST_CAPTURE_DIR ? {
+    setTestCaptureProfile: (profile) => ipcRenderer.invoke('nethack:testCaptureProfile', isPlainObject(profile) ? { width: Number(profile.width), height: Number(profile.height), zoomPercent: Number(profile.zoomPercent) } : {}),
+    captureTestScreenshot: (captureId) => ipcRenderer.invoke('nethack:testCapturePage', String(captureId || '').slice(0, 160)),
+  } : {}),
   input: (data) => ipcRenderer.send('nethack:input', String(data || '')),
   shimKey: (key) => ipcRenderer.send('nethack:shimKey', validKey(key)),
   shimInput: (payload) => ipcRenderer.send('nethack:shimInput', validShimInput(payload)),

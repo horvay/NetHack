@@ -1,5 +1,6 @@
 const assert = require('node:assert/strict');
 const Ground = require('../src/shared/ground-pile-snapshot-adapter');
+const observe = (items) => Ground.visibleTextObservation(items);
 const UiProtocol = require('../src/shared/ui-protocol-v2');
 const Transfer = require('../src/shared/transfer-transaction-model');
 
@@ -18,7 +19,7 @@ assert.equal(first.items.length, 2);
 assert.equal(first.items[0].displayName, '3 arrows');
 assert.equal(first.items[0].quantity, 3);
 assert.equal(first.items[0].location.kind, 'ground');
-assert.equal(first.items[1].displayName, 'a scroll labeled READ ME');
+assert.equal(first.items[1].displayName, 'scroll labeled READ ME');
 assert.equal(first.items[1].semanticName, undefined, 'hidden semanticName is redacted unless identity is public');
 assert.equal(first.items[1].trueName, undefined, 'non-public hidden alias is never copied');
 assert.equal(first.items[1].known.identity, false);
@@ -102,18 +103,18 @@ const authoritativeFirstOpen = Ground.normalizeGroundPileSnapshotPayload({
     { objectId: 133, displayName: 'a lichen corpse', quantity: 1, semanticName: 'lichen', semanticKnown: true },
   ],
 });
-const afterFirstStreamedLine = Ground.reconcileGroundPileObservation(authoritativeFirstOpen.items, [{ text: 'a cream pie' }], { complete: false });
+const afterFirstStreamedLine = Ground.reconcileGroundPileObservation(authoritativeFirstOpen.items, observe([{ text: 'a cream pie' }]), { complete: false });
 assert.deepEqual(afterFirstStreamedLine.map((item) => item.objectId), [145, 133], 'a partial text-window line cannot discard a sibling public object ID');
-const afterSecondStreamedLine = Ground.reconcileGroundPileObservation(afterFirstStreamedLine, [{ text: 'a lichen corpse' }], { complete: false });
+const afterSecondStreamedLine = Ground.reconcileGroundPileObservation(afterFirstStreamedLine, observe([{ text: 'a lichen corpse' }]), { complete: false });
 assert.deepEqual(afterSecondStreamedLine.map((item) => item.objectId), [145, 133], 'streaming the rest of a first-open ground window keeps both authoritative IDs');
-const completeFirstOpenRows = Ground.reconcileGroundPileObservation(afterSecondStreamedLine, [{ text: 'a cream pie' }, { text: 'a lichen corpse' }], { complete: true });
+const completeFirstOpenRows = Ground.reconcileGroundPileObservation(afterSecondStreamedLine, observe([{ text: 'a cream pie' }, { text: 'a lichen corpse' }]), { complete: true });
 assert.deepEqual(completeFirstOpenRows.map((item) => item.objectId), [145, 133], 'the completed public text window hydrates directly draggable rows from existing stable IDs');
-const changedStack = Ground.reconcileGroundPileObservation([{ objectId: 901, displayName: '3 arrows', quantity: 3, semanticName: 'arrow', semanticKnown: true }], [{ text: '2 arrows', quantity: 2 }], { complete: true });
+const changedStack = Ground.reconcileGroundPileObservation([{ objectId: 901, displayName: '3 arrows', quantity: 3, semanticName: 'arrow', semanticKnown: true }], observe([{ text: '2 arrows', quantity: 2 }]), { complete: true });
 assert.equal(changedStack[0].objectId, 901, 'quantity reconciliation preserves stack identity');
 assert.equal(changedStack[0].quantity, 2, 'quantity reconciliation accepts the latest public count');
-const ambiguousDuplicates = Ground.reconcileGroundPileObservation([{ objectId: 11, text: 'a dagger' }, { objectId: 12, text: 'a dagger' }], [{ text: 'a dagger' }], { complete: true });
+const ambiguousDuplicates = Ground.reconcileGroundPileObservation([{ objectId: 11, text: 'a dagger', semanticKnown: true }, { objectId: 12, text: 'a dagger', semanticKnown: true }], observe([{ text: 'a dagger' }]), { complete: true });
 assert.equal(ambiguousDuplicates[0].objectId, undefined, 'ambiguous prose never guesses between duplicate public objects');
-const explicitReplacementId = Ground.reconcileGroundPileObservation([{ objectId: 11, text: 'a dagger' }], [{ objectId: 12, text: 'a dagger' }], { complete: true });
+const explicitReplacementId = Ground.reconcileGroundPileObservation([{ objectId: 11, text: 'a dagger', semanticKnown: true }], observe([{ objectId: 12, text: 'a dagger', semanticKnown: true }]), { complete: true });
 assert.equal(explicitReplacementId[0].objectId, 12, 'a newer explicit public object ID is never overwritten by name reconciliation with an older ID');
 
 const duplicateBefore = Ground.normalizeGroundPileSnapshotPayload({ revision: 4, coord, items: [{ text: 'a dagger' }, { text: 'a dagger' }] });

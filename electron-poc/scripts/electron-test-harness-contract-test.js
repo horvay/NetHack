@@ -22,6 +22,9 @@ async function testTerminateEscalatesAfterPriorSignal() {
 }
 
 async function main() {
+  assert.equal(Harness.version, 'nethack-electron-cdp-test-harness/v3');
+  assert.equal(typeof Harness.screenshotQc.createScreenshotQc, 'function');
+  assert.equal(typeof Harness.screenshotQc.validateManifest, 'function');
   assert.equal(Harness.keyEventParams('Escape').text, '');
   assert.equal(Harness.keyEventParams('Enter', '\n').text, '');
   assert.equal(Harness.keyEventParams('?', '?').text, '?');

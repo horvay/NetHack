@@ -2,6 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
 const electronBin = require('electron');
+const ScreenshotQc = require('./screenshot-qc');
 
 function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
 
@@ -285,6 +286,12 @@ async function createElectronPageSession(options = {}) {
     screenshot(file, screenshotOptions = {}) {
       return captureScreenshot(cdp, file, screenshotOptions);
     },
+    async screenshotEvidence(qc, id, options = {}) {
+      if (!qc?.rawPath || !qc?.recordCapture) throw new TypeError('screenshotEvidence requires a screenshot QC session');
+      const rawFile = qc.rawPath(id);
+      await captureScreenshot(cdp, rawFile, options.capture || {});
+      return qc.recordCapture(id, rawFile, options);
+    },
     output() {
       return Object.freeze({
         stdout: child.harnessOutput?.stdout.join('') || '',
@@ -322,6 +329,7 @@ async function createElectronBrowserDriver(options = {}) {
     waitForCheckedValue: page.waitForCheckedValue,
     run: page.run,
     screenshot: page.screenshot,
+    screenshotEvidence: page.screenshotEvidence,
     output: page.output,
     visibleBox: page.visibleBox,
     click: page.click,
@@ -346,9 +354,17 @@ async function createElectronBrowserDriver(options = {}) {
       await page.click('#confirm-character', { timeoutMs });
     },
     async startDefaultGame({ timeoutMs = 10000, playerName = '' } = {}) {
-      const startupOpen = await page.evalCheckedValue("Boolean(document.querySelector('#startup-choice-dialog')?.open)");
-      if (startupOpen) await page.click('#startup-new-game', { timeoutMs });
-      else await this.clickStartShim({ timeoutMs });
+      let dialogs = await page.evalCheckedValue("Array.from(document.querySelectorAll('dialog[open]')).map((dialog) => dialog.id)");
+      if (!dialogs.includes('startup-choice-dialog') && !dialogs.includes('character-dialog')) {
+        await this.clickStartShim({ timeoutMs });
+        dialogs = await waitFor(async () => {
+          const open = await page.evalCheckedValue("Array.from(document.querySelectorAll('dialog[open]')).map((dialog) => dialog.id)");
+          return open.includes('startup-choice-dialog') || open.includes('character-dialog') ? open : null;
+        }, timeoutMs);
+      }
+      if (dialogs.includes('startup-choice-dialog')) {
+        await page.click('#startup-new-game', { timeoutMs });
+      }
       await this.confirmDefaultCharacter({ timeoutMs, playerName });
     },
     async dismissIntroDialogs() {
@@ -376,7 +392,8 @@ async function withElectronBrowserDriver(options, fn) {
 }
 
 module.exports = Object.freeze({
-  version: 'nethack-electron-cdp-test-harness/v2',
+  version: 'nethack-electron-cdp-test-harness/v3',
+  screenshotQc: ScreenshotQc,
   delay,
   waitFor,
   json,

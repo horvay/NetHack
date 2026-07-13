@@ -74,6 +74,14 @@ function clone(mutator) {
   if (mutator) mutator(copy);
   return copy;
 }
+function cloneV2(mutator) {
+  const copy = clone();
+  copy.schema = 'nethack-electron-test-scenario/v2';
+  copy.phase = 'after-special-level-and-hero-before-first-draw';
+  copy.level.specialLevel = 'medusa';
+  if (mutator) mutator(copy);
+  return copy;
+}
 function caseRun(name, value, pattern) {
   const id = `__negative__/${name}`;
   if (typeof value !== 'string' && value.id === '__negative__/case') value.id = id;
@@ -90,9 +98,14 @@ try {
 
   caseRun('malformed-json', '{ "schema": ', /expected JSON string|scenario JSON root|unterminated|expected/);
   caseRun('unknown-top-level-key', clone((s) => { s.unknownField = true; }), /unsupported JSON scenario field/);
-  caseRun('unsupported-schema', clone((s) => { s.schema = 'nethack-electron-test-scenario/v2'; }), /unsupported schema/);
+  caseRun('unsupported-schema', clone((s) => { s.schema = 'nethack-electron-test-scenario/v3'; }), /unsupported schema/);
   caseRun('id-mismatch', clone((s) => { s.id = 'container/unlocked-chest-on-hero'; }), /scenario id does not match requested id/);
   caseRun('unsupported-phase', clone((s) => { s.phase = 'after-first-draw'; }), /unsupported phase/);
+  caseRun('v2-unsupported-phase', cloneV2((s) => { s.phase = 'after-level-and-hero-before-first-draw'; }), /unsupported phase/);
+  caseRun('v2-missing-special-level', cloneV2((s) => { delete s.level.specialLevel; }), /requires specialLevel/);
+  caseRun('v2-unsupported-special-level', cloneV2((s) => { s.level.specialLevel = 'made-up-plane'; }), /unsupported specialLevel/);
+  caseRun('v2-targeted-placement-missing-target', cloneV2((s) => { s.hero.placement = 'near-monster'; }), /requires placementTarget/);
+  caseRun('v2-placement-distance-out-of-range', cloneV2((s) => { s.hero.placement = 'near-monster'; s.hero.placementTarget = 'MEDUSA'; s.hero.placementDistance = 20; }), /placementDistance is out of range/);
   caseRun('bad-event-results-nesting', clone((s) => { s.eventResults = {}; }), /expected eventResults array/);
   caseRun('unsupported-event-results-field', clone((s) => { s.eventResults = [{ event: 'drink-fountain', result: 'monster-detection', chance: 100 }]; }), /unsupported eventResults field/);
   caseRun('unsupported-event-results-pair', clone((s) => { s.eventResults = [{ event: 'drink-fountain', result: 'water-demon' }]; }), /unsupported eventResults event\/result/);
@@ -115,6 +128,12 @@ try {
   caseRun('unsupported-ground-field', clone((s) => { s.ground[0].radius = 2; }), /unsupported ground entry field/);
   caseRun('unsupported-ground-location', clone((s) => { s.ground[0].at = 'diagonal-northeast'; }), /unsupported object location/);
   caseRun('unsupported-object-field', clone((s) => { s.inventory[0].blessed = true; }), /unsupported object spec field/);
+  caseRun('empty-called-name', clone((s) => { s.inventory[0].calledName = ''; }), /calledName length is invalid/);
+  caseRun('too-long-individual-name', clone((s) => { s.inventory[0].individualName = 'x'.repeat(80); }), /individualName length is invalid/);
+  caseRun('escaped-unicode-player-name', JSON.stringify({ ...clone((s) => { s.inventory[0].individualName = 'ESCAPED_NAME'; }), id: '__negative__/escaped-unicode-player-name' }).replace('ESCAPED_NAME', 'Dawn\\u0062ringer'), /JSON unicode escapes are not supported/);
+  caseRun('called-name-on-container', clone((s) => { s.ground[0].object.calledName = 'boxy'; }), /container object field is not supported/);
+  caseRun('individual-name-on-stack', clone((s) => { s.inventory[0] = { typeId: 'DAGGER', quantity: 2, individualName: 'Twins' }; }), /individualName requires object quantity 1/);
+  caseRun('conflicting-called-name-for-one-type', clone((s) => { s.inventory = [{ typeId: 'POT_HEALING', calledName: 'sunrise' }, { typeId: 'POT_HEALING', calledName: 'sunset' }]; }), /all fixture objects of one type must share the same calledName/);
   caseRun('bad-beatitude', clone((s) => { s.inventory[0].beatitude = 'holy-ish'; }), /unsupported object beatitude/);
   caseRun('bad-charges-type', clone((s) => { s.inventory[0].charges = 3; }), /charges are not supported/);
   caseRun('bad-equipped-on-ground', clone((s) => { s.ground[0].object.equipped = 'wielded'; }), /equipped is only supported/);
@@ -164,7 +183,7 @@ try {
     "inventory": ${JSON.stringify(baseScenario.inventory)},
     "expectedPublicFacts": ${JSON.stringify(baseScenario.expectedPublicFacts)}
   }`, /duplicate JSON scenario field/);
-  caseRun('top-level-missing-required-field', clone((s) => { delete s.phase; }), /scenario JSON is missing required v1 fields/);
+  caseRun('top-level-missing-required-field', clone((s) => { delete s.phase; }), /scenario JSON is missing required fields/);
   caseRun('nested-duplicate-field', `{
     "schema": "nethack-electron-test-scenario/v1",
     "id": "__negative__/nested-duplicate-field",
@@ -176,7 +195,7 @@ try {
     "inventory": ${JSON.stringify(baseScenario.inventory)},
     "expectedPublicFacts": ${JSON.stringify(baseScenario.expectedPublicFacts)}
   }`, /duplicate JSON scenario field/);
-  caseRun('nested-missing-hero-required-field', clone((s) => { delete s.hero.placement; }), /hero object (?:is missing required v1 fields|cannot be empty)/);
+  caseRun('nested-missing-hero-required-field', clone((s) => { delete s.hero.placement; }), /hero object (?:is missing required fields|cannot be empty)/);
   caseRun('nested-missing-container-required-field', clone((s) => { delete s.ground[0].object.contents; }), /container object is missing required fields/);
   console.log('scenario-loader-negative-test --fixtures: ok');
 } finally {

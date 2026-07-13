@@ -55,6 +55,11 @@ async function main() {
     const floorHoverScreenshot = path.join(outDir, 'map-tooltip-floor-hover-no-tooltip.png');
     await page.screenshot(floorHoverScreenshot);
     const metrics = await page.evalValue(`(() => {
+      window.__nethackPromptTest.setGroundPileSnapshotForTest([
+        { objectId: 4101, displayName: 'large box', semanticKind: 'object', semanticName: 'large box', semanticKnown: true, glyphChar: 40, location: { kind: 'ground' } },
+        { objectId: 4102, displayName: 'food ration', semanticKind: 'object', semanticName: 'food ration', semanticKnown: true, glyphChar: 37, location: { kind: 'ground' } },
+        { objectId: 4103, displayName: 'ruby potion', semanticKind: 'object', semanticName: 'gain level', semanticAppearance: 'ruby', semanticKnown: false, glyphChar: 33, location: { kind: 'ground' } }
+      ], { x: 41, y: 4 });
       window.__nethackTooltipTest.setCells([
         { x: 2, y: 2, ch: '.', semanticKind: 'terrain', semanticName: 'room' },
         { x: 1, y: 2, ch: '|', semanticKind: 'terrain', semanticName: 'stone wall' },
@@ -90,6 +95,7 @@ async function main() {
         { x: 38, y: 4, ch: '!', semanticKind: 'object', semanticName: 'gain level', semanticKnown: false, semanticAppearance: 'ruby', glyph: 3755 },
         { x: 39, y: 4, ch: '@', semanticKind: 'monster', semanticName: 'werejackal', glyph: 262 },
         { x: 40, y: 4, ch: 'h', semanticKind: 'monster', semanticName: 'dwarf', glyph: 44 },
+        { x: 41, y: 4, ch: '@', semanticKind: 'hero', semanticName: 'hero', glyph: 725, backgroundGlyph: 3992, backgroundSemanticKind: 'floor', backgroundSemanticName: 'floor of a room', objectLayerGlyph: 3672, objectLayerChar: '(', objectLayerSemanticKind: 'object', objectLayerSemanticName: 'large box' },
         { x: 78, y: 20, ch: '>', semanticKind: 'stairs', semanticName: 'down staircase' }
       ]);
       const cellAt = (x, y) => {
@@ -118,6 +124,7 @@ async function main() {
       const rubyPotion = window.__nethackTooltipTest.showFor(38, 4);
       const werejackal = window.__nethackTooltipTest.showFor(39, 4);
       const dwarf = window.__nethackTooltipTest.showFor(40, 4);
+      const stackedSquare = window.__nethackTooltipTest.showFor(41, 4);
       const edge = window.__nethackTooltipTest.showFor(78, 20);
       const withinViewport = (m) => !m.hidden && m.rect.left >= 0 && m.rect.top >= 0 && m.rect.right <= m.viewport.width && m.rect.bottom <= m.viewport.height;
       const cssDoorIcon = (m, orientation) => !m.hidden && /terrain-door/.test(m.iconClass || '') && /has-tooltip-tile/.test(m.iconClass || '') === false && !m.iconImage && (orientation ? new RegExp('terrain-door-open-' + orientation + '|door-in-' + orientation + '-wall').test(m.iconClass || '') : true);
@@ -145,6 +152,7 @@ async function main() {
         rubyPotion,
         werejackal,
         dwarf,
+        stackedSquare,
         doorCells: { hClosed: cellAt(13, 4), vClosed: cellAt(17, 4), hOpen: cellAt(21, 4), vOpen: cellAt(25, 4), vDoorway: cellAt(28, 4), hDoorway: cellAt(35, 4), caveDwellerCorpse: cellAt(30, 4), goldPiece: cellAt(32, 4), rubyPotion: cellAt(38, 4), werejackal: cellAt(39, 4), dwarf: cellAt(40, 4), readMeScroll: cellAt(10, 2), runtimeEngraving: cellAt(11, 2) },
         edge,
         assertions: {
@@ -171,6 +179,7 @@ async function main() {
           rubyPotionUsesPotionClassNotRubyGem: /Ruby Potion/i.test(rubyPotion.text) && rubyPotion.assetId === 'potion-class-icon' && /potion-class-icon\.png/.test(rubyPotion.iconImage || '') && !/ruby\.png|gain-level|healing/.test(String(rubyPotion.assetId || '') + ' ' + String(rubyPotion.iconImage || '')) && cellAt(38, 4)?.tileId === 'potion-class-icon',
           werejackalAtSignUsesMonsterSemanticArtNotHeroAvatar: !werejackal.hidden && werejackal.title === 'Werejackal' && werejackal.assetId === 'werejackal' && /Monster/.test(werejackal.description || '') && /werejackal\.png/.test(werejackal.iconImage || '') && cellAt(39, 4)?.tileId === 'werejackal' && cellAt(39, 4)?.semanticKind === 'monster' && !/Hero|Player combo avatars|human-valkyrie/.test(String(werejackal.text || '') + ' ' + String(werejackal.description || '') + ' ' + String(werejackal.iconImage || '')),
           dwarfGlyph44UsesDwarfMonsterArtAndLabel: !dwarf.hidden && dwarf.title === 'Dwarf' && dwarf.assetId === 'dwarf' && /Monster/.test(dwarf.description || '') && /dwarf\.png/.test(dwarf.iconImage || '') && cellAt(40, 4)?.tileId === 'dwarf' && cellAt(40, 4)?.semanticKind === 'monster' && !/Hobbit|Hero|Player combo avatars|human-valkyrie/.test(String(dwarf.text || '') + ' ' + String(dwarf.description || '') + ' ' + String(dwarf.iconImage || '')),
+          stackedSquareListsActorEveryPublicItemAndTerrain: !stackedSquare.hidden && stackedSquare.contents[0]?.kind === 'Hero' && stackedSquare.contents.slice(1).map((entry) => entry.label + ':' + entry.kind).join('|') === 'Large Box:Object|Food Ration:Item|Ruby Potion:Item|Floor Of A Room:Floor' && (stackedSquare.text.match(/Large Box/g) || []).length === 1,
           specialFeatureWithinViewport: /Down Staircase/i.test(edge.text) && withinViewport(edge),
         },
       };
@@ -182,7 +191,7 @@ async function main() {
     const statueScreenshot = path.join(outDir, 'map-tooltip-statue-after.png');
     await page.screenshot(statueScreenshot);
     const doorScreenshots = {};
-    for (const [name, x, y] of [['horizontalClosed', 13, 4], ['verticalClosed', 17, 4], ['horizontalOpen', 21, 4], ['verticalOpen', 25, 4], ['verticalDoorway', 28, 4], ['horizontalDoorway', 35, 4], ['caveDwellerCorpse', 30, 4], ['goldPiece', 32, 4], ['rubyPotion', 38, 4], ['werejackalAtSignMonster', 39, 4], ['dwarfGlyph44Monster', 40, 4], ['readMeScroll', 10, 2], ['runtimeEngraving', 11, 2]]) {
+    for (const [name, x, y] of [['horizontalClosed', 13, 4], ['verticalClosed', 17, 4], ['horizontalOpen', 21, 4], ['verticalOpen', 25, 4], ['verticalDoorway', 28, 4], ['horizontalDoorway', 35, 4], ['caveDwellerCorpse', 30, 4], ['goldPiece', 32, 4], ['rubyPotion', 38, 4], ['werejackalAtSignMonster', 39, 4], ['dwarfGlyph44Monster', 40, 4], ['stackedSquare', 41, 4], ['readMeScroll', 10, 2], ['runtimeEngraving', 11, 2]]) {
       await page.run(`window.__nethackTooltipTest.showFor(${x}, ${y});`);
       const doorPath = path.join(outDir, `map-tooltip-${name}.png`);
       await page.screenshot(doorPath);

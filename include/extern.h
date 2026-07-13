@@ -1022,6 +1022,12 @@ extern void shim_native_menu_context(const char *, const char *, const char *,
                                      boolean, boolean, int, const char *);
 extern void shim_native_command_diagnostic(const char *, const char *, int,
                                            int, int, int, int, int);
+extern void shim_native_spell_row(winid, const char *, int, int, int, int,
+                                  const char *);
+extern void shim_native_spell_rows_ready(winid);
+extern void shim_native_skill_row(winid, const char *, int, const char *,
+                                  const char *, int, boolean);
+extern void shim_native_skill_rows_ready(winid);
 #endif
 extern void container_contents(struct obj *, boolean, boolean, boolean);
 ATTRNORETURN extern void nh_terminate(int) NORETURN;

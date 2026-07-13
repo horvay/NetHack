@@ -168,6 +168,18 @@ VDECLCB(shim_native_command_diagnostic,
     "vssiiiiii",
     P2V phase, P2V callsite, A2P cmd_key, A2P moves, A2P depth_value,
     A2P dnum, A2P dlevel, A2P pending_input_queue)
+VDECLCB(shim_native_spell_row,
+    (winid window, const char *name, int selector, int level, int pw_cost,
+     int failure, const char *status),
+    "visiiiis", A2P window, P2V name, A2P selector, A2P level,
+    A2P pw_cost, A2P failure, P2V status)
+VDECLCB(shim_native_spell_rows_ready, (winid window), "vi", A2P window)
+VDECLCB(shim_native_skill_row,
+    (winid window, const char *name, int identifier, const char *current_rank,
+     const char *next_rank, int next_cost, boolean can_advance),
+    "visissib", A2P window, P2V name, A2P identifier, P2V current_rank,
+    P2V next_rank, A2P next_cost, A2P can_advance)
+VDECLCB(shim_native_skill_rows_ready, (winid window), "vi", A2P window)
 DECLCB(int, shim_nhgetch,(void), "i")
 DECLCB(int, shim_nh_poskey,(coordxy *x, coordxy *y, int *mod), "ippp", P2V x, P2V y, P2V mod)
 VDECLCB(shim_nhbell,(void), "v")

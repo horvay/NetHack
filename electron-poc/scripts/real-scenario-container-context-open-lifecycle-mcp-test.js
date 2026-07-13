@@ -74,8 +74,11 @@ async function sampleStableTransferView(cdp, label, durationMs = 1100, stepMs = 
   return samples;
 }
 async function start(cdp) {
-  await click(cdp, '#start-shim');
-  await waitFor(() => evalExpr(cdp, `document.getElementById('character-dialog')?.open && !document.getElementById('confirm-character')?.disabled`), 7000);
+  if (await evalExpr(cdp, `Boolean(document.getElementById('startup-choice-dialog')?.open)`)) await click(cdp, '#startup-new-game');
+  else await click(cdp, '#start-shim');
+  await waitFor(() => evalExpr(cdp, `Boolean(document.getElementById('character-dialog')?.open)`), 7000);
+  await evalExpr(cdp, `(() => { const input = document.getElementById('player-name'); if (input && !input.value) { input.value = 'ContainerTester'; input.dispatchEvent(new Event('input', { bubbles: true })); } })()`);
+  await waitFor(() => evalExpr(cdp, `!document.getElementById('confirm-character')?.disabled`), 7000);
   await click(cdp, '#confirm-character');
   await waitFor(async () => {
     const s = await state(cdp);
@@ -97,7 +100,7 @@ function assertCleanContainerOwner(label, s, { requireRightPane = true } = {}) {
 }
 async function main() {
   fs.rmSync(outDir, { recursive: true, force: true }); fs.mkdirSync(outDir, { recursive: true });
-  const child = spawn(electronBin, ['.'], { cwd: root, env: { ...process.env, AI_ORG_ELECTRON_CDP_PORT: String(port), NH_ELECTRON_WINDOW_WIDTH: '1360', NH_ELECTRON_WINDOW_HEIGHT: '920', NH_ELECTRON_TEST_FIXTURES: '1', NH_TEST_SCENARIO_ID: scenarioId, NETHACK_SEED: '424242', NETHACKOPTIONS: '!tutorial,!autopickup,pettype:none' }, stdio: ['ignore', 'pipe', 'pipe'] });
+  const child = spawn(electronBin, ['.'], { cwd: root, env: { ...process.env, AI_ORG_ELECTRON_CDP_PORT: String(port), NH_ELECTRON_WINDOW_WIDTH: '1360', NH_ELECTRON_WINDOW_HEIGHT: '920', NH_ELECTRON_TEST_FIXTURES: '1', NH_SHIM_RESET_LOCKS: '1', NH_TEST_SCENARIO_ID: scenarioId, NETHACK_SEED: '424242', NETHACKOPTIONS: '!tutorial,!autopickup,pettype:none' }, stdio: ['ignore', 'pipe', 'pipe'] });
   let cdp; const cleanup = () => { try { cdp?.close(); } catch {} if (!child.killed) child.kill('SIGTERM'); };
   process.on('exit', cleanup); child.stdout.on('data', (d) => process.stdout.write(d)); child.stderr.on('data', (d) => process.stderr.write(d));
   try {
@@ -119,11 +122,12 @@ async function main() {
     await click(cdp, '#context-action-bar button[data-context-action-id="open-container"]');
     const unlockPrompt = await waitFor(async () => {
       const s = await state(cdp);
-      return /Unlock it with your skeleton key/i.test(`${s.prompt?.query || ''}\n${s.interaction?.prompt || ''}`) ? s : null;
+      const choices = (s.interaction?.options || []).map((option) => option.text || '').join('\n');
+      return /Locked chest actions/i.test(s.interaction?.title || '') && /Unlock with skeleton key/i.test(choices) ? s : null;
     }, 5000);
     fs.writeFileSync(path.join(outDir, '01-unlock-prompt-state.json'), JSON.stringify(unlockPrompt, null, 2));
     const unlockShot = await shot(cdp, '01-unlock-prompt.png');
-    await evalExpr(cdp, `(() => { const yes = Array.from(document.querySelectorAll('#interaction-options .choice-button')).find((b) => b.dataset.key === 'y' || /Yes/i.test(b.innerText)); if (!yes) throw new Error('missing Yes button'); yes.click(); })()`);
+    await evalExpr(cdp, `(() => { const unlock = Array.from(document.querySelectorAll('#interaction-options .choice-button')).find((button) => /Unlock with skeleton key/i.test(button.innerText)); if (!unlock) throw new Error('missing Unlock with skeleton key button'); unlock.click(); })()`);
     const immediate = await waitFor(async () => {
       const s = await state(cdp);
       return s.container?.active && /dagger/i.test(s.container.text || '') && /food ration/i.test(s.container.text || '') ? s : null;
@@ -146,15 +150,17 @@ async function main() {
     const afterOneSecond = await saveState(cdp, '04-after-one-second-state');
     const oneSecondShot = await shot(cdp, '04-after-one-second.png');
     assertCleanContainerOwner('after at least one full second', afterOneSecond);
-    assert('delayed normal inventory probe was not sent after container panes were already populated', !/i/.test(afterOneSecond.sent.replace(/^#loot\ny#loot\noa\n\u001b?/, '')), JSON.stringify({ sent: afterOneSecond.sent }));
+    assert('unlock tool route sends apply, the visible tool selector, current-square direction, and confirmation of the chosen unlock intent', /^af\.y$/.test(afterOneSecond.sent || ''), JSON.stringify({ sent: afterOneSecond.sent }));
     assert('container unlock continuation cleared after successful open', afterOneSecond.pendingContainerUnlockOpen == null, JSON.stringify(afterOneSecond.pendingContainerUnlockOpen));
     const problemText = `${afterOneSecond.messages?.join('\n') || ''}\n${afterOneSecond.body || ''}\n${afterOneSecond.shim || ''}`;
     assert('real context-open lifecycle evidence has no NetHack/internal JS disorder text', !/Program in disorder|Please report these messages|TypeError|ReferenceError|Unhandled|bridge_test_scenario_failed/i.test(problemText), problemText.slice(-2000));
     const beforeTransfer = await saveState(cdp, '05-before-transfer-state');
     const beforeTransferShot = await shot(cdp, '05-before-transfer.png');
     assertStableTransferView('before transfer', beforeTransfer);
+    const daggerSelector = beforeTransfer.container?.left?.find((row) => /dagger/i.test(row.text || ''))?.selector;
+    assert('dagger row exposes a stable public transfer selector', daggerSelector, JSON.stringify(beforeTransfer.container?.left || []));
     await evalExpr(cdp, `window.__nethackPromptTest.clearSentInputs();`);
-    await drag(cdp, '#container-transfer-panel [data-container-pane="left"] .container-item-row[data-selector="a"]', '#container-transfer-panel [data-container-pane="right"]');
+    await drag(cdp, `#container-transfer-panel [data-container-pane="left"] .container-item-row[data-selector="${daggerSelector}"]`, '#container-transfer-panel [data-container-pane="right"]');
     const afterFirstTransfer = await waitFor(async () => {
       const s = await state(cdp);
       const leftText = (s.container?.left || []).map((row) => row.text).join('\n');
@@ -191,7 +197,7 @@ async function main() {
         const s = await state(cdp);
         const leftText = (s.container?.left || []).map((row) => row.text).join('\n');
         const rightText = (s.container?.right || []).map((row) => row.text).join('\n');
-        return s.container?.active && !s.container?.pendingTransfer && /\n|#loot/.test(s.sent || '') && !(s.container?.left || []).length && /dagger/i.test(rightText) && /food ration/i.test(rightText) && /This container is empty/i.test(s.container?.text || '') ? s : null;
+        return s.container?.active && !s.container?.pendingTransfer && !(s.container?.left || []).length && /dagger/i.test(rightText) && /food ration/i.test(rightText) && /This container is empty/i.test(s.container?.text || '') ? s : null;
       }, 12000);
     } catch (error) {
       const debug = await state(cdp).catch(() => ({}));
@@ -209,6 +215,7 @@ async function main() {
     const emptyAfterOneSecondShot = await shot(cdp, '09-empty-container-after-one-second.png');
     assertStableTransferView('empty container after one second', emptyAfterOneSecond);
     assert('empty container final never gets stuck loading inventory', /This container is empty/i.test(emptyAfterOneSecond.container?.text || '') && !/Loading your inventory|Loading container contents/i.test(emptyAfterOneSecond.container?.text || ''), emptyAfterOneSecond.container?.text || '');
+    assert('successful transfers do not surface a rejected-action banner', !/NetHack did not accept that action|Review the current state and try again/i.test(emptyAfterOneSecond.body || ''), (emptyAfterOneSecond.body || '').slice(0, 1400));
     const transferProblemText = `${emptyAfterOneSecond.messages?.join('\n') || ''}\n${emptyAfterOneSecond.body || ''}\n${emptyAfterOneSecond.shim || ''}`;
     assert('real transfer lifecycle evidence has no NetHack/internal JS disorder text', !/Program in disorder|Please report these messages|TypeError|ReferenceError|Unhandled|bridge_test_scenario_failed/i.test(transferProblemText), transferProblemText.slice(-2000));
     const summary = [`# Real context-open container lifecycle regression`, '', 'PASS', '', `Scenario: ${scenarioId}`, `Invocation env: NH_ELECTRON_TEST_FIXTURES=1 NH_TEST_SCENARIO_ID=${scenarioId}`, '', 'Evidence:', `- Context actions: ${contextShot}`, `- Unlock prompt: ${unlockShot}`, `- Immediate after open: ${immediateShot}`, `- Immediate state: ${path.join(outDir, '02-immediate-after-open-state.json')}`, `- After wrong-menu timing window: ${timingShot}`, `- Timing-window state: ${path.join(outDir, '03-after-wrong-menu-timing-window-state.json')}`, `- After one full second: ${oneSecondShot}`, `- One-second state: ${path.join(outDir, '04-after-one-second-state.json')}`, `- Before transfer: ${beforeTransferShot}`, `- Before transfer state: ${path.join(outDir, '05-before-transfer-state.json')}`, `- During/after first drag transfer: ${firstTransferShot}`, `- During/after first transfer state: ${path.join(outDir, '06-during-after-first-transfer-state.json')}`, `- First transfer one-second screenshot: ${firstOneSecondShot}`, `- First transfer one-second samples: ${path.join(outDir, '07-first-transfer-one-second-samples.json')} (${firstTransferSamples.length} samples)`, `- Empty-container final screenshot: ${emptyFinalShot}`, `- Empty-container final state: ${path.join(outDir, '08-empty-container-final-state.json')}`, `- Empty-container final stability samples: ${path.join(outDir, '08-empty-container-final-stability-samples.json')} (${emptyFinalStabilitySamples.length} samples)`, `- Empty-container after one second: ${emptyAfterOneSecondShot}`, `- Empty-container one-second samples: ${path.join(outDir, '09-empty-container-one-second-samples.json')} (${emptySamples.length} samples)`, '', 'Verified:', '- player stands on a locked chest with a skeleton key, unlocks from the context Open chest path, then the GUI continues into the real chest transfer panel', '- the container panel remains active immediately, after the regression timing window, and after more than one second from both the Open click and the fully loaded panel', '- no extended-command menu, promptless object menu, category menu, read-only menu, or normal Equipment / Inventory overlay takes over', '- delayed normal inventory probe key `i` is not sent after the live inventory update has already populated the right pane', '- after waiting at least one second with the chest open, real drag/drop moves a chest item into inventory without repeated Loading your inventory / Loading container contents placeholders', '- moving the remaining item out leaves a stable empty-container panel with the carried items visible and no permanent loading state after another one-second wait', '', `Open sent input stream: ${JSON.stringify(afterOneSecond.sent)}`, `First transfer sent input stream: ${JSON.stringify(afterFirstTransfer.sent)}`, `Empty final sent input stream: ${JSON.stringify(emptyAfterOneSecond.sent)}`, '', 'Final visible container panel:', '```', emptyAfterOneSecond.container.text, '```', ''].join('\n');

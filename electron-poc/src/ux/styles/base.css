@@ -1,0 +1,21 @@
+/* UXM-00 reserves stable runtime mounts without changing compatibility presenters. */
+#ux-runtime-root,
+#ux-shell-root,
+#ux-overlay-roots {
+  display: contents;
+}
+
+.ux-mount:empty {
+  display: none;
+}
+
+/* Shared state names are contractual. UXM-01 applies them to visible controls. */
+.ux-state-default {}
+.ux-state-hover {}
+.ux-state-focus {}
+.ux-state-active {}
+.ux-state-disabled {}
+.ux-state-loading {}
+.ux-state-selected {}
+.ux-state-warning {}
+.ux-state-error {}

@@ -105,6 +105,8 @@ Supported non-container object fields:
 - `erosion`, `corrosion`: `0..3` for weapon/armor types.
 - `poisoned`: boolean only where NetHack treats the object as poisonable.
 - `equipped`: inventory only; `none`, `wielded`, `worn`, `quivered`, `left-ring`, or `right-ring`.
+- `calledName`: optional non-empty player-assigned type name for an object type with a public appearance. Every fixture object of the same type must declare the same value so type-level naming is deterministic.
+- `individualName`: optional non-empty player-assigned object name; requires quantity 1.
 
 Supported container fields:
 

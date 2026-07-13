@@ -45,7 +45,18 @@
           "location": {
             "kind": "inventory"
           },
-          "actionAffordances": []
+          "actionAffordances": [],
+          "publicClass": "food",
+          "filterGroups": [
+            "consumables"
+          ],
+          "equipmentSlots": [],
+          "knownFields": {
+            "beatitude": "uncursed"
+          },
+          "ownership": {
+            "state": "owned"
+          }
         }
       ]
     }
@@ -86,7 +97,8 @@
       },
       "backgroundSemanticKind": "terrain",
       "objectLayerSemanticKind": "object",
-      "objectLayerSemanticName": "food ration"
+      "objectLayerSemanticName": "food ration",
+      "objectLayerSemanticKnown": true
     }
   },
   {
@@ -119,6 +131,18 @@
           "semanticKnown": false,
           "location": {
             "kind": "inventory"
+          },
+          "publicClass": "potion",
+          "filterGroups": [
+            "consumables",
+            "magic"
+          ],
+          "equipmentSlots": [],
+          "knownFields": {},
+          "ownership": {
+            "state": "unpaid",
+            "price": 100,
+            "currency": "zm"
           }
         }
       ],
@@ -169,7 +193,23 @@
             "glyphChar": 41,
             "semanticKind": "object",
             "semanticKnown": true,
-            "semanticName": "spear"
+            "semanticName": "spear",
+            "publicClass": "weapon",
+            "filterGroups": [
+              "equipped",
+              "weapons"
+            ],
+            "equipmentSlots": [
+              "mainHand",
+              "offHand"
+            ],
+            "knownFields": {
+              "beatitude": "uncursed",
+              "enchantment": 0
+            },
+            "ownership": {
+              "state": "owned"
+            }
           }
         },
         {
@@ -182,6 +222,46 @@
             "put on ring"
           ]
         }
+      ]
+    }
+  },
+  {
+    "protocol": "nethack-electron-ui/v2",
+    "sequence": 7,
+    "eventId": "evt-spell-rows-1",
+    "eventType": "spell.rows",
+    "turn": 13,
+    "requestId": "spell-menu-1",
+    "transactionId": "spell-command-1",
+    "source": { "layer": "core", "window": 9, "event": "native.spell.rows", "authoritative": true },
+    "revision": { "spell": 1 },
+    "payload": {
+      "menuId": "spell-menu-1",
+      "revision": 1,
+      "classificationConfidence": "typed",
+      "rows": [
+        { "name": "force bolt", "selector": "a", "level": 1, "pwCost": 5, "failure": 12, "status": "100%" },
+        { "name": "healing", "selector": "b", "level": 1, "pwCost": 5, "failure": 38 }
+      ]
+    }
+  },
+  {
+    "protocol": "nethack-electron-ui/v2",
+    "sequence": 8,
+    "eventId": "evt-skill-rows-1",
+    "eventType": "skill.rows",
+    "turn": 13,
+    "requestId": "skill-menu-1",
+    "transactionId": "skill-command-1",
+    "source": { "layer": "core", "window": 10, "event": "native.skill.rows", "authoritative": true },
+    "revision": { "skill": 1 },
+    "payload": {
+      "menuId": "skill-menu-1",
+      "revision": 1,
+      "classificationConfidence": "typed",
+      "rows": [
+        { "name": "dagger", "selector": "a", "currentRank": "Basic", "nextRank": "Skilled", "nextCost": 2, "canAdvance": true },
+        { "name": "long sword", "currentRank": "Unskilled", "canAdvance": false }
       ]
     }
   }

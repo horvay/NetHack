@@ -80,18 +80,21 @@ async function main() {
     await waitFor(async () => (await cdp.send('Runtime.evaluate', { returnByValue: true, expression: "document.readyState === 'complete' && !!window.__nethackPromptTest" })).result.value, 10000);
     await click(cdp, '#start-shim');
     await delay(200);
+    if (await evalExpr(cdp, `document.getElementById('startup-choice-dialog')?.open === true`)) await click(cdp, '#startup-new-game');
+    await waitFor(async () => evalExpr(cdp, `document.getElementById('character-dialog')?.open === true`), 5000);
     await click(cdp, '#confirm-character');
     await waitFor(async () => /shim_print_glyph|shim_curs|shim_status_update/.test((await pageState(cdp)).seen), 25000);
-    await evalExpr(cdp, `(() => { document.getElementById('intro-dialog')?.close?.('read-only-test'); document.getElementById('document-dialog')?.close?.('read-only-test'); document.getElementById('game-grid')?.focus(); window.__nethackPromptTest?.clearSentInputs?.(); return true; })()`);
+    if ((await pageState(cdp)).openDialogs.includes('intro-dialog')) await click(cdp, '#intro-continue');
+    await evalExpr(cdp, `(() => { document.getElementById('game-grid')?.focus(); window.__nethackPromptTest?.clearSentInputs?.(); return true; })()`);
     await shot(cdp, '01-game-ready-before-help.png');
     await press(cdp, '?', '?');
     const help = await waitFor(async () => {
       const s = await pageState(cdp);
-      return /help|command|information menu|Review this information/i.test(`${s.body}\n${s.status}\n${s.promptPanel.text}\n${s.menuPanel.text}`) ? s : null;
+      return (s.dialog?.interactionOpen || s.dialog?.documentOpen) && /help|command|information menu|Review this information/i.test(`${s.dialog?.title||''}\n${s.dialog?.prompt||''}\n${s.dialog?.documentTitle||''}\n${s.dialog?.documentBody||''}`) ? s : null;
     }, 10000);
     const openPath = await shot(cdp, '02-read-only-help-menu-open.png');
     writeState('02-read-only-help-menu-open-state.json', help);
-    if (help.prompt?.kind !== 'menu selection') throw new Error(`expected help topic menu selection, got ${JSON.stringify(help.prompt)}`);
+    if (!help.dialog?.interactionOpen) throw new Error(`expected real help topic interaction, got ${JSON.stringify(help.dialog)}`);
     if (!/Help/i.test(help.dialog?.title || '')) throw new Error(`expected Help title, got ${JSON.stringify(help.dialog)}`);
     if (/\bCHANGE\b|Settings panel/i.test(help.body)) throw new Error('help topic menu was mis-rendered with options/settings chrome');
     await press(cdp, 'a', 'a');

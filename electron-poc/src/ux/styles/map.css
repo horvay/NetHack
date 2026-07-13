@@ -1,0 +1,239 @@
+/* UXM-04 map inspection and truthful target presentation. */
+.ux-map-surface {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  min-width: 0;
+}
+
+.ux-map-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 44px;
+  color: var(--ux-color-text-muted);
+}
+
+.ux-map-toolbar button,
+.ux-map-inspector-action,
+.ux-map-danger-confirm button {
+  min-height: 36px;
+  padding: 7px 11px;
+  border: 1px solid var(--ux-color-border);
+  border-radius: 6px;
+  color: var(--ux-color-text);
+  background: var(--ux-color-surface-raised);
+}
+
+.ux-map-toolbar button:hover,
+.ux-map-inspector-action:hover,
+.ux-map-danger-confirm button:hover {
+  border-color: var(--ux-color-text-muted);
+  background: var(--ux-color-surface-muted);
+}
+
+.ux-map-toolbar button:focus-visible,
+.ux-map-inspector-action:focus-visible,
+.ux-map-danger-confirm button:focus-visible {
+  outline: 3px solid var(--ux-color-focus);
+  outline-offset: 2px;
+}
+
+.ux-map-inspect-toggle[aria-pressed="true"] {
+  color: var(--ux-color-canvas);
+  border-color: var(--ux-color-action);
+  background: var(--ux-color-action);
+  font-weight: 750;
+}
+
+.ux-map-toolbar-separator {
+  width: 1px;
+  height: 24px;
+  margin-inline: 2px;
+  background: var(--ux-color-border);
+}
+
+.ux-map-scale-value {
+  min-width: 4ch;
+  color: var(--ux-color-text-muted);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.ux-map-glyph-toggle[aria-pressed="true"],
+.ux-map-contrast-toggle[aria-pressed="true"] {
+  border-color: var(--ux-color-selection);
+  box-shadow: inset 0 0 0 1px var(--ux-color-selection);
+}
+
+.ux-map-inspector {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.8fr) minmax(160px, 1fr) minmax(220px, 1.2fr);
+  align-items: center;
+  gap: 8px 16px;
+  min-height: 70px;
+  padding: 10px 12px;
+  border: 1px solid var(--ux-color-border);
+  border-radius: 10px;
+  color: var(--ux-color-text);
+  background: var(--ux-color-surface);
+  box-shadow: 0 12px 28px oklch(0.08 0.01 78 / 0.48);
+}
+
+.ux-map-inspector[hidden] { display: none; }
+
+.ux-map-inspector-heading { display: grid; gap: 2px; }
+.ux-map-inspector-kicker {
+  color: var(--ux-color-text-faint);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.ux-map-inspector-label { font-size: 1rem; line-height: 1.2; }
+.ux-map-inspector-facts,
+.ux-map-inspector-layers { color: var(--ux-color-text-muted); font-size: 0.82rem; line-height: 1.35; }
+.ux-map-inspector-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
+.ux-map-inspector-empty { color: var(--ux-color-text-faint); font-size: 0.78rem; }
+.ux-map-inspector-help {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--ux-color-text-faint);
+  font-size: 0.76rem;
+}
+
+.ux-map-action-danger,
+.ux-map-confirm-action {
+  border-color: var(--ux-color-danger) !important;
+  color: var(--ux-color-text);
+  background: oklch(0.26 0.055 27) !important;
+}
+
+.ux-map-danger-confirm {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--ux-color-danger);
+}
+.ux-map-danger-confirm[hidden] { display: none; }
+.ux-map-danger-confirm > div { display: flex; gap: 8px; }
+
+/* Scale uses Chromium's layout-aware zoom so the map's own scroll region grows
+   without transform blur or horizontal page overflow. */
+#play-area { min-width: 0; overflow: auto; }
+#game-grid { zoom: var(--ux-map-scale, 1); }
+
+#game-grid.ux-inspect-mode { cursor: cell; }
+#game-grid.ux-inspect-mode .tile-cell { cursor: cell; }
+#game-grid .tile-cell.ux-map-hovered {
+  z-index: 6;
+  outline: 1px dashed var(--ux-color-selection);
+  outline-offset: -2px;
+}
+#game-grid .tile-cell.ux-map-selected {
+  z-index: 7;
+  outline: 3px solid var(--ux-color-selection);
+  outline-offset: -3px;
+  box-shadow: inset 0 0 0 1px var(--ux-color-canvas), 0 0 0 1px var(--ux-color-selection);
+}
+#game-grid .tile-cell.ux-map-selected::selection { background: transparent; }
+
+/* Non-color state geometry. */
+#game-grid .tile-cell.ux-cue-hero { border-radius: 50%; }
+#game-grid .tile-cell.ux-cue-pet { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+#game-grid .tile-cell.ux-cue-peaceful { border: 2px double var(--ux-color-info); }
+#game-grid .tile-cell.ux-cue-hostile { border: 2px solid var(--ux-color-danger); }
+#game-grid .tile-cell.ux-cue-known-trap { box-shadow: inset 0 0 0 2px var(--ux-color-warning); }
+#game-grid .tile-cell.ux-target-confirmed-legal { outline-style: double; outline-width: 4px; }
+#game-grid .tile-cell.ux-target-confirmed-illegal { outline-color: var(--ux-color-error); outline-style: dashed; }
+
+#game-grid.ux-map-high-contrast .tile-cell.terrain-wall,
+#game-grid.ux-map-high-contrast .tile-cell.terrain-door { box-shadow: inset 0 0 0 1px var(--ux-color-text-muted); }
+#game-grid.ux-map-high-contrast .tile-cell.terrain-floor,
+#game-grid.ux-map-high-contrast .tile-cell.terrain-corridor { filter: contrast(1.24) brightness(1.08); }
+#game-grid.ux-map-high-contrast .tile-cell.cursor { outline-width: 3px; outline-color: var(--ux-color-focus); }
+
+/* Classic glyph overlay is presentation-only and uses the already-public glyph
+   carried by each rendered cell. It replaces decorative overlays while on. */
+#game-grid.ux-map-glyph-overlay .tile-cell::after {
+  content: attr(data-glyph) !important;
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: grid;
+  place-items: center;
+  color: var(--ux-color-text);
+  background: oklch(0.16 0.01 78 / 0.78);
+  box-shadow: none;
+  font: 800 max(9px, calc(var(--tile-size) * 0.62)) / 1 "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  text-shadow: 0 1px 2px var(--ux-color-canvas);
+}
+#game-grid.ux-map-glyph-overlay .tile-cell[data-glyph=" "]::after { color: transparent; background: transparent; }
+
+/* The legacy hover tooltip remains available outside Inspect, but the compact
+   selected-cell model is the sole inspector while Inspect owns the map. */
+#game-grid.ux-inspect-mode ~ .map-tooltip { display: none !important; }
+
+@media (max-width: 1040px) {
+  .ux-map-inspector { grid-template-columns: minmax(130px, 0.8fr) minmax(180px, 1.2fr); }
+  .ux-map-inspector-actions { grid-column: 1 / -1; justify-content: flex-start; }
+}
+
+@media (max-width: 760px) {
+  .ux-map-surface {
+    padding: 6px;
+    border: 1px solid var(--ux-color-border);
+    border-radius: 8px;
+    background: var(--ux-color-canvas);
+  }
+  .ux-map-inspector {
+    grid-template-columns: minmax(120px, 0.8fr) minmax(180px, 1.2fr);
+    min-height: 58px;
+    padding: 8px 10px;
+  }
+  .ux-map-inspector-actions,
+  .ux-map-danger-confirm { grid-column: 1 / -1; }
+  .ux-map-inspector-help { display: none; }
+}
+
+/* Browser 200 percent zoom presents the 1360x920 window as roughly a
+   680x460 CSS viewport. Pin the compact inspector to the top: its bounded
+   161px context leaves the lower viewport available for the map and selected
+   ring, unlike the former bottom overlay that covered the map completely. */
+@media (max-height: 500px) {
+  .ux-map-surface {
+    position: fixed;
+    z-index: 70;
+    inset: 8px 8px auto;
+    max-height: calc(100vh - 16px);
+    overflow: auto;
+    padding: 8px;
+    border: 1px solid var(--ux-color-border);
+    border-radius: 10px;
+    background: var(--ux-color-canvas);
+    box-shadow: 0 18px 48px oklch(0.06 0.01 78 / 0.78);
+  }
+  #play-area {
+    position: fixed;
+    z-index: 60;
+    inset: 48vh 8px 8px;
+    min-height: 0;
+    overflow: auto;
+    border: 1px solid var(--ux-color-border);
+    border-radius: 10px;
+    background: var(--ux-color-canvas);
+  }
+  .ux-map-toolbar { min-height: 36px; }
+  .ux-map-inspector { grid-template-columns: minmax(120px, 0.7fr) minmax(170px, 1.3fr); max-height: none; overflow: visible; }
+  .ux-map-inspector-actions,
+  .ux-map-inspector-help,
+  .ux-map-danger-confirm { grid-column: 1 / -1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #game-grid .tile-cell.ux-map-selected { transition: none; }
+}

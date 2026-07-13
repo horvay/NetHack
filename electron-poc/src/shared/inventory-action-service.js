@@ -4,10 +4,10 @@
 }(typeof globalThis !== 'undefined' ? globalThis : this, function factory(PublicBlockers = {}) {
   const publicEquipmentBlockerLabels = PublicBlockers.publicEquipmentBlockerLabels || Object.freeze({});
   const publicEquipmentBlockerLabel = PublicBlockers.publicEquipmentBlockerLabel || ((token) => publicEquipmentBlockerLabels[String(token || '')] || 'NetHack must decide this from public equipment state.');
-  function itemText(item) { return String(item?.text || item?.name || ''); }
+  function itemText(item) { return String(item?.text || item?.displayName || item?.name || ''); }
   function itemKey(item) {
     if (typeof item?.selector === 'number' && item.selector > 0) return String.fromCharCode(item.selector);
-    return String(item?.key || item?.selector || '');
+    return String(item?.inventoryLetter || item?.key || item?.selector || '');
   }
   function publicActionTokens(item) {
     const raw = Array.isArray(item?.actionAffordances) ? item.actionAffordances : (Array.isArray(item?.publicActionHints) ? item.publicActionHints : []);

@@ -1,7 +1,7 @@
 {
-  "auditedAt": "2026-07-07T01:05:47.265Z",
+  "auditedAt": "2026-07-13T02:30:11.606Z",
   "summary": {
-    "fixed": 30,
+    "fixed": 34,
     "needs asset regeneration/replacement": 1,
     "false positive / acceptable current policy": 1
   },
@@ -30,7 +30,7 @@
       "ariaLabel": "sink over dungeon floor",
       "tooltip": {
         "title": "Sink",
-        "description": "Fixture · Terrain and features · glyph 4013 · map 1,1",
+        "description": "Fixture",
         "assetId": "sink",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -65,7 +65,7 @@
       "ariaLabel": "fountain over dungeon floor",
       "tooltip": {
         "title": "Fountain",
-        "description": "Fixture · Terrain and features · glyph 4014 · map 1,1",
+        "description": "Fixture",
         "assetId": "fountain",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -99,7 +99,7 @@
       "ariaLabel": "altar over dungeon floor",
       "tooltip": {
         "title": "Altar",
-        "description": "Feature · Terrain and features · map 1,1",
+        "description": "Feature",
         "assetId": "altar",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -136,7 +136,7 @@
       "ariaLabel": "thin spellbook over dungeon floor",
       "tooltip": {
         "title": "Thin Spellbook",
-        "description": "Object · Objects and inventory items · glyph 3854 · map 1,1",
+        "description": "Object",
         "assetId": "spellbook-class-icon",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -173,7 +173,7 @@
       "ariaLabel": "strange spellbook over dungeon floor",
       "tooltip": {
         "title": "Strange Spellbook",
-        "description": "Object · Objects and inventory items · glyph 3854 · map 1,1",
+        "description": "Object",
         "assetId": "spellbook-class-icon",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -210,7 +210,7 @@
       "ariaLabel": "long wand over dungeon floor",
       "tooltip": {
         "title": "Long Wand",
-        "description": "Object · Objects and inventory items · glyph 3860 · map 1,1",
+        "description": "Object",
         "assetId": "wand-class-icon",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -246,7 +246,7 @@
       "ariaLabel": "wand over dungeon floor",
       "tooltip": {
         "title": "Wand",
-        "description": "Object · Objects and inventory items · glyph 3860 · map 1,1",
+        "description": "Object",
         "assetId": "wand-class-icon",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -282,7 +282,7 @@
       "ariaLabel": "scroll over dungeon floor",
       "tooltip": {
         "title": "Scroll",
-        "description": "Object · Objects and inventory items · glyph 3772 · map 1,1",
+        "description": "Object",
         "assetId": "scroll-class-icon",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -319,7 +319,7 @@
       "ariaLabel": "purple red potion over dungeon floor",
       "tooltip": {
         "title": "Purple Red Potion",
-        "description": "Object · Objects and inventory items · glyph 3700 · map 1,1",
+        "description": "Object",
         "assetId": "potion-class-icon",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -356,7 +356,7 @@
       "ariaLabel": "ruby potion over dungeon floor",
       "tooltip": {
         "title": "Ruby Potion",
-        "description": "Object · Objects and inventory items · glyph 3755 · map 1,1",
+        "description": "Object",
         "assetId": "potion-class-icon",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -393,7 +393,7 @@
       "ariaLabel": "gold ring over dungeon floor",
       "tooltip": {
         "title": "Gold Ring",
-        "description": "Object · Objects and inventory items · glyph 3610 · map 1,1",
+        "description": "Object",
         "assetId": "ring-class-icon",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -430,7 +430,7 @@
       "ariaLabel": "spherical amulet over dungeon floor",
       "tooltip": {
         "title": "Spherical Amulet",
-        "description": "Object · Objects and inventory items · glyph 3640 · map 1,1",
+        "description": "Object",
         "assetId": "amulet-class-icon",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -467,7 +467,7 @@
       "ariaLabel": "white gem over dungeon floor",
       "tooltip": {
         "title": "White Gem",
-        "description": "Object · Objects and inventory items · glyph 3900 · map 1,1",
+        "description": "Object",
         "assetId": "gem-class-icon",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -504,7 +504,7 @@
       "ariaLabel": "scroll labeled READ ME over dungeon floor",
       "tooltip": {
         "title": "Scroll Labeled READ ME",
-        "description": "Object · Objects and inventory items · glyph 3772 · map 1,1",
+        "description": "Object",
         "assetId": "read-me",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -540,7 +540,7 @@
       "ariaLabel": "scroll labeled STRC PRST SKRZ KRK over dungeon floor",
       "tooltip": {
         "title": "Scroll Labeled STRC PRST SKRZ KRK",
-        "description": "Object · Objects and inventory items · glyph 3780 · map 1,1",
+        "description": "Object",
         "assetId": "scroll-class-icon",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -576,7 +576,7 @@
       "ariaLabel": "scroll labeled FOOBIE BLETCH over dungeon floor",
       "tooltip": {
         "title": "Scroll Labeled FOOBIE BLETCH",
-        "description": "Object · Objects and inventory items · map 1,1",
+        "description": "Object",
         "assetId": "scroll-class-icon",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -612,7 +612,7 @@
       "ariaLabel": "scroll labeled GARVEN DEH over dungeon floor",
       "tooltip": {
         "title": "Scroll Labeled GARVEN DEH",
-        "description": "Object · Objects and inventory items · map 1,1",
+        "description": "Object",
         "assetId": "scroll-class-icon",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -648,7 +648,7 @@
       "ariaLabel": "scroll labeled HAPAX LEGOMENON over dungeon floor",
       "tooltip": {
         "title": "Scroll Labeled HAPAX LEGOMENON",
-        "description": "Object · Objects and inventory items · map 1,1",
+        "description": "Object",
         "assetId": "scroll-class-icon",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -685,7 +685,7 @@
       "ariaLabel": "scroll labeled XOR OTA over dungeon floor",
       "tooltip": {
         "title": "Scroll Labeled XOR OTA",
-        "description": "Object · Objects and inventory items · glyph 3775 · map 1,1",
+        "description": "Object",
         "assetId": "scroll-class-icon",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -720,7 +720,7 @@
       "ariaLabel": "gold piece over dungeon floor",
       "tooltip": {
         "title": "Gold Piece",
-        "description": "Object · Objects and inventory items · glyph 3886 · map 1,1",
+        "description": "Object",
         "assetId": "gold-piece",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -754,7 +754,7 @@
       "ariaLabel": "iron chain over dungeon floor",
       "tooltip": {
         "title": "Iron Chain",
-        "description": "Object · Objects and inventory items · map 1,1",
+        "description": "Object",
         "assetId": "iron-chain",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -788,7 +788,7 @@
       "ariaLabel": "iron chain over dungeon floor",
       "tooltip": {
         "title": "Iron Chain",
-        "description": "Object · Objects and inventory items · map 1,1",
+        "description": "Object",
         "assetId": "iron-chain",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -820,7 +820,7 @@
       "ariaLabel": "splash of acid venom",
       "tooltip": {
         "title": "Splash Of Acid Venom",
-        "description": "Object · Objects and inventory items · map 1,1",
+        "description": "Object",
         "assetId": "splash-of-acid-venom",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -851,7 +851,7 @@
       "ariaLabel": "Room floor",
       "tooltip": {
         "title": "Room Floor",
-        "description": "Object · Terrain and features · map 1,1",
+        "description": "Object",
         "assetId": "room-floor",
         "useCssTerrain": true,
         "terrainClasses": [
@@ -887,7 +887,7 @@
       "ariaLabel": "fire over dungeon floor",
       "tooltip": {
         "title": "Fire",
-        "description": "Trap · Traps and hazards · map 1,1",
+        "description": "Trap",
         "assetId": "fire-trap",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -921,7 +921,7 @@
       "ariaLabel": "polymorph over dungeon floor",
       "tooltip": {
         "title": "Polymorph",
-        "description": "Trap · Traps and hazards · map 1,1",
+        "description": "Trap",
         "assetId": "polymorph-trap",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -955,7 +955,7 @@
       "ariaLabel": "dart over dungeon floor",
       "tooltip": {
         "title": "Dart",
-        "description": "Trap · Traps and hazards · map 1,1",
+        "description": "Trap",
         "assetId": "dart-trap",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -989,7 +989,7 @@
       "ariaLabel": "arrow over dungeon floor",
       "tooltip": {
         "title": "Arrow",
-        "description": "Trap · Traps and hazards · map 1,1",
+        "description": "Trap",
         "assetId": "arrow-trap",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -1023,8 +1023,144 @@
       "ariaLabel": "statue over dungeon floor",
       "tooltip": {
         "title": "Statue",
-        "description": "Trap · Traps and hazards · map 1,1",
+        "description": "Trap",
         "assetId": "statue-trap",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "trap-bear-specific",
+      "note": "Specific discovered bear trap uses its dedicated asset and player-facing name.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "^",
+        "semanticKind": "trap",
+        "semanticName": "bear trap"
+      },
+      "assetId": "bear-trap",
+      "categorySlug": "traps-hazards",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "bear-trap.png",
+      "ariaLabel": "bear trap over dungeon floor",
+      "tooltip": {
+        "title": "Bear Trap",
+        "description": "",
+        "assetId": "bear-trap",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "trap-land-mine-specific",
+      "note": "Specific discovered land mine uses its dedicated asset rather than generic trap art.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "^",
+        "semanticKind": "trap",
+        "semanticName": "land mine"
+      },
+      "assetId": "land-mine",
+      "categorySlug": "traps-hazards",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "land-mine.png",
+      "ariaLabel": "land mine over dungeon floor",
+      "tooltip": {
+        "title": "Land Mine",
+        "description": "Trap",
+        "assetId": "land-mine",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "trap-pit-specific",
+      "note": "Specific discovered pit uses the pit asset.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "^",
+        "semanticKind": "trap",
+        "semanticName": "pit"
+      },
+      "assetId": "pit",
+      "categorySlug": "traps-hazards",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "pit.png",
+      "ariaLabel": "pit over dungeon floor",
+      "tooltip": {
+        "title": "Pit",
+        "description": "Trap",
+        "assetId": "pit",
+        "useCssTerrain": false,
+        "terrainClasses": []
+      },
+      "flags": {
+        "objectToTerrain": false,
+        "leaksHiddenName": false,
+        "fallbackGlyph": ""
+      }
+    },
+    {
+      "id": "trap-web-specific",
+      "note": "Specific discovered web uses the web asset.",
+      "classification": "fixed",
+      "cell": {
+        "ch": "^",
+        "semanticKind": "trap",
+        "semanticName": "web"
+      },
+      "assetId": "web",
+      "categorySlug": "traps-hazards",
+      "useCssTerrain": false,
+      "classes": [
+        "tile-cell",
+        "terrain-floor",
+        "has-tile",
+        "has-base-tile",
+        "tile-overlay"
+      ],
+      "image": "web.png",
+      "ariaLabel": "web over dungeon floor",
+      "tooltip": {
+        "title": "Web",
+        "description": "Trap",
+        "assetId": "web",
         "useCssTerrain": false,
         "terrainClasses": []
       },
@@ -1059,7 +1195,7 @@
       "ariaLabel": "jackal corpse over dungeon floor",
       "tooltip": {
         "title": "Jackal Corpse",
-        "description": "Common early monsters · map 1,1",
+        "description": "",
         "assetId": "jackal",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -1095,7 +1231,7 @@
       "ariaLabel": "cave dweller corpse over dungeon floor",
       "tooltip": {
         "title": "Cave Dweller Corpse",
-        "description": "Objects and inventory items · map 1,1",
+        "description": "",
         "assetId": "corpse",
         "useCssTerrain": false,
         "terrainClasses": []
@@ -1131,7 +1267,7 @@
       "ariaLabel": "statue of a jackal over dungeon floor",
       "tooltip": {
         "title": "Statue Of A Jackal",
-        "description": "Common early monsters · map 1,1",
+        "description": "",
         "assetId": "jackal",
         "useCssTerrain": false,
         "terrainClasses": []

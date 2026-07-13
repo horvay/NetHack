@@ -68,7 +68,10 @@ async function pageState(cdp) { return evalExpr(cdp, `(() => {
   };
 })()`); }
 async function startShim(cdp) {
-  await clickCenter(cdp, '#start-shim'); await delay(200); await clickCenter(cdp, '#confirm-character');
+  await clickCenter(cdp, '#start-shim'); await delay(200);
+  if (await evalExpr(cdp, `document.getElementById('startup-choice-dialog')?.open === true`)) await clickCenter(cdp, '#startup-new-game');
+  await waitFor(async () => evalExpr(cdp, `document.getElementById('character-dialog')?.open === true`), 5000);
+  await clickCenter(cdp, '#confirm-character');
   const started = await waitFor(async () => { const s = await pageState(cdp); return s.running && /shim_glyph|shim_status_update|shim_curs|shim_putstr/.test(s.seen) ? s : null; }, 20000);
   const dialogs = started.dialog?.interactionOpen ? [] : await evalExpr(cdp, `Array.from(document.querySelectorAll('dialog[open]')).map((d) => d.id)`);
   if (dialogs.includes('intro-dialog')) {
@@ -105,8 +108,9 @@ async function main() {
     results.pickup = pickup;
     results.screenshots.after = await shot(cdp, '02-real-game-multi-item-ground-pickup.png');
 
+    const selectedStableId = pickup.transferRows[0].key;
     await evalExpr(cdp, `window.__nethackPromptTest.clearSentInputs()`);
-    await evalExpr(cdp, `window.__nethackPromptTest.transferContainerItem('left', 'a')`);
+    await evalExpr(cdp, `window.__nethackPromptTest.transferContainerItem('left', ${JSON.stringify(selectedStableId)})`);
     await delay(200);
     const confirmed = await pageState(cdp);
     results.confirmed = confirmed;
@@ -119,7 +123,7 @@ async function main() {
       rowsAreNotOldFixtureItems: !/orange potion|FOOBIE BLETCH/i.test(visibleText),
       groundRowsUseTransferPanel: /Ground items/i.test(pickup.transfer.text) && /Your inventory/i.test(pickup.transfer.text),
       notBlankLoadingOrFallback: !pickup.hasLoading && !/Item names are unavailable|Inventory selector|Loading/i.test(visibleText) && visibleText.trim().length > 0,
-      doubleClickPathSendsSelector: /^a\n,?$/.test(confirmed.sent),
+      explicitActualTransferMovesSelectedStableItem: !confirmed.transferRows.some((row) => row.key === selectedStableId) && /^\u001b?$/.test(confirmed.sent),
       visiblePlayerMeaningfulRows: !/Inventory selector/i.test(pickup.transfer.text),
     };
     fs.writeFileSync(path.join(outDir, 'multi-item-ground-pickup-summary.json'), JSON.stringify(results, null, 2));

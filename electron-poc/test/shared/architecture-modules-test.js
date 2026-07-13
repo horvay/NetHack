@@ -89,7 +89,7 @@ const v1CompatibilityMarker = UiProtocolV2.createV1CompatibilityDiagnostic({ seq
 assert.equal(UiProtocolV2.validateEventEnvelope(v1CompatibilityMarker).ok, true);
 assert(UiProtocolV2.publicItemSchema.allowedFields.includes('displayName'));
 const publicInventoryItem = InventorySnapshotAdapter.normalizePublicInventoryItem({ selector: 97, text: 'a - a milky potion', semanticKnown: false, semanticName: 'potion of gain level', semanticAppearance: 'milky potion' });
-assert.equal(publicInventoryItem.displayName, 'a milky potion');
+assert.equal(publicInventoryItem.displayName, 'milky potion');
 assert.equal(publicInventoryItem.semanticName, undefined);
 assert.equal(publicInventoryItem.known.identity, false);
 const publicEquipment = EquipmentSnapshotAdapter.adaptShimInventoryUpdateToEquipmentSnapshot({ revision: 3, inventoryRevision: 3, equipmentRevision: 2, items: [{ selector: 97, objectId: 1, text: 'a - a spear (weapon in hand)', wornMask: 256, semanticKnown: true, semanticName: 'spear' }] });
@@ -123,7 +123,7 @@ const harnessEvent = harnessEvents.valid('replay.marker', { name: 'harness event
 assert.equal(harnessEvent.protocol, UiProtocolV2.protocol);
 assert.equal(Harness.effectOf({ effects: [{ type: 'found' }] }, 'found').type, 'found');
 assert.equal(Harness.assertInvalidUiEvent({ ...harnessEvent, payload: { privateField: true } }).ok, false);
-assert.equal(ElectronTestHarness.version, 'nethack-electron-cdp-test-harness/v2');
+assert.equal(ElectronTestHarness.version, 'nethack-electron-cdp-test-harness/v3');
 assert.equal(typeof ElectronTestHarness.launchElectron, 'function');
 assert.equal(typeof ElectronTestHarness.playgroundLockFiles, 'function');
 assert.equal(typeof ElectronTestHarness.removeStalePlaygroundLocks, 'function');
@@ -131,6 +131,7 @@ assert.equal(typeof ElectronTestHarness.captureScreenshot, 'function');
 assert.equal(typeof ElectronTestHarness.withElectronPage, 'function');
 assert.equal(typeof ElectronTestHarness.createElectronPageSession, 'function');
 assert.equal(typeof ElectronTestHarness.createElectronBrowserDriver, 'function');
+assert.equal(typeof ElectronTestHarness.screenshotQc.createScreenshotQc, 'function');
 assert.equal(typeof ElectronTestHarness.withElectronBrowserDriver, 'function');
 assert.equal(typeof ElectronTestHarness.clickSelector, 'function');
 assert.equal(typeof ElectronTestHarness.pressKey, 'function');

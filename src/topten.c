@@ -1386,10 +1386,8 @@ get_rnd_toptenentry(void)
     static struct toptenentry tt_buf;
 
     rfile = fopen_datafile(RECORD, "r", SCOREPREFIX);
-    if (!rfile) {
-        impossible("Cannot open record file!");
-        return NULL;
-    }
+    if (!rfile)
+        return NULL; /* no scores yet; optional player-name decoration */
 
     tt = &tt_buf;
     rank = rnd(sysopt.tt_oname_maxrank);

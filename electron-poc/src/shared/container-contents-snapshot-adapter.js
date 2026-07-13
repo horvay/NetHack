@@ -37,10 +37,17 @@
     return /\S/.test(ch) ? ch : undefined;
   }
   function normalizeContainerIdentity(container = {}, fallbackSessionId = '') {
-    const displayName = String(container.displayName || container.name || '').replace(/\s+/g, ' ').trim();
-    const publicId = cleanId(container.publicId || container.containerId || displayName.toLowerCase() || fallbackSessionId || 'container');
-    const out = { publicId };
-    if (displayName) out.displayName = displayName;
+    const rawDisplayName = String(container.displayName || container.name || '').replace(/\s+/g, ' ').trim();
+    const projected = rawDisplayName ? InventorySnapshotAdapter.normalizePublicInventoryItem({ ...container, displayName: rawDisplayName }) : null;
+    const displayName = projected?.displayName || 'item';
+    const publicId = cleanId(container.publicId || container.containerId || (projected?.objectId != null ? `container-${projected.objectId}` : '') || displayName.toLowerCase() || fallbackSessionId || 'container');
+    const out = {
+      publicId,
+      displayName,
+      semanticKnown: projected?.semanticKnown === true,
+      known: projected?.known ? { ...projected.known } : { identity: false, appearance: false },
+      ...(projected?.semanticAppearance ? { semanticAppearance: projected.semanticAppearance } : {}),
+    };
     const publicObjectId = asNonNegativeInteger(container.objectId);
     const bridgedObjectId = asNonNegativeInteger(container.containerObjectId);
     if (publicObjectId != null) out.objectId = publicObjectId;
@@ -57,52 +64,35 @@
   }
   function cloneStringArray(value) { return Array.isArray(value) ? value.filter((item) => typeof item === 'string') : undefined; }
   function clonePublicItem(item) {
-    return item ? {
-      ...item,
-      location: item.location ? { ...item.location } : item.location,
-      known: item.known ? { ...item.known } : item.known,
-      actionAffordances: Array.isArray(item.actionAffordances) ? item.actionAffordances.slice() : item.actionAffordances,
-      publicActionHints: Array.isArray(item.publicActionHints) ? item.publicActionHints.slice() : item.publicActionHints,
-    } : null;
+    const normalized = item ? InventorySnapshotAdapter.normalizePublicInventoryItem(item) : null;
+    return normalized ? { ...normalized, location: { kind: 'container' } } : null;
   }
   function normalizePublicContainerItem(item = {}) {
     if (!isPlainObject(item)) return null;
-    const displayName = displayNameFromText(item.displayName || item.appearanceName || item.text || item.name, item.selector || item.inventoryLetter);
-    if (!displayName) return null;
-    const out = { displayName, location: { kind: 'container' } };
-    const objectId = asNonNegativeInteger(item.objectId);
-    if (objectId != null) out.objectId = objectId;
-    const letter = selectorToLetter(item.selector || item.inventoryLetter);
-    if (letter) out.inventoryLetter = letter;
-    const quantity = quantityFromText(displayName, item.quantity);
-    if (quantity != null) out.quantity = quantity;
-    const glyph = asNonNegativeInteger(item.glyph);
-    if (glyph != null) out.glyph = glyph;
-    const glyphChar = asNonNegativeInteger(item.glyphChar);
-    if (glyphChar != null) out.glyphChar = glyphChar;
-    const objectClass = typeof item.objectClass === 'string' ? item.objectClass : objectClassFromGlyphChar(item.glyphChar);
-    if (objectClass) out.objectClass = objectClass;
-    if (typeof item.semanticKind === 'string') out.semanticKind = item.semanticKind;
-    if (typeof item.semanticKnown === 'boolean') out.semanticKnown = item.semanticKnown;
-    if (typeof item.semanticAppearance === 'string') out.semanticAppearance = item.semanticAppearance;
-    if ((item.semanticKnown === true || item.known?.identity === true) && typeof item.semanticName === 'string') out.semanticName = item.semanticName;
-    const appearanceName = typeof item.appearanceName === 'string' ? item.appearanceName : (typeof item.semanticAppearance === 'string' ? item.semanticAppearance : undefined);
-    if (appearanceName) out.appearanceName = appearanceName;
-    const known = publicKnownFlags(item, displayName);
-    if (known) out.known = known;
-    const actionAffordances = cloneStringArray(item.actionAffordances || item.publicActionHints);
-    if (actionAffordances) out.actionAffordances = actionAffordances;
-    return out;
+    let normalized = InventorySnapshotAdapter.normalizePublicInventoryItem(item);
+    if (!normalized) return null;
+    const quantity = quantityFromText(normalized.displayName, item.quantity);
+    if (quantity != null && normalized.quantity == null) normalized = InventorySnapshotAdapter.normalizePublicInventoryItem({ ...normalized, quantity });
+    return normalized ? { ...normalized, location: { kind: 'container' } } : null;
   }
   function normalizeContainerContentsSnapshotPayload(payload = {}) {
     const sessionId = String(payload.sessionId || '').trim();
     const revision = normalizeRevision(payload.revision);
     const container = normalizeContainerIdentity(payload.container || {}, sessionId);
-    const items = Array.isArray(payload.items) ? payload.items.map(normalizePublicContainerItem).filter(Boolean) : [];
-    return Object.freeze({ revision, sessionId, container: Object.freeze(container), items: Object.freeze(items.map((item) => Object.freeze(item))) });
+    const normalized = Array.isArray(payload.items) ? payload.items.map(normalizePublicContainerItem) : [];
+    const validItems = normalized.filter(Boolean);
+    const objectIds = validItems.map((item) => item.objectId).filter((id) => id != null);
+    const letters = validItems.map((item) => item.inventoryLetter).filter(Boolean);
+    const collectionValid = Array.isArray(payload.items) && normalized.every(Boolean)
+      && new Set(objectIds).size === objectIds.length && new Set(letters).size === letters.length;
+    const items = collectionValid ? normalized : [];
+    const snapshot = { revision, sessionId, container: Object.freeze(container), items: Object.freeze(items.map((item) => Object.freeze(item))) };
+    Object.defineProperty(snapshot, 'collectionValid', { value: collectionValid, enumerable: false });
+    return Object.freeze(snapshot);
   }
   function createContainerContentsSnapshotEvent(payload = {}, options = {}) {
     const snapshot = normalizeContainerContentsSnapshotPayload(payload);
+    if (!snapshot.collectionValid) throw new TypeError('container contents snapshot item collection is malformed');
     const sequence = asNonNegativeInteger(options.sequence ?? snapshot.revision) ?? 0;
     return {
       protocol: 'nethack-electron-ui/v2',
@@ -132,7 +122,15 @@
     return { revision: 0, activeSessionId: undefined, sessionsById: new Map(), activeSessionByContainerId: new Map(), contentsBySessionId: new Map(), lastSnapshotSource: null, lastSnapshotEvent: null, lastRejected: null };
   }
   function cloneSnapshot(snapshot) {
-    return snapshot ? { revision: normalizeRevision(snapshot.revision), sessionId: String(snapshot.sessionId || ''), container: normalizeContainerIdentity(snapshot.container || {}, snapshot.sessionId), items: Array.isArray(snapshot.items) ? snapshot.items.map(clonePublicItem) : [] } : null;
+    return snapshot ? { revision: normalizeRevision(snapshot.revision), sessionId: String(snapshot.sessionId || ''), container: normalizeContainerIdentity(snapshot.container || {}, snapshot.sessionId), items: Array.isArray(snapshot.items) ? snapshot.items.map(clonePublicItem).filter(Boolean) : [] } : null;
+  }
+  function clonePublicSource(source) {
+    if (!isPlainObject(source)) return null;
+    const out = {};
+    if (typeof source.layer === 'string') out.layer = source.layer;
+    const window = asNonNegativeInteger(source.window);
+    if (window != null) out.window = window;
+    return Object.keys(out).length ? out : null;
   }
   function cloneSession(session) { return session ? { ...session, container: normalizeContainerIdentity(session.container || {}, session.sessionId) } : null; }
   function cloneContainerContentsState(state = emptyContainerContentsState()) {
@@ -142,14 +140,21 @@
       sessionsById: new Map(Array.from(state.sessionsById || []).map(([id, session]) => [id, cloneSession(session)])),
       activeSessionByContainerId: new Map(state.activeSessionByContainerId || []),
       contentsBySessionId: new Map(Array.from(state.contentsBySessionId || []).map(([id, snapshot]) => [id, cloneSnapshot(snapshot)])),
-      lastSnapshotSource: state.lastSnapshotSource ? { ...state.lastSnapshotSource } : null,
-      lastSnapshotEvent: state.lastSnapshotEvent ? { ...state.lastSnapshotEvent, payload: { ...state.lastSnapshotEvent.payload, container: { ...state.lastSnapshotEvent.payload?.container }, items: (state.lastSnapshotEvent.payload?.items || []).map(clonePublicItem) } } : null,
+      lastSnapshotSource: clonePublicSource(state.lastSnapshotSource),
+      lastSnapshotEvent: state.lastSnapshotEvent ? { protocol: state.lastSnapshotEvent.protocol, sequence: asNonNegativeInteger(state.lastSnapshotEvent.sequence), eventId: state.lastSnapshotEvent.eventId, eventType: state.lastSnapshotEvent.eventType, turn: asNonNegativeInteger(state.lastSnapshotEvent.turn), payload: { revision: normalizeRevision(state.lastSnapshotEvent.payload?.revision), sessionId: String(state.lastSnapshotEvent.payload?.sessionId || ''), container: normalizeContainerIdentity(state.lastSnapshotEvent.payload?.container || {}, state.lastSnapshotEvent.payload?.sessionId), items: (state.lastSnapshotEvent.payload?.items || []).map(clonePublicItem).filter(Boolean) } } : null,
       lastRejected: state.lastRejected ? JSON.parse(JSON.stringify(state.lastRejected)) : null,
     };
   }
   function rejectState(previous, reason, event = {}) {
     const state = cloneContainerContentsState(previous);
-    state.lastRejected = { reason, event: JSON.parse(JSON.stringify(event || {})) };
+    state.lastRejected = {
+      reason,
+      event: {
+        revision: normalizeRevision(event?.revision ?? event?.payload?.revision),
+        sessionId: String(event?.sessionId ?? event?.payload?.sessionId ?? ''),
+        container: normalizeContainerIdentity(event?.container ?? event?.payload?.container ?? {}, event?.sessionId ?? event?.payload?.sessionId),
+      },
+    };
     return state;
   }
   function openSession(previous = emptyContainerContentsState(), event = {}) {
@@ -183,7 +188,9 @@
   }
   function containerContentsAt(state = emptyContainerContentsState(), sessionId = state.activeSessionId) { return cloneSnapshot(state.contentsBySessionId?.get?.(String(sessionId || ''))); }
   function applyContainerContentsSnapshot(previous = emptyContainerContentsState(), payload = {}, options = {}) {
+    if (!isPlainObject(payload) || !Array.isArray(payload.items) || payload.collectionValid === false) return { state: rejectState(previous, 'container contents snapshot item collection is malformed', payload), accepted: false, reason: 'container contents snapshot item collection is malformed' };
     const snapshot = normalizeContainerContentsSnapshotPayload(payload);
+    if (!snapshot.collectionValid) return { state: rejectState(previous, 'container contents snapshot item collection is malformed', payload), accepted: false, reason: 'container contents snapshot item collection is malformed' };
     const session = snapshot.sessionId ? previous.sessionsById?.get?.(snapshot.sessionId) : null;
     if (!snapshot.sessionId) return { state: rejectState(previous, 'container contents snapshot sessionId is required', payload), accepted: false, reason: 'container contents snapshot sessionId is required' };
     if (!session || session.status !== 'active') return { state: rejectState(previous, 'container contents snapshot session is not active', payload), accepted: false, reason: 'container contents snapshot session is not active' };
@@ -202,8 +209,8 @@
     state.revision = Math.max(normalizeRevision(state.revision), snapshot.revision);
     const next = { revision: snapshot.revision, sessionId: snapshot.sessionId, container: normalizeContainerIdentity(snapshot.container || session.container, snapshot.sessionId), items: snapshot.items.map(clonePublicItem) };
     state.contentsBySessionId.set(snapshot.sessionId, next);
-    state.lastSnapshotSource = options.source ? { ...options.source } : null;
-    state.lastSnapshotEvent = options.event ? { ...options.event, payload: { ...options.event.payload, container: { ...options.event.payload?.container }, items: (options.event.payload?.items || []).map(clonePublicItem) } } : null;
+    state.lastSnapshotSource = clonePublicSource(options.source);
+    state.lastSnapshotEvent = options.event ? { protocol: options.event.protocol, sequence: asNonNegativeInteger(options.event.sequence), eventId: options.event.eventId, eventType: options.event.eventType, turn: asNonNegativeInteger(options.event.turn), payload: { revision: normalizeRevision(options.event.payload?.revision), sessionId: String(options.event.payload?.sessionId || ''), container: normalizeContainerIdentity(options.event.payload?.container || {}, options.event.payload?.sessionId), items: (options.event.payload?.items || []).map(clonePublicItem).filter(Boolean) } } : null;
     return { state, accepted: true, snapshot: cloneSnapshot(next), previous: cloneSnapshot(existing) };
   }
   function itemIdentity(item = {}) {

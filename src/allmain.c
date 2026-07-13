@@ -94,6 +94,13 @@ staticfn boolean electron_test_planned_accessible(const struct electron_test_sce
                                                   coordxy, coordxy);
 staticfn void electron_test_preflight_locations(const struct electron_test_scenario_v1 *);
 staticfn void electron_test_apply_hero(const struct electron_test_scenario_v1 *);
+staticfn void electron_test_apply_special_level(const struct electron_test_scenario_v1 *);
+staticfn void electron_test_apply_hero_state(const struct electron_test_scenario_v1 *);
+staticfn boolean electron_test_find_hero_target(const struct electron_test_scenario_v1 *,
+                                                coordxy *, coordxy *);
+staticfn boolean electron_test_find_spot_near_target(coordxy *, coordxy *,
+                                                     coordxy, coordxy, int);
+staticfn int electron_test_property_from_string(const char *);
 staticfn void electron_test_apply_level(const struct electron_test_scenario_v1 *);
 staticfn void electron_test_apply_terrain_tile(const char *, coordxy, coordxy,
                                                int, int, int, int);
@@ -842,10 +849,13 @@ electron_test_require_runtime_gate(const char *id)
             "fixture scenarios require explicit NH_ELECTRON_TEST_FIXTURES=1 runtime gate");
 }
 
-#define ELECTRON_TEST_SCENARIO_SCHEMA "nethack-electron-test-scenario/v1"
-#define ELECTRON_TEST_SCENARIO_PHASE "after-level-and-hero-before-first-draw"
+#define ELECTRON_TEST_SCENARIO_SCHEMA_V1 "nethack-electron-test-scenario/v1"
+#define ELECTRON_TEST_SCENARIO_SCHEMA_V2 "nethack-electron-test-scenario/v2"
+#define ELECTRON_TEST_SCENARIO_PHASE_V1 "after-level-and-hero-before-first-draw"
+#define ELECTRON_TEST_SCENARIO_PHASE_V2 "after-special-level-and-hero-before-first-draw"
 #define ELECTRON_TEST_MAX_OBJECTS 80
 #define ELECTRON_TEST_MAX_GROUND 32
+#define ELECTRON_TEST_MAX_INTRINSICS 16
 #define ELECTRON_TEST_MAX_INVENTORY 32
 #define ELECTRON_TEST_MAX_MONSTERS 24
 #define ELECTRON_TEST_MAX_TERRAIN 128
@@ -860,6 +870,14 @@ electron_test_require_runtime_gate(const char *id)
 #define ELECTRON_TEST_EQUIP_WIELDED 1
 #define ELECTRON_TEST_EQUIP_WORN 2
 #define ELECTRON_TEST_EQUIP_QUIVERED 3
+
+#define ELECTRON_TEST_HERO_CURRENT 0
+#define ELECTRON_TEST_HERO_NEAREST_SAFE_FLOOR 1
+#define ELECTRON_TEST_HERO_NEAR_MONSTER 2
+#define ELECTRON_TEST_HERO_ON_TERRAIN 5
+#define ELECTRON_TEST_HERO_ON_INVOCATION_POSITION 6
+#define ELECTRON_TEST_HERO_NEAR_OBJECT 3
+#define ELECTRON_TEST_HERO_NEAR_TERRAIN 4
 #define ELECTRON_TEST_EQUIP_LEFT_RING 4
 #define ELECTRON_TEST_EQUIP_RIGHT_RING 5
 
@@ -885,6 +903,8 @@ struct electron_test_object_spec {
     int beatitude;
     boolean charges_present;
     int charges;
+    boolean fuel_present;
+    long fuel;
     boolean enchantment_present;
     int enchantment;
     boolean erosion_present;
@@ -892,6 +912,8 @@ struct electron_test_object_spec {
     boolean corrosion_present;
     int corrosion;
     boolean poisoned_present, poisoned;
+    boolean called_name_present, individual_name_present;
+    char called_name[PL_PSIZ], individual_name[PL_PSIZ];
     int equip_state;
     boolean locked_present, locked;
     boolean lock_known_present, lock_known;
@@ -939,7 +961,26 @@ struct electron_test_event_result_spec {
 
 struct electron_test_scenario_v1 {
     char id[BUFSZ];
-    boolean hero_nearest_safe_floor;
+    int schema_version;
+    int phase_version;
+    boolean v2_fields_present;
+    int hero_placement;
+    int hero_placement_target;
+    int hero_placement_distance;
+    boolean special_level_present;
+    char special_level[32];
+    boolean experience_level_present;
+    int experience_level;
+    boolean hp_present;
+    int hp, maxhp;
+    boolean power_present;
+    int power, maxpower;
+    boolean amulet_wish_complete;
+    boolean alignment_record_present;
+    int alignment_record;
+    boolean wake_placement_target;
+    int intrinsic_count;
+    int intrinsics[ELECTRON_TEST_MAX_INTRINSICS];
     boolean role_present, race_present, gender_present, alignment_present;
     int role, race, gender, alignment;
     int safe_area;
@@ -1073,18 +1114,6 @@ electron_json_peek_char(const char **pp, int ch)
     return *p == ch;
 }
 
-staticfn int
-electron_hex_value(int ch)
-{
-    if (ch >= '0' && ch <= '9')
-        return ch - '0';
-    if (ch >= 'a' && ch <= 'f')
-        return ch - 'a' + 10;
-    if (ch >= 'A' && ch <= 'F')
-        return ch - 'A' + 10;
-    return -1;
-}
-
 staticfn char *
 electron_json_parse_string(const char **pp, const char *id)
 {
@@ -1115,18 +1144,11 @@ electron_json_parse_string(const char **pp, const char *id)
             case 'n': *q++ = '\n'; break;
             case 'r': *q++ = '\r'; break;
             case 't': *q++ = '\t'; break;
-            case 'u': {
-                int i;
-                for (i = 0; i < 4; ++i) {
-                    if (electron_hex_value((unsigned char) p[i]) < 0) {
-                        free(out);
-                        electron_json_fail(id, "invalid JSON unicode escape");
-                    }
-                }
-                p += 4;
-                *q++ = '?';
+            case 'u':
+                free(out);
+                electron_json_fail(id,
+                    "JSON unicode escapes are not supported; use literal UTF-8");
                 break;
-            }
             default:
                 free(out);
                 electron_json_fail(id, "invalid JSON string escape");
@@ -1276,6 +1298,10 @@ electron_test_type_id_from_string(const char *type_id)
     if (!strcmp(type_id, "ROCK")) return ROCK;
     if (!strcmp(type_id, "BOULDER")) return BOULDER;
     if (!strcmp(type_id, "GOLD_PIECE")) return GOLD_PIECE;
+    if (!strcmp(type_id, "AMULET_OF_YENDOR")) return AMULET_OF_YENDOR;
+    if (!strcmp(type_id, "CANDELABRUM_OF_INVOCATION")) return CANDELABRUM_OF_INVOCATION;
+    if (!strcmp(type_id, "BELL_OF_OPENING")) return BELL_OF_OPENING;
+    if (!strcmp(type_id, "SPE_BOOK_OF_THE_DEAD")) return SPE_BOOK_OF_THE_DEAD;
     return STRANGE_OBJECT;
 }
 
@@ -1298,7 +1324,46 @@ electron_test_monster_id_from_string(const char *monster_id)
     if (!strcmp(monster_id, "LITTLE_DOG")) return PM_LITTLE_DOG;
     if (!strcmp(monster_id, "DOG")) return PM_DOG;
     if (!strcmp(monster_id, "LARGE_DOG")) return PM_LARGE_DOG;
+    if (!strcmp(monster_id, "MEDUSA")) return PM_MEDUSA;
+    if (!strcmp(monster_id, "WIZARD_OF_YENDOR")) return PM_WIZARD_OF_YENDOR;
+    if (!strcmp(monster_id, "NORN")) return PM_NORN;
     return NON_PM;
+}
+
+staticfn int
+electron_test_property_from_string(const char *name)
+{
+    if (!strcmp(name, "fire-resistance")) return FIRE_RES;
+    if (!strcmp(name, "cold-resistance")) return COLD_RES;
+    if (!strcmp(name, "sleep-resistance")) return SLEEP_RES;
+    if (!strcmp(name, "disintegration-resistance")) return DISINT_RES;
+    if (!strcmp(name, "shock-resistance")) return SHOCK_RES;
+    if (!strcmp(name, "poison-resistance")) return POISON_RES;
+    if (!strcmp(name, "acid-resistance")) return ACID_RES;
+    if (!strcmp(name, "stone-resistance")) return STONE_RES;
+    if (!strcmp(name, "drain-resistance")) return DRAIN_RES;
+    if (!strcmp(name, "sickness-resistance")) return SICK_RES;
+    if (!strcmp(name, "antimagic")) return ANTIMAGIC;
+    if (!strcmp(name, "see-invisible")) return SEE_INVIS;
+    if (!strcmp(name, "telepathy")) return TELEPAT;
+    if (!strcmp(name, "warning")) return WARNING;
+    if (!strcmp(name, "searching")) return SEARCHING;
+    if (!strcmp(name, "infravision")) return INFRAVISION;
+    if (!strcmp(name, "stealth")) return STEALTH;
+    if (!strcmp(name, "teleport-control")) return TELEPORT_CONTROL;
+    if (!strcmp(name, "flying")) return FLYING;
+    if (!strcmp(name, "swimming")) return SWIMMING;
+    if (!strcmp(name, "magical-breathing")) return MAGICAL_BREATHING;
+    if (!strcmp(name, "passes-walls")) return PASSES_WALLS;
+    if (!strcmp(name, "slow-digestion")) return SLOW_DIGESTION;
+    if (!strcmp(name, "regeneration")) return REGENERATION;
+    if (!strcmp(name, "energy-regeneration")) return ENERGY_REGENERATION;
+    if (!strcmp(name, "protection-from-shape-changers"))
+        return PROT_FROM_SHAPE_CHANGERS;
+    if (!strcmp(name, "speed")) return FAST;
+    if (!strcmp(name, "reflection")) return REFLECTING;
+    if (!strcmp(name, "free-action")) return FREE_ACTION;
+    return 0;
 }
 
 staticfn int
@@ -1322,10 +1387,12 @@ electron_test_terrain_type_from_string(const char *type_id, int *door_mask, int 
     if (!strcmp(type_id, "ladder-up")) return LADDER;
     if (!strcmp(type_id, "ladder-down")) return LADDER;
     if (!strcmp(type_id, "fountain")) return FOUNTAIN;
+    if (!strcmp(type_id, "sink")) return SINK;
     if (!strcmp(type_id, "water")) return POOL;
     if (!strcmp(type_id, "moat")) return MOAT;
     if (!strcmp(type_id, "lava")) return LAVAPOOL;
     if (!strcmp(type_id, "ice")) return ICE;
+    if (!strcmp(type_id, "altar")) return ALTAR;
     if (!strcmp(type_id, "trap-pit")) { *trap = PIT; return ROOM; }
     if (!strcmp(type_id, "trap-bear")) { *trap = BEAR_TRAP; return ROOM; }
     if (!strcmp(type_id, "trap-web")) { *trap = WEB; return ROOM; }
@@ -1481,6 +1548,14 @@ electron_test_parse_object_spec(const char **pp,
                 electron_json_fail(scenario->id, "object charges are out of range");
             spec->charges_present = TRUE;
             spec->charges = (int) value;
+        } else if (!strcmp(key, "fuel")) {
+            long value;
+            electron_json_require_unique(&seen, 0x40000U, scenario->id, key);
+            value = electron_json_parse_int(pp, scenario->id);
+            if (value < 1L || value > 100000L)
+                electron_json_fail(scenario->id, "object fuel is out of range");
+            spec->fuel_present = TRUE;
+            spec->fuel = value;
         } else if (!strcmp(key, "enchantment")) {
             long value;
             electron_json_require_unique(&seen, 0x200U, scenario->id, key);
@@ -1509,6 +1584,32 @@ electron_test_parse_object_spec(const char **pp,
             electron_json_require_unique(&seen, 0x1000U, scenario->id, key);
             spec->poisoned_present = TRUE;
             spec->poisoned = electron_json_parse_bool(pp, scenario->id);
+        } else if (!strcmp(key, "calledName")) {
+            char *value;
+            electron_json_require_unique(&seen, 0x10000U, scenario->id, key);
+            if (!allow_identity_fields)
+                electron_json_fail(scenario->id, "calledName is not supported here");
+            value = electron_json_parse_string(pp, scenario->id);
+            if (!*value || strlen(value) >= sizeof spec->called_name) {
+                free(value);
+                electron_json_fail(scenario->id, "calledName length is invalid");
+            }
+            Strcpy(spec->called_name, value);
+            spec->called_name_present = TRUE;
+            free(value);
+        } else if (!strcmp(key, "individualName")) {
+            char *value;
+            electron_json_require_unique(&seen, 0x20000U, scenario->id, key);
+            if (!allow_identity_fields)
+                electron_json_fail(scenario->id, "individualName is not supported here");
+            value = electron_json_parse_string(pp, scenario->id);
+            if (!*value || strlen(value) >= sizeof spec->individual_name) {
+                free(value);
+                electron_json_fail(scenario->id, "individualName length is invalid");
+            }
+            Strcpy(spec->individual_name, value);
+            spec->individual_name_present = TRUE;
+            free(value);
         } else if (!strcmp(key, "corpseMonsterTypeId")) {
             char *value;
             electron_json_require_unique(&seen, 0x8000U, scenario->id, key);
@@ -1598,7 +1699,8 @@ electron_test_parse_object_spec(const char **pp,
                                "containers cannot be equipped");
         if (spec->charges_present || spec->enchantment_present
             || spec->erosion_present || spec->corrosion_present
-            || spec->poisoned_present)
+            || spec->poisoned_present || spec->called_name_present
+            || spec->individual_name_present)
             electron_json_fail(scenario->id,
                                "container object field is not supported");
         if (!spec->locked_present || !spec->trap_present || !spec->contents_present)
@@ -1608,9 +1710,32 @@ electron_test_parse_object_spec(const char **pp,
         electron_json_fail(scenario->id,
                            "locked/lockKnown/trap/contents require a container object");
     } else {
-        if (spec->charges_present && !objects[spec->type_id].oc_charged)
+        int prior;
+        if (spec->called_name_present && !OBJ_DESCR(objects[spec->type_id]))
+            electron_json_fail(scenario->id,
+                               "calledName requires an object type with a public appearance");
+        if (spec->individual_name_present && spec->quantity != 1L)
+            electron_json_fail(scenario->id,
+                               "individualName requires object quantity 1");
+        for (prior = 0; prior < idx; ++prior) {
+            const struct electron_test_object_spec *other = &scenario->objects[prior];
+            if (other->type_id != spec->type_id
+                || (!other->called_name_present && !spec->called_name_present))
+                continue;
+            if (other->called_name_present != spec->called_name_present
+                || strcmp(other->called_name, spec->called_name))
+                electron_json_fail(scenario->id,
+                                   "all fixture objects of one type must share the same calledName");
+        }
+        if (spec->charges_present && !objects[spec->type_id].oc_charged
+            && spec->type_id != BELL_OF_OPENING
+            && spec->type_id != CANDELABRUM_OF_INVOCATION)
             electron_json_fail(scenario->id,
                                "charges are not supported for this object type");
+        if (spec->fuel_present
+            && spec->type_id != CANDELABRUM_OF_INVOCATION)
+            electron_json_fail(scenario->id,
+                               "fuel is only supported for the Candelabrum of Invocation");
         if (spec->enchantment_present) {
             struct obj tmpobj;
             memset(&tmpobj, 0, sizeof tmpobj);
@@ -1852,20 +1977,64 @@ electron_test_parse_hero(const char **pp,
                                   "expected ':' after hero field");
         if (!strcmp(key, "placement")) {
             char *value;
-            electron_json_require_unique(&seen, 0x01U, scenario->id, key);
+            electron_json_require_unique(&seen, 0x001U, scenario->id, key);
             value = electron_json_parse_string(pp, scenario->id);
             if (!strcmp(value, "current"))
-                scenario->hero_nearest_safe_floor = FALSE;
+                scenario->hero_placement = ELECTRON_TEST_HERO_CURRENT;
             else if (!strcmp(value, "nearest-safe-floor"))
-                scenario->hero_nearest_safe_floor = TRUE;
+                scenario->hero_placement = ELECTRON_TEST_HERO_NEAREST_SAFE_FLOOR;
+            else if (!strcmp(value, "near-monster"))
+                scenario->hero_placement = ELECTRON_TEST_HERO_NEAR_MONSTER;
+            else if (!strcmp(value, "near-object"))
+                scenario->hero_placement = ELECTRON_TEST_HERO_NEAR_OBJECT;
+            else if (!strcmp(value, "near-terrain"))
+                scenario->hero_placement = ELECTRON_TEST_HERO_NEAR_TERRAIN;
+            else if (!strcmp(value, "on-terrain"))
+                scenario->hero_placement = ELECTRON_TEST_HERO_ON_TERRAIN;
+            else if (!strcmp(value, "on-invocation-position"))
+                scenario->hero_placement =
+                    ELECTRON_TEST_HERO_ON_INVOCATION_POSITION;
             else {
                 free(value);
                 electron_json_fail(scenario->id, "unsupported hero placement");
             }
             free(value);
+        } else if (!strcmp(key, "placementTarget")) {
+            char *value;
+            int door_mask, trap;
+            electron_json_require_unique(&seen, 0x002U, scenario->id, key);
+            value = electron_json_parse_string(pp, scenario->id);
+            if (scenario->hero_placement == ELECTRON_TEST_HERO_NEAR_MONSTER)
+                scenario->hero_placement_target =
+                    electron_test_monster_id_from_string(value);
+            else if (scenario->hero_placement == ELECTRON_TEST_HERO_NEAR_OBJECT)
+                scenario->hero_placement_target =
+                    electron_test_type_id_from_string(value);
+            else if (scenario->hero_placement == ELECTRON_TEST_HERO_NEAR_TERRAIN
+                     || scenario->hero_placement == ELECTRON_TEST_HERO_ON_TERRAIN)
+                scenario->hero_placement_target =
+                    electron_test_terrain_type_from_string(value, &door_mask, &trap);
+            else {
+                free(value);
+                electron_json_fail(scenario->id,
+                                   "placementTarget requires a targeted hero placement");
+            }
+            free(value);
+            if (scenario->hero_placement_target == NON_PM
+                || scenario->hero_placement_target == STRANGE_OBJECT
+                || scenario->hero_placement_target == INVALID_TYPE)
+                electron_json_fail(scenario->id, "unsupported hero placementTarget");
+        } else if (!strcmp(key, "placementDistance")) {
+            long value;
+            electron_json_require_unique(&seen, 0x004U, scenario->id, key);
+            value = electron_json_parse_int(pp, scenario->id);
+            if (value < 1L || value > 8L)
+                electron_json_fail(scenario->id,
+                                   "hero placementDistance is out of range");
+            scenario->hero_placement_distance = (int) value;
         } else if (!strcmp(key, "role")) {
             char *value;
-            electron_json_require_unique(&seen, 0x02U, scenario->id, key);
+            electron_json_require_unique(&seen, 0x008U, scenario->id, key);
             value = electron_json_parse_string(pp, scenario->id);
             scenario->role = str2role(value);
             free(value);
@@ -1874,7 +2043,7 @@ electron_test_parse_hero(const char **pp,
             scenario->role_present = TRUE;
         } else if (!strcmp(key, "race")) {
             char *value;
-            electron_json_require_unique(&seen, 0x04U, scenario->id, key);
+            electron_json_require_unique(&seen, 0x010U, scenario->id, key);
             value = electron_json_parse_string(pp, scenario->id);
             scenario->race = str2race(value);
             free(value);
@@ -1883,7 +2052,7 @@ electron_test_parse_hero(const char **pp,
             scenario->race_present = TRUE;
         } else if (!strcmp(key, "gender") || !strcmp(key, "sex")) {
             char *value;
-            electron_json_require_unique(&seen, 0x08U, scenario->id, key);
+            electron_json_require_unique(&seen, 0x020U, scenario->id, key);
             value = electron_json_parse_string(pp, scenario->id);
             scenario->gender = str2gend(value);
             free(value);
@@ -1892,13 +2061,94 @@ electron_test_parse_hero(const char **pp,
             scenario->gender_present = TRUE;
         } else if (!strcmp(key, "alignment")) {
             char *value;
-            electron_json_require_unique(&seen, 0x10U, scenario->id, key);
+            electron_json_require_unique(&seen, 0x040U, scenario->id, key);
             value = electron_json_parse_string(pp, scenario->id);
             scenario->alignment = str2align(value);
             free(value);
             if (scenario->alignment < 0)
                 electron_json_fail(scenario->id, "unsupported or invalid hero alignment");
             scenario->alignment_present = TRUE;
+        } else if (!strcmp(key, "alignmentRecord")) {
+            long value;
+            electron_json_require_unique(&seen, 0x8000U, scenario->id, key);
+            value = electron_json_parse_int(pp, scenario->id);
+            if (value < -100L || value > 100L)
+                electron_json_fail(scenario->id,
+                                   "hero alignmentRecord is out of range");
+            scenario->alignment_record_present = TRUE;
+            scenario->alignment_record = (int) value;
+        } else if (!strcmp(key, "experienceLevel")) {
+            long value;
+            electron_json_require_unique(&seen, 0x080U, scenario->id, key);
+            value = electron_json_parse_int(pp, scenario->id);
+            if (value < 1L || value > MAXULEV)
+                electron_json_fail(scenario->id, "hero experienceLevel is out of range");
+            scenario->experience_level_present = TRUE;
+            scenario->experience_level = (int) value;
+        } else if (!strcmp(key, "hp")) {
+            long value;
+            electron_json_require_unique(&seen, 0x100U, scenario->id, key);
+            value = electron_json_parse_int(pp, scenario->id);
+            if (value < 1L || value > 9999L)
+                electron_json_fail(scenario->id, "hero hp is out of range");
+            scenario->hp_present = TRUE;
+            scenario->hp = (int) value;
+        } else if (!strcmp(key, "maxHp")) {
+            long value;
+            electron_json_require_unique(&seen, 0x200U, scenario->id, key);
+            value = electron_json_parse_int(pp, scenario->id);
+            if (value < 1L || value > 9999L)
+                electron_json_fail(scenario->id, "hero maxHp is out of range");
+            scenario->maxhp = (int) value;
+        } else if (!strcmp(key, "power")) {
+            long value;
+            electron_json_require_unique(&seen, 0x400U, scenario->id, key);
+            value = electron_json_parse_int(pp, scenario->id);
+            if (value < 0L || value > 9999L)
+                electron_json_fail(scenario->id, "hero power is out of range");
+            scenario->power_present = TRUE;
+            scenario->power = (int) value;
+        } else if (!strcmp(key, "maxPower")) {
+            long value;
+            electron_json_require_unique(&seen, 0x800U, scenario->id, key);
+            value = electron_json_parse_int(pp, scenario->id);
+            if (value < 0L || value > 9999L)
+                electron_json_fail(scenario->id, "hero maxPower is out of range");
+            scenario->maxpower = (int) value;
+        } else if (!strcmp(key, "amuletWishComplete")) {
+            electron_json_require_unique(&seen, 0x1000U, scenario->id, key);
+            scenario->amulet_wish_complete =
+                electron_json_parse_bool(pp, scenario->id);
+        } else if (!strcmp(key, "wakePlacementTarget")) {
+            electron_json_require_unique(&seen, 0x2000U, scenario->id, key);
+            scenario->wake_placement_target =
+                electron_json_parse_bool(pp, scenario->id);
+        } else if (!strcmp(key, "intrinsics")) {
+            electron_json_require_unique(&seen, 0x4000U, scenario->id, key);
+            electron_json_expect_char(pp, '[', scenario->id,
+                                      "expected intrinsics array");
+            if (!electron_json_consume_char(pp, ']')) {
+                for (;;) {
+                    char *value;
+                    int property;
+                    if (scenario->intrinsic_count
+                        >= ELECTRON_TEST_MAX_INTRINSICS)
+                        electron_json_fail(scenario->id,
+                                           "hero intrinsics array is too large");
+                    value = electron_json_parse_string(pp, scenario->id);
+                    property = electron_test_property_from_string(value);
+                    free(value);
+                    if (!property)
+                        electron_json_fail(scenario->id,
+                                           "unsupported hero intrinsic");
+                    scenario->intrinsics[scenario->intrinsic_count++] =
+                        property;
+                    if (electron_json_consume_char(pp, ']'))
+                        break;
+                    electron_json_expect_char(pp, ',', scenario->id,
+                                              "expected ',' between intrinsics");
+                }
+            }
         } else {
             free(key);
             electron_json_fail(scenario->id, "unsupported hero field");
@@ -1909,8 +2159,27 @@ electron_test_parse_hero(const char **pp,
         electron_json_expect_char(pp, ',', scenario->id,
                                   "expected ',' between hero fields");
     }
-    if ((seen & 0x01U) != 0x01U)
-        electron_json_fail(scenario->id, "hero object is missing required v1 fields");
+    if ((seen & (0x002U | 0x004U | 0x080U | 0x100U | 0x200U
+                 | 0x400U | 0x800U | 0x1000U | 0x2000U | 0x4000U
+                 | 0x8000U)) != 0U
+        || scenario->hero_placement >= ELECTRON_TEST_HERO_NEAR_MONSTER)
+        scenario->v2_fields_present = TRUE;
+    if ((scenario->hero_placement == ELECTRON_TEST_HERO_NEAR_MONSTER
+         || scenario->hero_placement == ELECTRON_TEST_HERO_NEAR_OBJECT
+         || scenario->hero_placement == ELECTRON_TEST_HERO_NEAR_TERRAIN
+         || scenario->hero_placement == ELECTRON_TEST_HERO_ON_TERRAIN)
+        && !(seen & 0x002U))
+        electron_json_fail(scenario->id,
+                           "targeted hero placement requires placementTarget");
+    if (scenario->wake_placement_target
+        && scenario->hero_placement != ELECTRON_TEST_HERO_NEAR_MONSTER)
+        electron_json_fail(scenario->id,
+                           "wakePlacementTarget requires near-monster placement");
+    if (scenario->hp_present && (!scenario->maxhp || scenario->hp > scenario->maxhp))
+        electron_json_fail(scenario->id, "hero hp requires maxHp >= hp");
+    if (scenario->power_present
+        && (!(seen & 0x800U) || scenario->power > scenario->maxpower))
+        electron_json_fail(scenario->id, "hero power requires maxPower >= power");
     if (scenario->role_present && scenario->race_present
         && !validrace(scenario->role, scenario->race))
         electron_json_fail(scenario->id, "invalid hero role/race combination");
@@ -2108,6 +2377,32 @@ electron_test_parse_level(const char **pp,
         } else if (!strcmp(key, "map")) {
             electron_json_require_unique(&seen, 0x20U, scenario->id, key);
             electron_test_parse_map(pp, scenario);
+        } else if (!strcmp(key, "specialLevel")) {
+            char *value;
+            electron_json_require_unique(&seen, 0x40U, scenario->id, key);
+            value = electron_json_parse_string(pp, scenario->id);
+            if (strcmp(value, "soko1") && strcmp(value, "medusa")
+                && strcmp(value, "castle") && strcmp(value, "valley")
+                && strcmp(value, "juiblex") && strcmp(value, "baalz")
+                && strcmp(value, "asmodeus") && strcmp(value, "orcus")
+                && strcmp(value, "wizard1") && strcmp(value, "wizard2")
+                && strcmp(value, "wizard3") && strcmp(value, "sanctum")
+                && strcmp(value, "earth") && strcmp(value, "air")
+                && strcmp(value, "fire") && strcmp(value, "water")
+                && strcmp(value, "astral") && strcmp(value, "knox")
+                && strcmp(value, "minend") && strcmp(value, "invocation")
+                && strcmp(value, "x-strt") && strcmp(value, "x-loca")
+                && strcmp(value, "x-goal")) {
+                free(value);
+                electron_json_fail(scenario->id,
+                                   "unsupported specialLevel");
+            }
+            (void) strncpy(scenario->special_level, value,
+                           sizeof scenario->special_level - 1);
+            scenario->special_level[sizeof scenario->special_level - 1] = '\0';
+            scenario->special_level_present = TRUE;
+            free(value);
+            scenario->v2_fields_present = TRUE;
         } else {
             free(key);
             electron_json_fail(scenario->id, "unsupported level field");
@@ -2408,6 +2703,7 @@ electron_test_parse_scenario_v1(const char *json,
     unsigned seen = 0U;
     memset(scenario, 0, sizeof *scenario);
     scenario->safe_area = 0;
+    scenario->hero_placement_distance = 4;
     electron_json_expect_char(&p, '{', scenario->id,
                               "scenario JSON root must be an object");
     if (electron_json_consume_char(&p, '}'))
@@ -2418,9 +2714,18 @@ electron_test_parse_scenario_v1(const char *json,
                                   "expected ':' after scenario field");
         if (!strcmp(key, "schema")) {
             electron_json_require_unique(&seen, 0x001U, scenario->id, key);
-            electron_json_expect_string_value(&p, scenario->id,
-                                              ELECTRON_TEST_SCENARIO_SCHEMA,
-                                              "unsupported schema");
+            {
+                char *value = electron_json_parse_string(&p, scenario->id);
+                if (!strcmp(value, ELECTRON_TEST_SCENARIO_SCHEMA_V1))
+                    scenario->schema_version = 1;
+                else if (!strcmp(value, ELECTRON_TEST_SCENARIO_SCHEMA_V2))
+                    scenario->schema_version = 2;
+                else {
+                    free(value);
+                    electron_json_fail(scenario->id, "unsupported schema");
+                }
+                free(value);
+            }
         } else if (!strcmp(key, "id")) {
             char *value;
             electron_json_require_unique(&seen, 0x002U, scenario->id, key);
@@ -2439,9 +2744,18 @@ electron_test_parse_scenario_v1(const char *json,
             free(value);
         } else if (!strcmp(key, "phase")) {
             electron_json_require_unique(&seen, 0x004U, scenario->id, key);
-            electron_json_expect_string_value(&p, scenario->id,
-                                              ELECTRON_TEST_SCENARIO_PHASE,
-                                              "unsupported phase");
+            {
+                char *value = electron_json_parse_string(&p, scenario->id);
+                if (!strcmp(value, ELECTRON_TEST_SCENARIO_PHASE_V1))
+                    scenario->phase_version = 1;
+                else if (!strcmp(value, ELECTRON_TEST_SCENARIO_PHASE_V2))
+                    scenario->phase_version = 2;
+                else {
+                    free(value);
+                    electron_json_fail(scenario->id, "unsupported phase");
+                }
+                free(value);
+            }
         } else if (!strcmp(key, "hero")) {
             electron_json_require_unique(&seen, 0x008U, scenario->id, key);
             electron_test_parse_hero(&p, scenario);
@@ -2478,7 +2792,15 @@ electron_test_parse_scenario_v1(const char *json,
         electron_json_fail(scenario->id, "trailing content after scenario JSON");
     if ((seen & 0x1FFU) != 0x1FFU)
         electron_json_fail(scenario->id,
-                           "scenario JSON is missing required v1 fields");
+                           "scenario JSON is missing required fields");
+    if (scenario->phase_version != scenario->schema_version)
+        electron_json_fail(scenario->id, "unsupported phase");
+    if (scenario->schema_version == 1 && scenario->v2_fields_present)
+        electron_json_fail(scenario->id,
+                           "version two fields require version two schema");
+    if (scenario->schema_version == 2 && !scenario->special_level_present)
+        electron_json_fail(scenario->id,
+                           "version two level object requires specialLevel");
 }
 
 staticfn void
@@ -2674,19 +2996,182 @@ electron_test_preflight_locations(const struct electron_test_scenario_v1 *scenar
 }
 
 staticfn void
+electron_test_apply_special_level(const struct electron_test_scenario_v1 *scenario)
+{
+    s_level *slev = (s_level *) 0;
+    d_level target;
+    boolean was_wizard;
+    char resolved[32];
+
+    if (!scenario->special_level_present)
+        return;
+    if (!strcmp(scenario->special_level, "invocation")) {
+        target.dnum = valley_level.dnum;
+        target.dlevel =
+            svd.dungeons[target.dnum].num_dunlevs - 1;
+    } else {
+        const char *level_name = scenario->special_level;
+        if (scenario->special_level[0] == 'x'
+            && scenario->special_level[1] == '-') {
+            Sprintf(resolved, "%s%s", gu.urole.filecode,
+                    &scenario->special_level[1]);
+            level_name = resolved;
+        }
+        slev = find_level(level_name);
+        if (!slev)
+            electron_test_fixture_fail(
+                scenario->id,
+                "requested specialLevel was not generated");
+        assign_level(&target, &slev->dlevel);
+    }
+    was_wizard = wizard;
+    wizard = TRUE;
+    goto_level(&target, FALSE, FALSE, FALSE);
+    wizard = was_wizard;
+    if (!on_level(&u.uz, &target))
+        electron_test_fixture_fail(scenario->id,
+                                   "failed to enter requested specialLevel");
+}
+
+staticfn boolean
+electron_test_find_hero_target(const struct electron_test_scenario_v1 *scenario,
+                               coordxy *target_x, coordxy *target_y)
+{
+    coordxy x, y;
+    for (x = 1; x < COLNO; ++x) {
+        for (y = 0; y < ROWNO; ++y) {
+            if (scenario->hero_placement == ELECTRON_TEST_HERO_NEAR_MONSTER) {
+                struct monst *mon = m_at(x, y);
+                if (mon && monsndx(mon->data) == scenario->hero_placement_target) {
+                    *target_x = x;
+                    *target_y = y;
+                    return TRUE;
+                }
+            } else if (scenario->hero_placement == ELECTRON_TEST_HERO_NEAR_OBJECT) {
+                if (sobj_at(scenario->hero_placement_target, x, y)) {
+                    *target_x = x;
+                    *target_y = y;
+                    return TRUE;
+                }
+            } else if ((scenario->hero_placement == ELECTRON_TEST_HERO_NEAR_TERRAIN
+                        || scenario->hero_placement == ELECTRON_TEST_HERO_ON_TERRAIN)
+                       && levl[x][y].typ == scenario->hero_placement_target
+                       && (scenario->hero_placement_target != ALTAR
+                           || Amask2align(levl[x][y].altarmask & AM_MASK)
+                              == u.ualign.type)) {
+                *target_x = x;
+                *target_y = y;
+                return TRUE;
+            }
+        }
+    }
+    return FALSE;
+}
+
+staticfn boolean
+electron_test_find_spot_near_target(coordxy *x, coordxy *y,
+                                    coordxy target_x, coordxy target_y,
+                                    int max_distance)
+{
+    int radius, dx, dy;
+    for (radius = 1; radius <= max_distance; ++radius) {
+        for (dy = -radius; dy <= radius; ++dy) {
+            for (dx = -radius; dx <= radius; ++dx) {
+                coordxy tx, ty;
+                if (abs(dx) != radius && abs(dy) != radius)
+                    continue;
+                tx = target_x + dx;
+                ty = target_y + dy;
+                if (isok(tx, ty) && ACCESSIBLE(levl[tx][ty].typ)
+                    && !is_pool(tx, ty) && !is_lava(tx, ty)
+                    && !MON_AT(tx, ty) && !sobj_at(BOULDER, tx, ty)) {
+                    *x = tx;
+                    *y = ty;
+                    return TRUE;
+                }
+            }
+        }
+    }
+    return FALSE;
+}
+
+staticfn void
 electron_test_apply_hero(const struct electron_test_scenario_v1 *scenario)
 {
-    coordxy x, y, oldx, oldy;
-    if (!scenario->hero_nearest_safe_floor)
+    coordxy x, y, oldx, oldy, target_x, target_y;
+    if (scenario->hero_placement == ELECTRON_TEST_HERO_CURRENT)
         return;
     oldx = u.ux;
     oldy = u.uy;
-    if (!find_electron_test_spot(&x, &y, oldx, oldy))
-        electron_test_fixture_fail(scenario->id,
-                                   "failed to place hero on nearest safe floor");
+    if (scenario->hero_placement == ELECTRON_TEST_HERO_NEAREST_SAFE_FLOOR) {
+        if (!find_electron_test_spot(&x, &y, oldx, oldy))
+            electron_test_fixture_fail(scenario->id,
+                                       "failed to place hero on nearest safe floor");
+    } else if (scenario->hero_placement
+               == ELECTRON_TEST_HERO_ON_INVOCATION_POSITION) {
+        if (!invocation_pos(svi.inv_pos.x, svi.inv_pos.y)
+            || MON_AT(svi.inv_pos.x, svi.inv_pos.y))
+            electron_test_fixture_fail(
+                scenario->id,
+                "invocation position is unavailable or occupied");
+        x = svi.inv_pos.x;
+        y = svi.inv_pos.y;
+    } else {
+        if (!electron_test_find_hero_target(scenario, &target_x, &target_y))
+            electron_test_fixture_fail(scenario->id,
+                                       "hero placementTarget is absent from specialLevel");
+        if (scenario->wake_placement_target) {
+            struct monst *target_mon = m_at(target_x, target_y);
+            if (!target_mon)
+                electron_test_fixture_fail(
+                    scenario->id,
+                    "wakePlacementTarget did not resolve a monster");
+            target_mon->msleeping = 0;
+            target_mon->mfrozen = 0;
+            target_mon->mcanmove = 1;
+        }
+        if (scenario->hero_placement == ELECTRON_TEST_HERO_ON_TERRAIN) {
+            if (MON_AT(target_x, target_y))
+                electron_test_fixture_fail(scenario->id,
+                                           "hero on-terrain target is occupied");
+            x = target_x;
+            y = target_y;
+        } else if (!electron_test_find_spot_near_target(
+                       &x, &y, target_x, target_y,
+                       scenario->hero_placement_distance))
+            electron_test_fixture_fail(scenario->id,
+                                       "no safe hero position exists near placementTarget");
+    }
     u_on_newpos(x, y);
     newsym(oldx, oldy);
     newsym(u.ux, u.uy);
+}
+
+staticfn void
+electron_test_apply_hero_state(const struct electron_test_scenario_v1 *scenario)
+{
+    if (scenario->experience_level_present) {
+        u.ulevel = scenario->experience_level;
+        u.ulevelmax = scenario->experience_level;
+    }
+    if (scenario->hp_present) {
+        u.uhpmax = scenario->maxhp;
+        u.uhp = scenario->hp;
+    }
+    if (scenario->power_present) {
+        u.uenmax = scenario->maxpower;
+        u.uen = scenario->power;
+    }
+    if (scenario->intrinsic_count) {
+        int i;
+        for (i = 0; i < scenario->intrinsic_count; ++i)
+            u.uprops[scenario->intrinsics[i]].intrinsic |= FROMOUTSIDE;
+    }
+    if (scenario->amulet_wish_complete)
+        u.uevent.amulet_wish = 1;
+    if (scenario->alignment_record_present)
+        u.ualign.record = scenario->alignment_record;
+    disp.botl = TRUE;
 }
 
 staticfn void
@@ -2929,6 +3414,8 @@ electron_test_apply_object_metadata(struct obj *obj,
     }
     if (spec->charges_present)
         obj->spe = (schar) spec->charges;
+    if (spec->fuel_present)
+        obj->age = spec->fuel;
     if (spec->enchantment_present)
         obj->spe = (schar) spec->enchantment;
     if (spec->erosion_present)
@@ -2937,6 +3424,15 @@ electron_test_apply_object_metadata(struct obj *obj,
         obj->oeroded2 = (unsigned) spec->corrosion;
     if (spec->poisoned_present)
         obj->opoisoned = spec->poisoned ? 1 : 0;
+    if (spec->called_name_present) {
+        if (objects[spec->type_id].oc_uname)
+            free((genericptr_t) objects[spec->type_id].oc_uname);
+        objects[spec->type_id].oc_uname = dupstr(spec->called_name);
+    }
+    if (spec->individual_name_present) {
+        new_oname(obj, (int) strlen(spec->individual_name) + 1);
+        Strcpy(ONAME(obj), spec->individual_name);
+    }
     obj->owt = weight(obj);
 }
 
@@ -3261,20 +3757,25 @@ maybe_setup_electron_json_test_scenario(void)
     electron_test_parse_scenario_v1(json, &scenario);
     free(json);
 
-    /* All schema validation above is complete before any ordinary NetHack
-       scenario state is mutated.  Location/equipment preflight runs before
-       terrain, monster, ground, inventory, or level mutation.  Hero
-       nearest-safe-floor relocation, when requested, is the only allowed
-       early mutation because relative scenario coordinates are defined from
-       the actual hero position used by the test. */
+    /* Parsing and ordinary placement preflight complete before mutation.
+       Version two inventories are installed before travel so authentic
+       endgame admission checks and worn protections use real core state.
+       Relative additions are validated again after special-level travel and
+       targeted hero placement. */
     electron_test_preflight_locations(&scenario);
+    if (scenario.special_level_present) {
+        electron_test_apply_inventory(&scenario);
+        electron_test_apply_special_level(&scenario);
+    }
     electron_test_apply_hero(&scenario);
     electron_test_preflight_locations(&scenario);
     electron_test_apply_level(&scenario);
     electron_test_apply_terrain(&scenario);
     electron_test_apply_ground(&scenario);
     electron_test_apply_monsters(&scenario);
-    electron_test_apply_inventory(&scenario);
+    if (!scenario.special_level_present)
+        electron_test_apply_inventory(&scenario);
+    electron_test_apply_hero_state(&scenario);
     electron_test_apply_event_results(&scenario);
     newsym(u.ux, u.uy);
     disp.botlx = TRUE;

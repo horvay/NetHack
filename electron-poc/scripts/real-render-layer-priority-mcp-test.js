@@ -17,7 +17,7 @@ async function shot(cdp, name) { const res = await cdp.send('Page.captureScreens
 async function click(cdp, selector) { const box = await evalExpr(cdp, `(() => { const el = document.querySelector(${JSON.stringify(selector)}); el?.scrollIntoView?.({block:'center', inline:'center'}); const r = el?.getBoundingClientRect(); return r ? {x:r.left+r.width/2,y:r.top+r.height/2} : null; })()`); if (!box) throw new Error(`missing selector ${selector}`); await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: box.x, y: box.y, button: 'left', clickCount: 1 }); await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: box.x, y: box.y, button: 'left', clickCount: 1 }); }
 function assert(name, ok, detail = '') { if (!ok) throw new Error(`${name}${detail ? `: ${detail}` : ''}`); }
 async function state(cdp) { return evalExpr(cdp, `(() => ({ running: window.__nethackAutomation?.state?.().runningState?.running || false, seenShim: document.getElementById('shim-output')?.dataset?.seen || '', shim: document.getElementById('shim-output')?.innerText || '', body: document.body.innerText }))()`); }
-async function start(cdp) { await click(cdp, '#start-shim'); await delay(250); await click(cdp, '#confirm-character'); await waitFor(async () => (await state(cdp)).running, 20000); await evalExpr(cdp, `(() => { document.getElementById('intro-dialog')?.close?.('continue'); document.getElementById('document-dialog')?.close?.('close'); document.getElementById('game-grid')?.focus?.(); })()`); }
+async function start(cdp) { if (await evalExpr(cdp, `Boolean(document.getElementById('startup-choice-dialog')?.open)`)) await click(cdp, '#startup-new-game'); else await click(cdp, '#start-shim'); await waitFor(async () => evalExpr(cdp, `Boolean(document.getElementById('character-dialog')?.open)`), 7000); await evalExpr(cdp, `(() => { const input = document.getElementById('player-name'); if (input && !input.value) { input.value = 'LayerTester'; input.dispatchEvent(new Event('input', { bubbles: true })); } })()`); await click(cdp, '#confirm-character'); await waitFor(async () => (await state(cdp)).running, 20000); await evalExpr(cdp, `(() => { document.getElementById('intro-dialog')?.close?.('continue'); document.getElementById('document-dialog')?.close?.('close'); document.getElementById('game-grid')?.focus?.(); })()`); }
 async function mapMetrics(cdp) { return evalExpr(cdp, `(() => {
   const summarize = (el) => {
     const layers = Array.from(el.querySelectorAll('.tile-layer')).map((layer) => ({ role: layer.className.match(/tile-layer-([a-z-]+)/)?.[1] || '', tileId: layer.dataset.tileId || '', label: layer.dataset.label || '', zIndex: getComputedStyle(layer).zIndex, backgroundImage: layer.style.backgroundImage || '', text: layer.textContent || '' }));
@@ -29,8 +29,8 @@ async function mapMetrics(cdp) { return evalExpr(cdp, `(() => {
   const rel = (dx, dy) => hero ? cells.find((c) => c.x === hero.x + dx && c.y === hero.y + dy) || null : null;
   return { hero, westObject: rel(-1, 0), eastMonster: rel(1, 0), northFloor: rel(0, -1), body: document.body.innerText };
 })()`); }
-async function hoverCell(cdp, cell) { await cdp.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: cell.rect.left + cell.rect.width / 2, y: cell.rect.top + cell.rect.height / 2 }); await delay(150); }
-async function tooltip(cdp) { return evalExpr(cdp, `(() => ({ hidden: document.getElementById('map-tooltip')?.hidden, title: document.getElementById('map-tooltip-title')?.textContent || '', description: document.getElementById('map-tooltip-description')?.textContent || '', text: document.getElementById('map-tooltip')?.innerText || '' }))()`); }
+async function hoverCell(cdp, cell) { await evalExpr(cdp, `(() => { const el = document.querySelector('.tile-cell[data-map-x="${cell.x}"][data-map-y="${cell.y}"]'); if (!el) throw new Error('layer target cell missing'); el.dispatchEvent(new MouseEvent('mousemove', { bubbles: true })); })()`); await delay(150); }
+async function tooltip(cdp) { return evalExpr(cdp, `(() => ({ hidden: document.getElementById('map-tooltip')?.hidden, title: document.getElementById('map-tooltip-title')?.textContent || '', description: document.getElementById('map-tooltip-description')?.textContent || '', contents: Array.from(document.querySelectorAll('#map-tooltip-contents li')).map((row) => ({ label: row.querySelector('.map-tooltip-content-label')?.textContent || '', kind: row.querySelector('.map-tooltip-content-kind')?.textContent || '' })), text: document.getElementById('map-tooltip')?.innerText || '' }))()`); }
 async function showProofPanel(cdp, metrics) { return evalExpr(cdp, `((data) => {
   document.getElementById('map-tooltip').hidden = true;
   document.getElementById('layer-proof-panel')?.remove();
@@ -76,10 +76,10 @@ async function main() {
     assert('adjacent terrain remains ordinary back layer', metrics.northFloor && /terrain-floor/.test(metrics.northFloor.className) && !metrics.northFloor.objectTileId && !metrics.northFloor.layers.length, JSON.stringify(metrics.northFloor));
     await hoverCell(cdp, metrics.hero);
     const heroTip = await tooltip(cdp);
-    assert('hero tooltip keeps object information', !heroTip.hidden && /hero|valkyrie/i.test(heroTip.title) && /Also here: Large Box/i.test(heroTip.description), JSON.stringify(heroTip));
+    assert('hero tooltip lists actor, underlying box, every public pile item, and terrain', !heroTip.hidden && /hero|valkyrie/i.test(heroTip.title) && heroTip.contents.some((entry) => /large box/i.test(entry.label) && entry.kind === 'Object') && heroTip.contents.some((entry) => /weapon/i.test(entry.label) && entry.kind === 'Item') && heroTip.contents.some((entry) => /Floor|Stairs/.test(entry.kind)), JSON.stringify(heroTip));
     await hoverCell(cdp, metrics.eastMonster);
     const monsterTip = await tooltip(cdp);
-    assert('monster tooltip keeps object information', !monsterTip.hidden && /jackal/i.test(monsterTip.title) && /Also here: Chest/i.test(monsterTip.description), JSON.stringify(monsterTip));
+    assert('monster tooltip lists monster, underlying chest, and terrain', !monsterTip.hidden && /jackal/i.test(monsterTip.title) && monsterTip.contents.some((entry) => /chest/i.test(entry.label) && entry.kind === 'Object') && monsterTip.contents.some((entry) => entry.kind === 'Floor'), JSON.stringify(monsterTip));
     const screenshot = await shot(cdp, '01-layer-priority-map.png');
     await showProofPanel(cdp, metrics);
     const proofScreenshot = await shot(cdp, '02-layer-priority-proof-panel.png');

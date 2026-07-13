@@ -148,7 +148,7 @@
     return `${labels[String(key).toLowerCase()] || String(key).toUpperCase()}${suffix}`;
   }
   function choiceButtonOptions(query, choices) {
-    return String(choices || '').split('').filter(Boolean).map((key, index) => {
+    return String(choices || '').split('').filter((key) => Boolean(key) && key !== '\u001b').map((key, index) => {
       const shopOfferChoice = shopOfferChoiceInfo(query, key);
       const label = yesNoChoiceLabel(key, query);
       const hint = key === '\u001b' ? 'Esc' : key;
@@ -202,29 +202,81 @@
     if (kind === 'inventory') return menu?.prompt || 'Choose item';
     return menu?.prompt || (multi ? 'Select items, then Confirm.' : (hasSelection ? 'Choose an option.' : 'Review information.'));
   }
+  function cancellationPlanForPrompt(prompt) {
+    const fallback = Object.freeze({ key: '\u001b', kind: 'escape', acknowledgementEvent: 'bridge_prompt_answer', canonicalChoice: false });
+    if (!prompt) return fallback;
+    if (prompt.kind === 'line input') return Object.freeze({ key: '\u001b', kind: 'line-input-cancel', acknowledgementEvent: 'bridge_line_answer', canonicalChoice: false });
+    if (prompt.kind === 'extended command') return Object.freeze({ key: '\u001b', kind: 'extended-command-cancel', acknowledgementEvent: 'bridge_extcmd_answer', canonicalChoice: false });
+    if (prompt.kind !== 'question') return fallback;
+    if (isDirectionPrompt(prompt.query)) return Object.freeze({ key: '\u001b', kind: 'direction-cancel', acknowledgementEvent: 'bridge_prompt_answer', canonicalChoice: false });
+    const choices = String(prompt.choices || '');
+    const yesNoFamily = isFixedChoicePrompt(prompt.query, choices)
+      || (!isExplicitInventorySelectorQuestion(prompt.query) && choices.includes('y') && choices.includes('n'));
+    if (!yesNoFamily) return fallback;
+    // Match NetHack's classic tty_yn_function Escape policy. A fixed choice
+    // prompt with q cancels as q; otherwise its safe rejection is n. Sending
+    // raw ESC to the shim window port bypasses that window-port translation
+    // and makes core yn_function() report "Program in disorder".
+    const key = choices.includes('q') ? 'q' : (choices.includes('n') ? 'n' : '\u001b');
+    if (key === '\u001b') return fallback;
+    return Object.freeze({
+      key,
+      kind: key === 'q' ? 'fixed-choice-quit' : 'fixed-choice-no',
+      acknowledgementEvent: 'bridge_prompt_answer',
+      canonicalChoice: true,
+    });
+  }
+  function cancellationPlanForMenu(menu) {
+    return Object.freeze({
+      key: '\u001b',
+      kind: menu?.awaitingSelection ? 'menu-cancel' : 'menu-close',
+      acknowledgementEvent: 'bridge_menu_answer',
+      canonicalChoice: false,
+    });
+  }
+  function dialogFamilyForPrompt(prompt, cachedInventoryChoices = []) {
+    if (!prompt) return 'document';
+    if (prompt.kind === 'line input') return 'form';
+    if (prompt.kind === 'extended command') return 'command';
+    if (prompt.kind === 'read-only menu') return 'document';
+    if (prompt.kind === 'menu selection') return 'single-select';
+    if (prompt.kind === 'question') {
+      if (isFixedChoicePrompt(prompt.query, prompt.choices)) return 'confirmation';
+      return 'single-select';
+    }
+    return cachedInventoryChoices.length ? 'single-select' : 'document';
+  }
+  function dialogFamilyForMenu(menu) {
+    if (!menu) return 'document';
+    if (isReadOnlyInformationalMenu(menu)) return 'document';
+    if (isExplicitTransferMenu(menu)) return 'transfer';
+    if (Number(menu.how || 0) === 2) return 'multi-select';
+    const kind = menuKind(menu);
+    return kind === 'help' ? 'command' : 'single-select';
+  }
   function buildPromptInteraction(prompt, cachedInventoryChoices = []) {
-    if (!prompt) return { kind: 'none' };
+    if (!prompt) return { kind: 'none', family: 'document' };
     if (prompt.kind === 'question') {
       const direction = isDirectionPrompt(prompt.query);
       const itemClassPrompt = !direction && isItemClassPrompt(prompt.query, prompt.choices);
       const rows = itemClassPrompt ? [] : inventoryRowsForPrompt(prompt, cachedInventoryChoices);
       const classRows = itemClassPrompt ? itemClassOptions(prompt.query, prompt.choices) : [];
       const fallback = !rows.length && !classRows.length && isInventoryActionPrompt(prompt.query, prompt.choices) && !promptRequiresNamedInventoryRows(prompt.query) ? selectorFallbackOptions(prompt.query, prompt.choices) : [];
-      return { kind: direction ? 'direction' : 'question', title: promptTitle(prompt, rows.length > 0), inventoryRows: rows, fallbackRows: fallback, classRows, options: rows.length ? rows : (classRows.length ? classRows : (fallback.length ? fallback : choiceButtonOptions(prompt.query, prompt.choices))), textEntry: rows.length || fallback.length || classRows.length, query: shopOfferInfo(prompt.query) ? shopOfferPromptCopy(prompt.query) : (prompt.query || 'Choose an answer.') };
+      return { kind: direction ? 'direction' : 'question', family: dialogFamilyForPrompt(prompt, cachedInventoryChoices), title: promptTitle(prompt, rows.length > 0), inventoryRows: rows, fallbackRows: fallback, classRows, options: rows.length ? rows : (classRows.length ? classRows : (fallback.length ? fallback : choiceButtonOptions(prompt.query, prompt.choices))), textEntry: rows.length || fallback.length || classRows.length, query: shopOfferInfo(prompt.query) ? shopOfferPromptCopy(prompt.query) : (prompt.query || 'Choose an answer.') };
     }
     if (prompt.kind === 'line input') {
       const classRows = isItemClassPrompt(prompt.query, prompt.choices) ? itemClassOptions(prompt.query, prompt.choices) : [];
-      return { kind: 'line-input', title: classRows.length ? 'Choose item class' : lineInputTitle(prompt), classRows, options: classRows, query: prompt.query || 'Type your answer with the keyboard.', engravingText: /engrave|write in|write on/i.test(String(prompt.query || '')) };
+      return { kind: 'line-input', family: 'form', title: classRows.length ? 'Choose item class' : lineInputTitle(prompt), classRows, options: classRows, query: prompt.query || 'Type your answer with the keyboard.', engravingText: /engrave|write in|write on/i.test(String(prompt.query || '')) };
     }
-    if (prompt.kind === 'extended command') return { kind: 'extended-command', title: 'Extended command (#)', query: prompt.query || '', textEntry: true };
-    if (prompt.kind === 'menu selection' || prompt.kind === 'read-only menu') return { kind: 'menu-prompt', query: prompt.query || '' };
-    return { kind: prompt.kind || 'unknown', query: prompt.query || '' };
+    if (prompt.kind === 'extended command') return { kind: 'extended-command', family: 'command', title: 'Extended command (#)', query: prompt.query || '', textEntry: true };
+    if (prompt.kind === 'menu selection' || prompt.kind === 'read-only menu') return { kind: 'menu-prompt', family: dialogFamilyForPrompt(prompt, cachedInventoryChoices), query: prompt.query || '' };
+    return { kind: prompt.kind || 'unknown', family: dialogFamilyForPrompt(prompt, cachedInventoryChoices), query: prompt.query || '' };
   }
   function buildMenuInteraction(menu) {
     if (!menu || !Array.isArray(menu.items) || !menu.items.length) return { kind: 'none' };
     const kind = menuKind(menu); const hasSelection = Boolean(menu.how); const multi = Number(menu.how) === 2;
     const selectable = menu.items.filter((item) => item.selector).slice(0, 80).map((item) => ({ ...item, key: String.fromCharCode(item.selector), itemClass: menuItemClass(item), itemName: menuItemName(item.text), itemState: menuItemState(item.text) }));
-    return { kind, title: menuTitle(menu, kind, hasSelection), prompt: menuPrompt(menu, kind, multi, hasSelection), selectable, hasSelection, multi, suppressPicker: Boolean(menu.suppressPicker), awaitingSelection: Boolean(menu.awaitingSelection) };
+    return { kind, family: dialogFamilyForMenu(menu), title: menuTitle(menu, kind, hasSelection), prompt: menuPrompt(menu, kind, multi, hasSelection), selectable, hasSelection, multi, suppressPicker: Boolean(menu.suppressPicker), awaitingSelection: Boolean(menu.awaitingSelection) };
   }
-  return Object.freeze({ version, selectorSet, isDirectionPrompt, isFixedChoicePromptChoices, isFixedChoicePrompt, isInventoryActionPrompt, isItemClassPrompt, menuKind, shouldCacheInventoryChoices, shouldSuppressPassiveGroundMenu, menuItemClass, menuItemState, menuItemName, inventoryRowsForPrompt, promptRequiresNamedInventoryRows, selectorFallbackOptions, itemClassOptions, choiceButtonOptions, buildPromptInteraction, buildMenuInteraction, isReadOnlyInformationalMenu, readOnlyMenuTitle });
+  return Object.freeze({ version, selectorSet, isDirectionPrompt, isFixedChoicePromptChoices, isFixedChoicePrompt, isInventoryActionPrompt, isItemClassPrompt, menuKind, cancellationPlanForPrompt, cancellationPlanForMenu, dialogFamilyForPrompt, dialogFamilyForMenu, shouldCacheInventoryChoices, shouldSuppressPassiveGroundMenu, menuItemClass, menuItemState, menuItemName, inventoryRowsForPrompt, promptRequiresNamedInventoryRows, selectorFallbackOptions, itemClassOptions, choiceButtonOptions, buildPromptInteraction, buildMenuInteraction, isReadOnlyInformationalMenu, readOnlyMenuTitle });
 }));

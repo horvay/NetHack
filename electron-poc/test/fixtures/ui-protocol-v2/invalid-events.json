@@ -1040,5 +1040,122 @@
         }
       }
     }
+  },
+  {
+    "case": "item presentation rejects unknown public class",
+    "event": {
+      "protocol": "nethack-electron-ui/v2", "sequence": 151, "eventId": "evt-item-bad-class", "eventType": "inventory.snapshot", "turn": 1,
+      "payload": { "revision": 1, "items": [{ "displayName": "a milky potion", "publicClass": "potion-of-gain-level", "filterGroups": [] }] }
+    }
+  },
+  {
+    "case": "item presentation rejects filter without public class",
+    "event": {
+      "protocol": "nethack-electron-ui/v2", "sequence": 152, "eventId": "evt-item-filter-no-class", "eventType": "inventory.snapshot", "turn": 1,
+      "payload": { "revision": 1, "items": [{ "displayName": "a milky potion", "semanticKnown": false, "filterGroups": ["magic"] }] }
+    }
+  },
+  {
+    "case": "item presentation rejects class-incompatible filter",
+    "event": {
+      "protocol": "nethack-electron-ui/v2", "sequence": 153, "eventId": "evt-item-filter-mismatch", "eventType": "inventory.snapshot", "turn": 1,
+      "payload": { "revision": 1, "items": [{ "displayName": "a milky potion", "semanticKnown": false, "publicClass": "potion", "filterGroups": ["weapons"] }] }
+    }
+  },
+  {
+    "case": "item presentation rejects equipped filter without worn mask",
+    "event": {
+      "protocol": "nethack-electron-ui/v2", "sequence": 154, "eventId": "evt-item-equipped-no-mask", "eventType": "inventory.snapshot", "turn": 1,
+      "payload": { "revision": 1, "items": [{ "displayName": "a long sword", "publicClass": "weapon", "filterGroups": ["equipped", "weapons"] }] }
+    }
+  },
+  {
+    "case": "item presentation rejects hidden known field key",
+    "event": {
+      "protocol": "nethack-electron-ui/v2", "sequence": 155, "eventId": "evt-item-hidden-known-field", "eventType": "inventory.snapshot", "turn": 1,
+      "payload": { "revision": 1, "items": [{ "displayName": "a milky potion", "semanticKnown": false, "publicClass": "potion", "filterGroups": ["consumables", "magic"], "knownFields": { "trueIdentity": "gain level" } }] }
+    }
+  },
+  {
+    "case": "item presentation rejects negative known charges",
+    "event": {
+      "protocol": "nethack-electron-ui/v2", "sequence": 156, "eventId": "evt-item-negative-charges", "eventType": "inventory.snapshot", "turn": 1,
+      "payload": { "revision": 1, "items": [{ "displayName": "a glass wand", "publicClass": "wand", "filterGroups": ["magic"], "knownFields": { "charges": -1 } }] }
+    }
+  },
+  {
+    "case": "item presentation rejects private ownership metadata",
+    "event": {
+      "protocol": "nethack-electron-ui/v2", "sequence": 157, "eventId": "evt-item-private-owner", "eventType": "inventory.snapshot", "turn": 1,
+      "payload": { "revision": 1, "items": [{ "displayName": "an unpaid scroll", "publicClass": "scroll", "filterGroups": ["consumables", "magic"], "ownership": { "state": "unpaid", "ownerSecretId": 44 } }] }
+    }
+  },
+  {
+    "case": "item presentation rejects unknown equipment slot",
+    "event": {
+      "protocol": "nethack-electron-ui/v2", "sequence": 158, "eventId": "evt-item-unknown-slot", "eventType": "inventory.snapshot", "turn": 1,
+      "payload": { "revision": 1, "items": [{ "displayName": "a helmet", "publicClass": "armor", "filterGroups": ["armor"], "equipmentSlots": ["armor.secret-crown"] }] }
+    }
+  },
+  {
+    "case": "item presentation rejects class-incompatible known charges",
+    "event": {
+      "protocol": "nethack-electron-ui/v2", "sequence": 159, "eventId": "evt-item-food-charges", "eventType": "inventory.snapshot", "turn": 1,
+      "payload": { "revision": 1, "items": [{ "displayName": "an apple", "publicClass": "food", "filterGroups": ["consumables"], "knownFields": { "charges": 2 } }] }
+    }
+  },
+  {
+    "case": "item generic display rejects omitted identity knowledge",
+    "event": {
+      "protocol": "nethack-electron-ui/v2", "sequence": 160, "eventId": "evt-item-omitted-identity", "eventType": "inventory.snapshot", "turn": 1,
+      "payload": { "revision": 1, "items": [{ "objectId": 1, "displayName": "potion of gain level" }] }
+    }
+  },
+  {
+    "case": "object menu generic text rejects omitted identity knowledge",
+    "event": {
+      "protocol": "nethack-electron-ui/v2", "sequence": 161, "eventId": "evt-menu-item-omitted-identity", "eventType": "menu.item", "turn": 1,
+      "payload": { "menuId": "menu-omitted", "item": { "selector": "a", "text": "a - potion of gain level", "semanticKind": "object" } }
+    }
+  },
+  {
+    "case": "spell rows reject unknown estimated field",
+    "event": {
+      "protocol": "nethack-electron-ui/v2", "sequence": 201, "eventId": "evt-spell-estimate", "eventType": "spell.rows", "turn": 1,
+      "requestId": "spell-menu-invalid", "source": { "layer": "core", "authoritative": true }, "revision": { "spell": 1 },
+      "payload": { "menuId": "spell-menu-invalid", "revision": 1, "classificationConfidence": "typed", "rows": [{ "name": "force bolt", "selector": "a", "estimatedDamage": "2d6" }] }
+    }
+  },
+  {
+    "case": "spell rows reject duplicate selectors",
+    "event": {
+      "protocol": "nethack-electron-ui/v2", "sequence": 202, "eventId": "evt-spell-duplicate", "eventType": "spell.rows", "turn": 1,
+      "requestId": "spell-menu-duplicate", "source": { "layer": "core", "authoritative": true }, "revision": { "spell": 2 },
+      "payload": { "menuId": "spell-menu-duplicate", "revision": 2, "classificationConfidence": "typed", "rows": [{ "name": "force bolt", "selector": "a" }, { "name": "healing", "selector": "a" }] }
+    }
+  },
+  {
+    "case": "skill rows reject selector for non-advanceable row",
+    "event": {
+      "protocol": "nethack-electron-ui/v2", "sequence": 203, "eventId": "evt-skill-selector", "eventType": "skill.rows", "turn": 1,
+      "requestId": "skill-menu-invalid", "source": { "layer": "core", "authoritative": true }, "revision": { "skill": 1 },
+      "payload": { "menuId": "skill-menu-invalid", "revision": 1, "classificationConfidence": "typed", "rows": [{ "name": "dagger", "selector": "a", "currentRank": "Basic", "canAdvance": false }] }
+    }
+  },
+  {
+    "case": "typed rows reject non-authoritative source",
+    "event": {
+      "protocol": "nethack-electron-ui/v2", "sequence": 204, "eventId": "evt-spell-untrusted", "eventType": "spell.rows", "turn": 1,
+      "requestId": "spell-menu-untrusted", "source": { "layer": "renderer" }, "revision": { "spell": 3 },
+      "payload": { "menuId": "spell-menu-untrusted", "revision": 3, "classificationConfidence": "typed", "rows": [{ "name": "force bolt" }] }
+    }
+  },
+  {
+    "case": "magic rows reject mismatched request ownership",
+    "event": {
+      "protocol": "nethack-electron-ui/v2", "sequence": 205, "eventId": "evt-skill-owner", "eventType": "skill.rows", "turn": 1,
+      "requestId": "skill-menu-a", "source": { "layer": "core", "authoritative": true }, "revision": { "skill": 2 },
+      "payload": { "menuId": "skill-menu-b", "revision": 2, "classificationConfidence": "typed", "rows": [{ "name": "dagger", "currentRank": "Basic", "canAdvance": false }] }
+    }
   }
 ]

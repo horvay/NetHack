@@ -29,12 +29,21 @@
     const selector = String(value.selector || '').trim();
     const sourceSide = cleanSide(value.sourceSide);
     if (!selector || !sourceSide) return null;
+    const item = value.item && typeof value.item === 'object' ? {
+      ...(Number.isInteger(value.item.objectId) ? { objectId: value.item.objectId } : {}),
+      ...(value.item.inventoryLetter ? { inventoryLetter: String(value.item.inventoryLetter) } : {}),
+      displayName: String(value.item.displayName || 'item'),
+      semanticKnown: value.item.semanticKnown === true,
+      known: value.item.known && typeof value.item.known === 'object' ? { ...value.item.known } : { identity: value.item.semanticKnown === true, appearance: false },
+      ...(value.item.semanticAppearance ? { semanticAppearance: String(value.item.semanticAppearance) } : {}),
+    } : undefined;
     return {
       action,
       selector,
       sourceSide,
       targetSide: cleanSide(value.targetSide) || (sourceSide === 'left' ? 'right' : 'left'),
       itemName: String(value.itemName || '').trim(),
+      item,
       transferId: String(value.transferId || '').trim(),
       requestId: String(value.requestId || value.expectedRequestId || '').trim(),
       reason: String(value.reason || '').trim(),

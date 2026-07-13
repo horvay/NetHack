@@ -84,33 +84,37 @@ const values = new Map([
   [0, 'Electron the Valkyrie'], [1, '18/03'], [2, '14'], [3, '16'], [4, '9'], [5, '12'], [6, '8'], [7, 'Lawful'], [8, '12345'],
   [9, 'Stressed'], [10, '\\G000001f4:500'], [11, '4'], [12, '7'], [13, '6'], [14, '2'], [15, '9'], [16, '214'], [17, 'Weak'], [18, '5'], [19, '40'], [20, 'The Dungeons of Doom:3'], [21, '3210'], [22, `mask ${0x00000080 | 0x04000000 | 0x00400000}`], [23, 'a blessed dagger'], [24, 'crude ring mail'], [25, 'ice'], [26, 'NetHack 5.0'],
 ]);
-const groups = hud.buildStatusGroups(values);
-const chips = hud.buildHudChips(values);
+const presentation = hud.buildStatusPresentation(values);
+const groups = presentation.persistent;
+const chips = groups.flatMap((group) => group.items);
+const detailGroups = presentation.detail;
+const detailChips = detailGroups.flatMap((group) => group.items);
+const detailedChips = hud.buildStatusPresentation(values, { density: 'detailed' }).persistent.flatMap((group) => group.items);
 function chip(label) { return chips.find((entry) => entry.label === label); }
-assert.deepEqual(groups.map((group) => group.id), ['identity', 'attributes', 'vitals', 'dungeon', 'state', 'gear', 'system']);
-assert.deepEqual(groups.find((group) => group.id === 'attributes').items.map((item) => `${item.label}:${item.value}`), ['Str:18/03', 'Dex:14', 'Con:16', 'Int:9', 'Wis:12', 'Cha:8']);
-assert.equal(chip('Name / role').value, 'Electron the Valkyrie');
-assert.equal(chip('Align').value, 'Lawful');
-assert.equal(chip('Score').value, '12345');
+function detailChip(label) { return detailChips.find((entry) => entry.label === label); }
+assert.deepEqual(groups.map((group) => group.id), ['hero', 'vitals', 'dungeon', 'urgent']);
+assert.deepEqual(detailGroups.find((group) => group.id === 'attributes').items.map((item) => `${item.label}:${item.value}`), ['Str:18/03', 'Dex:14', 'Con:16', 'Int:9', 'Wis:12', 'Cha:8']);
+assert.equal(chip('Hero').value, 'Electron the Valkyrie');
+assert.equal(detailChip('Align').value, 'Lawful');
+assert.equal(detailChip('Score').value, '12345');
 assert.equal(chip('HP').severity, 'danger');
 assert.equal(chip('HP').value, '5 / 40');
 assert.equal(chip('Pw').value, '4 / 7');
 assert.equal(chip('Gold').value, '500');
 assert.equal(chip('Dlvl').value, 'The Dungeons of Doom:3');
-assert.equal(chip('Time').value, '214');
-assert.equal(chip('XL').value, '6');
-assert.equal(chip('XP').value, '3210');
-assert.equal(chip('Poly HD').value, '9');
+assert.equal(detailedChips.find((entry) => entry.label === 'Time').value, '214');
+assert.equal(chip('HD').value, '9', 'polymorph HD takes the persistent level role when present');
+assert.equal(detailedChips.find((entry) => entry.label === 'XP').value, '3210');
 assert.equal(chip('Carry').severity, 'warning');
 assert.equal(chip('Hunger').severity, 'danger');
-assert.equal(chip('On').value, 'ice');
-assert.equal(chip('On').severity, 'info');
-assert.equal(chip('Food poison').value, 'critical');
+assert.equal(detailedChips.find((entry) => entry.label === 'On').value, 'ice');
+assert.equal(chip('Food poison').value, 'Critical');
 assert.equal(chip('Held').value, 'Trapped');
 assert.equal(chip('Mind').value, 'Stunned');
-assert.equal(chip('Wield').value, 'a blessed dagger');
-assert.equal(chip('Armor').value, 'crude ring mail');
-assert.equal(chip('Version').value, 'NetHack 5.0');
+assert.equal(detailChip('Wield').value, 'a blessed dagger');
+assert.equal(detailChip('Armor').value, 'crude ring mail');
+assert.equal(detailChip('Version').value, 'NetHack 5.0');
+assert(!chips.some((entry) => ['Str', 'Version', 'Wield', 'Armor'].includes(entry.label)), 'static attributes, gear, and system facts stay out of the persistent HUD');
 assert(!chips.some((entry) => entry.label === 'Cond'), 'conditions render as grouped/severity chips, not one Cond blob');
 assert.equal(hud.terrainChipValue('room'), '');
 

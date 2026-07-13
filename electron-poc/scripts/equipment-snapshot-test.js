@@ -133,6 +133,12 @@ const twoHandedDuplicateMaskSnapshot = EquipmentSnapshot.adaptShimInventoryUpdat
 assert.equal(slot(twoHandedDuplicateMaskSnapshot, 'mainHand')?.item?.displayName, 'a +0 quarterstaff (weapon in hands)', 'two-handed main-hand item keeps public in-hands label');
 assert.equal(slot(twoHandedDuplicateMaskSnapshot, 'offHand')?.item, undefined, 'same two-handed item is not rendered as a contradictory alternate weapon');
 assert(slot(twoHandedDuplicateMaskSnapshot, 'offHand')?.blockedBy.includes('blocked.hands.twoHandedWeapon'), 'two-handed main hand blocks offhand after duplicate worn-mask cleanup');
+const wieldedToolSnapshot = EquipmentSnapshot.adaptShimInventoryUpdateToEquipmentSnapshot({ revision: 33, inventoryRevision: 33, equipmentRevision: 33, items: [
+  { selector: 103, objectId: 7201, text: 'g - a tin opener (wielded)', glyphChar: 40, wornMask: 256, semanticKind: 'object', semanticName: 'tin opener', semanticKnown: true, equipmentSlots: [] },
+] });
+assert.equal(wieldedToolSnapshot.collectionValid, true, 'a wielded tool produces a valid equipment snapshot instead of aborting the event batch');
+assert.equal(slot(wieldedToolSnapshot, 'mainHand')?.item?.displayName, 'a tin opener (wielded)', 'wielded tool remains visible in the main-hand slot');
+
 
 const explicitAlternateSnapshot = EquipmentSnapshot.adaptShimInventoryUpdateToEquipmentSnapshot({ revision: 32, inventoryRevision: 32, equipmentRevision: 32, items: [
   { selector: 97, objectId: 7101, text: 'a - a blessed +1 long sword (weapon in hand)', glyphChar: 41, wornMask: 256, semanticKind: 'object', semanticName: 'long sword', semanticKnown: true },
@@ -159,15 +165,15 @@ const publicBlockerModels = EquipmentSnapshot.equipmentSnapshotToRendererSlotMod
 assert(publicBlockerModels.some((entry) => entry.id === 'offhand' && /shield is equipped/i.test((entry.blockerLabels || []).join(' '))), 'renderer slot models carry player-facing blocker labels');
 
 const bodyAndShirtState = EquipmentSnapshot.applyEquipmentSnapshot(EquipmentSnapshot.emptyEquipmentState(), EquipmentSnapshot.normalizeEquipmentSnapshotPayload({ revision: 34, slots: [
-  { slotId: 'armor.body', item: { selector: 99, objectId: 7201, text: 'c - an uncursed leather armor (being worn)', glyphChar: 91 } },
-  { slotId: 'armor.shirt', item: { selector: 100, objectId: 7202, text: 'd - a T-shirt (being worn)', glyphChar: 91 } },
+  { slotId: 'armor.body', item: { selector: 99, objectId: 7201, text: 'c - an uncursed leather armor (being worn)', glyphChar: 91, semanticKnown: true } },
+  { slotId: 'armor.shirt', item: { selector: 100, objectId: 7202, text: 'd - a T-shirt (being worn)', glyphChar: 91, semanticKnown: true } },
 ] }));
 const bodyAndShirtModels = EquipmentSnapshot.equipmentSnapshotToRendererSlotModels(bodyAndShirtState);
 assert.equal(bodyAndShirtModels.filter((entry) => entry.id === 'armor-suit').length, 1, 'body armor and shirt never create overlapping body cards');
 assert(/leather armor/i.test(bodyAndShirtModels.find((entry) => entry.id === 'armor-suit')?.item?.text || ''), 'body armor owns the body card while worn over a shirt');
 const shirtOnlyState = EquipmentSnapshot.applyEquipmentSnapshot(EquipmentSnapshot.emptyEquipmentState(), EquipmentSnapshot.normalizeEquipmentSnapshotPayload({ revision: 34, slots: [
   { slotId: 'armor.body' },
-  { slotId: 'armor.shirt', item: { selector: 100, objectId: 7202, text: 'd - a T-shirt (being worn)', glyphChar: 91 } },
+  { slotId: 'armor.shirt', item: { selector: 100, objectId: 7202, text: 'd - a T-shirt (being worn)', glyphChar: 91, semanticKnown: true } },
 ] }));
 const shirtOnlyModels = EquipmentSnapshot.equipmentSnapshotToRendererSlotModels(shirtOnlyState);
 assert.equal(shirtOnlyModels.filter((entry) => entry.id === 'armor-suit').length, 1, 'shirt maps to the single body card only after body armor is gone');

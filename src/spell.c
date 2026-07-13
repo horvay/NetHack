@@ -2086,6 +2086,10 @@ dospellmenu(
     anything any;
     int clr = NO_COLOR;
 
+#ifdef SHIM_GRAPHICS
+    shim_native_menu_context("spell.rows", "system", "spell.c:dospellmenu",
+                             FALSE, FALSE, PICK_ONE, "public spell rows");
+#endif
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);
     any = cg.zeroany; /* zero out all bits */
@@ -2129,7 +2133,15 @@ dospellmenu(
                  ATR_NONE, clr, buf,
                  (splnum == splaction)
                     ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
+#ifdef SHIM_GRAPHICS
+        shim_native_spell_row(tmpwin, spellname(splnum), spellet(splnum),
+                              spellev(splnum), SPELL_LEV_PW(spellev(splnum)),
+                              100 - percent_success(splnum), retentionbuf);
+#endif
     }
+#ifdef SHIM_GRAPHICS
+    shim_native_spell_rows_ready(tmpwin);
+#endif
     how = PICK_ONE;
     if (splaction == SPELLMENU_VIEW) {
         if (spellid(1) == NO_SPELL) {

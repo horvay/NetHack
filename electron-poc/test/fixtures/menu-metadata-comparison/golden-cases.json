@@ -52,8 +52,8 @@
   {
     "name": "drop action choice menu",
     "menu": { "window": 18, "prompt": "What do you want to drop?", "how": 2, "awaitingSelection": true, "items": [{ "selector": 97, "text": "a - a long sword" }, { "selector": 98, "text": "b - a food ration" }] },
-    "expectedPurpose": "action.choice",
-    "expectedHeuristicPurpose": "action.choice"
+    "expectedPurpose": "inventory.objectChoice",
+    "expectedHeuristicPurpose": "inventory.objectChoice"
   },
   {
     "name": "startup menu",

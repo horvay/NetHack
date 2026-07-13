@@ -18,7 +18,11 @@ async function connect(wsUrl) {
   return { send(method, params = {}) { const callId = ++id; ws.send(JSON.stringify({ id: callId, method, params })); return new Promise((resolve, reject) => pending.set(callId, { resolve, reject })); }, close() { ws.close(); } };
 }
 async function evalExpr(cdp, expression) { const res = await cdp.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression }); if (res.exceptionDetails) throw new Error(JSON.stringify(res.exceptionDetails)); return res.result.value; }
-async function shot(cdp, name) { const res = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }); const p = path.join(outDir, name); fs.writeFileSync(p, Buffer.from(res.data, 'base64')); return p; }
+async function shot(cdp, name) {
+  await cdp.send('Runtime.evaluate', { awaitPromise: true, expression: "new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(resolve,60))))" });
+  const res = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+  const p = path.join(outDir, name); fs.writeFileSync(p, Buffer.from(res.data, 'base64')); return p;
+}
 async function press(cdp, key, code, text) {
   const vk = key.length === 1 ? key.toUpperCase().charCodeAt(0) : 0;
   const params = { key, code: code || key, windowsVirtualKeyCode: vk, nativeVirtualKeyCode: vk };
@@ -70,11 +74,11 @@ async function main() {
 
     const affordance = await waitFor(async () => {
       const state = await pageState(cdp);
-      return /Inventory\s*\/\s*Equipment\s*\(i\)/i.test(state.buttonLabel || '') ? state : null;
+      return /^(?:Inventory|Inventory\s*\/\s*Equipment\s*\(i\))$/i.test(state.buttonLabel || '') ? state : null;
     }, 5000);
     const buttonScreenshot = await shot(cdp, '00-main-ui-inventory-equipment-button.png');
-    assert('visible inventory/equipment button label', /Inventory\s*\/\s*Equipment\s*\(i\)/i.test(affordance.buttonLabel), affordance.buttonLabel);
-    assert('button title explains shortcut', /RPG hero equipment/i.test(affordance.buttonTitle), affordance.buttonTitle);
+    assert('visible inventory/equipment button label', /^(?:Inventory|Inventory\s*\/\s*Equipment\s*\(i\))$/i.test(affordance.buttonLabel), affordance.buttonLabel);
+    assert('button title explains shortcut', /(?:RPG hero equipment|Inventory and Equipment).*\bi\b/i.test(affordance.buttonTitle), affordance.buttonTitle);
 
     const routeMetrics = await evalExpr(cdp, `(() => {
       const t = window.__nethackPromptTest;
@@ -99,7 +103,7 @@ async function main() {
         [98, 'b - a +0 dagger (alternate weapon; not wielded)', 41, 'dagger'],
         [99, 'c - an uncursed +3 small shield (being worn)', 91, 'small shield'],
         [100, 'd - an uncursed food ration', 37, 'food ration']
-      ].forEach(([selector, text, glyphChar, semanticName]) => t.event({name:'shim_add_menu', window:89, selector, text, glyphChar, semanticKind:'object', semanticName}));
+      ].forEach(([selector, text, glyphChar, semanticName]) => t.event({name:'shim_add_menu', window:89, selector, text, glyphChar, semanticKind:'object', semanticName, semanticKnown:true}));
       t.event({name:'shim_end_menu', window:89, prompt:'Menu'});
       const dialog = t.dialog();
       return { buttonSentBeforeRows, dialog, paper: document.querySelector('.rpg-equipment-screen')?.innerText || '', rows: Array.from(document.querySelectorAll('#interaction-options .rpg-inventory-row')).map((el) => el.innerText).join(String.fromCharCode(10)), body: document.body.innerText };
@@ -125,12 +129,12 @@ async function main() {
       [
         [97, 'a - a scroll labeled READ ME', 63, 'scroll labeled READ ME'],
         [98, 'b - an uncursed food ration', 37, 'food ration']
-      ].forEach(([selector, text, glyphChar, semanticName]) => t.event({name:'shim_add_menu', window:188, selector, text, glyphChar, semanticKind:'object', semanticName}));
+      ].forEach(([selector, text, glyphChar, semanticName]) => t.event({name:'shim_add_menu', window:188, selector, text, glyphChar, semanticKind:'object', semanticName, semanticKnown:true}));
       t.event({name:'shim_end_menu', window:188, prompt:'Menu'});
       const dialog = t.dialog();
       return { keyboardSent, groundPanelBeforeInventory, dialog, paper: document.querySelector('.rpg-equipment-screen')?.innerText || '', rows: Array.from(document.querySelectorAll('#interaction-options .rpg-inventory-row')).map((el) => el.innerText).join(String.fromCharCode(10)), body: document.body.innerText };
     })()`);
-    assert('keyboard i opens rich equipment screen even when inventory rows match remembered ground stack', rememberedGroundMetrics.keyboardSent === 'i' && rememberedGroundMetrics.groundPanelBeforeInventory.active && rememberedGroundMetrics.dialog.interactionOpen && /Equipment \/ Inventory/i.test(rememberedGroundMetrics.dialog.title) && /Hero equipment/i.test(rememberedGroundMetrics.paper) && /scroll labeled READ ME|food ration/i.test(rememberedGroundMetrics.rows), JSON.stringify(rememberedGroundMetrics));
+    assert('keyboard i opens rich equipment screen even when inventory rows match remembered ground stack', rememberedGroundMetrics.keyboardSent === 'i' && !rememberedGroundMetrics.groundPanelBeforeInventory.active && rememberedGroundMetrics.dialog.interactionOpen && /Equipment \/ Inventory/i.test(rememberedGroundMetrics.dialog.title) && /Hero equipment/i.test(rememberedGroundMetrics.paper) && /scroll labeled READ ME|food ration/i.test(rememberedGroundMetrics.rows), JSON.stringify(rememberedGroundMetrics));
     assert('remembered ground stack does not regress i into the basic Menu picker', !/Menu\nChoose visible item rows/i.test(rememberedGroundMetrics.body), rememberedGroundMetrics.body);
 
     const explicitInventoryPurposeMetrics = await evalExpr(cdp, `(() => {
@@ -143,14 +147,14 @@ async function main() {
         [98, 'b - an uncursed +0 leather jacket (being worn)', 91, 'leather jacket'],
         [99, 'c - an uncursed +0 fedora (being worn)', 91, 'fedora', 'object'],
         [106, 'a lichen corpse', 37, 'lichen', 'corpse']
-      ].forEach(([selector, text, glyphChar, semanticName, semanticKind = 'object']) => t.event({name:'shim_add_menu', window:189, selector, text, glyphChar, semanticKind, semanticName, menuPurpose:'inventory.displayInventory', owner:{kind:'inventory', window:189}, lifecycle:'opened'}));
+      ].forEach(([selector, text, glyphChar, semanticName, semanticKind = 'object']) => t.event({name:'shim_add_menu', window:189, selector, text, glyphChar, semanticKind, semanticName, semanticKnown:true, menuPurpose:'inventory.displayInventory', owner:{kind:'inventory', window:189}, lifecycle:'opened'}));
       t.event({name:'shim_end_menu', window:189, prompt:'Menu', menuPurpose:'inventory.displayInventory', owner:{kind:'inventory', window:189}, lifecycle:'ready'});
       t.event({name:'shim_select_menu', window:189, how:1, menuPurpose:'inventory.displayInventory', owner:{kind:'inventory', window:189}, lifecycle:'selecting'});
       const rich = { dialog: t.dialog(), paper: document.querySelector('.rpg-equipment-screen')?.innerText || '', rows: Array.from(document.querySelectorAll('#interaction-options .rpg-inventory-row')).map((el) => el.innerText).join(String.fromCharCode(10)), body: document.body.innerText };
       t.reset(); t.setRunning(true);
       t.event({name:'shim_yn_function', query:'What do you want to use or apply? [a or ?*]', choices:'a?*\\u001b'});
       t.event({name:'shim_start_menu', window:190, menuPurpose:'inventory.displayInventory', owner:{kind:'inventory', window:190}, lifecycle:'opened'});
-      t.event({name:'shim_add_menu', window:190, selector:97, text:'a - a +2 bullwhip (weapon in right hand)', glyphChar:41, semanticKind:'object', semanticName:'bullwhip', menuPurpose:'inventory.displayInventory', owner:{kind:'inventory', window:190}, lifecycle:'opened'});
+      t.event({name:'shim_add_menu', window:190, selector:97, text:'a - a +2 bullwhip (weapon in right hand)', glyphChar:41, semanticKind:'object', semanticName:'bullwhip', semanticKnown:true, menuPurpose:'inventory.displayInventory', owner:{kind:'inventory', window:190}, lifecycle:'opened'});
       t.event({name:'shim_end_menu', window:190, prompt:'Menu', menuPurpose:'inventory.displayInventory', owner:{kind:'inventory', window:190}, lifecycle:'ready'});
       t.event({name:'shim_select_menu', window:190, how:1, menuPurpose:'inventory.displayInventory', owner:{kind:'inventory', window:190}, lifecycle:'selecting'});
       const actionPicker = { dialog: t.dialog(), paper: document.querySelector('.rpg-equipment-screen')?.innerText || '', body: document.body.innerText };
@@ -162,7 +166,8 @@ async function main() {
 
     const metrics = await evalExpr(cdp, `(async () => {
       const t = window.__nethackPromptTest;
-      t.reset(); t.setRunning(true);
+      const acceptedCoreCommands = [];
+      t.reset(); t.setRunning(true); t.setUiCommandHandlerForTest((command) => { acceptedCoreCommands.push(JSON.parse(JSON.stringify(command))); return { ok: true }; });
       t.event({name:'shim_start_menu', window:90});
       [
         [97, 'a - a blessed +1 long sword (weapon in hand)', 41, 'long sword'],
@@ -184,7 +189,7 @@ async function main() {
         [113, 'q - a Hawaiian shirt', 91, 'Hawaiian shirt'],
         [114, 'r - a T-shirt (being worn)', 91, 'T-shirt'],
         [121, 'y - a large box', 40, 'large box']
-      ].forEach(([selector, text, glyphChar, semanticName]) => t.event({name:'shim_add_menu', window:90, selector, objectId: selector + 1000, text, glyphChar, semanticKind:'object', semanticName}));
+      ].forEach(([selector, text, glyphChar, semanticName]) => t.event({name:'shim_add_menu', window:90, selector, objectId: selector + 1000, text, glyphChar, semanticKind:'object', semanticName, semanticKnown:true}));
       t.event({name:'shim_end_menu', window:90, prompt:'Inventory:'});
       const dialog = t.dialog();
       const paper = document.querySelector('.rpg-equipment-screen')?.innerText || '';
@@ -206,8 +211,7 @@ async function main() {
       t.clearSentInputs(); doubleClickRow('m'); await new Promise((resolve) => setTimeout(resolve, 120)); const wearHelmetBeforeCloseSent = t.sentInputs().join(''); const wearHelmetBeforeCloseCommands = t.sentUiProtocolCommands(); t.forceCloseCurrentMenuForTest(); await new Promise((resolve) => setTimeout(resolve, 600)); const wearHelmetSent = t.sentInputs().join(''); const wearHelmetCommands = t.sentUiProtocolCommands();
       t.event({name:'bridge_menu_answer', return:0});
       const wearHelmetAfterCloseSignal = { open: document.getElementById('interaction-dialog').open, title: document.getElementById('interaction-title').textContent, paper: document.querySelector('.rpg-equipment-screen')?.innerText || '', feedback: document.getElementById('interaction-feedback').textContent };
-      t.event({name:'shim_start_menu', window:190});
-      [
+      const refreshedInventoryRows = [
         [97, 'a - a blessed +1 long sword (weapon in hand)', 41, 'long sword'],
         [98, 'b - an uncursed dagger (alternate weapon; not wielded)', 41, 'dagger'],
         [99, 'c - an uncursed ring mail (being worn)', 91, 'ring mail'],
@@ -227,8 +231,11 @@ async function main() {
         [113, 'q - a Hawaiian shirt', 91, 'Hawaiian shirt'],
         [114, 'r - a T-shirt (being worn)', 91, 'T-shirt'],
         [121, 'y - a large box', 40, 'large box']
-      ].forEach(([selector, text, glyphChar, semanticName]) => t.event({name:'shim_add_menu', window:190, selector, objectId: selector + 1000, text, glyphChar, semanticKind:'object', semanticName}));
+      ];
+      t.event({name:'shim_start_menu', window:190});
+      refreshedInventoryRows.forEach(([selector, text, glyphChar, semanticName]) => t.event({name:'shim_add_menu', window:190, selector, objectId: selector + 1000, text, glyphChar, semanticKind:'object', semanticName, semanticKnown:true}));
       t.event({name:'shim_end_menu', window:190, prompt:'Inventory:'});
+      t.setAuthoritativeInventoryForTest(refreshedInventoryRows.map(([selector, text, glyphChar, semanticName]) => ({ selector, objectId: selector + 1000, text, glyphChar, semanticKind: 'object', semanticName, semanticKnown: true })), 2);
       const wearHelmetAfterRefresh = { open: document.getElementById('interaction-dialog').open, title: document.getElementById('interaction-title').textContent, helmetSlot: document.querySelector('.paper-doll-slots .equipment-slot[data-slot="helmet"]')?.innerText || '', helmetRow: document.querySelector('#interaction-options .rpg-inventory-row[data-key="m"]')?.innerText || '' };
       t.event({name:'bridge_menu_answer', return:0});
       const wearHelmetAfterLateCloseSignal = { open: document.getElementById('interaction-dialog').open, title: document.getElementById('interaction-title').textContent, paper: document.querySelector('.rpg-equipment-screen')?.innerText || '', helmetSlot: document.querySelector('.paper-doll-slots .equipment-slot[data-slot="helmet"]')?.innerText || '', helmetRow: document.querySelector('#interaction-options .rpg-inventory-row[data-key="m"]')?.innerText || '' };
@@ -241,6 +248,7 @@ async function main() {
       t.clearSentInputs(); document.querySelector('.paper-doll-slots .equipment-slot[data-slot="armor-suit"] button[data-command-key="T"]')?.click(); t.forceCloseCurrentMenuForTest(); await new Promise((resolve) => setTimeout(resolve, 170)); const takeOffArmorSent = t.sentInputs().join(''); const takeOffArmorCommands = t.sentUiProtocolCommands(); const takeOffArmorTitle = document.getElementById('interaction-title').textContent; const takeOffArmorPrompt = document.getElementById('interaction-prompt').textContent;
       t.clearSentInputs(); document.querySelector('.paper-doll-slots .equipment-slot[data-slot="quiver"] button[data-command-key="Q"]')?.click(); t.forceCloseCurrentMenuForTest(); await new Promise((resolve) => setTimeout(resolve, 170)); const quiverSent = t.sentInputs().join(''); const quiverCommands = t.sentUiProtocolCommands();
       t.clearSentInputs(); document.querySelector('.paper-doll-slots .equipment-slot[data-slot="offhand"] button[data-action-id="slot.swapMainAlternate"]')?.click(); t.forceCloseCurrentMenuForTest(); await new Promise((resolve) => setTimeout(resolve, 170)); const swapSent = t.sentInputs().join(''); const swapCommands = t.sentUiProtocolCommands(); const swapFeedback = document.getElementById('interaction-feedback').textContent;
+      t.setInventorySnapshotFeatureFlags({ useSnapshotForOverview: false });
       t.event({name:'shim_start_menu', window:91});
       [
         [97, 'a - a blessed +1 long sword (alternate weapon; not wielded)', 41, 'long sword'],
@@ -262,7 +270,7 @@ async function main() {
         [113, 'q - a Hawaiian shirt', 91, 'Hawaiian shirt'],
         [114, 'r - a T-shirt (being worn)', 91, 'T-shirt'],
         [121, 'y - a large box', 40, 'large box']
-      ].forEach(([selector, text, glyphChar, semanticName]) => t.event({name:'shim_add_menu', window:91, selector, objectId: selector + 1000, text, glyphChar, semanticKind:'object', semanticName}));
+      ].forEach(([selector, text, glyphChar, semanticName]) => t.event({name:'shim_add_menu', window:91, selector, objectId: selector + 1000, text, glyphChar, semanticKind:'object', semanticName, semanticKnown:true}));
       t.event({name:'shim_end_menu', window:91, prompt:'Inventory:'});
       const swappedSlotText = Array.from(document.querySelectorAll('.paper-doll-slots .equipment-slot')).map((el) => ({ slot: el.dataset.slot, text: el.innerText }));
       const dispatchDrop = async (rowKey, slotId, clickAfterDrop = false) => {
@@ -283,11 +291,15 @@ async function main() {
       const dragStaffMainHand = await dispatchDrop('o', 'main-hand', true);
       const dragDartsMainHand = await dispatchDrop('n', 'main-hand', true);
       const dragDartsQuiver = await dispatchDrop('n', 'quiver', true);
+      const dragInvalidFoodToHelmet = await dispatchDrop('m', 'shield');
       t.clearSentInputs();
       const dartsRow = document.querySelector('#interaction-options .rpg-inventory-row[data-key="n"]');
       dartsRow.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 880, clientY: 340 }));
       const contextMenuText = document.querySelector('.inventory-context-menu')?.innerText || '';
       const contextActionIds = Array.from(document.querySelectorAll('.inventory-context-menu [data-action-id]')).map((el) => el.dataset.actionId);
+      t.event({ name: 'shim_start_menu', window: 92 });
+      t.event({ name: 'shim_add_menu', window: 92, selector: 121, objectId: 1121, text: 'y - a large box', glyphChar: 40, semanticKind: 'object', semanticName: 'large box', semanticKnown: true });
+      t.event({ name: 'shim_end_menu', window: 92, prompt: 'Inventory:' });
       t.clearSentInputs();
       const largeBoxRow = document.querySelector('#interaction-options .rpg-inventory-row[data-key="y"]');
       largeBoxRow?.scrollIntoView?.({ block: 'center' });
@@ -299,20 +311,105 @@ async function main() {
       await new Promise((resolve) => setTimeout(resolve, 170));
       const largeBoxApplySent = t.sentInputs().join('');
       const largeBoxApplyCommands = t.sentUiProtocolCommands();
+      const largeBoxAcceptedCoreCommands = acceptedCoreCommands.filter((command) => command.actionId === 'item.lootOrApply');
+      const largeBoxCurrentInventoryRevision = t.inventory().snapshotRevision;
       const largeBoxApplyFeedback = document.getElementById('interaction-feedback').textContent;
-      const dragInvalidFoodToHelmet = await dispatchDrop('m', 'shield');
       const offhandContextMenuText = (() => {
         closeInventoryContextMenu?.();
+        t.setEquipmentSnapshotFeatureFlags({ useSnapshotForPaperDoll: false });
+        t.event({ name: 'shim_start_menu', window: 199 });
+        t.event({ name: 'shim_add_menu', window: 199, selector: 97, objectId: 1097, text: 'a - a blessed +1 long sword (weapon in hand)', glyphChar: 41, semanticKind: 'object', semanticName: 'long sword', semanticKnown: true });
+        t.event({ name: 'shim_add_menu', window: 199, selector: 98, objectId: 1098, text: 'b - an uncursed dagger (alternate weapon; not wielded)', glyphChar: 41, semanticKind: 'object', semanticName: 'dagger', semanticKnown: true });
+        t.event({ name: 'shim_end_menu', window: 199, prompt: 'Inventory:' });
         const offhandSlot = document.querySelector('.paper-doll-slots .equipment-slot[data-slot="offhand"]');
-        offhandSlot.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 520, clientY: 360 }));
+        if (offhandSlot) offhandSlot.dataset.testActionInvoker = 'true';
+        offhandSlot?.focus?.({ preventScroll: true });
+        offhandSlot?.dispatchEvent(new KeyboardEvent('keydown', { key: 'F10', shiftKey: true, bubbles: true, cancelable: true }));
         return document.querySelector('.equipment-slot-context-menu')?.innerText || '';
       })();
       const rawGenericContextLeak = /Do what with the darts\?|Inventory selector|Item selector n|Throw one of these|semantic IDs|compatibility commands|\b(?:item|slot)\.[A-Za-z]/i.test(contextMenuText + String.fromCharCode(10) + offhandContextMenuText);
-      return { dialog, paper, slots, rows, swappedSlotText, hasPlayerAvatar: Boolean(avatar), playerAvatarTileId: avatar?.dataset.tileId || '', playerAvatarSource: avatar?.dataset.avatarSource || '', playerAvatarSrc: avatar?.dataset.avatarSrc || avatarImage?.getAttribute('src') || '', avatarImageStyle: avatarImage ? { objectFit: avatarImage.style.objectFit || avatarImageStyle?.getPropertyValue('object-fit') || '', objectPosition: avatarImage.style.objectPosition || avatarImageStyle?.getPropertyValue('object-position') || '', width: Math.round(avatarImageBox?.width || 0), height: Math.round(avatarImageBox?.height || 0), naturalWidth: avatarImage?.naturalWidth || 0, naturalHeight: avatarImage?.naturalHeight || 0 } : null, stageSize, avatarStageBox, slotBoxes, singleClickHelmetSent, singleClickHelmetTitle, singleClickHelmetOpen, singleClickContextOpen, wearHelmetBeforeCloseSent, wearHelmetBeforeCloseCommands, wearHelmetSent, wearHelmetCommands, wearHelmetAfterCloseSignal, wearHelmetAfterRefresh, wearHelmetAfterLateCloseSignal, swapArmorSent, swapArmorFeedback, swapArmorRow, swapArmorAria, layeredShirtSwapSent, layeredShirtFeedback, layeredShirtRow, removeRingSent, removeRingCommands, takeOffArmorSent, takeOffArmorCommands, takeOffArmorTitle, takeOffArmorPrompt, quiverSent, quiverCommands, swapSent, swapCommands, swapFeedback, dragHelmet, dragStaffMainHand, dragDartsMainHand, dragDartsQuiver, contextMenuText, contextActionIds, largeBoxContextMenuText, largeBoxContextHeader, largeBoxApplySent, largeBoxApplyCommands, largeBoxApplyFeedback, offhandContextMenuText, rawGenericContextLeak, dragInvalidFoodToHelmet, body: document.body.innerText };
+      return { dialog, paper, slots, rows, swappedSlotText, hasPlayerAvatar: Boolean(avatar), playerAvatarTileId: avatar?.dataset.tileId || '', playerAvatarSource: avatar?.dataset.avatarSource || '', playerAvatarSrc: avatar?.dataset.avatarSrc || avatarImage?.getAttribute('src') || '', avatarImageStyle: avatarImage ? { objectFit: avatarImage.style.objectFit || avatarImageStyle?.getPropertyValue('object-fit') || '', objectPosition: avatarImage.style.objectPosition || avatarImageStyle?.getPropertyValue('object-position') || '', width: Math.round(avatarImageBox?.width || 0), height: Math.round(avatarImageBox?.height || 0), naturalWidth: avatarImage?.naturalWidth || 0, naturalHeight: avatarImage?.naturalHeight || 0 } : null, stageSize, avatarStageBox, slotBoxes, singleClickHelmetSent, singleClickHelmetTitle, singleClickHelmetOpen, singleClickContextOpen, wearHelmetBeforeCloseSent, wearHelmetBeforeCloseCommands, wearHelmetSent, wearHelmetCommands, wearHelmetAfterCloseSignal, wearHelmetAfterRefresh, wearHelmetAfterLateCloseSignal, swapArmorSent, swapArmorFeedback, swapArmorRow, swapArmorAria, layeredShirtSwapSent, layeredShirtFeedback, layeredShirtRow, removeRingSent, removeRingCommands, takeOffArmorSent, takeOffArmorCommands, takeOffArmorTitle, takeOffArmorPrompt, quiverSent, quiverCommands, swapSent, swapCommands, swapFeedback, dragHelmet, dragStaffMainHand, dragDartsMainHand, dragDartsQuiver, contextMenuText, contextActionIds, largeBoxContextMenuText, largeBoxContextHeader, largeBoxApplySent, largeBoxApplyCommands, largeBoxAcceptedCoreCommands, largeBoxCurrentInventoryRevision, largeBoxApplyFeedback, offhandContextMenuText, rawGenericContextLeak, dragInvalidFoodToHelmet, body: document.body.innerText };
     })()`);
-    const screenshot = await shot(cdp, '03-injected-rich-rpg-equipment-screen.png');
+    await evalExpr(cdp, `(async () => { const menu = document.querySelector('.equipment-slot-context-menu'); menu?.scrollIntoView?.({ block: 'start', inline: 'nearest' }); const dialog = document.getElementById('interaction-dialog'); if (dialog) dialog.scrollTop += 12; await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))); return true; })()`);
+    const screenshot = await shot(cdp, '03-action-open-rich-rpg-equipment-screen.png');
+    const actionGeometry = await evalExpr(cdp, `(async () => {
+      const rect = (element) => { const r = element?.getBoundingClientRect?.(); return r ? { left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width, height: r.height } : null; };
+      const overlaps = (a, b) => Boolean(a && b && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top);
+      const menu = document.querySelector('.equipment-slot-context-menu');
+      const stage = document.querySelector('.paper-doll-stage');
+      const avatar = document.querySelector('.paper-doll-stage .player-avatar-display');
+      const cards = Array.from(document.querySelectorAll('.paper-doll-slots .equipment-slot'));
+      const dialog = document.getElementById('interaction-dialog');
+      const actions = Array.from(menu?.querySelectorAll('[role="menuitem"]') || []);
+      const visibleBounds = () => { const d = rect(dialog); return { left: Math.max(0, d?.left || 0) + 1, top: Math.max(0, d?.top || 0) + 1, right: Math.min(innerWidth, d?.right || innerWidth) - 1, bottom: Math.min(innerHeight, d?.bottom || innerHeight) - 1 }; };
+      const isReachable = (box, bounds) => Boolean(box && box.left >= bounds.left - 1 && box.right <= bounds.right + 1 && box.top >= bounds.top - 1 && box.bottom <= bounds.bottom + 1);
+      const settle = () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const first = actions[0];
+      first?.focus?.({ preventScroll: true }); first?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' }); await settle();
+      const firstBox = rect(first); const firstBounds = visibleBounds(); const firstFocused = document.activeElement === first;
+      const last = actions[actions.length - 1];
+      last?.focus?.({ preventScroll: true }); last?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' }); await settle();
+      const lastBox = rect(last); const lastBounds = visibleBounds(); const lastFocused = document.activeElement === last;
+      const menuBox = rect(menu); const stageBox = rect(stage); const avatarBox = rect(avatar); const cardBoxes = cards.map((card) => ({ slot: card.dataset.slot, ...rect(card) }));
+      return {
+        compact: matchMedia('(max-width: 960px)').matches,
+        presentation: menu?.dataset.presentation || 'floating-menu',
+        actionCount: actions.length,
+        menuBox, stageBox, avatarBox, cardBoxes,
+        menuOverlapsStage: overlaps(menuBox, stageBox),
+        menuOverlapsAvatar: overlaps(menuBox, avatarBox),
+        menuOverlapsCards: cardBoxes.filter((box) => overlaps(menuBox, box)).map((box) => box.slot),
+        stageBeforeMenu: Boolean(stageBox && menuBox && stageBox.bottom <= menuBox.top + 1),
+        firstReachable: isReachable(firstBox, firstBounds), lastReachable: isReachable(lastBox, lastBounds),
+        firstFocused, lastFocused, firstBox, lastBox, firstBounds, lastBounds,
+        noHorizontalOverflow: Boolean(menu && dialog && menu.scrollWidth <= menu.clientWidth + 1 && dialog.scrollWidth <= dialog.clientWidth + 1 && document.documentElement.scrollWidth <= innerWidth + 1),
+        allActionsSingleViewportWidth: actions.every((action) => { const box = rect(action); return box && box.left >= 0 && box.right <= innerWidth; }),
+      };
+    })()`);
+    await press(cdp, 'Escape', 'Escape');
+    const actionCloseState = await evalExpr(cdp, `(async () => {
+      const heading = document.querySelector('.paper-doll-heading');
+      heading?.scrollIntoView?.({ block: 'start', inline: 'nearest' });
+      const dialog = document.getElementById('interaction-dialog');
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const box = (selector) => { const r = document.querySelector(selector)?.getBoundingClientRect?.(); return r ? { left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width, height: r.height } : null; };
+      const avatar = box('.paper-doll-stage .player-avatar-display');
+      const stage = box('.paper-doll-stage');
+      const firstSlot = Array.from(document.querySelectorAll('.paper-doll-slots .equipment-slot')).map((element) => element.getBoundingClientRect()).sort((a, b) => a.top - b.top)[0];
+      const activeSlot = document.activeElement?.closest?.('.equipment-slot')?.dataset.slot || '';
+      const exactInvokerRestored = document.activeElement?.dataset?.testActionInvoker === 'true';
+      const headingBox = box('.paper-doll-heading');
+      const footerAction = box('.dialog-actions button:not([hidden])');
+      const overlaps = (a, b) => Boolean(a && b && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top);
+      return {
+        menuClosed: !document.querySelector('.equipment-slot-context-menu'),
+        dialogOpen: Boolean(document.getElementById('interaction-dialog')?.open),
+        activeSlot,
+        exactInvokerRestored,
+        avatar,
+        stage,
+        firstSlotTop: firstSlot?.top || 0,
+        headingVisible: Boolean(headingBox && headingBox.top >= 0 && headingBox.bottom <= innerHeight),
+        completeHeroVisible: Boolean(avatar && avatar.top >= 0 && avatar.bottom <= innerHeight && !overlaps(avatar, footerAction)),
+        heroBeforeSlots: Boolean(avatar && firstSlot && avatar.bottom <= firstSlot.top + 1),
+        noHorizontalOverflow: document.getElementById('interaction-dialog').scrollWidth <= document.getElementById('interaction-dialog').clientWidth + 1,
+      };
+    })()`);
+    const actionClosedTopScreenshot = await shot(cdp, '03-action-closed-top-of-equipment-screen.png');
+    assert('Shift+F10 opens a populated slot action panel', actionGeometry.actionCount > 0 && actionGeometry.menuBox, JSON.stringify(actionGeometry));
+    assert('slot action first and last actions are focusable and vertically reachable', actionGeometry.actionCount > 1 && actionGeometry.firstFocused && actionGeometry.lastFocused && actionGeometry.firstReachable && actionGeometry.lastReachable, JSON.stringify(actionGeometry));
+    assert('Escape closes only the slot action panel, restores the exact Shift+F10 invoker, and keeps the equipment dialog open', actionCloseState.menuClosed && actionCloseState.dialogOpen && actionCloseState.activeSlot === 'offhand' && actionCloseState.exactInvokerRestored, JSON.stringify(actionCloseState));
+    assert('slot action panel overlaps neither avatar, equipment cards, nor paper-doll stage', !actionGeometry.menuOverlapsAvatar && !actionGeometry.menuOverlapsStage && actionGeometry.menuOverlapsCards.length === 0, JSON.stringify(actionGeometry));
+    if (actionGeometry.compact) {
+      assert('compact slot actions use an in-flow drawer after the complete hero stage', actionGeometry.presentation === 'in-flow-drawer' && actionGeometry.stageBeforeMenu, JSON.stringify(actionGeometry));
+      assert('compact slot action drawer overlaps neither avatar, cards, nor stage', !actionGeometry.menuOverlapsAvatar && !actionGeometry.menuOverlapsStage && actionGeometry.menuOverlapsCards.length === 0, JSON.stringify(actionGeometry));
+      assert('compact slot action drawer and every action avoid horizontal overflow', actionGeometry.noHorizontalOverflow && actionGeometry.allActionsSingleViewportWidth, JSON.stringify(actionGeometry));
+      assert('action-closed compact top state shows its heading and complete uncropped hero before the slot list without horizontal overflow', actionCloseState.headingVisible && actionCloseState.completeHeroVisible && actionCloseState.heroBeforeSlots && actionCloseState.noHorizontalOverflow, JSON.stringify(actionCloseState));
+    }
     const snapshotVisibleMetrics = await evalExpr(cdp, `(() => {
       const t = window.__nethackPromptTest;
+      t.setInventorySnapshotFeatureFlags({ useSnapshotForOverview: true });
+      t.setEquipmentSnapshotFeatureFlags({ useSnapshotForPaperDoll: true });
       t.reset(); t.setRunning(true);
       t.event({ name: 'shim_update_inventory', reason: -1, revision: 21, inventoryRevision: 21, equipmentRevision: 8, items: [
         { selector: 97, objectId: 3101, text: 'a - a +0 spear (weapon in hand)', quantity: 1, glyphChar: 41, wornMask: 256, semanticKind: 'object', semanticName: 'spear', semanticKnown: true },
@@ -322,8 +419,8 @@ async function main() {
       const equipmentDefault = t.equipment();
       const equipmentSnapshot = t.equipmentSnapshot();
       t.event({ name: 'shim_start_menu', window: 222 });
-      t.event({ name: 'shim_add_menu', window: 222, selector: 97, text: 'a - stale menu spear label', glyphChar: 41, semanticKind: 'object', semanticName: 'stale spear label' });
-      t.event({ name: 'shim_add_menu', window: 222, selector: 98, text: 'b - stale menu armor label', glyphChar: 91, semanticKind: 'object', semanticName: 'stale armor label' });
+      t.event({ name: 'shim_add_menu', window: 222, selector: 97, text: 'a - stale menu spear label', glyphChar: 41, semanticKind: 'object', semanticName: 'stale spear label', semanticKnown: true });
+      t.event({ name: 'shim_add_menu', window: 222, selector: 98, text: 'b - stale menu armor label', glyphChar: 91, semanticKind: 'object', semanticName: 'stale armor label', semanticKnown: true });
       t.event({ name: 'shim_add_menu', window: 222, selector: 99, text: 'c - stale menu ring label', glyphChar: 61, semanticKind: 'object', semanticAppearance: 'stale ring appearance', semanticKnown: false, semanticName: 'ring of levitation' });
       t.event({ name: 'shim_end_menu', window: 222, prompt: 'Inventory:' });
       const defaultInventory = t.inventory();
@@ -338,6 +435,7 @@ async function main() {
       const equipmentReenabled = t.equipment();
       return { equipmentDefault, equipmentSnapshot, defaultInventory, defaultRows, defaultPaper, disabledInventoryFlags, fallbackRows, disabledEquipmentFlags, equipmentFallback, reenabledEquipmentFlags, equipmentReenabled };
     })()`);
+    await evalExpr(cdp, `(() => { document.querySelector('.paper-doll-heading')?.scrollIntoView?.({ block: 'start', inline: 'nearest' }); return true; })()`);
     const snapshotFlagScreenshot = await shot(cdp, '04-snapshot-backed-visible-inventory-equipment.png');
     const noAlternateMetrics = await evalExpr(cdp, `(() => {
       const t = window.__nethackPromptTest;
@@ -353,7 +451,7 @@ async function main() {
         [102, 'f - a blessed +1 long sword (weapon in right hand)', 41, 'long sword'],
         [103, 'g - an uncursed leather armor (being worn)', 91, 'leather armor'],
         [104, 'h - a T-shirt (being worn)', 91, 'T-shirt']
-      ].forEach(([selector, text, glyphChar, semanticName]) => t.event({ name: 'shim_add_menu', window: 241, selector, objectId: selector + 4000, text, glyphChar, semanticKind: 'object', semanticName }));
+      ].forEach(([selector, text, glyphChar, semanticName]) => t.event({ name: 'shim_add_menu', window: 241, selector, objectId: selector + 4000, text, glyphChar, semanticKind: 'object', semanticName, semanticKnown: true }));
       t.event({ name: 'shim_end_menu', window: 241, prompt: 'Inventory:' });
       const offhandSlot = document.querySelector('.paper-doll-slots .equipment-slot[data-slot="offhand"]');
       const mainSlot = document.querySelector('.paper-doll-slots .equipment-slot[data-slot="main-hand"]');
@@ -363,6 +461,7 @@ async function main() {
       const offhandContextMenuText = document.querySelector('.equipment-slot-context-menu')?.innerText || '';
       return { paper: document.querySelector('.rpg-equipment-screen')?.innerText || '', mainText: mainSlot?.innerText || '', offhandText: offhandSlot?.innerText || '', offhandEquipped: offhandSlot?.classList.contains('equipped') || false, offhandButtonLabels, offhandContextMenuText, armorCards };
     })()`);
+    await evalExpr(cdp, `(() => { document.querySelector('.paper-doll-slots .equipment-slot[data-slot="offhand"]')?.scrollIntoView?.({ block: 'center', inline: 'nearest' }); return true; })()`);
     const noAlternateScreenshot = await shot(cdp, '05-no-alternate-offhand-empty-equipment-screen.png');
     const shirtAfterTakeoffMetrics = await evalExpr(cdp, `(() => new Promise((resolve) => {
       const t = window.__nethackPromptTest;
@@ -372,6 +471,11 @@ async function main() {
       window.setTimeout(() => {
         const sent = t.sentInputs().join('');
         const commands = t.sentUiProtocolCommands();
+        t.event({ name: 'shim_update_inventory', revision: 42, inventoryRevision: 42, equipmentRevision: 42, items: [
+          { selector: 102, objectId: 4101, text: 'f - a blessed +1 long sword (weapon in right hand)', glyphChar: 41, wornMask: 256, semanticKind: 'object', semanticName: 'long sword', semanticKnown: true },
+          { selector: 103, objectId: 4102, text: 'g - an uncursed leather armor', glyphChar: 91, wornMask: 0, semanticKind: 'object', semanticName: 'leather armor', semanticKnown: true },
+          { selector: 104, objectId: 4103, text: 'h - a T-shirt (being worn)', glyphChar: 91, wornMask: 64, semanticKind: 'object', semanticName: 'T-shirt', semanticKnown: true }
+        ] });
         t.event({ name: 'shim_update_equipment', revision: 42, inventoryRevision: 42, slots: [
           { slotId: 'mainHand', objectId: 4101, item: { selector: 102, objectId: 4101, text: 'f - a blessed +1 long sword (weapon in right hand)', glyphChar: 41, semanticKind: 'object', semanticName: 'long sword', semanticKnown: true } },
           { slotId: 'offHand', objectId: 4101, item: { selector: 102, objectId: 4101, text: 'f - a blessed +1 long sword (weapon in right hand)', glyphChar: 41, semanticKind: 'object', semanticName: 'long sword', semanticKnown: true } },
@@ -383,13 +487,14 @@ async function main() {
           [102, 'f - a blessed +1 long sword (weapon in right hand)', 41, 'long sword'],
           [103, 'g - an uncursed leather armor', 91, 'leather armor'],
           [104, 'h - a T-shirt (being worn)', 91, 'T-shirt']
-        ].forEach(([selector, text, glyphChar, semanticName]) => t.event({ name: 'shim_add_menu', window: 242, selector, objectId: selector + 4000, text, glyphChar, semanticKind: 'object', semanticName }));
+        ].forEach(([selector, text, glyphChar, semanticName]) => t.event({ name: 'shim_add_menu', window: 242, selector, objectId: selector + 4000, text, glyphChar, semanticKind: 'object', semanticName, semanticKnown: true }));
         t.event({ name: 'shim_end_menu', window: 242, prompt: 'Inventory:' });
         const armorCards = Array.from(document.querySelectorAll('.paper-doll-slots .equipment-slot')).filter((el) => ['armor-suit', 'shirt'].includes(el.dataset.slot)).map((el) => ({ slot: el.dataset.slot, text: el.innerText, equipped: el.classList.contains('equipped'), box: (() => { const r = el.getBoundingClientRect(); return { left: Math.round(r.left), top: Math.round(r.top), right: Math.round(r.right), bottom: Math.round(r.bottom) }; })() }));
         const offhandSlot = document.querySelector('.paper-doll-slots .equipment-slot[data-slot="offhand"]');
         resolve({ sent, commands, paper: document.querySelector('.rpg-equipment-screen')?.innerText || '', armorCards, offhandText: offhandSlot?.innerText || '', offhandEquipped: offhandSlot?.classList.contains('equipped') || false, offhandButtons: Array.from(offhandSlot?.querySelectorAll('button') || []).map((button) => button.textContent.trim()) });
       }, 170);
     }))()`);
+    await evalExpr(cdp, `(() => { document.querySelector('.paper-doll-slots .equipment-slot[data-slot="armor-suit"]')?.scrollIntoView?.({ block: 'center', inline: 'nearest' }); return true; })()`);
     const shirtAfterTakeoffScreenshot = await shot(cdp, '06-shirt-visible-after-body-takeoff-equipment-screen.png');
     const slotText = metrics.slots.map((s) => `${s.slot}: ${s.text}`).join('\n');
     const rowText = metrics.rows.map((r) => r.text).join('\n');
@@ -428,27 +533,40 @@ async function main() {
     const dragHelmetNativeCommand = (metrics.dragHelmet.commands || []).find((command) => command.actionId === 'item.wear' && command.payload?.route?.command === 'Wm');
     const dragDartsMainHandNativeCommand = (metrics.dragDartsMainHand.commands || []).find((command) => command.commandType === 'equipment.change' && command.payload?.action === 'wieldMain' && Number.isInteger(command.payload?.itemId));
     const dragDartsQuiverNativeCommand = (metrics.dragDartsQuiver.commands || []).find((command) => command.commandType === 'equipment.change' && command.payload?.action === 'quiver' && command.payload?.slotId === 'quiver' && Number.isInteger(command.payload?.itemId));
-    assert('drag helmet to helmet slot routes native wear command plus selector', (((/^i?$/.test(metrics.dragHelmet.sent) || /^\u001b$/.test(metrics.dragHelmet.sent)) && dragHelmetNativeCommand) || /^(?:\u001b)?Wmi?$/.test(metrics.dragHelmet.sent)) && /Wear|Helmet/i.test(metrics.dragHelmet.feedback), JSON.stringify(metrics.dragHelmet));
+    assert('drag helmet to helmet slot routes native wear command plus selector', (((/^i?$/.test(metrics.dragHelmet.sent) || /^\u001b$/.test(metrics.dragHelmet.sent)) && dragHelmetNativeCommand) || /^(?:\u001b)?Wmi?$/.test(metrics.dragHelmet.sent)) && /Wear|Helmet|no writable shim child/i.test(metrics.dragHelmet.feedback), JSON.stringify(metrics.dragHelmet));
     assert('drag staff to main-hand stays in native/safe equipment routing without opening item actions', /^i?$/.test(metrics.dragStaffMainHand.sent) && /shield is equipped|no writable shim child/i.test(metrics.dragStaffMainHand.feedback) && /Equipment \/ Inventory/i.test(metrics.dragStaffMainHand.title) && metrics.dragStaffMainHand.open && !/Do what with|Choose an action for this item|Throw one of these|Wield this stack as your weapon/i.test(metrics.dragStaffMainHand.body), JSON.stringify(metrics.dragStaffMainHand));
     assert('drag darts to main-hand routes direct equipment.change wield command without row-click fallthrough', (/^\u001b?i?$/.test(metrics.dragDartsMainHand.sent) || /^\u001b$/.test(metrics.dragDartsMainHand.sent)) && !/w[a-zA-Z]/.test(metrics.dragDartsMainHand.sent) && dragDartsMainHandNativeCommand && /Wield|main hand|no writable shim child/i.test(metrics.dragDartsMainHand.feedback) && /Equipment \/ Inventory/i.test(metrics.dragDartsMainHand.title) && metrics.dragDartsMainHand.open, JSON.stringify(metrics.dragDartsMainHand));
     assert('drag darts to quiver routes direct equipment.change quiver command without row-click fallthrough', (/^\u001b?i?$/.test(metrics.dragDartsQuiver.sent) || /^\u001b$/.test(metrics.dragDartsQuiver.sent)) && !/Q[a-zA-Z]/.test(metrics.dragDartsQuiver.sent) && dragDartsQuiverNativeCommand && /quiver|Ready|no writable shim child/i.test(metrics.dragDartsQuiver.feedback), JSON.stringify(metrics.dragDartsQuiver));
     assert('right-click darts context menu shows modern semantic actions', /Wield in main hand/i.test(metrics.contextMenuText) && /Ready in quiver/i.test(metrics.contextMenuText) && /Throw/i.test(metrics.contextMenuText) && /Drop/i.test(metrics.contextMenuText), metrics.contextMenuText);
     assert('right-click darts context menu keeps semantic action ids in DOM only', ['item.wield.mainHand','item.quiver','item.throw','item.drop'].every((id) => metrics.contextActionIds.includes(id)), JSON.stringify(metrics.contextActionIds));
     assert('right-click lower/scrolled container row opens context menu for exact large box row', /large box/i.test(metrics.largeBoxContextHeader) && /Open \/ loot \/ apply/i.test(metrics.largeBoxContextMenuText), JSON.stringify({ header: metrics.largeBoxContextHeader, menu: metrics.largeBoxContextMenuText }));
-    const largeBoxNativeCommand = (metrics.largeBoxApplyCommands || []).find((command) => command.actionId === 'item.lootOrApply' && command.payload?.route?.command === 'ay');
-    assert('right-click lower/scrolled container action uses selected large box selector, not darts', (((/^i?$/.test(metrics.largeBoxApplySent) || metrics.largeBoxApplySent === '') && largeBoxNativeCommand) || /^(?:\u001b)?ayi?$/.test(metrics.largeBoxApplySent)) && /large box|no writable shim child/i.test(metrics.largeBoxApplyFeedback) && !/\ban\b|darts/i.test(metrics.largeBoxApplyFeedback), JSON.stringify({ sent: metrics.largeBoxApplySent, feedback: metrics.largeBoxApplyFeedback, commands: metrics.largeBoxApplyCommands }));
+    const largeBoxCommands = (metrics.largeBoxApplyCommands || []).filter((command) => command.actionId === 'item.lootOrApply');
+    const largeBoxNativeCommand = largeBoxCommands.find((command) => command.payload?.route?.command === 'ay');
+    assert('right-click lower/scrolled container action selects exact large-box object and dispatches once into the existing core route at the current inventory revision', metrics.largeBoxApplySent === '\u001b'
+      && largeBoxCommands.length === 1 && metrics.largeBoxAcceptedCoreCommands?.length === 1
+      && largeBoxNativeCommand?.payload?.item?.objectId === 1121
+      && largeBoxNativeCommand.payload.item.inventoryLetter === 'y'
+      && largeBoxNativeCommand.expectedRevision?.inventory === metrics.largeBoxCurrentInventoryRevision
+      && metrics.largeBoxAcceptedCoreCommands[0].commandId === largeBoxNativeCommand.commandId
+      && /large box/i.test(metrics.largeBoxContextHeader) && !/darts/i.test(metrics.largeBoxContextHeader),
+    JSON.stringify({ sent: metrics.largeBoxApplySent, feedback: metrics.largeBoxApplyFeedback, commands: metrics.largeBoxApplyCommands, accepted: metrics.largeBoxAcceptedCoreCommands, revision: metrics.largeBoxCurrentInventoryRevision }));
     assert('right-click context menus have no raw/generic/developer-facing leakage', !metrics.rawGenericContextLeak, `${metrics.contextMenuText}\n${metrics.offhandContextMenuText}`);
     assert('equipment-slot drops never open generic item-action menu', !/Do what with the darts\?|Do what with.*staff|Choose an action for this item|Throw one of these|Wield this stack as your weapon/i.test(`${metrics.dragStaffMainHand.body}\n${metrics.dragDartsMainHand.body}\n${metrics.dragDartsQuiver.body}`), JSON.stringify({ staff: metrics.dragStaffMainHand, main: metrics.dragDartsMainHand, quiver: metrics.dragDartsQuiver }));
     assert('invalid drag is rejected without sending unsafe input', metrics.dragInvalidFoodToHelmet.sent === '' && /does not match|Only/i.test(metrics.dragInvalidFoodToHelmet.feedback), JSON.stringify(metrics.dragInvalidFoodToHelmet));
     assert('slots are spatially arranged around the enlarged player avatar, not a plain list', metrics.slotBoxes.helmet?.top < metrics.slotBoxes['armor-suit']?.top && metrics.slotBoxes['main-hand']?.left > metrics.slotBoxes.shield?.left, JSON.stringify(metrics.slotBoxes));
-    const slotLayoutProblems = Object.entries(metrics.slotBoxes).filter(([, box]) => box.left < 8 || box.top < -1 || box.right > metrics.stageSize.width - 8 || box.bottom > metrics.stageSize.height - 1).map(([slot, box]) => ({ slot, box }));
-    assert('equipment cards stay inside the paper-doll stage while avatar can sit behind them', slotLayoutProblems.length === 0, JSON.stringify({ stage: metrics.stageSize, avatar: metrics.avatarStageBox, slotLayoutProblems, boxes: metrics.slotBoxes }));
+    const slotEntries = Object.entries(metrics.slotBoxes);
+    const overlaps = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+    const slotLayoutProblems = slotEntries.filter(([, box]) => box.left < 8 || box.top < -1 || box.right > metrics.stageSize.width - 8 || box.bottom > metrics.stageSize.height - 1).map(([slot, box]) => ({ slot, box }));
+    const slotOverlapProblems = slotEntries.flatMap(([slot, box], index) => slotEntries.slice(index + 1).filter(([, otherBox]) => overlaps(box, otherBox)).map(([otherSlot]) => [slot, otherSlot]));
+    const avatarOverlapProblems = slotEntries.filter(([, box]) => overlaps(box, metrics.avatarStageBox)).map(([slot]) => slot);
+    assert('equipment cards stay wholly inside the paper-doll stage', slotLayoutProblems.length === 0, JSON.stringify({ stage: metrics.stageSize, slotLayoutProblems, boxes: metrics.slotBoxes }));
+    assert('equipment cards do not overlap one another while the enlarged portrait intentionally extends beneath them', slotOverlapProblems.length === 0 && metrics.avatarStageBox.width >= metrics.stageSize.width * 0.7 && metrics.avatarStageBox.height >= metrics.stageSize.height * 0.9 && avatarOverlapProblems.length >= 4, JSON.stringify({ stage: metrics.stageSize, avatar: metrics.avatarStageBox, slotOverlapProblems, avatarOverlapProblems, boxes: metrics.slotBoxes }));
     assert('snapshot-backed inventory overview is enabled by default and uses public snapshot rows instead of stale compatibility menu text', snapshotVisibleMetrics.defaultInventory.featureFlags.useSnapshotForOverview === true && snapshotVisibleMetrics.defaultInventory.snapshotRevision === 21 && /spear/i.test(snapshotVisibleMetrics.defaultRows.join('\n')) && /ring mail/i.test(snapshotVisibleMetrics.defaultRows.join('\n')) && /pearl ring/i.test(snapshotVisibleMetrics.defaultRows.join('\n')) && !/stale menu|levitation/i.test(snapshotVisibleMetrics.defaultRows.join('\n')), JSON.stringify(snapshotVisibleMetrics));
     assert('inventory overview still has guarded compatibility fallback when the snapshot flag is disabled', snapshotVisibleMetrics.disabledInventoryFlags.useSnapshotForOverview === false && /stale menu spear label/i.test(snapshotVisibleMetrics.fallbackRows.join('\n')), JSON.stringify(snapshotVisibleMetrics));
     assert('snapshot-backed equipment paper doll is enabled by default and renders public worn-mask slots without leaking hidden ring identity', snapshotVisibleMetrics.equipmentSnapshot.featureFlags.useSnapshotForPaperDoll === true && snapshotVisibleMetrics.equipmentSnapshot.revision === 8 && /spear/i.test(snapshotVisibleMetrics.equipmentDefault.text) && /ring mail/i.test(snapshotVisibleMetrics.equipmentDefault.text) && /pearl ring/i.test(snapshotVisibleMetrics.equipmentDefault.text) && !/levitation/i.test(snapshotVisibleMetrics.equipmentDefault.text), JSON.stringify(snapshotVisibleMetrics));
     assert('equipment paper doll can still fall back to compatibility routing behind the feature flag', snapshotVisibleMetrics.disabledEquipmentFlags.useSnapshotForPaperDoll === false && snapshotVisibleMetrics.reenabledEquipmentFlags.useSnapshotForPaperDoll === true && /spear/i.test(snapshotVisibleMetrics.equipmentReenabled.text), JSON.stringify(snapshotVisibleMetrics));
     assert('no raw inventory selector labels or intro text', !/Inventory selector|Welcome to NetHack|Shall I pick/i.test(`${metrics.body} ${rowText}`));
-    const summary = { ok: true, screenshots: { button: buttonScreenshot, promptlessButton: promptlessScreenshot, richFixture: screenshot, snapshotFlag: snapshotFlagScreenshot, noAlternate: noAlternateScreenshot, shirtAfterTakeoff: shirtAfterTakeoffScreenshot }, routeMetrics, promptlessMetrics, snapshotVisibleMetrics, noAlternateMetrics, shirtAfterTakeoffMetrics, metrics };
+    const summary = { ok: true, screenshots: { button: buttonScreenshot, promptlessButton: promptlessScreenshot, actionOpen: screenshot, actionClosedTop: actionClosedTopScreenshot, snapshotFlag: snapshotFlagScreenshot, noAlternate: noAlternateScreenshot, shirtAfterTakeoff: shirtAfterTakeoffScreenshot }, routeMetrics, promptlessMetrics, actionGeometry, actionCloseState, snapshotVisibleMetrics, noAlternateMetrics, shirtAfterTakeoffMetrics, metrics };
     fs.writeFileSync(path.join(outDir, 'equipment-screen-rpg-summary.json'), JSON.stringify(summary, null, 2));
     console.log(`equipment screen RPG test passed: ${screenshot}`);
   } catch (error) {

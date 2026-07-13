@@ -10,6 +10,7 @@ const RecordingSchema = require('./shared/recording-schema');
 const { DiagnosticRunStore } = require('./main/diagnostic-log');
 const { installAppLifecycleDiagnostics } = require('./main/app-lifecycle-diagnostics');
 const RecoveryState = require('./main/recovery-state');
+const WindowPolicy = require('./main/window-policy');
 
 const repoRoot = path.resolve(__dirname, '..', '..');
 const nethackBin = process.env.NETHACK_BINARY || path.join(repoRoot, 'src', 'nethack');
@@ -33,16 +34,17 @@ function send(channel, payload) {
 }
 
 function createWindow() {
-  const requestedWidth = Number(process.env.NH_ELECTRON_WINDOW_WIDTH || 1100);
-  const requestedHeight = Number(process.env.NH_ELECTRON_WINDOW_HEIGHT || 760);
+  const windowPolicy = WindowPolicy.browserWindowSizePolicy(process.env);
   const useContentSize = process.env.NH_ELECTRON_WINDOW_CONTENT_SIZE === '1';
   const showWindow = process.env.NH_ELECTRON_SHOW !== '0';
   diagnostics = new DiagnosticRunStore({ app, repoRoot, env: process.env });
   diagnostics.recoverUnfinalized();
   gameProcess = createGameProcess({ repoRoot, nethackBin, shimBridgeBin, send, diagnostics });
   win = new BrowserWindow({
-    width: requestedWidth,
-    height: requestedHeight,
+    width: windowPolicy.initial.width,
+    height: windowPolicy.initial.height,
+    minWidth: windowPolicy.minimum.width,
+    minHeight: windowPolicy.minimum.height,
     useContentSize,
     show: showWindow,
     title: 'NetHack Electron POC',
@@ -108,6 +110,34 @@ ipcMain.handle('nethack:diagnosticEvent', (_event, event) => {
 });
 
 ipcMain.handle('nethack:activeDiagnosticRun', () => ({ ok: true, diagnostic: diagnostics?.publicRun?.() || null }));
+
+ipcMain.handle('nethack:testCaptureProfile', async (event, profile = {}) => {
+  if (process.env.NH_ELECTRON_TEST_FIXTURES !== '1' || !process.env.NH_TEST_CAPTURE_DIR) return { ok: false, message: 'native test capture is disabled' };
+  if (!win || win.isDestroyed() || event.sender !== win.webContents) return { ok: false, message: 'capture sender does not own the application window' };
+  const width = Math.max(640, Math.min(1920, Math.round(Number(profile.width) || 1360)));
+  const height = Math.max(480, Math.min(1200, Math.round(Number(profile.height) || 920)));
+  const zoomFactor = Math.max(1, Math.min(2, Number(profile.zoomPercent || 100) / 100));
+  win.setContentSize(width, height, false);
+  win.webContents.setZoomFactor(zoomFactor);
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  return { ok: true, windowSize: win.getSize(), contentSize: win.getContentSize(), zoomFactor };
+});
+
+ipcMain.handle('nethack:testCapturePage', async (event, captureId = '') => {
+  if (process.env.NH_ELECTRON_TEST_FIXTURES !== '1' || !process.env.NH_TEST_CAPTURE_DIR) return { ok: false, message: 'native test capture is disabled' };
+  if (!win || win.isDestroyed() || event.sender !== win.webContents) return { ok: false, message: 'capture sender does not own the application window' };
+  const id = String(captureId || '').trim().replace(/[^A-Za-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '');
+  if (!id) return { ok: false, message: 'capture id is required' };
+  const captureRoot = path.resolve(process.env.NH_TEST_CAPTURE_DIR);
+  const file = path.join(captureRoot, `${id}.png`);
+  if (path.dirname(file) !== captureRoot) return { ok: false, message: 'capture path escaped the configured test directory' };
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  const image = await win.webContents.capturePage();
+  const size = image.getSize();
+  await fs.mkdir(captureRoot, { recursive: true });
+  await fs.writeFile(file, image.toPNG());
+  return { ok: true, path: file, width: size.width, height: size.height, method: 'BrowserWindow.webContents.capturePage' };
+});
 
 ipcMain.handle('nethack:startupRecoveryState', () => RecoveryState.getRecoveryState({ repoRoot, env: process.env }));
 ipcMain.handle('nethack:prepareContinueGame', (_event, candidateId = '') => RecoveryState.prepareContinueGame({ repoRoot, env: process.env, candidateId: String(candidateId || '').slice(0, 120) }));

@@ -1,0 +1,28 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "identity/player-assigned-item-names",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current",
+    "role": "Valkyrie",
+    "race": "human",
+    "gender": "female",
+    "alignment": "lawful"
+  },
+  "level": {
+    "safeAreaAroundHero": 2,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    { "typeId": "POT_HEALING", "identityKnown": false, "beatitudeKnown": true, "beatitude": "uncursed", "calledName": "sunrise" },
+    { "typeId": "LONG_SWORD", "identityKnown": true, "beatitudeKnown": true, "beatitude": "uncursed", "individualName": "Dawnbringer" }
+  ],
+  "expectedPublicFacts": {
+    "inventoryRows": ["called sunrise", "named Dawnbringer"],
+    "messages": ["player-assigned item names remain public"]
+  }
+}

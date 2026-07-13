@@ -1,0 +1,36 @@
+{
+  "schema": "nethack-electron-test-scenario/v2",
+  "id": "quest/leader-admits-worthy-hero",
+  "phase": "after-special-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "near-monster",
+    "placementTarget": "NORN",
+    "placementDistance": 2,
+    "role": "Valkyrie",
+    "race": "human",
+    "gender": "female",
+    "alignment": "lawful",
+    "alignmentRecord": 20,
+    "experienceLevel": 14,
+    "hp": 120,
+    "maxHp": 120,
+    "power": 40,
+    "maxPower": 40
+  },
+  "level": {
+    "safeAreaAroundHero": 4,
+    "lit": true,
+    "suppressAdjacentMonsters": false,
+    "pet": "none",
+    "specialLevel": "x-strt"
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [],
+  "expectedPublicFacts": {
+    "monsterRows": ["Norn"],
+    "contextActions": ["chat"],
+    "status": ["Valkyrie", "level 14"],
+    "messages": ["Quest leader grants access to a worthy hero"]
+  }
+}

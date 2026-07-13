@@ -6,7 +6,18 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' file:; img-src 'self' file: data:; style-src 'self' 'unsafe-inline' file:; script-src 'self' 'unsafe-inline' file:; connect-src 'self' file:; object-src 'none'; base-uri 'none'; form-action 'none'" />
     <title>NetHack Electron POC</title>
     <link rel="stylesheet" href="../node_modules/@xterm/xterm/css/xterm.css" />
+    <link rel="stylesheet" href="./ux/styles/tokens.css" />
     <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./ux/styles/base.css" />
+    <link rel="stylesheet" href="./ux/styles/interaction.css" />
+    <link rel="stylesheet" href="./ux/styles/shell.css" />
+    <link rel="stylesheet" href="./ux/styles/discovery.css" />
+    <link rel="stylesheet" href="./ux/styles/map.css" />
+    <link rel="stylesheet" href="./ux/styles/items.css" />
+    <link rel="stylesheet" href="./ux/styles/transfer.css" />
+    <link rel="stylesheet" href="./ux/styles/run-lifecycle.css" />
+    <link rel="stylesheet" href="./ux/styles/responsive.css" />
+    <link rel="stylesheet" href="./ux/styles/feedback.css" />
   </head>
   <body>
     <header>
@@ -22,14 +33,18 @@
         <button id="settings-button" class="secondary">Settings</button>
         <button id="version" class="secondary">Smoke check</button>
         <button id="start" class="secondary">TTY</button>
-        <span id="status" role="status">initializing</span>
+        <div id="ux-player-notice-root" class="ux-mount" data-ux-owner="interaction"></div>
+        <span id="status" hidden aria-hidden="true">initializing</span>
       </div>
     </header>
     <main>
-      <section aria-label="NetHack shim game view" class="game-view-section">
+      <div id="ux-runtime-root" data-ux-runtime-version="1">
+        <div id="ux-shell-root" class="ux-mount" data-ux-owner="shell"></div>
+      </div>
+      <section aria-label="NetHack game" class="game-view-section">
         <div id="top-bar">
           <div id="stats-panel" aria-label="Complete NetHack status area"></div>
-          <div id="context-strip" aria-live="polite">
+          <div id="context-strip">
             <span id="prompt-panel" hidden>No active prompt.</span>
             <span id="menu-panel" hidden>No active menu.</span>
           </div>
@@ -44,22 +59,23 @@
           <button type="button" data-command-key="#">Command #</button>
           <span class="shortcut-hint">Map stays primary. More commands are in Use item / Actions.</span>
         </div>
-        <section id="recording-toolbar" class="recording-toolbar" aria-label="Active replay recording controls" aria-live="polite" hidden>
+        <section id="recording-toolbar" class="recording-toolbar" aria-label="Active replay recording controls" hidden>
           <strong>Recording replay</strong>
           <span id="recording-toolbar-status">0 inputs, 0 checkpoints recorded.</span>
           <button id="record-checkpoint-primary" type="button" class="primary">Add screenshot checkpoint</button>
           <button id="save-recording-primary" type="button">Save recording</button>
         </section>
-        <div id="context-action-bar" aria-label="Contextual actions for current position" aria-live="polite"></div>
+        <div id="context-action-bar" aria-label="Contextual actions for current position"></div>
         <div id="play-area">
           <div id="game-grid" data-testid="game-grid" aria-label="Tile NetHack full-level dungeon grid"></div>
-          <section id="container-transfer-panel" class="container-transfer-panel" aria-label="Open container inventory" aria-live="polite" hidden></section>
+          <section id="container-transfer-panel" class="container-transfer-panel" role="dialog" aria-modal="true" data-dialog-family="transfer" hidden></section>
           <div id="map-tooltip" class="map-tooltip" role="tooltip" hidden>
             <div id="map-tooltip-icon" class="map-tooltip-icon" aria-hidden="true"></div>
             <div class="map-tooltip-copy">
               <strong id="map-tooltip-title"></strong>
               <span id="map-tooltip-description"></span>
             </div>
+            <ul id="map-tooltip-contents" class="map-tooltip-contents" aria-label="Everything visible on this square"></ul>
           </div>
         </div>
         <section id="log-panel" aria-label="NetHack message log">
@@ -67,13 +83,13 @@
             <strong>Recent messages</strong>
             <span>Full history is collapsed below.</span>
           </div>
-          <aside id="direction-helper" aria-live="polite" aria-label="Direction/action helper" hidden>
+          <aside id="direction-helper" aria-label="Direction/action helper" hidden>
             <div class="direction-helper-heading">
               <strong id="direction-helper-title">Choose direction</strong>
             </div>
             <div id="direction-helper-options" class="direction-pad"></div>
           </aside>
-          <div id="messages" data-testid="messages" aria-live="polite">No shim messages yet.</div>
+          <div id="messages" data-testid="messages">Waiting to begin…</div>
           <details id="message-history" class="hint">
             <summary>Full message history</summary>
             <pre id="message-history-body" data-testid="message-history-body"></pre>
@@ -92,7 +108,7 @@
         </section>
         <section aria-label="Raw status lines">
           <h2>Raw status</h2>
-          <div id="status-lines" data-testid="status-lines">No shim status yet.</div>
+          <div id="status-lines" data-testid="status-lines">Status appears when play begins.</div>
         </section>
         <section aria-label="Command help">
           <h2>Command help</h2>
@@ -116,13 +132,22 @@
       </details>
     </main>
 
+    <div id="ux-overlay-roots">
+      <div id="ux-discovery-root" class="ux-mount" data-ux-owner="discovery"></div>
+      <div id="ux-dialog-root" class="ux-mount" data-ux-owner="interaction"></div>
+      <div id="ux-map-overlay-root" class="ux-mount" data-ux-owner="map"></div>
+      <div id="ux-items-root" class="ux-mount" data-ux-owner="items"></div>
+      <div id="ux-transfer-root" class="ux-mount" data-ux-owner="transfer"></div>
+      <div id="ux-run-lifecycle-root" class="ux-mount" data-ux-owner="run-lifecycle"></div>
+      <div id="ux-feedback-root" class="ux-mount" data-ux-owner="conformance"></div>
+    </div>
 
     <dialog id="startup-choice-dialog" class="startup-choice-dialog" aria-labelledby="startup-choice-title" data-testid="startup-choice-dialog">
       <form method="dialog" id="startup-choice-form">
         <div class="startup-choice-frame">
           <p class="startup-kicker">Dungeons of Doom</p>
           <h2 id="startup-choice-title">Choose your path</h2>
-          <p id="startup-choice-summary" class="startup-choice-summary" aria-live="polite">Checking for a previous game…</p>
+          <p id="startup-choice-summary" class="startup-choice-summary">Checking for a previous game…</p>
           <section id="startup-continue-card" class="startup-choice-card" hidden>
             <span class="startup-choice-label">Previous game found</span>
             <strong id="startup-continue-title">Continue your last run</strong>
@@ -252,7 +277,7 @@
     <dialog id="settings-dialog" class="settings-dialog" aria-labelledby="settings-title">
       <form method="dialog" id="settings-form">
         <h2 id="settings-title">Settings</h2>
-        <p class="modal-copy">These GUI settings are saved locally. NetHack options are allowlisted and applied when a new tile game starts.</p>
+        <p class="modal-copy">These app settings are saved locally. NetHack options are applied when a new tile game starts.</p>
         <div class="settings-grid">
           <label class="checkbox-row"><input id="setting-contextual-menus" type="checkbox" /> <span><strong>Contextual action prompts</strong><small>Show helpful prompts such as “Door is locked. Kick it?” when NetHack messages reveal an obvious action.</small></span></label>
           <label class="checkbox-row"><input id="setting-auto-loot-gold" type="checkbox" /> <span><strong>Auto-loot gold only</strong><small>Start NetHack with safe pickup options: autopickup enabled for gold ($) only.</small></span></label>
@@ -270,12 +295,12 @@
         <h2 id="character-title">Create your adventurer</h2>
         <p class="modal-copy">Choose a character for this run, or randomize and jump straight into the dungeon.</p>
         <div class="character-grid">
-          <label>Name <input id="player-name" maxlength="24" value="Electron" /></label>
+          <label>Name <input id="player-name" maxlength="24" value="" placeholder="Example: Rowan" /></label>
           <label>Role <select id="player-role"><option value="Val">Valkyrie</option><option value="Arc">Archeologist</option><option value="Bar">Barbarian</option><option value="Hea">Healer</option><option value="Kni">Knight</option><option value="Mon">Monk</option><option value="Pri">Priest</option><option value="Ran">Ranger</option><option value="Rog">Rogue</option><option value="Sam">Samurai</option><option value="Tou">Tourist</option><option value="Wiz">Wizard</option></select></label>
           <label>Race <select id="player-race"><option value="Hum">Human</option><option value="Dwa">Dwarf</option><option value="Elf">Elf</option><option value="Gno">Gnome</option><option value="Orc">Orc</option></select></label>
           <label>Gender <select id="player-gender"><option value="Fem">Female</option><option value="Mal">Male</option></select></label>
           <label>Alignment <select id="player-align"><option value="Law">Lawful</option><option value="Neu">Neutral</option><option value="Cha">Chaotic</option></select></label>
-          <label class="seed-field">Seed <input id="game-seed" inputmode="numeric" maxlength="20" placeholder="random" aria-describedby="seed-help" /><span id="seed-help" class="field-help">Optional deterministic seed. Leave blank/random and Electron chooses a random seed for this run and records it in diagnostics.</span></label>
+          <label class="seed-field">Seed <input id="game-seed" inputmode="numeric" maxlength="20" placeholder="random" aria-describedby="seed-help" /><span id="seed-help" class="field-help">Optional deterministic seed. Leave blank or choose random to generate a seed and record it with this run.</span></label>
           <label class="checkbox-row recording-row"><input id="record-inputs" type="checkbox" /> <span>Record inputs for replay</span></label>
         </div>
         <menu class="dialog-actions">
@@ -290,16 +315,16 @@
     <dialog id="document-dialog" class="document-dialog" aria-labelledby="document-title">
       <form method="dialog">
         <h2 id="document-title">NetHack window</h2>
-        <p class="modal-copy document-copy">Read-only NetHack information. Use the visible Close / Back button; no random “press any key” terminal dismissal is required.</p>
+        <p id="document-description" class="modal-copy document-copy">Read-only NetHack information. Close returns to the previous surface without sending gameplay input.</p>
         <label class="interaction-text-row">Search/filter <input id="document-filter" autocomplete="off" /></label>
         <pre id="document-body" data-testid="document-body"></pre>
-        <menu class="dialog-actions"><button id="document-close" value="close" class="primary">Close / Back</button></menu>
+        <menu class="dialog-actions"><button id="document-close" value="close" class="primary">Close</button></menu>
       </form>
     </dialog>
 
     <dialog id="intro-dialog" class="intro-dialog" aria-labelledby="intro-title" data-testid="intro-dialog">
       <form method="dialog" id="intro-form">
-        <div class="intro-frame" aria-live="polite">
+        <div class="intro-frame">
           <div class="intro-kicker">Chronicle of the Dungeons of Doom</div>
           <h2 id="intro-title">The Book of Tyr</h2>
           <div class="intro-seal" aria-hidden="true">⚔</div>
@@ -309,30 +334,32 @@
             <strong>Recover the Amulet of Yendor</strong>
           </div>
         </div>
-        <menu class="dialog-actions intro-actions"><button id="intro-continue" value="continue" class="primary">Begin the descent</button></menu>
+        <menu class="dialog-actions intro-actions"><button id="intro-continue" value="continue" class="primary">Continue</button></menu>
       </form>
     </dialog>
 
-    <dialog id="interaction-dialog" class="interaction-dialog" aria-labelledby="interaction-title">
+    <dialog id="interaction-dialog" class="interaction-dialog" aria-labelledby="interaction-title" autofocus tabindex="-1">
       <form method="dialog" id="interaction-form">
         <h2 id="interaction-title">NetHack choice</h2>
         <p id="interaction-prompt"></p>
         <section id="interaction-context" class="interaction-context" aria-label="Recent NetHack context" hidden></section>
         <label id="interaction-text-row" class="interaction-text-row" hidden><span id="interaction-text-label">Filter choices</span><input id="interaction-text" aria-describedby="interaction-feedback" autocomplete="off" /></label>
-        <p id="interaction-feedback" class="modal-copy" aria-live="polite"></p>
+        <p id="interaction-feedback" class="modal-copy"></p>
         <div id="interaction-panel-controls" class="interaction-panel-controls" hidden aria-label="Panel filters and summaries"></div>
-        <div id="interaction-options" role="listbox" aria-label="NetHack choices"></div>
+        <div id="interaction-options" aria-label="NetHack choices"></div>
         <menu class="dialog-actions">
           <button type="button" id="interaction-select-all" hidden>Select visible</button>
           <button type="button" id="interaction-clear" hidden>Clear selection</button>
+          <button type="button" id="interaction-refresh" hidden>Refresh list</button>
+          <button id="interaction-cancel" value="cancel">Cancel</button>
           <button type="button" id="interaction-confirm" class="primary" hidden>Confirm selection</button>
-          <button id="interaction-cancel" value="cancel">Cancel / Esc</button>
         </menu>
       </form>
     </dialog>
 
     <dialog id="game-over-dialog" class="game-over-dialog" aria-labelledby="game-over-title" data-testid="game-over-dialog">
       <div class="game-over-frame">
+        <div class="game-over-scroll">
         <div class="gravestone" aria-hidden="true">
           <div class="gravestone-arch"></div>
           <div class="gravestone-face">
@@ -353,6 +380,7 @@
           <h3>All available statistics</h3>
           <div id="game-over-sections"></div>
         </section>
+        </div>
         <menu class="dialog-actions game-over-actions">
           <button type="button" id="game-over-new" class="primary">New game</button>
           <button type="button" id="game-over-exit">Exit</button>
@@ -361,17 +389,18 @@
     </dialog>
     <script src="../node_modules/@xterm/xterm/lib/xterm.js"></script>
     <script src="./shared/module-system.js"></script>
+    <script src="./shared/public-item-knowledge.js"></script>
+    <script src="./shared/public-blockers.js"></script>
+    <script src="./shared/ui-protocol-v2.js"></script>
     <script src="./shared/command-gateway.js"></script>
     <script src="./shared/message-log.js"></script>
     <script src="./shared/prompt-rules.js"></script>
     <script src="./shared/tile-assets.js"></script>
     <script src="./shared/character-options.js"></script>
     <script src="./shared/interaction-model.js"></script>
-    <script src="./shared/public-blockers.js"></script>
     <script src="./shared/inventory-action-service.js"></script>
     <script src="./shared/map-presentation.js"></script>
     <script src="./shared/shim-protocol.js"></script>
-    <script src="./shared/ui-protocol-v2.js"></script>
     <script src="./shared/menu-metadata-adapter.js"></script>
     <script src="./shared/inventory-snapshot-adapter.js"></script>
     <script src="./shared/equipment-snapshot-adapter.js"></script>
@@ -382,6 +411,35 @@
     <script src="./shared/game-view-state.js"></script>
     <script src="./shared/recording-schema.js"></script>
     <script src="./shared/status-hud.js"></script>
+    <script src="./ux/runtime.js"></script>
+    <script src="./ux/settings-store.js"></script>
+    <script src="./ux/app-mounts.js"></script>
+    <script src="./ux/focus-layer.js"></script>
+    <script src="./ux/dialog-shell.js"></script>
+    <script src="./ux/player-notice.js"></script>
+    <script src="./ux/failure-presentation.js"></script>
+    <script src="./ux/app-shell.js"></script>
+    <script src="./ux/status-presentation.js"></script>
+    <script src="./ux/message-presentation.js"></script>
+    <script src="./ux/consequence-feed.js"></script>
+    <script src="./ux/character-sheet.js"></script>
+    <script src="./ux/command-catalog.js"></script>
+    <script src="./ux/command-palette.js"></script>
+    <script src="./ux/help-center.js"></script>
+    <script src="./ux/onboarding.js"></script>
+    <script src="./ux/character-creation.js"></script>
+    <script src="./ux/map-inspector.js"></script>
+    <script src="./ux/target-presentation.js"></script>
+    <script src="./ux/context-action-presentation.js"></script>
+    <script src="./ux/item-presentation.js"></script>
+    <script src="./ux/item-detail-panel.js"></script>
+    <script src="./ux/equipment-screen.js"></script>
+    <script src="./ux/transfer-dialog.js"></script>
+    <script src="./ux/shop-bill.js"></script>
+    <script src="./ux/run-lifecycle.js"></script>
+    <script src="./ux/final-chronicle.js"></script>
+    <script src="./ux/responsive-controller.js"></script>
+    <script src="./ux/feedback-adapter.js"></script>
     <script src="./renderer.js"></script>
   </body>
 </html>

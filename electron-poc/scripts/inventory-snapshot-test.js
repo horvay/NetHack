@@ -96,6 +96,11 @@ assert.equal(unknownMenuView.state.currentMenu.items[0].semanticName, undefined,
 assert.equal(unknownMenuView.state.cachedInventoryChoices[0].semanticName, undefined, 'classic v1 cached inventory choice omits hidden semantic identity when semanticKnown is false');
 assert.equal(unknownMenuView.state.currentMenu.items[0].semanticAppearance, 'milky potion', 'classic v1 menu keeps public appearance text');
 
+const rightHandContradiction = InventorySnapshot.normalizePublicInventoryItem({ selector: 97, text: 'a - a +1 long sword (weapon in right hand) (alternate weapon; not wielded)', semanticKnown: true, known: { identity: true } });
+assert.equal(rightHandContradiction.displayName, 'a +1 long sword (weapon in right hand)', 'authoritative right-hand text drops contradictory alternate-not-wielded suffix');
+const leftHandContradiction = InventorySnapshot.normalizePublicInventoryItem({ selector: 98, text: 'b - a +1 long sword (weapon in left hand) (alternate weapon; not wielded)', semanticKnown: true, known: { identity: true } });
+assert.equal(leftHandContradiction.displayName, 'a +1 long sword (weapon in left hand)', 'authoritative left-hand text drops contradictory alternate-not-wielded suffix');
+
 const staleView = GameViewState.createGameViewState({ mapWidth: 80, mapHeight: 21 });
 staleView.process({ name: 'shim_update_inventory', revision: 10, inventoryRevision: 10, equipmentRevision: 10, items: [{ selector: 97, objectId: 9001, text: 'a - new spear', glyphChar: 41, semanticKind: 'object', semanticName: 'spear', semanticKnown: true }] });
 const staleResult = staleView.process({ name: 'shim_update_inventory', revision: 9, inventoryRevision: 9, equipmentRevision: 9, items: [{ selector: 97, objectId: 9001, text: 'a - old dagger', glyphChar: 41, semanticKind: 'object', semanticName: 'dagger', semanticKnown: true }] });

@@ -43,7 +43,7 @@ async function main() {
       t.event({name:'shim_select_menu', window:796, how:2});
       t.event({name:'bridge_menu_answer', window:796, return:0});
       t.event({name:'shim_start_menu', window:797});
-      t.event({name:'shim_add_menu', window:797, selector:97, text:'a - an uncursed scroll of identify', semanticKind:'object'});
+      t.event({name:'shim_add_menu', window:797, selector:97, text:'a - an uncursed scroll of identify', semanticKind:'object', semanticKnown:true, known:{identity:true}});
       t.event({name:'shim_end_menu', window:797, prompt:'Take out what?'});
       t.event({name:'shim_select_menu', window:797, how:2});
       t.setContainerStateForTest({
@@ -52,9 +52,9 @@ async function main() {
         phase: 'takeout',
         prompt: 'Do what with the large box?',
         actionMenu: { prompt: 'Do what with the large box?', items: [{ selector: 111, text: 'take something out' }, { selector: 105, text: 'put something in' }], awaitingSelection: true, how: 1 },
-        takeOutMenu: { prompt: 'Take out what?', items: [{ selector: 97, text: 'a - an uncursed scroll of identify' }], awaitingSelection: true, how: 2 },
-        leftItems: [{ selector: 99, text: 'c - an uncursed scroll of identify', semanticKind: 'object' }],
-        rightItems: [{ selector: 97, text: 'a - an uncursed food ration' }, { selector: 98, text: 'b - a +0 dagger' }, { selector: 102, text: 'f - a tin opener' }],
+        takeOutMenu: { prompt: 'Take out what?', items: [{ selector: 97, text: 'a - an uncursed scroll of identify', semanticKind: 'object', semanticKnown: true, known: { identity: true } }], awaitingSelection: true, how: 2 },
+        leftItems: [{ selector: 99, text: 'c - an uncursed scroll of identify', semanticKind: 'object', semanticKnown: true, known: { identity: true } }],
+        rightItems: [{ selector: 97, text: 'a - an uncursed food ration', semanticKind: 'object', semanticKnown: true, known: { identity: true } }, { selector: 98, text: 'b - a +0 dagger', semanticKind: 'object', semanticKnown: true, known: { identity: true } }, { selector: 102, text: 'f - a tin opener', semanticKind: 'object', semanticKnown: true, known: { identity: true } }],
         loadedSides: { left: true, right: true },
         loadingSides: { left: false, right: false },
         feedback: 'Stale optimistic last row still displayed while NetHack has relettered the active take-out menu.',

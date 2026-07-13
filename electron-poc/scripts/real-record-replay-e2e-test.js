@@ -8,6 +8,15 @@ const outDir = process.env.NH_REAL_RECORD_REPLAY_OUT_DIR || path.join(root, 'tes
 const port = Number(process.env.NH_REAL_RECORD_REPLAY_CDP_PORT || 9501);
 const width = Number(process.env.NH_REAL_RECORD_REPLAY_WIDTH || 1360);
 const height = Number(process.env.NH_REAL_RECORD_REPLAY_HEIGHT || 920);
+const sourcePlayground = path.resolve(root, '..', 'playground');
+const isolatedPlayground = path.join(outDir, 'isolated-playground');
+
+function prepareIsolatedPlayground() {
+  fs.rmSync(outDir, { recursive: true, force: true });
+  fs.mkdirSync(path.join(isolatedPlayground, 'save'), { recursive: true });
+  for (const name of ['nhdat', 'sysconf', 'symbols', 'license']) fs.copyFileSync(path.join(sourcePlayground, name), path.join(isolatedPlayground, name));
+  for (const name of ['perm', 'record', 'logfile', 'xlogfile', 'livelog', 'paniclog']) fs.writeFileSync(path.join(isolatedPlayground, name), '');
+}
 
 function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
 async function json(url) { const res = await fetch(url); if (!res.ok) throw new Error(`${res.status} ${url}`); return res.json(); }
@@ -45,9 +54,11 @@ async function evalExpr(cdp, expression) {
   return res.result.value;
 }
 async function shot(cdp, name) {
-  const res = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+  const id = path.basename(name, path.extname(name));
+  const res = await cdp.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression: `window.netHackPOC.captureTestScreenshot(${JSON.stringify(id)})` });
+  if (res.exceptionDetails || !res.result.value?.ok || res.result.value.method !== 'BrowserWindow.webContents.capturePage') throw new Error(`native screenshot failed: ${JSON.stringify(res.exceptionDetails || res.result.value)}`);
   const file = path.join(outDir, name);
-  fs.writeFileSync(file, Buffer.from(res.data, 'base64'));
+  fs.copyFileSync(res.result.value.path, file);
   return file;
 }
 async function clickCenter(cdp, selector) {
@@ -131,11 +142,11 @@ async function run(cmd, args, options = {}) {
 }
 
 async function main() {
-  fs.rmSync(outDir, { recursive: true, force: true });
-  fs.mkdirSync(outDir, { recursive: true });
-  const child = spawn(electronBin, ['.'], { cwd: root, env: { ...process.env, AI_ORG_ELECTRON_CDP_PORT: String(port), NH_ELECTRON_WINDOW_WIDTH: String(width), NH_ELECTRON_WINDOW_HEIGHT: String(height) }, stdio: 'ignore' });
+  prepareIsolatedPlayground();
+  const child = spawn(electronBin, ['.'], { cwd: root, env: { ...process.env, AI_ORG_ELECTRON_CDP_PORT: String(port), NH_ELECTRON_WINDOW_WIDTH: String(width), NH_ELECTRON_WINDOW_HEIGHT: String(height), NH_ELECTRON_TEST_FIXTURES: '1', NH_TEST_PLAYGROUND: isolatedPlayground, NETHACKDIR: isolatedPlayground, NH_DIAGNOSTIC_LOG_DIR: path.join(outDir, 'diagnostics'), NH_TEST_CAPTURE_DIR: path.join(outDir, 'native-captures') }, stdio: ['ignore', 'pipe', 'pipe'] });
   let cdp; const stdout = []; const stderr = [];
-  child.unref();
+  child.stdout.on('data', (data) => stdout.push(String(data)));
+  child.stderr.on('data', (data) => stderr.push(String(data)));
   const cleanup = () => { try { cdp?.close(); } catch {} if (!child.killed) child.kill('SIGTERM'); };
   async function stopElectron() {
     try { cdp?.close(); } catch {}
@@ -143,7 +154,7 @@ async function main() {
     await delay(300);
   }
   process.on('exit', cleanup);
-  const results = { outDir, screenshots: {} };
+  const results = { outDir, isolatedPlayground, port, screenshots: {} };
   try {
     const pages = await waitFor(async () => {
       const list = await json(`http://127.0.0.1:${port}/json/list`);
@@ -151,11 +162,16 @@ async function main() {
     }, 20000);
     cdp = await connect((pages.find((page) => page.type === 'page') || pages[0]).webSocketDebuggerUrl);
     await cdp.send('Page.enable'); await cdp.send('Runtime.enable');
-    await cdp.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
     await waitFor(async () => (await evalExpr(cdp, "document.readyState === 'complete' && !!window.__nethackAutomation")), 10000);
+    await cdp.send('Emulation.clearDeviceMetricsOverride');
+    const captureProfile = await evalExpr(cdp, `window.netHackPOC.setTestCaptureProfile(${JSON.stringify({ width, height, zoomPercent: 100 })})`);
+    assert('native recording capture profile applied', captureProfile?.ok && captureProfile.contentSize?.[0] === width && captureProfile.contentSize?.[1] === height, JSON.stringify(captureProfile));
+    await waitFor(async () => (await evalExpr(cdp, `innerWidth === ${width} && innerHeight === ${height}`)), 5000);
 
-    await clickCenter(cdp, '#start-shim');
-    await delay(200);
+    const initialDialogs = await evalExpr(cdp, "Array.from(document.querySelectorAll('dialog[open]')).map((dialog) => dialog.id)");
+    if (initialDialogs.includes('startup-choice-dialog')) await clickCenter(cdp, '#startup-new-game');
+    else await clickCenter(cdp, '#start-shim');
+    await waitFor(async () => (await evalExpr(cdp, "document.getElementById('character-dialog')?.open")), 5000);
     await evalExpr(cdp, `(() => {
       document.getElementById('player-name').value = 'ReplayE2E';
       document.getElementById('player-role').value = 'Val';
@@ -168,6 +184,7 @@ async function main() {
     await clickCenter(cdp, '#confirm-character');
     results.recordingStarted = await waitFor(async () => {
       const next = await state(cdp);
+      results.lastRecordingStartPoll = next;
       return next.running && next.seed && /bridge_seed/.test(next.seen) ? next : null;
     }, 20000);
     if (results.recordingStarted.dialogs.includes('intro-dialog')) await clickCenter(cdp, '#intro-continue');
@@ -189,12 +206,12 @@ async function main() {
       transactionId: 'txn-native-reject-replay-e2e',
       actionId: 'ground.openContainer',
       expectedRevision: {},
-      targets: { location: { kind: 'ground' }, displayName: 'current ground' },
+      targets: { location: { kind: 'ground' } },
       payload: {
         actionId: 'ground.openContainer',
         label: 'Open / loot here',
         surface: 'ground-context',
-        target: { location: { kind: 'ground' }, displayName: 'current ground' },
+        target: { location: { kind: 'ground' } },
         route: { actionId: 'ground.openContainer', command: '#force\n' },
         promptPolicy: 'netHack-owned-followup',
       },
@@ -206,9 +223,16 @@ async function main() {
       results.lastRejectPoll = next;
       return next.sentUiProtocolAcks.some((ack) => ack.eventType === 'command.rejected' && ack.payload?.commandId === 'cmd-native-reject-replay-e2e') ? next : null;
     }, 5000);
-    assert('rejected native command did not record replay input bytes', results.afterRejected.inputs === beforeRejected.inputs, JSON.stringify({ before: beforeRejected.inputs, after: results.afterRejected.inputs, payloads: results.afterRejected.sentPayloads }));
+    await delay(250);
+    results.afterRejectedSettled = await state(cdp);
+    assert('rejected native command did not record replay input bytes', results.afterRejectedSettled.inputs === beforeRejected.inputs, JSON.stringify({ before: beforeRejected.inputs, after: results.afterRejectedSettled.inputs, payloads: results.afterRejectedSettled.sentPayloads }));
+    assert('rejected native command sent no bridge input payload', results.afterRejectedSettled.sentPayloads.length === beforeRejected.sentPayloads.length, JSON.stringify({ before: beforeRejected.sentPayloads, after: results.afterRejectedSettled.sentPayloads }));
     assert('native rejection recorded ui-protocol-command evidence', results.afterRejected.sentUiProtocolCommands.some((command) => command.commandId === 'cmd-native-reject-replay-e2e'), JSON.stringify(results.afterRejected.sentUiProtocolCommands));
     assert('native rejection recorded rejected ack evidence', results.afterRejected.sentUiProtocolAcks.some((ack) => ack.eventType === 'command.rejected' && ack.payload?.executionSource === 'native-ui-command'), JSON.stringify(results.afterRejected.sentUiProtocolAcks));
+    // The rejected-command probe is development evidence inside result.json.
+    // Reset its player notice before any accepted recording/replay screenshot.
+    await evalExpr(cdp, `window.__nethackPromptTest.clearFailureForTest(); document.getElementById('game-grid')?.focus()`);
+    await waitFor(async () => !/command metadata did not match|revision changed before action execution/i.test((await state(cdp)).body), 5000);
 
     await evalExpr(cdp, `document.getElementById('game-grid')?.focus()`);
     const beforeSemantic = await state(cdp);
@@ -265,7 +289,7 @@ async function main() {
     fs.mkdirSync(replayOut, { recursive: true });
     fs.writeFileSync(path.join(replayOut, 'visual-replay-summary.json'), JSON.stringify({ ok: true, recordingPath: 'STALE-SHOULD-NOT-SURVIVE' }, null, 2));
     console.log(`[e2e] replaying to ${replayOut}`);
-    const replay = await run(process.execPath, ['scripts/replay-visual.js', results.recordingPath, '--out', replayOut, '--initial-delay-ms', '2500', '--delay-ms', '700', '--final-delay-ms', '500', '--screenshot-gap-ms', '200']);
+    const replay = await run(process.execPath, ['scripts/replay-visual.js', results.recordingPath, '--out', replayOut, '--initial-delay-ms', '2500', '--delay-ms', '700', '--final-delay-ms', '500', '--screenshot-gap-ms', '200'], { env: { NH_ELECTRON_TEST_FIXTURES: '1', NH_TEST_PLAYGROUND: isolatedPlayground, NETHACKDIR: isolatedPlayground, NH_DIAGNOSTIC_LOG_DIR: path.join(replayOut, 'diagnostics') } });
     console.log('[e2e] replay complete');
     results.replay = { stdout: replay.stdout, stderr: replay.stderr, outDir: replayOut };
     const summaryPath = path.join(replayOut, 'visual-replay-summary.json');
@@ -280,15 +304,25 @@ async function main() {
     assert('visual replay has no direction/cmdassist artifact after semantic action', !/direction prompt|Invalid direction key|cmdassist/i.test(JSON.stringify(summary.state || {})), JSON.stringify(summary.state || {}).slice(0, 1200));
     assert('visual replay wrote checkpoint sidecar', summary.sidecars.length >= 1 && summary.sidecars.every((file) => fs.existsSync(file)), JSON.stringify(summary.sidecars));
 
+    fs.writeFileSync(path.join(outDir, 'electron-stdout.log'), stdout.join(''));
+    fs.writeFileSync(path.join(outDir, 'electron-stderr.log'), stderr.join(''));
     fs.writeFileSync(path.join(outDir, 'result.json'), JSON.stringify(results, null, 2));
     process.removeListener('exit', cleanup);
+    await delay(500);
+    fs.rmSync(isolatedPlayground, { recursive: true, force: true });
     console.log(`real record/replay E2E test OK: ${outDir}`);
   } catch (error) {
     results.error = error.stack || String(error);
     results.stdout = stdout.join('');
     results.stderr = stderr.join('');
-    try { fs.writeFileSync(path.join(outDir, 'result.json'), JSON.stringify(results, null, 2)); } catch {}
+    try {
+      fs.writeFileSync(path.join(outDir, 'electron-stdout.log'), results.stdout);
+      fs.writeFileSync(path.join(outDir, 'electron-stderr.log'), results.stderr);
+      fs.writeFileSync(path.join(outDir, 'result.json'), JSON.stringify(results, null, 2));
+    } catch {}
     cleanup();
+    await delay(500);
+    fs.rmSync(isolatedPlayground, { recursive: true, force: true });
     console.error(error.stack || error);
     process.exit(1);
   }

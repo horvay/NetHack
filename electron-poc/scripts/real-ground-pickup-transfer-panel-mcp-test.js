@@ -10,13 +10,15 @@ async function json(url) { const res = await fetch(url); if (!res.ok) throw new 
 async function waitFor(fn, timeoutMs = 25000, stepMs = 150) { const start = Date.now(); let last; while (Date.now() - start < timeoutMs) { try { const v = await fn(); if (v) return v; } catch (e) { last = e; } await delay(stepMs); } throw last || new Error('timed out'); }
 async function connect(wsUrl) { const ws = new WebSocket(wsUrl); await new Promise((resolve, reject) => { ws.addEventListener('open', resolve, { once: true }); ws.addEventListener('error', reject, { once: true }); }); let id = 0; const pending = new Map(); ws.addEventListener('message', (event) => { const msg = JSON.parse(event.data); if (msg.id && pending.has(msg.id)) { const p = pending.get(msg.id); pending.delete(msg.id); msg.error ? p.reject(new Error(JSON.stringify(msg.error))) : p.resolve(msg.result); } }); return { send(method, params = {}) { const callId = ++id; ws.send(JSON.stringify({ id: callId, method, params })); return new Promise((resolve, reject) => pending.set(callId, { resolve, reject })); }, close() { ws.close(); } }; }
 async function evalExpr(cdp, expression) { const res = await Promise.race([cdp.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression }), new Promise((_, reject) => setTimeout(() => reject(new Error('CDP Runtime.evaluate timed out')), 20000))]); if (res.exceptionDetails) throw new Error(JSON.stringify(res.exceptionDetails)); return res.result.value; }
-async function shot(cdp, name) { const res = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false, fromSurface: false }); const p = path.join(outDir, name); fs.writeFileSync(p, Buffer.from(res.data, 'base64')); return p; }
+async function shot(cdp, name) { const res = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false, fromSurface: true }); const p=path.join(outDir,name); fs.writeFileSync(p, Buffer.from(res.data,'base64')); return p; }
 async function click(cdp, selector) { const box = await evalExpr(cdp, `(() => { const el = document.querySelector(${JSON.stringify(selector)}); el?.scrollIntoView?.({block:'center', inline:'center'}); const r = el?.getBoundingClientRect(); return r ? {x:r.left+r.width/2,y:r.top+r.height/2} : null; })()`); if (!box) throw new Error(`missing selector ${selector}`); await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: box.x, y: box.y, button: 'left', clickCount: 1 }); await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: box.x, y: box.y, button: 'left', clickCount: 1 }); }
 async function key(cdp, value, code = '') { await cdp.send('Input.dispatchKeyEvent', { type:'keyDown', key:value, code, text:value, unmodifiedText:value }); await cdp.send('Input.dispatchKeyEvent', { type:'keyUp', key:value, code }); }
 async function dblclickMatch(cdp, pane, pattern) { const box = await evalExpr(cdp, `(() => { const re = new RegExp(${JSON.stringify(pattern)}, 'i'); const rows = Array.from(document.querySelectorAll('#container-transfer-panel [data-container-pane="${pane}"] .container-item-row')); const el = rows.find((row) => re.test(row.innerText || '')) || rows[0]; el?.scrollIntoView?.({block:'center', inline:'center'}); const r = el?.getBoundingClientRect(); return r ? {x:r.left+r.width/2,y:r.top+r.height/2,text:el.innerText} : null; })()`); if (!box) throw new Error(`missing ${pane} row ${pattern}`); for (let i = 1; i <= 2; i++) { await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: box.x, y: box.y, button: 'left', clickCount: i }); await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: box.x, y: box.y, button: 'left', clickCount: i }); await delay(60); } return box.text; }
+async function pressArrow(cdp, keyName) { await cdp.send('Input.dispatchKeyEvent', { type:'keyDown', key:keyName, code:keyName }); await cdp.send('Input.dispatchKeyEvent', { type:'keyUp', key:keyName, code:keyName }); }
 function assert(name, ok, detail = '') { if (!ok) throw new Error(`${name}${detail ? `: ${detail}` : ''}`); }
 async function state(cdp) { return evalExpr(cdp, `(() => ({ dialogs:Array.from(document.querySelectorAll('dialog[open]')).map(d=>d.id), container:window.__nethackPromptTest?.container?.(), inventory:window.__nethackPromptTest?.inventory?.(), sent:window.__nethackPromptTest?.sentInputs?.().join('')||'', messages:window.__nethackPromptTest?.messages?.().slice(-20).map(m=>m.text||String(m))||[], running:window.__nethackAutomation?.state?.().runningState?.running||false, transferTransactions:window.__nethackPromptTest?.transferTransactions?.(), groundSnapshots:window.__nethackPromptTest?.groundSnapshots?.(), body:document.body.innerText }))()`); }
 async function saveState(cdp, name) { const s = await state(cdp); fs.writeFileSync(path.join(outDir, name), JSON.stringify(s, null, 2)); return s; }
+async function cursorState(cdp) { return evalExpr(cdp, `(() => { const cursor=window.NetHackUxRuntime?.runtime?.latestPublicState?.()?.snapshot?.game?.cursor||{}; return {x:Number(cursor.x),y:Number(cursor.y)}; })()`); }
 async function start(cdp) {
   await evalExpr(cdp, `window.__nethackAutomation.startReplay({ playerSpec: '-uDirect-Val-Hum-Fem-Law', nethackOptions: '!tutorial,!autopickup' })`);
   await waitFor(async () => { const s = await state(cdp); const seen = await evalExpr(cdp, `document.getElementById('shim-output')?.dataset?.seen || ''`); return s.running && /shim_print_glyph|shim_status_update|shim_putstr/.test(seen) ? s : null; }, 25000);
@@ -44,6 +46,28 @@ async function main() {
     const panelState = await waitFor(async () => { const s = await state(cdp); return s.container?.active && /Ground items/i.test(s.container.text) && s.container?.menu?.awaitingSelection ? s : null; }, 10000);
     const panelShot = await shot(cdp, '02-real-ground-comma-menu-panel-open.png');
     assert('comma-backed panel exposes the real pickup owner before first drag', panelState.sent === ',' && /^Pick up what\?$/i.test(panelState.container?.menu?.prompt || ''), JSON.stringify({ sent: panelState.sent, menu: panelState.container?.menu }));
+    const panelBounds = await evalExpr(cdp, `(() => { const rect=document.getElementById('container-transfer-panel')?.getBoundingClientRect(); return rect ? { left:rect.left, right:rect.right, top:rect.top, bottom:rect.bottom, viewportWidth:innerWidth, viewportHeight:innerHeight } : null; })()`);
+    assert('ground transfer panel remains fully inside the viewport', panelBounds && panelBounds.left >= 0 && panelBounds.top >= 0 && panelBounds.right <= panelBounds.viewportWidth && panelBounds.bottom <= panelBounds.viewportHeight, JSON.stringify(panelBounds));
+    await click(cdp, '#container-transfer-panel .container-transfer-heading button');
+    const closedState = await waitFor(async () => { const s=await state(cdp); return !s.container?.active && !s.container?.menu?.awaitingSelection ? s : null; }, 10000);
+    const closedShot = await shot(cdp, '03-real-ground-panel-closed.png');
+    await evalExpr(cdp, `window.__nethackPromptTest.clearSentInputs()`);
+    const beforeMove = await cursorState(cdp);
+    let movedCursor = null;
+    let reverseKey = '';
+    for (const [moveKey, oppositeKey] of [['ArrowRight','ArrowLeft'], ['ArrowLeft','ArrowRight'], ['ArrowDown','ArrowUp'], ['ArrowUp','ArrowDown']]) {
+      await pressArrow(cdp, moveKey);
+      movedCursor = await waitFor(async () => { const cursor=await cursorState(cdp); return (cursor.x !== beforeMove.x || cursor.y !== beforeMove.y) ? cursor : null; }, 1500).catch(() => null);
+      if (movedCursor) { reverseKey = oppositeKey; break; }
+    }
+    if (movedCursor) {
+      await pressArrow(cdp, reverseKey);
+      await waitFor(async () => { const cursor=await cursorState(cdp); return cursor.x === beforeMove.x && cursor.y === beforeMove.y ? cursor : null; }, 10000);
+    }
+    assert('closing the ground chooser releases NetHack input without a false failure notice so movement works immediately', !closedState.container?.active && movedCursor && (movedCursor.x !== beforeMove.x || movedCursor.y !== beforeMove.y) && !/NetHack did not accept that action/i.test(closedState.body), JSON.stringify({ beforeMove, movedCursor, closed:closedState.container, body:closedState.body.slice(0, 500) }));
+    await evalExpr(cdp, `window.__nethackPromptTest.clearSentInputs()`);
+    await key(cdp, ',', 'Comma');
+    await waitFor(async () => { const s=await state(cdp); return s.container?.active && s.container?.menu?.awaitingSelection ? s : null; }, 10000);
 
     await dblclickMatch(cdp, 'left', 'potion|effervescent');
     const pickupState = await waitFor(async () => { const s = await state(cdp); return s.transferTransactions?.transfers?.some((tx) => tx.direction === 'ground-to-inventory' && tx.status === 'success') ? s : null; }, 12000);

@@ -1,0 +1,185 @@
+[
+  {
+    "case": "unidentified milky potion hidden identities remain presentation-identical",
+    "left": {
+      "objectId": 2001,
+      "inventoryLetter": "a",
+      "displayName": "a milky potion",
+      "semanticKind": "object",
+      "semanticKnown": false,
+      "semanticAppearance": "milky potion",
+      "publicClass": "potion",
+      "filterGroups": [
+        "consumables",
+        "magic"
+      ],
+      "equipmentSlots": [],
+      "knownFields": {},
+      "ownership": {
+        "state": "owned"
+      },
+      "hiddenTestIdentity": "potion of gain level",
+      "known": {
+        "identity": false,
+        "appearance": true
+      }
+    },
+    "right": {
+      "objectId": 2002,
+      "inventoryLetter": "b",
+      "displayName": "a milky potion",
+      "semanticKind": "object",
+      "semanticKnown": false,
+      "semanticAppearance": "milky potion",
+      "publicClass": "potion",
+      "filterGroups": [
+        "consumables",
+        "magic"
+      ],
+      "equipmentSlots": [],
+      "knownFields": {},
+      "ownership": {
+        "state": "owned"
+      },
+      "hiddenTestIdentity": "potion of paralysis",
+      "known": {
+        "identity": false,
+        "appearance": true
+      }
+    },
+    "publicEqual": [
+      "displayName",
+      "semanticKnown",
+      "known",
+      "semanticAppearance",
+      "publicClass",
+      "filterGroups",
+      "equipmentSlots",
+      "knownFields",
+      "ownership"
+    ]
+  },
+  {
+    "case": "unidentified gray stone identities do not enter magic or weapon filters",
+    "left": {
+      "objectId": 2011,
+      "inventoryLetter": "c",
+      "displayName": "a gray stone",
+      "semanticKind": "object",
+      "semanticKnown": false,
+      "semanticAppearance": "gray stone",
+      "publicClass": "gem",
+      "filterGroups": [],
+      "equipmentSlots": [],
+      "knownFields": {},
+      "ownership": {
+        "state": "owned"
+      },
+      "hiddenTestIdentity": "loadstone",
+      "known": {
+        "identity": false,
+        "appearance": true
+      }
+    },
+    "right": {
+      "objectId": 2012,
+      "inventoryLetter": "d",
+      "displayName": "a gray stone",
+      "semanticKind": "object",
+      "semanticKnown": false,
+      "semanticAppearance": "gray stone",
+      "publicClass": "gem",
+      "filterGroups": [],
+      "equipmentSlots": [],
+      "knownFields": {},
+      "ownership": {
+        "state": "owned"
+      },
+      "hiddenTestIdentity": "luckstone",
+      "known": {
+        "identity": false,
+        "appearance": true
+      }
+    },
+    "publicEqual": [
+      "displayName",
+      "semanticKnown",
+      "known",
+      "semanticAppearance",
+      "publicClass",
+      "filterGroups",
+      "equipmentSlots",
+      "knownFields",
+      "ownership"
+    ]
+  },
+  {
+    "case": "called unidentified scroll retains call without true identity",
+    "left": {
+      "objectId": 2021,
+      "inventoryLetter": "e",
+      "displayName": "a scroll labeled XOR OTA called escape",
+      "semanticKind": "object",
+      "semanticKnown": false,
+      "semanticAppearance": "scroll labeled XOR OTA",
+      "calledName": "escape",
+      "publicClass": "scroll",
+      "filterGroups": [
+        "consumables",
+        "magic"
+      ],
+      "equipmentSlots": [],
+      "knownFields": {
+        "beatitude": "uncursed"
+      },
+      "ownership": {
+        "state": "owned"
+      },
+      "hiddenTestIdentity": "scroll of teleportation",
+      "known": {
+        "identity": false,
+        "appearance": true,
+        "naming": true
+      }
+    },
+    "right": {
+      "objectId": 2022,
+      "inventoryLetter": "f",
+      "displayName": "a scroll labeled XOR OTA called escape",
+      "semanticKind": "object",
+      "semanticKnown": false,
+      "semanticAppearance": "scroll labeled XOR OTA",
+      "calledName": "escape",
+      "publicClass": "scroll",
+      "filterGroups": [
+        "consumables",
+        "magic"
+      ],
+      "equipmentSlots": [],
+      "knownFields": {
+        "beatitude": "uncursed"
+      },
+      "ownership": {
+        "state": "owned"
+      },
+      "hiddenTestIdentity": "scroll of remove curse",
+      "known": {
+        "identity": false,
+        "appearance": true,
+        "naming": true
+      }
+    },
+    "publicEqual": [
+      "displayName",
+      "semanticKnown",
+      "known",
+      "semanticAppearance",
+      "calledName",
+      "publicClass",
+      "filterGroups",
+      "equipmentSlots",
+      "knownFields",
+      "ownership"
+    ]
+  }
+]

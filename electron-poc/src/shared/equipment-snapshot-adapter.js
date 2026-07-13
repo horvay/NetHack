@@ -4,6 +4,7 @@
 }(typeof globalThis !== 'undefined' ? globalThis : this, function factory(InventorySnapshotAdapter, PublicBlockers = {}) {
   const version = 'nethack-equipment-snapshot-adapter/v1';
   const publicEquipmentBlockerLabels = PublicBlockers.publicEquipmentBlockerLabels || Object.freeze({});
+  const publicEquipmentBlockerTokens = new Set(Object.keys(publicEquipmentBlockerLabels));
   const publicEquipmentBlockerLabel = PublicBlockers.publicEquipmentBlockerLabel || ((token) => publicEquipmentBlockerLabels[String(token || '')] || 'NetHack must decide this from public equipment state.');
 
   function isPlainObject(value) { return Boolean(value) && typeof value === 'object' && !Array.isArray(value); }
@@ -13,13 +14,11 @@
   }
   function cloneStringArray(value) { return Array.isArray(value) ? value.filter((item) => typeof item === 'string') : []; }
   function clonePublicItem(item) {
-    return item ? {
-      ...item,
-      location: item.location ? { ...item.location } : item.location,
-      known: item.known ? { ...item.known } : item.known,
-      actionAffordances: Array.isArray(item.actionAffordances) ? item.actionAffordances.slice() : item.actionAffordances,
-      publicActionHints: Array.isArray(item.publicActionHints) ? item.publicActionHints.slice() : item.publicActionHints,
-    } : undefined;
+    if (!item) return undefined;
+    const normalized = InventorySnapshotAdapter.normalizePublicInventoryItem(item);
+    if (!normalized) return undefined;
+    const locationKind = ['inventory', 'equipment', 'ground', 'container', 'unknown'].includes(item.location?.kind) ? item.location.kind : normalized.location.kind;
+    return { ...normalized, location: { kind: locationKind } };
   }
 
   const wornMasks = Object.freeze({
@@ -60,6 +59,15 @@
   ]);
 
   const slotById = new Map(canonicalSlots.map((slot) => [slot.slotId, slot]));
+  function publicClassSupportsSlot(item, slotId) {
+    if (!item?.publicClass) return true;
+    const allowed = item.publicClass === 'weapon' ? new Set(['mainHand', 'offHand', 'quiver'])
+      : item.publicClass === 'armor' ? new Set(Array.from(slotById.keys()).filter((id) => id.startsWith('armor.')))
+        : item.publicClass === 'ring' ? new Set(['ring.left', 'ring.right'])
+          : item.publicClass === 'amulet' ? new Set(['amulet'])
+            : item.publicClass === 'tool' ? new Set(['mainHand', 'offHand', 'eyes']) : new Set();
+    return allowed.has(slotId) && (!Array.isArray(item.equipmentSlots) || item.equipmentSlots.length === 0 || item.equipmentSlots.includes(slotId));
+  }
 
   function normalizeEquipmentRevision(value) {
     const revision = asNonNegativeInteger(value);
@@ -111,19 +119,29 @@
 
   function normalizeEquipmentSlot(slot = {}) {
     if (!isPlainObject(slot)) return null;
-    const slotId = typeof slot.slotId === 'string' && slotById.has(slot.slotId) ? slot.slotId : (typeof slot.slotId === 'string' ? slot.slotId : '');
+    const slotId = typeof slot.slotId === 'string' && slotById.has(slot.slotId) ? slot.slotId : '';
     if (!slotId) return null;
-    const definition = slotById.get(slotId) || { slotId, label: slotId, rendererSlotId: slotId, defaultActions: [] };
-    const objectId = asNonNegativeInteger(slot.objectId);
+    const definition = slotById.get(slotId);
+    let objectId = asNonNegativeInteger(slot.objectId);
     const wornMask = asNonNegativeInteger(slot.wornMask ?? wornMasks[slotId]);
-    const item = slot.item ? InventorySnapshotAdapter.normalizePublicInventoryItem({ ...slot.item, selector: slot.item.inventoryLetter || slot.item.selector }) : undefined;
+    let item = slot.item ? InventorySnapshotAdapter.normalizePublicInventoryItem({ ...slot.item, selector: slot.item.inventoryLetter || slot.item.selector }) : undefined;
+    if (slot.item != null && !item) return null;
+    if (item && !publicClassSupportsSlot(item, slotId)) return null;
+    if (item && objectId != null && item.objectId != null && item.objectId !== objectId) return null;
+    if (slot.publicStatus != null && !['empty', 'equipped', 'blocked', 'unknown'].includes(slot.publicStatus)) return null;
+    if (slot.blockedBy != null && (!Array.isArray(slot.blockedBy) || slot.blockedBy.some((token) => typeof token !== 'string'))) return null;
+    if (slot.actions != null && (!Array.isArray(slot.actions) || slot.actions.some((action) => typeof action !== 'string'))) return null;
+    const blockedBy = Array.from(new Set(cloneStringArray(slot.blockedBy).filter((token) => publicEquipmentBlockerTokens.has(token))));
+    const defaultActions = Array.from(definition.defaultActions || []);
+    const requestedActions = cloneStringArray(slot.actions).filter((action) => defaultActions.includes(action));
+    const status = ['empty', 'equipped', 'blocked', 'unknown'].includes(slot.publicStatus) ? slot.publicStatus : slotStatusForItem(item || (objectId != null ? { objectId } : null));
     const out = {
       slotId,
-      label: typeof slot.label === 'string' && slot.label.trim() ? slot.label.trim() : definition.label,
+      label: definition.label,
       wornMask: wornMask ?? wornMasks[slotId] ?? 0,
-      blockedBy: cloneStringArray(slot.blockedBy),
-      publicStatus: typeof slot.publicStatus === 'string' ? slot.publicStatus : slotStatusForItem(item || (objectId != null ? { objectId } : null)),
-      actions: cloneStringArray(slot.actions).length ? cloneStringArray(slot.actions) : Array.from(definition.defaultActions || []),
+      blockedBy,
+      publicStatus: status,
+      actions: requestedActions.length ? requestedActions : defaultActions,
     };
     if (definition.rendererSlotId) out.rendererSlotId = definition.rendererSlotId;
     if (objectId != null) out.objectId = objectId;
@@ -134,7 +152,10 @@
   function normalizeEquipmentSnapshotPayload(payload = {}) {
     const revision = normalizeEquipmentRevision(payload.revision);
     const inventoryRevision = normalizeEquipmentRevision(payload.inventoryRevision);
-    const slots = Array.isArray(payload.slots) ? payload.slots.map(normalizeEquipmentSlot).filter(Boolean) : [];
+    const normalized = Array.isArray(payload.slots) ? payload.slots.map(normalizeEquipmentSlot) : [];
+    const slotIds = normalized.filter(Boolean).map((slot) => slot.slotId);
+    const collectionValid = Array.isArray(payload.slots) && normalized.every(Boolean) && new Set(slotIds).size === slotIds.length;
+    const slots = collectionValid ? normalized : [];
     const mainHand = slots.find((slot) => slot.slotId === 'mainHand');
     const sanitizedSlots = slots.map((slot) => {
       if (slot.slotId !== 'offHand' || !slot.item || !mainHand?.item) return slot;
@@ -146,7 +167,9 @@
       }
       return slot;
     });
-    return Object.freeze({ revision, inventoryRevision, slots: Object.freeze(sanitizedSlots.map((slot) => Object.freeze(slot))) });
+    const snapshot = { revision, inventoryRevision, slots: Object.freeze(sanitizedSlots.map((slot) => Object.freeze(slot))) };
+    Object.defineProperty(snapshot, 'collectionValid', { value: collectionValid, enumerable: false });
+    return Object.freeze(snapshot);
   }
 
   function inventoryItemsFromEvent(event = {}) {
@@ -179,7 +202,14 @@
     return uniqueTokens(tokens);
   }
 
+  function invalidEquipmentSnapshot(revision = 0, inventoryRevision = 0) {
+    const snapshot = { revision: normalizeEquipmentRevision(revision), inventoryRevision: normalizeEquipmentRevision(inventoryRevision), slots: Object.freeze([]) };
+    Object.defineProperty(snapshot, 'collectionValid', { value: false, enumerable: false });
+    return Object.freeze(snapshot);
+  }
+
   function adaptInventorySnapshotToEquipmentSnapshot(inventorySnapshot = {}, options = {}) {
+    if (inventorySnapshot?.collectionValid === false) return invalidEquipmentSnapshot(options.revision ?? options.equipmentRevision ?? inventorySnapshot.revision, options.inventoryRevision ?? inventorySnapshot.revision);
     const items = Array.isArray(inventorySnapshot.items) ? inventorySnapshot.items : (Array.isArray(inventorySnapshot.orderedItems) ? inventorySnapshot.orderedItems : []);
     const byMask = new Map();
     for (const item of items) {
@@ -230,6 +260,7 @@
 
   function createEquipmentSnapshotEvent(event = {}, options = {}) {
     const snapshot = options.snapshot || (event.name === 'shim_update_equipment' ? adaptShimEquipmentUpdateToSnapshot(event) : adaptShimInventoryUpdateToEquipmentSnapshot(event));
+    if (!snapshot.collectionValid) throw new TypeError('equipment snapshot slot collection is malformed');
     const sequence = asNonNegativeInteger(options.sequence ?? snapshot.revision) ?? 0;
     return {
       protocol: 'nethack-electron-ui/v2',
@@ -259,29 +290,56 @@
     };
   }
 
+  function clonePublicSource(source) {
+    if (!isPlainObject(source)) return null;
+    const out = {};
+    if (typeof source.layer === 'string') out.layer = source.layer;
+    const window = asNonNegativeInteger(source.window);
+    if (window != null) out.window = window;
+    return Object.keys(out).length ? out : null;
+  }
+  function cloneSnapshotEvent(event) {
+    if (!isPlainObject(event)) return null;
+    const out = {};
+    for (const key of ['protocol', 'eventId', 'eventType']) if (typeof event[key] === 'string') out[key] = event[key];
+    for (const key of ['sequence', 'turn']) { const value = asNonNegativeInteger(event[key]); if (value != null) out[key] = value; }
+    if (isPlainObject(event.revision)) out.revision = Object.fromEntries(Object.entries(event.revision).filter(([, value]) => asNonNegativeInteger(value) != null).map(([key, value]) => [key, asNonNegativeInteger(value)]));
+    const source = clonePublicSource(event.source); if (source) out.source = source;
+    out.payload = {
+      revision: normalizeEquipmentRevision(event.payload?.revision),
+      inventoryRevision: normalizeEquipmentRevision(event.payload?.inventoryRevision),
+      slots: (event.payload?.slots || []).map(cloneEquipmentSlot).filter(Boolean),
+    };
+    return out;
+  }
   function cloneEquipmentState(equipment = emptyEquipmentState()) {
+    const orderedSlots = Array.isArray(equipment.orderedSlots) ? equipment.orderedSlots.map(cloneEquipmentSlot).filter(Boolean) : [];
+    const objectToSlots = new Map();
+    for (const slot of orderedSlots) if (slot.objectId != null) objectToSlots.set(slot.objectId, [...(objectToSlots.get(slot.objectId) || []), slot.slotId]);
     return {
       revision: normalizeEquipmentRevision(equipment.revision),
       inventoryRevision: normalizeEquipmentRevision(equipment.inventoryRevision),
-      slotsById: new Map(Array.from(equipment.slotsById || []).map(([key, slot]) => [key, cloneEquipmentSlot(slot)])),
-      objectToSlots: new Map(Array.from(equipment.objectToSlots || []).map(([key, slots]) => [key, Array.isArray(slots) ? slots.slice() : []])),
-      orderedSlots: Array.isArray(equipment.orderedSlots) ? equipment.orderedSlots.map(cloneEquipmentSlot) : [],
-      lastSnapshotSource: equipment.lastSnapshotSource ? { ...equipment.lastSnapshotSource } : null,
-      lastSnapshotEvent: equipment.lastSnapshotEvent ? { ...equipment.lastSnapshotEvent, payload: { ...equipment.lastSnapshotEvent.payload, slots: (equipment.lastSnapshotEvent.payload?.slots || []).map(cloneEquipmentSlot) } } : null,
+      slotsById: new Map(orderedSlots.map((slot) => [slot.slotId, slot])),
+      objectToSlots,
+      orderedSlots,
+      lastSnapshotSource: clonePublicSource(equipment.lastSnapshotSource),
+      lastSnapshotEvent: cloneSnapshotEvent(equipment.lastSnapshotEvent),
     };
   }
 
   function cloneEquipmentSlot(slot) {
-    return slot ? { ...slot, item: clonePublicItem(slot.item), blockedBy: cloneStringArray(slot.blockedBy), actions: cloneStringArray(slot.actions) } : slot;
+    return slot ? normalizeEquipmentSlot(slot) : slot;
   }
 
   function applyEquipmentSnapshot(previous = emptyEquipmentState(), payload = {}, options = {}) {
+    if (!isPlainObject(payload) || !Array.isArray(payload.slots) || payload.collectionValid === false) return cloneEquipmentState(previous);
     const snapshot = normalizeEquipmentSnapshotPayload(payload);
+    if (!snapshot.collectionValid) return cloneEquipmentState(previous);
     const state = emptyEquipmentState();
     state.revision = snapshot.revision;
     state.inventoryRevision = snapshot.inventoryRevision;
-    state.lastSnapshotSource = options.source ? { ...options.source } : null;
-    state.lastSnapshotEvent = options.event ? { ...options.event, payload: { ...options.event.payload, slots: (options.event.payload?.slots || []).map(cloneEquipmentSlot) } } : null;
+    state.lastSnapshotSource = clonePublicSource(options.source);
+    state.lastSnapshotEvent = cloneSnapshotEvent(options.event);
     for (const slot of snapshot.slots) {
       const copy = cloneEquipmentSlot(slot);
       state.orderedSlots.push(copy);

@@ -7,7 +7,8 @@ const transferEvents = Harness.createUiEventFactory({ prefix: 'transfer' });
 const envelope = transferEvents.envelope;
 const event = transferEvents.valid;
 const effectOf = Harness.effectOf;
-function row(selector, text) { return { selector, text }; }
+function row(selector, text) { return { selector, text, semanticKnown: false, known: { identity: false, appearance: true } }; }
+function publicAppearanceItem(displayName) { return { displayName, semanticKnown: false, known: { identity: false, appearance: true } }; }
 
 const view = GameViewState.createGameViewState();
 let result = view.process(event('transfer.session.opened', {
@@ -84,10 +85,10 @@ let invalidEvidence = envelope('transfer.ground-pile-evidence.attached', { trans
 let checkedInvalid = UiProtocol.validateEventEnvelope(invalidEvidence);
 assert.equal(checkedInvalid.ok, false, 'ground evidence attach protocol requires a groundPileDelta');
 assert(checkedInvalid.errors.some((error) => /groundPileDelta/.test(error)), checkedInvalid.errors.join('\n'));
-invalidEvidence = envelope('transfer.ground-pile-evidence.attached', { transferId: 'take-scroll', sessionId: 'shared-ground-session', coord: { x: 10, y: 12 }, container: { publicId: 'box', displayName: 'box' }, groundPileDelta: { coord: { x: 10, y: 12 }, removed: [{ displayName: 'scroll labeled READ ME' }], publicEvidence: true, changed: true } });
+invalidEvidence = envelope('transfer.ground-pile-evidence.attached', { transferId: 'take-scroll', sessionId: 'shared-ground-session', coord: { x: 10, y: 12 }, container: { publicId: 'box', displayName: 'box', semanticKnown: false, known: { identity: false, appearance: true } }, groundPileDelta: { coord: { x: 10, y: 12 }, removed: [publicAppearanceItem('scroll labeled READ ME')], publicEvidence: true, changed: true } });
 checkedInvalid = UiProtocol.validateEventEnvelope(invalidEvidence);
 assert.equal(checkedInvalid.ok, false, 'ground evidence attach protocol rejects top-level container identity fields');
-invalidEvidence = envelope('transfer.ground-pile-evidence.attached', { transferId: 'take-scroll', sessionId: 'shared-ground-session', coord: { x: 10, y: 12 }, groundPileDelta: { coord: { x: 10, y: 12 }, container: { publicId: 'box', displayName: 'box' }, removed: [{ displayName: 'scroll labeled READ ME' }], publicEvidence: true, changed: true } });
+invalidEvidence = envelope('transfer.ground-pile-evidence.attached', { transferId: 'take-scroll', sessionId: 'shared-ground-session', coord: { x: 10, y: 12 }, groundPileDelta: { coord: { x: 10, y: 12 }, container: { publicId: 'box', displayName: 'box', semanticKnown: false, known: { identity: false, appearance: true } }, removed: [publicAppearanceItem('scroll labeled READ ME')], publicEvidence: true, changed: true } });
 checkedInvalid = UiProtocol.validateEventEnvelope(invalidEvidence);
 assert.equal(checkedInvalid.ok, false, 'ground evidence attach protocol rejects nested container identity fields');
 
@@ -95,7 +96,7 @@ result = view.process(event('transfer.ground-pile-evidence.attached', {
   transferId: 'take-scroll',
   sessionId: 'shared-ground-session',
   coord: { x: 10, y: 12 },
-  groundPileDelta: { fromRevision: 1, toRevision: 2, added: [], removed: [{ displayName: 'scroll labeled READ ME' }], updated: [], changedCount: 1, publicEvidence: true, changed: true },
+  groundPileDelta: { fromRevision: 1, toRevision: 2, added: [], removed: [publicAppearanceItem('scroll labeled READ ME')], updated: [], changedCount: 1, publicEvidence: true, changed: true },
 }));
 assert.equal(effectOf(result, 'transfer-transaction-rejected').reason, 'ground pile delta coordinate is missing', 'ground evidence fails closed when delta identity is omitted');
 
@@ -103,7 +104,7 @@ result = view.process(event('transfer.ground-pile-evidence.attached', {
   transferId: 'take-scroll',
   sessionId: 'shared-ground-session',
   coord: { x: 99, y: 99 },
-  groundPileDelta: { coord: { x: 10, y: 12 }, fromRevision: 1, toRevision: 2, added: [], removed: [{ displayName: 'scroll labeled READ ME' }], updated: [], changedCount: 1, publicEvidence: true, changed: true },
+  groundPileDelta: { coord: { x: 10, y: 12 }, fromRevision: 1, toRevision: 2, added: [], removed: [publicAppearanceItem('scroll labeled READ ME')], updated: [], changedCount: 1, publicEvidence: true, changed: true },
 }));
 assert.equal(effectOf(result, 'transfer-transaction-rejected').reason, 'ground pile delta event coordinate does not match transfer evidence identity', 'ground evidence fails closed when top-level identity conflicts with stable transfer identity');
 
@@ -111,11 +112,11 @@ result = view.process(event('transfer.ground-pile-evidence.attached', {
   transferId: 'take-scroll',
   sessionId: 'shared-ground-session',
   coord: { x: 99, y: 99 },
-  groundPileDelta: { coord: { x: 99, y: 99 }, fromRevision: 1, toRevision: 2, added: [], removed: [{ displayName: 'scroll labeled READ ME' }], updated: [], changedCount: 1, publicEvidence: true, changed: true },
+  groundPileDelta: { coord: { x: 99, y: 99 }, fromRevision: 1, toRevision: 2, added: [], removed: [publicAppearanceItem('scroll labeled READ ME')], updated: [], changedCount: 1, publicEvidence: true, changed: true },
 }));
 assert.equal(effectOf(result, 'transfer-transaction-rejected').reason, 'ground pile delta event coordinate does not match transfer evidence identity', 'ground evidence fails closed when event and delta identities are both wrong');
 
-const matchingGroundDelta = { coord: { x: 10, y: 12 }, fromRevision: 1, toRevision: 2, added: [], removed: [{ displayName: 'scroll labeled READ ME' }], updated: [], changedCount: 1, publicEvidence: true, changed: true };
+const matchingGroundDelta = { coord: { x: 10, y: 12 }, fromRevision: 1, toRevision: 2, added: [], removed: [publicAppearanceItem('scroll labeled READ ME')], updated: [], changedCount: 1, publicEvidence: true, changed: true };
 result = view.process(event('transfer.ground-pile-evidence.attached', {
   transferId: 'take-scroll',
   sessionId: 'shared-ground-session',
@@ -140,7 +141,7 @@ result = view.process(event('transfer.session.opened', {
   kind: 'container',
   prompt: 'Do what with the large box?',
   ownerRequestId: 'req-container',
-  container: { publicId: 'large-box', displayName: 'large box', objectId: 42 },
+  container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 42 },
   leftRows: [row('a', 'a - an uncursed food ration')],
   rightRows: [row('b', 'b - a scroll of identify')],
   loadedSides: { left: true, right: true },
@@ -150,7 +151,7 @@ assert.equal(effectOf(result, 'transfer-session-opened').session.evidenceIdentit
 result = view.process(event('transfer.begun', {
   transferId: 'put-scroll',
   sessionId: 'container-session',
-  container: { publicId: 'large-box', displayName: 'large box', objectId: 42 },
+  container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 42 },
   direction: 'inventory-to-container',
   sourceSide: 'right',
   targetSide: 'left',
@@ -179,7 +180,7 @@ assert.equal(effectOf(result, 'transfer-transaction-rejected').reason, 'transfer
 result = view.process(event('transfer.begun', {
   transferId: 'put-scroll-delayed',
   sessionId: 'container-session',
-  container: { publicId: 'large-box', displayName: 'large box', objectId: 42 },
+  container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 42 },
   direction: 'inventory-to-container',
   sourceSide: 'right',
   targetSide: 'left',
@@ -191,7 +192,7 @@ result = view.process(event('transfer.begun', {
 assert.equal(effectOf(result, 'transfer-transaction-started').transfer.expectedRequestId, '', 'explicit empty expectedRequestId is preserved');
 result = view.process(event('transfer.choreography.updated', {
   sessionId: 'container-session',
-  pendingSelection: { action: 'in', selector: 'b', sourceSide: 'right', targetSide: 'left', itemName: 'scroll of identify', transferId: 'put-scroll-delayed', requestId: '', at: 1 },
+  pendingSelection: { action: 'in', selector: 'b', sourceSide: 'right', targetSide: 'left', itemName: 'scroll of identify', item: publicAppearanceItem('a scroll of identify'), transferId: 'put-scroll-delayed', requestId: '', at: 1 },
   autoLoadingSide: 'right',
   refreshIntent: { kind: 'container-pending-item-menu-selection', side: 'right', transferId: 'put-scroll-delayed', command: '#loot\n', delayMs: 80, reason: 'waiting for put-in menu', at: 2 },
   reason: 'test pending selection',
@@ -199,7 +200,7 @@ result = view.process(event('transfer.choreography.updated', {
 let choreographyEffect = effectOf(result, 'transfer-choreography-updated');
 assert.equal(choreographyEffect.choreography.pendingSelection.selector, 'b', 'shared reducer records pending container item selection for an active transfer');
 assert.equal(choreographyEffect.choreography.autoLoadingSide, 'right', 'shared reducer records auto-loading side intent');
-let choreographyState = GameViewState.transferPanelChoreographyState(view.state, { kind: 'container', sessionId: 'container-session', container: { publicId: 'large-box', displayName: 'large box', objectId: 42 } });
+let choreographyState = GameViewState.transferPanelChoreographyState(view.state, { kind: 'container', sessionId: 'container-session', container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 42 } });
 assert.equal(choreographyState.source, 'shared-session-choreography', 'shared choreography helper exposes reducer-owned transfer choreography');
 assert.equal(choreographyState.pendingSelection.transferId, 'put-scroll-delayed');
 assert.equal(choreographyState.refreshIntent.kind, 'container-pending-item-menu-selection');
@@ -210,7 +211,7 @@ assert.equal(choreographyEffect.choreography.autoNextSide, 'left', 'shared reduc
 assert.equal(choreographyEffect.choreography.reopenPending, true, 'shared reducer records reopen intent instead of renderer-only flag');
 result = view.process(event('transfer.completed', { transferId: 'put-scroll-delayed', sessionId: 'wrong-container-session', status: 'success', afterPanes: { left: [row('a', 'a - an uncursed food ration'), row('b', 'b - a scroll of identify')], right: [] } }));
 assert.equal(effectOf(result, 'transfer-transaction-rejected').reason, 'completion session id does not match transfer', 'shared transfer completion rejects wrong session ids');
-result = view.process(event('transfer.completed', { transferId: 'put-scroll-delayed', sessionId: 'container-session', status: 'success', containerContentsDelta: { added: [{ displayName: 'scroll of identify' }], publicEvidence: true, changed: true }, afterPanes: { left: [row('a', 'a - an uncursed food ration'), row('b', 'b - a scroll of identify')], right: [] } }));
+result = view.process(event('transfer.completed', { transferId: 'put-scroll-delayed', sessionId: 'container-session', status: 'success', containerContentsDelta: { added: [publicAppearanceItem('scroll of identify')], publicEvidence: true, changed: true }, afterPanes: { left: [row('a', 'a - an uncursed food ration'), row('b', 'b - a scroll of identify')], right: [] } }));
 assert.equal(effectOf(result, 'transfer-transaction-rejected').reason, 'container contents delta session id is missing', 'invalid public evidence on completion is rejected instead of silently dropped');
 
 result = view.process(event('transfer.completed', {
@@ -220,45 +221,45 @@ result = view.process(event('transfer.completed', {
 }));
 assert.equal(effectOf(result, 'transfer-transaction-completed').transfer.result.publicEvidence.containerContents, false);
 
-invalidEvidence = envelope('transfer.container-contents-evidence.attached', { transferId: 'put-scroll-delayed', sessionId: 'container-session', container: { publicId: 'large-box', displayName: 'large box', objectId: 42 } });
+invalidEvidence = envelope('transfer.container-contents-evidence.attached', { transferId: 'put-scroll-delayed', sessionId: 'container-session', container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 42 } });
 checkedInvalid = UiProtocol.validateEventEnvelope(invalidEvidence);
 assert.equal(checkedInvalid.ok, false, 'container evidence attach protocol requires a containerContentsDelta');
-invalidEvidence = envelope('transfer.container-contents-evidence.attached', { transferId: 'put-scroll-delayed', sessionId: 'container-session', coord: { x: 10, y: 12 }, container: { publicId: 'large-box', displayName: 'large box', objectId: 42 }, containerContentsDelta: { sessionId: 'container-session', container: { publicId: 'large-box', displayName: 'large box', objectId: 42 }, added: [{ displayName: 'scroll of identify' }], publicEvidence: true, changed: true } });
+invalidEvidence = envelope('transfer.container-contents-evidence.attached', { transferId: 'put-scroll-delayed', sessionId: 'container-session', coord: { x: 10, y: 12 }, container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 42 }, containerContentsDelta: { sessionId: 'container-session', container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 42 }, added: [publicAppearanceItem('scroll of identify')], publicEvidence: true, changed: true } });
 checkedInvalid = UiProtocol.validateEventEnvelope(invalidEvidence);
 assert.equal(checkedInvalid.ok, false, 'container evidence attach protocol rejects top-level coordinate fields');
-invalidEvidence = envelope('transfer.container-contents-evidence.attached', { transferId: 'put-scroll-delayed', sessionId: 'container-session', container: { publicId: 'large-box', displayName: 'large box', objectId: 42 }, containerContentsDelta: { coord: { x: 10, y: 12 }, sessionId: 'container-session', container: { publicId: 'large-box', displayName: 'large box', objectId: 42 }, added: [{ displayName: 'scroll of identify' }], publicEvidence: true, changed: true } });
+invalidEvidence = envelope('transfer.container-contents-evidence.attached', { transferId: 'put-scroll-delayed', sessionId: 'container-session', container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 42 }, containerContentsDelta: { coord: { x: 10, y: 12 }, sessionId: 'container-session', container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 42 }, added: [publicAppearanceItem('scroll of identify')], publicEvidence: true, changed: true } });
 checkedInvalid = UiProtocol.validateEventEnvelope(invalidEvidence);
 assert.equal(checkedInvalid.ok, false, 'container evidence attach protocol rejects nested coordinate fields');
 
 result = view.process(event('transfer.container-contents-evidence.attached', {
   transferId: 'put-scroll-delayed',
   sessionId: 'container-session',
-  container: { publicId: 'large-box', displayName: 'large box', objectId: 42 },
-  containerContentsDelta: { fromRevision: 1, toRevision: 2, added: [{ displayName: 'scroll of identify' }], removed: [], updated: [], changedCount: 1, publicEvidence: true, changed: true },
+  container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 42 },
+  containerContentsDelta: { fromRevision: 1, toRevision: 2, added: [publicAppearanceItem('scroll of identify')], removed: [], updated: [], changedCount: 1, publicEvidence: true, changed: true },
 }));
 assert.equal(effectOf(result, 'transfer-transaction-rejected').reason, 'container contents delta session id is missing', 'container evidence fails closed when delta session identity is omitted');
 
 result = view.process(event('transfer.container-contents-evidence.attached', {
   transferId: 'put-scroll-delayed',
   sessionId: 'container-session',
-  container: { publicId: 'wrong-box', displayName: 'large box', objectId: 99 },
-  containerContentsDelta: { sessionId: 'container-session', container: { publicId: 'large-box', displayName: 'large box', objectId: 42 }, fromRevision: 1, toRevision: 2, added: [{ displayName: 'scroll of identify' }], removed: [], updated: [], changedCount: 1, publicEvidence: true, changed: true },
+  container: { publicId: 'wrong-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 99 },
+  containerContentsDelta: { sessionId: 'container-session', container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 42 }, fromRevision: 1, toRevision: 2, added: [publicAppearanceItem('scroll of identify')], removed: [], updated: [], changedCount: 1, publicEvidence: true, changed: true },
 }));
 assert.equal(effectOf(result, 'transfer-transaction-rejected').reason, 'container contents delta event container identity does not match transfer', 'container evidence fails closed when top-level identity conflicts with stable transfer identity');
 
 result = view.process(event('transfer.container-contents-evidence.attached', {
   transferId: 'put-scroll-delayed',
   sessionId: 'container-session',
-  container: { publicId: 'wrong-box', displayName: 'large box', objectId: 99 },
-  containerContentsDelta: { sessionId: 'container-session', container: { publicId: 'wrong-box', displayName: 'large box', objectId: 99 }, fromRevision: 1, toRevision: 2, added: [{ displayName: 'scroll of identify' }], removed: [], updated: [], changedCount: 1, publicEvidence: true, changed: true },
+  container: { publicId: 'wrong-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 99 },
+  containerContentsDelta: { sessionId: 'container-session', container: { publicId: 'wrong-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 99 }, fromRevision: 1, toRevision: 2, added: [publicAppearanceItem('scroll of identify')], removed: [], updated: [], changedCount: 1, publicEvidence: true, changed: true },
 }));
 assert.equal(effectOf(result, 'transfer-transaction-rejected').reason, 'container contents delta event container identity does not match transfer', 'container evidence fails closed when event and delta identities are both wrong');
 
-const matchingContainerDelta = { sessionId: 'container-session', container: { publicId: 'large-box', displayName: 'large box', objectId: 42 }, fromRevision: 1, toRevision: 2, added: [{ displayName: 'scroll of identify' }], removed: [], updated: [], changedCount: 1, publicEvidence: true, changed: true };
+const matchingContainerDelta = { sessionId: 'container-session', container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 42 }, fromRevision: 1, toRevision: 2, added: [publicAppearanceItem('scroll of identify')], removed: [], updated: [], changedCount: 1, publicEvidence: true, changed: true };
 result = view.process(event('transfer.container-contents-evidence.attached', {
   transferId: 'put-scroll-delayed',
   sessionId: 'container-session',
-  container: { publicId: 'large-box', displayName: 'large box', objectId: 42 },
+  container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 42 },
   containerContentsDelta: matchingContainerDelta,
 }));
 attached = effectOf(result, 'transfer-transaction-container-contents-delta-attached');
@@ -283,9 +284,9 @@ const sameTextDuplicateMove = GameViewState.transferPanelOptimisticMoveState({ t
 assert.equal(sameTextDuplicateMove.panesAfter.right.filter((item) => item.selector === 'a' && item.text === 'dagger').length, 2, 'pane namespaces stay independent even when selector and display text both match');
 
 const autoView = GameViewState.createGameViewState();
-result = autoView.process(event('ground.pile.snapshot', { revision: 1, coord: { x: 4, y: 5 }, items: [{ displayName: 'a food ration' }, { displayName: 'a scroll labeled READ ME' }] }));
+result = autoView.process(event('ground.pile.snapshot', { revision: 1, coord: { x: 4, y: 5 }, items: [publicAppearanceItem('a food ration'), publicAppearanceItem('a scroll labeled READ ME')] }));
 assert(effectOf(result, 'ground-pile-snapshot'), 'initial ordinary ground snapshot is accepted');
-result = autoView.process(event('ground.pile.snapshot', { revision: 1, coord: { x: 4, y: 5 }, items: [{ displayName: 'a scroll labeled READ ME' }] }));
+result = autoView.process(event('ground.pile.snapshot', { revision: 1, coord: { x: 4, y: 5 }, items: [publicAppearanceItem('a scroll labeled READ ME')] }));
 assert(effectOf(result, 'ground-pile-snapshot-rejected')?.errors?.some((error) => /conflicting ground pile snapshot revision 1/.test(error)), 'same-revision conflicting ground snapshot is rejected fail-closed');
 autoView.process(event('transfer.session.opened', { sessionId: 'auto-ground-session', kind: 'ground-pickup', groundCoord: { x: 4, y: 5 }, leftRows: [row('a', 'a - a food ration'), row('b', 'b - a scroll labeled READ ME')], rightRows: [], loadedSides: { left: true, right: true } }));
 result = autoView.process(event('transfer.begun', { transferId: 'auto-take-scroll', sessionId: 'auto-ground-session', groundCoord: { x: 4, y: 5 }, direction: 'ground-to-inventory', sourceSide: 'left', targetSide: 'right', selector: 'b', itemName: 'scroll labeled READ ME', beforePanes: { left: [row('a', 'a - a food ration'), row('b', 'b - a scroll labeled READ ME')], right: [] } }));
@@ -295,27 +296,27 @@ let commandState = GameViewState.transferPanelCommandState(autoView.state, { kin
 assert.equal(commandState.transferId, 'auto-take-scroll', 'shared command helper resolves the active ground transfer without renderer-local pending id');
 assert.equal(commandState.pendingEvidenceKind, 'ground-pile', 'shared command helper exposes the matching ground pending evidence sidecar');
 autoView.process(event('transfer.completed', { transferId: 'auto-take-scroll', status: 'success', afterPanes: { left: [row('a', 'a - a food ration')], right: [row('b', 'b - a scroll labeled READ ME')] } }));
-result = autoView.process(event('ground.pile.snapshot', { revision: 2, coord: { x: 4, y: 5 }, items: [{ displayName: 'a food ration' }] }));
+result = autoView.process(event('ground.pile.snapshot', { revision: 2, coord: { x: 4, y: 5 }, items: [publicAppearanceItem('a food ration')] }));
 attached = effectOf(result, 'transfer-transaction-ground-pile-delta-attached');
 assert(attached, 'ordinary ground.pile.snapshot automatically attaches delayed transfer evidence');
 assert.equal(attached.transfer.result.publicEvidence.groundPile, true);
 assert.equal(attached.transfer.result.publicEvidenceAttachedAfterCompletion, true);
 assert.equal(autoView.snapshot().pendingTransferEvidence.ground, null, 'automatic ground attach clears shared pending evidence');
 
-result = autoView.process(event('transfer.ground-pile-evidence.attached', { transferId: 'auto-take-scroll', sessionId: 'auto-ground-session', coord: { x: 4, y: 5 }, groundPileDelta: { coord: { x: 4, y: 5 }, fromRevision: 1, toRevision: 2, added: [], removed: [{ displayName: 'scroll labeled READ ME' }], updated: [], changedCount: 1, publicEvidence: true, changed: true } }));
+result = autoView.process(event('transfer.ground-pile-evidence.attached', { transferId: 'auto-take-scroll', sessionId: 'auto-ground-session', coord: { x: 4, y: 5 }, groundPileDelta: { coord: { x: 4, y: 5 }, fromRevision: 1, toRevision: 2, added: [], removed: [publicAppearanceItem('scroll labeled READ ME')], updated: [], changedCount: 1, publicEvidence: true, changed: true } }));
 assert.equal(effectOf(result, 'transfer-transaction-rejected').reason, 'ground pile delta already attached to transfer', 'duplicate ground evidence is rejected after automatic attachment');
 
-result = autoView.process(event('ground.pile.snapshot', { revision: 3, coord: { x: 7, y: 7 }, items: [{ displayName: 'a dagger' }, { displayName: 'an amulet' }] }));
+result = autoView.process(event('ground.pile.snapshot', { revision: 3, coord: { x: 7, y: 7 }, items: [publicAppearanceItem('a dagger'), publicAppearanceItem('an amulet')] }));
 autoView.process(event('transfer.session.opened', { sessionId: 'auto-stale-ground-session', kind: 'ground-pickup', groundCoord: { x: 7, y: 7 }, leftRows: [row('a', 'a - a dagger'), row('b', 'b - an amulet')], rightRows: [], loadedSides: { left: true, right: true } }));
 autoView.process(event('transfer.begun', { transferId: 'auto-take-amulet', sessionId: 'auto-stale-ground-session', groundCoord: { x: 7, y: 7 }, direction: 'ground-to-inventory', sourceSide: 'left', targetSide: 'right', selector: 'b', itemName: 'amulet', beforePanes: { left: [row('a', 'a - a dagger'), row('b', 'b - an amulet')], right: [] } }));
 const beforeStaleRevision = autoView.state.transferTransactions.revision;
-result = autoView.process(event('ground.pile.snapshot', { revision: 2, coord: { x: 7, y: 7 }, items: [{ displayName: 'an amulet' }] }));
+result = autoView.process(event('ground.pile.snapshot', { revision: 2, coord: { x: 7, y: 7 }, items: [publicAppearanceItem('an amulet')] }));
 assert(effectOf(result, 'ground-pile-snapshot-rejected')?.stale, 'stale ordinary ground snapshot is rejected before evidence matching');
 assert.equal(autoView.state.transferTransactions.revision, beforeStaleRevision, 'stale ordinary ground evidence does not mutate transfer state');
-result = autoView.process(event('ground.pile.snapshot', { revision: 1, coord: { x: 9, y: 9 }, items: [{ displayName: 'an amulet' }] }));
+result = autoView.process(event('ground.pile.snapshot', { revision: 1, coord: { x: 9, y: 9 }, items: [publicAppearanceItem('an amulet')] }));
 assert.equal(effectOf(result, 'transfer-pending-ground-pile-evidence-ignored')?.reason, 'ordinary ground pile snapshot coordinate did not match pending transfer evidence', 'unrelated ground evidence is ignored with reducer diagnostics');
 assert.equal(autoView.snapshot().pendingTransferEvidence.ground.transferId, 'auto-take-amulet', 'unrelated ground evidence keeps pending queue intact');
-result = autoView.process(event('ground.pile.snapshot', { revision: 4, coord: { x: 7, y: 7 }, items: [{ displayName: 'an amulet' }] }));
+result = autoView.process(event('ground.pile.snapshot', { revision: 4, coord: { x: 7, y: 7 }, items: [publicAppearanceItem('an amulet')] }));
 assert.equal(effectOf(result, 'transfer-transaction-rejected').reason, 'ground pile delta does not mention the transfer item', 'same-coordinate unrelated item evidence is rejected by transfer model validation');
 assert.equal(autoView.snapshot().pendingTransferEvidence.ground.transferId, 'auto-take-amulet', 'rejected unrelated item evidence does not clear pending queue');
 autoView.process(event('transfer.session.opened', { sessionId: 'auto-superseding-ground-session', kind: 'ground-pickup', groundCoord: { x: 9, y: 9 }, leftRows: [row('a', 'a - an amulet')], rightRows: [], loadedSides: { left: true, right: true } }));
@@ -350,17 +351,17 @@ assert(effectOf(result, 'transfer-pending-ground-pile-evidence-cleared'), 'expli
 assert.equal(staleGroundCloseView.snapshot().pendingTransferEvidence.ground, null);
 
 const staleCloseView = GameViewState.createGameViewState();
-staleCloseView.process(event('transfer.session.opened', { sessionId: 'stale-close-container-session', kind: 'container', container: { publicId: 'stale-box', displayName: 'large box', objectId: 88 }, leftRows: [], rightRows: [row('a', 'a - a dagger')], loadedSides: { left: true, right: true } }));
-staleCloseView.process(event('transfer.begun', { transferId: 'stale-close-put-dagger', sessionId: 'stale-close-container-session', container: { publicId: 'stale-box', displayName: 'large box', objectId: 88 }, direction: 'inventory-to-container', sourceSide: 'right', targetSide: 'left', selector: 'a', itemName: 'dagger', beforePanes: { left: [], right: [row('a', 'a - a dagger')] } }));
+staleCloseView.process(event('transfer.session.opened', { sessionId: 'stale-close-container-session', kind: 'container', container: { publicId: 'stale-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 88 }, leftRows: [], rightRows: [row('a', 'a - a dagger')], loadedSides: { left: true, right: true } }));
+staleCloseView.process(event('transfer.begun', { transferId: 'stale-close-put-dagger', sessionId: 'stale-close-container-session', container: { publicId: 'stale-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 88 }, direction: 'inventory-to-container', sourceSide: 'right', targetSide: 'left', selector: 'a', itemName: 'dagger', beforePanes: { left: [], right: [row('a', 'a - a dagger')] } }));
 staleCloseView.process(event('transfer.completed', { transferId: 'stale-close-put-dagger', status: 'success', afterPanes: { left: [row('a', 'a - a dagger')], right: [] } }));
 result = staleCloseView.process(event('transfer.session.closed', { sessionId: 'stale-close-container-session', reason: 'panel closed before refresh' }));
 assert(effectOf(result, 'transfer-pending-container-contents-evidence-cleared'), 'transfer.session.closed clears completed container pending evidence when no future refresh is expected');
 assert.equal(staleCloseView.snapshot().pendingTransferEvidence.container, null);
 
-const container = { publicId: 'auto-large-box', displayName: 'large box', objectId: 77 };
+const container = { publicId: 'auto-large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 77 };
 const autoContainerView = GameViewState.createGameViewState();
 autoContainerView.process(event('container.session.opened', { sessionId: 'auto-container-session', container }));
-autoContainerView.process(event('container.contents.snapshot', { revision: 1, sessionId: 'auto-container-session', container, items: [{ displayName: 'a food ration' }] }));
+autoContainerView.process(event('container.contents.snapshot', { revision: 1, sessionId: 'auto-container-session', container, items: [publicAppearanceItem('a food ration')] }));
 autoContainerView.process(event('transfer.session.opened', { sessionId: 'auto-container-session', kind: 'container', container, leftRows: [row('a', 'a - a food ration')], rightRows: [row('b', 'b - a dagger')], loadedSides: { left: true, right: true } }));
 result = autoContainerView.process(event('transfer.begun', { transferId: 'auto-put-dagger', sessionId: 'auto-container-session', container, direction: 'inventory-to-container', sourceSide: 'right', targetSide: 'left', selector: 'b', itemName: 'dagger', beforePanes: { left: [row('a', 'a - a food ration')], right: [row('b', 'b - a dagger')] } }));
 assert(effectOf(result, 'transfer-pending-container-contents-evidence-recorded'), 'transfer begin records shared pending container evidence');
@@ -369,7 +370,7 @@ commandState = GameViewState.transferPanelCommandState(autoContainerView.state, 
 assert.equal(commandState.transferId, 'auto-put-dagger', 'shared command helper resolves the active container transfer without renderer-local pending id');
 assert.equal(commandState.pendingEvidenceKind, 'container-contents', 'shared command helper exposes the matching container pending evidence sidecar');
 autoContainerView.process(event('transfer.completed', { transferId: 'auto-put-dagger', status: 'success', afterPanes: { left: [row('a', 'a - a food ration'), row('b', 'b - a dagger')], right: [] } }));
-result = autoContainerView.process(event('container.contents.snapshot', { revision: 2, sessionId: 'auto-container-session', container, items: [{ displayName: 'a food ration' }, { displayName: 'a dagger' }] }));
+result = autoContainerView.process(event('container.contents.snapshot', { revision: 2, sessionId: 'auto-container-session', container, items: [publicAppearanceItem('a food ration'), publicAppearanceItem('a dagger')] }));
 attached = effectOf(result, 'transfer-transaction-container-contents-delta-attached');
 assert(attached, 'ordinary container.contents.snapshot automatically attaches delayed transfer evidence');
 assert.equal(attached.transfer.result.publicEvidence.containerContents, true);
@@ -383,14 +384,14 @@ assert.equal(paneMove.refreshPlan.keepOpenThroughRefresh, true, 'container helpe
 assert.equal(paneMove.refreshPlan.reopenPending, true, 'container helper requests reopen choreography after a transfer command');
 assert.equal(paneMove.panesAfter.right.some((item) => item.selector === 'a'), true, 'container helper moves selected row into the destination pane patch');
 
-result = autoContainerView.process(event('transfer.container-contents-evidence.attached', { transferId: 'auto-put-dagger', sessionId: 'auto-container-session', container, containerContentsDelta: { sessionId: 'auto-container-session', container, fromRevision: 1, toRevision: 2, added: [{ displayName: 'dagger' }], removed: [], updated: [], changedCount: 1, publicEvidence: true, changed: true } }));
+result = autoContainerView.process(event('transfer.container-contents-evidence.attached', { transferId: 'auto-put-dagger', sessionId: 'auto-container-session', container, containerContentsDelta: { sessionId: 'auto-container-session', container, fromRevision: 1, toRevision: 2, added: [publicAppearanceItem('dagger')], removed: [], updated: [], changedCount: 1, publicEvidence: true, changed: true } }));
 assert.equal(effectOf(result, 'transfer-transaction-rejected').reason, 'container contents delta already attached to transfer', 'duplicate container evidence is rejected after automatic attachment');
 
-autoContainerView.process(event('container.session.opened', { sessionId: 'other-container-session', container: { publicId: 'other-box', displayName: 'large box', objectId: 78 } }));
-autoContainerView.process(event('container.contents.snapshot', { revision: 1, sessionId: 'other-container-session', container: { publicId: 'other-box', displayName: 'large box', objectId: 78 }, items: [{ displayName: 'a knife' }] }));
-autoContainerView.process(event('transfer.session.opened', { sessionId: 'other-container-session', kind: 'container', container: { publicId: 'other-box', displayName: 'large box', objectId: 78 }, leftRows: [row('a', 'a - a knife')], rightRows: [row('b', 'b - a scroll of identify')], loadedSides: { left: true, right: true } }));
-autoContainerView.process(event('transfer.begun', { transferId: 'auto-put-scroll-other', sessionId: 'other-container-session', container: { publicId: 'other-box', displayName: 'large box', objectId: 78 }, direction: 'inventory-to-container', sourceSide: 'right', targetSide: 'left', selector: 'b', itemName: 'scroll of identify', beforePanes: { left: [row('a', 'a - a knife')], right: [row('b', 'b - a scroll of identify')] } }));
-result = autoContainerView.process(event('container.contents.snapshot', { revision: 3, sessionId: 'auto-container-session', container, items: [{ displayName: 'a food ration' }, { displayName: 'a dagger' }, { displayName: 'a scroll of identify' }] }));
+autoContainerView.process(event('container.session.opened', { sessionId: 'other-container-session', container: { publicId: 'other-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 78 } }));
+autoContainerView.process(event('container.contents.snapshot', { revision: 1, sessionId: 'other-container-session', container: { publicId: 'other-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 78 }, items: [publicAppearanceItem('a knife')] }));
+autoContainerView.process(event('transfer.session.opened', { sessionId: 'other-container-session', kind: 'container', container: { publicId: 'other-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 78 }, leftRows: [row('a', 'a - a knife')], rightRows: [row('b', 'b - a scroll of identify')], loadedSides: { left: true, right: true } }));
+autoContainerView.process(event('transfer.begun', { transferId: 'auto-put-scroll-other', sessionId: 'other-container-session', container: { publicId: 'other-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 78 }, direction: 'inventory-to-container', sourceSide: 'right', targetSide: 'left', selector: 'b', itemName: 'scroll of identify', beforePanes: { left: [row('a', 'a - a knife')], right: [row('b', 'b - a scroll of identify')] } }));
+result = autoContainerView.process(event('container.contents.snapshot', { revision: 3, sessionId: 'auto-container-session', container, items: [publicAppearanceItem('a food ration'), publicAppearanceItem('a dagger'), publicAppearanceItem('a scroll of identify')] }));
 assert.equal(effectOf(result, 'transfer-pending-container-contents-evidence-ignored')?.reason, 'ordinary container contents snapshot session did not match pending transfer evidence', 'unrelated container session evidence is ignored with reducer diagnostics');
 assert.equal(autoContainerView.snapshot().pendingTransferEvidence.container.transferId, 'auto-put-scroll-other', 'unrelated container evidence keeps pending queue intact');
 result = autoContainerView.process(event('container.session.closed', { sessionId: 'other-container-session', reason: 'player closed container pane' }));
@@ -410,8 +411,8 @@ assert.equal(missingRequestMenuView.snapshot().currentMenu, null, 'missing reque
 assert.equal(missingRequestMenuView.snapshot().activePrompt, null, 'missing request id transfer answer clears stale shared activePrompt');
 
 const foreignMissingRequestView = GameViewState.createGameViewState();
-foreignMissingRequestView.process(event('transfer.session.opened', { sessionId: 'foreign-menu-session', kind: 'container', container: { publicId: 'foreign-box', displayName: 'large box', objectId: 91 }, leftRows: [row('a', 'a - a rock')], rightRows: [], loadedSides: { left: true, right: true } }));
-foreignMissingRequestView.process(event('transfer.begun', { transferId: 'foreign-menu-transfer', sessionId: 'foreign-menu-session', container: { publicId: 'foreign-box', displayName: 'large box', objectId: 91 }, direction: 'container-to-inventory', sourceSide: 'left', targetSide: 'right', selector: 'a', itemName: 'rock', expectedRequestId: 'owned-menu-request', beforePanes: { left: [row('a', 'a - a rock')], right: [] } }));
+foreignMissingRequestView.process(event('transfer.session.opened', { sessionId: 'foreign-menu-session', kind: 'container', container: { publicId: 'foreign-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 91 }, leftRows: [row('a', 'a - a rock')], rightRows: [], loadedSides: { left: true, right: true } }));
+foreignMissingRequestView.process(event('transfer.begun', { transferId: 'foreign-menu-transfer', sessionId: 'foreign-menu-session', container: { publicId: 'foreign-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 91 }, direction: 'container-to-inventory', sourceSide: 'left', targetSide: 'right', selector: 'a', itemName: 'rock', expectedRequestId: 'owned-menu-request', beforePanes: { left: [row('a', 'a - a rock')], right: [] } }));
 foreignMissingRequestView.process({ name: 'shim_start_menu', window: 991, requestId: 'foreign-menu-request', transactionId: 'foreign-command' });
 foreignMissingRequestView.process({ name: 'shim_add_menu', window: 991, selector: 97, text: 'a - a different prompt row', requestId: 'foreign-menu-request', transactionId: 'foreign-command' });
 foreignMissingRequestView.process({ name: 'shim_end_menu', window: 991, prompt: 'Foreign prompt?', requestId: 'foreign-menu-request', transactionId: 'foreign-command' });

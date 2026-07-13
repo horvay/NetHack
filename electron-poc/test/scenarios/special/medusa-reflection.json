@@ -1,0 +1,36 @@
+{
+  "schema": "nethack-electron-test-scenario/v2",
+  "id": "special/medusa-reflection",
+  "phase": "after-special-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "near-monster",
+    "placementTarget": "MEDUSA",
+    "placementDistance": 4,
+    "wakePlacementTarget": true,
+    "role": "Valkyrie",
+    "race": "human",
+    "gender": "female",
+    "alignment": "lawful",
+    "intrinsics": ["reflection"],
+    "experienceLevel": 18,
+    "hp": 140,
+    "maxHp": 140,
+    "power": 40,
+    "maxPower": 40
+  },
+  "level": {
+    "safeAreaAroundHero": 5,
+    "lit": true,
+    "suppressAdjacentMonsters": false,
+    "pet": "none",
+    "specialLevel": "medusa"
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [],
+  "expectedPublicFacts": {
+    "monsterRows": ["Medusa"],
+    "status": ["Valkyrie", "level 18"],
+    "messages": ["authentic live Medusa gaze with intrinsic reflection"]
+  }
+}

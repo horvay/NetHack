@@ -24,9 +24,14 @@ const files = listScenarioFiles();
 assert.ok(files.length > 0, 'scenario examples should be present for the loader framework');
 const scenarios = files.map((file) => ({ file, rel: path.relative(scenarioRoot, file).replace(/\\/g, '/').replace(/\.json$/, ''), json: JSON.parse(fs.readFileSync(file, 'utf8')) }));
 for (const scenario of scenarios) {
-  assert.equal(scenario.json.schema, 'nethack-electron-test-scenario/v1', `${scenario.rel} schema`);
+  const version = scenario.json.schema === 'nethack-electron-test-scenario/v1' ? 1
+    : scenario.json.schema === 'nethack-electron-test-scenario/v2' ? 2 : 0;
+  assert.ok(version, `${scenario.rel} schema`);
   assert.equal(scenario.json.id, scenario.rel, `${scenario.rel} id must match safe resolver path`);
-  assert.equal(scenario.json.phase, 'after-level-and-hero-before-first-draw', `${scenario.rel} phase`);
+  assert.equal(scenario.json.phase, version === 2
+    ? 'after-special-level-and-hero-before-first-draw'
+    : 'after-level-and-hero-before-first-draw', `${scenario.rel} phase`);
+  if (version === 2) assert.ok(typeof scenario.json.level?.specialLevel === 'string', `${scenario.rel} special level`);
   const requiredTopLevel = ['expectedPublicFacts', 'ground', 'hero', 'id', 'inventory', 'level', 'monsters', 'phase', 'schema'];
   const topLevel = Object.keys(scenario.json).sort();
   assert.deepEqual(topLevel.filter((key) => key !== 'eventResults'), requiredTopLevel.sort(), `${scenario.rel} top-level schema`);
@@ -50,6 +55,9 @@ const sampleScenario = scenarios.find((s) => s.rel === 'container/unlocked-chest
 assert.ok(allmain.includes('#ifdef NH_ELECTRON_TEST_FIXTURES'), 'loader and legacy hooks must be fixture-build gated');
 assert.ok(allmain.includes('electron_test_parse_scenario_v1'), 'loader must use a real parser/validator entrypoint');
 assert.ok(!/strstr\s*\(/.test(allmain), 'allmain scenario validation must not use substring strstr checks');
+assert.ok(allmain.includes('ELECTRON_TEST_SCENARIO_SCHEMA_V2'), 'loader must recognize the special-level v2 schema');
+assert.ok(allmain.includes('electron_test_apply_special_level'), 'v2 loader must enter authentic named special levels');
+assert.ok(allmain.includes('goto_level(&target, FALSE, FALSE, FALSE)'), 'special-level setup must use NetHack level travel');
 assert.ok(!allmain.includes('electron_test_json_has'), 'substring JSON helper must be removed');
 assert.ok(allmain.includes('maybe_setup_electron_json_test_scenario();'), 'new game must invoke JSON scenario loader');
 assert.ok(allmain.includes('bridge_test_scenario_loaded'), 'loaded event must be emitted');

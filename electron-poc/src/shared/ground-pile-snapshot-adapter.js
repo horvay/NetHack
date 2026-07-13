@@ -3,6 +3,7 @@
   else root.NetHackGroundPileSnapshotAdapter = factory(root.NetHackInventorySnapshotAdapter);
 }(typeof globalThis !== 'undefined' ? globalThis : this, function factory(InventorySnapshotAdapter) {
   const version = 'nethack-ground-pile-snapshot-adapter/v1';
+  const visibleTextObservations = new WeakSet();
 
   function isPlainObject(value) { return Boolean(value) && typeof value === 'object' && !Array.isArray(value); }
   function asNonNegativeInteger(value) {
@@ -52,48 +53,32 @@
   }
   function cloneStringArray(value) { return Array.isArray(value) ? value.filter((item) => typeof item === 'string') : undefined; }
   function clonePublicItem(item) {
-    return item ? {
-      ...item,
-      location: item.location ? { ...item.location } : item.location,
-      known: item.known ? { ...item.known } : item.known,
-      actionAffordances: Array.isArray(item.actionAffordances) ? item.actionAffordances.slice() : item.actionAffordances,
-      publicActionHints: Array.isArray(item.publicActionHints) ? item.publicActionHints.slice() : item.publicActionHints,
-    } : null;
+    const normalized = item ? InventorySnapshotAdapter.normalizePublicInventoryItem(item) : null;
+    return normalized ? { ...normalized, location: { kind: 'ground' } } : null;
   }
 
   function normalizePublicGroundItem(item = {}) {
     if (!isPlainObject(item)) return null;
-    const displayName = cleanGroundText(item.displayName || item.appearanceName || item.text || item.name, item.selector || item.inventoryLetter);
-    if (!displayName) return null;
-    const out = { displayName, location: { kind: 'ground' } };
-    const objectId = asNonNegativeInteger(item.objectId);
-    if (objectId != null) out.objectId = objectId;
-    const quantity = quantityFromText(displayName, item.quantity);
-    if (quantity != null) out.quantity = quantity;
-    const glyph = asNonNegativeInteger(item.glyph);
-    if (glyph != null) out.glyph = glyph;
-    const glyphChar = asNonNegativeInteger(item.glyphChar);
-    if (glyphChar != null) out.glyphChar = glyphChar;
-    const objectClass = typeof item.objectClass === 'string' ? item.objectClass : objectClassFromGlyphChar(item.glyphChar);
-    if (objectClass) out.objectClass = objectClass;
-    if (typeof item.semanticKind === 'string') out.semanticKind = item.semanticKind;
-    if (typeof item.semanticKnown === 'boolean') out.semanticKnown = item.semanticKnown;
-    if (typeof item.semanticAppearance === 'string') out.semanticAppearance = item.semanticAppearance;
-    if ((item.semanticKnown === true || item.known?.identity === true) && typeof item.semanticName === 'string') out.semanticName = item.semanticName;
-    const appearanceName = typeof item.appearanceName === 'string' ? item.appearanceName : (typeof item.semanticAppearance === 'string' ? item.semanticAppearance : undefined);
-    if (appearanceName) out.appearanceName = appearanceName;
-    const known = publicKnownFlags(item, displayName);
-    if (known) out.known = known;
-    const actionAffordances = cloneStringArray(item.actionAffordances || item.publicActionHints);
-    if (actionAffordances) out.actionAffordances = actionAffordances;
-    return out;
+    let normalized = InventorySnapshotAdapter.normalizePublicInventoryItem(item);
+    if (!normalized) return null;
+    const quantity = quantityFromText(normalized.displayName, item.quantity);
+    if (quantity != null && normalized.quantity == null) normalized = InventorySnapshotAdapter.normalizePublicInventoryItem({ ...normalized, quantity });
+    return normalized ? { ...normalized, location: { kind: 'ground' } } : null;
   }
 
   function normalizeGroundPileSnapshotPayload(payload = {}) {
     const revision = normalizeRevision(payload.revision);
     const coord = normalizeCoord(payload.coord);
-    const items = Array.isArray(payload.items) ? payload.items.map(normalizePublicGroundItem).filter(Boolean) : [];
-    return Object.freeze({ revision, coord, items: Object.freeze(items.map((item) => Object.freeze(item))) });
+    const normalized = Array.isArray(payload.items) ? payload.items.map(normalizePublicGroundItem) : [];
+    const validItems = normalized.filter(Boolean);
+    const objectIds = validItems.map((item) => item.objectId).filter((id) => id != null);
+    const letters = validItems.map((item) => item.inventoryLetter).filter(Boolean);
+    const collectionValid = Array.isArray(payload.items) && normalized.every(Boolean)
+      && new Set(objectIds).size === objectIds.length && new Set(letters).size === letters.length;
+    const items = collectionValid ? normalized : [];
+    const snapshot = { revision, coord, items: Object.freeze(items.map((item) => Object.freeze(item))) };
+    Object.defineProperty(snapshot, 'collectionValid', { value: collectionValid, enumerable: false });
+    return Object.freeze(snapshot);
   }
 
   function publicDisplayNameFromObjectLayer(event = {}) {
@@ -128,6 +113,7 @@
 
   function createGroundPileSnapshotEvent(payload = {}, options = {}) {
     const snapshot = normalizeGroundPileSnapshotPayload(payload);
+    if (!snapshot.collectionValid) throw new TypeError('ground pile snapshot item collection is malformed');
     const sequence = asNonNegativeInteger(options.sequence ?? snapshot.revision) ?? 0;
     return {
       protocol: 'nethack-electron-ui/v2',
@@ -148,15 +134,23 @@
   function emptyGroundPileState() {
     return { revision: 0, pilesByCoord: new Map(), lastSnapshotSource: null, lastSnapshotEvent: null };
   }
+  function clonePublicSource(source) {
+    if (!isPlainObject(source)) return null;
+    const out = {};
+    if (typeof source.layer === 'string') out.layer = source.layer;
+    const window = asNonNegativeInteger(source.window);
+    if (window != null) out.window = window;
+    return Object.keys(out).length ? out : null;
+  }
   function clonePile(pile) {
-    return pile ? { revision: normalizeRevision(pile.revision), ...(pile.authoritativeRevision != null ? { authoritativeRevision: normalizeRevision(pile.authoritativeRevision) } : {}), coord: { ...normalizeCoord(pile.coord) }, items: Array.isArray(pile.items) ? pile.items.map(clonePublicItem) : [] } : null;
+    return pile ? { revision: normalizeRevision(pile.revision), ...(pile.authoritativeRevision != null ? { authoritativeRevision: normalizeRevision(pile.authoritativeRevision) } : {}), coord: { ...normalizeCoord(pile.coord) }, items: Array.isArray(pile.items) ? pile.items.map(clonePublicItem).filter(Boolean) : [] } : null;
   }
   function cloneGroundPileState(state = emptyGroundPileState()) {
     return {
       revision: normalizeRevision(state.revision),
       pilesByCoord: new Map(Array.from(state.pilesByCoord || []).map(([key, pile]) => [key, clonePile(pile)])),
-      lastSnapshotSource: state.lastSnapshotSource ? { ...state.lastSnapshotSource } : null,
-      lastSnapshotEvent: state.lastSnapshotEvent ? { ...state.lastSnapshotEvent, payload: { ...state.lastSnapshotEvent.payload, coord: { ...state.lastSnapshotEvent.payload?.coord }, items: (state.lastSnapshotEvent.payload?.items || []).map(clonePublicItem) } } : null,
+      lastSnapshotSource: clonePublicSource(state.lastSnapshotSource),
+      lastSnapshotEvent: state.lastSnapshotEvent ? { protocol: state.lastSnapshotEvent.protocol, sequence: asNonNegativeInteger(state.lastSnapshotEvent.sequence), eventId: state.lastSnapshotEvent.eventId, eventType: state.lastSnapshotEvent.eventType, turn: asNonNegativeInteger(state.lastSnapshotEvent.turn), payload: { revision: normalizeRevision(state.lastSnapshotEvent.payload?.revision), coord: { ...normalizeCoord(state.lastSnapshotEvent.payload?.coord) }, items: (state.lastSnapshotEvent.payload?.items || []).map(clonePublicItem).filter(Boolean) } } : null,
     };
   }
   function normalizedIdentityName(value = '') {
@@ -183,9 +177,22 @@
     const normalized = identityMatchKeys(item)[0] || String(item.displayName || '').toLowerCase();
     return `name:${normalized}`;
   }
-  function reconcileGroundPileObservation(existingItems = [], observedItems = [], options = {}) {
+  function visibleTextObservation(items = []) {
+    const observation = Object.freeze({ items: Object.freeze((Array.isArray(items) ? items : []).map((item) => isPlainObject(item) ? Object.freeze({ ...item }) : item)) });
+    visibleTextObservations.add(observation);
+    return observation;
+  }
+
+  function reconcileGroundPileObservation(existingItems = [], observedInput = [], options = {}) {
     const existing = (Array.isArray(existingItems) ? existingItems : []).map(normalizePublicGroundItem).filter(Boolean).map(clonePublicItem);
-    const observed = (Array.isArray(observedItems) ? observedItems : []).map(normalizePublicGroundItem).filter(Boolean).map(clonePublicItem);
+    // A private WeakSet brand distinguishes player-visible text ingress from
+    // arbitrary arrays and caller-asserted option booleans.
+    const trustedVisibleText = isPlainObject(observedInput) && visibleTextObservations.has(observedInput);
+    const observedItems = trustedVisibleText ? observedInput.items : observedInput;
+    const observed = (Array.isArray(observedItems) ? observedItems : []).map((item) => {
+      if (!trustedVisibleText || !isPlainObject(item) || item.semanticKnown != null || item.known?.identity != null || item.known?.appearance != null) return item;
+      return { ...item, semanticKnown: false, known: { ...(item.known || {}), identity: false, appearance: true } };
+    }).map(normalizePublicGroundItem).filter(Boolean).map(clonePublicItem);
     const complete = options.complete === true;
     const unmatched = new Set(existing.map((_, index) => index));
     const reconciledObserved = observed.map((incoming) => {
@@ -203,25 +210,23 @@
       const matchedIndex = candidates[0];
       unmatched.delete(matchedIndex);
       const prior = existing[matchedIndex];
-      return {
-        matchedIndex,
-        ambiguous: false,
-        item: {
-          ...prior,
-          ...incoming,
-          ...(prior.objectId != null ? { objectId: prior.objectId } : {}),
-          quantity: incoming.quantity ?? prior.quantity,
-          glyph: incoming.glyph ?? prior.glyph,
-          glyphChar: incoming.glyphChar ?? prior.glyphChar,
-          objectClass: incoming.objectClass ?? prior.objectClass,
-          semanticKind: incoming.semanticKind ?? prior.semanticKind,
-          semanticKnown: incoming.semanticKnown ?? prior.semanticKnown,
-          semanticName: incoming.semanticName ?? prior.semanticName,
-          semanticAppearance: incoming.semanticAppearance ?? prior.semanticAppearance,
-          actionAffordances: Array.isArray(incoming.actionAffordances) && incoming.actionAffordances.length ? incoming.actionAffordances : prior.actionAffordances,
-          location: incoming.location || prior.location || { kind: 'ground' },
-        },
+      const identityDowngraded = incoming.semanticKnown === false || incoming.known?.identity === false;
+      const merged = {
+        ...prior,
+        ...incoming,
+        ...(prior.objectId != null ? { objectId: prior.objectId } : {}),
+        quantity: incoming.quantity ?? prior.quantity,
+        glyph: incoming.glyph ?? prior.glyph,
+        glyphChar: incoming.glyphChar ?? prior.glyphChar,
+        objectClass: incoming.objectClass ?? prior.objectClass,
+        semanticKind: incoming.semanticKind ?? prior.semanticKind,
+        semanticKnown: identityDowngraded ? false : (incoming.semanticKnown ?? prior.semanticKnown),
+        semanticName: identityDowngraded ? undefined : (incoming.semanticName ?? prior.semanticName),
+        semanticAppearance: incoming.semanticAppearance ?? prior.semanticAppearance,
+        actionAffordances: Array.isArray(incoming.actionAffordances) && incoming.actionAffordances.length ? incoming.actionAffordances : prior.actionAffordances,
+        location: incoming.location || prior.location || { kind: 'ground' },
       };
+      return { matchedIndex, ambiguous: false, item: normalizePublicGroundItem(merged) || incoming };
     });
     if (complete) return reconciledObserved.map((entry) => entry.item);
     const result = existing.slice();
@@ -271,8 +276,10 @@
     return { coord: { ...normalizeCoord(coord) }, fromRevision: normalizeRevision(previousPile?.revision), toRevision: normalizeRevision(nextPile?.revision), added, removed, updated: changedItems, changedCount, publicEvidence: Boolean(nextPile), changed: changedCount > 0 };
   }
   function applyGroundPileSnapshot(previous = emptyGroundPileState(), payload = {}, options = {}) {
-    const snapshot = normalizeGroundPileSnapshotPayload(payload);
     const state = cloneGroundPileState(previous);
+    if (!isPlainObject(payload) || !Array.isArray(payload.items) || payload.collectionValid === false) return state;
+    const snapshot = normalizeGroundPileSnapshotPayload(payload);
+    if (!snapshot.collectionValid) return state;
     const key = pileKey(snapshot.coord);
     const existing = state.pilesByCoord.get(key);
     if (existing && snapshot.revision < normalizeRevision(existing.revision)) return state;
@@ -281,8 +288,8 @@
     const pile = { revision: snapshot.revision, ...(authoritativeRevision != null ? { authoritativeRevision } : {}), coord: { ...snapshot.coord }, items: snapshot.items.map(clonePublicItem) };
     state.revision = Math.max(normalizeRevision(state.revision), snapshot.revision);
     state.pilesByCoord.set(key, pile);
-    state.lastSnapshotSource = options.source ? { ...options.source } : null;
-    state.lastSnapshotEvent = options.event ? { ...options.event, payload: { ...options.event.payload, coord: { ...options.event.payload?.coord }, items: (options.event.payload?.items || []).map(clonePublicItem) } } : null;
+    state.lastSnapshotSource = clonePublicSource(options.source);
+    state.lastSnapshotEvent = options.event ? { protocol: options.event.protocol, sequence: asNonNegativeInteger(options.event.sequence), eventId: options.event.eventId, eventType: options.event.eventType, turn: asNonNegativeInteger(options.event.turn), payload: { revision: normalizeRevision(options.event.payload?.revision), coord: { ...normalizeCoord(options.event.payload?.coord) }, items: (options.event.payload?.items || []).map(clonePublicItem).filter(Boolean) } } : null;
     return state;
   }
   function groundPileAt(state = emptyGroundPileState(), coord = {}) { return clonePile(state.pilesByCoord?.get?.(pileKey(coord))); }
@@ -290,7 +297,12 @@
     return (Array.isArray(rows) ? rows : []).map((row) => normalizePublicGroundItem(row)).filter(Boolean);
   }
   function textLinesToGroundItems(lines = []) {
-    return (Array.isArray(lines) ? lines : []).map((line) => normalizePublicGroundItem({ text: String(line || '').replace(/^\s*(?:you see here|there (?:is|are) here|things? that are here)[:\s]*/i, '').replace(/[.!?]+$/g, '').trim(), semanticKind: 'object' })).filter(Boolean);
+    return (Array.isArray(lines) ? lines : []).map((line) => normalizePublicGroundItem({
+      text: String(line || '').replace(/^\s*(?:you see here|there (?:is|are) here|things? that are here)[:\s]*/i, '').replace(/[.!?]+$/g, '').trim(),
+      semanticKind: 'object',
+      semanticKnown: false,
+      known: { identity: false, appearance: true },
+    })).filter(Boolean);
   }
 
   return Object.freeze({
@@ -308,6 +320,7 @@
     groundPileAt,
     groundPileDelta,
     normalizedIdentityName,
+    visibleTextObservation,
     reconcileGroundPileObservation,
     rowsToGroundItems,
     textLinesToGroundItems,

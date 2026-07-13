@@ -1,0 +1,23 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "terrain/sink-current",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": { "placement": "current" },
+  "level": {
+    "safeAreaAroundHero": 3,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none",
+    "terrain": [
+      { "at": "hero", "type": "sink" }
+    ]
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [],
+  "expectedPublicFacts": {
+    "contextActions": ["Drink from sink", "Kick sink"],
+    "mapAffordances": ["sink"],
+    "messages": ["current sink context fixture"]
+  }
+}

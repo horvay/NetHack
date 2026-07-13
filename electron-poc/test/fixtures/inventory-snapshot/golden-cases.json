@@ -24,6 +24,6 @@
         { "selector": 99, "objectId": 1003, "text": "c - a milky potion", "quantity": 1, "glyph": 700, "glyphChar": 33, "semanticKind": "object", "semanticName": "potion of gain level", "semanticAppearance": "milky potion", "semanticKnown": false, "actionAffordances": ["quaff"] }
       ]
     },
-    "expected": { "revision": 8, "letters": ["c"], "displayName": "a milky potion", "forbiddenSemanticName": "potion of gain level" }
+    "expected": { "revision": 8, "letters": ["c"], "displayName": "milky potion", "forbiddenSemanticName": "potion of gain level" }
   }
 }

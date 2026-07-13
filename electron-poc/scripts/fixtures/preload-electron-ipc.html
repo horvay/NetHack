@@ -1,0 +1,42 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Preload IPC boundary fixture</title>
+<script>
+  window.boundaryResults = { deliveries: [] };
+  window.netHackPOC.onShimEvent((payload) => {
+    window.boundaryResults.deliveries.push({
+      nestedValue: payload?.nested?.[0]?.value,
+      sparseHole: Array.isArray(payload?.sparse) && !(0 in payload.sparse),
+      negativeZero: Object.is(payload?.special?.[0], -0),
+      nan: Number.isNaN(payload?.special?.[1]),
+      positiveInfinity: payload?.special?.[2] === Number.POSITIVE_INFINITY,
+      undefinedOwn: Object.prototype.hasOwnProperty.call(payload || {}, 'explicitUndefined') && payload.explicitUndefined === undefined,
+      bigint: payload?.bigintValue === 77n,
+      frozenRoot: Object.isFrozen(payload),
+      frozenNested: Object.isFrozen(payload?.nested) && Object.isFrozen(payload?.nested?.[0]),
+    });
+  });
+  window.fixtureReady = true;
+  window.invokeValidCommand = () => window.netHackPOC.uiCommand({
+    protocol: 'nethack-electron-ui/v2',
+    commandType: 'action.execute',
+    commandId: 'actual-contextbridge-command',
+    payload: { nested: [{ value: 'renderer-to-main' }] },
+  });
+  window.invokeSpoofedCommand = async () => {
+    const prototype = Object.create(null);
+    Object.defineProperty(prototype, 'constructor', { value: Object, enumerable: true });
+    const command = Object.create(prototype);
+    Object.assign(command, {
+      protocol: 'nethack-electron-ui/v2',
+      commandType: 'action.execute',
+      commandId: 'spoofed-contextbridge-command',
+    });
+    try {
+      await window.netHackPOC.uiCommand(command);
+      return { rejected: false };
+    } catch (error) {
+      return { rejected: true, message: String(error?.message || error) };
+    }
+  };
+</script>

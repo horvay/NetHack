@@ -72,6 +72,9 @@ static unsigned long ground_pile_revision = 0;
 static unsigned long container_contents_revision = 0;
 static unsigned long interaction_revision = 0;
 static unsigned long command_transaction_revision = 0;
+static unsigned long ui_protocol_sequence = 0;
+static unsigned long spell_rows_revision = 0;
+static unsigned long skill_rows_revision = 0;
 static char active_transaction_id[96] = "";
 static char active_prompt_request_id[96] = "";
 static char active_prompt_transaction_id[96] = "";
@@ -94,6 +97,32 @@ typedef struct bridge_native_menu_context {
 } bridge_native_menu_context;
 
 static bridge_native_menu_context pending_native_menu_context;
+
+typedef struct bridge_public_spell_row {
+    char name[128];
+    char status[64];
+    int selector;
+    int level;
+    int pw_cost;
+    int failure;
+} bridge_public_spell_row;
+
+typedef struct bridge_public_skill_row {
+    char name[128];
+    char current_rank[32];
+    char next_rank[32];
+    int identifier;
+    int next_cost;
+    int can_advance;
+} bridge_public_skill_row;
+
+#define MAX_BRIDGE_MAGIC_ROWS 64
+static bridge_public_spell_row pending_spell_rows[MAX_BRIDGE_MAGIC_ROWS];
+static bridge_public_skill_row pending_skill_rows[MAX_BRIDGE_MAGIC_ROWS];
+static int pending_spell_row_count = 0;
+static int pending_skill_row_count = 0;
+static int pending_spell_rows_window = -1;
+static int pending_skill_rows_window = -1;
 
 /* Small ABI-compatible copies of NetHack's anything/menu_item structs.  We do
  * not include hack.h here because this bridge intentionally stays narrow, but
@@ -353,6 +382,16 @@ static bridge_menu_entry *find_menu_selector(int window, int selector) {
         if (menu_entries[i].window == window && menu_entries[i].selector == selector) return &menu_entries[i];
     }
     return NULL;
+}
+
+static int selector_for_menu_identifier(int window, int identifier) {
+    if (!identifier) return 0;
+    for (int i = 0; i < menu_entry_count; ++i) {
+        if (menu_entries[i].window == window
+            && menu_entries[i].identifier.a_int == identifier)
+            return menu_entries[i].selector;
+    }
+    return 0;
 }
 
 static void clear_prompt_lifecycle(void) {
@@ -762,6 +801,56 @@ static void emit_event_end(void) {
     }
     emit_current_event_can_defer_flush = 0;
     pthread_mutex_unlock(&out_mu);
+}
+
+static void emit_authoritative_magic_rows(const char *kind, int window) {
+    bridge_menu_lifecycle *ctx = find_menu_lifecycle(window);
+    int is_spell = !strcmp(kind, "spell");
+    int count = is_spell ? pending_spell_row_count : pending_skill_row_count;
+    if (!ctx || !ctx->request_id[0] || count < 0) {
+        if (is_spell) pending_spell_row_count = 0;
+        else pending_skill_row_count = 0;
+        return;
+    }
+    unsigned long sequence = ++ui_protocol_sequence;
+    unsigned long revision = is_spell ? ++spell_rows_revision
+                                      : ++skill_rows_revision;
+    pthread_mutex_lock(&out_mu);
+    fputs("{\"protocol\":\"nethack-electron-ui/v2\",\"sequence\":", stdout);
+    fprintf(stdout, "%lu,\"eventId\":\"evt-%s-rows-%lu\",\"eventType\":\"%s.rows\",\"turn\":%ld",
+            sequence, kind, revision, kind,
+            svm.moves < 0L ? 0L : svm.moves);
+    fputs(",\"requestId\":\"", stdout); json_escape(stdout, ctx->request_id); fputs("\"", stdout);
+    if (ctx->transaction_id[0]) { fputs(",\"transactionId\":\"", stdout); json_escape(stdout, ctx->transaction_id); fputs("\"", stdout); }
+    fputs(",\"source\":{\"layer\":\"core\",\"window\":", stdout); fprintf(stdout, "%d", window);
+    fputs(",\"event\":\"native.", stdout); json_escape(stdout, kind); fputs(".rows\",\"authoritative\":true}", stdout);
+    fputs(",\"revision\":{\"", stdout); json_escape(stdout, kind); fprintf(stdout, "\":%lu}", revision);
+    fputs(",\"payload\":{\"menuId\":\"", stdout); json_escape(stdout, ctx->menu_id); fprintf(stdout, "\",\"revision\":%lu,\"classificationConfidence\":\"typed\",\"rows\":[", revision);
+    for (int i = 0; i < count; ++i) {
+        if (i) fputc(',', stdout);
+        if (is_spell) {
+            bridge_public_spell_row *row = &pending_spell_rows[i];
+            fputs("{\"name\":\"", stdout); json_escape(stdout, row->name); fputs("\"", stdout);
+            if (row->selector >= 32 && row->selector <= 126) { char selector[2] = { (char) row->selector, '\0' }; fputs(",\"selector\":\"", stdout); json_escape(stdout, selector); fputs("\"", stdout); }
+            fprintf(stdout, ",\"level\":%d,\"pwCost\":%d,\"failure\":%d", row->level, row->pw_cost, row->failure);
+            if (row->status[0]) { fputs(",\"status\":\"", stdout); json_escape(stdout, row->status); fputs("\"", stdout); }
+            fputc('}', stdout);
+        } else {
+            bridge_public_skill_row *row = &pending_skill_rows[i];
+            int selector = row->can_advance ? selector_for_menu_identifier(window, row->identifier) : 0;
+            fputs("{\"name\":\"", stdout); json_escape(stdout, row->name); fputs("\"", stdout);
+            if (selector >= 32 && selector <= 126) { char selector_text[2] = { (char) selector, '\0' }; fputs(",\"selector\":\"", stdout); json_escape(stdout, selector_text); fputs("\"", stdout); }
+            fputs(",\"currentRank\":\"", stdout); json_escape(stdout, row->current_rank); fputs("\"", stdout);
+            if (row->can_advance && row->next_rank[0]) { fputs(",\"nextRank\":\"", stdout); json_escape(stdout, row->next_rank); fputs("\"", stdout); }
+            if (row->can_advance && row->next_cost > 0) fprintf(stdout, ",\"nextCost\":%d", row->next_cost);
+            fprintf(stdout, ",\"canAdvance\":%s}", row->can_advance ? "true" : "false");
+        }
+    }
+    fputs("]}}\n", stdout);
+    fflush(stdout);
+    pthread_mutex_unlock(&out_mu);
+    if (is_spell) { pending_spell_row_count = 0; pending_spell_rows_window = -1; }
+    else { pending_skill_row_count = 0; pending_skill_rows_window = -1; }
 }
 
 static int contains_icase(const char *haystack, const char *needle) {
@@ -2078,6 +2167,39 @@ static const char *glyph_semantic_appearance(int glyph) {
     return NULL;
 }
 
+static const char *object_semantic_appearance(const struct obj *otmp, int glyph) {
+    static char buf[BUFSZ];
+    const char *description;
+    if (!otmp || otmp->otyp < 0 || otmp->otyp >= NUM_OBJECTS
+        || objects[otmp->otyp].oc_name_known)
+        return NULL;
+    description = OBJ_DESCR(objects[otmp->otyp]);
+    if (!description || !*description)
+        return glyph_semantic_appearance(glyph);
+    switch (otmp->oclass) {
+    case POTION_CLASS: Sprintf(buf, "%s potion", description); return buf;
+    case RING_CLASS: Sprintf(buf, "%s ring", description); return buf;
+    case WAND_CLASS: Sprintf(buf, "%s wand", description); return buf;
+    case SPBOOK_CLASS: Sprintf(buf, "%s spellbook", description); return buf;
+    case AMULET_CLASS: Sprintf(buf, "%s amulet", description); return buf;
+    default: return glyph_semantic_appearance(glyph);
+    }
+}
+
+static void public_object_display_name(char *buf, size_t bufsz,
+                                       struct obj *otmp, int glyph) {
+    const char *appearance = object_semantic_appearance(otmp, glyph);
+    const char *called = otmp ? objects[otmp->otyp].oc_uname : NULL;
+    const char *display;
+    if (!buf || !bufsz) return;
+    if (otmp && otmp->quan == 1L && appearance && called && *called) {
+        Snprintf(buf, bufsz, "%s called %s", an(appearance), called);
+        return;
+    }
+    display = otmp ? doname(otmp) : NULL;
+    Snprintf(buf, bufsz, "%s", display ? display : "item");
+}
+
 static int glyph_semantic_known(int glyph) {
     if (glyph_is_object(glyph)) {
         int obj = glyph_to_obj(glyph);
@@ -2138,7 +2260,10 @@ static const char *glyph_semantic_name(int glyph) {
         int obj = glyph_to_obj(glyph);
         return (obj >= 0 && obj < NUM_OBJECTS) ? OBJ_NAME(objects[obj]) : NULL;
     }
-    if (glyph_is_trap(glyph)) return "trap";
+    if (glyph_is_trap(glyph)) {
+        const char *name = cmap_semantic_name(trap_to_defsym(glyph_to_trap(glyph)));
+        return name ? name : "trap";
+    }
     if (glyph_is_cmap(glyph)) {
         const char *name = cmap_semantic_name(glyph_to_cmap(glyph));
         return name ? name : "terrain";
@@ -2292,8 +2417,115 @@ static void emit_action_affordances_for_object(const struct obj *otmp) {
     emit_object_public_action_affordances_array(otmp);
 }
 
-static void emit_public_ground_display_name(char *buf, size_t bufsz, struct obj *otmp) {
-    const char *dname;
+/* UXM-05 protocol slot 1.  These fields are derived only from public object
+ * class, worn state, and NetHack's own knowledge flags.  Hidden object type
+ * identity is never serialized. */
+static const char *public_item_class(const struct obj *otmp) {
+    if (!otmp) return "other";
+    switch (otmp->oclass) {
+    case WEAPON_CLASS: return "weapon";
+    case ARMOR_CLASS: return "armor";
+    case FOOD_CLASS: return "food";
+    case POTION_CLASS: return "potion";
+    case SCROLL_CLASS: return "scroll";
+    case SPBOOK_CLASS: return "spellbook";
+    case WAND_CLASS: return "wand";
+    case RING_CLASS: return "ring";
+    case AMULET_CLASS: return "amulet";
+    case TOOL_CLASS: return "tool";
+    case GEM_CLASS: return "gem";
+    case COIN_CLASS: return "coin";
+    default: return "other";
+    }
+}
+
+static void emit_public_item_filter_groups(const struct obj *otmp) {
+    int emitted = 0;
+#define ITEM_FILTER(token) do { if (emitted++) fputc(',', stdout); fputs("\"" token "\"", stdout); } while (0)
+    fputc('[', stdout);
+    if (otmp && !should_redact_public_object_identity_surface(otmp) && otmp->owornmask) ITEM_FILTER("equipped");
+    if (otmp) {
+        if (otmp->oclass == WEAPON_CLASS) ITEM_FILTER("weapons");
+        if (otmp->oclass == ARMOR_CLASS) ITEM_FILTER("armor");
+        if (otmp->oclass == FOOD_CLASS || otmp->oclass == POTION_CLASS || otmp->oclass == SCROLL_CLASS) ITEM_FILTER("consumables");
+        if (otmp->oclass == POTION_CLASS || otmp->oclass == SCROLL_CLASS || otmp->oclass == SPBOOK_CLASS || otmp->oclass == WAND_CLASS || otmp->oclass == RING_CLASS || otmp->oclass == AMULET_CLASS) ITEM_FILTER("magic");
+    }
+    fputc(']', stdout);
+#undef ITEM_FILTER
+}
+
+static void emit_public_item_equipment_slots(const struct obj *otmp) {
+    int emitted = 0;
+#define ITEM_SLOT(token) do { if (emitted++) fputc(',', stdout); fputs("\"" token "\"", stdout); } while (0)
+    fputc('[', stdout);
+    if (otmp) {
+        if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)) { ITEM_SLOT("mainHand"); ITEM_SLOT("offHand"); }
+        if (is_ammo(otmp)) ITEM_SLOT("quiver");
+        if (otmp->oclass == ARMOR_CLASS) {
+            if (is_helmet(otmp)) ITEM_SLOT("armor.helm");
+            else if (is_gloves(otmp)) ITEM_SLOT("armor.gloves");
+            else if (is_shirt(otmp)) ITEM_SLOT("armor.shirt");
+            else if (is_cloak(otmp)) ITEM_SLOT("armor.cloak");
+            else if (is_boots(otmp)) ITEM_SLOT("armor.boots");
+            else if (is_shield(otmp)) { ITEM_SLOT("armor.shield"); ITEM_SLOT("offHand"); }
+            else if (is_suit(otmp)) ITEM_SLOT("armor.body");
+        }
+        if (otmp->oclass == RING_CLASS) { ITEM_SLOT("ring.left"); ITEM_SLOT("ring.right"); }
+        if (otmp->oclass == AMULET_CLASS) ITEM_SLOT("amulet");
+        if (otmp->otyp == BLINDFOLD || otmp->otyp == LENSES || otmp->otyp == TOWEL) ITEM_SLOT("eyes");
+    }
+    fputc(']', stdout);
+#undef ITEM_SLOT
+}
+
+static void emit_public_item_known_fields(const struct obj *otmp) {
+    int emitted = 0;
+#define KNOWN_FIELD_PREFIX() do { if (emitted++) fputc(',', stdout); } while (0)
+    fputc('{', stdout);
+    if (otmp && !should_redact_public_object_identity_surface(otmp)) {
+        if (otmp->bknown) {
+            KNOWN_FIELD_PREFIX();
+            fputs("\"beatitude\":\"", stdout);
+            fputs(otmp->blessed ? "blessed" : (otmp->cursed ? "cursed" : "uncursed"), stdout);
+            fputc('\"', stdout);
+        }
+        if (otmp->known && otmp->spe >= 0 && objects[otmp->otyp].oc_charged && (otmp->oclass == WAND_CLASS || otmp->oclass == TOOL_CLASS)) {
+            KNOWN_FIELD_PREFIX(); fprintf(stdout, "\"charges\":%d", (int) otmp->spe);
+        } else if (otmp->known && (otmp->oclass == WEAPON_CLASS || otmp->oclass == ARMOR_CLASS || otmp->oclass == RING_CLASS || is_weptool(otmp))) {
+            KNOWN_FIELD_PREFIX(); fprintf(stdout, "\"enchantment\":%d", (int) otmp->spe);
+        }
+        if (otmp->oeroded) { KNOWN_FIELD_PREFIX(); fprintf(stdout, "\"erosion\":%u", (unsigned) otmp->oeroded); }
+        if (otmp->oeroded2) { KNOWN_FIELD_PREFIX(); fprintf(stdout, "\"corrosion\":%u", (unsigned) otmp->oeroded2); }
+        if (otmp->opoisoned) { KNOWN_FIELD_PREFIX(); fputs("\"poisoned\":true", stdout); }
+    }
+    fputc('}', stdout);
+#undef KNOWN_FIELD_PREFIX
+}
+
+static void emit_public_item_presentation_fields(const struct obj *otmp) {
+    fputs(",\"publicClass\":\"", stdout);
+    json_escape(stdout, public_item_class(otmp));
+    fputs("\",\"filterGroups\":", stdout);
+    emit_public_item_filter_groups(otmp);
+    fputs(",\"equipmentSlots\":", stdout);
+    emit_public_item_equipment_slots(otmp);
+    fputs(",\"knownFields\":", stdout);
+    emit_public_item_known_fields(otmp);
+    fputs(",\"ownership\":{\"state\":\"", stdout);
+    fputs(otmp && otmp->unpaid ? "unpaid" : "owned", stdout);
+    fputs("\"}", stdout);
+    if (otmp && ((objects[otmp->otyp].oc_uname && *objects[otmp->otyp].oc_uname) || (has_oname(otmp) && *ONAME(otmp)))) {
+        fputs(",\"known\":{\"naming\":true}", stdout);
+    }
+    if (otmp && objects[otmp->otyp].oc_uname && *objects[otmp->otyp].oc_uname) {
+        fputs(",\"calledName\":\"", stdout); json_escape(stdout, objects[otmp->otyp].oc_uname); fputc('\"', stdout);
+    }
+    if (otmp && has_oname(otmp) && *ONAME(otmp)) {
+        fputs(",\"individualName\":\"", stdout); json_escape(stdout, ONAME(otmp)); fputc('\"', stdout);
+    }
+}
+
+static void emit_public_ground_display_name(char *buf, size_t bufsz, struct obj *otmp, int glyph) {
     if (!buf || !bufsz) return;
     buf[0] = '\0';
     if (otmp && Is_container(otmp)) {
@@ -2301,8 +2533,7 @@ static void emit_public_ground_display_name(char *buf, size_t bufsz, struct obj 
         Snprintf(buf, bufsz, "%s%s", (otmp->quan == 1L) ? "a " : "", base ? base : "container");
         return;
     }
-    dname = doname(otmp);
-    Snprintf(buf, bufsz, "%s", dname ? dname : "object");
+    public_object_display_name(buf, bufsz, otmp, glyph);
 }
 
 static void emit_ground_object_json(struct obj *otmp, int x, int y) {
@@ -2311,8 +2542,8 @@ static void emit_ground_object_json(struct obj *otmp, int x, int y) {
     const char *appearance;
     int glyph, glyph_char, semantic_known;
 
-    emit_public_ground_display_name(namebuf, sizeof namebuf, otmp);
     glyph = obj_to_glyph(otmp, rn2_on_display_rng);
+    emit_public_ground_display_name(namebuf, sizeof namebuf, otmp, glyph);
     glyph_char = ((int) otmp->oclass >= 0 && (int) otmp->oclass < MAXOCLASSES) ? def_oc_syms[(int) otmp->oclass].sym : 0;
     glyph_char_buf[0] = (glyph_char > 0 && glyph_char < 128 && isprint((unsigned char) glyph_char)) ? (char) glyph_char : '?';
 
@@ -2330,9 +2561,10 @@ static void emit_ground_object_json(struct obj *otmp, int x, int y) {
         json_escape(stdout, glyph_semantic_name(glyph));
         fputs("\"", stdout);
     }
-    appearance = glyph_semantic_appearance(glyph);
+    appearance = object_semantic_appearance(otmp, glyph);
     if (appearance) { fputs(",\"semanticAppearance\":\"", stdout); json_escape(stdout, appearance); fputs("\"", stdout); }
     emit_action_affordances_for_object(otmp);
+    emit_public_item_presentation_fields(otmp);
     fputc('}', stdout);
 }
 
@@ -2377,6 +2609,15 @@ static struct obj *find_known_object_ptr(const struct obj *wanted) {
     return NULL;
 }
 
+static struct obj *find_inventory_object_for_classic_menu(int selector, int glyph) {
+    int glyph_type = glyph_is_object(glyph) ? glyph_to_obj(glyph) : STRANGE_OBJECT;
+    if (selector <= 0 || glyph_type == STRANGE_OBJECT) return NULL;
+    for (struct obj *otmp = gi.invent; otmp; otmp = otmp->nobj)
+        if ((int) otmp->invlet == selector && otmp->otyp == glyph_type)
+            return otmp;
+    return NULL;
+}
+
 static struct obj *floor_container_by_public_id(unsigned int container_id) {
     if (!isok(u.ux, u.uy)) return NULL;
     for (struct obj *otmp = svl.level.objects[u.ux][u.uy]; otmp; otmp = otmp->nexthere)
@@ -2387,12 +2628,11 @@ static struct obj *floor_container_by_public_id(unsigned int container_id) {
 static void emit_container_item_json(struct obj *otmp) {
     char namebuf[BUFSZ];
     char glyph_char_buf[8] = {0};
-    const char *dname = doname(otmp);
     int glyph = obj_to_glyph(otmp, rn2_on_display_rng);
     int glyph_char = ((int) otmp->oclass >= 0 && (int) otmp->oclass < MAXOCLASSES) ? def_oc_syms[(int) otmp->oclass].sym : 0;
     int semantic_known = glyph_semantic_known(glyph);
     glyph_char_buf[0] = (glyph_char > 0 && glyph_char < 128 && isprint((unsigned char) glyph_char)) ? (char) glyph_char : '?';
-    snprintf(namebuf, sizeof namebuf, "%s", dname ? dname : "item");
+    public_object_display_name(namebuf, sizeof namebuf, otmp, glyph);
     fprintf(stdout, "{\"objectId\":%u,\"displayName\":\"", otmp->o_id);
     json_escape(stdout, namebuf);
     fprintf(stdout, "\",\"quantity\":%ld", otmp->quan);
@@ -2402,9 +2642,10 @@ static void emit_container_item_json(struct obj *otmp) {
     fputs("\",\"semanticKind\":\"object\",\"semanticKnown\":", stdout);
     fputs(semantic_known ? "true" : "false", stdout);
     if (semantic_known) { fputs(",\"semanticName\":\"", stdout); json_escape(stdout, glyph_semantic_name(glyph)); fputs("\"", stdout); }
-    const char *appearance = glyph_semantic_appearance(glyph);
+    const char *appearance = object_semantic_appearance(otmp, glyph);
     if (appearance) { fputs(",\"semanticAppearance\":\"", stdout); json_escape(stdout, appearance); fputs("\"", stdout); }
     emit_action_affordances_for_object(otmp);
+    emit_public_item_presentation_fields(otmp);
     fputc('}', stdout);
 }
 
@@ -2450,6 +2691,13 @@ static void emit_print_glyph_fields(int win, int x, int y, const glyph_info *gi,
     int glyph = gi ? gi->glyph : NO_GLYPH;
     int background_glyph = effective_background_glyph_at(x, y, bgi);
     int has_background_glyph = background_glyph != NO_GLYPH;
+    glyph_info derived_background_info;
+    const glyph_info *background_info = bgi;
+    if (has_background_glyph && (!background_info || background_info->glyph != background_glyph)) {
+        memset(&derived_background_info, 0, sizeof derived_background_info);
+        map_glyphinfo((coordxy) x, (coordxy) y, background_glyph, 0U, &derived_background_info);
+        background_info = &derived_background_info;
+    }
     int hero_cell = isok(x, y) && x == u.ux && y == u.uy;
     char buf[8] = {0};
     fprintf(stdout, ",\"window\":%d,\"x\":%d,\"y\":%d", win, x, y);
@@ -2459,6 +2707,12 @@ static void emit_print_glyph_fields(int win, int x, int y, const glyph_info *gi,
     fprintf(stdout, ",\"glyphFlags\":%u", gi ? gi->gm.glyphflags : 0U);
     if (has_background_glyph) emit_public_glyph_field("backgroundGlyph", background_glyph);
     else fputs(",\"backgroundGlyph\":-1", stdout);
+    if (has_background_glyph && background_info && background_info->ttychar > 0 && background_info->ttychar < 128 && isprint((unsigned char) background_info->ttychar)) {
+        char background_char[2] = { (char) background_info->ttychar, '\0' };
+        fputs(",\"backgroundChar\":\"", stdout);
+        json_escape(stdout, background_char);
+        fputs("\"", stdout);
+    }
     if (glyph_is_cmap(glyph)) fprintf(stdout, ",\"cmapIndex\":%d", glyph_to_cmap(glyph));
     fputs(",\"semanticKind\":\"", stdout);
     json_escape(stdout, hero_cell ? "hero" : glyph_semantic_kind(glyph));
@@ -2469,6 +2723,12 @@ static void emit_print_glyph_fields(int win, int x, int y, const glyph_info *gi,
     if (appearance) { fputs(",\"semanticAppearance\":\"", stdout); json_escape(stdout, appearance); fputs("\"", stdout); }
     if (hero_cell) fputs(",\"actionAffordances\":[]", stdout);
     else emit_action_affordances_for_glyph_at(glyph, x, y);
+    if (hero_cell) {
+        fputs(",\"actorId\":\"hero\"", stdout);
+    } else if (isok(x, y) && glyph_is_monster(glyph)) {
+        struct monst *actor = m_at((coordxy) x, (coordxy) y);
+        if (actor) fprintf(stdout, ",\"actorId\":\"monster-%u\"", actor->m_id);
+    }
     emit_object_layer_fields_at(glyph, x, y);
     if (should_emit_ground_pile_snapshot_at(x, y)) fputs(",\"groundPileSnapshotAuthoritative\":true", stdout);
     if (has_background_glyph) {
@@ -2550,13 +2810,15 @@ static void emit_live_inventory_array(void) {
         char selector = otmp->invlet;
         if (!selector) continue;
         char namebuf[BUFSZ];
-        const char *dname = doname(otmp);
         int glyph = obj_to_glyph(otmp, rn2_on_display_rng);
         int redact_identity_surface = should_redact_public_object_identity_surface(otmp);
         if (redact_identity_surface)
             snprintf(namebuf, sizeof namebuf, "%c - %sgray stone", selector, otmp->quan == 1L ? "a " : "");
-        else
-            snprintf(namebuf, sizeof namebuf, "%c - %s", selector, dname ? dname : "item");
+        else {
+            char public_name[BUFSZ];
+            public_object_display_name(public_name, sizeof public_name, otmp, glyph);
+            snprintf(namebuf, sizeof namebuf, "%c - %s", selector, public_name);
+        }
         int glyph_char = ((int) otmp->oclass >= 0 && (int) otmp->oclass < MAXOCLASSES) ? def_oc_syms[(int) otmp->oclass].sym : 0;
         if (emitted++) fputc(',', stdout);
         fprintf(stdout, "{\"selector\":%d,\"objectId\":%u,\"text\":\"", (int) selector, otmp->o_id);
@@ -2572,9 +2834,10 @@ static void emit_live_inventory_array(void) {
             json_escape(stdout, glyph_semantic_name(glyph));
             fputs("\"", stdout);
         }
-        const char *appearance = glyph_semantic_appearance(glyph);
+        const char *appearance = object_semantic_appearance(otmp, glyph);
         if (appearance) { fputs(",\"semanticAppearance\":\"", stdout); json_escape(stdout, appearance); fputs("\"", stdout); }
         emit_action_affordances_for_object(otmp);
+        emit_public_item_presentation_fields(otmp);
         fputc('}', stdout);
     }
     fputc(']', stdout);
@@ -2705,6 +2968,70 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
         emit_print_glyph_fields(win, x, y, gi, bgi);
         emit_event_end();
         emit_ground_pile_snapshot_event(win, x, y);
+        va_end(ap);
+        return;
+    }
+
+    if (!strcmp(name, "shim_native_spell_row")) {
+        int window = va_int_arg(&ap);
+        const char *row_name = va_string_arg(&ap);
+        int selector = va_int_arg(&ap);
+        int level = va_int_arg(&ap);
+        int pw_cost = va_int_arg(&ap);
+        int failure = va_int_arg(&ap);
+        const char *status = va_string_arg(&ap);
+        if (pending_spell_rows_window != window) {
+            pending_spell_rows_window = window;
+            pending_spell_row_count = 0;
+        }
+        if (pending_spell_row_count < MAX_BRIDGE_MAGIC_ROWS && row_name && *row_name) {
+            bridge_public_spell_row *row = &pending_spell_rows[pending_spell_row_count++];
+            memset(row, 0, sizeof *row);
+            snprintf(row->name, sizeof row->name, "%s", row_name);
+            snprintf(row->status, sizeof row->status, "%s", status ? status : "");
+            row->selector = selector;
+            row->level = level;
+            row->pw_cost = pw_cost;
+            row->failure = failure;
+        }
+        va_end(ap);
+        return;
+    }
+    if (!strcmp(name, "shim_native_spell_rows_ready")) {
+        int window = va_int_arg(&ap);
+        emit_authoritative_magic_rows("spell", window);
+        va_end(ap);
+        return;
+    }
+    if (!strcmp(name, "shim_native_skill_row")) {
+        int window = va_int_arg(&ap);
+        const char *row_name = va_string_arg(&ap);
+        int identifier = va_int_arg(&ap);
+        const char *current_rank = va_string_arg(&ap);
+        const char *next_rank = va_string_arg(&ap);
+        int next_cost = va_int_arg(&ap);
+        int can_advance_row = va_int_arg(&ap);
+        if (pending_skill_rows_window != window) {
+            pending_skill_rows_window = window;
+            pending_skill_row_count = 0;
+        }
+        if (pending_skill_row_count < MAX_BRIDGE_MAGIC_ROWS && row_name && *row_name
+            && current_rank && *current_rank) {
+            bridge_public_skill_row *row = &pending_skill_rows[pending_skill_row_count++];
+            memset(row, 0, sizeof *row);
+            snprintf(row->name, sizeof row->name, "%s", row_name);
+            snprintf(row->current_rank, sizeof row->current_rank, "%s", current_rank);
+            snprintf(row->next_rank, sizeof row->next_rank, "%s", next_rank ? next_rank : "");
+            row->identifier = identifier;
+            row->next_cost = next_cost;
+            row->can_advance = can_advance_row != 0;
+        }
+        va_end(ap);
+        return;
+    }
+    if (!strcmp(name, "shim_native_skill_rows_ready")) {
+        int window = va_int_arg(&ap);
+        emit_authoritative_magic_rows("skill", window);
         va_end(ap);
         return;
     }
@@ -3085,7 +3412,10 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
         int glyph = mgi ? mgi->glyph : NO_GLYPH;
         fprintf(stdout, ",\"window\":%d,\"selector\":%d,\"attr\":%d,\"color\":%d,\"itemflags\":%u",
                 win, ch, attr, clr, itemflags);
+        bridge_menu_lifecycle *ctx = find_menu_lifecycle(win);
         struct obj *public_obj = find_known_object_ptr((const struct obj *) copied_identifier.a_void);
+        if (!public_obj && ctx && !strncmp(ctx->purpose, "inventory.", 10))
+            public_obj = find_inventory_object_for_classic_menu(ch, glyph);
         if (public_obj) fprintf(stdout, ",\"objectId\":%u", public_obj->o_id);
         emit_public_glyph_field("glyph", glyph);
         fprintf(stdout, ",\"glyphChar\":%d,\"glyphColor\":%d", mgi ? mgi->ttychar : -1, mgi ? mgi->gm.sym.color : -1);
@@ -3100,12 +3430,18 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
             json_escape(stdout, glyph_semantic_name(glyph));
             fputs("\"", stdout);
         }
-        const char *appearance = glyph_semantic_appearance(glyph);
+        const char *appearance = public_obj ? object_semantic_appearance(public_obj, glyph) : glyph_semantic_appearance(glyph);
         if (appearance) { fputs(",\"semanticAppearance\":\"", stdout); json_escape(stdout, appearance); fputs("\"", stdout); }
         emit_action_affordances_for_glyph(glyph);
-        bridge_menu_lifecycle *ctx = find_menu_lifecycle(win);
+        if (public_obj) emit_public_item_presentation_fields(public_obj);
         emit_menu_lifecycle_metadata(ctx, "opened");
-        fputs(",\"text\":\"", stdout); json_escape(stdout, str); fputs("\"", stdout);
+        fputs(",\"text\":\"", stdout);
+        if (public_obj) {
+            char public_name[BUFSZ];
+            public_object_display_name(public_name, sizeof public_name, public_obj, glyph);
+            json_escape(stdout, public_name);
+        } else json_escape(stdout, str);
+        fputs("\"", stdout);
     } else if (!strcmp(name, "shim_end_menu")) {
         int win = va_int_arg(&ap); const char *prompt = va_string_arg(&ap);
         bridge_menu_lifecycle *ctx = find_menu_lifecycle(win);

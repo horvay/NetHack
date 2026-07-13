@@ -36,7 +36,7 @@
     "expected": {
       "revision": 6,
       "inventoryRevision": 12,
-      "equipped": { "armor.shield": "a small shield (being worn)", "amulet": "an amulet (being worn)", "ring.left": "a pearl ring (on left hand)", "ring.right": "a shiny ring (on right hand)" },
+      "equipped": { "armor.shield": "a small shield (being worn)", "amulet": "an amulet (being worn)", "ring.left": "pearl ring", "ring.right": "shiny ring" },
       "forbiddenSemanticNameSlots": ["ring.left", "ring.right"]
     }
   },

@@ -57,9 +57,19 @@ function extractFunctionSource(source, name) {
   const partial = source.slice(start, end);
   assert.match(partial, new RegExp(`^function\\s+${name}\\s*\\(`), `${name} extraction started at function declaration`);
   assert.equal((partial.match(/[{}]/g) || []).filter(Boolean).length % 2, 0, `${name} extraction should include balanced visible braces`);
-  return partial.replace(/\s+/g, ' ').trim();
+  return partial.replace(/\r\n/g, '\n');
 }
 
+assert.notEqual(
+  extractFunctionSource('function probe() { throw new Error("literal  spacing"); }', 'probe'),
+  extractFunctionSource('function probe() { throw new Error("literal spacing"); }', 'probe'),
+  'drift comparison must not erase semantically observable whitespace inside string literals',
+);
+assert.equal(
+  extractFunctionSource('function probe() {\r\n  return true;\r\n}', 'probe'),
+  extractFunctionSource('function probe() {\n  return true;\n}', 'probe'),
+  'drift comparison normalizes only platform line endings',
+);
 for (const name of functions) {
   assert.equal(extractFunctionSource(preload, name), extractFunctionSource(contract, name), `preload inline validator drifted from shared preload-contract: ${name}`);
 }

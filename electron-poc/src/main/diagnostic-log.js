@@ -4,6 +4,8 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const os = require('node:os');
 const { normalizeSeed } = require('./launch-policy');
+const PublicItemKnowledge = require('../shared/public-item-knowledge');
+const ROOT_EVENT_NAMES = new Set(require('../shared/shim-protocol').knownNames);
 
 const RUN_SCHEMA = 'nethack-electron-diagnostic-run/v1';
 const EVENT_SCHEMA = 'nethack-electron-diagnostic-event/v1';
@@ -18,23 +20,66 @@ function isoForPath(date = new Date()) {
 }
 
 function shouldDropPrivateSemanticName(container, key) {
-  if (key === 'semanticName' && container?.semanticKnown === false) return true;
-  if (key === 'objectLayerSemanticName' && container?.objectLayerSemanticKnown === false) return true;
-  if (key === 'backgroundSemanticName' && container?.backgroundSemanticKnown === false) return true;
+  if (key === 'semanticName' && !PublicItemKnowledge.identityIsPublic(container)) return true;
+  if (key === 'objectLayerSemanticName' && container?.objectLayerSemanticKnown !== true) return true;
+  if (key === 'backgroundSemanticName' && container?.backgroundSemanticKnown !== true) return true;
   return false;
 }
 
-function safeJson(value, depth = 0) {
+function isRecognizedEventEnvelope(value, allowEventEnvelope) {
+  if (!allowEventEnvelope || !ROOT_EVENT_NAMES.has(value.name)) return false;
+  if (value.event && typeof value.event === 'object' && value.event.name === value.name) return true;
+  if (value.name === 'shim_add_menu') return value.window != null && typeof value.text === 'string';
+  if (['shim_start_menu', 'shim_end_menu', 'shim_select_menu', 'shim_create_nhwindow', 'shim_clear_nhwindow', 'shim_display_nhwindow'].includes(value.name)) return value.window != null || value.return != null;
+  if (['shim_putstr', 'shim_raw_print', 'shim_raw_print_bold', 'shim-stderr', 'shim-raw'].includes(value.name)) return typeof value.text === 'string';
+  if (value.name === 'bridge_seed') return value.seed != null;
+  if (value.name === 'bridge_menu_answer') return value.window != null || value.return != null || value.requestId != null || value.menuRequestId != null;
+  const itemAliases = ['objectId', 'inventoryLetter', 'selector', 'displayName', 'display', 'text', 'itemName', 'targetText', 'appearanceName', 'semanticAppearance', 'semanticName', 'semanticKnown', 'calledName', 'individualName', 'glyph', 'glyphChar', 'objectClass', 'publicClass', 'known'];
+  return !itemAliases.some((key) => value[key] != null);
+}
+
+function isRecognizedNonItemEvent(value, eventEnvelope) {
+  if (!eventEnvelope) return false;
+  const itemMetadataKeys = ['objectId', 'inventoryLetter', 'displayName', 'display', 'itemName', 'targetText', 'appearanceName', 'semanticAppearance', 'semanticName', 'semanticKnown', 'calledName', 'individualName', 'objectClass', 'publicClass'];
+  if (itemMetadataKeys.some((key) => value[key] != null)) return false;
+  if (value.name === 'shim_add_menu') return value.selector != null && typeof value.text === 'string' && !PublicItemKnowledge.isObjectMenuItem(value);
+  const textualMetadataEvents = new Set(['shim_putstr', 'shim_raw_print', 'shim_raw_print_bold', 'shim-stderr', 'shim-raw']);
+  if (textualMetadataEvents.has(value.name)) return typeof value.text === 'string';
+  return !['selector', 'text', 'glyph', 'glyphChar'].some((key) => value[key] != null);
+}
+
+function safeJson(value, depth = 0, context = { allowEventEnvelope: depth === 0 }) {
   if (value == null || typeof value === 'boolean' || typeof value === 'number' || typeof value === 'string') return value;
   if (typeof value === 'bigint') return value.toString(10);
-  if (Array.isArray(value)) return depth > 5 ? '[array-truncated]' : value.slice(0, 200).map((item) => safeJson(item, depth + 1));
+  if (Array.isArray(value)) return depth > 5 ? '[array-truncated]' : value.slice(0, 200).map((item) => safeJson(item, depth + 1, { allowEventEnvelope: false }));
   if (typeof value === 'object') {
     if (depth > 5) return '[object-truncated]';
     const out = {};
+    const itemLike = PublicItemKnowledge.isPublicItemLike(value);
+    const eventEnvelope = isRecognizedEventEnvelope(value, context.allowEventEnvelope === true);
+    const publicItem = itemLike && !isRecognizedNonItemEvent(value, eventEnvelope);
+    const publicLabel = publicItem ? PublicItemKnowledge.publicDisplayLabel(value, { neutral: 'item' }) : '';
     for (const [key, item] of Object.entries(value).slice(0, 200)) {
-      if (/password|token|secret|cookie|authorization/i.test(key)) continue;
+      if (/password|token|secret|cookie|authorization|^(?:hidden|private|internal)|trueName|baseType|objectType|^otyp$/i.test(key)) continue;
       if (shouldDropPrivateSemanticName(value, key)) continue;
-      out[key] = safeJson(item, depth + 1);
+      if (publicItem && (key === 'displayName' || key === 'display' || key === 'itemName' || key === 'targetText')) { out[key] = publicLabel; continue; }
+      if (publicItem && key === 'text') {
+        const letter = PublicItemKnowledge.selectorLetter(value);
+        out[key] = `${letter ? `${letter} - ` : ''}${publicLabel}`;
+        continue;
+      }
+      if (publicItem && key === 'name' && !eventEnvelope) { out[key] = publicLabel; continue; }
+      if (publicItem && (key === 'calledName' || key === 'individualName')) {
+        const namingValue = PublicItemKnowledge.publicNamingValue(value, key);
+        if (namingValue) out[key] = namingValue;
+        continue;
+      }
+      if (publicItem && (key === 'appearanceName' || key === 'semanticAppearance') && value.known?.appearance === false) continue;
+      out[key] = safeJson(item, depth + 1, { allowEventEnvelope: key === 'event' || key === 'raw' });
+    }
+    if (publicItem) {
+      out.semanticKnown = PublicItemKnowledge.identityIsPublic(value);
+      out.known = safeJson(PublicItemKnowledge.publicKnownFlags(value), depth + 1);
     }
     return out;
   }
@@ -42,8 +87,9 @@ function safeJson(value, depth = 0) {
 }
 
 function sanitizeShimLine(line) {
-  try { return JSON.stringify(safeJson(JSON.parse(String(line)))); }
-  catch { return String(line); }
+  const raw = String(line);
+  try { return JSON.stringify(safeJson(JSON.parse(raw))); }
+  catch { return JSON.stringify({ malformedShimLine: true, bytes: Buffer.byteLength(raw) }); }
 }
 
 function randomSeed() {

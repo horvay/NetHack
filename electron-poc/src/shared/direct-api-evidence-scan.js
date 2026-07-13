@@ -77,6 +77,7 @@
     'item.use': Object.freeze(['object/rub-candidates-in-inventory', 'object/gray-stone-public-rub-candidates']),
     'terrain.action': Object.freeze(['stairs/down-on-hero', 'stairs/up-on-hero', 'stairs/ladder-up-on-hero', 'terrain/fountain-dip-current', 'terrain/fountain-dip-on-hero']),
     'public-boundary': Object.freeze(['ground/unidentified-appearance-pile-on-hero', 'object/gray-stone-public-rub-candidates', 'container/locked-trapped-chest-on-hero']),
+    'special-level': Object.freeze(['special/sokoban-boulder-pit', 'special/medusa-reflection', 'quest/leader-rejects-underleveled-hero', 'quest/leader-admits-worthy-hero', 'endgame/invocation-ritual', 'endgame/astral-offering']),
   });
 
   function walkFiles(dir, out = []) {
@@ -295,9 +296,15 @@
     if (!isPlainObject(parsed)) return [`${id}: scenario must be a JSON object`];
     for (const key of required) if (!Object.prototype.hasOwnProperty.call(parsed, key)) errors.push(`${id}: missing required top-level field ${key}`);
     for (const key of Object.keys(parsed)) if (!allowed.has(key)) errors.push(`${id}: unknown top-level field ${key}`);
-    if (parsed.schema !== 'nethack-electron-test-scenario/v1') errors.push(`${id}: unsupported schema ${parsed.schema}`);
+    const version = parsed.schema === 'nethack-electron-test-scenario/v1' ? 1
+      : parsed.schema === 'nethack-electron-test-scenario/v2' ? 2 : 0;
+    if (!version) errors.push(`${id}: unsupported schema ${parsed.schema}`);
     if (parsed.id !== id) errors.push(`${id}: JSON id mismatch ${parsed.id}`);
-    if (parsed.phase !== 'after-level-and-hero-before-first-draw') errors.push(`${id}: unsupported phase ${parsed.phase}`);
+    const expectedPhase = version === 2
+      ? 'after-special-level-and-hero-before-first-draw'
+      : 'after-level-and-hero-before-first-draw';
+    if (parsed.phase !== expectedPhase) errors.push(`${id}: unsupported phase ${parsed.phase}`);
+    if (version === 2 && typeof parsed.level?.specialLevel !== 'string') errors.push(`${id}: version two level requires specialLevel`);
     if (!isPlainObject(parsed.hero)) errors.push(`${id}: hero must be an object`);
     if (!isPlainObject(parsed.level)) errors.push(`${id}: level must be an object`);
     for (const field of ['ground', 'monsters', 'inventory']) if (!Array.isArray(parsed[field])) errors.push(`${id}: ${field} must be an array`);

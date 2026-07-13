@@ -309,7 +309,10 @@ function createGameProcess({ repoRoot, nethackBin, shimBridgeBin, send, env = pr
       chunkStats.bytes += Buffer.byteLength(line);
       const diagnosticLine = sanitizeShimLine(line);
       const parseStartedAt = monoNowMs();
-      const parsed = ShimProtocol.parseLine(diagnosticLine);
+      // Parse the original transport bytes before diagnostic redaction or any
+      // JSON reserialization. Re-stringifying first would collapse -0 and
+      // other authoritative answer distinctions before protocol validation.
+      const parsed = ShimProtocol.parseLine(line);
       const parseMs = monoNowMs() - parseStartedAt;
       chunkStats.parseMs += parseMs;
       const rawEvent = parsed.event || parsed.raw || parsed;

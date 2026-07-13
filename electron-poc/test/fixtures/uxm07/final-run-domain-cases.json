@@ -1,0 +1,52 @@
+{
+  "authoritative": {
+    "schema": "nethack-final-run/v1",
+    "finalId": "final:run-7:1",
+    "runId": "run-7",
+    "sequence": 9,
+    "finalized": true,
+    "hero": "Aster the Valkyrie",
+    "cause": "Killed by a wand zapped by Eypau.",
+    "score": 4217,
+    "turns": 839,
+    "depth": "Dlvl:7",
+    "highlights": ["Reached dungeon level 7", "Recovered the luckstone"],
+    "conduct": ["You were an atheist."],
+    "statistics": [
+      { "id": "gold", "label": "Gold", "value": 381 },
+      { "id": "hp", "label": "Final HP", "value": "0 / 42" },
+      { "id": "unknown", "label": "Unavailable", "value": "(hidden)" }
+    ],
+    "disclosures": [
+      {
+        "id": "final-summary",
+        "title": "NetHack final summary",
+        "lines": [
+          "Goodbye Aster the Valkyrie...",
+          "You died in The Dungeons of Doom on dungeon level 7 with 4217 points."
+        ]
+      }
+    ],
+    "unknownFutureField": "must not enter presentation"
+  },
+  "missingFields": {
+    "schema": "nethack-final-run/v1",
+    "finalId": "final:run-8:1",
+    "runId": "run-8",
+    "sequence": 1,
+    "finalized": true,
+    "statistics": [
+      { "id": "empty", "label": "Unavailable", "value": "" },
+      { "id": "hidden", "label": "Hidden", "value": "hidden" }
+    ]
+  },
+  "lateAuthoritative": {
+    "schema": "nethack-final-run/v1",
+    "finalId": "final:run-9:2",
+    "runId": "run-9",
+    "sequence": 2,
+    "finalized": true,
+    "cause": "Starved to death.",
+    "turns": 1200
+  }
+}

@@ -80,13 +80,28 @@ function simulateGameViewLevelReload() {
   };
 }
 
+function simulateRapidActorMovement() {
+  const view = GameViewState.createGameViewState({ mapWidth: 20, mapHeight: 10 });
+  view.process({ name: 'shim_create_nhwindow', return: 2, windowType: 3 });
+  view.process({ name: 'shim_print_glyph', window: 2, x: 5, y: 5, char: 'd', glyph: 1167, ttychar: 'd'.charCodeAt(0), semanticKind: 'monster', semanticName: 'dog', actorId: 'monster-17', backgroundGlyph: 3992, backgroundChar: '.', backgroundSemanticKind: 'terrain', backgroundSemanticName: 'room floor' });
+  const moved = view.process({ name: 'shim_print_glyph', window: 2, x: 6, y: 5, char: 'd', glyph: 1167, ttychar: 'd'.charCodeAt(0), semanticKind: 'monster', semanticName: 'dog', actorId: 'monster-17', backgroundGlyph: 3992, backgroundChar: '.', backgroundSemanticKind: 'terrain', backgroundSemanticName: 'room floor' });
+  return {
+    oldCell: view.state.mapCells[5][5],
+    newCell: view.state.mapCells[5][6],
+    effects: moved.effects,
+    visibleDogs: view.state.mapCells.flat().filter((cell) => cell.actorId === 'monster-17' || (cell.semanticKind === 'monster' && cell.semanticName === 'dog')).length,
+  };
+}
+
 const reload = simulateGameViewLevelReload();
+const rapidActor = simulateRapidActorMovement();
 const dynamicChecks = [
   ['synthetic 80x21 glyph burst coalesces to one partial render', clairvoyance.glyphs === 1680 && clairvoyance.partialRenders === 1 && clairvoyance.rafCallbacks === 1],
   ['line display flushes are bounded to display events not glyphs', chunked.partialRenders === 21 && chunked.partialRenders < chunked.glyphs / 10],
   ['game-view level reload suppresses pre-display map renders', reload.preDisplayRenderEffects === 0 && reload.clearEffects.includes('map-reset') && reload.mapResetEffects === 0 && reload.displayEffects.includes('flush-map')],
   ['game-view level reload emits one loading status instead of per-glyph status spam', reload.clearEffects.includes('status') && reload.preDisplayStatusEffects === 0],
   ['game-view in-level glyph updates still render incrementally', reload.inLevelEffects.includes('render-map') && reload.inLevelEffects.includes('dirty-map-neighborhood')],
+  ['rapid actor updates clear the previous actor cell before rendering the new one', rapidActor.visibleDogs === 1 && rapidActor.oldCell.ch === '.' && rapidActor.oldCell.glyph === 3992 && rapidActor.newCell.actorId === 'monster-17' && rapidActor.effects.some((effect) => effect.type === 'dirty-map-neighborhood' && effect.x === 5 && effect.y === 5)],
 ];
 
 const checks = [...staticChecks, ...dynamicChecks];

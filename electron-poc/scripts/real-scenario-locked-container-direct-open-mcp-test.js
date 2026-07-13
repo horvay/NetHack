@@ -8,7 +8,7 @@ const {
 
 const root = path.resolve(__dirname, '..');
 const outDir = path.join(root, 'test-output', 'real-scenario-locked-container-direct-open');
-const scenarioId = 'container/locked-trapped-chest-on-hero';
+const scenarioId = 'container/locked-chest-unlock-open-context-on-hero';
 const port = Number(process.env.NH_SCENARIO_LOCKED_DIRECT_OPEN_CDP_PORT || 9656);
 
 function assert(name, ok, detail = '') {
@@ -31,6 +31,9 @@ async function state(driver) {
     sentPayloads: window.__nethackPromptTest?.sentPayloads?.() || [],
     prompt: window.__nethackPromptTest?.prompt?.(),
     container: window.__nethackPromptTest?.container?.(),
+    interaction: window.__nethackPromptTest?.dialog?.(),
+    inventory: window.__nethackPromptTest?.inventory?.(),
+    pendingContainerUnlockOpen: window.__nethackPromptTest?.pendingContainerUnlockOpen?.(),
     messages: window.__nethackPromptTest?.messages?.().slice(-12).map((m) => m.text || String(m)) || [],
     running: window.__nethackAutomation?.state?.().runningState?.running || false,
     body: document.body.innerText,
@@ -79,16 +82,38 @@ async function main() {
     await driver.click('#context-action-bar button[data-context-action-id="open-container"]');
     const afterOpen = await waitFor(async () => {
       const s = await state(driver);
-      const text = `${s.container?.text || ''}\n${s.status}\n${s.body}\n${s.shimTail}`;
-      return /shim_container_snapshot_rejected/.test(s.shimTail || '') && /failureKind":"locked/.test(s.shimTail || '') && /container is locked|locked\. Use Force lock/i.test(text) && !/Loading container contents/i.test(s.container?.text || '') ? s : null;
-    }, 12000);
+      const text = `${s.interaction?.title || ''}\n${s.interaction?.prompt || ''}\n${(s.interaction?.options || []).map((option) => option.text).join('\n')}`;
+      return /shim_container_snapshot_rejected/.test(s.shimTail || '') && /failureKind":"locked/.test(s.shimTail || '') && /Locked chest actions/i.test(text) && /Unlock with skeleton key/i.test(text) && /Close/i.test(text) && !s.container?.active ? s : null;
+    }, 12000).catch(async (error) => {
+      const debug = await state(driver).catch(() => ({}));
+      writeJson('debug-after-open-timeout-state.json', debug);
+      await driver.screenshot(path.join(outDir, 'debug-after-open-timeout.png')).catch(() => undefined);
+      throw error;
+    });
     const afterShot = await driver.screenshot(path.join(outDir, '02-after-direct-open-locked-rejected.png'));
     const afterState = writeJson('02-after-direct-open-locked-rejected-state.json', afterOpen);
 
+    const actionSheetText = `${afterOpen.interaction?.title || ''}\n${afterOpen.interaction?.prompt || ''}\n${(afterOpen.interaction?.options || []).map((option) => option.text).join('\n')}`;
     assert('Open container dispatches typed container.snapshot and no #loot fallback', afterOpen.sent === '' && afterOpen.sentUiProtocolCommands.some((command) => command.commandType === 'container.snapshot' && command.payload?.containerId > 0), JSON.stringify({ sent: afterOpen.sent, commands: afterOpen.sentUiProtocolCommands }));
     assert('Bridge returns structured locked rejection', /shim_container_snapshot_rejected[^\n]*"failureKind":"locked"/.test(afterOpen.shimTail || ''), afterOpen.shimTail);
-    assert('UI panel remains visible with locked message and no loading placeholder', afterOpen.container?.active && /locked\. Use Force lock|container is locked/i.test(afterOpen.container.text || '') && !/Loading container contents/i.test(afterOpen.container.text || ''), JSON.stringify(afterOpen.container));
-    assert('Status/message area shows locked guidance', /locked/i.test(`${afterOpen.status}\n${afterOpen.messages.join('\n')}`), JSON.stringify({ status: afterOpen.status, messages: afterOpen.messages }));
+    assert('Locked rejection closes the transfer panel and opens a player-facing action sheet', !afterOpen.container?.active && afterOpen.interaction?.interactionOpen && /Locked chest actions/i.test(actionSheetText), JSON.stringify({ container: afterOpen.container, interaction: afterOpen.interaction }));
+    assert('Action sheet names the available key path without offering an unavailable force path', /Unlock with skeleton key/i.test(actionSheetText) && !/Force (?:lock|with)/i.test(actionSheetText), actionSheetText);
+    assert('Action sheet has a clear cancel path and no loading or timeout fallback', /Close|Cancel/i.test(actionSheetText) && !/Loading container contents|did not finish opening|normal NetHack flow/i.test(`${afterOpen.body}\n${actionSheetText}`), `${afterOpen.body}\n${actionSheetText}`);
+    await driver.click('#interaction-options .choice-button');
+    const afterUnlock = await waitFor(async () => {
+      const s = await state(driver);
+      return s.container?.active && /food ration/i.test(s.container.text || '') && /dagger/i.test(s.container.text || '') ? s : null;
+    }, 30000).catch(async (error) => {
+      const debug = await state(driver).catch(() => ({}));
+      writeJson('debug-after-unlock-timeout-state.json', debug);
+      await driver.screenshot(path.join(outDir, 'debug-after-unlock-timeout.png')).catch(() => undefined);
+      throw error;
+    });
+    const unlockedShot = await driver.screenshot(path.join(outDir, '03-after-unlock-open.png'));
+    const unlockedState = writeJson('03-after-unlock-open-state.json', afterUnlock);
+    assert('Unlock action applies the visible skeleton key at the current square and confirms the chosen intent', /^af\.y$/.test(afterUnlock.sent || ''), JSON.stringify({ sent: afterUnlock.sent, messages: afterUnlock.messages }));
+    assert('Successful lock picking opens fresh container contents and clears continuation state', /food ration/i.test(afterUnlock.container?.text || '') && /dagger/i.test(afterUnlock.container?.text || '') && afterUnlock.pendingContainerUnlockOpen == null, JSON.stringify({ container: afterUnlock.container, pending: afterUnlock.pendingContainerUnlockOpen }));
+    assert('Post-unlock panel has no generic timeout fallback', !/did not finish opening|normal NetHack flow|Loading container contents/i.test(`${afterUnlock.body}\n${afterUnlock.container?.text || ''}`), `${afterUnlock.body}\n${afterUnlock.container?.text || ''}`);
 
     const summary = [
       '# Locked container direct-open real Electron regression',
@@ -99,18 +124,22 @@ async function main() {
       `Removed stale playground locks before launch: ${removedLocks.map((lock) => path.basename(lock.file)).join(', ') || '(none)'}`,
       '',
       'Verified:',
-      '- real scenario loaded with a locked/trapped container on the hero square',
       '- clicking Open dispatched typed `container.snapshot` and no `#loot` text fallback',
-      '- bridge returned `shim_container_snapshot_rejected` with `failureKind:"locked"` and reason `container is locked`',
-      '- UI replaced the loading state with visible locked guidance; no `Loading container contents…` remained in the panel',
+      '- bridge returned `shim_container_snapshot_rejected` with `failureKind:"locked"`',
+      '- the transfer panel closed and a `Locked chest actions` sheet named the available `Unlock with skeleton key` path and a cancel path',
+      '- no loading placeholder or generic timeout fallback remained visible',
+      '- selecting the key applies it to the current square, then a fresh container snapshot opens the actual contents',
+      '- the unlock continuation clears and no generic post-pick timeout fallback appears',
       '',
       'Screenshots:',
       `- before click: ${beforeShot}`,
       `- after locked rejection: ${afterShot}`,
+      `- after unlock/open: ${unlockedShot}`,
       '',
       'State sidecars:',
       `- ${beforeState}`,
       `- ${afterState}`,
+      `- ${unlockedState}`,
       '',
     ].join('\n');
     fs.writeFileSync(path.join(outDir, 'real-scenario-locked-container-direct-open-summary.md'), summary);

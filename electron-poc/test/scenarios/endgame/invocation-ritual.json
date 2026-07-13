@@ -1,0 +1,67 @@
+{
+  "schema": "nethack-electron-test-scenario/v2",
+  "id": "endgame/invocation-ritual",
+  "phase": "after-special-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "on-invocation-position",
+    "role": "Valkyrie",
+    "race": "human",
+    "gender": "female",
+    "alignment": "lawful",
+    "alignmentRecord": 20,
+    "experienceLevel": 24,
+    "hp": 200,
+    "maxHp": 200,
+    "power": 80,
+    "maxPower": 80,
+    "intrinsics": [
+      "fire-resistance",
+      "cold-resistance",
+      "shock-resistance",
+      "poison-resistance",
+      "stone-resistance",
+      "antimagic",
+      "see-invisible",
+      "telepathy",
+      "speed"
+    ]
+  },
+  "level": {
+    "safeAreaAroundHero": 6,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none",
+    "specialLevel": "invocation"
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    {
+      "typeId": "BELL_OF_OPENING",
+      "identityKnown": true,
+      "beatitude": "uncursed",
+      "beatitudeKnown": true,
+      "charges": 3
+    },
+    {
+      "typeId": "CANDELABRUM_OF_INVOCATION",
+      "identityKnown": true,
+      "beatitude": "uncursed",
+      "beatitudeKnown": true,
+      "charges": 7,
+      "fuel": 1000
+    },
+    {
+      "typeId": "SPE_BOOK_OF_THE_DEAD",
+      "identityKnown": true,
+      "beatitude": "uncursed",
+      "beatitudeKnown": true
+    }
+  ],
+  "expectedPublicFacts": {
+    "inventoryRows": ["Bell of Opening", "Candelabrum of Invocation", "Book of the Dead"],
+    "mapAffordances": ["vibrating square"],
+    "status": ["Valkyrie", "level 24"],
+    "messages": ["complete authentic invocation ritual setup"]
+  }
+}

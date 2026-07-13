@@ -1,0 +1,43 @@
+{
+  "schema": "nethack-electron-test-scenario/v2",
+  "id": "endgame/astral-offering",
+  "phase": "after-special-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "on-terrain",
+    "placementTarget": "altar",
+    "role": "Valkyrie",
+    "race": "human",
+    "gender": "female",
+    "alignment": "lawful",
+    "experienceLevel": 30,
+    "hp": 240,
+    "maxHp": 240,
+    "power": 100,
+    "maxPower": 100,
+    "amuletWishComplete": true
+  },
+  "level": {
+    "safeAreaAroundHero": 6,
+    "lit": true,
+    "suppressAdjacentMonsters": false,
+    "pet": "none",
+    "specialLevel": "astral"
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    {
+      "typeId": "AMULET_OF_YENDOR",
+      "identityKnown": true,
+      "beatitude": "uncursed",
+      "beatitudeKnown": true
+    }
+  ],
+  "expectedPublicFacts": {
+    "contextActions": ["offer"],
+    "inventoryRows": ["Amulet of Yendor"],
+    "mapAffordances": ["lawful altar", "Astral Plane"],
+    "status": ["Valkyrie", "level 30"],
+    "messages": ["authentic Astral Plane offering setup"]
+  }
+}

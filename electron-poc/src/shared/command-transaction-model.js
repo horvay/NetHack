@@ -24,11 +24,15 @@
   }
   function commandNameForKey(key) {
     const names = {
-      W: 'wear', T: 'take off', w: 'wield', x: 'swap main and alternate weapon', Q: 'quiver', r: 'read',
+      W: 'wear', T: 'take off', w: 'wield', x: 'swap main and alternate weapon', Q: 'quiver', S: 'save and exit', r: 'read',
       d: 'drop', t: 'throw', P: 'put on accessory', R: 'remove accessory/rub', a: 'apply', q: 'quaff', e: 'eat',
       z: 'zap', f: 'fire', i: 'inventory overview', ',': 'pick up', '#': 'extended command', '\u001b': 'cancel', '\n': 'confirm', '\r': 'confirm', ' ': 'continue',
     };
     return names[key] || (key ? `key ${key}` : 'command');
+  }
+  function commandActionIdForKey(key) {
+    const ids = { S: 'run.save-and-exit' };
+    return ids[key] || '';
   }
   function normalizeGuiAction(event = {}) {
     const raw = event.guiAction && typeof event.guiAction === 'object' ? event.guiAction : event;
@@ -98,7 +102,7 @@
       status: 'pending',
       commandKey: key,
       semanticAction: commandNameForKey(key),
-      semanticActionId: guiAction?.actionId || '',
+      semanticActionId: guiAction?.actionId || commandActionIdForKey(key),
       guiAction,
       source: event.requestSource || { layer: 'shim-bridge' },
       acceptedAt: now,
@@ -251,6 +255,204 @@
     next.lastCompleted = clonePlain(tx);
     return { state: next, transaction: clonePlain(tx), effect: { type: 'command-transaction-completed', transaction: clonePlain(tx), result: clonePlain(tx.result), delta: clonePlain(delta) } };
   }
+  function createOwnedInputFlow(input = {}) {
+    const requestId = String(input.requestId || '').trim();
+    const transactionId = String(input.transactionId || '').trim();
+    const acknowledgementEvent = String(input.acknowledgementEvent || '').trim();
+    const kind = String(input.kind || 'prompt');
+    if (!requestId || !transactionId || !acknowledgementEvent) throw new TypeError('owned input flow requires requestId, transactionId, and acknowledgementEvent');
+    const menuAnswerFlow = kind === 'menu-cancel' && acknowledgementEvent === 'bridge_menu_answer';
+    const windowId = input.window;
+    const menuId = String(input.menuId || '').trim();
+    const lifecycleRevision = input.lifecycleRevision;
+    const menuPurpose = String(input.menuPurpose || '').trim();
+    const ownerKind = String(input.ownerKind || '').trim();
+    const requestSourceLayer = String(input.requestSourceLayer || '').trim();
+    if (menuAnswerFlow && (!Number.isSafeInteger(windowId) || Object.is(windowId, -0) || windowId <= 0 || !menuId || !menuPurpose || !ownerKind || !requestSourceLayer
+      || !Number.isSafeInteger(lifecycleRevision) || lifecycleRevision <= 0)) {
+      throw new TypeError('owned menu cancellation requires exact window/menu/purpose/owner/source identity and a positive lifecycleRevision');
+    }
+    return {
+      kind,
+      requestId,
+      transactionId,
+      acknowledgementEvent,
+      responseKey: String(input.responseKey ?? ''),
+      ...(menuAnswerFlow ? {
+        window: windowId,
+        menuId,
+        menuPurpose,
+        ownerKind,
+        requestSourceLayer,
+        lifecycleRevision,
+        acknowledgementLifecycle: String(input.acknowledgementLifecycle || 'answered'),
+      } : {}),
+      requireRevisionAdvance: input.requireRevisionAdvance === true,
+      requiredRevisionAdvance: Array.isArray(input.requiredRevisionAdvance) ? input.requiredRevisionAdvance.filter((domain) => domain === 'inventory' || domain === 'equipment') : [],
+      requireLinkedEquipmentRevision: input.requireLinkedEquipmentRevision === true,
+      status: 'pending',
+      baselineRevision: {
+        inventory: asRevision(input.baselineRevision?.inventory),
+        equipment: asRevision(input.baselineRevision?.equipment),
+      },
+      stableSignature: '',
+    };
+  }
+  function hasOwn(event, key) { return Object.prototype.hasOwnProperty.call(event, key); }
+  function ownExactString(event, key, expected) { return hasOwn(event, key) && typeof event[key] === 'string' && event[key] === expected; }
+  function ownExactInteger(event, key, expected) { return hasOwn(event, key) && typeof event[key] === 'number' && Number.isSafeInteger(event[key]) && Object.is(event[key], expected); }
+  function exactOwnedMenuCancellation(flow = {}, event = {}) {
+    const transportMatches = ownExactString(event, 'name', flow.acknowledgementEvent);
+    const requestMatches = ownExactString(event, 'requestId', flow.requestId)
+      && ownExactString(event, 'menuRequestId', flow.requestId)
+      && (!hasOwn(event, 'promptId') || ownExactString(event, 'promptId', flow.requestId));
+    const transactionMatches = ownExactString(event, 'transactionId', flow.transactionId)
+      && ownExactString(event, 'inputTransactionId', flow.transactionId);
+    const menuIdentityMatches = ownExactInteger(event, 'window', flow.window)
+      && ownExactString(event, 'menuId', flow.menuId)
+      && (!flow.menuPurpose || ownExactString(event, 'menuPurpose', flow.menuPurpose));
+    const lifecycleMatches = ownExactInteger(event, 'lifecycleRevision', flow.lifecycleRevision)
+      && ownExactString(event, 'lifecycle', flow.acknowledgementLifecycle || 'answered');
+    const ownerMatches = (!flow.ownerKind || (hasOwn(event, 'owner') && event.owner && typeof event.owner === 'object' && !Array.isArray(event.owner)
+      && ownExactString(event.owner, 'kind', flow.ownerKind) && ownExactInteger(event.owner, 'window', flow.window)))
+      && (!flow.requestSourceLayer || (hasOwn(event, 'requestSource') && event.requestSource && typeof event.requestSource === 'object' && !Array.isArray(event.requestSource)
+        && ownExactString(event.requestSource, 'layer', flow.requestSourceLayer) && ownExactInteger(event.requestSource, 'window', flow.window)));
+    const ownershipFlagsMatch = hasOwn(event, 'activeRequestMatch') && event.activeRequestMatch === true
+      && hasOwn(event, 'inputMatchesMenuTransaction') && event.inputMatchesMenuTransaction === true;
+    const ownershipAliasesMatch = [
+      ['activeRequestId', flow.requestId],
+      ['activeMenuRequestId', flow.requestId],
+      ['activePromptRequestId', flow.requestId],
+      ['expectedRequestId', flow.requestId],
+      ['activeRequestKind', flow.ownerKind],
+      ['activeMenuTransactionId', flow.transactionId],
+      ['activeRequestTransactionId', flow.transactionId],
+      ['activeTransactionId', flow.transactionId],
+    ].every(([key, expected]) => !hasOwn(event, key) || ownExactString(event, key, expected));
+    const responseMatches = ownExactInteger(event, 'return', 0)
+      && ownExactInteger(event, 'selector', 0)
+      && ownExactString(event, 'selectors', '')
+      && ['selection', 'answer', 'value', 'key'].every((key) => !hasOwn(event, key) || ownExactString(event, key, ''))
+      && flow.responseKey === '\u001b';
+    return { transportMatches, requestMatches, transactionMatches, menuIdentityMatches, lifecycleMatches, ownerMatches, ownershipFlagsMatch, ownershipAliasesMatch, responseMatches };
+  }
+  function settleOwnedInputFlow(flow = {}, event = {}) {
+    if (flow.status !== 'pending') {
+      const duplicate = clonePlain(flow);
+      duplicate.status = 'rejected';
+      duplicate.rejection = { reason: 'late duplicate acknowledgement', previousStatus: flow.status };
+      return { flow: duplicate, ok: false, code: 'late-duplicate', reason: 'owned input flow is already settled' };
+    }
+    const next = clonePlain(flow);
+    const checks = flow.kind === 'menu-cancel' && flow.acknowledgementEvent === 'bridge_menu_answer'
+      ? exactOwnedMenuCancellation(flow, event)
+      : {
+        transportMatches: ownExactString(event, 'name', flow.acknowledgementEvent),
+        requestMatches: ownExactString(event, 'requestId', flow.requestId),
+        transactionMatches: ownExactString(event, 'transactionId', flow.transactionId),
+        responseMatches: false,
+      };
+    const ok = Object.values(checks).every(Boolean);
+    if (!ok) {
+      next.status = 'rejected';
+      next.rejection = checks;
+      const code = !checks.transportMatches ? 'foreign-transport'
+        : !checks.requestMatches ? 'unowned-request'
+          : !checks.transactionMatches ? 'mismatched-transaction'
+            : !checks.menuIdentityMatches ? 'mismatched-menu'
+              : !checks.lifecycleMatches ? 'stale-lifecycle'
+                : !checks.ownerMatches ? 'mismatched-owner'
+                  : !checks.ownershipFlagsMatch ? 'unowned-acknowledgement'
+                    : !checks.ownershipAliasesMatch ? 'contradictory-ownership-alias'
+                      : 'invalid-response';
+      return { flow: next, ok: false, code, reason: 'owned input acknowledgement did not exactly match every authoritative ownership, lifecycle, and response field' };
+    }
+    next.status = 'acknowledged';
+    next.acknowledgement = {
+      name: event.name, requestId: flow.requestId, transactionId: flow.transactionId,
+      inputTransactionId: event.inputTransactionId, window: event.window, menuId: event.menuId,
+      lifecycleRevision: event.lifecycleRevision, responseKey: flow.responseKey,
+    };
+    return { flow: next, ok: true, code: 'acknowledged' };
+  }
+  function ownedInventoryItemFingerprint(item = {}) {
+    const normalizedName = String(item?.displayName || item?.text || '')
+      .replace(/^\s*[A-Za-z$]\s*[-+]\s+/, '').replace(/\s+/g, ' ').trim().toLowerCase();
+    const fingerprint = { objectId: item.objectId, normalizedName };
+    for (const key of ['semanticKind', 'semanticName', 'semanticAppearance']) {
+      if (typeof item[key] === 'string' && item[key]) fingerprint[key] = item[key];
+    }
+    return JSON.stringify(fingerprint);
+  }
+  function resolveExactOwnedInventoryItem(selected = {}, snapshot = {}, expectedRevision) {
+    if (!snapshot || typeof snapshot !== 'object' || !Array.isArray(snapshot.orderedItems)) return { ok: false, code: 'empty-snapshot', item: null };
+    if (!Number.isSafeInteger(snapshot.revision) || snapshot.revision <= 0 || snapshot.revision !== expectedRevision) return { ok: false, code: 'stale-snapshot', item: null };
+    if (typeof selected.objectId !== 'number' || !Number.isSafeInteger(selected.objectId) || selected.objectId <= 0) return { ok: false, code: 'missing-object-id', item: null };
+    const item = snapshot.orderedItems.find((candidate) => typeof candidate?.objectId === 'number' && Number.isSafeInteger(candidate.objectId) && candidate.objectId === selected.objectId) || null;
+    if (!item) return { ok: false, code: 'target-disappeared', item: null };
+    if (ownedInventoryItemFingerprint(selected) !== ownedInventoryItemFingerprint(item)) return { ok: false, code: 'target-mutated', item: null };
+    for (const key of ['quantity', 'wornMask']) {
+      if (Object.prototype.hasOwnProperty.call(selected, key) && Object.prototype.hasOwnProperty.call(item, key)
+        && (!Number.isSafeInteger(Number(selected[key])) || !Number.isSafeInteger(Number(item[key])) || Number(selected[key]) !== Number(item[key]))) {
+        return { ok: false, code: 'target-mutated', item: null };
+      }
+    }
+    if (Array.isArray(selected.actionAffordances) && Array.isArray(item.actionAffordances)
+      && JSON.stringify(selected.actionAffordances.slice().sort()) !== JSON.stringify(item.actionAffordances.slice().sort())) {
+      return { ok: false, code: 'target-mutated', item: null };
+    }
+    return { ok: true, code: 'exact-target', item: clonePlain(item) };
+  }
+  function observeOwnedRevisionStability(flow = {}, context = {}) {
+    const next = clonePlain(flow);
+    if (flow.status !== 'acknowledged' && flow.status !== 'stabilizing') return { flow: next, ready: false, code: 'not-acknowledged' };
+    const owner = context.activeInputOwner;
+    if (owner) {
+      const sameOwner = String(owner.requestId || '') === flow.requestId && String(owner.transactionId || '') === flow.transactionId;
+      if (!sameOwner) {
+        next.status = 'rejected';
+        next.rejection = { reason: 'prompt interposition', owner: clonePlain(owner) };
+        return { flow: next, ready: false, code: 'prompt-interposition' };
+      }
+      next.status = 'stabilizing';
+      return { flow: next, ready: false, code: 'owner-still-open' };
+    }
+    if (context.ownerClosed !== true) {
+      next.status = 'stabilizing';
+      return { flow: next, ready: false, code: 'owner-close-unconfirmed' };
+    }
+    const inventory = asRevision(context.revision?.inventory);
+    const equipment = asRevision(context.revision?.equipment);
+    if (inventory < asRevision(flow.baselineRevision?.inventory) || equipment < asRevision(flow.baselineRevision?.equipment)) {
+      next.status = 'rejected';
+      next.rejection = { reason: 'stale revision', revision: { inventory, equipment } };
+      return { flow: next, ready: false, code: 'stale-revision' };
+    }
+    const requiredAdvance = flow.requiredRevisionAdvance?.length
+      ? flow.requiredRevisionAdvance
+      : (flow.requireRevisionAdvance === true ? ['inventory', 'equipment'] : []);
+    if ((requiredAdvance.includes('inventory') && inventory <= asRevision(flow.baselineRevision?.inventory))
+      || (requiredAdvance.includes('equipment') && equipment <= asRevision(flow.baselineRevision?.equipment))) {
+      next.status = 'stabilizing';
+      next.stableSignature = '';
+      return { flow: next, ready: false, code: 'revision-advance-pending' };
+    }
+    if (flow.requireLinkedEquipmentRevision === true
+      && inventory > 0 && asRevision(context.equipmentInventoryRevision) > 0 && asRevision(context.equipmentInventoryRevision) < inventory) {
+      next.status = 'stabilizing';
+      next.stableSignature = '';
+      return { flow: next, ready: false, code: 'linked-revision-pending' };
+    }
+    const signature = JSON.stringify({ inventory, equipment, equipmentInventoryRevision: asRevision(context.equipmentInventoryRevision) });
+    if (flow.stableSignature !== signature) {
+      next.status = 'stabilizing';
+      next.stableSignature = signature;
+      return { flow: next, ready: false, code: 'revision-observed' };
+    }
+    next.status = 'ready';
+    next.stableRevision = { inventory, equipment };
+    return { flow: next, ready: true, code: 'ready', revision: clonePlain(next.stableRevision) };
+  }
   function failTransaction(state = emptyState(), event = {}, reason = 'command failed') {
     const requestedId = String(event.transactionId || state.activeId || '').trim();
     const current = requestedId ? state.byId?.get?.(requestedId) : null;
@@ -270,5 +472,5 @@
     return { state: next, transaction: clonePlain(tx), effect: { type: 'command-transaction-completed', transaction: clonePlain(tx), result: clonePlain(tx.result) } };
   }
 
-  return Object.freeze({ version, emptyState, cloneState, beginTransaction, noteInteraction, rejectFollowup, completeFromSnapshots, failTransaction, publicStateDelta, commandNameForKey, normalizeGuiAction });
+  return Object.freeze({ version, emptyState, cloneState, beginTransaction, noteInteraction, rejectFollowup, completeFromSnapshots, failTransaction, publicStateDelta, commandNameForKey, commandActionIdForKey, normalizeGuiAction, createOwnedInputFlow, settleOwnedInputFlow, observeOwnedRevisionStability, resolveExactOwnedInventoryItem });
 }));

@@ -66,7 +66,12 @@
               "semanticKnown": false,
               "location": {
                 "kind": "inventory"
-              }
+              },
+              "publicClass": "potion",
+              "filterGroups": ["consumables", "magic"],
+              "equipmentSlots": [],
+              "knownFields": {},
+              "ownership": { "state": "owned" }
             }
           ]
         }
@@ -114,11 +119,44 @@
                 "location": {
                   "kind": "equipment"
                 },
-                "wornMask": 256
+                "wornMask": 256,
+                "publicClass": "weapon",
+                "filterGroups": ["equipped", "weapons"],
+                "equipmentSlots": ["mainHand", "offHand"],
+                "knownFields": { "enchantment": 0 },
+                "ownership": { "state": "owned" }
               }
             }
           ]
         }
+      }
+    },
+    {
+      "type": "ui-protocol-event",
+      "event": {
+        "protocol": "nethack-electron-ui/v2",
+        "sequence": 4,
+        "eventId": "evt-replay-spell-rows-1",
+        "eventType": "spell.rows",
+        "turn": 0,
+        "requestId": "replay-spell-menu-1",
+        "source": { "layer": "core", "event": "native.spell.rows", "authoritative": true },
+        "revision": { "spell": 1 },
+        "payload": { "menuId": "replay-spell-menu-1", "revision": 1, "classificationConfidence": "typed", "rows": [{ "name": "force bolt", "selector": "a", "level": 1, "pwCost": 5, "failure": 12, "status": "100%" }] }
+      }
+    },
+    {
+      "type": "ui-protocol-event",
+      "event": {
+        "protocol": "nethack-electron-ui/v2",
+        "sequence": 5,
+        "eventId": "evt-replay-skill-rows-1",
+        "eventType": "skill.rows",
+        "turn": 0,
+        "requestId": "replay-skill-menu-1",
+        "source": { "layer": "core", "event": "native.skill.rows", "authoritative": true },
+        "revision": { "skill": 1 },
+        "payload": { "menuId": "replay-skill-menu-1", "revision": 1, "classificationConfidence": "typed", "rows": [{ "name": "dagger", "currentRank": "Basic", "canAdvance": false }] }
       }
     },
     {
@@ -136,7 +174,7 @@
       "type": "ui-protocol-ack",
       "event": {
         "protocol": "nethack-electron-ui/v2",
-        "sequence": 4,
+        "sequence": 6,
         "eventId": "evt-command-accepted-1",
         "eventType": "command.accepted",
         "turn": 0,

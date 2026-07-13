@@ -1,7 +1,7 @@
 (function initCommandGateway(root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.NetHackCommandGateway = factory();
-}(typeof globalThis !== 'undefined' ? globalThis : this, function factory() {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./public-item-knowledge'), require('./ui-protocol-v2'));
+  else root.NetHackCommandGateway = factory(root.NetHackPublicItemKnowledge, root.NetHackUiProtocolV2);
+}(typeof globalThis !== 'undefined' ? globalThis : this, function factory(PublicItemKnowledge = {}, UiProtocolV2 = {}) {
   function supportedPlayableKey(key) {
     const text = String(key || '');
     if (text.length !== 1) return false;
@@ -134,11 +134,31 @@
     return Object.keys(out).length ? out : undefined;
   }
 
+  function sanitizeActionTarget(value) {
+    if (Array.isArray(value)) return value.map(sanitizeActionTarget).filter(Boolean);
+    if (!isPlainObject(value)) return undefined;
+    const out = {};
+    for (const key of ['selector', 'inventoryLetter', 'objectId', 'slotId']) if (value[key] != null) out[key] = value[key];
+    if (isPlainObject(value.location) && value.location.kind) out.location = { kind: value.location.kind };
+    if (value.displayName != null || PublicItemKnowledge.isPublicItemLike(value)) {
+      out.displayName = PublicItemKnowledge.publicLabel(value, { neutral: 'item' });
+      out.semanticKnown = PublicItemKnowledge.identityIsPublic(value);
+      out.known = { ...PublicItemKnowledge.publicKnownFlags(value) };
+      const appearance = PublicItemKnowledge.explicitAppearance(value);
+      if (appearance) out.semanticAppearance = appearance;
+    }
+    return Object.keys(out).length ? out : undefined;
+  }
+
   function createActionExecuteCommand({ commandId, transactionId, actionId, action, item, route, expectedRevision, source, surface, target, payload } = {}) {
-    const resolvedActionId = String(actionId || route?.actionId || action?.id || action?.actionId || '').trim();
-    const selector = targetSelectorFromPayload({ route, item, target, selector: route?.selector }, {});
-    const publicTarget = target || (selector ? { selector } : undefined);
     const publicPayload = payload && typeof payload === 'object' ? payload : {};
+    const itemSource = item && typeof item === 'object' ? item : publicPayload.item;
+    const resolvedActionId = String(actionId || route?.actionId || action?.id || action?.actionId || '').trim();
+    const publicItemDisplayName = itemSource && typeof itemSource === 'object' && PublicItemKnowledge.isPublicItemLike(itemSource)
+      ? PublicItemKnowledge.publicLabel(itemSource, { neutral: 'item' })
+      : '';
+    const selector = targetSelectorFromPayload({ route, item: itemSource, target: target || publicPayload.target, selector: route?.selector }, {});
+    const publicTarget = sanitizeActionTarget(target || publicPayload.target || (selector ? { selector } : undefined));
     const promptPolicy = publicPayload.promptPolicy || route?.promptPolicy || action?.promptPolicy || defaultPromptPolicyForRoute(resolvedActionId, route);
     return {
       protocol: v2Protocol,
@@ -149,17 +169,22 @@
       expectedRevision: expectedRevisionForRoute(resolvedActionId, expectedRevision),
       targets: publicTarget,
       payload: {
+        ...(typeof publicPayload.expectedRequestId === 'string' ? { expectedRequestId: publicPayload.expectedRequestId } : {}),
+        ...(typeof publicPayload.publicGroundEvidence === 'string' ? { publicGroundEvidence: publicPayload.publicGroundEvidence } : {}),
         actionId: resolvedActionId,
         label: String(route?.label || action?.label || resolvedActionId || '').replace(/…/g, '').trim(),
         surface: String(surface || source || action?.source || '').trim() || undefined,
         selector: selector || undefined,
-        target: publicPayload.target || publicTarget || undefined,
-        item: item && typeof item === 'object' && String(item.displayName || item.text || item.name || '').trim() ? {
-          objectId: Number.isInteger(item.objectId) && item.objectId >= 0 ? item.objectId : undefined,
-          inventoryLetter: publicSelectorFrom(item.inventoryLetter || item.key || item.selector) || undefined,
-          displayName: String(item.displayName || item.text || item.name || '').trim(),
-          quantity: Number.isInteger(item.quantity) && item.quantity >= 0 ? item.quantity : undefined,
-          actionAffordances: resolvedActionId === 'item.rub' ? undefined : (Array.isArray(item.actionAffordances) ? item.actionAffordances.map(String) : undefined),
+        target: publicTarget || undefined,
+        item: itemSource && typeof itemSource === 'object' && publicItemDisplayName ? {
+          objectId: Number.isInteger(itemSource.objectId) && itemSource.objectId >= 0 ? itemSource.objectId : undefined,
+          inventoryLetter: publicSelectorFrom(itemSource.inventoryLetter || itemSource.key || itemSource.selector) || undefined,
+          displayName: publicItemDisplayName,
+          semanticKnown: PublicItemKnowledge.identityIsPublic(itemSource),
+          known: { ...PublicItemKnowledge.publicKnownFlags(itemSource) },
+          ...(PublicItemKnowledge.explicitAppearance(itemSource) ? { semanticAppearance: PublicItemKnowledge.explicitAppearance(itemSource) } : {}),
+          quantity: Number.isInteger(itemSource.quantity) && itemSource.quantity >= 0 ? itemSource.quantity : undefined,
+          actionAffordances: resolvedActionId === 'item.rub' ? undefined : (Array.isArray(itemSource.actionAffordances) ? itemSource.actionAffordances.map(String) : undefined),
         } : undefined,
         route: route && typeof route === 'object' ? {
           actionId: resolvedActionId,
@@ -170,7 +195,6 @@
           autoAnswerHand: route.autoAnswerHand === true || undefined,
         } : { actionId: resolvedActionId, command: String(action?.execution?.keys || '') },
         promptPolicy,
-        ...publicPayload,
       },
     };
   }
@@ -216,16 +240,59 @@
     return { ok: false, ...details, reason, blockerToken, ...(activeInputOwner ? { activeInputOwner } : {}) };
   }
 
-  function inventoryTargetStillMatches(command = {}, payload = {}, context = {}) {
-    const selector = targetSelectorFromPayload(payload, command);
-    if (!selector || !Array.isArray(context.inventoryItems)) return false;
-    const expected = payload.item && typeof payload.item === 'object' ? payload.item : {};
-    const current = context.inventoryItems.find((item) => publicSelectorFrom(item.inventoryLetter || item.key || item.selector) === selector);
-    if (!current) return false;
-    if (expected.objectId != null && current.objectId != null) return expected.objectId === current.objectId;
+  function own(value, key) { return Boolean(value && typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, key)); }
+  function actionTargetObjects(command = {}, payload = {}) {
+    const targets = Array.isArray(command.targets) ? command.targets : [command.targets];
+    return [payload.item, payload.target, ...targets].filter((value) => isPlainObject(value));
+  }
+  function exactClaimedObjectId(command = {}, payload = {}) {
+    const claims = actionTargetObjects(command, payload).filter((value) => own(value, 'objectId') && value.objectId !== undefined).map((value) => value.objectId);
+    if (!claims.length) return { claimed: false, valid: true, objectId: undefined };
+    if (claims.some((value) => !isPositiveInteger(value)) || claims.some((value) => value !== claims[0])) return { claimed: true, valid: false, objectId: undefined };
+    return { claimed: true, valid: true, objectId: claims[0] };
+  }
+  function exactSelectorClaim(command = {}, payload = {}) {
+    const candidates = [payload.route?.selector, payload.selector, payload.target?.selector, payload.target?.inventoryLetter, payload.item?.selector, payload.item?.inventoryLetter, command.targets?.selector, command.targets?.inventoryLetter]
+      .filter((value) => value != null && value !== '')
+      .map(publicSelectorFrom);
+    return candidates.length && candidates.every((selector) => selector && selector === candidates[0]) ? candidates[0] : '';
+  }
+  function equalStringSet(left, right) {
+    if (!Array.isArray(left) || !Array.isArray(right)) return false;
+    return JSON.stringify(Array.from(new Set(left.map(String))).sort()) === JSON.stringify(Array.from(new Set(right.map(String))).sort());
+  }
+  function publicItemFingerprintMatches(expected = {}, current = {}) {
     const expectedName = cleanDisplayName(expected.displayName || expected.text || expected.name);
     const currentName = cleanDisplayName(current.displayName || current.text || current.name);
-    return Boolean(expectedName && currentName && expectedName === currentName);
+    if (!expectedName || !currentName || expectedName !== currentName) return false;
+    for (const key of ['quantity', 'semanticKind', 'semanticName', 'semanticAppearance', 'semanticKnown', 'publicClass']) {
+      if (own(expected, key) && expected[key] !== undefined && (!own(current, key) || expected[key] !== current[key])) return false;
+    }
+    if (own(expected, 'known')) {
+      if (!isPlainObject(expected.known) || !isPlainObject(current.known)) return false;
+      for (const [key, value] of Object.entries(expected.known)) if (!own(current.known, key) || current.known[key] !== value) return false;
+    }
+    if (own(expected, 'actionAffordances') && !equalStringSet(expected.actionAffordances, current.actionAffordances)) return false;
+    return true;
+  }
+  function inventoryTargetStillMatches(command = {}, payload = {}, context = {}) {
+    const selector = exactSelectorClaim(command, payload);
+    const rows = context.inventoryItems;
+    if (!selector || !Array.isArray(rows)) return false;
+    const commandObject = exactClaimedObjectId(command, payload);
+    if (!commandObject.valid) return false;
+    const positiveIds = rows.filter((item) => isPositiveInteger(item?.objectId)).map((item) => item.objectId);
+    if (new Set(positiveIds).size !== positiveIds.length) return false;
+    const selectorRows = rows.filter((item) => publicSelectorFrom(item?.inventoryLetter || item?.key || item?.selector) === selector);
+    if (selectorRows.length !== 1) return false;
+    const current = selectorRows[0];
+    const currentClaimsId = own(current, 'objectId') && current.objectId !== undefined;
+    const currentObjectIdValid = isPositiveInteger(current.objectId);
+    if (commandObject.claimed || currentClaimsId) {
+      if (!commandObject.claimed || !commandObject.valid || !currentClaimsId || !currentObjectIdValid || commandObject.objectId !== current.objectId) return false;
+    }
+    const expected = isPlainObject(payload.item) ? payload.item : (isPlainObject(payload.target) ? payload.target : firstTargetObject(command.targets));
+    return publicItemFingerprintMatches(expected, current);
   }
 
   function comparableGroundDisplayName(value) {
@@ -262,8 +329,10 @@
 
   function validateContainerTransferCommand(command = {}, context = {}) {
     if (!command || typeof command !== 'object') return rejection({ supported: false, reason: 'container.transfer command must be an object', errors: ['command must be an object'], blockerToken: 'blocked.input.malformedCommand' }, context);
-    const envelopeCheck = context.uiProtocol?.validateCommandEnvelope?.(command);
-    if (envelopeCheck && !envelopeCheck.ok) return rejection({ supported: true, reason: envelopeCheck.errors.join('; '), errors: envelopeCheck.errors.slice(), blockerToken: 'blocked.input.malformedCommand' }, context);
+    const validator = context.uiProtocol?.validateCommandEnvelope || UiProtocolV2.validateCommandEnvelope;
+    if (typeof validator !== 'function') return rejection({ supported: true, reason: 'public command protocol validator is unavailable', errors: ['validator unavailable'], blockerToken: 'blocked.input.malformedCommand' }, context);
+    const envelopeCheck = validator(command);
+    if (!envelopeCheck.ok) return rejection({ supported: true, reason: envelopeCheck.errors.join('; '), errors: envelopeCheck.errors.slice(), blockerToken: 'blocked.input.malformedCommand' }, context);
     if (command.protocol !== v2Protocol || command.commandType !== 'container.transfer') return rejection({ supported: false, reason: 'not a v2 container.transfer command', errors: ['unsupported command envelope'], blockerToken: 'blocked.input.unsupportedRoute' }, context);
     const payload = command.payload && typeof command.payload === 'object' ? command.payload : {};
     if (!command.commandId) return rejection({ supported: true, reason: 'container.transfer requires commandId', blockerToken: 'blocked.input.malformedCommand' }, context);
@@ -284,8 +353,10 @@
 
   function validateContainerSnapshotCommand(command = {}, context = {}) {
     if (!command || typeof command !== 'object') return rejection({ supported: false, reason: 'container.snapshot command must be an object', errors: ['command must be an object'], blockerToken: 'blocked.input.malformedCommand' }, context);
-    const envelopeCheck = context.uiProtocol?.validateCommandEnvelope?.(command);
-    if (envelopeCheck && !envelopeCheck.ok) return rejection({ supported: true, reason: envelopeCheck.errors.join('; '), errors: envelopeCheck.errors.slice(), blockerToken: 'blocked.input.malformedCommand' }, context);
+    const validator = context.uiProtocol?.validateCommandEnvelope || UiProtocolV2.validateCommandEnvelope;
+    if (typeof validator !== 'function') return rejection({ supported: true, reason: 'public command protocol validator is unavailable', errors: ['validator unavailable'], blockerToken: 'blocked.input.malformedCommand' }, context);
+    const envelopeCheck = validator(command);
+    if (!envelopeCheck.ok) return rejection({ supported: true, reason: envelopeCheck.errors.join('; '), errors: envelopeCheck.errors.slice(), blockerToken: 'blocked.input.malformedCommand' }, context);
     if (command.protocol !== v2Protocol || command.commandType !== 'container.snapshot') return rejection({ supported: false, reason: 'not a v2 container.snapshot command', errors: ['unsupported command envelope'], blockerToken: 'blocked.input.unsupportedRoute' }, context);
     const payload = command.payload && typeof command.payload === 'object' ? command.payload : {};
     if (!command.commandId) return rejection({ supported: true, reason: 'container.snapshot requires commandId', blockerToken: 'blocked.input.malformedCommand' }, context);
@@ -356,8 +427,10 @@
 
   function validateDirectCommandEnvelope(command = {}, context = {}) {
     if (!command || typeof command !== 'object') return rejection({ supported: false, reason: 'direct command must be an object', errors: ['command must be an object'], blockerToken: 'blocked.input.malformedCommand' }, context);
-    const envelopeCheck = context.uiProtocol?.validateCommandEnvelope?.(command);
-    if (envelopeCheck && !envelopeCheck.ok) return rejection({ supported: true, reason: envelopeCheck.errors.join('; '), errors: envelopeCheck.errors.slice(), blockerToken: 'blocked.input.malformedCommand' }, context);
+    const validator = context.uiProtocol?.validateCommandEnvelope || UiProtocolV2.validateCommandEnvelope;
+    if (typeof validator !== 'function') return rejection({ supported: true, reason: 'public command protocol validator is unavailable', errors: ['validator unavailable'], blockerToken: 'blocked.input.malformedCommand' }, context);
+    const envelopeCheck = validator(command);
+    if (!envelopeCheck.ok) return rejection({ supported: true, reason: envelopeCheck.errors.join('; '), errors: envelopeCheck.errors.slice(), blockerToken: 'blocked.input.malformedCommand' }, context);
     if (command.protocol !== v2Protocol) return rejection({ supported: false, reason: 'not a v2 direct command', errors: ['unsupported protocol'], blockerToken: 'blocked.input.unsupportedRoute' }, context);
     const spec = directCommandValidationSpec(command.commandType);
     if (!spec) return rejection({ supported: false, reason: `command type ${command.commandType || '(missing)'} is not a registered direct command`, errors: ['unsupported direct command type'], blockerToken: 'blocked.input.unsupportedRoute' }, context);
@@ -435,8 +508,10 @@
 
   function validateActionExecuteCommand(command = {}, context = {}) {
     if (!command || typeof command !== 'object') return rejection({ supported: false, reason: 'action.execute command must be an object', errors: ['command must be an object'], blockerToken: 'blocked.input.malformedCommand' }, context);
-    const envelopeCheck = context.uiProtocol?.validateCommandEnvelope?.(command);
-    if (envelopeCheck && !envelopeCheck.ok) return rejection({ supported: true, reason: envelopeCheck.errors.join('; '), errors: envelopeCheck.errors.slice(), blockerToken: 'blocked.input.malformedCommand' }, context);
+    const validator = context.uiProtocol?.validateCommandEnvelope || UiProtocolV2.validateCommandEnvelope;
+    if (typeof validator !== 'function') return rejection({ supported: true, reason: 'public command protocol validator is unavailable', errors: ['validator unavailable'], blockerToken: 'blocked.input.malformedCommand' }, context);
+    const envelopeCheck = validator(command);
+    if (!envelopeCheck.ok) return rejection({ supported: true, reason: envelopeCheck.errors.join('; '), errors: envelopeCheck.errors.slice(), blockerToken: 'blocked.input.malformedCommand' }, context);
     if (command.protocol !== v2Protocol || command.commandType !== 'action.execute') return rejection({ supported: false, reason: 'not a v2 action.execute command', errors: ['unsupported command envelope'], blockerToken: 'blocked.input.unsupportedRoute' }, context);
     const actionId = actionIdFromCommand(command);
     const rule = safeActionRoutes[actionId];
@@ -448,8 +523,8 @@
     if (!rule.pattern.test(keys)) return rejection({ supported: true, actionId, reason: `command keys do not match the safe ${actionId} route shape`, blockerToken: 'blocked.input.malformedCommand' }, context);
     if (context.activeInputOwner) return rejection({ supported: true, actionId, kind: 'active-owner', reason: 'another prompt, menu, or transfer owns input; v2 action execution is blocked' }, context);
     if (rule.selectorIndex >= 0) {
-      const selector = targetSelectorFromPayload(payload, command);
-      if (!selector) return rejection({ supported: true, actionId, reason: 'selector-targeted action.execute requires a public inventory selector', blockerToken: 'blocked.input.malformedTarget' }, context);
+      const selector = exactSelectorClaim(command, payload);
+      if (!selector) return rejection({ supported: true, actionId, reason: 'selector-targeted action.execute requires one exact, non-contradictory public inventory selector', blockerToken: 'blocked.input.malformedTarget' }, context);
       if (keys[rule.selectorIndex] !== selector) return rejection({ supported: true, actionId, reason: 'command selector does not match the public target selector', selector, commandSelector: keys[rule.selectorIndex], blockerToken: 'blocked.input.malformedTarget' }, context);
     }
     if (rule.targetLocation && targetLocationKindFromPayload(payload, command) !== rule.targetLocation) {
@@ -501,6 +576,7 @@
     normalizeTextInput,
     createActionExecuteCommand,
     validateActionExecuteCommand,
+    inventoryTargetStillMatches,
     validateDirectCommandEnvelope,
     validatePublicObjectId,
     validatePublicCoord,

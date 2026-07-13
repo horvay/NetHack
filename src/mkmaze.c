@@ -650,6 +650,12 @@ fixup_special(void)
         struct obj *otmp;
         int tryct;
 
+#ifdef NH_ELECTRON_TEST_FIXTURES
+        /* Leaderboard statues are decoration, not Medusa mechanics.  Fixture
+           playgrounds intentionally omit the mutable score file; avoid
+           mk_tt_object() turning that absence into Program in disorder. */
+        if (!nh_getenv("NH_TEST_SCENARIO_ID")) {
+#endif
         croom = &svr.rooms[0]; /* the first room defined on the medusa level */
         for (tryct = rnd(4); tryct; tryct--) {
             x = somex(croom);
@@ -683,6 +689,9 @@ fixup_special(void)
                 set_corpsenm(otmp, rndmonnum());
             }
         }
+#ifdef NH_ELECTRON_TEST_FIXTURES
+        }
+#endif
     } else if (Role_if(PM_CLERIC) && In_quest(&u.uz)) {
         /* less chance for undead corpses (lured from lower morgues) */
         svl.level.flags.graveyard = 1;

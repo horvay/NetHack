@@ -76,7 +76,7 @@ let container = Transfer.openSession(state, {
   kind: 'container',
   prompt: 'Do what with the large box?',
   ownerRequestId: 'req-container-action',
-  container: { publicId: 'large-box', displayName: 'large box', objectId: 42 },
+  container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 42 },
   leftRows: [row('a', 'a - an uncursed food ration'), row('b', 'b - a +0 dagger')],
   rightRows: [row('c', 'c - an uncursed scroll of identify')],
   loadedSides: { left: true, right: true },
@@ -85,7 +85,7 @@ state = container.state;
 let putIn = Transfer.beginTransfer(state, {
   transferId: 'container-putin-scroll',
   sessionId: 'container-session-1',
-  container: { publicId: 'large-box', displayName: 'large box', objectId: 42 },
+  container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 42 },
   direction: 'inventory-to-container',
   sourceSide: 'right',
   targetSide: 'left',
@@ -96,13 +96,13 @@ let putIn = Transfer.beginTransfer(state, {
 state = putIn.state;
 assert.equal(putIn.transfer.expectedRequestId, 'req-container-action');
 const completedPutIn = Transfer.completeTransfer(state, { transferId: 'container-putin-scroll' }, { afterPanes: { left: [row('a', 'a - an uncursed food ration'), row('b', 'b - a +0 dagger'), row('c', 'c - an uncursed scroll of identify')], right: [] } });
-const matchingContainerDelta = { sessionId: 'container-session-1', container: { publicId: 'large-box', displayName: 'large box', objectId: 42 }, fromRevision: 1, toRevision: 2, added: [{ displayName: 'scroll of identify' }], removed: [], updated: [], changedCount: 1, publicEvidence: true, changed: true };
-const delayedContainerAttach = Transfer.attachContainerContentsDelta(completedPutIn.state, { transferId: 'container-putin-scroll', sessionId: 'container-session-1', container: { publicId: 'large-box', displayName: 'large box', objectId: 42 } }, matchingContainerDelta);
+const matchingContainerDelta = { sessionId: 'container-session-1', container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 42 }, fromRevision: 1, toRevision: 2, added: [{ displayName: 'scroll of identify' }], removed: [], updated: [], changedCount: 1, publicEvidence: true, changed: true };
+const delayedContainerAttach = Transfer.attachContainerContentsDelta(completedPutIn.state, { transferId: 'container-putin-scroll', sessionId: 'container-session-1', container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 42 } }, matchingContainerDelta);
 assert.equal(delayedContainerAttach.transfer.result.publicEvidence.containerContents, true, 'same-session delayed container evidence attaches after command completion');
 assert.equal(delayedContainerAttach.transfer.result.delta.changed, true, 'renderer pane delta remains separate from public container evidence');
-const rejectedWrongContainerSession = Transfer.attachContainerContentsDelta(completedPutIn.state, { transferId: 'container-putin-scroll', sessionId: 'other-session', container: { publicId: 'large-box', displayName: 'large box', objectId: 42 } }, matchingContainerDelta);
+const rejectedWrongContainerSession = Transfer.attachContainerContentsDelta(completedPutIn.state, { transferId: 'container-putin-scroll', sessionId: 'other-session', container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 42 } }, matchingContainerDelta);
 assert.equal(rejectedWrongContainerSession.rejected.reason, 'container contents delta session id does not match transfer');
-const rejectedWrongContainerIdentity = Transfer.attachContainerContentsDelta(completedPutIn.state, { transferId: 'container-putin-scroll', sessionId: 'container-session-1', container: { publicId: 'other-box', displayName: 'other box', objectId: 42 } }, matchingContainerDelta);
+const rejectedWrongContainerIdentity = Transfer.attachContainerContentsDelta(completedPutIn.state, { transferId: 'container-putin-scroll', sessionId: 'container-session-1', container: { publicId: 'other-box', displayName: 'other box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 42 } }, matchingContainerDelta);
 assert.equal(rejectedWrongContainerIdentity.rejected.reason, 'container contents delta event container identity does not match transfer');
 state = putIn.state;
 const freshCommand = Transfer.beginTransfer(state, {

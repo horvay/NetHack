@@ -2,12 +2,22 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
 const electronBin = require('electron');
+const RecordingSchema = require('../src/shared/recording-schema');
 
 const root = path.resolve(__dirname, '..');
 const outDir = process.env.NH_REAL_RECORDING_TOOLBAR_OUT_DIR || path.join(root, 'test-output', 'real-recording-toolbar-mcp');
 const port = Number(process.env.NH_REAL_RECORDING_TOOLBAR_CDP_PORT || 9498);
 const width = Number(process.env.NH_REAL_RECORDING_TOOLBAR_WIDTH || 1360);
 const height = Number(process.env.NH_REAL_RECORDING_TOOLBAR_HEIGHT || 920);
+const sourcePlayground = path.resolve(root, '..', 'playground');
+const isolatedPlayground = path.join(outDir, 'isolated-playground');
+
+function prepareIsolatedPlayground() {
+  fs.rmSync(outDir, { recursive: true, force: true });
+  fs.mkdirSync(path.join(isolatedPlayground, 'save'), { recursive: true });
+  for (const name of ['nhdat', 'sysconf', 'symbols', 'license']) fs.copyFileSync(path.join(sourcePlayground, name), path.join(isolatedPlayground, name));
+  for (const name of ['perm', 'record', 'logfile', 'xlogfile', 'livelog', 'paniclog']) fs.writeFileSync(path.join(isolatedPlayground, name), '');
+}
 
 function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
 async function json(url) { const res = await fetch(url); if (!res.ok) throw new Error(`${res.status} ${url}`); return res.json(); }
@@ -40,14 +50,16 @@ async function connect(wsUrl) {
   };
 }
 async function evalExpr(cdp, expression) {
-  const res = await cdp.send('Runtime.evaluate', { returnByValue: true, expression });
+  const res = await cdp.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression });
   if (res.exceptionDetails) throw new Error(JSON.stringify(res.exceptionDetails));
   return res.result.value;
 }
 async function shot(cdp, name) {
-  const res = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+  const id = path.basename(name, path.extname(name));
+  const res = await cdp.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression: `window.netHackPOC.captureTestScreenshot(${JSON.stringify(id)})` });
+  if (res.exceptionDetails || !res.result.value?.ok || res.result.value.method !== 'BrowserWindow.webContents.capturePage') throw new Error(`native screenshot failed: ${JSON.stringify(res.exceptionDetails || res.result.value)}`);
   const file = path.join(outDir, name);
-  fs.writeFileSync(file, Buffer.from(res.data, 'base64'));
+  fs.copyFileSync(res.result.value.path, file);
   return file;
 }
 async function clickCenter(cdp, selector) {
@@ -78,6 +90,7 @@ async function state(cdp) {
       saveText: save?.innerText || '',
       debugCheckpointHidden: debugCheckpoint?.hidden ?? true,
       recordingStatus: document.getElementById('recording-status')?.innerText || '',
+      savePath: ((toolbar?.innerText || '') + '\\n' + (document.getElementById('recording-status')?.innerText || '')).match(/Recording saved: (.*\\.nhrec\\.json)/)?.[1] || '',
       body: document.body.innerText,
     };
   })()`);
@@ -85,14 +98,14 @@ async function state(cdp) {
 function assert(name, ok, detail = '') { if (!ok) throw new Error(`${name}${detail ? `: ${detail}` : ''}`); }
 
 async function main() {
-  fs.mkdirSync(outDir, { recursive: true });
-  const child = spawn(electronBin, ['.'], { cwd: root, env: { ...process.env, AI_ORG_ELECTRON_CDP_PORT: String(port), NH_ELECTRON_WINDOW_WIDTH: String(width), NH_ELECTRON_WINDOW_HEIGHT: String(height) }, stdio: ['ignore', 'pipe', 'pipe'] });
+  prepareIsolatedPlayground();
+  const child = spawn(electronBin, ['.'], { cwd: root, env: { ...process.env, AI_ORG_ELECTRON_CDP_PORT: String(port), NH_ELECTRON_WINDOW_WIDTH: String(width), NH_ELECTRON_WINDOW_HEIGHT: String(height), NH_ELECTRON_TEST_FIXTURES: '1', NH_TEST_PLAYGROUND: isolatedPlayground, NETHACKDIR: isolatedPlayground, NH_DIAGNOSTIC_LOG_DIR: path.join(outDir, 'diagnostics'), NH_TEST_CAPTURE_DIR: path.join(outDir, 'native-captures') }, stdio: ['ignore', 'pipe', 'pipe'] });
   let cdp; const stdout = []; const stderr = [];
   child.stdout.on('data', (data) => stdout.push(String(data)));
   child.stderr.on('data', (data) => stderr.push(String(data)));
   const cleanup = () => { try { cdp?.close(); } catch {} if (!child.killed) child.kill('SIGTERM'); };
   process.on('exit', cleanup);
-  const results = { outDir, screenshots: {}, checks: {} };
+  const results = { outDir, isolatedPlayground, port, screenshots: {}, checks: {} };
   try {
     const pages = await waitFor(async () => {
       const list = await json(`http://127.0.0.1:${port}/json/list`);
@@ -100,15 +113,20 @@ async function main() {
     }, 20000);
     cdp = await connect((pages.find((page) => page.type === 'page') || pages[0]).webSocketDebuggerUrl);
     await cdp.send('Page.enable'); await cdp.send('Runtime.enable');
-    await cdp.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
     await waitFor(async () => (await evalExpr(cdp, "document.readyState === 'complete' && !!window.__nethackAutomation")), 10000);
+    await cdp.send('Emulation.clearDeviceMetricsOverride');
+    const captureProfile = await evalExpr(cdp, `window.netHackPOC.setTestCaptureProfile(${JSON.stringify({ width, height, zoomPercent: 100 })})`);
+    assert('native recording toolbar capture profile applied', captureProfile?.ok && captureProfile.contentSize?.[0] === width && captureProfile.contentSize?.[1] === height, JSON.stringify(captureProfile));
+    await waitFor(async () => (await evalExpr(cdp, `innerWidth === ${width} && innerHeight === ${height}`)), 5000);
 
     results.beforeStart = await state(cdp);
     assert('toolbar hidden before recording', results.beforeStart.toolbarHidden);
     results.screenshots.beforeStart = await shot(cdp, '01-before-recording-toolbar-hidden.png');
 
-    await clickCenter(cdp, '#start-shim');
-    await delay(200);
+    const initialDialogs = await evalExpr(cdp, "Array.from(document.querySelectorAll('dialog[open]')).map((dialog) => dialog.id)");
+    if (initialDialogs.includes('startup-choice-dialog')) await clickCenter(cdp, '#startup-new-game');
+    else await clickCenter(cdp, '#start-shim');
+    await waitFor(async () => (await evalExpr(cdp, "document.getElementById('character-dialog')?.open")), 5000);
     await evalExpr(cdp, `(() => {
       document.getElementById('player-name').value = 'Recorder';
       document.getElementById('player-role').value = 'Val';
@@ -121,7 +139,8 @@ async function main() {
     await clickCenter(cdp, '#confirm-character');
     results.recordingActive = await waitFor(async () => {
       const next = await state(cdp);
-      return next.running && /shim_glyph|shim_status_update|shim_curs|shim_putstr/.test(next.seen) && next.checkpointVisible ? next : null;
+      results.lastRecordingStartPoll = next;
+      return next.running && /shim_print_glyph|shim_status_update|shim_curs|shim_putstr/.test(next.seen) && next.checkpointVisible ? next : null;
     }, 20000);
     if (results.recordingActive.dialogs.includes('intro-dialog')) await clickCenter(cdp, '#intro-continue');
     results.screenshots.recordingActive = await shot(cdp, '02-recording-toolbar-visible.png');
@@ -134,21 +153,45 @@ async function main() {
     }, 5000);
     results.screenshots.afterCheckpoint = await shot(cdp, '03-after-primary-checkpoint-click.png');
 
+    await clickCenter(cdp, '#save-recording-primary');
+    results.afterSave = await waitFor(async () => {
+      const next = await state(cdp);
+      return next.savePath ? next : null;
+    }, 5000);
+    const savedRecording = JSON.parse(fs.readFileSync(results.afterSave.savePath, 'utf8'));
+    const savedValidation = RecordingSchema.validateRecording(savedRecording);
+    assert('primary save writes a schema-valid recording', savedValidation.ok, savedValidation.message || 'invalid recording');
+    results.savedRecording = { sourcePath: results.afterSave.savePath, evidencePath: path.join(outDir, 'saved-toolbar-recording.nhrec.json'), schema: savedRecording.schema, eventCount: savedRecording.events?.length || 0 };
+    fs.copyFileSync(results.afterSave.savePath, results.savedRecording.evidencePath);
+    fs.rmSync(results.afterSave.savePath, { force: true });
+    results.screenshots.afterSave = await shot(cdp, '04-after-primary-save-click.png');
+
     assert('normal game toolbar is visible while recording', !results.recordingActive.toolbarHidden && results.recordingActive.toolbarWidth > 400, JSON.stringify(results.recordingActive));
     assert('primary checkpoint button is visible and discoverable', /Add screenshot checkpoint/.test(results.recordingActive.checkpointText) && results.recordingActive.checkpointVisible, JSON.stringify(results.recordingActive));
     assert('primary save button is visible', /Save recording/.test(results.recordingActive.saveText), JSON.stringify(results.recordingActive));
     assert('debug checkpoint mirror remains available when recording', results.recordingActive.debugCheckpointHidden === false, JSON.stringify(results.recordingActive));
     assert('primary checkpoint records named checkpoint', /real-game-toolbar-checkpoint/.test(results.afterCheckpoint.toolbarText + results.afterCheckpoint.recordingStatus), JSON.stringify(results.afterCheckpoint));
+    assert('primary save reports the concrete recording path', /Recording saved: .*\.nhrec\.json/.test(results.afterSave.toolbarText + results.afterSave.recordingStatus), JSON.stringify(results.afterSave));
 
+    fs.writeFileSync(path.join(outDir, 'electron-stdout.log'), stdout.join(''));
+    fs.writeFileSync(path.join(outDir, 'electron-stderr.log'), stderr.join(''));
     fs.writeFileSync(path.join(outDir, 'result.json'), JSON.stringify(results, null, 2));
     cleanup();
+    await delay(500);
+    fs.rmSync(isolatedPlayground, { recursive: true, force: true });
     console.log(`real recording toolbar MCP test OK: ${outDir}`);
   } catch (error) {
     results.error = error.stack || String(error);
     results.stdout = stdout.join('');
     results.stderr = stderr.join('');
-    try { fs.writeFileSync(path.join(outDir, 'result.json'), JSON.stringify(results, null, 2)); } catch {}
+    try {
+      fs.writeFileSync(path.join(outDir, 'electron-stdout.log'), results.stdout);
+      fs.writeFileSync(path.join(outDir, 'electron-stderr.log'), results.stderr);
+      fs.writeFileSync(path.join(outDir, 'result.json'), JSON.stringify(results, null, 2));
+    } catch {}
     cleanup();
+    await delay(500);
+    fs.rmSync(isolatedPlayground, { recursive: true, force: true });
     console.error(error.stack || error);
     process.exit(1);
   }

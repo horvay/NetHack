@@ -83,8 +83,31 @@
   function optionsFor(field, selection = {}) {
     return allowedValues(field, resolveSelection(selection)).map((value) => ({ value, label: optionLabel(field, value) }));
   }
+  function selectionPresentation(selection = {}, priority = []) {
+    const requested = Object.freeze(Object.fromEntries(['role', 'race', 'gender', 'alignment'].map((field) => [field, selection[field] || ''])));
+    const resolved = resolveSelection(selection, priority);
+    const fieldLabels = Object.freeze({ role: 'Role', race: 'Race', gender: 'Gender', alignment: 'Alignment' });
+    const adjustments = Object.freeze(Object.keys(fieldLabels).filter((field) => requested[field] && requested[field] !== resolved[field]).map((field) => Object.freeze({
+      field,
+      fieldLabel: fieldLabels[field],
+      requested: requested[field],
+      requestedLabel: optionLabel(field, requested[field]),
+      resolved: resolved[field],
+      resolvedLabel: optionLabel(field, resolved[field]),
+      message: `${fieldLabels[field]} changed from ${optionLabel(field, requested[field])} to ${optionLabel(field, resolved[field])} because NetHack does not allow the requested combination.`,
+    })));
+    const available = Object.freeze(Object.fromEntries(Object.keys(fieldLabels).map((field) => [field, Object.freeze(optionsFor(field, resolved))])));
+    return Object.freeze({
+      requested,
+      resolved,
+      adjustments,
+      available,
+      valid: isValidSelection(resolved),
+      explanation: adjustments.length ? adjustments.map((entry) => entry.message).join(' ') : 'This character combination is available in NetHack.',
+    });
+  }
   return Object.freeze({
     version: 'nethack-character-options/v1', roles, races, genders, alignments, validCombos,
-    comboAlignmentOptions, comboAvatarId, optionLabel, allowedValues, optionsFor, resolveSelection, isValidSelection,
+    comboAlignmentOptions, comboAvatarId, optionLabel, allowedValues, optionsFor, resolveSelection, isValidSelection, selectionPresentation,
   });
 }));

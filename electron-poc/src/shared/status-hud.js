@@ -127,6 +127,10 @@
 
   function statusGetter(values) {
     if (values instanceof Map) return (field) => cleanStatusValue(field, values.get(field));
+    if (Array.isArray(values) && values.every((entry) => Array.isArray(entry) && entry.length >= 2)) {
+      const byField = new Map(values);
+      return (field) => cleanStatusValue(field, byField.get(field));
+    }
     return (field) => cleanStatusValue(field, values?.[field]);
   }
 
@@ -151,7 +155,7 @@
     return Object.freeze({ id, label, items: Object.freeze(items.filter(Boolean)) });
   }
 
-  function buildStatusGroups(values) {
+  function buildDetailStatusGroups(values) {
     const get = statusGetter(values);
     const groups = [];
 
@@ -218,8 +222,94 @@
     return Object.freeze(groups.filter((group) => group.items.length));
   }
 
-  function buildHudChips(values) {
-    return Object.freeze(buildStatusGroups(values).flatMap((group) => group.items.map((item) => Object.freeze({ ...item }))));
+  function pairStatusValue(current, maximum) {
+    const left = String(current || '').trim();
+    const right = String(maximum || '').trim();
+    if (!left && !right) return '';
+    if (!right) return left;
+    if (!left) return right;
+    return `${left} / ${right}`;
+  }
+
+  function roleItem(item, role, explanation = '') {
+    if (!item) return undefined;
+    return Object.freeze({ ...item, role, explanation: explanation || undefined });
+  }
+
+  function buildPersistentStatusGroups(values, { density = 'compact' } = {}) {
+    const get = statusGetter(values);
+    const detailed = density === 'detailed';
+    const groups = [];
+
+    const hero = [];
+    hero.push(roleItem(makeItem('Hero', get(0), { field: 0, important: true, className: 'identity-title' }), 'persistent'));
+    if (detailed) hero.push(roleItem(makeItem('Align', get(7), { field: 7 }), 'persistent'));
+    groups.push(makeGroup('hero', 'Hero', hero));
+
+    const vitals = [];
+    vitals.push(roleItem(makeItem('HP', pairStatusValue(get(18), get(19)), { field: 18, important: true, severity: hpSeverity(get(18), get(19)) }), 'persistent', 'Current and maximum HP reported by NetHack.'));
+    vitals.push(roleItem(makeItem('Pw', pairStatusValue(get(11), get(12)), { field: 11 }), 'persistent', 'Current and maximum Pw reported by NetHack.'));
+    vitals.push(roleItem(makeItem('AC', get(14), { field: 14 }), 'persistent', 'Armor class reported by NetHack.'));
+    if (get(15)) vitals.push(roleItem(makeItem('HD', get(15), { field: 15, important: true, severity: 'info' }), 'persistent', 'Current polymorphed hit dice reported by NetHack.'));
+    else vitals.push(roleItem(makeItem('XL', get(13), { field: 13 }), 'persistent', 'Experience level reported by NetHack.'));
+    if (detailed) vitals.push(roleItem(makeItem('XP', get(21), { field: 21 }), 'persistent'));
+    groups.push(makeGroup('vitals', 'Vitals', vitals));
+
+    const dungeon = [];
+    dungeon.push(roleItem(makeItem('Dlvl', get(20), { field: 20, important: true }), 'persistent'));
+    dungeon.push(roleItem(makeItem('Gold', get(10), { field: 10 }), 'persistent'));
+    if (detailed) dungeon.push(roleItem(makeItem('Time', get(16), { field: 16 }), 'persistent'));
+    groups.push(makeGroup('dungeon', 'Dungeon', dungeon));
+
+    const urgent = [];
+    const hunger = makeItem('Hunger', get(17), { field: 17, severity: hungerSeverity(get(17)) });
+    const carry = makeItem('Carry', get(9), { field: 9, severity: carrySeverity(get(9)) });
+    if (hunger) urgent.push(roleItem(hunger, ['warning', 'danger'].includes(hunger.severity) ? 'urgent' : 'persistent', 'Hunger state reported by NetHack. No duration is available.'));
+    if (carry) urgent.push(roleItem(carry, ['warning', 'danger'].includes(carry.severity) ? 'urgent' : 'persistent', 'Burden state reported by NetHack.'));
+    for (const group of decodeConditionMask(parseConditionMask(get(22))).groups) {
+      if (group.severity === 'info' && !detailed) continue;
+      if (group.group === 'fatal') {
+        for (const condition of group.conditions) {
+          urgent.push(roleItem(makeItem(condition.label, 'Critical', { field: 22, important: true, severity: 'danger', className: 'condition-fatal' }), 'urgent', `${condition.label} is active. NetHack has not provided a duration.`));
+        }
+      } else {
+        urgent.push(roleItem(makeItem(group.label, group.conditions.map((condition) => condition.label).join(', '), { field: 22, important: group.severity === 'danger', severity: group.severity, className: `condition-${group.group}` }), group.severity === 'info' ? 'persistent' : 'urgent', `${group.conditions.map((condition) => condition.label).join(', ')} reported by NetHack. No duration is available.`));
+      }
+    }
+    groups.push(makeGroup('urgent', 'State', urgent));
+
+    if (detailed) {
+      const context = [];
+      context.push(roleItem(makeItem('On', terrainChipValue(get(25)), { field: 25, severity: 'info', className: 'terrain-context' }), 'persistent'));
+      groups.push(makeGroup('context', 'Context', context));
+    }
+    return Object.freeze(groups.filter((group) => group.items.length));
+  }
+
+  function buildStatusPresentation(values, options = {}) {
+    const density = options?.density === 'detailed' ? 'detailed' : 'compact';
+    const compact = buildPersistentStatusGroups(values, { density: 'compact' });
+    const detailed = buildPersistentStatusGroups(values, { density: 'detailed' });
+    const selected = density === 'detailed' ? detailed : compact;
+    const detail = buildDetailStatusGroups(values);
+    return Object.freeze({
+      density,
+      hero: selected.find((group) => group.id === 'hero') || makeGroup('hero', 'Hero', []),
+      persistent: selected,
+      compact,
+      detailed,
+      urgent: Object.freeze(selected.flatMap((group) => group.items).filter((item) => item.role === 'urgent')),
+      detail,
+    });
+  }
+
+  function buildStatusGroups(values, options = {}) {
+    const density = typeof options === 'string' ? options : options?.density;
+    return buildStatusPresentation(values, { density }).persistent;
+  }
+
+  function buildHudChips(values, options = {}) {
+    return Object.freeze(buildStatusGroups(values, options).flatMap((group) => group.items.map((item) => Object.freeze({ ...item }))));
   }
 
   return Object.freeze({
@@ -239,6 +329,10 @@
     hungerSeverity,
     carrySeverity,
     terrainChipValue,
+    pairStatusValue,
+    buildDetailStatusGroups,
+    buildPersistentStatusGroups,
+    buildStatusPresentation,
     buildStatusGroups,
     buildHudChips,
   });

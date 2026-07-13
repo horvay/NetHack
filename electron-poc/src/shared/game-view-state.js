@@ -7,7 +7,41 @@
   const defaultHeight = 21;
   function makeEmptyMap(width = defaultWidth, height = defaultHeight) { return Array.from({ length: height }, () => Array.from({ length: width }, () => ({ ch: ' ', assetId: undefined, glyph: undefined }))); }
   function normalizeMapCoord(value, max) { const n = Number(value); return Number.isFinite(n) ? Math.max(0, Math.min(max - 1, n)) : 0; }
-  function cloneMenu(menu) { return menu ? { ...menu, items: Array.isArray(menu.items) ? menu.items.slice() : [] } : null; }
+  function actorBackgroundCell(cell = {}) {
+    const objectVisible = Number.isFinite(Number(cell.objectLayerGlyph)) && Number(cell.objectLayerGlyph) >= 0;
+    if (objectVisible) {
+      return {
+        ch: String(cell.objectLayerChar || ' ').slice(0, 1) || ' ',
+        glyph: cell.objectLayerGlyph,
+        ttychar: typeof cell.objectLayerChar === 'string' ? cell.objectLayerChar.charCodeAt(0) : cell.objectLayerChar,
+        semanticKind: cell.objectLayerSemanticKind,
+        semanticName: cell.objectLayerSemanticName,
+        semanticAppearance: cell.objectLayerSemanticAppearance,
+        semanticKnown: cell.objectLayerSemanticKnown,
+        actionAffordances: Array.isArray(cell.objectLayerActionAffordances) ? cell.objectLayerActionAffordances.slice() : [],
+        backgroundGlyph: cell.backgroundGlyph,
+        backgroundChar: cell.backgroundChar,
+        backgroundSemanticKind: cell.backgroundSemanticKind,
+        backgroundSemanticName: cell.backgroundSemanticName,
+        backgroundSemanticKnown: cell.backgroundSemanticKnown,
+        backgroundActionAffordances: Array.isArray(cell.backgroundActionAffordances) ? cell.backgroundActionAffordances.slice() : [],
+      };
+    }
+    return {
+      ch: String(cell.backgroundChar || ' ').slice(0, 1) || ' ',
+      glyph: cell.backgroundGlyph,
+      ttychar: typeof cell.backgroundChar === 'string' ? cell.backgroundChar.charCodeAt(0) : cell.backgroundChar,
+      semanticKind: cell.backgroundSemanticKind,
+      semanticName: cell.backgroundSemanticName,
+      semanticKnown: cell.backgroundSemanticKnown,
+      actionAffordances: Array.isArray(cell.backgroundActionAffordances) ? cell.backgroundActionAffordances.slice() : [],
+    };
+  }
+  function cloneMenu(menu) {
+    if (!menu) return null;
+    const publicRows = menu.publicRows ? { ...menu.publicRows, rows: (menu.publicRows.rows || []).map((row) => ({ ...row })) } : undefined;
+    return { ...menu, items: Array.isArray(menu.items) ? menu.items.slice() : [], ...(publicRows ? { publicRows } : {}) };
+  }
   function applyMenuMetadata(menu, event, context = {}) {
     if (!menu || !MenuMetadataAdapter?.deriveV1MenuMetadata) return menu;
     const metadata = MenuMetadataAdapter.deriveV1MenuMetadata({ ...menu, window: event?.window ?? menu.window }, { how: event?.name === 'shim_select_menu' ? event.how : undefined, selectionModeExplicit: Boolean(event?.selectionMode || menu.selectionModeExplicit), ...context });
@@ -219,6 +253,7 @@
       statusValues: new Map(),
       mapCells: makeEmptyMap(width, height),
       mapRevision: 0,
+      actorPositions: new Map(),
       cursor: { x: 0, y: 0, window: undefined },
       menusByWindow: new Map(),
       textWindowsByWindow: new Map(),
@@ -243,6 +278,11 @@
       commandProtocolAcks: [],
       lastCommandProtocolAck: null,
       lastCommandProtocolRejection: null,
+      spellRows: null,
+      skillRows: null,
+      magicRowEventIds: new Set(),
+      magicRowEventOrder: [],
+      magicFallbackRevision: 0,
       transferTransactions: TransferTransactionModel?.emptyState ? TransferTransactionModel.emptyState() : { revision: 0, activeSessionId: undefined, activeTransferId: undefined, sessionsById: new Map(), transfersById: new Map(), lastCompleted: null, lastRejected: null },
       pendingTransferEvidence: { ground: null, container: null, lastIgnored: null },
       commandTransactionAliases: new Map(),
@@ -324,6 +364,7 @@
     }
     function cloneCommandTransactionState() { return CommandTransactionModel?.cloneState ? CommandTransactionModel.cloneState(state.commandTransactions) : { ...state.commandTransactions, byId: new Map(state.commandTransactions?.byId || []) }; }
     function cloneTransferTransactionState() { return TransferTransactionModel?.cloneState ? TransferTransactionModel.cloneState(state.transferTransactions) : { ...state.transferTransactions, sessionsById: new Map(state.transferTransactions?.sessionsById || []), transfersById: new Map(state.transferTransactions?.transfersById || []) }; }
+    function cloneMagicRows(snapshot) { return snapshot ? { ...snapshot, rows: (snapshot.rows || []).map((row) => ({ ...row })) } : null; }
     function clonePlain(value) { return value == null ? value : JSON.parse(JSON.stringify(value)); }
     function clonePendingTransferEvidenceEntry(entry) { return entry ? clonePlain(entry) : null; }
     function clonePendingTransferEvidenceState() { return { ground: clonePendingTransferEvidenceEntry(state.pendingTransferEvidence?.ground), container: clonePendingTransferEvidenceEntry(state.pendingTransferEvidence?.container), lastIgnored: clonePendingTransferEvidenceEntry(state.pendingTransferEvidence?.lastIgnored) }; }
@@ -559,6 +600,77 @@
           return effect('transfer-transaction-rejected', { reason: `unsupported transfer event ${eventEnvelope.eventType}`, event: eventEnvelope, pendingTransferEvidence: clonePendingTransferEvidenceState() });
       }
     }
+    function currentMagicMenuMatches(eventEnvelope) {
+      if (!state.currentMenu) return false;
+      const requestId = String(state.currentMenu.requestId || state.currentMenu.menuRequestId || state.currentMenu.menuId || '');
+      const expectedKind = eventEnvelope.eventType === 'skill.rows' ? 'skill' : 'spell';
+      return magicMenuKind(state.currentMenu) === expectedKind
+        && requestId === String(eventEnvelope.requestId || '')
+        && String(state.currentMenu.menuId || requestId) === String(eventEnvelope.payload?.menuId || '');
+    }
+    function applyMagicRowsEvent(eventEnvelope) {
+      const kind = eventEnvelope.eventType === 'skill.rows' ? 'skill' : 'spell';
+      const field = kind === 'skill' ? 'skillRows' : 'spellRows';
+      const current = state[field];
+      if (state.magicRowEventIds.has(eventEnvelope.eventId)) return effect('magic-rows-rejected', { kind, reason: 'duplicate event id', eventId: eventEnvelope.eventId, requestId: eventEnvelope.requestId });
+      if (current && eventEnvelope.sequence <= current.sequence) return effect('magic-rows-rejected', { kind, stale: true, reason: 'out-of-order event sequence', sequence: eventEnvelope.sequence, currentSequence: current.sequence, requestId: eventEnvelope.requestId });
+      if (current?.classificationConfidence === 'typed' && Number(eventEnvelope.payload.revision) <= Number(current.revision)) return effect('magic-rows-rejected', { kind, stale: true, reason: 'duplicate or stale row revision', revision: eventEnvelope.payload.revision, currentRevision: current.revision, requestId: eventEnvelope.requestId });
+      if (!currentMagicMenuMatches(eventEnvelope)) return effect('magic-rows-rejected', { kind, stale: true, reason: 'request does not own the active menu', requestId: eventEnvelope.requestId, activeRequestId: state.currentMenu?.requestId || '' });
+      const snapshot = {
+        kind,
+        revision: eventEnvelope.payload.revision,
+        sequence: eventEnvelope.sequence,
+        eventId: eventEnvelope.eventId,
+        requestId: eventEnvelope.requestId,
+        menuId: eventEnvelope.payload.menuId,
+        classificationConfidence: eventEnvelope.payload.classificationConfidence,
+        authoritative: eventEnvelope.payload.classificationConfidence === 'typed',
+        rows: eventEnvelope.payload.rows.map((row) => ({ ...row })),
+        source: clonePlain(eventEnvelope.source || {}),
+      };
+      state.magicRowEventIds.add(eventEnvelope.eventId);
+      state.magicRowEventOrder.push(eventEnvelope.eventId);
+      while (state.magicRowEventOrder.length > 256) state.magicRowEventIds.delete(state.magicRowEventOrder.shift());
+      state[field] = snapshot;
+      if (state.currentMenu && currentMagicMenuMatches(eventEnvelope)) state.currentMenu.publicRows = cloneMagicRows(snapshot);
+      return [effect('magic-rows-changed', { kind, snapshot: cloneMagicRows(snapshot), event: eventEnvelope }), effect('render-menu')];
+    }
+    function magicMenuKind(menu = {}) {
+      const purpose = String(menu.menuPurpose || menu.purpose || '');
+      const prompt = String(menu.prompt || '');
+      if (/^skill\.|skill\.rows|enhance|advance.*skill|current skills/i.test(`${purpose} ${prompt}`)) return 'skill';
+      if (/^spell\.|spell\.rows|known spells|which spell|spell to cast/i.test(`${purpose} ${prompt}`)) return 'spell';
+      return '';
+    }
+    function attachCompatibilityMagicRows(menu) {
+      const kind = magicMenuKind(menu);
+      if (!kind) return null;
+      const parser = kind === 'skill' ? ShimProtocol.compatibilitySkillRowsFromMenu : ShimProtocol.compatibilitySpellRowsFromMenu;
+      const rows = typeof parser === 'function' ? parser(menu) : [];
+      if (!rows.length) return null;
+      const requestId = String(menu.requestId || menu.menuRequestId || menu.menuId || '');
+      const typed = kind === 'skill' ? state.skillRows : state.spellRows;
+      if (typed?.classificationConfidence === 'typed' && String(typed.requestId || '') === requestId) {
+        menu.publicRows = cloneMagicRows(typed);
+        return typed;
+      }
+      const snapshot = {
+        kind,
+        revision: ++state.magicFallbackRevision,
+        sequence: state.protocolSequence,
+        eventId: `fallback-${kind}-rows-${state.magicFallbackRevision}`,
+        requestId,
+        menuId: String(menu.menuId || requestId),
+        classificationConfidence: 'fallback',
+        authoritative: false,
+        rows: rows.map((row) => ({ ...row })),
+        source: { layer: 'renderer', event: 'classic.menu.fallback', authoritative: false },
+      };
+      if (kind === 'skill') state.skillRows = snapshot;
+      else state.spellRows = snapshot;
+      menu.publicRows = cloneMagicRows(snapshot);
+      return snapshot;
+    }
     function applyCommandProtocolAckEvent(eventEnvelope) {
       const payload = eventEnvelope.payload || {};
       const ack = {
@@ -586,18 +698,60 @@
       const eventEnvelope = rawInput?.eventType ? rawInput : (rawInput?.event?.eventType ? rawInput.event : null);
       if (!eventEnvelope) return null;
       const effects = [];
-      const handled = new Set(['ground.pile.snapshot', 'container.session.opened', 'container.session.closed', 'container.contents.snapshot', 'command.accepted', 'command.rejected', 'command.completed', 'transaction.completed', 'transaction.interrupted', 'transfer.session.opened', 'transfer.session.updated', 'transfer.session.closed', 'transfer.choreography.updated', 'transfer.begun', 'transfer.confirmed', 'transfer.completed', 'transfer.rejected', 'transfer.ground-pile-evidence.attached', 'transfer.container-contents-evidence.attached']);
+      const handled = new Set(['inventory.snapshot', 'equipment.snapshot', 'spell.rows', 'skill.rows', 'ground.pile.snapshot', 'container.session.opened', 'container.session.closed', 'container.contents.snapshot', 'command.accepted', 'command.rejected', 'command.completed', 'transaction.completed', 'transaction.interrupted', 'transfer.session.opened', 'transfer.session.updated', 'transfer.session.closed', 'transfer.choreography.updated', 'transfer.begun', 'transfer.confirmed', 'transfer.completed', 'transfer.rejected', 'transfer.ground-pile-evidence.attached', 'transfer.container-contents-evidence.attached']);
       if (!handled.has(eventEnvelope.eventType)) return { event: eventEnvelope, state, effects: [effect('ui-protocol-event-ignored', { eventType: eventEnvelope.eventType })] };
       const checked = UiProtocolV2?.validateEventEnvelope ? UiProtocolV2.validateEventEnvelope(eventEnvelope) : { ok: true, errors: [] };
       if (!checked.ok) {
         const type = String(eventEnvelope.eventType || '');
         const rejectedType = type.startsWith('command.') || type.startsWith('transaction.')
           ? 'command-protocol-invalid-ack-rejected'
-          : (eventEnvelope.eventType === 'ground.pile.snapshot' ? 'ground-pile-snapshot-rejected' : (type.startsWith('transfer.') ? 'transfer-transaction-rejected' : 'container-contents-snapshot-rejected'));
-        return { event: eventEnvelope, state, effects: [effect(rejectedType, { errors: checked.errors.slice(), event: eventEnvelope })] };
+          : (type === 'inventory.snapshot' ? 'inventory-snapshot-rejected'
+            : (type === 'equipment.snapshot' ? 'equipment-snapshot-rejected'
+              : ((type === 'spell.rows' || type === 'skill.rows') ? 'magic-rows-rejected'
+                : (type === 'ground.pile.snapshot' ? 'ground-pile-snapshot-rejected'
+                  : (type.startsWith('transfer.') ? 'transfer-transaction-rejected' : 'container-contents-snapshot-rejected')))));
+        const diagnosticErrors = checked.errors.map((error) => {
+          const text = String(error || '');
+          if (/\btrapped\b/i.test(text)) return 'payload: forbidden trapped field';
+          if (/\blocked\b/i.test(text)) return 'payload: forbidden locked-state field';
+          if (/\bbroken\b/i.test(text)) return 'payload: forbidden broken-state field';
+          return 'payload: invalid public data';
+        });
+        const sanitizedEvent = {
+          protocol: eventEnvelope.protocol,
+          eventType: eventEnvelope.eventType,
+          eventId: eventEnvelope.eventId,
+          sequence: eventEnvelope.sequence,
+          turn: eventEnvelope.turn,
+        };
+        return { event: sanitizedEvent, state, effects: [effect(rejectedType, { errors: diagnosticErrors, event: sanitizedEvent })] };
       }
       function pushEffects(value) { if (Array.isArray(value)) effects.push(...value.filter(Boolean)); else if (value) effects.push(value); }
-      if (eventEnvelope.eventType === 'ground.pile.snapshot') {
+      if (eventEnvelope.eventType === 'inventory.snapshot') {
+        const revision = Number(eventEnvelope.payload?.revision || 0);
+        const currentRevision = Number(state.inventory?.revision || 0);
+        if (revision < currentRevision) effects.push(effect('inventory-snapshot-rejected', { stale: true, revision, currentRevision, errors: [`stale inventory snapshot revision ${revision} < current ${currentRevision}`] }));
+        else {
+          state.inventory = InventorySnapshotAdapter.applyInventorySnapshot(state.inventory, eventEnvelope.payload, { source: eventEnvelope.source, event: eventEnvelope });
+          state.cachedInventoryChoices = (state.inventory.orderedItems || []).map((item) => InventorySnapshotAdapter.publicItemToLegacyChoice(item));
+          effects.push(effect('inventory-snapshot', { inventory: InventorySnapshotAdapter.cloneInventoryState(state.inventory), event: state.inventory.lastSnapshotEvent }));
+        }
+      } else if (eventEnvelope.eventType === 'spell.rows' || eventEnvelope.eventType === 'skill.rows') {
+        pushEffects(applyMagicRowsEvent(eventEnvelope));
+      } else if (eventEnvelope.eventType === 'equipment.snapshot') {
+        const revision = Number(eventEnvelope.payload?.revision || 0);
+        const hasInventoryRevision = eventEnvelope.payload?.inventoryRevision != null;
+        const inventoryRevision = hasInventoryRevision ? Number(eventEnvelope.payload.inventoryRevision) : Number(state.inventory?.revision || 0);
+        const currentRevision = Number(state.equipment?.revision || 0);
+        const currentInventoryRevision = Number(state.inventory?.revision || 0);
+        if (revision < currentRevision || (hasInventoryRevision && inventoryRevision < currentInventoryRevision)) effects.push(effect('equipment-snapshot-rejected', { stale: true, revision, currentRevision, inventoryRevision, currentInventoryRevision, errors: [`stale equipment snapshot revision ${revision}/${inventoryRevision}`] }));
+        else {
+          const payload = hasInventoryRevision ? eventEnvelope.payload : { ...eventEnvelope.payload, inventoryRevision };
+          const normalizedEvent = hasInventoryRevision ? eventEnvelope : { ...eventEnvelope, payload };
+          state.equipment = EquipmentSnapshotAdapter.applyEquipmentSnapshot(state.equipment, payload, { source: eventEnvelope.source, event: normalizedEvent });
+          effects.push(effect('equipment-snapshot', { equipment: EquipmentSnapshotAdapter.cloneEquipmentState(state.equipment), event: state.equipment.lastSnapshotEvent }));
+        }
+      } else if (eventEnvelope.eventType === 'ground.pile.snapshot') {
         const applied = applyGroundPileSnapshotPayload(eventEnvelope.payload, eventEnvelope.source || { layer: 'renderer' }, eventEnvelope);
         effects.push(applied.effect);
         if (applied.accepted) pushEffects(maybeAttachPendingGroundPileEvidence(applied.delta, applied.snapshot));
@@ -624,7 +778,7 @@
       if (!menu || !InteractionModel.shouldCacheInventoryChoices(menu) || !CommandTransactionModel?.completeFromSnapshots || !activeNonInventoryTransaction()) return;
       const previousInventory = InventorySnapshotAdapter?.cloneInventoryState ? InventorySnapshotAdapter.cloneInventoryState(state.inventory) : state.inventory;
       const previousEquipment = EquipmentSnapshotAdapter?.cloneEquipmentState ? EquipmentSnapshotAdapter.cloneEquipmentState(state.equipment) : state.equipment;
-      const rows = (menu.items || []).filter((item) => item.selector).map((item) => ({ selector: item.selector, text: item.text, objectId: item.objectId, quantity: item.quantity, glyph: item.glyph, glyphChar: item.glyphChar, itemflags: item.itemflags, wornMask: item.wornMask, semanticKind: item.semanticKind, semanticName: item.semanticName, semanticAppearance: item.semanticAppearance, semanticKnown: item.semanticKnown, actionAffordances: item.actionAffordances }));
+      const rows = (menu.items || []).filter((item) => item.selector).map((item) => ({ selector: item.selector, text: item.text, objectId: item.objectId, quantity: item.quantity, glyph: item.glyph, glyphChar: item.glyphChar, itemflags: item.itemflags, wornMask: item.wornMask, semanticKind: item.semanticKind, semanticName: item.semanticName, semanticAppearance: item.semanticAppearance, semanticKnown: item.semanticKnown, known: item.known ? { ...item.known } : undefined, calledName: item.calledName, individualName: item.individualName, actionAffordances: item.actionAffordances }));
       if (!rows.length || !InventorySnapshotAdapter?.adaptShimInventoryUpdateToSnapshot || !EquipmentSnapshotAdapter?.adaptShimInventoryUpdateToEquipmentSnapshot) return;
       const synthetic = { name: 'shim_update_inventory', reason: -3, revision: (state.inventory?.revision || 0) + 1, inventoryRevision: (state.inventory?.revision || 0) + 1, equipmentRevision: Math.max((state.equipment?.revision || 0) + 1, (state.inventory?.revision || 0) + 1), transactionId: state.activeTransactionId, items: rows };
       const inventorySnapshot = InventorySnapshotAdapter.adaptShimInventoryUpdateToSnapshot(synthetic);
@@ -651,6 +805,7 @@
       const publicEventResult = processUiProtocolEvent(rawInput);
       if (publicEventResult) return publicEventResult;
       const appEvent = ShimProtocol.normalizeRawShimEvent(rawInput?.event || rawInput?.raw || rawInput);
+      if (!appEvent.valid) return Object.freeze([]);
       const event = appEvent.event;
       const effects = [];
       if (event.name === 'shim_create_nhwindow') {
@@ -659,6 +814,7 @@
       } else if (event.name === 'shim_clear_nhwindow') {
         if (event.window === state.mapWindowId || event.return === state.mapWindowId) {
           state.mapCells = makeEmptyMap(width, height);
+          state.actorPositions.clear();
           state.mapClearPending = false;
           state.mapRefreshPendingDisplay = true;
           state.groundPiles = GroundPileSnapshotAdapter?.emptyGroundPileState ? GroundPileSnapshotAdapter.emptyGroundPileState() : { revision: 0, pilesByCoord: new Map(), lastSnapshotSource: null, lastSnapshotEvent: null };
@@ -676,10 +832,28 @@
           const deferMapRenderUntilDisplay = state.mapRefreshPendingDisplay;
           if (state.mapClearPending) {
             state.mapCells = makeEmptyMap(width, height);
+            state.actorPositions.clear();
             state.mapClearPending = false;
             effects.push(effect('map-reset'));
           }
-          state.mapCells[y][x] = { ch, assetId: event.assetId, glyph: event.glyph, ttychar: event.ttychar, color: event.color, tileidx: event.tileidx, glyphFlags: event.glyphFlags, backgroundGlyph: event.backgroundGlyph, backgroundSemanticKind: event.backgroundSemanticKind, backgroundSemanticName: event.backgroundSemanticName, objectLayerGlyph: event.objectLayerGlyph, objectLayerChar: event.objectLayerChar, objectLayerSemanticKind: event.objectLayerSemanticKind, objectLayerSemanticName: event.objectLayerSemanticName, objectLayerSemanticAppearance: event.objectLayerSemanticAppearance, objectLayerSemanticKnown: event.objectLayerSemanticKnown, cmapIndex: event.cmapIndex, semanticKind: event.semanticKind, semanticName: event.semanticName, semanticAppearance: event.semanticAppearance, semanticKnown: event.semanticKnown, actionAffordances: Array.isArray(event.actionAffordances) ? event.actionAffordances.slice() : [], backgroundActionAffordances: Array.isArray(event.backgroundActionAffordances) ? event.backgroundActionAffordances.slice() : [], objectLayerActionAffordances: Array.isArray(event.objectLayerActionAffordances) ? event.objectLayerActionAffordances.slice() : [] };
+          const actorId = String(event.actorId || '').trim();
+          const replacedActorId = String(state.mapCells[y]?.[x]?.actorId || '').trim();
+          if (replacedActorId && replacedActorId !== actorId) {
+            const replacedPosition = state.actorPositions.get(replacedActorId);
+            if (replacedPosition?.x === x && replacedPosition?.y === y) state.actorPositions.delete(replacedActorId);
+          }
+          if (actorId) {
+            const previous = state.actorPositions.get(actorId);
+            if (previous && (previous.x !== x || previous.y !== y)) {
+              const previousCell = state.mapCells[previous.y]?.[previous.x];
+              if (previousCell?.actorId === actorId) {
+                state.mapCells[previous.y][previous.x] = actorBackgroundCell(previousCell);
+                if (!deferMapRenderUntilDisplay) effects.push(effect('dirty-map-neighborhood', { x: previous.x, y: previous.y }));
+              }
+            }
+            state.actorPositions.set(actorId, { x, y });
+          }
+          state.mapCells[y][x] = { ch, actorId: actorId || undefined, assetId: event.assetId, glyph: event.glyph, ttychar: event.ttychar, color: event.color, tileidx: event.tileidx, glyphFlags: event.glyphFlags, backgroundGlyph: event.backgroundGlyph, backgroundChar: event.backgroundChar, backgroundSemanticKind: event.backgroundSemanticKind, backgroundSemanticName: event.backgroundSemanticName, backgroundSemanticKnown: event.backgroundSemanticKnown, objectLayerGlyph: event.objectLayerGlyph, objectLayerChar: event.objectLayerChar, objectLayerSemanticKind: event.objectLayerSemanticKind, objectLayerSemanticName: event.objectLayerSemanticName, objectLayerSemanticAppearance: event.objectLayerSemanticAppearance, objectLayerSemanticKnown: event.objectLayerSemanticKnown, cmapIndex: event.cmapIndex, semanticKind: event.semanticKind, semanticName: event.semanticName, semanticAppearance: event.semanticAppearance, semanticKnown: event.semanticKnown, actionAffordances: Array.isArray(event.actionAffordances) ? event.actionAffordances.slice() : [], backgroundActionAffordances: Array.isArray(event.backgroundActionAffordances) ? event.backgroundActionAffordances.slice() : [], objectLayerActionAffordances: Array.isArray(event.objectLayerActionAffordances) ? event.objectLayerActionAffordances.slice() : [] };
           state.mapRevision += 1;
           if (!event.groundPileSnapshotAuthoritative) {
             const publicGroundItem = publicGroundItemFromObjectLayer(event, { x, y });
@@ -742,7 +916,7 @@
         if (lifecycle.stale) { effects.push(staleEffect('menu', event, 'request id does not match active menu window')); return { event: appEvent, state, effects }; }
         const menu = assignMenuLifecycle(state.menusByWindow.get(event.window) || { prompt: '', items: [], window: event.window }, lifecycle);
         menu.window = event.window;
-        menu.items.push({ selector: event.selector, text: event.text || '', objectId: event.objectId, attr: event.attr, color: event.color, itemflags: event.itemflags, glyph: event.glyph, glyphChar: event.glyphChar, glyphColor: event.glyphColor, tileidx: event.tileidx, cmapIndex: event.cmapIndex, semanticKind: event.semanticKind, semanticName: event.semanticName, semanticAppearance: event.semanticAppearance, semanticKnown: event.semanticKnown, actionAffordances: Array.isArray(event.actionAffordances) ? event.actionAffordances.slice() : [] });
+        menu.items.push({ selector: event.selector, text: event.text || '', objectId: event.objectId, attr: event.attr, color: event.color, itemflags: event.itemflags, glyph: event.glyph, glyphChar: event.glyphChar, glyphColor: event.glyphColor, tileidx: event.tileidx, cmapIndex: event.cmapIndex, semanticKind: event.semanticKind, semanticName: event.semanticName, semanticAppearance: event.semanticAppearance, semanticKnown: event.semanticKnown, known: event.known ? { ...event.known } : undefined, calledName: event.calledName, individualName: event.individualName, actionAffordances: Array.isArray(event.actionAffordances) ? event.actionAffordances.slice() : [] });
         if (event.menuPurpose) { menu.menuPurpose = event.menuPurpose; menu.menuPurposeExplicit = true; }
         if (event.menuId) menu.menuId = event.menuId;
         if (event.lifecycle) { menu.lifecycle = event.lifecycle; menu.lifecycleExplicit = true; }
@@ -775,9 +949,11 @@
         if (event.selectionMode) { menu.selectionMode = event.selectionMode; menu.selectionModeExplicit = true; }
         if (state.pendingMenuSelections.has(event.window)) applyMenuSelectionState(menu, state.pendingMenuSelections.get(event.window));
         applyMenuMetadata(menu, event, { lastWorldCommand: state.lastWorldCommand, lifecycleRevision: lifecycle.lifecycleRevision, requestId: lifecycle.requestId, transactionId: lifecycle.transactionId, lifecycleExplicit: menu.lifecycleExplicit });
+        const magicRows = attachCompatibilityMagicRows(menu);
         state.menusByWindow.set(event.window, menu); state.currentMenu = menu;
         if (InteractionModel.shouldCacheInventoryChoices(menu)) state.cachedInventoryChoices = menu.items.filter((item) => item.selector);
         completeCommandFromPublicMenuRows(menu, event, effects);
+        if (magicRows) effects.push(effect('magic-rows-changed', { kind: magicRows.kind, snapshot: cloneMagicRows(magicRows), compatibilityFallback: magicRows.classificationConfidence === 'fallback' }));
         effects.push(effect('menu-changed', { menu: cloneMenu(menu) }));
       } else if (event.name === 'shim_select_menu') {
         if (eventIsStaleByRevision(event)) { effects.push(staleEffect('menu', event, 'stale lifecycle revision')); return { event: appEvent, state, effects }; }
@@ -812,6 +988,7 @@
           const completedDeferredMapRefresh = state.mapRefreshPendingDisplay || state.mapClearPending;
           if (state.mapClearPending) {
             state.mapCells = makeEmptyMap(width, height);
+            state.actorPositions.clear();
             state.mapClearPending = false;
             effects.push(effect('map-reset'));
           }
@@ -1033,7 +1210,7 @@
       }
       return { event: appEvent, state, effects };
     }
-    function snapshot() { return { mapWidth: width, mapHeight: height, mapWindowId: state.mapWindowId, windowTypes: new Map(state.windowTypes), statusLabels: new Map(state.statusLabels), statusValues: new Map(state.statusValues), mapCells: state.mapCells, mapRevision: state.mapRevision, cursor: { ...state.cursor }, menusByWindow: new Map(state.menusByWindow), textWindowsByWindow: new Map(state.textWindowsByWindow), currentMenu: cloneMenu(state.currentMenu), activePrompt: state.activePrompt ? { ...state.activePrompt } : null, extCommandCatalog: state.extCommandCatalog.slice(), cachedInventoryChoices: state.cachedInventoryChoices.slice(), inventory: InventorySnapshotAdapter?.cloneInventoryState ? InventorySnapshotAdapter.cloneInventoryState(state.inventory) : state.inventory, equipment: EquipmentSnapshotAdapter?.cloneEquipmentState ? EquipmentSnapshotAdapter.cloneEquipmentState(state.equipment) : state.equipment, groundPiles: cloneGroundPileState(), containerContents: cloneContainerContentsState(), messages: state.messages.slice(), milestones: state.milestones.slice(), pendingMenuSelections: new Map(state.pendingMenuSelections), menuLifecyclesByWindow: new Map(state.menuLifecyclesByWindow), activeInteractionRevision: state.activeInteractionRevision, interactionLifecycleRevision: state.interactionLifecycleRevision, activeTransactionId: state.activeTransactionId, commandTransactions: cloneCommandTransactionState(), commandProtocolAcks: state.commandProtocolAcks.map(clonePlainPublic), lastCommandProtocolAck: clonePlainPublic(state.lastCommandProtocolAck), lastCommandProtocolRejection: clonePlainPublic(state.lastCommandProtocolRejection), transferTransactions: cloneTransferTransactionState(), pendingTransferEvidence: clonePendingTransferEvidenceState(), commandTransactionAliases: new Map(state.commandTransactionAliases), lastWorldCommand: state.lastWorldCommand, protocolSequence: state.protocolSequence }; }
+    function snapshot() { return { mapWidth: width, mapHeight: height, mapWindowId: state.mapWindowId, windowTypes: new Map(state.windowTypes), statusLabels: new Map(state.statusLabels), statusValues: new Map(state.statusValues), mapCells: state.mapCells, mapRevision: state.mapRevision, cursor: { ...state.cursor }, menusByWindow: new Map(state.menusByWindow), textWindowsByWindow: new Map(state.textWindowsByWindow), currentMenu: cloneMenu(state.currentMenu), activePrompt: state.activePrompt ? { ...state.activePrompt } : null, extCommandCatalog: state.extCommandCatalog.slice(), cachedInventoryChoices: state.cachedInventoryChoices.slice(), inventory: InventorySnapshotAdapter?.cloneInventoryState ? InventorySnapshotAdapter.cloneInventoryState(state.inventory) : state.inventory, equipment: EquipmentSnapshotAdapter?.cloneEquipmentState ? EquipmentSnapshotAdapter.cloneEquipmentState(state.equipment) : state.equipment, spellRows: cloneMagicRows(state.spellRows), skillRows: cloneMagicRows(state.skillRows), groundPiles: cloneGroundPileState(), containerContents: cloneContainerContentsState(), messages: state.messages.slice(), milestones: state.milestones.slice(), pendingMenuSelections: new Map(state.pendingMenuSelections), menuLifecyclesByWindow: new Map(state.menuLifecyclesByWindow), activeInteractionRevision: state.activeInteractionRevision, interactionLifecycleRevision: state.interactionLifecycleRevision, activeTransactionId: state.activeTransactionId, commandTransactions: cloneCommandTransactionState(), commandProtocolAcks: state.commandProtocolAcks.map(clonePlainPublic), lastCommandProtocolAck: clonePlainPublic(state.lastCommandProtocolAck), lastCommandProtocolRejection: clonePlainPublic(state.lastCommandProtocolRejection), transferTransactions: cloneTransferTransactionState(), pendingTransferEvidence: clonePendingTransferEvidenceState(), commandTransactionAliases: new Map(state.commandTransactionAliases), lastWorldCommand: state.lastWorldCommand, protocolSequence: state.protocolSequence }; }
     return Object.freeze({ version, state, process, snapshot });
   }
   return Object.freeze({ version, makeEmptyMap, normalizeMapCoord, transferPanelCommandState, transferPanelChoreographyState, transferPanelOptimisticMoveState, createGameViewState });

@@ -1,0 +1,68 @@
+{
+  "valid": [
+    {
+      "name": "unknown target omits authority-only fields",
+      "metadata": {
+        "promptId": "prompt-aim-1",
+        "revision": 1,
+        "candidates": [
+          { "targetId": "target-unknown", "coord": { "x": 12, "y": 8 }, "state": "unknown", "publicLabel": "dark corridor" }
+        ]
+      }
+    },
+    {
+      "name": "core legal target carries emitted LOS and range",
+      "metadata": {
+        "promptId": "prompt-aim-2",
+        "revision": 4,
+        "candidates": [
+          { "targetId": "target-jackal", "coord": { "x": 13, "y": 8 }, "state": "legal", "publicLabel": "jackal", "authority": "core", "authoritativeLos": true, "authoritativeRange": 6 }
+        ],
+        "acknowledgement": { "acknowledgementId": "ack-2", "promptId": "prompt-aim-2", "targetId": "target-jackal", "state": "accepted" }
+      }
+    },
+    {
+      "name": "core illegal target uses player-safe reason",
+      "metadata": {
+        "promptId": "prompt-aim-3",
+        "revision": 2,
+        "candidates": [
+          { "targetId": "target-wall", "coord": { "x": 14, "y": 8 }, "state": "illegal", "publicLabel": "wall", "authority": "core", "rejectionReason": "That target is blocked." }
+        ],
+        "acknowledgement": { "acknowledgementId": "ack-3", "promptId": "prompt-aim-3", "targetId": "target-wall", "state": "rejected", "reason": "That target is blocked." }
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "name": "renderer supplied LOS is rejected",
+      "metadata": {
+        "promptId": "prompt-invalid-los",
+        "revision": 1,
+        "candidates": [
+          { "targetId": "target-1", "coord": { "x": 1, "y": 1 }, "state": "legal", "authority": "renderer", "authoritativeLos": true }
+        ]
+      }
+    },
+    {
+      "name": "duplicate coordinates are rejected",
+      "metadata": {
+        "promptId": "prompt-duplicate",
+        "revision": 1,
+        "candidates": [
+          { "targetId": "target-1", "coord": { "x": 1, "y": 1 }, "state": "unknown" },
+          { "targetId": "target-2", "coord": { "x": 1, "y": 1 }, "state": "unknown" }
+        ]
+      }
+    },
+    {
+      "name": "foreign acknowledgement is rejected",
+      "metadata": {
+        "promptId": "prompt-owner",
+        "revision": 1,
+        "candidates": [],
+        "acknowledgement": { "acknowledgementId": "ack-foreign", "promptId": "prompt-other", "targetId": "target-1", "state": "accepted" }
+      }
+    }
+  ]
+}

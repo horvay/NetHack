@@ -1,0 +1,35 @@
+:root {
+  color-scheme: dark;
+  --ux-color-canvas: oklch(0.145 0.012 78);
+  --ux-color-surface: oklch(0.19 0.014 76);
+  --ux-color-surface-raised: oklch(0.235 0.016 75);
+  --ux-color-surface-muted: oklch(0.175 0.01 75);
+  --ux-color-text: oklch(0.91 0.012 82);
+  --ux-color-text-muted: oklch(0.72 0.018 78);
+  --ux-color-text-faint: oklch(0.59 0.016 76);
+  --ux-color-border: oklch(0.34 0.018 74);
+  --ux-color-action: oklch(0.76 0.12 83);
+  --ux-color-action-hover: oklch(0.82 0.13 84);
+  --ux-color-focus: oklch(0.82 0.14 92);
+  --ux-color-selection: oklch(0.7 0.1 238);
+  --ux-color-info: oklch(0.72 0.1 238);
+  --ux-color-success: oklch(0.72 0.12 150);
+  --ux-color-warning: oklch(0.79 0.13 78);
+  --ux-color-danger: oklch(0.67 0.18 27);
+  --ux-color-error: oklch(0.7 0.19 25);
+  --ux-font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --ux-font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --ux-space-1: 0.25rem;
+  --ux-space-2: 0.5rem;
+  --ux-space-3: 0.75rem;
+  --ux-space-4: 1rem;
+  --ux-space-6: 1.5rem;
+  --ux-space-8: 2rem;
+  --ux-radius-control: 0.375rem;
+  --ux-radius-overlay: 0.625rem;
+  --ux-motion-fast: 150ms;
+  --ux-motion-standard: 200ms;
+  --ux-motion-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ux-window-min-width: 960px;
+  --ux-window-min-height: 720px;
+}

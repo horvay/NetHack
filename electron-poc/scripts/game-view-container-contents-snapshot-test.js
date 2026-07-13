@@ -7,14 +7,14 @@ const Harness = require('../src/shared/test-harness');
 
 const effectOf = Harness.effectOf;
 const containerEvents = Harness.createUiEventFactory({ prefix: 'raw-container' });
-function sessionEvent(type, sessionId, container = { publicId: 'large-box', displayName: 'large box' }, sequence = 1) {
+function sessionEvent(type, sessionId, container = { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true } }, sequence = 1) {
   return Container.createContainerSessionEvent(type, { sessionId, container }, { sequence, source: { layer: 'test' } });
 }
-function rawSessionEvent(type, sessionId, container = { publicId: 'large-box', displayName: 'large box' }, sequence = 1) {
+function rawSessionEvent(type, sessionId, container = { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true } }, sequence = 1) {
   const payload = type === 'container.session.closed' ? { sessionId, container, reason: 'closed' } : { sessionId, container };
   return containerEvents.envelope(type, payload, { sequence, eventId: `evt-raw-${type}-${sessionId}-${sequence}` });
 }
-function snapshotEvent(sessionId, revision, items, sequence = revision + 10, container = { publicId: 'large-box', displayName: 'large box' }) {
+function snapshotEvent(sessionId, revision, items, sequence = revision + 10, container = { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true } }) {
   return Container.createContainerContentsSnapshotEvent({ sessionId, revision, container, items }, { sequence, source: { layer: 'test' } });
 }
 
@@ -31,7 +31,7 @@ let accepted = effectOf(result, 'container-contents-snapshot');
 assert(accepted, 'public container.contents.snapshot should be accepted for an active session');
 assert.equal(accepted.snapshot.sessionId, 'loot-session-1');
 assert.equal(accepted.snapshot.items.length, 2);
-assert.equal(accepted.snapshot.items[0].displayName, 'an uncursed scroll labeled ELBIB YLOH');
+assert.equal(accepted.snapshot.items[0].displayName, 'scroll labeled ELBIB YLOH');
 assert.equal(accepted.snapshot.items[0].semanticName, undefined, 'unknown container row identity must be redacted');
 assert.equal(accepted.snapshot.items[0].known.identity, false);
 assert.equal(accepted.snapshot.items[1].semanticName, 'food ration', 'known public identity may be retained');
@@ -55,17 +55,17 @@ rejected = effectOf(result, 'container-contents-snapshot-rejected');
 assert(/conflicting container contents snapshot revision 1/.test(rejected?.reason || ''), 'same-revision conflicting payload should be rejected, not mutate state');
 assert.equal(Container.containerContentsAt(view.state.containerContents, 'loot-session-1').items.length, 2);
 
-result = view.process(snapshotEvent('loot-session-1', 2, [{ text: 'a - wrong-box item' }], 122, { publicId: 'wrong-box', displayName: 'wrong box' }));
+result = view.process(snapshotEvent('loot-session-1', 2, [{ text: 'a - wrong-box item' }], 122, { publicId: 'wrong-box', displayName: 'wrong box', semanticKnown: false, known: { identity: false, appearance: true } }));
 rejected = effectOf(result, 'container-contents-snapshot-rejected');
 assert(/container identity does not match session/.test(rejected?.reason || ''), 'snapshot container identity must match the active session identity');
 assert.equal(Container.containerContentsAt(view.state.containerContents, 'loot-session-1').items.length, 2);
 
-result = view.process(rawSessionEvent('container.session.opened', 'object-id-session', { publicId: 'object-id-box', displayName: 'large box', objectId: 100 }, 123));
+result = view.process(rawSessionEvent('container.session.opened', 'object-id-session', { publicId: 'object-id-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 100 }, 123));
 assert.equal(view.state.containerContents.sessionsById.get('object-id-session').container.objectId, 100, 'public container objectId should survive protocol normalization into session identity');
-result = view.process(snapshotEvent('object-id-session', 1, [{ text: 'a - a food ration' }], 124, { publicId: 'object-id-box', displayName: 'large box', objectId: 200 }));
+result = view.process(snapshotEvent('object-id-session', 1, [{ text: 'a - a food ration' }], 124, { publicId: 'object-id-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 200 }));
 rejected = effectOf(result, 'container-contents-snapshot-rejected');
 assert(/container identity does not match session/.test(rejected?.reason || ''), 'same publicId but different public objectId must be rejected');
-result = view.process(snapshotEvent('object-id-session', 1, [{ text: 'a - a food ration' }], 125, { publicId: 'object-id-box', displayName: 'large box', objectId: 100 }));
+result = view.process(snapshotEvent('object-id-session', 1, [{ text: 'a - a food ration' }], 125, { publicId: 'object-id-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 100 }));
 accepted = effectOf(result, 'container-contents-snapshot');
 assert.equal(accepted.snapshot.container.objectId, 100, 'public container objectId should survive into accepted snapshot identity');
 
@@ -87,16 +87,16 @@ assert.equal(accepted.delta.added.length, 1, 'duplicate rows are treated as a mu
 assert.equal(accepted.delta.removed.length, 1, 'duplicate rows are treated as a multiset: unknown scroll removed');
 assert.equal(accepted.snapshot.items.length, 2);
 
-result = view.process(sessionEvent('container.session.closed', 'loot-session-1', { publicId: 'large-box', displayName: 'large box' }, 15));
+result = view.process(sessionEvent('container.session.closed', 'loot-session-1', { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true } }, 15));
 assert(effectOf(result, 'container-session-closed'), 'container session close should be reduced');
 result = view.process(snapshotEvent('loot-session-1', 3, [{ text: 'a - a post-close gem' }], 16));
 rejected = effectOf(result, 'container-contents-snapshot-rejected');
 assert(/not active/i.test(rejected?.reason || ''), 'snapshot from a closed session must be rejected');
 assert.equal(Container.containerContentsAt(view.state.containerContents, 'loot-session-1').revision, 2, 'closed-session snapshot must not update active state');
 
-result = view.process(sessionEvent('container.session.opened', 'loot-session-2', { publicId: 'large-box', displayName: 'large box' }, 17));
+result = view.process(sessionEvent('container.session.opened', 'loot-session-2', { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true } }, 17));
 assert.equal(view.state.containerContents.sessionsById.get('loot-session-2').status, 'active');
-result = view.process(sessionEvent('container.session.opened', 'loot-session-3', { publicId: 'large-box', displayName: 'large box' }, 18));
+result = view.process(sessionEvent('container.session.opened', 'loot-session-3', { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true } }, 18));
 assert.equal(view.state.containerContents.sessionsById.get('loot-session-2').status, 'replaced', 'new same-container session replaces prior session');
 result = view.process(snapshotEvent('loot-session-2', 1, [{ text: 'a - stale replaced-session row' }], 19));
 rejected = effectOf(result, 'container-contents-snapshot-rejected');
@@ -110,7 +110,7 @@ let transfers = Transfer.emptyState();
 transfers = Transfer.openSession(transfers, {
   sessionId: 'loot-session-3',
   kind: 'container',
-  container: { publicId: 'large-box', displayName: 'large box' },
+  container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true } },
   leftRows: [{ selector: 'a', text: 'a food ration' }],
   rightRows: [],
   loadedSides: { left: true, right: true },
@@ -118,7 +118,7 @@ transfers = Transfer.openSession(transfers, {
 transfers = Transfer.beginTransfer(transfers, {
   transferId: 'take-ration-from-box',
   sessionId: 'loot-session-3',
-  container: { publicId: 'large-box', displayName: 'large box' },
+  container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true } },
   direction: 'container-to-inventory',
   sourceSide: 'left',
   targetSide: 'right',
@@ -138,14 +138,14 @@ assert.equal(completed.transfer.result.publicEvidence.containerContents, true);
 assert.equal(completed.transfer.result.delta.containerContents.toRevision, 2);
 assert.equal(completed.transfer.result.delta.canonicalChanged, true);
 
-let attachedState = Transfer.beginTransfer(Transfer.openSession(Transfer.emptyState(), { sessionId: 'loot-session-3', kind: 'container', container: { publicId: 'large-box', displayName: 'large box' } }).state, {
-  transferId: 'take-ration-delayed', sessionId: 'loot-session-3', container: { publicId: 'large-box', displayName: 'large box' }, direction: 'container-to-inventory', sourceSide: 'left', targetSide: 'right', selector: 'b', itemName: 'a food ration',
+let attachedState = Transfer.beginTransfer(Transfer.openSession(Transfer.emptyState(), { sessionId: 'loot-session-3', kind: 'container', container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true } } }).state, {
+  transferId: 'take-ration-delayed', sessionId: 'loot-session-3', container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true } }, direction: 'container-to-inventory', sourceSide: 'left', targetSide: 'right', selector: 'b', itemName: 'a food ration',
 }).state;
-const attached = Transfer.attachContainerContentsDelta(attachedState, { transferId: 'take-ration-delayed', sessionId: 'loot-session-3', container: { publicId: 'large-box', displayName: 'large box' } }, containerContentsDelta);
+const attached = Transfer.attachContainerContentsDelta(attachedState, { transferId: 'take-ration-delayed', sessionId: 'loot-session-3', container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true } } }, containerContentsDelta);
 assert.equal(attached.transfer.result.publicEvidence.containerContents, true, 'container deltas can attach before/after completion like ground deltas');
-const staleDelayedEvidence = Transfer.attachContainerContentsDelta(attachedState, { transferId: 'take-ration-delayed', sessionId: 'loot-session-3', container: { publicId: 'large-box', displayName: 'large box' } }, { ...containerContentsDelta, sessionId: 'unrelated-session' });
+const staleDelayedEvidence = Transfer.attachContainerContentsDelta(attachedState, { transferId: 'take-ration-delayed', sessionId: 'loot-session-3', container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true } } }, { ...containerContentsDelta, sessionId: 'unrelated-session' });
 assert.equal(staleDelayedEvidence.rejected.reason, 'container contents delta session id does not match transfer', 'delayed evidence from an unrelated container session is rejected');
-const wrongContainerEvidence = Transfer.attachContainerContentsDelta(attachedState, { transferId: 'take-ration-delayed', sessionId: 'loot-session-3', container: { publicId: 'large-box', displayName: 'large box' } }, { ...containerContentsDelta, container: { publicId: 'wrong-box', displayName: 'wrong box' } });
+const wrongContainerEvidence = Transfer.attachContainerContentsDelta(attachedState, { transferId: 'take-ration-delayed', sessionId: 'loot-session-3', container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true } } }, { ...containerContentsDelta, container: { publicId: 'wrong-box', displayName: 'wrong box', semanticKnown: false, known: { identity: false, appearance: true } } });
 assert.equal(wrongContainerEvidence.rejected.reason, 'container contents delta container identity does not match transfer', 'delayed evidence from a different container identity is rejected');
 const wrongKind = Transfer.beginTransfer(Transfer.openSession(Transfer.emptyState(), { sessionId: 'ground-session', kind: 'ground-pickup' }).state, {
   transferId: 'ground-transfer', sessionId: 'ground-session', direction: 'ground-to-inventory', sourceSide: 'left', targetSide: 'right', selector: 'a', itemName: 'a food ration',

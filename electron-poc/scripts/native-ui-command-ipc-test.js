@@ -15,7 +15,7 @@ function makeCommand(overrides = {}) {
     commandId: overrides.commandId || 'cmd-native-ipc-drop',
     transactionId: overrides.transactionId || 'txn-native-ipc-drop',
     action: { id: 'item.drop', label: 'Drop' },
-    item: overrides.item || { selector: 'j', text: 'j - a scroll labeled ZELGO MER', actionAffordances: ['drop'] },
+    item: overrides.item || { selector: 'j', text: 'j - a scroll labeled ZELGO MER', semanticKnown: false, known: { identity: false, appearance: true }, actionAffordances: ['drop'] },
     route: { actionId: 'item.drop', command: 'dj', selector: 'j', label: 'Drop' },
     expectedRevision: overrides.expectedRevision === undefined ? { inventory: 7 } : overrides.expectedRevision,
     source: 'test',
@@ -30,21 +30,21 @@ function makeGroundCommand(overrides = {}) {
     route: { actionId: 'ground.openContainer', command: '#loot\n' },
     expectedRevision: overrides.expectedRevision === undefined ? { ground: 7 } : overrides.expectedRevision,
     source: 'test',
-    target: overrides.target || { location: { kind: 'ground' }, displayName: 'a large box' },
+    target: overrides.target || { location: { kind: 'ground' }, displayName: 'a large box', semanticKnown: true, known: { identity: true } },
     payload: { promptPolicy: 'netHack-owned-followup' },
   });
 }
 
 function assertRendererRegistersPendingCommandBeforeNativeInvoke() {
   const pendingIndex = rendererSource.indexOf('pendingNativeUiCommands.set(v2Plan.commandId');
-  const invokeIndex = rendererSource.indexOf('netHackAPI.uiCommand?.(v2Plan.command)');
+  const invokeIndex = rendererSource.indexOf('dispatchUiCommand(v2Plan.command)');
   const deleteIndex = rendererSource.indexOf('pendingNativeUiCommands.delete(v2Plan.commandId)');
   const outcomeSetIndex = rendererSource.indexOf('pendingNativeUiCommandBridgeOutcomes.set(commandId');
   const outcomeReadIndex = rendererSource.indexOf('const fastBridgeOutcome = pendingNativeUiCommandBridgeOutcomes.get(v2Plan.commandId)');
   const fastRejectIndex = rendererSource.indexOf("fastBridgeOutcome?.status === 'rejected'");
   const sentStatusIndex = rendererSource.indexOf('setStatus(`sent native v2 action.execute');
   assert.ok(pendingIndex >= 0, 'renderer must register pending native ui-command metadata');
-  assert.ok(invokeIndex >= 0, 'renderer must invoke native uiCommand for v2 action.execute');
+  assert.ok(invokeIndex >= 0, 'renderer must invoke the production-native/test-seam uiCommand dispatcher for v2 action.execute');
   assert.ok(pendingIndex < invokeIndex, 'renderer must register pending native ui-command before invoking main so fast bridge accept/reject events can attach to the full command plan');
   assert.ok(deleteIndex > invokeIndex, 'renderer must clean up pending native ui-command metadata if main rejects before bridge acknowledgement');
   assert.ok(outcomeSetIndex >= 0, 'renderer must preserve fast bridge ack/rejection outcomes while main invoke is unsettled');
@@ -75,9 +75,11 @@ function runPreloadHarness() {
       };
     },
   };
-  vm.runInNewContext(preloadSource, sandbox, { filename: 'preload.js' });
+  const preloadContext = vm.createContext(sandbox);
+  vm.runInContext(preloadSource, preloadContext, { filename: 'preload.js' });
   assert(exposed?.uiCommand, 'preload exposes netHackPOC.uiCommand');
-  return exposed.uiCommand(makeCommand()).then((ack) => {
+  const realmLocalCommand = vm.runInContext(`(${JSON.stringify(makeCommand())})`, preloadContext);
+  return exposed.uiCommand(realmLocalCommand).then((ack) => {
     assert.deepEqual(ack, { ok: false, reason: 'main process rejected native ui command' }, 'uiCommand returns invoke ack/rejection from main');
     assert.equal(invoked.length, 1, 'uiCommand performs exactly one IPC call');
     assert.equal(invoked[0].mode, 'invoke', 'uiCommand must use invoke/ack semantics, not fire-and-forget send');
@@ -93,8 +95,8 @@ const fs = require('node:fs');
 const out = ${JSON.stringify(stdinPath)};
 function emit(event) { process.stdout.write(JSON.stringify({ type: 'shim-event', ...event }) + '\\n'); }
 function emitRaw(event) { process.stdout.write(JSON.stringify(event) + '\\n'); }
-setTimeout(() => emit({ name: 'shim_update_inventory', revision: 7, inventoryRevision: 7, items: [{ selector: 106, text: 'j - a scroll labeled ZELGO MER', semanticKind: 'object', semanticName: 'scroll labeled ZELGO MER' }] }), 10);
-setTimeout(() => emit({ name: 'shim_ground_pile_snapshot', revision: 7, coord: { x: 0, y: 0 }, source: 'level.objects', authoritative: true, items: [{ displayName: 'a large box', objectClass: '(' }] }), 15);
+setTimeout(() => emit({ name: 'shim_update_inventory', revision: 7, inventoryRevision: 7, items: [{ selector: 106, text: 'j - a scroll labeled ZELGO MER', semanticKind: 'object', semanticAppearance: 'scroll labeled ZELGO MER', semanticKnown: false, known: { identity: false, appearance: true } }] }), 10);
+setTimeout(() => emit({ name: 'shim_ground_pile_snapshot', revision: 7, coord: { x: 0, y: 0 }, source: 'level.objects', authoritative: true, items: [{ displayName: 'a large box', objectClass: '(', semanticKnown: true, semanticName: 'large box' }] }), 15);
 let buffer = '';
 process.stdin.on('data', (chunk) => {
   buffer += String(chunk);
@@ -106,16 +108,16 @@ process.stdin.on('data', (chunk) => {
     if (!line.trim()) continue;
     const payload = JSON.parse(line);
     if (payload.type === 'test-active-prompt') emit({ name: 'shim_yn_function', query: 'What do you want to drop? [j or ?*]', choices: 'j?*\\u001b', requestId: 'prompt-direct-ipc-test', transactionId: 'prompt-direct-ipc-test' });
-    if (payload.type === 'test-active-transfer') emitRaw({ protocol: 'nethack-electron-ui/v2', sequence: 41, eventId: 'evt-transfer-opened-direct-ipc', eventType: 'transfer.session.opened', turn: 0, source: { layer: 'test' }, payload: { sessionId: 'transfer-direct-ipc-test', kind: 'container', container: { publicId: 'box', displayName: 'large box' }, leftRows: [], rightRows: [], loadedSides: { left: true, right: true } } });
+    if (payload.type === 'test-active-transfer') emitRaw({ protocol: 'nethack-electron-ui/v2', sequence: 41, eventId: 'evt-transfer-opened-direct-ipc', eventType: 'transfer.session.opened', turn: 0, source: { layer: 'test' }, payload: { sessionId: 'transfer-direct-ipc-test', kind: 'container', container: { publicId: 'box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true } }, leftRows: [], rightRows: [], loadedSides: { left: true, right: true } } });
     if (payload.type === 'test-empty-current-ground-with-stale-other-pile') {
-      emit({ name: 'shim_ground_pile_snapshot', revision: 8, coord: { x: 1, y: 1 }, source: 'level.objects', authoritative: true, items: [{ displayName: 'a large box', objectClass: '(' }] });
+      emit({ name: 'shim_ground_pile_snapshot', revision: 8, coord: { x: 1, y: 1 }, source: 'level.objects', authoritative: true, items: [{ displayName: 'a large box', objectClass: '(', semanticKnown: true, semanticName: 'large box' }] });
       emit({ name: 'shim_ground_pile_snapshot', revision: 9, coord: { x: 0, y: 0 }, source: 'level.objects', authoritative: true, items: [] });
       emit({ name: 'shim_print_glyph', window: 2, x: 0, y: 0, char: '@', glyph: 725, ttychar: 64, glyphFlags: 8193, semanticKind: 'hero', semanticName: 'hero', backgroundSemanticKind: 'floor', backgroundSemanticName: 'floor of a room', groundPileSnapshotAuthoritative: true });
       emit({ name: 'shim_raw_print', text: 'You see here a large box.' });
     }
     if (payload.type === 'test-current-cell-container-with-empty-ground-pile') {
       emit({ name: 'shim_ground_pile_snapshot', revision: 8, coord: { x: 0, y: 0 }, source: 'level.objects', authoritative: true, items: [] });
-      emit({ name: 'shim_print_glyph', window: 2, x: 0, y: 0, char: '@', glyph: 725, ttychar: 64, glyphFlags: 8193, semanticKind: 'hero', semanticName: 'hero', objectLayerGlyph: 3662, objectLayerChar: '(', objectLayerSemanticKind: 'object', objectLayerSemanticName: 'large box', objectLayerActionAffordances: ['container', 'loot'], groundPileSnapshotAuthoritative: true });
+      emit({ name: 'shim_print_glyph', window: 2, x: 0, y: 0, char: '@', glyph: 725, ttychar: 64, glyphFlags: 8193, semanticKind: 'hero', semanticKnown: true, semanticName: 'hero', objectLayerGlyph: 3662, objectLayerChar: '(', objectLayerSemanticKind: 'object', objectLayerSemanticKnown: true, objectLayerSemanticName: 'large box', objectLayerActionAffordances: ['container', 'loot'], groundPileSnapshotAuthoritative: true });
     }
     if (payload.type === 'ui-command') emit({ name: 'bridge_ui_command_accepted', commandId: payload.command?.commandId || '', transactionId: payload.command?.transactionId || '', actionId: payload.command?.actionId || '', command: payload.command?.payload?.route?.command || '' });
   }
@@ -184,7 +186,7 @@ async function runGameProcessHarness() {
     game.startShimBridge({});
     await wait(80);
     fs.writeFileSync(stdinPath, '', 'utf8');
-    const staleGround = game.uiCommand(makeGroundCommand({ commandId: 'cmd-stale-ground', transactionId: 'txn-stale-ground', expectedRevision: { ground: 6 }, target: { location: { kind: 'ground' }, displayName: 'a different box' } }));
+    const staleGround = game.uiCommand(makeGroundCommand({ commandId: 'cmd-stale-ground', transactionId: 'txn-stale-ground', expectedRevision: { ground: 6 }, target: { location: { kind: 'ground' }, displayName: 'a different box', semanticKnown: true, known: { identity: true } } }));
     assert.equal(staleGround.ok, false, 'main rejects stale ground revision before bridge write when current public ground rows do not match');
     assert.match(staleGround.reason, /ground revision changed|stale|current public ground target/i);
     assert.equal(staleGround.blockerToken, 'blocked.input.staleRevision');
@@ -192,7 +194,7 @@ async function runGameProcessHarness() {
     assert.equal(fs.readFileSync(stdinPath, 'utf8'), '', 'stale-ground rejected command is not lowered/written to bridge');
 
     fs.writeFileSync(stdinPath, '', 'utf8');
-    const matchingStaleGround = game.uiCommand(makeGroundCommand({ commandId: 'cmd-stale-ground-match', transactionId: 'txn-stale-ground-match', expectedRevision: { ground: 6 }, target: { location: { kind: 'ground' }, displayName: 'a large box' } }));
+    const matchingStaleGround = game.uiCommand(makeGroundCommand({ commandId: 'cmd-stale-ground-match', transactionId: 'txn-stale-ground-match', expectedRevision: { ground: 6 }, target: { location: { kind: 'ground' }, displayName: 'a large box', semanticKnown: true, known: { identity: true } } }));
     assert.equal(matchingStaleGround.ok, true, matchingStaleGround.reason || 'main tolerates ground revision churn when the current public ground row still matches the target');
     await wait(40);
     assert.match(fs.readFileSync(stdinPath, 'utf8'), /cmd-stale-ground-match/, 'matching stale-ground command is written to bridge as a ui-command envelope');
@@ -201,7 +203,7 @@ async function runGameProcessHarness() {
     game.shimInput({ type: 'test-current-cell-container-with-empty-ground-pile' });
     await wait(80);
     fs.writeFileSync(stdinPath, '', 'utf8');
-    const currentCellGround = game.uiCommand(makeGroundCommand({ commandId: 'cmd-current-cell-ground', transactionId: 'txn-current-cell-ground', expectedRevision: { ground: 6 }, target: { location: { kind: 'ground' }, displayName: 'a locked large box' } }));
+    const currentCellGround = game.uiCommand(makeGroundCommand({ commandId: 'cmd-current-cell-ground', transactionId: 'txn-current-cell-ground', expectedRevision: { ground: 6 }, target: { location: { kind: 'ground' }, displayName: 'a locked large box', semanticKnown: false, known: { identity: false, appearance: true } } }));
     assert.equal(currentCellGround.ok, true, currentCellGround.reason || 'main accepts current public map-cell object layer as ground target evidence when the authoritative pile is empty/stale but the hero is visibly standing on that object');
     await wait(40);
     assert.match(fs.readFileSync(stdinPath, 'utf8'), /cmd-current-cell-ground/, 'current-cell ground command is written to bridge as a ui-command envelope');
@@ -210,7 +212,7 @@ async function runGameProcessHarness() {
     game.shimInput({ type: 'test-empty-current-ground-with-stale-other-pile' });
     await wait(80);
     fs.writeFileSync(stdinPath, '', 'utf8');
-    const staleHistoricalGround = game.uiCommand(makeGroundCommand({ commandId: 'cmd-stale-ground-history', transactionId: 'txn-stale-ground-history', expectedRevision: { ground: 6 }, target: { location: { kind: 'ground' }, displayName: 'a large box' } }));
+    const staleHistoricalGround = game.uiCommand(makeGroundCommand({ commandId: 'cmd-stale-ground-history', transactionId: 'txn-stale-ground-history', expectedRevision: { ground: 6 }, target: { location: { kind: 'ground' }, displayName: 'a large box', semanticKnown: true, known: { identity: true } } }));
     assert.equal(staleHistoricalGround.ok, false, 'main rejects stale ground when current cursor pile is empty even if another pile or historical message matches');
     assert.equal(staleHistoricalGround.blockerToken, 'blocked.input.staleRevision');
     await wait(40);

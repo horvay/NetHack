@@ -31,11 +31,23 @@ const v2 = {
   window: { width: 1200, height: 800 },
   events: [
     { type: 'input', key: 'i', keycode: 105, source: 'test' },
-    { type: 'checkpoint', name: 'inventory open', state: { status: 'demo' } },
+    { type: 'checkpoint', name: 'inventory open' },
     { type: 'input', key: '\u001b', keycode: 27, source: 'test' },
   ],
 };
 assert.equal(RecordingSchema.validateRecording(v2).ok, true);
+const productionLifecycleV2 = {
+  ...v2,
+  startedAt: '2026-07-12T00:00:00.000Z',
+  stoppedAt: '2026-07-12T00:00:01.250Z',
+  durationMs: 1250,
+  metadata: { recorder: 'electron-poc-renderer', contract: 'test', caveats: [], effectiveSeedCapturedAt: 42 },
+};
+assert.equal(RecordingSchema.validateRecording(productionLifecycleV2).ok, true, 'closed v2 schema accepts the fields emitted by production recording save');
+assert.equal(RecordingSchema.validateRecording({ ...productionLifecycleV2, endedAt: productionLifecycleV2.stoppedAt }).ok, false, 'obsolete producer-only endedAt remains fail-closed');
+assert.equal(RecordingSchema.validateRecording({ ...productionLifecycleV2, metadata: { ...productionLifecycleV2.metadata, effectiveSeedCapturedAt: -1 } }).ok, false, 'effective seed capture elapsed time is validated');
+assert.equal(RecordingSchema.validateRecording({ ...productionLifecycleV2, settings: { displayName: 'potion of gain level' } }).ok, false, 'identity-bearing keys cannot hide in closed recording settings');
+assert.equal(RecordingSchema.validateRecording({ ...productionLifecycleV2, inputs: [{ key: 'x', keycode: 120, source: 'hostile' }] }).ok, false, 'legacy inputs cannot diverge from authoritative v2 input events');
 const saved = RecordingSchema.sanitizeForSave(v2);
 assert.equal(saved.ok, true);
 assert.equal(saved.recording.inputs.length, 2);

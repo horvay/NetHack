@@ -101,13 +101,14 @@ async function main() {
     }, 10000);
     const afterOpenShot = await driver.screenshot(path.join(outDir, '02-after-open-locked-message-force-visible.png'));
     const afterOpenState = writeJson('02-after-open-locked-message-force-visible-state.json', afterOpen);
-    assert('open attempt sends exact #loot route', afterOpen.sent === '#loot\n', JSON.stringify({ sent: afterOpen.sent, status: afterOpen.status }));
-    assert('open attempt produces visible locked-container message', /(?:turns? out to be locked|locked chest|chest.*locked)/i.test(afterOpen.messages.join('\n')), JSON.stringify(afterOpen.messages));
+    assert('open attempt sends typed container snapshot without raw #loot fallback', afterOpen.sent === '' && afterOpen.sentUiProtocolCommands.some((command) => command.commandType === 'container.snapshot'), JSON.stringify({ sent: afterOpen.sent, commands: afterOpen.sentUiProtocolCommands, status: afterOpen.status }));
+    assert('open attempt produces visible locked-container guidance', /locked/i.test(`${afterOpen.messages.join('\n')}\n${afterOpen.body}\n${afterOpen.status}`), JSON.stringify({ messages: afterOpen.messages, status: afterOpen.status }));
     assert('Force lock appears without stepping off/on after visible locked message', actionIds(afterOpen).includes('force-container'), actionText(afterOpen));
+    assert('locked action sheet offers the wielded force-capable tool', (afterOpen.dialog?.options || []).some((option) => /Force.+pick-axe/i.test(option.text || '')), JSON.stringify(afterOpen.dialog));
     assert('visible locked message created public ground target evidence', (afterOpen.ground?.piles || []).some((pile) => (pile.items || []).some((item) => /locked chest/i.test(item.displayName || ''))) || (afterOpen.currentCell?.visibleMessageGroundTexts || []).some((item) => /locked chest/i.test(item.text || '')), JSON.stringify({ ground: afterOpen.ground, currentCell: afterOpen.currentCell }));
 
     await driver.evalCheckedValue('window.__nethackPromptTest.clearSentInputs()');
-    await driver.click('#context-action-bar button[data-context-action-id="force-container"]');
+    await driver.click('#interaction-options .choice-button');
     const afterForce = await waitFor(async () => {
       const s = await state(driver);
       const text = `${s.messages.join('\n')}\n${s.prompt?.query || ''}\n${s.dialog?.prompt || ''}\n${s.status}\n${s.shimTail}`;
@@ -133,7 +134,7 @@ async function main() {
       'Verified lifecycle:',
       '- moved onto a real locked chest fixture that was only publicly visible as a chest',
       '- initial current-square context exposed Open chest but not Force lock',
-      '- clicking Open chest sent `#loot\\n` and NetHack produced a visible locked-container message',
+      '- clicking Open chest sent typed `container.snapshot`; the structured locked rejection produced visible locked-container guidance',
       '- contextual actions refreshed immediately to include Force lock without moving off/on',
       '- clicking Force lock sent exactly `#force\\n` as native v2 `ground.forceContainer` with a current public ground target and NetHack-owned follow-up policy',
       '- bridge accepted the command; no stale-ground/native rejection and no raw fallback labels were visible',

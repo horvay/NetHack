@@ -1,7 +1,7 @@
 (function initUiProtocolV2(root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./public-blockers'));
-  else root.NetHackUiProtocolV2 = factory(root.NetHackPublicBlockers);
-}(typeof globalThis !== 'undefined' ? globalThis : this, function factory(PublicBlockers = {}) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./public-blockers'), require('./public-item-knowledge'));
+  else root.NetHackUiProtocolV2 = factory(root.NetHackPublicBlockers, root.NetHackPublicItemKnowledge);
+}(typeof globalThis !== 'undefined' ? globalThis : this, function factory(PublicBlockers = {}, PublicItemKnowledge = {}) {
   const protocol = 'nethack-electron-ui/v2';
   const schemaVersion = 2;
 
@@ -11,6 +11,7 @@
     'prompt.opened', 'prompt.answered', 'prompt.closed',
     'inventory.snapshot', 'inventory.delta',
     'equipment.snapshot', 'equipment.delta',
+    'spell.rows', 'skill.rows',
     'action.affordances',
     'command.accepted', 'command.rejected', 'command.completed',
     'transaction.completed', 'transaction.interrupted',
@@ -73,6 +74,20 @@
   const itemLocations = new Set(['inventory', 'equipment', 'ground', 'container', 'unknown']);
   const equipmentSlotIds = new Set(['mainHand', 'offHand', 'quiver', 'armor.body', 'armor.cloak', 'armor.shirt', 'armor.helm', 'armor.gloves', 'armor.boots', 'armor.shield', 'amulet', 'ring.left', 'ring.right', 'eyes']);
   const publicEquipmentStatuses = new Set(['empty', 'equipped', 'blocked', 'unknown']);
+  const publicItemClasses = new Set(['weapon', 'armor', 'food', 'potion', 'scroll', 'spellbook', 'wand', 'ring', 'amulet', 'tool', 'gem', 'coin', 'other']);
+  const publicItemFilterGroups = new Set(['equipped', 'weapons', 'armor', 'consumables', 'magic']);
+  const publicItemOwnershipStates = new Set(['owned', 'unpaid', 'for-sale']);
+  const publicKnownFieldKeys = new Set(['beatitude', 'charges', 'enchantment', 'weight', 'erosion', 'corrosion', 'poisoned']);
+  const publicBeatitudes = new Set(['blessed', 'uncursed', 'cursed']);
+  const classificationConfidences = new Set(['typed', 'fallback']);
+  const publicSkillRanks = new Set(['Unskilled', 'Basic', 'Skilled', 'Expert', 'Master', 'Grand Master']);
+  const publicClassFilterGroups = Object.freeze({
+    weapon: new Set(['weapons']), armor: new Set(['armor']), food: new Set(['consumables']), potion: new Set(['consumables', 'magic']), scroll: new Set(['consumables', 'magic']), spellbook: new Set(['magic']), wand: new Set(['magic']), ring: new Set(['magic']), amulet: new Set(['magic']), tool: new Set(), gem: new Set(), coin: new Set(), other: new Set(),
+  });
+  const publicClassEquipmentSlots = Object.freeze({
+    weapon: new Set(['mainHand', 'offHand', 'quiver']), armor: new Set(Array.from(equipmentSlotIds).filter((slot) => slot.startsWith('armor.'))), ring: new Set(['ring.left', 'ring.right']), amulet: new Set(['amulet']), tool: new Set(['mainHand', 'offHand', 'eyes']),
+    food: new Set(), potion: new Set(), scroll: new Set(), spellbook: new Set(), wand: new Set(), gem: new Set(), coin: new Set(), other: new Set(),
+  });
   const transferDirections = new Set(['ground-to-inventory', 'inventory-to-ground', 'container-to-inventory', 'inventory-to-container']);
   const transferSessionKinds = new Set(['ground-pickup', 'container']);
   const commandBlockerTokens = new Set([
@@ -118,8 +133,11 @@
   function validateSource(value, path, errors) {
     if (value == null) return;
     if (!isPlainObject(value)) return add(errors, path, 'must be an object');
+    validateAllowedKeys(value, path, new Set(['layer', 'window', 'event', 'reason', 'source', 'authoritative']), errors);
     if (value.layer != null && (!isString(value.layer) || !sourceLayers.has(value.layer))) add(errors, `${path}.layer`, `must be one of ${Array.from(sourceLayers).join(', ')}`);
     if (value.window != null && !isNonNegativeInteger(value.window)) add(errors, `${path}.window`, 'must be a non-negative integer');
+    for (const key of ['event', 'reason', 'source']) if (value[key] != null && (typeof value[key] !== 'string' || !/^[A-Za-z0-9_.:-]+$/.test(value[key]))) add(errors, `${path}.${key}`, 'must be an opaque public source token');
+    if (value.authoritative != null && typeof value.authoritative !== 'boolean') add(errors, `${path}.authoritative`, 'must be boolean when present');
   }
 
   function validateAllowedKeys(value, path, allowed, errors) {
@@ -135,6 +153,14 @@
     if (!isString(value.kind)) add(errors, `${path}.kind`, 'is required');
     if (value.window != null && !isNonNegativeInteger(value.window)) add(errors, `${path}.window`, 'must be a non-negative integer when present');
     if (value.label != null && typeof value.label !== 'string') add(errors, `${path}.label`, 'must be a string when present');
+  }
+
+  function validateActiveInputOwner(value, path, errors) {
+    if (value == null) return;
+    if (!isPlainObject(value)) return add(errors, path, 'must be an object');
+    validateAllowedKeys(value, path, new Set(['kind', 'requestId', 'transactionId', 'label', 'lifecycle', 'source', 'window']), errors);
+    for (const key of ['kind', 'requestId', 'transactionId', 'label', 'lifecycle', 'source']) if (value[key] != null && typeof value[key] !== 'string') add(errors, `${path}.${key}`, 'must be a string when present');
+    if (value.window != null && !isNonNegativeInteger(value.window)) add(errors, `${path}.window`, 'must be a non-negative integer when present');
   }
 
   function validateRequestSource(value, path, errors) {
@@ -158,12 +184,71 @@
     validateRequestSource(payload.requestSource, `${path}.requestSource`, errors);
   }
 
+  function validatePublicSelector(value, path, errors) {
+    if (value == null) return;
+    if (typeof value !== 'string' || value.length !== 1 || value.charCodeAt(0) < 32 || value.charCodeAt(0) > 126) add(errors, path, 'must be one public printable selector character when present');
+  }
+
+  function validateSpellOrSkillRows(eventType, payload, path, errors) {
+    const spell = eventType === 'spell.rows';
+    validateAllowedKeys(payload, path, new Set(['menuId', 'revision', 'classificationConfidence', 'rows']), errors);
+    if (!isString(payload.menuId)) add(errors, `${path}.menuId`, 'is required');
+    if (!isNonNegativeInteger(payload.revision)) add(errors, `${path}.revision`, 'is required and must be a non-negative integer');
+    if (!classificationConfidences.has(payload.classificationConfidence)) add(errors, `${path}.classificationConfidence`, 'must be typed or fallback');
+    if (!Array.isArray(payload.rows)) return add(errors, `${path}.rows`, 'is required and must be an array');
+    const selectors = new Set();
+    const names = new Set();
+    payload.rows.forEach((row, index) => {
+      const rowPath = `${path}.rows[${index}]`;
+      if (!isPlainObject(row)) return add(errors, rowPath, 'must be an object');
+      const allowed = spell
+        ? new Set(['name', 'selector', 'level', 'pwCost', 'failure', 'status'])
+        : new Set(['name', 'selector', 'currentRank', 'nextRank', 'nextCost', 'canAdvance']);
+      validateAllowedKeys(row, rowPath, allowed, errors);
+      if (!isString(row.name)) add(errors, `${rowPath}.name`, 'is required');
+      else {
+        const normalizedName = row.name.trim().toLocaleLowerCase();
+        if (names.has(normalizedName)) add(errors, `${rowPath}.name`, 'must be unique in an authoritative row collection');
+        names.add(normalizedName);
+      }
+      validatePublicSelector(row.selector, `${rowPath}.selector`, errors);
+      if (row.selector != null) {
+        if (selectors.has(row.selector)) add(errors, `${rowPath}.selector`, 'must be unique in an authoritative row collection');
+        selectors.add(row.selector);
+      }
+      if (spell) {
+        if (row.level != null && (!isInteger(row.level) || row.level < 0 || row.level > 99)) add(errors, `${rowPath}.level`, 'must be an integer from 0 to 99 when present');
+        if (row.pwCost != null && !isNonNegativeInteger(row.pwCost)) add(errors, `${rowPath}.pwCost`, 'must be a non-negative integer when present');
+        if (row.failure != null && (!isInteger(row.failure) || row.failure < 0 || row.failure > 100)) add(errors, `${rowPath}.failure`, 'must be an integer percentage from 0 to 100 when present');
+        if (row.status != null && !isString(row.status)) add(errors, `${rowPath}.status`, 'must be a non-empty public string when present');
+      } else {
+        if (!publicSkillRanks.has(row.currentRank)) add(errors, `${rowPath}.currentRank`, `must be one of ${Array.from(publicSkillRanks).join(', ')}`);
+        if (row.nextRank != null && !publicSkillRanks.has(row.nextRank)) add(errors, `${rowPath}.nextRank`, `must be one of ${Array.from(publicSkillRanks).join(', ')}`);
+        if (row.nextCost != null && (!isInteger(row.nextCost) || row.nextCost <= 0)) add(errors, `${rowPath}.nextCost`, 'must be a positive integer when present');
+        if (typeof row.canAdvance !== 'boolean') add(errors, `${rowPath}.canAdvance`, 'is required and must be boolean');
+        if (row.selector != null && row.canAdvance !== true) add(errors, `${rowPath}.selector`, 'requires canAdvance true');
+        if ((row.nextRank != null || row.nextCost != null) && row.canAdvance !== true) add(errors, rowPath, 'next rank and cost require canAdvance true');
+      }
+    });
+  }
+
   function validateTargetCollection(value, path, errors) {
     if (value == null) return;
     if (!isPlainObject(value) && !Array.isArray(value)) add(errors, path, 'must be an object or array');
   }
 
-  const allowedKnownFlagKeys = new Set(['identity', 'appearance', 'quantity']);
+  function validateNestedPublicItemLabels(value, path, errors, seen = new Set()) {
+    if (!value || typeof value !== 'object' || seen.has(value)) return;
+    seen.add(value);
+    if (Array.isArray(value)) return value.forEach((entry, index) => validateNestedPublicItemLabels(entry, `${path}[${index}]`, errors, seen));
+    const rawLabel = value.displayName || value.text || value.name || value.itemName || value.targetText;
+    if (rawLabel != null) {
+      validateUnknownIdentityDisplay({ ...value, displayName: PublicItemKnowledge.stripSelector(rawLabel, value) || 'item' }, path, errors);
+    }
+    for (const [key, entry] of Object.entries(value)) validateNestedPublicItemLabels(entry, `${path}.${key}`, errors, seen);
+  }
+
+  const allowedKnownFlagKeys = new Set(['identity', 'appearance', 'quantity', 'naming']);
   function validateKnownFlags(value, path, errors) {
     if (value == null) return;
     if (typeof value === 'boolean') return;
@@ -174,7 +259,7 @@
     }
   }
 
-  const forbiddenPublicItemFields = new Set(['baseType', 'beatitude', 'enchantment', 'charges', 'curseState', 'cursed', 'blessed', 'buc', 'trapped', 'trapState', 'contents', 'trueName', 'objectType', 'otyp', 'spe', 'remainingCharges']);
+  const forbiddenPublicItemFields = new Set(['baseType', 'beatitude', 'enchantment', 'charges', 'weight', 'curseState', 'cursed', 'blessed', 'buc', 'trapped', 'trapState', 'contents', 'trueName', 'objectType', 'otyp', 'spe', 'remainingCharges']);
   const forbiddenPublicActionTokens = new Set(['container.locked', 'container.trapped', 'container.broken', 'locked', 'trapped', 'broken']);
   const hiddenContainerTextPattern = /\b(?:locked|trapped|broken)\b(?!-looking)|\bcontaining\s+\d+\s+items?\b/i;
   const containerSurfacePattern = /\b(?:chest|box|bag|sack|container)\b/i;
@@ -183,11 +268,53 @@
   const publicEquipmentBlockerLabel = typeof PublicBlockers.publicEquipmentBlockerLabel === 'function'
     ? PublicBlockers.publicEquipmentBlockerLabel
     : ((token) => (PublicBlockers.publicEquipmentBlockerLabels || {})[String(token || '')] || '');
-  const allowedPublicItemFields = new Set(['objectId', 'inventoryLetter', 'displayName', 'appearanceName', 'quantity', 'known', 'location', 'actionAffordances', 'publicActionHints', 'objectClass', 'glyph', 'glyphChar', 'wornMask', 'semanticKind', 'semanticName', 'semanticAppearance', 'semanticKnown']);
+  const allowedPublicItemFields = new Set(['objectId', 'inventoryLetter', 'displayName', 'appearanceName', 'quantity', 'known', 'location', 'actionAffordances', 'publicActionHints', 'objectClass', 'glyph', 'glyphChar', 'wornMask', 'semanticKind', 'semanticName', 'semanticAppearance', 'semanticKnown', 'publicClass', 'filterGroups', 'equipmentSlots', 'knownFields', 'ownership', 'calledName', 'individualName']);
   function validatePublicStringArray(value, path, errors) {
     if (value == null) return;
     if (!Array.isArray(value)) return add(errors, path, 'must be an array when present');
     value.forEach((item, index) => { if (typeof item !== 'string') add(errors, `${path}[${index}]`, 'must be a public string token'); });
+  }
+
+  function validatePublicKnownFields(value, path, errors, publicClass) {
+    if (value == null) return;
+    if (!isPlainObject(value)) return add(errors, path, 'must be an object when present');
+    validateAllowedKeys(value, path, publicKnownFieldKeys, errors);
+    if (value.beatitude != null && !publicBeatitudes.has(value.beatitude)) add(errors, `${path}.beatitude`, `must be one of ${Array.from(publicBeatitudes).join(', ')}`);
+    for (const key of ['charges', 'weight', 'erosion', 'corrosion']) if (value[key] != null && !isNonNegativeInteger(value[key])) add(errors, `${path}.${key}`, 'must be a non-negative integer when present');
+    if (value.enchantment != null && (!isInteger(value.enchantment) || value.enchantment < -99 || value.enchantment > 99)) add(errors, `${path}.enchantment`, 'must be an integer from -99 to 99 when present');
+    if (value.poisoned != null && typeof value.poisoned !== 'boolean') add(errors, `${path}.poisoned`, 'must be boolean when present');
+    const classAllows = (key, allowed) => {
+      if (value[key] != null && (!publicClass || !allowed.includes(publicClass))) add(errors, `${path}.${key}`, 'is not applicable to the declared publicClass');
+    };
+    classAllows('charges', ['wand', 'tool']);
+    classAllows('enchantment', ['weapon', 'armor', 'ring', 'tool']);
+    classAllows('erosion', ['weapon', 'armor']);
+    classAllows('corrosion', ['weapon', 'armor']);
+    classAllows('poisoned', ['weapon']);
+  }
+
+  function validatePublicOwnership(value, path, errors) {
+    if (value == null) return;
+    if (!isPlainObject(value)) return add(errors, path, 'must be an object when present');
+    validateAllowedKeys(value, path, new Set(['state', 'price', 'currency']), errors);
+    if (!publicItemOwnershipStates.has(value.state)) add(errors, `${path}.state`, `must be one of ${Array.from(publicItemOwnershipStates).join(', ')}`);
+    if (value.price != null && !isNonNegativeInteger(value.price)) add(errors, `${path}.price`, 'must be a non-negative integer when present');
+    if (value.currency != null && !isString(value.currency)) add(errors, `${path}.currency`, 'must be a non-empty string when present');
+  }
+
+  function validateItemFilterGroups(item, path, errors) {
+    validatePublicStringArray(item.filterGroups, `${path}.filterGroups`, errors);
+    if (!Array.isArray(item.filterGroups)) return;
+    const seen = new Set();
+    item.filterGroups.forEach((group, index) => {
+      if (!publicItemFilterGroups.has(group)) add(errors, `${path}.filterGroups[${index}]`, `must be one of ${Array.from(publicItemFilterGroups).join(', ')}`);
+      if (seen.has(group)) add(errors, `${path}.filterGroups[${index}]`, 'must be unique');
+      seen.add(group);
+      if (group === 'equipped') {
+        if (!(Number.isInteger(item.wornMask) && item.wornMask > 0)) add(errors, `${path}.filterGroups[${index}]`, 'equipped requires a non-zero public wornMask');
+      } else if (!item.publicClass) add(errors, `${path}.filterGroups[${index}]`, 'requires publicClass so filters never infer identity from display text');
+      else if (!publicClassFilterGroups[item.publicClass]?.has(group)) add(errors, `${path}.filterGroups[${index}]`, 'is not a public filter for this publicClass');
+    });
   }
 
   function validateNoHiddenContainerText(value, path, errors) {
@@ -195,6 +322,24 @@
     if (containerSurfacePattern.test(value) && hiddenContainerTextPattern.test(value)) {
       add(errors, path, 'must not expose hidden container lock/trap/broken/content words unless recorded as a historical visible message');
     }
+  }
+  function normalizedPublicItemLabel(value) {
+    return String(value || '').replace(/^\s*[A-Za-z$]\s*[-+]\s*/, '').replace(/\s+/g, ' ').trim().toLocaleLowerCase();
+  }
+  function validateUnknownIdentityDisplay(item, path, errors) {
+    if (PublicItemKnowledge.identityIsPublic(item)) return;
+    const display = normalizedPublicItemLabel(item.displayName);
+    const appearance = normalizedPublicItemLabel(item.appearanceName || item.semanticAppearance);
+    const authorizedDisplay = normalizedPublicItemLabel(PublicItemKnowledge.publicDisplayLabel(item, { neutral: 'item' }));
+    if (item.known?.appearance === true) return;
+    if (item.known?.appearance === false) {
+      if (appearance) add(errors, `${path}.known.appearance`, 'false must redact contradictory appearance fields');
+      if (display !== 'item') add(errors, `${path}.displayName`, 'must be the neutral item label when identity or appearance authorization is absent');
+      return;
+    }
+    if (appearance) {
+      if (display !== appearance && display !== authorizedDisplay) add(errors, `${path}.displayName`, 'must equal the explicit public appearance plus any exact authorized player name unless known.appearance true authorizes generic display text');
+    } else if (display !== 'item') add(errors, `${path}.displayName`, 'generic display text requires explicit public identity or appearance authorization');
   }
 
   function validateEquipmentSlot(slot, path, errors) {
@@ -212,7 +357,12 @@
     });
     if (slot.publicStatus != null && (!isString(slot.publicStatus) || !publicEquipmentStatuses.has(slot.publicStatus))) add(errors, `${path}.publicStatus`, `must be one of ${Array.from(publicEquipmentStatuses).join(', ')}`);
     validatePublicStringArray(slot.actions, `${path}.actions`, errors);
-    if (slot.item != null) validatePublicItem(slot.item, `${path}.item`, errors);
+    if (slot.item != null) {
+      validatePublicItem(slot.item, `${path}.item`, errors);
+      if (slot.objectId != null && slot.item.objectId != null && slot.objectId !== slot.item.objectId) add(errors, `${path}.item.objectId`, 'must match slot.objectId');
+      if (slot.item.publicClass && !publicClassEquipmentSlots[slot.item.publicClass]?.has(slot.slotId)) add(errors, `${path}.item.publicClass`, 'is not compatible with the occupied slot');
+      if (slot.item.publicClass && Array.isArray(slot.item.equipmentSlots) && slot.item.equipmentSlots.length > 0 && !slot.item.equipmentSlots.includes(slot.slotId)) add(errors, `${path}.item.equipmentSlots`, 'must include the occupied slot');
+    }
   }
 
   function validatePublicLocation(location, path, errors) {
@@ -238,7 +388,7 @@
     validateNoHiddenContainerText(item.semanticAppearance, `${path}.semanticAppearance`, errors);
     validateNoHiddenContainerText(item.semanticName, `${path}.semanticName`, errors);
     if (item.appearanceName != null && typeof item.appearanceName !== 'string') add(errors, `${path}.appearanceName`, 'must be a string when present');
-    if (item.objectClass != null && typeof item.objectClass !== 'string') add(errors, `${path}.objectClass`, 'must be a string when present');
+    if (item.objectClass != null && (typeof item.objectClass !== 'string' || item.objectClass.length !== 1)) add(errors, `${path}.objectClass`, 'must be one public object-class character when present');
     if (item.glyph != null && !isNonNegativeInteger(item.glyph)) add(errors, `${path}.glyph`, 'must be a non-negative integer when present');
     if (item.glyphChar != null && !isNonNegativeInteger(item.glyphChar)) add(errors, `${path}.glyphChar`, 'must be a non-negative integer when present');
     if (item.wornMask != null && !isNonNegativeInteger(item.wornMask)) add(errors, `${path}.wornMask`, 'must be a non-negative integer when present');
@@ -246,7 +396,24 @@
     if (item.semanticKnown != null && typeof item.semanticKnown !== 'boolean') add(errors, `${path}.semanticKnown`, 'must be boolean when present');
     if (item.semanticAppearance != null && typeof item.semanticAppearance !== 'string') add(errors, `${path}.semanticAppearance`, 'must be a string when present');
     if (item.semanticName != null && typeof item.semanticName !== 'string') add(errors, `${path}.semanticName`, 'must be a string when present');
-    if (item.semanticName != null && String(item.semanticName).trim() && item.semanticKnown !== true && item.known?.identity !== true) add(errors, `${path}.semanticName`, 'must be omitted unless identity is public/known; use displayName, appearanceName, or semanticAppearance');
+    validateUnknownIdentityDisplay(item, path, errors);
+    if (item.semanticKnown === false && item.known?.identity === true) add(errors, `${path}.known.identity`, 'must not contradict semanticKnown false');
+    if (item.semanticKnown === true && item.known?.identity === false) add(errors, `${path}.known.identity`, 'must not contradict semanticKnown true');
+    if (item.semanticName != null && String(item.semanticName).trim() && (item.semanticKnown === false || item.known?.identity === false || (item.semanticKnown !== true && item.known?.identity !== true))) add(errors, `${path}.semanticName`, 'must be omitted unless identity is consistently public/known; use displayName, appearanceName, or semanticAppearance');
+    if (item.publicClass != null && !publicItemClasses.has(item.publicClass)) add(errors, `${path}.publicClass`, `must be one of ${Array.from(publicItemClasses).join(', ')}`);
+    validateItemFilterGroups(item, path, errors);
+    validatePublicStringArray(item.equipmentSlots, `${path}.equipmentSlots`, errors);
+    if (Array.isArray(item.equipmentSlots)) item.equipmentSlots.forEach((slot, index) => {
+      if (!equipmentSlotIds.has(slot)) add(errors, `${path}.equipmentSlots[${index}]`, `must be one of ${Array.from(equipmentSlotIds).join(', ')}`);
+      else if (item.publicClass && !publicClassEquipmentSlots[item.publicClass]?.has(slot)) add(errors, `${path}.equipmentSlots[${index}]`, 'is not compatible with the declared publicClass');
+    });
+    validatePublicKnownFields(item.knownFields, `${path}.knownFields`, errors, item.publicClass);
+    validatePublicOwnership(item.ownership, `${path}.ownership`, errors);
+    for (const key of ['calledName', 'individualName']) if (item[key] != null) {
+      if (!isString(item[key])) add(errors, `${path}.${key}`, 'must be a non-empty public string when present');
+      else if (item.known?.naming !== true) add(errors, `${path}.${key}`, 'requires explicit public naming knowledge');
+      else if (PublicItemKnowledge.publicNamingValue(item, key) !== item[key]) add(errors, `${path}.${key}`, 'must satisfy the explicit public naming contract without smuggling identity');
+    }
     if (item.quantity != null && (!isInteger(item.quantity) || item.quantity < 0)) add(errors, `${path}.quantity`, 'must be a non-negative integer when present');
     if (item.known != null) validateKnownFlags(item.known, `${path}.known`, errors);
     if (item.location != null) validatePublicLocation(item.location, `${path}.location`, errors);
@@ -254,12 +421,29 @@
     validatePublicStringArray(item.publicActionHints, `${path}.publicActionHints`, errors);
     for (const [field, values] of [['actionAffordances', item.actionAffordances], ['publicActionHints', item.publicActionHints]]) {
       if (Array.isArray(values)) values.forEach((token, index) => {
+        if (typeof token !== 'string' || !/^[A-Za-z0-9_.:-]+$/.test(token)) add(errors, `${path}.${field}[${index}]`, 'must be an opaque public action token');
         if (forbiddenPublicActionTokens.has(String(token || ''))) add(errors, `${path}.${field}[${index}]`, 'must not expose hidden lock/trap/broken state as an action token');
       });
     }
   }
 
-  const allowedMenuItemFields = new Set(['selector', 'text', 'index', 'glyph', 'glyphChar', 'semanticKind', 'semanticName', 'semanticAppearance', 'semanticKnown', 'actionAffordances']);
+  function validateUniquePublicItems(items, path, errors) {
+    if (!Array.isArray(items)) return;
+    const objectIds = new Set();
+    const letters = new Set();
+    items.forEach((item, index) => {
+      if (item?.objectId != null) {
+        if (objectIds.has(item.objectId)) add(errors, `${path}[${index}].objectId`, 'must be unique in an authoritative item collection');
+        objectIds.add(item.objectId);
+      }
+      if (item?.inventoryLetter) {
+        if (letters.has(item.inventoryLetter)) add(errors, `${path}[${index}].inventoryLetter`, 'must be unique in an authoritative item collection');
+        letters.add(item.inventoryLetter);
+      }
+    });
+  }
+
+  const allowedMenuItemFields = new Set(['selector', 'text', 'index', 'glyph', 'glyphChar', 'semanticKind', 'semanticName', 'semanticAppearance', 'semanticKnown', 'known', 'calledName', 'individualName', 'actionAffordances']);
   function validatePublicMenuItem(item, path, errors) {
     if (!isPlainObject(item)) return add(errors, path, 'is required');
     for (const key of Object.keys(item)) {
@@ -275,11 +459,60 @@
     if (item.semanticKnown != null && typeof item.semanticKnown !== 'boolean') add(errors, `${path}.semanticKnown`, 'must be boolean when present');
     if (item.semanticAppearance != null && typeof item.semanticAppearance !== 'string') add(errors, `${path}.semanticAppearance`, 'must be a string when present');
     if (item.semanticName != null && typeof item.semanticName !== 'string') add(errors, `${path}.semanticName`, 'must be a string when present');
-    if (item.semanticName != null && String(item.semanticName).trim() && item.semanticKnown !== true) add(errors, `${path}.semanticName`, 'must be omitted unless semanticKnown is true; use semanticAppearance/text only');
+    if (item.known != null) validateKnownFlags(item.known, `${path}.known`, errors);
+    if (item.semanticKnown === false && item.known?.identity === true) add(errors, `${path}.known.identity`, 'must not contradict semanticKnown false');
+    if (item.semanticKnown === true && item.known?.identity === false) add(errors, `${path}.known.identity`, 'must not contradict semanticKnown true');
+    if (item.semanticName != null && String(item.semanticName).trim() && !PublicItemKnowledge.identityIsPublic(item)) add(errors, `${path}.semanticName`, 'must be omitted unless identity is explicitly public; use semanticAppearance/text only');
+    if (PublicItemKnowledge.isObjectMenuItem(item) && !PublicItemKnowledge.identityIsPublic(item)) {
+      const display = normalizedPublicItemLabel(item.text);
+      const appearance = normalizedPublicItemLabel(item.semanticAppearance);
+      if (item.known?.appearance === false) {
+        if (appearance) add(errors, `${path}.known.appearance`, 'false must redact contradictory semanticAppearance');
+        if (display !== 'item') add(errors, `${path}.text`, 'must use a neutral item label when appearance authorization is false');
+      } else if (item.known?.appearance !== true) {
+        const authorizedDisplay = normalizedPublicItemLabel(PublicItemKnowledge.publicDisplayLabel({ ...item, displayName: item.text }, { neutral: 'item' }));
+        if (appearance ? (display !== appearance && display !== authorizedDisplay) : display !== 'item') add(errors, `${path}.text`, 'must use explicit semanticAppearance plus any exact authorized player name or a neutral item label when identity authorization is absent');
+      }
+    }
+    for (const key of ['calledName', 'individualName']) if (item[key] != null) {
+      if (!isString(item[key])) add(errors, `${path}.${key}`, 'must be a non-empty public string when present');
+      else if (item.known?.naming !== true) add(errors, `${path}.${key}`, 'requires explicit public naming knowledge');
+      else if (PublicItemKnowledge.publicNamingValue({ ...item, displayName: item.text }, key) !== item[key]) add(errors, `${path}.${key}`, 'must satisfy the explicit public naming contract without smuggling identity');
+    }
     validatePublicStringArray(item.actionAffordances, `${path}.actionAffordances`, errors);
   }
 
   const allowedActionFields = new Set(['actionId', 'label', 'section', 'enabled', 'disabledReason', 'disabledReasonToken', 'disabledReasonLabel', 'dangerLevel', 'blockerTokens', 'blockerLabels', 'params', 'promptPlan', 'execution', 'consumesTurn', 'source', 'targets']);
+  const allowedAffordanceTargetFields = new Set(['selector', 'inventoryLetter', 'objectId', 'itemId', 'containerId', 'slotId', 'publicId', 'displayName', 'appearanceName', 'semanticAppearance', 'semanticKnown', 'known', 'location', 'coord']);
+  const allowedActionParamFields = new Set(['ringHand', 'targetRingHand', 'autoAnswerHand', 'afterActionId', 'afterLabel', 'slotIds']);
+  const allowedActionExecutionFields = new Set(['route', 'action', 'keys']);
+
+  function validateAffordanceTargets(value, path, errors) {
+    if (Array.isArray(value)) return value.forEach((target, index) => validateAffordanceTargets(target, `${path}[${index}]`, errors));
+    if (!isPlainObject(value)) return add(errors, path, 'must contain only structured public targets');
+    validateAllowedKeys(value, path, allowedAffordanceTargetFields, errors);
+    if ((value.semanticAppearance != null || value.appearanceName != null) && value.displayName == null) add(errors, `${path}.displayName`, 'is required when public appearance text is present');
+    if (value.publicId != null && (typeof value.publicId !== 'string' || !/^[A-Za-z0-9_.:-]+$/.test(value.publicId))) add(errors, `${path}.publicId`, 'must be an opaque public identifier token');
+    if (value.location != null) validatePublicLocation(value.location, `${path}.location`, errors);
+    if (value.coord != null) validateCoord(value.coord, `${path}.coord`, errors);
+    validateNestedPublicItemLabels(value, path, errors);
+  }
+
+  function validateActionParams(value, path, errors) {
+    if (!isPlainObject(value)) return add(errors, path, 'must be an object');
+    validateAllowedKeys(value, path, allowedActionParamFields, errors);
+    for (const [key, entry] of Object.entries(value)) {
+      if (key === 'slotIds') validatePublicStringArray(entry, `${path}.${key}`, errors);
+      else if (!['string', 'boolean'].includes(typeof entry)) add(errors, `${path}.${key}`, 'must be a string or boolean');
+    }
+  }
+
+  function validateActionExecution(value, path, errors) {
+    if (!isPlainObject(value)) return add(errors, path, 'must be an object');
+    validateAllowedKeys(value, path, allowedActionExecutionFields, errors);
+    for (const [key, entry] of Object.entries(value)) if (typeof entry !== 'string') add(errors, `${path}.${key}`, 'must be a string');
+  }
+
   function validateAction(action, path, errors) {
     if (!isPlainObject(action)) return add(errors, path, 'must be an object');
     validateAllowedKeys(action, path, allowedActionFields, errors);
@@ -324,30 +557,49 @@
         if (action.blockerLabels[index] != null && String(action.blockerLabels[index] || '') !== expected) add(errors, `${path}.blockerLabels[${index}]`, 'must match the canonical public label for blockerTokens entry');
       });
     }
-    if (action.targets != null) validateTargetCollection(action.targets, `${path}.targets`, errors);
+    if (action.targets != null) validateAffordanceTargets(action.targets, `${path}.targets`, errors);
+    if (action.params != null) validateActionParams(action.params, `${path}.params`, errors);
+    if (action.execution != null) validateActionExecution(action.execution, `${path}.execution`, errors);
+    if (action.promptPlan != null && typeof action.promptPlan !== 'string') validatePublicStringArray(action.promptPlan, `${path}.promptPlan`, errors);
+    for (const key of ['section', 'dangerLevel', 'consumesTurn']) if (action[key] != null && typeof action[key] !== 'string') add(errors, `${path}.${key}`, 'must be a string when present');
+    if (action.source != null && (typeof action.source !== 'string' || !/^[A-Za-z0-9_.:-]+$/.test(action.source))) add(errors, `${path}.source`, 'must be an opaque public source token');
   }
 
   function validateCoord(value, path, errors) {
     if (!isPlainObject(value)) return add(errors, path, 'must be an object');
+    validateAllowedKeys(value, path, new Set(['x', 'y']), errors);
     if (!isNonNegativeInteger(value.x)) add(errors, `${path}.x`, 'must be a non-negative integer');
     if (!isNonNegativeInteger(value.y)) add(errors, `${path}.y`, 'must be a non-negative integer');
   }
 
   function validatePublicContainerIdentity(value, path, errors) {
     if (!isPlainObject(value)) return add(errors, path, 'must be an object');
-    validateAllowedKeys(value, path, new Set(['publicId', 'displayName', 'objectId']), errors);
+    validateAllowedKeys(value, path, new Set(['publicId', 'displayName', 'objectId', 'appearanceName', 'semanticAppearance', 'semanticKnown', 'known']), errors);
     if (!isString(value.publicId)) add(errors, `${path}.publicId`, 'is required');
-    if (value.displayName != null && typeof value.displayName !== 'string') add(errors, `${path}.displayName`, 'must be a string when present');
+    else if (!/^[A-Za-z0-9_.:-]+$/.test(value.publicId)) add(errors, `${path}.publicId`, 'must be an opaque public identifier token');
+    if (!isString(value.displayName)) add(errors, `${path}.displayName`, 'is required');
+    if (value.appearanceName != null && typeof value.appearanceName !== 'string') add(errors, `${path}.appearanceName`, 'must be a string when present');
+    if (value.semanticAppearance != null && typeof value.semanticAppearance !== 'string') add(errors, `${path}.semanticAppearance`, 'must be a string when present');
+    if (value.semanticKnown != null && typeof value.semanticKnown !== 'boolean') add(errors, `${path}.semanticKnown`, 'must be boolean when present');
+    if (value.known != null) validateKnownFlags(value.known, `${path}.known`, errors);
+    if (value.displayName != null) validateUnknownIdentityDisplay(value, path, errors);
     if (value.objectId != null && !isNonNegativeInteger(value.objectId)) add(errors, `${path}.objectId`, 'must be a non-negative integer when present');
   }
 
   function validateTransferRow(row, path, errors) {
     if (!isPlainObject(row)) return add(errors, path, 'must be an object');
-    validateAllowedKeys(row, path, new Set(['selector', 'key', 'text', 'displayName', 'objectId', 'quantity']), errors);
-    if (row.selector != null && typeof row.selector !== 'string') add(errors, `${path}.selector`, 'must be a string when present');
-    if (row.key != null && typeof row.key !== 'string') add(errors, `${path}.key`, 'must be a string when present');
+    validateAllowedKeys(row, path, new Set(['selector', 'key', 'text', 'displayName', 'objectId', 'quantity', 'appearanceName', 'semanticAppearance', 'semanticKnown', 'known']), errors);
+    if (row.selector != null && (typeof row.selector !== 'string' || !/^[A-Za-z0-9_.:$-]+$/.test(row.selector))) add(errors, `${path}.selector`, 'must be an opaque public selector token when present');
+    if (row.key != null && (typeof row.key !== 'string' || row.key.length !== 1)) add(errors, `${path}.key`, 'must be one public selector character when present');
     if (row.text != null && typeof row.text !== 'string') add(errors, `${path}.text`, 'must be a string when present');
     if (row.displayName != null && typeof row.displayName !== 'string') add(errors, `${path}.displayName`, 'must be a string when present');
+    if (row.appearanceName != null && typeof row.appearanceName !== 'string') add(errors, `${path}.appearanceName`, 'must be a string when present');
+    if (row.semanticAppearance != null && typeof row.semanticAppearance !== 'string') add(errors, `${path}.semanticAppearance`, 'must be a string when present');
+    if (row.semanticKnown != null && typeof row.semanticKnown !== 'boolean') add(errors, `${path}.semanticKnown`, 'must be boolean when present');
+    if (row.known != null) validateKnownFlags(row.known, `${path}.known`, errors);
+    const rawLabel = row.displayName || row.text;
+    if ((row.semanticAppearance != null || row.appearanceName != null) && rawLabel == null) add(errors, `${path}.displayName`, 'is required when public appearance text is present');
+    if (rawLabel != null) validateUnknownIdentityDisplay({ ...row, displayName: PublicItemKnowledge.stripSelector(rawLabel, row) || 'item' }, path, errors);
     if (row.objectId != null && !isNonNegativeInteger(row.objectId)) add(errors, `${path}.objectId`, 'must be a non-negative integer when present');
     if (row.quantity != null && (!isInteger(row.quantity) || row.quantity < 0)) add(errors, `${path}.quantity`, 'must be a non-negative integer when present');
   }
@@ -381,12 +633,18 @@
   function validateTransferPendingSelection(value, path, errors) {
     if (value == null) return;
     if (!isPlainObject(value)) return add(errors, path, 'must be an object when present');
-    validateAllowedKeys(value, path, new Set(['action', 'selector', 'sourceSide', 'targetSide', 'itemName', 'transferId', 'requestId', 'expectedRequestId', 'reason', 'at']), errors);
+    validateAllowedKeys(value, path, new Set(['action', 'selector', 'sourceSide', 'targetSide', 'itemName', 'item', 'transferId', 'requestId', 'expectedRequestId', 'reason', 'at']), errors);
     if (value.action !== 'out' && value.action !== 'in') add(errors, `${path}.action`, 'must be out or in');
     if (!isString(value.selector)) add(errors, `${path}.selector`, 'is required');
     validateTransferSide(value.sourceSide, `${path}.sourceSide`, errors);
     validateTransferSide(value.targetSide, `${path}.targetSide`, errors);
     for (const key of ['itemName', 'transferId', 'requestId', 'expectedRequestId', 'reason']) if (value[key] != null && typeof value[key] !== 'string') add(errors, `${path}.${key}`, 'must be a string when present');
+    if (value.item != null) validatePublicItem(value.item, `${path}.item`, errors);
+    if (isString(value.itemName)) {
+      const itemLabel = value.item ? PublicItemKnowledge.publicLabel(value.item, { neutral: 'item' }) : '';
+      const comparable = (label) => PublicItemKnowledge.stripSelector(label, value.item || value).toLocaleLowerCase().replace(/^\s*(?:(?:a|an|the|some)|\d+)\s+/i, '').trim();
+      if (!value.item || comparable(itemLabel) !== comparable(value.itemName)) add(errors, `${path}.itemName`, 'must match an explicitly authorized public item');
+    }
     if (value.at != null && !isNonNegativeInteger(value.at)) add(errors, `${path}.at`, 'must be a non-negative integer when present');
   }
 
@@ -436,6 +694,7 @@
       else value.updated.forEach((entry, index) => {
         if (!isPlainObject(entry)) add(errors, `${path}.updated[${index}]`, 'must be an object');
         else {
+          validateAllowedKeys(entry, `${path}.updated[${index}]`, new Set(['before', 'after']), errors);
           if (entry.before != null) validatePublicItem(entry.before, `${path}.updated[${index}].before`, errors);
           if (entry.after != null) validatePublicItem(entry.after, `${path}.updated[${index}].after`, errors);
         }
@@ -473,6 +732,13 @@
       if (!transferDirections.has(payload.direction)) add(errors, `${path}.direction`, `must be one of ${Array.from(transferDirections).join(', ')}`);
       for (const key of ['sourceSide', 'targetSide', 'selector', 'itemName', 'expectedRequestId']) if (payload[key] != null && typeof payload[key] !== 'string') add(errors, `${path}.${key}`, 'must be a string when present');
       validateTransferPanes(payload.beforePanes, `${path}.beforePanes`, errors);
+      if (isString(payload.itemName)) {
+        const sourceRows = payload.sourceSide === 'right' ? payload.beforePanes?.right : payload.beforePanes?.left;
+        const row = Array.isArray(sourceRows) ? sourceRows.find((entry) => String(entry?.selector || entry?.key || '') === String(payload.selector || '')) : null;
+        const rowLabel = row ? PublicItemKnowledge.publicLabel({ ...row, displayName: row.displayName || row.text }, { neutral: 'item' }) : '';
+        const comparable = (label) => PublicItemKnowledge.stripSelector(label, row || {}).toLocaleLowerCase().replace(/^\s*(?:(?:a|an|the|some)|\d+)\s+/i, '').trim();
+        if (!row || comparable(rowLabel) !== comparable(payload.itemName)) add(errors, `${path}.itemName`, 'must match an explicitly authorized source row');
+      }
       if (payload.groundCoord != null) validateCoord(payload.groundCoord, `${path}.groundCoord`, errors);
       if (payload.coord != null) validateCoord(payload.coord, `${path}.coord`, errors);
       if (payload.container != null) validatePublicContainerIdentity(payload.container, `${path}.container`, errors);
@@ -481,6 +747,8 @@
     if (eventType === 'transfer.confirmed') {
       validateAllowedKeys(payload, path, new Set(['transferId', 'kind', 'name', 'requestId', 'menuRequestId', 'accepted']), errors);
       if (!isString(payload.transferId)) add(errors, `${path}.transferId`, 'is required');
+      if (payload.name != null && (typeof payload.name !== 'string' || !/^[A-Za-z0-9_.:-]+$/.test(payload.name))) add(errors, `${path}.name`, 'must be an opaque public event token');
+      if (payload.kind != null && (typeof payload.kind !== 'string' || !/^[A-Za-z0-9_.:-]+$/.test(payload.kind))) add(errors, `${path}.kind`, 'must be an opaque public event token');
       if (payload.accepted != null && typeof payload.accepted !== 'boolean') add(errors, `${path}.accepted`, 'must be boolean when present');
       return;
     }
@@ -535,16 +803,17 @@
   function validateCommandAckResult(value, path, errors) {
     if (value == null) return;
     if (!isPlainObject(value)) return add(errors, path, 'must be an object when present');
-    validateAllowedKeys(value, path, new Set(['status', 'kind', 'reason', 'actionId', 'actionLabel', 'target', 'inventoryRevision', 'equipmentRevision', 'delta']), errors);
+    validateAllowedKeys(value, path, new Set(['status', 'kind', 'reason', 'action', 'actionId', 'actionLabel', 'itemId', 'target', 'inventoryRevision', 'equipmentRevision']), errors);
     if (value.status != null && typeof value.status !== 'string') add(errors, `${path}.status`, 'must be a string when present');
     if (value.kind != null && typeof value.kind !== 'string') add(errors, `${path}.kind`, 'must be a string when present');
     if (value.reason != null && typeof value.reason !== 'string') add(errors, `${path}.reason`, 'must be a string when present');
+    if (value.action != null && typeof value.action !== 'string') add(errors, `${path}.action`, 'must be a string when present');
     if (value.actionId != null && typeof value.actionId !== 'string') add(errors, `${path}.actionId`, 'must be a string when present');
+    if (value.itemId != null && !isNonNegativeInteger(value.itemId)) add(errors, `${path}.itemId`, 'must be a non-negative public id when present');
     if (value.actionLabel != null && typeof value.actionLabel !== 'string') add(errors, `${path}.actionLabel`, 'must be a string when present');
     if (value.target != null) validateActionExecuteTarget(value.target, `${path}.target`, errors);
     if (value.inventoryRevision != null && !isNonNegativeInteger(value.inventoryRevision)) add(errors, `${path}.inventoryRevision`, 'must be a non-negative integer when present');
     if (value.equipmentRevision != null && !isNonNegativeInteger(value.equipmentRevision)) add(errors, `${path}.equipmentRevision`, 'must be a non-negative integer when present');
-    if (value.delta != null && !isPlainObject(value.delta)) add(errors, `${path}.delta`, 'must be an object when present');
     validateNoForbiddenEvidenceFields(value, path, errors);
   }
 
@@ -553,6 +822,7 @@
     if (!isPlainObject(payload)) return add(errors, path, 'must be an object');
     switch (eventType) {
       case 'diagnostic.v1Compatibility':
+        validateAllowedKeys(payload, path, new Set(['reason', 'legacyEventName', 'legacyPath', 'fallback']), errors);
         if (!isString(payload.reason)) add(errors, `${path}.reason`, 'is required');
         if (!isString(payload.legacyEventName) && !isString(payload.legacyPath)) add(errors, path, 'requires legacyEventName or legacyPath');
         break;
@@ -586,20 +856,22 @@
         break;
       case 'prompt.answered':
       case 'prompt.closed':
+        validateAllowedKeys(payload, path, new Set(['promptId', 'answer', 'reason', 'requestId', 'transactionId']), errors);
         if (!isString(payload.promptId)) add(errors, `${path}.promptId`, 'is required');
+        for (const key of ['answer', 'reason', 'requestId', 'transactionId']) if (payload[key] != null && typeof payload[key] !== 'string') add(errors, `${path}.${key}`, 'must be a string when present');
         break;
       case 'inventory.snapshot':
         validateAllowedKeys(payload, path, new Set(['revision', 'items']), errors);
         if (!isNonNegativeInteger(payload.revision)) add(errors, `${path}.revision`, 'is required and must be a non-negative integer');
         if (!Array.isArray(payload.items)) add(errors, `${path}.items`, 'is required');
-        else payload.items.forEach((item, index) => validatePublicItem(item, `${path}.items[${index}]`, errors));
+        else { payload.items.forEach((item, index) => validatePublicItem(item, `${path}.items[${index}]`, errors)); validateUniquePublicItems(payload.items, `${path}.items`, errors); }
         break;
       case 'container.contents.snapshot':
       case 'container.candidates.snapshot':
         validateAllowedKeys(payload, path, new Set(['revision', 'items', 'sessionId', 'container']), errors);
         if (payload.revision != null && !isNonNegativeInteger(payload.revision)) add(errors, `${path}.revision`, 'must be a non-negative integer when present');
         if (!Array.isArray(payload.items)) add(errors, `${path}.items`, 'is required');
-        else payload.items.forEach((item, index) => validatePublicItem(item, `${path}.items[${index}]`, errors));
+        else { payload.items.forEach((item, index) => validatePublicItem(item, `${path}.items[${index}]`, errors)); validateUniquePublicItems(payload.items, `${path}.items`, errors); }
         if (!isString(payload.sessionId)) add(errors, `${path}.sessionId`, 'is required');
         validatePublicContainerIdentity(payload.container, `${path}.container`, errors);
         break;
@@ -617,6 +889,10 @@
           else payload.removed.forEach((objectId, index) => { if (!isNonNegativeInteger(objectId)) add(errors, `${path}.removed[${index}]`, 'must be a public objectId'); });
         }
         break;
+      case 'spell.rows':
+      case 'skill.rows':
+        validateSpellOrSkillRows(eventType, payload, path, errors);
+        break;
       case 'equipment.snapshot':
       case 'equipment.delta':
         validateAllowedKeys(payload, path, new Set(['revision', 'inventoryRevision', 'slots', 'items', 'added', 'updated', 'removed']), errors);
@@ -625,7 +901,14 @@
         if (eventType === 'equipment.snapshot' && !Array.isArray(payload.slots)) add(errors, `${path}.slots`, 'is required');
         if (payload.slots != null) {
           if (!Array.isArray(payload.slots)) add(errors, `${path}.slots`, 'must be an array');
-          else payload.slots.forEach((slot, index) => validateEquipmentSlot(slot, `${path}.slots[${index}]`, errors));
+          else {
+            const slotIds = new Set();
+            payload.slots.forEach((slot, index) => {
+              validateEquipmentSlot(slot, `${path}.slots[${index}]`, errors);
+              if (slot?.slotId && slotIds.has(slot.slotId)) add(errors, `${path}.slots[${index}].slotId`, 'must be unique in an authoritative equipment collection');
+              if (slot?.slotId) slotIds.add(slot.slotId);
+            });
+          }
         }
         for (const key of ['items', 'added', 'updated']) {
           if (payload[key] != null) {
@@ -639,6 +922,7 @@
         }
         break;
       case 'action.affordances':
+        validateAllowedKeys(payload, path, new Set(['actions']), errors);
         if (!Array.isArray(payload.actions)) add(errors, `${path}.actions`, 'is required');
         else payload.actions.forEach((action, index) => validateAction(action, `${path}.actions[${index}]`, errors));
         break;
@@ -665,6 +949,7 @@
         break;
       case 'transaction.completed':
       case 'transaction.interrupted':
+        validateAllowedKeys(payload, path, new Set(['transactionId', 'reason', 'status']), errors);
         if (!isString(payload.transactionId)) add(errors, `${path}.transactionId`, 'is required');
         if (eventType === 'transaction.interrupted' && !isString(payload.reason)) add(errors, `${path}.reason`, 'is required');
         break;
@@ -673,15 +958,17 @@
         validateCoord(payload.coord, `${path}.coord`, errors);
         if (payload.revision != null && !isNonNegativeInteger(payload.revision)) add(errors, `${path}.revision`, 'must be a non-negative integer when present');
         if (!Array.isArray(payload.items)) add(errors, `${path}.items`, 'is required');
-        else payload.items.forEach((item, index) => validatePublicItem(item, `${path}.items[${index}]`, errors));
+        else { payload.items.forEach((item, index) => validatePublicItem(item, `${path}.items[${index}]`, errors)); validateUniquePublicItems(payload.items, `${path}.items`, errors); }
         break;
       case 'ground.transfer.confirmed':
       case 'ground.transfer.rejected':
       case 'container.transfer.confirmed':
       case 'container.transfer.rejected':
+        validateAllowedKeys(payload, path, new Set(['commandId', 'transactionId', 'transferId', 'sessionId', 'direction', 'itemId', 'containerId', 'coord', 'status', 'reason', 'blockerToken', 'activeInputOwner']), errors);
         if (!isString(payload.commandId)) add(errors, `${path}.commandId`, 'is required');
         if (payload.direction != null && !transferDirections.has(payload.direction)) add(errors, `${path}.direction`, `must be one of ${Array.from(transferDirections).join(', ')}`);
         if (/rejected$/.test(eventType) && !isString(payload.reason)) add(errors, `${path}.reason`, 'is required');
+        if (payload.activeInputOwner != null) validateActiveInputOwner(payload.activeInputOwner, `${path}.activeInputOwner`, errors);
         break;
       case 'transfer.session.opened':
       case 'transfer.session.updated':
@@ -706,10 +993,27 @@
         if (payload.container != null) validatePublicContainerIdentity(payload.container, `${path}.container`, errors);
         if (payload.reason != null && typeof payload.reason !== 'string') add(errors, `${path}.reason`, 'must be a string when present');
         break;
-      case 'map.cell.updated':
+      case 'map.cell.updated': {
+        validateAllowedKeys(payload, path, new Set(['coord', 'ch', 'assetId', 'glyph', 'ttychar', 'color', 'tileidx', 'glyphFlags', 'backgroundGlyph', 'semanticKind', 'semanticName', 'semanticAppearance', 'semanticKnown', 'backgroundSemanticKind', 'backgroundSemanticName', 'backgroundSemanticKnown', 'objectLayerGlyph', 'objectLayerChar', 'objectLayerSemanticKind', 'objectLayerSemanticName', 'objectLayerSemanticAppearance', 'objectLayerSemanticKnown', 'cmapIndex', 'actionAffordances', 'backgroundActionAffordances', 'objectLayerActionAffordances']), errors);
         validateCoord(payload.coord, `${path}.coord`, errors);
+        for (const key of ['ch', 'assetId', 'semanticKind', 'semanticName', 'semanticAppearance', 'backgroundSemanticKind', 'backgroundSemanticName', 'objectLayerSemanticKind', 'objectLayerSemanticName', 'objectLayerSemanticAppearance']) if (payload[key] != null && typeof payload[key] !== 'string') add(errors, `${path}.${key}`, 'must be a string when present');
+        if (payload.ch != null && String(payload.ch).length !== 1) add(errors, `${path}.ch`, 'must be one public character');
+        if (payload.objectLayerChar != null && !((typeof payload.objectLayerChar === 'string' && payload.objectLayerChar.length === 1) || (isNonNegativeInteger(payload.objectLayerChar) && payload.objectLayerChar < 128))) add(errors, `${path}.objectLayerChar`, 'must be one public character or character code');
+        for (const key of ['assetId', 'semanticKind', 'backgroundSemanticKind', 'objectLayerSemanticKind']) if (payload[key] != null && !/^[A-Za-z0-9_.:-]+$/.test(payload[key])) add(errors, `${path}.${key}`, 'must be an opaque public token');
+        for (const key of ['semanticKnown', 'backgroundSemanticKnown', 'objectLayerSemanticKnown']) if (payload[key] != null && typeof payload[key] !== 'boolean') add(errors, `${path}.${key}`, 'must be boolean when present');
+        for (const key of ['glyph', 'ttychar', 'color', 'tileidx', 'glyphFlags', 'backgroundGlyph', 'objectLayerGlyph', 'cmapIndex']) if (payload[key] != null && !isNonNegativeInteger(payload[key])) add(errors, `${path}.${key}`, 'must be a non-negative integer when present');
+        if (payload.semanticName != null && payload.semanticKnown !== true) add(errors, `${path}.semanticName`, 'requires explicit semanticKnown true');
+        if (payload.backgroundSemanticName != null && payload.backgroundSemanticKnown !== true) add(errors, `${path}.backgroundSemanticName`, 'requires explicit backgroundSemanticKnown true');
+        if (payload.objectLayerSemanticName != null && payload.objectLayerSemanticKnown !== true) add(errors, `${path}.objectLayerSemanticName`, 'requires explicit objectLayerSemanticKnown true');
+        if (payload.objectLayerSemanticKnown === false && payload.objectLayerSemanticAppearance == null && payload.objectLayerSemanticName != null) add(errors, `${path}.objectLayerSemanticName`, 'must be redacted when object identity is unknown');
+        for (const key of ['actionAffordances', 'backgroundActionAffordances', 'objectLayerActionAffordances']) if (payload[key] != null) {
+          validatePublicStringArray(payload[key], `${path}.${key}`, errors);
+          if (Array.isArray(payload[key])) payload[key].forEach((token, index) => { if (!/^[A-Za-z0-9_.:-]+$/.test(token)) add(errors, `${path}.${key}[${index}]`, 'must be an opaque public action token'); });
+        }
         break;
+      }
       case 'replay.marker':
+        validateAllowedKeys(payload, path, new Set(['name']), errors);
         if (!isString(payload.name)) add(errors, `${path}.name`, 'is required');
         break;
       default:
@@ -736,12 +1040,20 @@
     if (value == null) return;
     if (Array.isArray(value)) return value.forEach((entry, index) => validateActionExecuteTarget(entry, `${path}[${index}]`, errors));
     if (!isPlainObject(value)) return add(errors, path, 'must be an object or array of public action targets');
-    validateAllowedKeys(value, path, new Set(['selector', 'inventoryLetter', 'objectId', 'slotId', 'displayName', 'location']), errors);
+    validateAllowedKeys(value, path, new Set(['selector', 'inventoryLetter', 'objectId', 'slotId', 'displayName', 'appearanceName', 'semanticAppearance', 'semanticKnown', 'known', 'location']), errors);
     if (value.selector != null && (typeof value.selector !== 'string' || value.selector.length !== 1)) add(errors, `${path}.selector`, 'must be a single public selector when present');
     if (value.inventoryLetter != null && (typeof value.inventoryLetter !== 'string' || value.inventoryLetter.length !== 1)) add(errors, `${path}.inventoryLetter`, 'must be a single inventory letter when present');
     if (value.objectId != null && !isNonNegativeInteger(value.objectId)) add(errors, `${path}.objectId`, 'must be a non-negative integer when present');
     if (value.slotId != null && typeof value.slotId !== 'string') add(errors, `${path}.slotId`, 'must be a string when present');
     if (value.displayName != null && typeof value.displayName !== 'string') add(errors, `${path}.displayName`, 'must be a string when present');
+    if (value.appearanceName != null && typeof value.appearanceName !== 'string') add(errors, `${path}.appearanceName`, 'must be a string when present');
+    if (value.semanticAppearance != null && typeof value.semanticAppearance !== 'string') add(errors, `${path}.semanticAppearance`, 'must be a string when present');
+    if (value.semanticKnown != null && typeof value.semanticKnown !== 'boolean') add(errors, `${path}.semanticKnown`, 'must be boolean when present');
+    if (value.known != null) validateKnownFlags(value.known, `${path}.known`, errors);
+    if (value.semanticKnown === false && value.known?.identity === true) add(errors, `${path}.known.identity`, 'must not contradict semanticKnown false');
+    if (value.semanticKnown === true && value.known?.identity === false) add(errors, `${path}.known.identity`, 'must not contradict semanticKnown true');
+    if ((value.semanticAppearance != null || value.appearanceName != null) && value.displayName == null) add(errors, `${path}.displayName`, 'is required when public appearance text is present');
+    if (value.displayName != null) validateUnknownIdentityDisplay(value, path, errors);
     if (value.location != null) validatePublicLocation(value.location, `${path}.location`, errors);
   }
 
@@ -766,6 +1078,8 @@
   const directCommandPayloadSchemas = Object.freeze({
     'ground.transfer': Object.freeze({ allowed: Object.freeze(['transferId', 'direction', 'coord', 'itemId', 'count']) }),
     'equipment.change': Object.freeze({ allowed: Object.freeze(['action', 'itemId', 'slotId', 'hand']) }),
+    'container.transfer': Object.freeze({ allowed: Object.freeze(['direction', 'transferId', 'sessionId', 'containerId', 'itemId', 'item']) }),
+    'container.snapshot': Object.freeze({ allowed: Object.freeze(['sessionId', 'containerId']) }),
     'container.force': Object.freeze({ allowed: Object.freeze(['containerId', 'coord', 'toolOrWeaponId', 'confirmDestructive']) }),
     'container.tip': Object.freeze({ allowed: Object.freeze(['containerId', 'coord', 'confirmDestructive']) }),
     'container.untrap': Object.freeze({ allowed: Object.freeze(['containerId', 'coord']) }),
@@ -778,7 +1092,8 @@
 
   function validateDirectCommandPayload(commandType, payload, path, errors) {
     const schema = directCommandPayloadSchemas[commandType];
-    if (!schema || payload == null) return;
+    if (!schema) return add(errors, path, `has no closed public schema for ${commandType}`);
+    if (payload == null) return;
     if (!isPlainObject(payload)) return add(errors, path, 'must be an object when present');
     validateAllowedKeys(payload, path, new Set(schema.allowed), errors);
     for (const field of ['itemId', 'containerId', 'toolOrWeaponId', 'toolId']) {
@@ -793,6 +1108,7 @@
       if (payload[field] != null && !isString(payload[field])) add(errors, `${path}.${field}`, 'must be a non-empty public string when present');
     }
     for (const field of ['confirmDestructive']) if (payload[field] != null && typeof payload[field] !== 'boolean') add(errors, `${path}.${field}`, 'must be boolean when present');
+    if (payload.item != null) validatePublicItem(payload.item, `${path}.item`, errors);
   }
 
   function validateRevisionConsistency(eventType, revision, payload, errors) {
@@ -808,11 +1124,14 @@
     if ((eventType === 'container.contents.snapshot' || eventType === 'container.candidates.snapshot') && revision?.container != null && payload?.revision != null && revision.container !== payload.revision) {
       add(errors, 'revision.container', 'must match payload.revision for container events');
     }
+    if (eventType === 'spell.rows' && revision?.spell != null && payload?.revision != null && revision.spell !== payload.revision) add(errors, 'revision.spell', 'must match payload.revision for spell rows');
+    if (eventType === 'skill.rows' && revision?.skill != null && payload?.revision != null && revision.skill !== payload.revision) add(errors, 'revision.skill', 'must match payload.revision for skill rows');
   }
 
   function validateEventEnvelope(envelope) {
     const errors = [];
     if (!isPlainObject(envelope)) return { ok: false, errors: ['event: must be an object'] };
+    validateAllowedKeys(envelope, 'event', new Set(['protocol', 'sequence', 'eventId', 'eventType', 'turn', 'requestId', 'transactionId', 'source', 'revision', 'payload']), errors);
     if (envelope.protocol !== protocol) add(errors, 'protocol', `must be ${protocol}`);
     if (!isSafeSequence(envelope.sequence)) add(errors, 'sequence', 'must be a non-negative safe integer');
     if (!isString(envelope.eventId)) add(errors, 'eventId', 'is required');
@@ -826,13 +1145,65 @@
     if (isString(envelope.eventType) && eventTypes.has(envelope.eventType)) {
       validateEventPayload(envelope.eventType, envelope.payload, errors);
       validateRevisionConsistency(envelope.eventType, envelope.revision, envelope.payload, errors);
+      if (envelope.eventType === 'spell.rows' || envelope.eventType === 'skill.rows') {
+        if (!isString(envelope.requestId)) add(errors, 'requestId', 'is required for authoritative menu row ownership');
+        else if (isString(envelope.payload?.menuId) && envelope.requestId !== envelope.payload.menuId) add(errors, 'requestId', 'must match payload.menuId');
+        if (envelope.payload?.classificationConfidence === 'typed') {
+          if (!['core', 'shim-bridge'].includes(envelope.source?.layer) || envelope.source?.authoritative !== true) add(errors, 'source', 'typed rows require an authoritative core or shim-bridge source');
+        } else if (envelope.payload?.classificationConfidence === 'fallback' && envelope.source?.authoritative === true) add(errors, 'source.authoritative', 'fallback rows cannot be authoritative');
+      }
     }
     return { ok: errors.length === 0, errors, event: errors.length ? undefined : Object.freeze({ ...envelope, payload: Object.freeze({ ...envelope.payload }) }) };
+  }
+
+  function validateNonDirectCommandPayload(commandType, value, path, errors) {
+    if (value == null) return;
+    if (!isPlainObject(value)) return add(errors, path, 'must be a closed public payload object');
+    const schemas = {
+      'prompt.answer': new Set(['promptId', 'answer']),
+      'menu.select': new Set(['menuId', 'selectors']),
+      'command.cancel': new Set(['commandId', 'transactionId', 'reason']),
+      'replay.control': new Set(['mode']),
+    };
+    const allowed = schemas[commandType];
+    if (!allowed) return add(errors, path, `has no closed public schema for ${commandType}`);
+    validateAllowedKeys(value, path, allowed, errors);
+    if (value.selectors != null) validatePublicStringArray(value.selectors, `${path}.selectors`, errors);
+    for (const [key, entry] of Object.entries(value)) if (key !== 'selectors' && typeof entry !== 'string') add(errors, `${path}.${key}`, 'must be a string');
+  }
+
+  function validateNonDirectCommandTargets(commandType, value, path, errors) {
+    if (value == null) return;
+    if (!isPlainObject(value)) return add(errors, path, 'must be a closed public target object');
+    const allowed = commandType === 'menu.select' ? new Set(['menuId', 'selectors'])
+      : new Set(['commandId', 'transactionId', 'promptId']);
+    validateAllowedKeys(value, path, allowed, errors);
+    if (value.menuId != null && !isString(value.menuId)) add(errors, `${path}.menuId`, 'must be a string');
+    if (value.selectors != null) validatePublicStringArray(value.selectors, `${path}.selectors`, errors);
+    for (const key of ['commandId', 'transactionId', 'promptId']) if (value[key] != null && !isString(value[key])) add(errors, `${path}.${key}`, 'must be a string');
+  }
+
+  function validateDirectCommandTargets(value, path, errors) {
+    if (value == null) return;
+    if (!isPlainObject(value)) return add(errors, path, 'must be a closed public target object');
+    validateAllowedKeys(value, path, new Set(['selector', 'inventoryLetter', 'objectId', 'itemId', 'containerId', 'slotId', 'displayName', 'appearanceName', 'semanticAppearance', 'semanticKnown', 'known', 'location', 'coord']), errors);
+    for (const key of ['selector', 'inventoryLetter']) if (value[key] != null && (typeof value[key] !== 'string' || value[key].length !== 1)) add(errors, `${path}.${key}`, 'must be one public selector character');
+    for (const key of ['objectId', 'itemId', 'containerId']) if (value[key] != null && !isNonNegativeInteger(value[key])) add(errors, `${path}.${key}`, 'must be a non-negative public id');
+    if (value.slotId != null && typeof value.slotId !== 'string') add(errors, `${path}.slotId`, 'must be a string when present');
+    if (value.semanticKnown != null && typeof value.semanticKnown !== 'boolean') add(errors, `${path}.semanticKnown`, 'must be boolean when present');
+    if (value.known != null) validateKnownFlags(value.known, `${path}.known`, errors);
+    if (value.appearanceName != null && typeof value.appearanceName !== 'string') add(errors, `${path}.appearanceName`, 'must be a string when present');
+    if (value.semanticAppearance != null && typeof value.semanticAppearance !== 'string') add(errors, `${path}.semanticAppearance`, 'must be a string when present');
+    if (value.location != null) validatePublicLocation(value.location, `${path}.location`, errors);
+    if (value.coord != null) validateCoord(value.coord, `${path}.coord`, errors);
+    if ((value.semanticAppearance != null || value.appearanceName != null) && value.displayName == null) add(errors, `${path}.displayName`, 'is required when public appearance text is present');
+    if (value.displayName != null) validateUnknownIdentityDisplay(value, path, errors);
   }
 
   function validateCommandEnvelope(command) {
     const errors = [];
     if (!isPlainObject(command)) return { ok: false, errors: ['command: must be an object'] };
+    validateAllowedKeys(command, 'command', new Set(['protocol', 'commandId', 'commandType', 'transactionId', 'expectedRevision', 'targets', 'payload', 'actionId', 'promptId', 'menuId']), errors);
     if (command.protocol !== protocol) add(errors, 'protocol', `must be ${protocol}`);
     if (!isString(command.commandId)) add(errors, 'commandId', 'is required');
     if (!isString(command.commandType)) add(errors, 'commandType', 'is required');
@@ -840,14 +1211,18 @@
     if (command.transactionId != null && !isString(command.transactionId)) add(errors, 'transactionId', 'must be a non-empty string when present');
     validateRevision(command.expectedRevision, 'expectedRevision', errors);
     if (command.commandType === 'action.execute') validateActionExecuteTarget(command.targets, 'targets', errors);
-    else validateTargetCollection(command.targets, 'targets', errors);
+    else {
+      if (directCommandTypes.has(command.commandType)) validateDirectCommandTargets(command.targets, 'targets', errors);
+      else validateNonDirectCommandTargets(command.commandType, command.targets, 'targets', errors);
+      validateNestedPublicItemLabels(command.payload, 'payload', errors);
+    }
     if (command.payload != null && !isPlainObject(command.payload)) add(errors, 'payload', 'must be an object when present');
     if (command.commandType === 'action.execute') {
       if (!isString(command.actionId) && !isString(command.payload?.actionId)) add(errors, 'actionId', 'action.execute requires actionId on the command or payload');
       if (command.payload != null) validateActionExecuteCommandPayload(command.payload, 'payload', errors);
     } else if (isString(command.commandType) && directCommandTypes.has(command.commandType)) {
       validateDirectCommandPayload(command.commandType, command.payload, 'payload', errors);
-    }
+    } else if (isString(command.commandType)) validateNonDirectCommandPayload(command.commandType, command.payload, 'payload', errors);
     if (command.commandType === 'prompt.answer' && !isString(command.promptId) && !isString(command.payload?.promptId)) add(errors, 'promptId', 'prompt.answer requires promptId on the command or payload');
     if (command.commandType === 'menu.select' && !isString(command.menuId) && !isString(command.payload?.menuId)) add(errors, 'menuId', 'menu.select requires menuId on the command or payload');
     return { ok: errors.length === 0, errors, command: errors.length ? undefined : Object.freeze({ ...command, payload: Object.freeze({ ...(command.payload || {}) }) }) };
@@ -863,7 +1238,7 @@
       errors: Object.freeze(checked.errors.slice()),
       eventType: isPlainObject(envelope) ? envelope.eventType : undefined,
       event: checked.event,
-      raw: isPlainObject(envelope) ? Object.freeze({ ...envelope }) : envelope,
+      raw: checked.event,
     });
   }
 
@@ -877,7 +1252,7 @@
       errors: Object.freeze(checked.errors.slice()),
       commandType: isPlainObject(command) ? command.commandType : undefined,
       command: checked.command,
-      raw: isPlainObject(command) ? Object.freeze({ ...command }) : command,
+      raw: checked.command,
     });
   }
 
@@ -973,7 +1348,15 @@
     commandBlockerTokens: Object.freeze(Array.from(commandBlockerTokens).sort()),
     commandStatuses,
     directCommandPayloadSchemas,
-    publicItemSchema: Object.freeze({ allowedFields: Object.freeze(Array.from(allowedPublicItemFields).sort()), forbiddenFields: Object.freeze(Array.from(forbiddenPublicItemFields).sort()), allowedKnownFlags: Object.freeze(Array.from(allowedKnownFlagKeys).sort()) }),
+    publicItemSchema: Object.freeze({
+      allowedFields: Object.freeze(Array.from(allowedPublicItemFields).sort()),
+      forbiddenFields: Object.freeze(Array.from(forbiddenPublicItemFields).sort()),
+      allowedKnownFlags: Object.freeze(Array.from(allowedKnownFlagKeys).sort()),
+      publicClasses: Object.freeze(Array.from(publicItemClasses).sort()),
+      filterGroups: Object.freeze(Array.from(publicItemFilterGroups).sort()),
+      knownFields: Object.freeze(Array.from(publicKnownFieldKeys).sort()),
+      ownershipStates: Object.freeze(Array.from(publicItemOwnershipStates).sort()),
+    }),
     equipmentSchema: Object.freeze({ slotIds: Object.freeze(Array.from(equipmentSlotIds).sort()), publicStatuses: Object.freeze(Array.from(publicEquipmentStatuses).sort()) }),
   });
 }));

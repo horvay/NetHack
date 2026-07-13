@@ -6,6 +6,8 @@ const GameViewState = require('../src/shared/game-view-state');
 const MenuMetadataAdapter = require('../src/shared/menu-metadata-adapter');
 const UiProtocolV2 = require('../src/shared/ui-protocol-v2');
 const InteractionModel = require('../src/shared/interaction-model');
+const RecordingSchema = require('../src/shared/recording-schema');
+const ReplayAdapter = require('../src/shared/replay-adapter');
 
 const root = path.resolve(__dirname, '..');
 const cases = JSON.parse(fs.readFileSync(path.join(root, 'test/fixtures/menu-metadata-comparison/golden-cases.json'), 'utf8'));
@@ -106,6 +108,63 @@ const unknownEvents = MenuMetadataAdapter.adaptV1MenuSnapshotToV2Events({ window
 const unknownItem = unknownEvents.find((event) => event.eventType === 'menu.item').payload.item;
 assert.equal(unknownItem.semanticName, undefined, 'v2 menu.item omits hidden semanticName when semanticKnown is false');
 assert.equal(unknownItem.semanticAppearance, 'milky potion', 'v2 menu.item keeps public appearance');
+
+let nextMatrixSequence = 500;
+function adaptedRow(menu, context = {}) {
+  const events = MenuMetadataAdapter.adaptV1MenuSnapshotToV2Events(menu, { ...context, sequenceStart: nextMatrixSequence });
+  nextMatrixSequence += events.length + 1;
+  return events.find((event) => event.eventType === 'menu.item');
+}
+const selectableAction = { name: 'shim_add_menu', window: 70, selector: 97, text: 'a - Search for traps' };
+const normalizedSelectableAction = ShimProtocol.normalizeRawShimEvent(selectableAction);
+assert.equal(normalizedSelectableAction.event.text, selectableAction.text, 'selector/text alone remains exact at context-free shim ingress');
+assert.equal(normalizedSelectableAction.event.semanticKnown, undefined, 'context-free selectable prose is not projected as an object');
+for (const decoratedAction of [
+  { ...selectableAction, glyphChar: 41 },
+  { ...selectableAction, glyph: 123, glyphChar: 65 },
+]) assert.equal(ShimProtocol.normalizeRawShimEvent(decoratedAction).event.text, selectableAction.text, 'decorative/sentinel glyph data alone does not classify selectable action prose as an object');
+const glyphOnlyAction = ShimProtocol.normalizeRawShimEvent({ name: 'shim_add_menu', window: 70, selector: 97, text: 'a - Search for traps', glyph: 123, glyphChar: 41 });
+assert.equal(glyphOnlyAction.event.text, 'a - Search for traps', 'glyph decoration never overrides missing object semantics before menu context');
+const explicitObjectType = ShimProtocol.normalizeRawShimEvent({ name: 'shim_add_menu', window: 70, selector: 97, text: 'a - potion of gain level', glyph: 123, glyphChar: 41, objectClass: ')' });
+assert.equal(explicitObjectType.event.text, 'a - item', 'explicit public object type projects a context-free object row safely');
+const menuContextMatrix = [
+  { id: 'action choice', menu: { prompt: 'Do what with the large box?', how: 1, awaitingSelection: true, items: [selectableAction] }, purpose: 'action.choice', text: selectableAction.text, object: false },
+  { id: 'command choice', menu: { prompt: 'Choose a command', how: 1, awaitingSelection: true, items: [{ selector: 97, text: 'a - Search for traps' }] }, purpose: 'system.help', text: 'a - Search for traps', object: false },
+  { id: 'help choice', menu: { prompt: 'Help', how: 1, awaitingSelection: true, items: [{ selector: 97, text: 'a - List of game commands' }] }, purpose: 'system.help', text: 'a - List of game commands', object: false },
+  { id: 'manual choice', menu: { prompt: 'NetHack manual', how: 1, awaitingSelection: true, items: [{ selector: 97, text: 'a - What is a dungeon feature?' }] }, purpose: 'system.help', text: 'a - What is a dungeon feature?', object: false },
+  { id: 'generic trap search', menu: { prompt: 'Choose an activity', how: 1, awaitingSelection: true, items: [{ selector: 97, text: 'a - Search for traps' }] }, purpose: 'menu.generic', text: 'a - Search for traps', object: false },
+  { id: 'inventory overview', menu: { prompt: 'Inventory:', how: 0, items: [{ selector: 97, text: 'a - potion of gain level' }] }, purpose: 'inventory.overview', text: 'a - item', object: true },
+  { id: 'native inventory purpose', menu: { prompt: 'Menu', how: 0, menuPurpose: 'inventory.displayInventory', menuPurposeExplicit: true, items: [{ selector: 97, text: 'a - potion of gain level' }] }, purpose: 'inventory.displayInventory', text: 'a - item', object: true },
+  { id: 'authoritative historical inventory request', menu: { prompt: 'Menu', how: 0, items: [{ selector: 97, text: 'a - potion of gain level' }] }, context: { requestSource: { layer: 'v1-replay', command: 'inventory' } }, purpose: 'inventory.overview', text: 'a - item', object: true },
+  { id: 'stale inventory command does not capture action prose', menu: { prompt: 'Menu', how: 1, awaitingSelection: true, items: [{ selector: 97, text: 'a - Search for traps' }] }, context: { lastWorldCommand: 'i' }, purpose: 'menu.generic', text: 'a - Search for traps', object: false },
+  { id: 'stale inventory request source does not capture selectable action prose', menu: { prompt: 'Menu', how: 1, awaitingSelection: true, items: [{ selector: 97, text: 'a - Search for traps', glyph: 123, glyphChar: 41 }] }, context: { requestSource: { layer: 'renderer', command: 'inventory' } }, purpose: 'menu.generic', text: 'a - Search for traps', object: false },
+  { id: 'pickup objects', menu: { prompt: 'Pick up what?', how: 2, awaitingSelection: true, items: [{ selector: 97, text: 'a - potion of gain level' }] }, purpose: 'ground.pickup', text: 'a - item', object: true },
+  { id: 'drop objects', menu: { prompt: 'Drop what?', how: 2, awaitingSelection: true, items: [{ selector: 97, text: 'a - potion of gain level' }] }, purpose: 'inventory.objectChoice', text: 'a - item', object: true },
+  { id: 'container takeout objects', menu: { prompt: 'Take out what?', how: 2, awaitingSelection: true, items: [{ selector: 97, text: 'a - potion of gain level' }] }, purpose: 'container.takeOut', text: 'a - item', object: true },
+  { id: 'container putin objects', menu: { prompt: 'Put in what?', how: 2, awaitingSelection: true, items: [{ selector: 97, text: 'a - potion of gain level' }] }, purpose: 'container.putIn', text: 'a - item', object: true },
+  { id: 'container actions', menu: { prompt: 'Do what with the large box?', how: 1, awaitingSelection: true, items: [{ selector: 97, text: 'a - Look inside' }] }, purpose: 'container.action', text: 'a - Look inside', object: false },
+  { id: 'shop object selector', menu: { prompt: 'Pay for which items?', how: 2, awaitingSelection: true, items: [{ selector: 97, text: 'a - potion of gain level (unpaid)' }] }, purpose: 'transfer.classic', text: 'a - item', object: true },
+  { id: 'read-only help', menu: { prompt: 'Commands', how: 0, items: [{ selector: 97, text: 'a - Search for traps' }] }, purpose: 'system.help', text: 'a - Search for traps', object: false },
+  { id: 'explicit object selector', menu: { prompt: 'Choose an activity', how: 1, awaitingSelection: true, items: [{ selector: 97, text: 'a - potion of gain level', semanticKind: 'object' }] }, purpose: 'action.choice', text: 'a - item', object: true },
+];
+const replayEvents = [];
+for (const entry of menuContextMatrix) {
+  const row = adaptedRow({ window: 70, ...entry.menu }, entry.context || {});
+  assert.equal(row.payload.item.text, entry.text, `${entry.id}: contextual adapter label`);
+  assert.equal(row.payload.item.semanticKind === 'object', entry.object, `${entry.id}: contextual object classification`);
+  assert.equal(MenuMetadataAdapter.classifyMenuPurpose({ window: 70, ...entry.menu }, entry.context || {}), entry.purpose, `${entry.id}: expected menu purpose`);
+  const checked = UiProtocolV2.validateEventEnvelope(row);
+  assert.equal(checked.ok, true, `${entry.id}: adapted row validates: ${checked.errors.join('; ')}`);
+  replayEvents.push({ type: 'ui-protocol-event', event: row });
+}
+const publicAppearanceRow = adaptedRow({ window: 71, prompt: 'Inventory:', how: 0, items: [{ selector: 97, text: 'a - potion of gain level', semanticAppearance: 'milky potion', semanticKnown: false }] });
+assert.equal(publicAppearanceRow.payload.item.text, 'a - milky potion', 'authoritative object context preserves explicit public appearance without hidden identity');
+const replayMenuMatrix = { schema: RecordingSchema.v2, events: replayEvents };
+assert.equal(RecordingSchema.validateRecording(replayMenuMatrix).ok, true, 'context matrix survives closed v2 recording validation');
+const replayedMenuMatrix = ReplayAdapter.normalizeRecording(replayMenuMatrix);
+assert.equal(replayedMenuMatrix.ok, true, 'context matrix survives replay normalization');
+assert.equal(replayedMenuMatrix.protocolEvents.find((entry) => entry.event.payload.item?.semanticKind !== 'object').event.payload.item.text, selectableAction.text, 'replay normalization preserves non-object action text exactly');
+assert.equal(replayedMenuMatrix.protocolEvents.some((entry) => entry.event.payload.item?.semanticKind === 'object' && entry.event.payload.item.text === 'a - item'), true, 'replay normalization keeps legacy object rows no-spoiler');
 
 view.process({ name: 'shim_yn_function', query: 'What do you want to read? [a-b]', choices: 'ab' });
 assert.equal(view.state.activePrompt.promptPurpose, 'prompt.itemAction', 'active prompt stores prompt purpose');

@@ -112,6 +112,7 @@ async function main() {
       const open = await evalExpr(cdp, `!document.getElementById('container-transfer-panel')?.hidden && /Pick up from ground/i.test(document.getElementById('container-transfer-panel')?.innerText || '')`);
       return open ? state(cdp) : null;
     }, 7000);
+    const realGroundPanelText = await evalExpr(cdp, `document.getElementById('container-transfer-panel')?.innerText || ''`);
     const realGroundDragSetup = await evalExpr(cdp, `(() => { window.__nethackPromptTest?.clearSentInputs?.(); const row = document.querySelector('#container-transfer-panel .container-item-row'); const pane = document.querySelector('#container-transfer-panel .container-pane.right-pane'); row?.focus(); const transfer = new DataTransfer(); row?.dispatchEvent(new DragEvent('dragstart', { bubbles:true, cancelable:true, dataTransfer:transfer })); pane?.dispatchEvent(new DragEvent('dragover', { bubbles:true, cancelable:true, dataTransfer:transfer })); return { dragging:row?.classList.contains('dragging'), dragOver:pane?.classList.contains('drag-over'), payload:transfer.getData('application/x-nethack-container-transfer') }; })()`);
     results.screenshots.groundBeforeEsc = await shot(cdp, '03a-real-ground-transfer-before-escape.png');
     await key(cdp, 'Escape');
@@ -159,8 +160,10 @@ async function main() {
       realInventoryOpenedFromKeyboard: /Equipment|Inventory/i.test(inventoryOpen.interaction.title || ''),
       realInventoryContextEscClosedOnlyMenu: realContextOpen ? Boolean(results.realContextAfter && results.realContextAfter.dialogs.includes('interaction-dialog')) : true,
       realInventoryEscClosed: !inventoryAfter.dialogs.includes('interaction-dialog'),
+      realInventoryEscapeHasNoFailureNotice: !/NetHack did not accept that action|Review the current state and try again/i.test(inventoryAfter.body || ''),
       gameplayResponsiveAfterInventoryEsc: afterWait.running && afterWait.sent.includes('.') && !afterWait.dialogs.includes('game-over-dialog'),
       realGroundTransferOpenedFromVisibleAction: Boolean(realGroundOpen && /Pick up from ground/i.test(realGroundOpen.body || '')),
+      realGroundTransferRowsExcludePromptProse: !/\bIn what direction\b|\bNever mind\b/i.test(realGroundPanelText),
       realGroundTransferEscClosed: !realGroundAfter.dialogs.includes('interaction-dialog') && !/Pick up from ground/i.test(realGroundAfter.body || ''),
       realGroundTransferEscDidNotReachGame: realGroundAfter.sent === '',
       realGroundTransferDragActivated: Boolean(realGroundDragSetup?.dragging && realGroundDragSetup?.dragOver && realGroundDragSetup?.payload),

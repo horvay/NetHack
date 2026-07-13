@@ -48,23 +48,23 @@ async function main() {
         return { ok:true, commandId:command.commandId, transactionId:command.transactionId, commandType:command.commandType, bridgeType:'ground-transfer' };
       });
       const inventory = () => t.event({ name:'shim_update_inventory', revision:4100, inventoryRevision:4100, equipmentRevision:1, reason:'owner-lifecycle', items:[
-        { selector:97, objectId:501, text:'a - a bullwhip', quantity:1, semanticKind:'object', semanticName:'bullwhip', actionAffordances:['drop'] },
-        { selector:98, objectId:502, text:'b - a leather jacket', quantity:1, semanticKind:'object', semanticName:'leather jacket', actionAffordances:['drop'] }
+        { selector:97, objectId:501, text:'a - a bullwhip', quantity:1, semanticKind:'object', semanticName:'bullwhip', semanticKnown:true, actionAffordances:['drop'] },
+        { selector:98, objectId:502, text:'b - a leather jacket', quantity:1, semanticKind:'object', semanticName:'leather jacket', semanticKnown:true, actionAffordances:['drop'] }
       ]});
       const ground = () => t.setGroundPileSnapshotForTest([
-        { objectId:298, displayName:'a dagger', quantity:1, semanticKind:'object', semanticName:'dagger', actionAffordances:['pickup'] },
+        { objectId:298, displayName:'a dagger', quantity:1, semanticKind:'object', semanticName:'dagger', semanticKnown:true, actionAffordances:['pickup'] },
         { objectId:296, displayName:'a hooded cloak', quantity:1, semanticKind:'object', semanticAppearance:'hooded cloak', semanticKnown:false, actionAffordances:['pickup'] }
       ], { x:17, y:11 });
       const snapshotPanel = (extra = {}) => t.setContainerStateForTest({ active:true, sessionKind:'ground-pickup', phase:'ground-snapshot', prompt:'Ground items', leftItems:[
-        { syntheticSelector:'ground-object-298', objectId:298, text:'a dagger', displayName:'a dagger', semanticKind:'object' },
+        { syntheticSelector:'ground-object-298', objectId:298, text:'a dagger', displayName:'a dagger', semanticKind:'object', semanticKnown:true },
         { syntheticSelector:'ground-object-296', objectId:296, text:'a hooded cloak', displayName:'a hooded cloak', semanticKind:'object', semanticAppearance:'hooded cloak', semanticKnown:false }
       ], rightItems:[
-        { selector:97, objectId:501, text:'a - a bullwhip', quantity:1, semanticKind:'object', semanticName:'bullwhip' },
-        { selector:98, objectId:502, text:'b - a leather jacket', quantity:1, semanticKind:'object', semanticName:'leather jacket' }
+        { selector:97, objectId:501, text:'a - a bullwhip', quantity:1, semanticKind:'object', semanticName:'bullwhip', semanticKnown:true },
+        { selector:98, objectId:502, text:'b - a leather jacket', quantity:1, semanticKind:'object', semanticName:'leather jacket', semanticKnown:true }
       ], loadedSides:{left:true,right:true}, feedback:'Move items between ground and inventory.', ...extra });
       const openPickupMenu = (windowId, requestId) => {
         t.event({ name:'shim_start_menu', window:windowId, requestId, menuRequestId:requestId, transactionId:'pickup-command-' + requestId });
-        t.event({ name:'shim_add_menu', window:windowId, selector:97, objectId:298, text:'a - a dagger', semanticKind:'object', semanticName:'dagger', requestId });
+        t.event({ name:'shim_add_menu', window:windowId, selector:97, objectId:298, text:'a - a dagger', semanticKind:'object', semanticName:'dagger', semanticKnown:true, requestId });
         t.event({ name:'shim_add_menu', window:windowId, selector:98, objectId:296, text:'b - a hooded cloak', semanticKind:'object', semanticAppearance:'hooded cloak', semanticKnown:false, requestId });
         t.event({ name:'shim_end_menu', window:windowId, prompt:'Pick up what?', requestId, menuRequestId:requestId, transactionId:'pickup-command-' + requestId });
         t.event({ name:'shim_select_menu', window:windowId, how:1, prompt:'Pick up what?', requestId, menuRequestId:requestId, transactionId:'pickup-command-' + requestId });
@@ -99,7 +99,7 @@ async function main() {
       await sleep(30);
       const commandCountBeforeDisappeared = window.__ownerCommands.length;
       t.transferContainerItem('left', 'b');
-      t.setGroundPileSnapshotForTest([{ objectId:298, displayName:'a dagger', quantity:1, semanticKind:'object', semanticName:'dagger', actionAffordances:['pickup'] }], { x:17, y:11 });
+      t.setGroundPileSnapshotForTest([{ objectId:298, displayName:'a dagger', quantity:1, semanticKind:'object', semanticName:'dagger', semanticKnown:true, actionAffordances:['pickup'] }], { x:17, y:11 });
       t.event({ name:'bridge_menu_answer', window:715, requestId:'pickup-menu-disappeared', transactionId:'pickup-command-pickup-menu-disappeared', return:0, selector:0, selectors:'' });
       await sleep(80);
       const disappearedTarget = { panel:t.container(), commandCount:window.__ownerCommands.length };
@@ -117,7 +117,7 @@ async function main() {
 
       // A prior cancelled unrelated menu must not survive into a reopened transfer session.
       t.event({ name:'shim_start_menu', window:713, requestId:'prior-menu-r3', transactionId:'prior-menu-command' });
-      t.event({ name:'shim_add_menu', window:713, selector:97, objectId:501, text:'a - a bullwhip', semanticKind:'object', requestId:'prior-menu-r3' });
+      t.event({ name:'shim_add_menu', window:713, selector:97, objectId:501, text:'a - a bullwhip', semanticKind:'object', semanticKnown:true, requestId:'prior-menu-r3' });
       t.event({ name:'shim_end_menu', window:713, prompt:'Menu', requestId:'prior-menu-r3', transactionId:'prior-menu-command' });
       t.event({ name:'shim_select_menu', window:713, how:1, prompt:'Menu', requestId:'prior-menu-r3', transactionId:'prior-menu-command' });
       t.event({ name:'bridge_menu_answer', window:713, requestId:'prior-menu-r3', transactionId:'prior-menu-command', return:0, answer:'' });
@@ -197,11 +197,11 @@ async function main() {
 
       snapshotPanel();
       t.event({ name:'shim_update_inventory', revision:4300, inventoryRevision:4300, equipmentRevision:2, reason:'final-owner-lifecycle', items:[
-        { selector:97, objectId:501, text:'a - a bullwhip', quantity:1, semanticKind:'object', semanticName:'bullwhip', actionAffordances:['drop'] },
-        { selector:98, objectId:502, text:'b - a leather jacket', quantity:1, semanticKind:'object', semanticName:'leather jacket', actionAffordances:['drop'] },
+        { selector:97, objectId:501, text:'a - a bullwhip', quantity:1, semanticKind:'object', semanticName:'bullwhip', semanticKnown:true, actionAffordances:['drop'] },
+        { selector:98, objectId:502, text:'b - a leather jacket', quantity:1, semanticKind:'object', semanticName:'leather jacket', semanticKnown:true, actionAffordances:['drop'] },
         { selector:99, objectId:296, text:'c - a hooded cloak', quantity:1, semanticKind:'object', semanticAppearance:'hooded cloak', semanticKnown:false, actionAffordances:['drop'] }
       ]});
-      t.setGroundPileSnapshotForTest([{ objectId:298, displayName:'a dagger', quantity:1, semanticKind:'object', semanticName:'dagger', actionAffordances:['pickup'] }], { x:17, y:11 });
+      t.setGroundPileSnapshotForTest([{ objectId:298, displayName:'a dagger', quantity:1, semanticKind:'object', semanticName:'dagger', semanticKnown:true, actionAffordances:['pickup'] }], { x:17, y:11 });
       await sleep(60);
       return { beforeReleaseAnswer, afterFirstHandoff, firstCommand, commandCountBeforeSelectedAnswer, selectedAnswer, commandCountBeforeDisappeared, disappearedTarget, commandCountBeforeClose, afterCloseAnswer, afterPriorCancelledMenu, competingPrompt, commandCountBeforePrompt, afterPromptCancelled, commandCountBeforeCompetingMenu, competingMenu, afterCompetingMenuCancelled, rejected, retried, emptySnapshotRejection, timedOut, afterTimeoutClose, final:t.container(), commands:window.__ownerCommands, sent:t.sentInputs().join('') };
     })()`);

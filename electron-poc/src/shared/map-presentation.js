@@ -20,6 +20,7 @@
   const meaningfulSemanticKinds = new Set(['monster', 'pet', 'player', 'hero', 'corpse', 'statue', 'object', 'item', 'trap', 'stairs', 'door', 'feature', 'engraving']);
   const actorSemanticKinds = new Set(['monster', 'pet', 'player', 'hero']);
   const objectSemanticKinds = new Set(['object', 'item']);
+  const layeredTooltipForegroundKinds = new Set(['monster', 'pet', 'player', 'hero', 'corpse', 'statue', 'object', 'item', 'trap', 'stairs', 'feature', 'engraving']);
   const basicSemanticNames = new Set(['floor', 'room floor', 'wall', 'vertical wall', 'horizontal wall', 'corridor', 'stone', 'rock', 'unexplored stone', 'darkness']);
   function humanizeId(value) { return String(value || '').replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim(); }
   function titleCase(value) { return humanizeId(value).replace(/\b\w/g, (letter) => letter.toUpperCase()); }
@@ -262,20 +263,44 @@
     const corpse = isCorpseCell(normalized);
     const statue = isStatueCell(normalized);
     const title = statue ? statueLabel(rawTitle) : (corpse ? corpseLabel(rawTitle) : rawTitle);
+    const contents = [];
+    const contentKeys = new Set();
+    const addContent = (label, kind, layer, contentAssetId = '') => {
+      const normalizedLabel = titleCase(humanizeId(label || '')).trim();
+      const normalizedKind = titleCase(humanizeId(kind || 'feature')).trim();
+      const key = `${normalizedLabel.toLowerCase()}:${normalizedKind.toLowerCase()}`;
+      if (!normalizedLabel || contentKeys.has(key)) return;
+      contentKeys.add(key);
+      contents.push({ label: normalizedLabel, kind: normalizedKind, layer, assetId: contentAssetId || '' });
+    };
+    addContent(title, semanticKind || 'feature', 'foreground', assetId);
     const details = [];
     const kindLower = semanticKind.toLowerCase();
     const titleLower = title.toLowerCase();
     if (semanticKind && kindLower !== titleLower && !titleLower.includes(kindLower)) details.push(titleCase(semanticKind));
-    const categoryLabel = categoryLabelForTile(tile, semanticKind);
-    if (categoryLabel && !details.includes(categoryLabel)) details.push(categoryLabel);
     if (objectLayerCell) {
       const objectLayer = tileForCell(objectLayerCell, context);
       const objectName = layerLabel(objectLayerCell, objectLayer.tile) || 'object';
-      details.push(`Also here: ${titleCase(objectName)}`);
+      addContent(objectName, objectLayerCell.semanticKind || 'object', 'object', objectLayer.assetId);
     }
+    if (layeredTooltipForegroundKinds.has(kindLower) || objectLayerCell) {
+      const backgroundCell = backgroundTerrainCellForCell(normalized);
+      const backgroundLayer = tileForCell(backgroundCell, context);
+      addContent(layerLabel(backgroundCell, backgroundLayer.tile) || 'floor of a room', backgroundCell.semanticKind || 'terrain', 'terrain', backgroundLayer.assetId);
+    }
+    return { title: titleCase(title), description: details.join(' · '), contents, tile, assetId, glyph: ch, isCorpse: corpse, isStatue: statue, useCssTerrain, terrainClasses };
+  }
+  function diagnosticTooltipInfoForCell(cell, x, y, context = {}) {
+    const player = tooltipInfoForCell(cell, x, y, context);
+    if (!player) return null;
+    const normalized = TileAssets.normalizeCell(cell);
+    const semanticKind = String(normalized.semanticKind || '');
+    const category = categoryLabelForTile(player.tile, semanticKind);
+    const details = [];
+    if (category) details.push(category);
     if (normalized.glyph != null && Number.isFinite(Number(normalized.glyph))) details.push(`glyph ${normalized.glyph}`);
     details.push(`map ${x},${y}`);
-    return { title: titleCase(title), description: details.join(' · '), tile, assetId, glyph: ch, isCorpse: corpse, isStatue: statue, useCssTerrain, terrainClasses };
+    return Object.freeze({ ...player, diagnosticDescription: details.join(' · '), coordinates: Object.freeze({ x, y }) });
   }
-  return Object.freeze({ version, cssTerrainGlyphs: Object.freeze(Array.from(cssTerrainGlyphs)), legacyCssFloorAssetIds: Object.freeze(Array.from(legacyCssFloorAssetIds)), legacyCssDungeonAssetIds: Object.freeze(Array.from(legacyCssDungeonAssetIds)), wallGlyphs: Object.freeze(Array.from(wallGlyphs)), doorGlyphs: Object.freeze(Array.from(doorGlyphs)), humanizeId, titleCase, displayNameForAsset, categoryLabelForTile, doorTerrainClassForAsset, terrainClassForCell, contextualTerrainClasses, shouldUseCssTerrain, shouldForceFloorUnderGlyph, glyphAt, isCorpseCell, isStatueCell, cellViewModel, tooltipInfoForCell });
+  return Object.freeze({ version, cssTerrainGlyphs: Object.freeze(Array.from(cssTerrainGlyphs)), legacyCssFloorAssetIds: Object.freeze(Array.from(legacyCssFloorAssetIds)), legacyCssDungeonAssetIds: Object.freeze(Array.from(legacyCssDungeonAssetIds)), wallGlyphs: Object.freeze(Array.from(wallGlyphs)), doorGlyphs: Object.freeze(Array.from(doorGlyphs)), humanizeId, titleCase, displayNameForAsset, categoryLabelForTile, doorTerrainClassForAsset, terrainClassForCell, contextualTerrainClasses, shouldUseCssTerrain, shouldForceFloorUnderGlyph, glyphAt, isCorpseCell, isStatueCell, cellViewModel, playerTooltipInfoForCell: tooltipInfoForCell, tooltipInfoForCell, diagnosticTooltipInfoForCell });
 }));

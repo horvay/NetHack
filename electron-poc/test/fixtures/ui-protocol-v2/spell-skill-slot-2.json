@@ -1,0 +1,56 @@
+{
+  "schema": "nethack-electron-ui-v2-spell-skill-slot-2/v1",
+  "valid": {
+    "spellUnknownOmissions": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 40,
+      "eventId": "evt-slot2-spell-unknown",
+      "eventType": "spell.rows",
+      "turn": 8,
+      "requestId": "slot2-spell-menu",
+      "transactionId": "slot2-spell-command",
+      "source": { "layer": "core", "event": "native.spell.rows", "authoritative": true },
+      "revision": { "spell": 4 },
+      "payload": {
+        "menuId": "slot2-spell-menu",
+        "revision": 4,
+        "classificationConfidence": "typed",
+        "rows": [{ "name": "unknown spell entry", "selector": "a" }]
+      }
+    },
+    "skillUnknownOmissions": {
+      "protocol": "nethack-electron-ui/v2",
+      "sequence": 41,
+      "eventId": "evt-slot2-skill-unknown",
+      "eventType": "skill.rows",
+      "turn": 8,
+      "requestId": "slot2-skill-menu",
+      "transactionId": "slot2-skill-command",
+      "source": { "layer": "core", "event": "native.skill.rows", "authoritative": true },
+      "revision": { "skill": 5 },
+      "payload": {
+        "menuId": "slot2-skill-menu",
+        "revision": 5,
+        "classificationConfidence": "typed",
+        "rows": [{ "name": "dagger", "currentRank": "Basic", "canAdvance": false }]
+      }
+    }
+  },
+  "invalid": {
+    "estimatedSpellFact": { "kind": "spell", "patch": { "estimatedDamage": "2d6" } },
+    "duplicateSpellSelector": { "kind": "spell", "duplicateSelector": true },
+    "nonAdvanceableSkillSelector": { "kind": "skill", "patch": { "selector": "a", "canAdvance": false } },
+    "unknownSkillRank": { "kind": "skill", "patch": { "currentRank": "Legendary" } },
+    "authoritativeRendererSource": { "kind": "spell", "source": { "layer": "renderer", "authoritative": true } },
+    "requestMenuMismatch": { "kind": "spell", "requestId": "foreign-menu" }
+  },
+  "reducer": {
+    "duplicateEventId": "reject without mutation",
+    "outOfOrderSequence": "reject without mutation",
+    "duplicateRevision": "reject without mutation",
+    "wrongMenuKind": "reject without mutation",
+    "noActiveOwner": "reject without mutation",
+    "invalidCollectionAtomic": "reject the entire collection and preserve the prior typed snapshot",
+    "typedPreferredOverFallback": "legacy text may not replace typed rows for the same request"
+  }
+}

@@ -40,7 +40,7 @@ assert(clearEffect, 'a visible reprint without object-layer metadata clears stal
 assert.equal(clearEffect.snapshot.items.length, 0);
 assert.equal(Ground.groundPileAt(view.state.groundPiles, { x: 20, y: 7 }).items.length, 0);
 
-const rendererFirst = Ground.createGroundPileSnapshotEvent({ revision: 1, coord: { x: 21, y: 7 }, items: [{ text: 'a renderer-observed rock' }] }, { sequence: 11, source: { layer: 'renderer' } });
+const rendererFirst = Ground.createGroundPileSnapshotEvent({ revision: 1, coord: { x: 21, y: 7 }, items: [{ text: 'a renderer-observed rock', semanticKnown: false, known: { identity: false, appearance: true } }] }, { sequence: 11, source: { layer: 'renderer' } });
 result = view.process(rendererFirst);
 assert.equal(effectOf(result, 'ground-pile-snapshot').snapshot.items[0].displayName, 'a renderer-observed rock');
 result = view.process({
@@ -61,7 +61,7 @@ assert.equal(supersedeEffect.snapshot.authoritativeRevision, 1, 'native revision
 assert.equal(supersedeEffect.snapshot.items[0].objectId, 90210);
 assert.equal(effectOf(result, 'ground-pile-snapshot-rejected'), undefined);
 
-const laterRendererObservation = Ground.createGroundPileSnapshotEvent({ revision: 4, coord: { x: 21, y: 7 }, items: [{ text: 'a later renderer-observed rock' }] }, { sequence: 12, source: { layer: 'renderer' } });
+const laterRendererObservation = Ground.createGroundPileSnapshotEvent({ revision: 4, coord: { x: 21, y: 7 }, items: [{ text: 'a later renderer-observed rock', semanticKnown: false, known: { identity: false, appearance: true } }] }, { sequence: 12, source: { layer: 'renderer' } });
 result = view.process(laterRendererObservation);
 assert.equal(effectOf(result, 'ground-pile-snapshot').snapshot.authoritativeRevision, 1, 'renderer observations preserve the last accepted native clock');
 result = view.process({
@@ -125,7 +125,7 @@ assert.equal(authoritativeEffect.snapshot.items[0].semanticName, undefined, 'hid
 assert(authoritativeEffect.snapshot.items.some((item) => item.displayName === 'a food ration'), JSON.stringify(authoritativeEffect.snapshot.items));
 assert.deepEqual(authoritativeEffect.snapshot.items.find((item) => /chest/.test(item.displayName)).actionAffordances, ['container'], 'ground object snapshots must not leak locked/trapped container state as public action hints');
 
-const staleEvent = Ground.createGroundPileSnapshotEvent({ revision: 0, coord: { x: 20, y: 7 }, items: [{ text: 'a stale rock' }] }, { sequence: 2, source: { layer: 'test' } });
+const staleEvent = Ground.createGroundPileSnapshotEvent({ revision: 0, coord: { x: 20, y: 7 }, items: [{ text: 'a stale rock', semanticKnown: false, known: { identity: false, appearance: true } }] }, { sequence: 2, source: { layer: 'test' } });
 result = view.process(staleEvent);
 const staleEffect = effectOf(result, 'ground-pile-snapshot-rejected');
 assert(staleEffect?.stale, 'lower-revision public ground evidence is rejected by shared reducer');

@@ -85,14 +85,15 @@ async function main() {
     const directionAfterEsc = await uiState(cdp);
     results.checks.directionPromptEscapeReachedGameExactlyOnce = directionAfterEsc.sent === '\u001b' && !directionAfterEsc.dialogs.includes('interaction-dialog');
 
-    // Generic interaction prompt / quit confirmation: Escape sends NetHack cancel and closes the renderer modal.
+    // Generic y/n confirmation: Escape sends NetHack's canonical safe `n`
+    // response (the tty window-port contract) and closes one renderer layer.
     await evalExpr(cdp, `(() => { const t = window.__nethackPromptTest; t.reset(); t.setRunning(true); t.event({name:'shim_yn_function', query:'Really quit?', choices:'yn\\u001b', requestId:'quit-esc'}); })()`);
     await waitFor(async () => (await uiState(cdp)).dialogs.includes('interaction-dialog'));
     results.screenshots.quitPromptBeforeEsc = await shot(cdp, '01-quit-confirmation-before-escape.png');
     await pressEscape(cdp);
     const quitAfter = await waitFor(async () => { const s = await uiState(cdp); return !s.dialogs.includes('interaction-dialog') ? s : null; });
     results.screenshots.quitPromptAfterEsc = await shot(cdp, '02-quit-confirmation-after-escape.png');
-    results.checks.quitPromptEscapeSentCancel = /\u001b/.test(JSON.stringify(quitAfter.sent)) || quitAfter.sent.includes('\u001b');
+    results.checks.quitPromptEscapeSentCanonicalNo = quitAfter.sent === 'n';
     results.checks.quitPromptClosed = !quitAfter.dialogs.includes('interaction-dialog') && !quitAfter.prompt;
 
     // Inventory/equipment overlay: Escape closes the paper-doll inventory and cancels the backing NetHack menu.
@@ -143,14 +144,14 @@ async function main() {
     results.checks.groundTransferEscapeDidNotReachGame = groundAfter.sent === '';
     results.checks.groundTransferDragStateCleared = !(await evalExpr(cdp, `Boolean(document.querySelector('.dragging, .drag-over'))`));
 
-    // Three nested owners: a native Actions modal is above a body-owned ground
-    // item context menu, which is above the passive ground panel. Each distinct
+    // Three nested owners: the production command palette is above a body-owned
+    // ground item context menu, which is above the passive ground panel. Each distinct
     // Escape closes one visible layer; a held repeat closes nothing extra.
     await evalExpr(cdp, `(() => { const t = window.__nethackPromptTest; t.setContainerStateForTest({ active:true, sessionKind:'ground-pickup', phase:'ground-snapshot', prompt:'Ground items', leftItems:[{selector:97, text:'a - a runed dagger', semanticKind:'object'}], rightItems:[{selector:98, text:'b - a food ration', semanticKind:'object'}], loadedSides:{left:true,right:true}, feedback:'Drag a ground row to Your inventory to pick it up.' }); t.clearSentInputs(); const row = document.querySelector('.container-pane.left-pane .container-item-row'); const rect = row?.getBoundingClientRect?.(); row?.dispatchEvent(new MouseEvent('contextmenu', { bubbles:true, cancelable:true, clientX:(rect?.left || 40) + 20, clientY:(rect?.top || 40) + 20 })); document.getElementById('open-actions')?.click(); })()`);
-    await waitFor(async () => { const s = await uiState(cdp); return s.container.active && s.contextMenuOpen && s.dialogs.includes('action-dialog') ? s : null; });
+    await waitFor(async () => { const s = await uiState(cdp); return s.container.active && s.contextMenuOpen && s.dialogs.includes('ux-command-palette') ? s : null; });
     results.screenshots.nestedBeforeEsc = await shot(cdp, '08d-nested-actions-over-ground-before-escape.png');
     await cdp.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27, nativeVirtualKeyCode: 27 });
-    const nestedAfterFirst = await waitFor(async () => { const s = await uiState(cdp); return !s.dialogs.includes('action-dialog') && s.contextMenuOpen && s.container.active && !s.container.hidden ? s : null; });
+    const nestedAfterFirst = await waitFor(async () => { const s = await uiState(cdp); return !s.dialogs.includes('ux-command-palette') && s.contextMenuOpen && s.container.active && !s.container.hidden ? s : null; });
     results.screenshots.nestedAfterFirstEsc = await shot(cdp, '08e-nested-after-first-escape.png');
     const sentAfterTopmostCancel = nestedAfterFirst.sent;
     await cdp.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', autoRepeat: true, windowsVirtualKeyCode: 27, nativeVirtualKeyCode: 27 });
@@ -162,7 +163,7 @@ async function main() {
     results.screenshots.nestedAfterSecondEsc = await shot(cdp, '08f-nested-after-second-escape.png');
     await pressEscape(cdp);
     const nestedAfterThird = await waitFor(async () => { const s = await uiState(cdp); return s.container.hidden ? s : null; });
-    results.checks.nestedEscapeClosedModalOnly = !nestedAfterFirst.dialogs.includes('action-dialog') && nestedAfterFirst.contextMenuOpen && !nestedAfterFirst.container.hidden;
+    results.checks.nestedEscapeClosedModalOnly = !nestedAfterFirst.dialogs.includes('ux-command-palette') && nestedAfterFirst.contextMenuOpen && !nestedAfterFirst.container.hidden;
     results.checks.heldEscapeRepeatDidNotTearThroughStack = nestedAfterHeldRepeat.contextMenuOpen && !nestedAfterHeldRepeat.container.hidden && nestedAfterHeldRepeat.sent === sentAfterTopmostCancel;
     results.checks.nestedSecondEscapeClosedContextOnly = !nestedAfterSecond.contextMenuOpen && !nestedAfterSecond.container.hidden;
     results.checks.nestedThirdEscapeClosedGround = nestedAfterThird.container.hidden;
@@ -175,10 +176,10 @@ async function main() {
     await pressEscape(cdp);
     const shopAfter = await waitFor(async () => { const s = await uiState(cdp); return !s.dialogs.includes('interaction-dialog') ? s : null; });
     results.checks.shopOfferClosed = !shopAfter.dialogs.includes('interaction-dialog');
-    results.checks.shopOfferSentCancel = shopAfter.sent.includes('\u001b');
+    results.checks.shopOfferSentCanonicalQuit = shopAfter.sent === 'q';
 
     // Help/document window: Escape from the filter field closes the document instead of leaking to gameplay.
-    await evalExpr(cdp, `(() => { const t = window.__nethackPromptTest; t.reset(); t.setRunning(true); t.event({name:'shim_create_nhwindow', return:910, windowType:4}); t.event({name:'shim_putstr', window:910, text:'NetHack help/file window'}); t.event({name:'shim_putstr', window:910, text:'Commands: i inventory, ? help, Esc cancels menus.'}); t.event({name:'shim_display_nhwindow', window:910, blocking:1}); document.getElementById('document-filter')?.focus(); })()`);
+    await evalExpr(cdp, `(() => { const t = window.__nethackPromptTest; t.reset(); t.setRunning(true); t.event({name:'shim_create_nhwindow', return:910, windowType:4}); t.event({name:'shim_putstr', window:910, text:'NetHack Help'}); t.event({name:'shim_putstr', window:910, text:'Commands: i inventory, ? help, Esc cancels menus.'}); t.event({name:'shim_display_nhwindow', window:910, blocking:1}); document.getElementById('document-filter')?.focus(); })()`);
     await waitFor(async () => (await uiState(cdp)).dialogs.includes('document-dialog'));
     results.screenshots.documentBeforeEsc = await shot(cdp, '09-document-window-before-escape.png');
     await pressEscape(cdp);
@@ -196,7 +197,7 @@ async function main() {
     results.checks.readOnlyMenuClosed = !readOnlyAfter.dialogs.includes('interaction-dialog');
     results.checks.readOnlyMenuSentCancel = readOnlyAfter.sent.includes('\u001b');
 
-    // App popups: settings, character/new-game, and action command modal all close on Escape.
+    // App popups: settings, character/new-game, and the command palette all close on Escape.
     await evalExpr(cdp, `window.__nethackPromptTest.reset(); window.__nethackPromptTest.setRunning(false); document.getElementById('settings-button')?.click();`);
     const settingsBefore = await waitFor(async () => { const s = await uiState(cdp); return s.dialogs.includes('settings-dialog') ? s : null; });
     results.screenshots.settingsBeforeEsc = await shot(cdp, '13-settings-before-escape.png');
@@ -216,8 +217,8 @@ async function main() {
     await evalExpr(cdp, `document.getElementById('repeat-count')?.focus()`);
     results.screenshots.actionsBeforeEsc = await shot(cdp, '15-actions-before-escape.png');
     await pressEscape(cdp);
-    const actionsAfter = await waitFor(async () => { const s = await uiState(cdp); return !s.dialogs.includes('action-dialog') ? s : null; });
-    results.checks.actionDialogClosed = !actionsAfter.dialogs.includes('action-dialog');
+    const actionsAfter = await waitFor(async () => { const s = await uiState(cdp); return !s.dialogs.includes('ux-command-palette') ? s : null; });
+    results.checks.actionDialogClosed = !actionsAfter.dialogs.includes('ux-command-palette');
 
     // Startup choice is required: Escape is consumed but cannot dismiss it.
     await evalExpr(cdp, `(() => { const t = window.__nethackPromptTest; t.reset(); t.setRunning(false); const dialog = document.getElementById('startup-choice-dialog'); if (!dialog.open) dialog.showModal(); document.getElementById('startup-new-game')?.focus(); })()`);

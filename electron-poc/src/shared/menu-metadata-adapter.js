@@ -1,7 +1,7 @@
 (function initMenuMetadataAdapter(root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./interaction-model'), require('./ui-protocol-v2'));
-  else root.NetHackMenuMetadataAdapter = factory(root.NetHackInteractionModel, root.NetHackUiProtocolV2);
-}(typeof globalThis !== 'undefined' ? globalThis : this, function factory(InteractionModel, UiProtocolV2) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./interaction-model'), require('./ui-protocol-v2'), require('./public-item-knowledge'));
+  else root.NetHackMenuMetadataAdapter = factory(root.NetHackInteractionModel, root.NetHackUiProtocolV2, root.NetHackPublicItemKnowledge);
+}(typeof globalThis !== 'undefined' ? globalThis : this, function factory(InteractionModel, UiProtocolV2, PublicItemKnowledge = {}) {
   const version = 'nethack-menu-metadata-adapter/v1';
   const defaultSourceLayer = 'v1-compat-adapter';
 
@@ -9,7 +9,17 @@
   function text(value) { return value == null ? '' : String(value); }
   function safeIdPart(value) { return text(value).replace(/[^A-Za-z0-9_.:-]+/g, '-').replace(/^-|-$/g, '') || 'unknown'; }
   function cloneItems(items) { return Array.isArray(items) ? items.map((item) => ({ ...item })) : []; }
-  function selectorText(selector) { return Number.isFinite(Number(selector)) && Number(selector) > 0 ? String.fromCharCode(Number(selector)) : undefined; }
+  function selectorText(selector) {
+    if (typeof selector === 'string' && selector.length === 1) return selector;
+    return Number.isFinite(Number(selector)) && Number(selector) > 0 ? String.fromCharCode(Number(selector)) : undefined;
+  }
+  function publicMenuItemText(item) {
+    const raw = text(item?.text).replace(/\s+/g, ' ').trim();
+    if (!PublicItemKnowledge.isObjectMenuItem(item)) return raw;
+    const selector = selectorText(item?.selector);
+    const prefix = selector ? `${selector} - ` : '';
+    return `${prefix}${PublicItemKnowledge.publicDisplayLabel(item, { neutral: 'item' })}`;
+  }
   function selectableRows(menu) { return (menu?.items || []).filter((item) => item?.selector); }
   function selectionModeFromHow(how) {
     const n = Number(how || 0);
@@ -49,11 +59,19 @@
     const rows = (menu?.items || []).map((item) => text(item?.text)).join(' ');
     return /^(?:Take out|Put in).*(?:type|class|kind)|what type/i.test(prompt) || /\bAll types\b/i.test(rows);
   }
+  function isInventoryObjectSelectionMenu(menu, context = {}) {
+    if (!isAwaitingSelection(menu)) return false;
+    const prompt = text(menu?.prompt).trim();
+    if (/\bdo what with\b/i.test(prompt)) return false;
+    if (/^(?:Pick(?:\s+\d+)?\s+(?:up\s+)?(?:of\s+)?what|Drop(?:\s+what)?|What do you want to (?:drop|read|eat|quaff|drink|apply|wield|wear|take off|remove|zap|throw|fire|identify|name|call|dip|rub|invoke|offer|force|quiver)|Which (?:item|object)|Pay (?:for )?which items?)\??$/i.test(prompt)) return true;
+    const command = text(context.requestSource?.command || menu?.requestSource?.command).trim();
+    return /^(?:pickup|drop|read|eat|quaff|apply|wield|wear|remove|zap|throw|fire|identify|name|call|dip|rub|invoke|offer|force|quiver|pay)$/i.test(command);
+  }
   function isPromptlessObjectMenu(menu) {
     const prompt = text(menu?.prompt).trim();
     const rows = selectableRows(menu);
     if (!rows.length || (prompt && !/^Menu$/i.test(prompt))) return false;
-    return rows.every((item) => item.semanticKind === 'object' || /^[a-z$]\s+-\s+/i.test(text(item.text)));
+    return rows.every((item) => PublicItemKnowledge.isObjectMenuItem(item));
   }
   function isInventoryOverviewMenu(menu, context = {}) {
     if (menu?.suppressPicker || isGroundLookMenu(menu)) return false;
@@ -61,8 +79,9 @@
     const kind = InteractionModel?.menuKind ? InteractionModel.menuKind(menu) : 'menu';
     if (kind === 'inventory' && /^(?:Inventory|Possessions):?$/i.test(prompt)) return true;
     if (prompt && !/^Menu$/i.test(prompt)) return false;
-    if (context.lastWorldCommand !== 'i' && context.requestSource?.command !== 'inventory') return false;
-    return isPromptlessObjectMenu(menu);
+    const authoritativeInventoryRequest = context.requestSource?.command === 'inventory' || menu?.requestSource?.command === 'inventory';
+    if (authoritativeInventoryRequest && !isAwaitingSelection(menu)) return selectableRows(menu).length > 0;
+    return context.lastWorldCommand === 'i' && isPromptlessObjectMenu(menu);
   }
   function isHelpLikeMenu(menu) {
     const prompt = text(menu?.prompt);
@@ -89,6 +108,8 @@
     if (isContainerPutInMenu(menu)) return 'container.putIn';
     if (isContainerCategoryMenu(menu)) return 'container.category';
     if (isInventoryOverviewMenu(menu, context)) return 'inventory.overview';
+    if (InteractionModel?.menuKind?.(menu) === 'transfer') return 'transfer.classic';
+    if (isInventoryObjectSelectionMenu(menu, context)) return 'inventory.objectChoice';
     if (isStartupLikeMenu(menu)) return 'system.startup';
     if (isStatusLikeMenu(menu)) return 'system.status';
     if (isHelpLikeMenu(menu)) return 'system.help';
@@ -135,6 +156,8 @@
     else if (isContainerPutInMenu(menu)) purpose = 'container.putIn';
     else if (isContainerCategoryMenu(menu)) purpose = 'container.category';
     else if (isInventoryOverviewMenu(menu, context)) purpose = 'inventory.overview';
+    else if (kind === 'transfer') purpose = 'transfer.classic';
+    else if (isInventoryObjectSelectionMenu(menu, context)) purpose = 'inventory.objectChoice';
     else if (kind === 'inventory' && isAwaitingSelection(menu)) purpose = 'action.choice';
     else if (kind === 'inventory') purpose = 'inventory.classic';
     else if (kind === 'transfer') purpose = 'transfer.classic';
@@ -172,11 +195,26 @@
     const commonPayload = { menuId: metadata.menuId, menuPurpose: metadata.purpose, owner: metadata.owner, selectionMode: metadata.selectionMode, requestSource: metadata.requestSource };
     const events = [makeEnvelope('menu.opened', { ...commonPayload }, { ...base, sequence: sequence++ })];
     cloneItems(menu?.items).forEach((item, index) => {
-      const publicItem = { selector: selectorText(item.selector), text: text(item.text), index };
-      if (item.semanticKind) publicItem.semanticKind = item.semanticKind;
-      if (item.semanticAppearance) publicItem.semanticAppearance = item.semanticAppearance;
-      if (typeof item.semanticKnown === 'boolean') publicItem.semanticKnown = item.semanticKnown;
-      if (item.semanticKnown === true && item.semanticName) publicItem.semanticName = item.semanticName;
+      const nonObjectChoicePurpose = /^(?:action\.choice|container\.(?:action|category)|system\.|options\.|spell\.|menu\.generic)/.test(metadata.purpose);
+      const objectRowPurpose = /^(?:inventory\.|ground\.(?:pickup|look)|container\.(?:takeOut|putIn)|transfer\.|shop\.|object\.)/.test(metadata.purpose);
+      // Selector/text is ambiguous until the complete menu and its authoritative
+      // purpose are available. Promote legacy rows here, never in shim ingress.
+      const projectionSource = item.semanticKind == null && nonObjectChoicePurpose ? { ...item, semanticKind: 'menu-choice' }
+        : (item.semanticKind == null && objectRowPurpose && selectorText(item.selector) ? { ...item, semanticKind: 'object' } : item);
+      const publicItem = { selector: selectorText(item.selector), text: publicMenuItemText(projectionSource), index };
+      if (projectionSource.semanticKind) publicItem.semanticKind = projectionSource.semanticKind;
+      if (PublicItemKnowledge.isObjectMenuItem(projectionSource)) {
+        publicItem.semanticKnown = PublicItemKnowledge.identityIsPublic(projectionSource);
+        publicItem.known = { ...PublicItemKnowledge.publicKnownFlags(projectionSource) };
+        if (projectionSource.known?.appearance !== false && (projectionSource.semanticAppearance || projectionSource.appearanceName || projectionSource.known?.appearance === true)) publicItem.semanticAppearance = projectionSource.known?.appearance === true
+          ? PublicItemKnowledge.publicLabel(projectionSource, { neutral: 'item' })
+          : PublicItemKnowledge.explicitAppearance(projectionSource);
+        if (PublicItemKnowledge.identityIsPublic(projectionSource) && projectionSource.semanticName) publicItem.semanticName = projectionSource.semanticName;
+        for (const key of ['calledName', 'individualName']) {
+          const value = PublicItemKnowledge.publicNamingValue(projectionSource, key);
+          if (value) publicItem[key] = value;
+        }
+      }
       events.push(makeEnvelope('menu.item', { menuId: metadata.menuId, item: publicItem }, { ...base, sequence: sequence++ }));
     });
     events.push(makeEnvelope('menu.ready', { ...commonPayload, prompt: text(menu?.prompt) }, { ...base, sequence: sequence++ }));

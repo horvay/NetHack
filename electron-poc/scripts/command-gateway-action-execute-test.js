@@ -8,7 +8,7 @@ function make(overrides = {}) {
     commandId: 'cmd-test-drop',
     transactionId: 'txn-test-drop',
     action: { id: 'item.drop', label: 'Drop' },
-    item: { selector: 'j', text: 'j - a scroll labeled ZELGO MER', actionAffordances: ['drop', 'read'] },
+    item: { selector: 'j', text: 'j - a scroll labeled ZELGO MER', semanticKnown: false, known: { identity: false, appearance: true }, actionAffordances: ['drop', 'read'] },
     route: { actionId: 'item.drop', command: 'dj', selector: 'j', label: 'Drop' },
     expectedRevision: { inventory: 7, equipment: 3 },
     source: 'test',
@@ -66,8 +66,47 @@ function make(overrides = {}) {
 
 {
   const command = make({ expectedRevision: { inventory: 6, equipment: 3 } });
-  const plan = CommandGateway.validateActionExecuteCommand(command, { uiProtocol: UiProtocolV2, inventoryRevision: 7, equipmentRevision: 3, inventoryItems: [{ inventoryLetter: 'j', displayName: 'a scroll labeled ZELGO MER' }] });
-  assert.equal(plan.ok, true, plan.reason || 'revision churn is allowed when public selector target still matches');
+  const plan = CommandGateway.validateActionExecuteCommand(command, { uiProtocol: UiProtocolV2, inventoryRevision: 7, equipmentRevision: 3, inventoryItems: [{ inventoryLetter: 'j', displayName: 'a scroll labeled ZELGO MER', semanticKnown: false, known: { identity: false, appearance: true }, actionAffordances: ['read', 'drop'] }] });
+  assert.equal(plan.ok, true, plan.reason || 'legacy revision churn is allowed only when neither side claims authoritative object ownership and the public fingerprint matches');
+}
+
+function ownedBoxCommand(overrides = {}) {
+  return CommandGateway.createActionExecuteCommand({
+    commandId: overrides.commandId || 'cmd-owned-box', transactionId: overrides.transactionId || 'txn-owned-box',
+    action: { id: 'item.lootOrApply', label: 'Open / loot' },
+    item: { objectId: 1121, selector: 'y', inventoryLetter: 'y', text: 'y - a large box', quantity: 1, semanticKnown: true, semanticName: 'large box', known: { identity: true, appearance: true }, actionAffordances: ['apply', 'loot'], ...(overrides.item || {}) },
+    route: { actionId: 'item.lootOrApply', command: 'ay', selector: 'y', label: 'Open / loot', ...(overrides.route || {}) },
+    expectedRevision: overrides.expectedRevision || { inventory: 13 }, source: 'test',
+  });
+}
+function currentBox(overrides = {}) {
+  return { objectId: 1121, inventoryLetter: 'y', displayName: 'a large box', quantity: 1, semanticKnown: true, semanticName: 'large box', known: { identity: true, appearance: true, quantity: true }, actionAffordances: ['loot', 'apply'], ...overrides };
+}
+function withoutObjectId(item) { const copy = { ...item }; delete copy.objectId; return copy; }
+const ownedGatewayMatrix = [
+  ['missing current object ID', ownedBoxCommand(), [withoutObjectId(currentBox())], false],
+  ['missing command object ID while current claims ownership', ownedBoxCommand({ item: { objectId: undefined } }), [currentBox()], false],
+  ['same selector and name with neither side claiming ownership remains legacy-compatible', ownedBoxCommand({ item: { objectId: undefined } }), [withoutObjectId(currentBox())], true],
+  ['different current object ID', ownedBoxCommand(), [currentBox({ objectId: 2121 })], false],
+  ['same object ID with mutated name', ownedBoxCommand(), [currentBox({ displayName: 'a locked large box' })], false],
+  ['same object ID with mutated quantity', ownedBoxCommand(), [currentBox({ quantity: 2 })], false],
+  ['same object ID with mutated affordance', ownedBoxCommand(), [currentBox({ actionAffordances: ['apply'] })], false],
+  ['duplicate current object IDs', ownedBoxCommand(), [currentBox(), currentBox({ inventoryLetter: 'x' })], false],
+  ['duplicate current selector rows', ownedBoxCommand(), [currentBox(), currentBox({ objectId: 2121 })], false],
+  ['stale or absent authoritative rows', ownedBoxCommand(), undefined, false],
+  ['exact unchanged authoritative object', ownedBoxCommand(), [currentBox()], true],
+];
+for (const [label, command, inventoryItems, expectedOk] of ownedGatewayMatrix) {
+  const plan = CommandGateway.validateActionExecuteCommand(command, { uiProtocol: UiProtocolV2, inventoryRevision: 14, inventoryItems, requireExpectedRevisionForKnownSnapshots: true });
+  assert.equal(plan.ok, expectedOk, `${label}: ${plan.reason || 'accepted'}`);
+  if (!expectedOk) assert.equal(plan.blockerToken, 'blocked.input.staleRevision', `${label} must fail at the stale-target production boundary`);
+}
+
+{
+  const command = ownedBoxCommand({ route: { selector: 'x' } });
+  const plan = CommandGateway.validateActionExecuteCommand(command, { uiProtocol: UiProtocolV2, inventoryRevision: 13, inventoryItems: [currentBox()] });
+  assert.equal(plan.ok, false, 'contradictory selector aliases reject even before stale re-resolution');
+  assert.equal(plan.blockerToken, 'blocked.input.malformedTarget');
 }
 
 {
@@ -82,7 +121,7 @@ function make(overrides = {}) {
   const command = make({
     action: { id: 'ground.openContainer', label: 'Open / loot here' },
     route: { actionId: 'ground.openContainer', command: '#loot\n' },
-    target: { location: { kind: 'ground' }, displayName: 'a large box' },
+    target: { location: { kind: 'ground' }, displayName: 'a large box', semanticKnown: false, known: { identity: false, appearance: true } },
     payload: { promptPolicy: 'netHack-owned-followup' },
     item: { text: 'a large box' },
     expectedRevision: { ground: 12 },
@@ -107,7 +146,7 @@ function make(overrides = {}) {
   const command = make({
     action: { id: 'ground.tipContainer', label: 'Tip contents here' },
     route: { actionId: 'ground.tipContainer', command: '#tip\n' },
-    target: { location: { kind: 'ground' }, displayName: 'a large box' },
+    target: { location: { kind: 'ground' }, displayName: 'a large box', semanticKnown: false, known: { identity: false, appearance: true } },
     payload: { promptPolicy: 'netHack-owned-followup' },
     item: { text: 'a large box' },
     expectedRevision: { ground: 12 },
@@ -123,7 +162,7 @@ function make(overrides = {}) {
   const command = make({
     action: { id: 'ground.forceContainer', label: 'Force lock here' },
     route: { actionId: 'ground.forceContainer', command: '#force\n' },
-    target: { location: { kind: 'ground' }, displayName: 'a large box' },
+    target: { location: { kind: 'ground' }, displayName: 'a large box', semanticKnown: false, known: { identity: false, appearance: true } },
     payload: { promptPolicy: 'netHack-owned-followup' },
     item: { text: 'a large box' },
     expectedRevision: { ground: 12 },
@@ -139,7 +178,7 @@ function make(overrides = {}) {
   const command = make({
     action: { id: 'ground.openContainer', label: 'Loot bag' },
     route: { actionId: 'ground.openContainer', command: '#loot\n' },
-    target: { location: { kind: 'ground' }, displayName: 'an empty bag' },
+    target: { location: { kind: 'ground' }, displayName: 'an empty bag', semanticKnown: false, known: { identity: false, appearance: true } },
     payload: { promptPolicy: 'netHack-owned-followup' },
     expectedRevision: { ground: 2 },
   });
@@ -193,7 +232,7 @@ function make(overrides = {}) {
   const command = make({
     action: { id: 'ground.dipIntoTerrain', label: 'Dip item in fountain' },
     route: { actionId: 'ground.dipIntoTerrain', command: '#dip\n' },
-    target: { location: { kind: 'ground' }, displayName: 'fountain' },
+    target: { location: { kind: 'ground' }, displayName: 'fountain', semanticKnown: false, known: { identity: false, appearance: true } },
     payload: { promptPolicy: 'netHack-owned-followup' },
     expectedRevision: { inventory: 5, equipment: 6, ground: 12 },
   });
@@ -209,7 +248,7 @@ function make(overrides = {}) {
   const command = make({
     action: { id: 'item.dipInto', label: 'Dip item' },
     route: { actionId: 'item.dipInto', command: '#dip\n' },
-    target: { selector: 'p', inventoryLetter: 'p', location: { kind: 'inventory' }, displayName: 'a milky potion' },
+    target: { selector: 'p', inventoryLetter: 'p', location: { kind: 'inventory' }, displayName: 'a milky potion', semanticKnown: false, known: { identity: false, appearance: true } },
     payload: { promptPolicy: 'netHack-owned-followup' },
   });
   const plan = CommandGateway.validateActionExecuteCommand(command, { uiProtocol: UiProtocolV2, inventoryRevision: 7 });
@@ -221,7 +260,7 @@ function make(overrides = {}) {
   const command = make({
     action: { id: 'ground.untrapContainer', label: 'Untrap container here' },
     route: { actionId: 'ground.untrapContainer', command: '#untrap\n' },
-    target: { location: { kind: 'ground' }, displayName: 'a large box' },
+    target: { location: { kind: 'ground' }, displayName: 'a large box', semanticKnown: false, known: { identity: false, appearance: true } },
     payload: { promptPolicy: 'netHack-owned-followup' },
     item: { text: 'a large box' },
     expectedRevision: { ground: 12 },
@@ -237,7 +276,7 @@ function make(overrides = {}) {
   const command = make({
     action: { id: 'ground.untrapContainer', label: 'Untrap container here' },
     route: { actionId: 'ground.untrapContainer', command: '#untrap\n' },
-    target: { location: { kind: 'ground' }, displayName: 'a large box' },
+    target: { location: { kind: 'ground' }, displayName: 'a large box', semanticKnown: false, known: { identity: false, appearance: true } },
     payload: { promptPolicy: 'netHack-owned-followup' },
     item: { text: 'a large box' },
     expectedRevision: { ground: 12 },
@@ -251,7 +290,7 @@ function make(overrides = {}) {
   const command = make({
     action: { id: 'ground.untrapContainer', label: 'Untrap container here' },
     route: { actionId: 'ground.untrapContainer', command: '#untrap\n' },
-    target: { location: { kind: 'inventory' }, displayName: 'a large box' },
+    target: { location: { kind: 'inventory' }, displayName: 'a large box', semanticKnown: false, known: { identity: false, appearance: true } },
     payload: { promptPolicy: 'netHack-owned-followup' },
   });
   const plan = CommandGateway.validateActionExecuteCommand(command, { uiProtocol: UiProtocolV2, groundRevision: 12 });
@@ -263,7 +302,7 @@ function make(overrides = {}) {
   const command = make({
     action: { id: 'ground.untrapContainer', label: 'Untrap container here' },
     route: { actionId: 'ground.untrapContainer', command: '#untrap\n' },
-    target: { location: { kind: 'ground' }, displayName: 'a large box' },
+    target: { location: { kind: 'ground' }, displayName: 'a large box', semanticKnown: false, known: { identity: false, appearance: true } },
     payload: { promptPolicy: 'no-followup' },
   });
   const plan = CommandGateway.validateActionExecuteCommand(command, { uiProtocol: UiProtocolV2, groundRevision: 12 });
@@ -275,7 +314,7 @@ function make(overrides = {}) {
   const command = make({
     action: { id: 'ground.untrapContainer', label: 'Untrap container here' },
     route: { actionId: 'ground.untrapContainer', command: '#force\n' },
-    target: { location: { kind: 'ground' }, displayName: 'a large box' },
+    target: { location: { kind: 'ground' }, displayName: 'a large box', semanticKnown: false, known: { identity: false, appearance: true } },
     payload: { promptPolicy: 'netHack-owned-followup' },
   });
   const plan = CommandGateway.validateActionExecuteCommand(command, { uiProtocol: UiProtocolV2, groundRevision: 12 });
@@ -287,7 +326,7 @@ function make(overrides = {}) {
   const command = make({
     action: { id: 'ground.openContainer', label: 'Open / loot here' },
     route: { actionId: 'ground.openContainer', command: '#tip\n' },
-    target: { location: { kind: 'ground' }, displayName: 'a large box' },
+    target: { location: { kind: 'ground' }, displayName: 'a large box', semanticKnown: false, known: { identity: false, appearance: true } },
     payload: { promptPolicy: 'netHack-owned-followup' },
   });
   const plan = CommandGateway.validateActionExecuteCommand(command, { uiProtocol: UiProtocolV2, groundRevision: 12 });
@@ -300,7 +339,7 @@ function make(overrides = {}) {
   const command = make({
     action: { id: 'ground.openContainer', label: 'Open / loot here' },
     route: { actionId: 'ground.openContainer', command: '#loot\n' },
-    target: { location: { kind: 'ground' }, displayName: 'a large box' },
+    target: { location: { kind: 'ground' }, displayName: 'a large box', semanticKnown: false, known: { identity: false, appearance: true } },
     payload: { promptPolicy: 'netHack-owned-followup' },
     expectedRevision: { ground: 11 },
   });
@@ -314,11 +353,11 @@ function make(overrides = {}) {
   const command = make({
     action: { id: 'ground.openContainer', label: 'Open / loot here' },
     route: { actionId: 'ground.openContainer', command: '#loot\n' },
-    target: { location: { kind: 'ground' }, displayName: 'a large box' },
+    target: { location: { kind: 'ground' }, displayName: 'a large box', semanticKnown: false, known: { identity: false, appearance: true } },
     payload: { promptPolicy: 'netHack-owned-followup' },
     expectedRevision: { ground: 11 },
   });
-  const plan = CommandGateway.validateActionExecuteCommand(command, { uiProtocol: UiProtocolV2, groundRevision: 12, requireExpectedRevisionForKnownSnapshots: true, groundItems: [{ displayName: 'a large box' }] });
+  const plan = CommandGateway.validateActionExecuteCommand(command, { uiProtocol: UiProtocolV2, groundRevision: 12, requireExpectedRevisionForKnownSnapshots: true, groundItems: [{ displayName: 'a large box', semanticKnown: false, known: { identity: false, appearance: true } }] });
   assert.equal(plan.ok, true, plan.reason || 'stale ground revision may proceed only when current main-side public ground rows still match the target');
 }
 
@@ -334,8 +373,8 @@ function make(overrides = {}) {
 {
   const command = make({ payload: { item: { displayName: 'a scroll', trueName: 'scroll of identify' } } });
   const checked = UiProtocolV2.validateCommandEnvelope(command);
-  assert.equal(checked.ok, false, 'action.execute payload item must honor no-spoiler public item schema');
-  assert.match(checked.errors.join('\n'), /trueName/);
+  assert.equal(checked.ok, true, 'action.execute builder normalizes payload item through the no-spoiler public item schema');
+  assert.equal(JSON.stringify(command).includes('trueName'), false, 'payload item cannot override the sanitized canonical item');
 }
 
 {

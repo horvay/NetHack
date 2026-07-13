@@ -1,0 +1,36 @@
+{
+  "schema": "nethack-electron-test-scenario/v2",
+  "id": "quest/leader-rejects-underleveled-hero",
+  "phase": "after-special-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "near-monster",
+    "placementTarget": "NORN",
+    "placementDistance": 2,
+    "role": "Valkyrie",
+    "race": "human",
+    "gender": "female",
+    "alignment": "lawful",
+    "alignmentRecord": 20,
+    "experienceLevel": 13,
+    "hp": 100,
+    "maxHp": 100,
+    "power": 30,
+    "maxPower": 30
+  },
+  "level": {
+    "safeAreaAroundHero": 4,
+    "lit": true,
+    "suppressAdjacentMonsters": false,
+    "pet": "none",
+    "specialLevel": "x-strt"
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [],
+  "expectedPublicFacts": {
+    "monsterRows": ["Norn"],
+    "contextActions": ["chat"],
+    "status": ["Valkyrie", "level 13"],
+    "messages": ["Quest leader rejects an underleveled hero"]
+  }
+}

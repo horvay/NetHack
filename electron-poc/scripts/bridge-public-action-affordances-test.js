@@ -90,6 +90,14 @@ function assertNoHiddenIdentity(item, forbidden, label) {
   if (item?.semanticKnown === false) assert.equal(item.semanticName, undefined, `${label} has semanticKnown=false but leaked semanticName`);
   for (const pattern of forbidden) assert.doesNotMatch(text, pattern, `${label} leaked hidden identity in public payload: ${text}`);
 }
+function assertPublicItemPresentation(item, expectedClass, expectedGroups, label) {
+  assert.equal(item?.publicClass, expectedClass, `${label} has authoritative public class`);
+  assert.deepEqual(item?.filterGroups || [], expectedGroups, `${label} has only class-safe public filters`);
+  assert(Array.isArray(item?.equipmentSlots), `${label} exposes an explicit applicable-slot list`);
+  assert(item?.knownFields && typeof item.knownFields === 'object' && !Array.isArray(item.knownFields), `${label} exposes reduced known fields object`);
+  assert(['owned', 'unpaid', 'for-sale'].includes(item?.ownership?.state), `${label} exposes public ownership state`);
+  for (const forbidden of ['trueName', 'otyp', 'spe', 'baseType']) assert.equal(item?.knownFields?.[forbidden], undefined, `${label} omits hidden ${forbidden}`);
+}
 function assertNoHiddenContainerTokens(item, label) {
   assertNoTokens(item, ['container.locked', 'container.trapped', 'container.broken', 'locked', 'trapped', 'broken'], label);
   assert.equal(item?.contents, undefined, `${label} public ground item must not expose hidden contents`);
@@ -112,6 +120,11 @@ function assertNoHiddenContainerTokens(item, label) {
   assertNoTokens(row(/leather armor/i), ['drop', 'throw'], 'worn leather armor');
   assertTokens(row(/arrows/i), ['quiver', 'fire', 'throw'], 'quivered arrows');
   assertTokens(row(/wand of digging/i), ['zap', 'apply', 'engrave', 'drop'], 'wand of digging');
+  assertPublicItemPresentation(row(/long sword/i), 'weapon', ['equipped', 'weapons'], 'wielded long sword');
+  assert.deepEqual(row(/long sword/i).equipmentSlots, ['mainHand', 'offHand'], 'weapon publishes main/offhand slots without merging them');
+  assertPublicItemPresentation(row(/leather armor/i), 'armor', ['equipped', 'armor'], 'worn leather armor');
+  assertPublicItemPresentation(row(/wand of digging/i), 'wand', ['magic'], 'wand of digging');
+  assert(Number.isInteger(row(/wand of digging/i).knownFields.charges), 'known wand publishes authoritative charges');
 }
 
 {
@@ -122,6 +135,7 @@ function assertNoHiddenContainerTokens(item, label) {
   assert.equal(scroll.semanticKnown, false, 'unidentified scroll remains semanticKnown=false');
   assert.equal(scroll.semanticName, undefined, 'unidentified scroll must not leak semanticName');
   assertTokens(scroll, ['read', 'drop'], 'unidentified ground scroll');
+  assertPublicItemPresentation(scroll, 'scroll', ['consumables', 'magic'], 'unidentified ground scroll');
 }
 
 {
@@ -156,6 +170,7 @@ function assertNoHiddenContainerTokens(item, label) {
   const grayItems = inventory.items.filter((item) => /gray stone/i.test(displayText(item)));
   assert.equal(grayItems.length, 4, 'expected four public gray stone rows for FLINT/TOUCHSTONE/LUCKSTONE/LOADSTONE fixtures');
   const referenceActions = JSON.stringify([...(grayItems[0].actionAffordances || [])].sort());
+  const referencePresentation = JSON.stringify({ publicClass: grayItems[0].publicClass, filterGroups: grayItems[0].filterGroups, equipmentSlots: grayItems[0].equipmentSlots, knownFields: grayItems[0].knownFields, ownership: grayItems[0].ownership });
   for (const item of grayItems) {
     const label = `gray stone candidate ${displayText(item)}`;
     assert.match(String(item.text || ''), /^[a-z] - a gray stone$/i, `${label} must not expose quiver/equipment or true identity text`);
@@ -165,6 +180,8 @@ function assertNoHiddenContainerTokens(item, label) {
     assert.equal(item.glyph, undefined, `${label} must redact true object glyph discriminator`);
     assert.equal(item.wornMask, 0, `${label} must not expose implicit fixture equipment state`);
     assert.equal(JSON.stringify([...(item.actionAffordances || [])].sort()), referenceActions, `${label} action affordances must be public-indistinguishable across hidden gray-stone identities`);
+    assert.equal(JSON.stringify({ publicClass: item.publicClass, filterGroups: item.filterGroups, equipmentSlots: item.equipmentSlots, knownFields: item.knownFields, ownership: item.ownership }), referencePresentation, `${label} item presentation must be public-indistinguishable across hidden gray-stone identities`);
+    assertPublicItemPresentation(item, 'gem', [], label);
     assertTokens(item, ['rub'], label);
     assertNoTokens(item, ['fire', 'wielded', 'container.locked', 'container.trapped', 'container.broken'], label);
     assertNoHiddenIdentity(item, [/flint/i, /touchstone/i, /luckstone/i, /loadstone/i], label);

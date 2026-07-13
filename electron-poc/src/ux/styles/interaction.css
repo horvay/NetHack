@@ -1,0 +1,264 @@
+/* UXM-01 shared interaction foundation. Domain-specific redesigns remain deferred. */
+.ux-player-notice-mount {
+  display: flex;
+  min-width: 0;
+  max-width: min(36rem, 46vw);
+}
+
+.ux-player-notice {
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--ux-space-2);
+  min-height: 2.25rem;
+  padding: var(--ux-space-1) var(--ux-space-3);
+  border: 1px solid var(--ux-color-border);
+  border-radius: var(--ux-radius-control);
+  color: var(--ux-color-text);
+  background: var(--ux-color-surface-raised);
+  font: 650 0.82rem/1.25 var(--ux-font-ui);
+}
+
+.ux-player-notice[hidden] { display: none; }
+.ux-player-notice-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-weight: 900;
+  line-height: 1;
+}
+.ux-player-notice-message { min-width: 0; overflow-wrap: anywhere; }
+.ux-notice-info { border-color: var(--ux-color-info); }
+.ux-notice-info .ux-player-notice-icon { color: var(--ux-color-info); }
+.ux-notice-success { border-color: var(--ux-color-success); }
+.ux-notice-success .ux-player-notice-icon { color: var(--ux-color-success); }
+.ux-notice-warning { border-color: var(--ux-color-warning); }
+.ux-notice-warning .ux-player-notice-icon { color: var(--ux-color-warning); }
+.ux-notice-error { border-color: var(--ux-color-error); background: oklch(0.23 0.045 25); }
+.ux-notice-error .ux-player-notice-icon { color: var(--ux-color-error); }
+.ux-player-notice-action { min-height: 2rem; padding: var(--ux-space-1) var(--ux-space-2); }
+
+button,
+input,
+select,
+textarea {
+  font-family: var(--ux-font-ui);
+}
+button {
+  min-height: 2.25rem;
+  border-color: var(--ux-color-border);
+  border-radius: var(--ux-radius-control);
+  color: var(--ux-color-text);
+  background: var(--ux-color-surface-raised);
+  transition: border-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    background-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    opacity var(--ux-motion-fast) var(--ux-motion-ease-out),
+    transform var(--ux-motion-fast) var(--ux-motion-ease-out);
+}
+button:hover:not(:disabled) { border-color: var(--ux-color-action-hover); background: oklch(0.28 0.026 78); }
+button:active:not(:disabled), .ux-state-active { transform: translateY(1px); }
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--ux-color-focus) !important;
+  outline-offset: 2px !important;
+}
+button:disabled,
+.ux-state-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: saturate(0.55);
+}
+.ux-state-loading { cursor: progress; }
+.ux-state-loading::after { content: '…'; margin-left: var(--ux-space-1); }
+.ux-state-selected { border-color: var(--ux-color-selection); background: oklch(0.25 0.045 238); }
+.ux-state-warning { border-color: var(--ux-color-warning); }
+.ux-state-error { border-color: var(--ux-color-error); }
+
+input,
+select,
+textarea {
+  min-height: 2.75rem;
+  border: 1px solid var(--ux-color-border);
+  border-radius: var(--ux-radius-control);
+  color: var(--ux-color-text);
+  background: var(--ux-color-surface-muted);
+}
+
+button.primary {
+  border-color: var(--ux-color-action-hover);
+  color: oklch(0.18 0.025 78);
+  background: var(--ux-color-action);
+  font-weight: 800;
+}
+button.primary:hover:not(:disabled) { background: var(--ux-color-action-hover); }
+
+/* Dialog contracts: one scroll owner, reachable actions, stable focus target. */
+dialog {
+  max-height: calc(100vh - 2rem);
+  padding: var(--ux-space-4);
+  overflow: hidden;
+  border-color: var(--ux-color-border);
+  border-radius: var(--ux-radius-overlay);
+  color: var(--ux-color-text);
+  background: var(--ux-color-surface);
+}
+dialog::backdrop { background: oklch(0.11 0.01 78 / 0.72); }
+dialog > form,
+dialog > .game-over-frame {
+  max-height: calc(100vh - 4rem);
+  min-height: 0;
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+dialog > form { padding: 2px; }
+.dialog-actions {
+  position: sticky;
+  z-index: 4;
+  bottom: -2px;
+  flex-wrap: wrap;
+  align-items: center;
+  min-height: 3.5rem;
+  padding: var(--ux-space-2) 0 2px;
+  border-top: 1px solid var(--ux-color-border);
+  background: var(--ux-color-surface);
+}
+.dialog-actions button { min-height: 2.75rem; }
+
+#interaction-form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+#interaction-options {
+  flex: 1 1 auto;
+  min-height: 0;
+  scroll-padding: var(--ux-space-2);
+}
+.choice-button {
+  min-height: 2.75rem;
+  border-color: var(--ux-color-border);
+  border-radius: var(--ux-radius-control);
+  color: var(--ux-color-text);
+  background: var(--ux-color-surface-muted);
+}
+.choice-button:hover { border-color: var(--ux-color-action-hover); background: var(--ux-color-surface-raised); }
+.choice-button:focus,
+.choice-button:focus-visible {
+  outline-color: var(--ux-color-focus) !important;
+  outline-style: solid !important;
+  outline-width: 3px !important;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--ux-color-focus) !important;
+}
+.choice-button[aria-selected="true"],
+.choice-button[aria-checked="true"],
+.choice-button.selected {
+  border-color: var(--ux-color-selection);
+  background: oklch(0.25 0.045 238);
+  box-shadow: inset 0 0 0 1px var(--ux-color-selection);
+}
+.choice-button[aria-checked="true"] .selection-chip::first-letter { color: var(--ux-color-selection); }
+.container-item-row.ux-stale-preserved {
+  border-color: var(--ux-color-selection);
+  background: oklch(0.25 0.045 238);
+  box-shadow: inset 0 0 0 1px var(--ux-color-selection);
+}
+
+/* Preserve dense expert rows with full keyboard parity at the permitted 32px floor. */
+.choice-button.inventory-row,
+.choice-button.transfer-row,
+.choice-button.spell-row,
+.choice-button.option-row,
+.choice-button.context-command-row,
+.rpg-equipment-dialog .choice-button.rpg-inventory-row { min-height: 2rem; }
+
+.interaction-dialog[data-dialog-family="confirmation"] { border-color: var(--ux-color-warning); }
+.interaction-dialog[data-dialog-family="confirmation"] #interaction-title { color: var(--ux-color-warning); }
+.interaction-dialog.destructive-confirm-dialog[data-dialog-family="confirmation"] { border-color: var(--ux-color-error); }
+.interaction-dialog.destructive-confirm-dialog[data-dialog-family="confirmation"] #interaction-title { color: var(--ux-color-error); }
+
+/* Intro owns one form scroll area. Its title and Continue action are always reachable. */
+dialog.intro-dialog { max-height: calc(100vh - 2rem); overflow: hidden; }
+.intro-dialog #intro-form { display: grid; grid-template-rows: minmax(0, 1fr) auto; overflow: hidden; }
+.intro-dialog .intro-frame { min-height: 0; overflow: auto; }
+.intro-dialog .intro-body { max-height: none; overflow: visible; }
+.intro-dialog .intro-actions { position: relative; bottom: auto; margin: 0 var(--ux-space-4) var(--ux-space-4); background: transparent; }
+
+/* The current character form keeps UXM-03 content intact while fixing shared action reachability. */
+.character-dialog #character-form,
+.settings-dialog #settings-form { overflow: auto; }
+.character-dialog .dialog-actions,
+.settings-dialog .dialog-actions { margin-top: var(--ux-space-2); }
+
+.container-transfer-panel {
+  background: var(--ux-color-surface);
+  box-shadow: 0 24px 80px oklch(0.08 0.01 78 / 0.9), 0 0 0 100vmax oklch(0.08 0.01 78 / 0.9), inset 0 0 0 1px oklch(0.91 0.012 82 / 0.04);
+}
+.container-transfer-panel:focus-visible { outline: 3px solid var(--ux-color-focus); outline-offset: 3px; }
+.container-transfer-panel[data-failure-locked] .container-item-row,
+.interaction-dialog[data-failure-locked] .choice-button { cursor: not-allowed; opacity: 0.64; }
+.container-transfer-panel[data-refresh-required="true"] .container-pane-title button,
+#interaction-refresh:not([hidden]) { border-style: double; font-weight: 800; }
+/* Preserve a nested context owner without leaving a clipped lower overlay visible beneath a newer native modal. */
+body:has(dialog[open]) > .inventory-context-menu { visibility: hidden; }
+
+@media (max-width: 1000px), (max-height: 760px) {
+  .ux-player-notice-mount { max-width: min(32rem, 58vw); }
+  dialog { max-height: calc(100vh - 1rem); padding: var(--ux-space-3); }
+  dialog > form,
+  dialog > .game-over-frame { max-height: calc(100vh - 2.5rem); }
+  .intro-dialog .intro-frame { margin: var(--ux-space-2); padding: var(--ux-space-4); }
+  .intro-dialog .intro-actions { margin: 0 var(--ux-space-2) var(--ux-space-2); }
+  .dialog-actions { min-height: 3.25rem; }
+}
+
+@media (max-width: 760px) {
+  .ux-player-notice-mount { width: 100%; max-width: none; }
+  .ux-player-notice { width: 100%; }
+  .choice-button.inventory-row.has-quantity-control,
+  .choice-button.transfer-row.has-quantity-control {
+    grid-template-columns: 1.15em 1.45em 1.2em minmax(0, 1fr);
+    row-gap: var(--ux-space-2);
+  }
+  .choice-button.has-quantity-control .quantity-control {
+    grid-column: 2 / -1;
+    justify-self: end;
+  }
+  .choice-button .menu-item-name,
+  .choice-button .choice-note,
+  .choice-button.letter-choice strong {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal !important;
+  }
+  .choice-button.letter-choice:not(.special-selector-choice):not(.unavailable-item-choice) {
+    grid-template-columns: minmax(7rem, 0.48fr) minmax(0, 1fr) auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  dialog.inventory-loading-dialog #interaction-prompt::before { animation: none !important; border-color: var(--ux-color-action); }
+}
+
+body[data-ux-motion="reduced"] *,
+body[data-ux-motion="reduced"] *::before,
+body[data-ux-motion="reduced"] *::after {
+  transition-duration: 0.01ms !important;
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+}
+body[data-ux-motion="reduced"] dialog.inventory-loading-dialog #interaction-prompt::before { animation: none !important; border-color: var(--ux-color-action); }
