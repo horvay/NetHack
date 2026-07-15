@@ -105,6 +105,9 @@ assert.equal(chip('Dlvl').value, 'The Dungeons of Doom:3');
 assert.equal(detailedChips.find((entry) => entry.label === 'Time').value, '214');
 assert.equal(chip('HD').value, '9', 'polymorph HD takes the persistent level role when present');
 assert.equal(detailedChips.find((entry) => entry.label === 'XP').value, '3210');
+for (const label of ['Str', 'Dex', 'Con', 'Int', 'Wis', 'Cha']) {
+  assert.equal(detailedChips.find((entry) => entry.label === label)?.value, detailChip(label).value, `${label} is available in the full HUD`);
+}
 assert.equal(chip('Carry').severity, 'warning');
 assert.equal(chip('Hunger').severity, 'danger');
 assert.equal(detailedChips.find((entry) => entry.label === 'On').value, 'ice');
@@ -124,16 +127,16 @@ for (const [field, value] of values.entries()) {
   if (field === 22) gameView.process({ name: 'shim_status_update', field, conditionMask: hud.parseConditionMask(value) });
   else gameView.process({ name: 'shim_status_update', field, value });
 }
-assert.equal(gameView.state.statusValues.get(1), '18/03');
-assert.equal(gameView.state.statusValues.get(10), '\\G000001f4:500');
-assert.equal(gameView.state.statusValues.get(22), `mask ${0x00000080 | 0x04000000 | 0x00400000}`);
+assert.equal(gameView.snapshot().statusValues.get(1), '18/03');
+assert.equal(gameView.snapshot().statusValues.get(10), '\\G000001f4:500');
+assert.equal(gameView.snapshot().statusValues.get(22), `mask ${0x00000080 | 0x04000000 | 0x00400000}`);
 const changedHp = gameView.process({ name: 'shim_status_update', field: 18, value: '3' });
 const changedGold = gameView.process({ name: 'shim_status_update', field: 10, value: '\\G00000258:600' });
 const changedConditions = gameView.process({ name: 'shim_status_update', field: 22, conditionMask: 0x00000002 | 0x00000008 });
 assert(changedHp.effects.some((effect) => effect.type === 'render-status'));
 assert(changedGold.effects.some((effect) => effect.type === 'render-status'));
 assert(changedConditions.effects.some((effect) => effect.type === 'render-status'));
-const liveGroups = hud.buildStatusGroups(gameView.state.statusValues);
+const liveGroups = hud.buildStatusGroups(gameView.snapshot().statusValues);
 const liveChips = liveGroups.flatMap((group) => group.items);
 assert.equal(liveChips.find((entry) => entry.label === 'HP').value, '3 / 40');
 assert.equal(liveChips.find((entry) => entry.label === 'HP').severity, 'danger');
@@ -142,9 +145,9 @@ assert.equal(liveChips.find((entry) => entry.label === 'Senses').value, 'Blind')
 assert.equal(liveChips.find((entry) => entry.label === 'Mind').value, 'Confused');
 const disabledGold = gameView.process({ name: 'shim_status_enablefield', field: 10, label: 'Gold', enabled: 0 });
 assert(disabledGold.effects.some((effect) => effect.type === 'render-status'));
-assert.equal(gameView.state.statusValues.has(10), false, 'disabled status field is removed from live state');
+assert.equal(gameView.snapshot().statusValues.has(10), false, 'disabled status field is removed from live state');
 const resetStatus = gameView.process({ name: 'shim_status_update', field: -2 });
 assert(resetStatus.effects.some((effect) => effect.type === 'render-status'));
-assert.equal(gameView.state.statusValues.has(1), true, 'BL_RESET refreshes rendering without discarding unchanged status fields');
+assert.equal(gameView.snapshot().statusValues.has(1), true, 'BL_RESET refreshes rendering without discarding unchanged status fields');
 
 console.log('ok - status HUD shared definitions, state updates, condition masks, and chip severities');

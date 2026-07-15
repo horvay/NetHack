@@ -1,12 +1,12 @@
 {"name":"shim_create_nhwindow","return":7,"windowType":2}
 {"name":"shim_start_menu","window":7,"behavior":0}
-{"name":"shim_add_menu","window":7,"selector":97,"text":"a - a spellbook of force bolt","glyph":101,"glyphChar":43,"semanticKind":"object","semanticName":"spellbook"}
-{"name":"shim_add_menu","window":7,"selector":98,"text":"b - a scroll labeled KIRJE","glyph":102,"glyphChar":63,"semanticKind":"object","semanticName":"scroll"}
-{"name":"shim_add_menu","window":7,"selector":99,"text":"c - a clear potion","glyph":103,"glyphChar":33,"semanticKind":"object","semanticName":"potion"}
-{"name":"shim_add_menu","window":7,"selector":100,"text":"d - a food ration","glyph":104,"glyphChar":37,"semanticKind":"object","semanticName":"food ration"}
-{"name":"shim_add_menu","window":7,"selector":101,"text":"e - a pick-axe","glyph":105,"glyphChar":40,"semanticKind":"object","semanticName":"pick-axe"}
-{"name":"shim_add_menu","window":7,"selector":102,"text":"f - a long sword","glyph":106,"glyphChar":41,"semanticKind":"object","semanticName":"long sword"}
-{"name":"shim_add_menu","window":7,"selector":103,"text":"g - a ring mail","glyph":107,"glyphChar":91,"semanticKind":"object","semanticName":"ring mail"}
+{"name":"shim_add_menu","window":7,"selector":97,"text":"a - a spellbook of force bolt","glyph":101,"glyphChar":43,"semanticKind":"object","semanticName":"spellbook of force bolt","semanticKnown":true}
+{"name":"shim_add_menu","window":7,"selector":98,"text":"b - a scroll labeled KIRJE","glyph":102,"glyphChar":63,"semanticKind":"object","semanticAppearance":"scroll labeled KIRJE","semanticKnown":false,"known":{"identity":false,"appearance":true}}
+{"name":"shim_add_menu","window":7,"selector":99,"text":"c - a clear potion","glyph":103,"glyphChar":33,"semanticKind":"object","semanticAppearance":"clear potion","semanticKnown":false,"known":{"identity":false,"appearance":true}}
+{"name":"shim_add_menu","window":7,"selector":100,"text":"d - a food ration","glyph":104,"glyphChar":37,"semanticKind":"object","semanticName":"food ration","semanticKnown":true}
+{"name":"shim_add_menu","window":7,"selector":101,"text":"e - a pick-axe","glyph":105,"glyphChar":40,"semanticKind":"object","semanticName":"pick-axe","semanticKnown":true}
+{"name":"shim_add_menu","window":7,"selector":102,"text":"f - a long sword","glyph":106,"glyphChar":41,"semanticKind":"object","semanticName":"long sword","semanticKnown":true}
+{"name":"shim_add_menu","window":7,"selector":103,"text":"g - a ring mail","glyph":107,"glyphChar":91,"semanticKind":"object","semanticName":"ring mail","semanticKnown":true}
 {"name":"shim_end_menu","window":7,"prompt":"Inventory:"}
 {"name":"shim_yn_function","query":"What do you want to read? [ab or ?*]","choices":"ab?*\u001b"}
 {"name":"shim_yn_function","query":"What do you want to quaff? [c or ?*]","choices":"c?*\u001b"}

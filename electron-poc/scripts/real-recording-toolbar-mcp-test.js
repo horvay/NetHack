@@ -1,54 +1,32 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { spawn } = require('node:child_process');
-const electronBin = require('electron');
+const Harness = require('./lib/electron-test-harness');
+const EvidenceApproval = require('./lib/evidence-approval');
+
+
 const RecordingSchema = require('../src/shared/recording-schema');
 
 const root = path.resolve(__dirname, '..');
-const outDir = process.env.NH_REAL_RECORDING_TOOLBAR_OUT_DIR || path.join(root, 'test-output', 'real-recording-toolbar-mcp');
-const port = Number(process.env.NH_REAL_RECORDING_TOOLBAR_CDP_PORT || 9498);
+const scriptName = path.basename(__filename, '.js');
+function reviewRun(outputDir, reviewFile) { const manifestFile = path.join(path.resolve(outputDir), 'evidence-approval.json'); const approval = EvidenceApproval.openEvidenceApproval({ manifestFile }); EvidenceApproval.applyEvidenceReview(approval, path.resolve(reviewFile)); const validation = Harness.screenshotQc.validateManifest(manifestFile, { expectedRunIdentity: approval.runIdentity, requireApproval: true }); if (!validation.ok) throw new Error(`Evidence Approval failed: ${validation.errors.join('; ')}`); EvidenceApproval.writeEvidenceReport(manifestFile); console.log(`${scriptName}: APPROVED ${approval.runIdentity} ${manifestFile}`); }
+function createEvidence(page) { return Harness.screenshotQc.createScreenshotQc({ rootDir: page.outputDir, runIdentity: page.outputIdentity, manifestFile: path.join(page.outputDir, 'evidence-approval.json') }); }
+async function finishEvidence(page, qc, scenarioError) { await page.close().catch(() => {}); qc.recordAssertions([{ id: 'scenario-contract', status: scenarioError ? 'failed' : 'passed', details: scenarioError?.message || '' }]); qc.recordLog({ id: 'electron-stdout', path: page.logs.stdout, classification: 'electron-stdout' }); qc.recordLog({ id: 'electron-stderr', path: page.logs.stderr, classification: 'electron-stderr' }); const validation = Harness.screenshotQc.validateManifest(qc.manifestFile, { expectedRunIdentity: page.outputIdentity, requireApproval: false }); if (!validation.ok) throw new Error(`Evidence Approval capture failed: ${validation.errors.join('; ')}`); EvidenceApproval.writeEvidenceReport(qc.manifestFile); console.log(`${scriptName}: CAPTURED ${page.outputIdentity} ${qc.manifestFile}`); if (scenarioError) throw scenarioError; }
+let outDir, evidencePage, evidenceQc
+
 const width = Number(process.env.NH_REAL_RECORDING_TOOLBAR_WIDTH || 1360);
 const height = Number(process.env.NH_REAL_RECORDING_TOOLBAR_HEIGHT || 920);
 const sourcePlayground = path.resolve(root, '..', 'playground');
-const isolatedPlayground = path.join(outDir, 'isolated-playground');
 
-function prepareIsolatedPlayground() {
-  fs.rmSync(outDir, { recursive: true, force: true });
+function prepareIsolatedPlayground(isolatedPlayground) {
   fs.mkdirSync(path.join(isolatedPlayground, 'save'), { recursive: true });
   for (const name of ['nhdat', 'sysconf', 'symbols', 'license']) fs.copyFileSync(path.join(sourcePlayground, name), path.join(isolatedPlayground, name));
   for (const name of ['perm', 'record', 'logfile', 'xlogfile', 'livelog', 'paniclog']) fs.writeFileSync(path.join(isolatedPlayground, name), '');
 }
 
-function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
-async function json(url) { const res = await fetch(url); if (!res.ok) throw new Error(`${res.status} ${url}`); return res.json(); }
-async function waitFor(fn, timeoutMs = 20000, stepMs = 150) {
-  const start = Date.now(); let last;
-  while (Date.now() - start < timeoutMs) {
-    try { const value = await fn(); if (value) return value; } catch (error) { last = error; }
-    await delay(stepMs);
-  }
-  throw last || new Error('timed out waiting');
-}
-async function connect(wsUrl) {
-  const ws = new WebSocket(wsUrl);
-  await new Promise((resolve, reject) => { ws.addEventListener('open', resolve, { once: true }); ws.addEventListener('error', reject, { once: true }); });
-  let id = 0; const pending = new Map();
-  ws.addEventListener('message', (event) => {
-    const msg = JSON.parse(event.data);
-    if (msg.id && pending.has(msg.id)) {
-      const item = pending.get(msg.id); pending.delete(msg.id);
-      msg.error ? item.reject(new Error(JSON.stringify(msg.error))) : item.resolve(msg.result);
-    }
-  });
-  return {
-    send(method, params = {}) {
-      const callId = ++id;
-      ws.send(JSON.stringify({ id: callId, method, params }));
-      return new Promise((resolve, reject) => pending.set(callId, { resolve, reject }));
-    },
-    close() { ws.close(); },
-  };
-}
+
+
+
+
 async function evalExpr(cdp, expression) {
   const res = await cdp.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression });
   if (res.exceptionDetails) throw new Error(JSON.stringify(res.exceptionDetails));
@@ -56,11 +34,11 @@ async function evalExpr(cdp, expression) {
 }
 async function shot(cdp, name) {
   const id = path.basename(name, path.extname(name));
-  const res = await cdp.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression: `window.netHackPOC.captureTestScreenshot(${JSON.stringify(id)})` });
-  if (res.exceptionDetails || !res.result.value?.ok || res.result.value.method !== 'BrowserWindow.webContents.capturePage') throw new Error(`native screenshot failed: ${JSON.stringify(res.exceptionDetails || res.result.value)}`);
-  const file = path.join(outDir, name);
-  fs.copyFileSync(res.result.value.path, file);
-  return file;
+  return evidencePage.nativeScreenshotEvidence(evidenceQc, id, {
+    classification: 'synthetic-fixture',
+    viewport: { width, height, devicePixelRatio: 1 },
+    state: id,
+  });
 }
 async function clickCenter(cdp, selector) {
   const box = await evalExpr(cdp, `(() => { const el = document.querySelector(${JSON.stringify(selector)}); el?.scrollIntoView?.({block:'center', inline:'center'}); const r = el?.getBoundingClientRect(); return r ? {x:r.left+r.width/2,y:r.top+r.height/2,w:r.width,h:r.height,text:el.innerText} : null; })()`);
@@ -98,35 +76,40 @@ async function state(cdp) {
 function assert(name, ok, detail = '') { if (!ok) throw new Error(`${name}${detail ? `: ${detail}` : ''}`); }
 
 async function main() {
-  prepareIsolatedPlayground();
-  const child = spawn(electronBin, ['.'], { cwd: root, env: { ...process.env, AI_ORG_ELECTRON_CDP_PORT: String(port), NH_ELECTRON_WINDOW_WIDTH: String(width), NH_ELECTRON_WINDOW_HEIGHT: String(height), NH_ELECTRON_TEST_FIXTURES: '1', NH_TEST_PLAYGROUND: isolatedPlayground, NETHACKDIR: isolatedPlayground, NH_DIAGNOSTIC_LOG_DIR: path.join(outDir, 'diagnostics'), NH_TEST_CAPTURE_DIR: path.join(outDir, 'native-captures') }, stdio: ['ignore', 'pipe', 'pipe'] });
-  let cdp; const stdout = []; const stderr = [];
-  child.stdout.on('data', (data) => stdout.push(String(data)));
-  child.stderr.on('data', (data) => stderr.push(String(data)));
-  const cleanup = () => { try { cdp?.close(); } catch {} if (!child.killed) child.kill('SIGTERM'); };
-  process.on('exit', cleanup);
-  const results = { outDir, isolatedPlayground, port, screenshots: {}, checks: {} };
+  if (process.argv[2] === '--review') return reviewRun(process.argv[3], process.argv[4]);
+  const isolatedPlayground = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'nh-recording-toolbar-'));
+  prepareIsolatedPlayground(isolatedPlayground);
+  const page = await Harness.createElectronBrowserDriver({
+    root,
+    width,
+    height,
+    env: {
+      NH_ELECTRON_TEST_FIXTURES: '1',
+      NH_TEST_PLAYGROUND: isolatedPlayground,
+      NETHACKDIR: isolatedPlayground,
+      NH_DIAGNOSTIC_LOG_DIR: path.join(isolatedPlayground, 'diagnostics'),
+      NH_TEST_CAPTURE_DIR: path.join(isolatedPlayground, 'native-captures'),
+    },
+  });
+  outDir = page.outputDir;
+  evidencePage = page;
+  evidenceQc = createEvidence(page);
+  const cdp = page.cdp;
+  const results = { runIdentity: page.outputIdentity, screenshots: {}, checks: {} };
+  let scenarioError;
   try {
-    const pages = await waitFor(async () => {
-      const list = await json(`http://127.0.0.1:${port}/json/list`);
-      return list.find((page) => page.type === 'page') ? list : null;
-    }, 20000);
-    cdp = await connect((pages.find((page) => page.type === 'page') || pages[0]).webSocketDebuggerUrl);
-    await cdp.send('Page.enable'); await cdp.send('Runtime.enable');
-    await waitFor(async () => (await evalExpr(cdp, "document.readyState === 'complete' && !!window.__nethackAutomation")), 10000);
+    await page.waitForRendererReady({ timeoutMs: 10000, promptTest: true, automation: true });
     await cdp.send('Emulation.clearDeviceMetricsOverride');
     const captureProfile = await evalExpr(cdp, `window.netHackPOC.setTestCaptureProfile(${JSON.stringify({ width, height, zoomPercent: 100 })})`);
     assert('native recording toolbar capture profile applied', captureProfile?.ok && captureProfile.contentSize?.[0] === width && captureProfile.contentSize?.[1] === height, JSON.stringify(captureProfile));
-    await waitFor(async () => (await evalExpr(cdp, `innerWidth === ${width} && innerHeight === ${height}`)), 5000);
-
+    await Harness.waitFor(async () => (await evalExpr(cdp, `innerWidth === ${width} && innerHeight === ${height}`)), 5000);
     results.beforeStart = await state(cdp);
     assert('toolbar hidden before recording', results.beforeStart.toolbarHidden);
     results.screenshots.beforeStart = await shot(cdp, '01-before-recording-toolbar-hidden.png');
-
     const initialDialogs = await evalExpr(cdp, "Array.from(document.querySelectorAll('dialog[open]')).map((dialog) => dialog.id)");
     if (initialDialogs.includes('startup-choice-dialog')) await clickCenter(cdp, '#startup-new-game');
     else await clickCenter(cdp, '#start-shim');
-    await waitFor(async () => (await evalExpr(cdp, "document.getElementById('character-dialog')?.open")), 5000);
+    await Harness.waitFor(async () => (await evalExpr(cdp, "document.getElementById('character-dialog')?.open")), 5000);
     await evalExpr(cdp, `(() => {
       document.getElementById('player-name').value = 'Recorder';
       document.getElementById('player-role').value = 'Val';
@@ -137,63 +120,47 @@ async function main() {
       document.getElementById('record-inputs').checked = true;
     })()`);
     await clickCenter(cdp, '#confirm-character');
-    results.recordingActive = await waitFor(async () => {
+    results.recordingActive = await Harness.waitFor(async () => {
       const next = await state(cdp);
-      results.lastRecordingStartPoll = next;
       return next.running && /shim_print_glyph|shim_status_update|shim_curs|shim_putstr/.test(next.seen) && next.checkpointVisible ? next : null;
     }, 20000);
     if (results.recordingActive.dialogs.includes('intro-dialog')) await clickCenter(cdp, '#intro-continue');
     results.screenshots.recordingActive = await shot(cdp, '02-recording-toolbar-visible.png');
-
     await evalExpr(cdp, `window.prompt = () => 'real-game-toolbar-checkpoint';`);
     await clickCenter(cdp, '#record-checkpoint-primary');
-    results.afterCheckpoint = await waitFor(async () => {
+    results.afterCheckpoint = await Harness.waitFor(async () => {
       const next = await state(cdp);
       return /Checkpoint recorded: real-game-toolbar-checkpoint/.test(next.toolbarText + next.recordingStatus) ? next : null;
     }, 5000);
     results.screenshots.afterCheckpoint = await shot(cdp, '03-after-primary-checkpoint-click.png');
-
     await clickCenter(cdp, '#save-recording-primary');
-    results.afterSave = await waitFor(async () => {
+    results.afterSave = await Harness.waitFor(async () => {
       const next = await state(cdp);
       return next.savePath ? next : null;
     }, 5000);
     const savedRecording = JSON.parse(fs.readFileSync(results.afterSave.savePath, 'utf8'));
     const savedValidation = RecordingSchema.validateRecording(savedRecording);
     assert('primary save writes a schema-valid recording', savedValidation.ok, savedValidation.message || 'invalid recording');
-    results.savedRecording = { sourcePath: results.afterSave.savePath, evidencePath: path.join(outDir, 'saved-toolbar-recording.nhrec.json'), schema: savedRecording.schema, eventCount: savedRecording.events?.length || 0 };
-    fs.copyFileSync(results.afterSave.savePath, results.savedRecording.evidencePath);
-    fs.rmSync(results.afterSave.savePath, { force: true });
+    results.savedRecording = { schema: savedRecording.schema, eventCount: savedRecording.events?.length || 0 };
+    fs.copyFileSync(results.afterSave.savePath, path.join(outDir, 'saved-toolbar-recording.nhrec.json'));
     results.screenshots.afterSave = await shot(cdp, '04-after-primary-save-click.png');
-
     assert('normal game toolbar is visible while recording', !results.recordingActive.toolbarHidden && results.recordingActive.toolbarWidth > 400, JSON.stringify(results.recordingActive));
     assert('primary checkpoint button is visible and discoverable', /Add screenshot checkpoint/.test(results.recordingActive.checkpointText) && results.recordingActive.checkpointVisible, JSON.stringify(results.recordingActive));
     assert('primary save button is visible', /Save recording/.test(results.recordingActive.saveText), JSON.stringify(results.recordingActive));
     assert('debug checkpoint mirror remains available when recording', results.recordingActive.debugCheckpointHidden === false, JSON.stringify(results.recordingActive));
     assert('primary checkpoint records named checkpoint', /real-game-toolbar-checkpoint/.test(results.afterCheckpoint.toolbarText + results.afterCheckpoint.recordingStatus), JSON.stringify(results.afterCheckpoint));
     assert('primary save reports the concrete recording path', /Recording saved: .*\.nhrec\.json/.test(results.afterSave.toolbarText + results.afterSave.recordingStatus), JSON.stringify(results.afterSave));
-
-    fs.writeFileSync(path.join(outDir, 'electron-stdout.log'), stdout.join(''));
-    fs.writeFileSync(path.join(outDir, 'electron-stderr.log'), stderr.join(''));
     fs.writeFileSync(path.join(outDir, 'result.json'), JSON.stringify(results, null, 2));
-    cleanup();
-    await delay(500);
-    fs.rmSync(isolatedPlayground, { recursive: true, force: true });
-    console.log(`real recording toolbar MCP test OK: ${outDir}`);
   } catch (error) {
+    scenarioError = error;
     results.error = error.stack || String(error);
-    results.stdout = stdout.join('');
-    results.stderr = stderr.join('');
+    fs.writeFileSync(path.join(outDir, 'result.json'), JSON.stringify(results, null, 2));
+  } finally {
     try {
-      fs.writeFileSync(path.join(outDir, 'electron-stdout.log'), results.stdout);
-      fs.writeFileSync(path.join(outDir, 'electron-stderr.log'), results.stderr);
-      fs.writeFileSync(path.join(outDir, 'result.json'), JSON.stringify(results, null, 2));
-    } catch {}
-    cleanup();
-    await delay(500);
-    fs.rmSync(isolatedPlayground, { recursive: true, force: true });
-    console.error(error.stack || error);
-    process.exit(1);
+      await finishEvidence(page, evidenceQc, scenarioError);
+    } finally {
+      fs.rmSync(isolatedPlayground, { recursive: true, force: true });
+    }
   }
 }
 

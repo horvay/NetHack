@@ -1,43 +1,31 @@
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
-const { spawn } = require('node:child_process');
-const electronBin = require('electron');
+const Harness = require('./lib/electron-test-harness');
+const EvidenceApproval = require('./lib/evidence-approval');
 
 const root = path.resolve(__dirname, '..');
-const outDir = process.env.NH_READ_ONLY_MENU_OUT_DIR || path.join(root, 'test-output', 'real-read-only-menu-lifecycle');
-const port = Number(process.env.NH_READ_ONLY_MENU_CDP_PORT || 9647);
+const width = 1360;
+const height = 920;
+const { delay, waitFor } = Harness;
+async function evalExpr(cdp, expression) { return cdp.evalCheckedValue(expression, { awaitPromise: true }); }
+const sourcePlayground = path.resolve(root, '..', 'playground');
 
-function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
-async function json(url) { const res = await fetch(url); if (!res.ok) throw new Error(`${res.status} ${url}`); return res.json(); }
-async function waitFor(fn, timeoutMs = 15000, stepMs = 150) {
-  const start = Date.now(); let last;
-  while (Date.now() - start < timeoutMs) {
-    try { const value = await fn(); if (value) return value; } catch (error) { last = error; }
-    await delay(stepMs);
-  }
-  throw last || new Error('timed out waiting');
+function prepareIsolatedPlayground(isolatedPlayground) {
+  fs.mkdirSync(path.join(isolatedPlayground, 'save'), { recursive: true });
+  for (const name of ['nhdat', 'sysconf', 'symbols', 'license']) fs.copyFileSync(path.join(sourcePlayground, name), path.join(isolatedPlayground, name));
+  for (const name of ['perm', 'record', 'logfile', 'xlogfile', 'livelog', 'paniclog']) fs.writeFileSync(path.join(isolatedPlayground, name), '');
 }
-async function connect(wsUrl) {
-  const ws = new WebSocket(wsUrl);
-  await new Promise((resolve, reject) => { ws.addEventListener('open', resolve, { once: true }); ws.addEventListener('error', reject, { once: true }); });
-  let id = 0; const pending = new Map();
-  ws.addEventListener('message', (event) => {
-    const msg = JSON.parse(event.data);
-    if (msg.id && pending.has(msg.id)) {
-      const p = pending.get(msg.id); pending.delete(msg.id);
-      msg.error ? p.reject(new Error(JSON.stringify(msg.error))) : p.resolve(msg.result);
-    }
-  });
-  return { send(method, params = {}) { const callId = ++id; ws.send(JSON.stringify({ id: callId, method, params })); return new Promise((resolve, reject) => pending.set(callId, { resolve, reject })); }, close() { ws.close(); } };
-}
-async function evalExpr(cdp, expression) {
-  const res = await cdp.send('Runtime.evaluate', { returnByValue: true, expression });
-  if (res.exceptionDetails) throw new Error(JSON.stringify(res.exceptionDetails));
-  return res.result.value;
-}
-async function shot(cdp, name) {
-  const res = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
-  const p = path.join(outDir, name); fs.writeFileSync(p, Buffer.from(res.data, 'base64')); return p;
+
+async function shot(cdp, name) { const capture = await cdp.screenshotEvidence(cdp.qc, path.basename(name, path.extname(name)), { classification: 'actual-player', viewport: { width, height, zoomPercent: 100 }, state: name, viewSafeFormat: 'BMP', viewSafeScale: 0.25 }); return capture.raw.path; }
+function reviewRun(outputDir, reviewFile) {
+  const manifestFile = path.join(path.resolve(outputDir), 'evidence-approval.json');
+  const approval = EvidenceApproval.openEvidenceApproval({ manifestFile });
+  EvidenceApproval.applyEvidenceReview(approval, path.resolve(reviewFile));
+  const validation = Harness.screenshotQc.validateManifest(manifestFile, { expectedRunIdentity: approval.runIdentity, requireApproval: true });
+  if (!validation.ok) throw new Error(`Evidence Approval failed: ${validation.errors.join('; ')}`);
+  EvidenceApproval.writeEvidenceReport(manifestFile);
+  console.log(`real-read-only-menu-lifecycle-mcp-test: APPROVED ${approval.runIdentity} ${manifestFile}`);
 }
 async function click(cdp, selector) {
   const box = await evalExpr(cdp, `(() => { const el = document.querySelector(${JSON.stringify(selector)}); el?.scrollIntoView?.({block:'center'}); const r = el?.getBoundingClientRect(); return r ? {x:r.left+r.width/2,y:r.top+r.height/2} : null; })()`);
@@ -54,6 +42,8 @@ async function pageState(cdp) {
   return evalExpr(cdp, `(() => ({
     status: document.getElementById('status')?.textContent || '',
     seen: document.getElementById('shim-output')?.dataset?.seen || '',
+    running: window.__nethackAutomation?.state?.()?.runningState?.running || false,
+    mapCells: window.__nethackAutomation?.state?.()?.map?.cells?.length || 0,
     prompt: window.__nethackPromptTest?.prompt?.() || null,
     dialog: window.__nethackPromptTest?.dialog?.() || {},
     openDialogs: Array.from(document.querySelectorAll('dialog[open]')).map((d) => d.id),
@@ -62,38 +52,69 @@ async function pageState(cdp) {
     promptPanel: { hidden: !!document.getElementById('prompt-panel')?.hidden, text: document.getElementById('prompt-panel')?.innerText || '' },
   }))()`);
 }
-function writeState(name, data) { const p = path.join(outDir, name); fs.writeFileSync(p, JSON.stringify(data, null, 2)); return p; }
+function writeState(outputDir, name, data) { const p = path.join(outputDir, name); fs.writeFileSync(p, JSON.stringify(data, null, 2)); return p; }
 
 async function main() {
-  fs.mkdirSync(outDir, { recursive: true });
-  const child = spawn(electronBin, ['.'], { cwd: root, env: { ...process.env, AI_ORG_ELECTRON_CDP_PORT: String(port), NH_ELECTRON_WINDOW_WIDTH: '1360', NH_ELECTRON_WINDOW_HEIGHT: '920' }, stdio: ['ignore', 'pipe', 'pipe'] });
-  let cdp;
-  const cleanup = () => { try { cdp?.close(); } catch {} if (!child.killed) child.kill('SIGTERM'); };
-  process.on('exit', cleanup);
-  child.stdout.on('data', (d) => process.stdout.write(d));
-  child.stderr.on('data', (d) => process.stderr.write(d));
+  const isolatedPlayground = fs.mkdtempSync(path.join(os.tmpdir(), 'nethack-read-only-menu-'));
+  prepareIsolatedPlayground(isolatedPlayground);
+  const page = await Harness.createElectronBrowserDriver({
+    root,
+    width,
+    height,
+    env: {
+      NH_ELECTRON_TEST_FIXTURES: '1',
+      NH_TEST_PLAYGROUND: isolatedPlayground,
+      NETHACKDIR: isolatedPlayground,
+    },
+  });
+  const outDir = page.outputDir;
+  const qc = Harness.screenshotQc.createScreenshotQc({ rootDir: outDir, runIdentity: page.outputIdentity, manifestFile: path.join(outDir, 'evidence-approval.json') });
+  const cdp = Object.freeze({ ...page, qc });
+  let scenarioError = null;
   try {
-    const pages = await waitFor(async () => { const list = await json(`http://127.0.0.1:${port}/json/list`); return list.find((p) => p.type === 'page') ? list : null; }, 20000);
-    cdp = await connect((pages.find((p) => p.type === 'page') || pages[0]).webSocketDebuggerUrl);
-    await cdp.send('Page.enable'); await cdp.send('Runtime.enable');
-    await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1360, height: 920, deviceScaleFactor: 1, mobile: false });
-    await waitFor(async () => (await cdp.send('Runtime.evaluate', { returnByValue: true, expression: "document.readyState === 'complete' && !!window.__nethackPromptTest" })).result.value, 10000);
     await click(cdp, '#start-shim');
     await delay(200);
     if (await evalExpr(cdp, `document.getElementById('startup-choice-dialog')?.open === true`)) await click(cdp, '#startup-new-game');
-    await waitFor(async () => evalExpr(cdp, `document.getElementById('character-dialog')?.open === true`), 5000);
+    await waitFor(async () => evalExpr(cdp, `document.getElementById('character-dialog')?.open === true && !document.getElementById('confirm-character')?.disabled`), 8000);
+    await evalExpr(cdp, `(() => { const input = document.getElementById('player-name'); input.value = 'ReadOnlyMenu'; input.dispatchEvent(new Event('input', { bubbles: true })); return true; })()`);
     await click(cdp, '#confirm-character');
-    await waitFor(async () => /shim_print_glyph|shim_curs|shim_status_update/.test((await pageState(cdp)).seen), 25000);
+    await waitFor(async () => {
+      const s = await pageState(cdp);
+      if (/failed|error/i.test(s.status)) throw new Error(`game failed to start: ${JSON.stringify(s)}`);
+      return s.running ? s : null;
+    }, 25000).catch(async (error) => {
+      throw new Error(`${error.message}: ${JSON.stringify(await pageState(cdp))}`);
+    });
     if ((await pageState(cdp)).openDialogs.includes('intro-dialog')) await click(cdp, '#intro-continue');
     await evalExpr(cdp, `(() => { document.getElementById('game-grid')?.focus(); window.__nethackPromptTest?.clearSentInputs?.(); return true; })()`);
     await shot(cdp, '01-game-ready-before-help.png');
+    await press(cdp, ';', ';');
+    const tip = await waitFor(async () => {
+      const s = await pageState(cdp);
+      return s.dialog?.interactionOpen
+        && /^Tip$/i.test(s.dialog?.title || '')
+        && /Farlooking or selecting a map location/i.test(s.body) ? s : null;
+    }, 10000);
+    const tipOpenPath = await shot(cdp, '02-farlook-tip-open.png');
+    writeState(outDir, '02-farlook-tip-open-state.json', tip);
+    await click(cdp, '.read-only-continue');
+    const afterContinue = await waitFor(async () => {
+      const s = await pageState(cdp);
+      return !s.dialog?.interactionOpen
+        && !/Review this tip|Farlooking or selecting a map location/i.test(`${s.promptPanel.text}\n${s.menuPanel.text}`) ? s : null;
+    }, 5000);
+    const tipClosedPath = await shot(cdp, '03-farlook-tip-closed.png');
+    writeState(outDir, '03-farlook-tip-closed-state.json', afterContinue);
+    if (/Unknown command/i.test(afterContinue.body)) throw new Error('Continue leaked a menu-dismissal key into gameplay as an unknown command');
+    await press(cdp, 'Escape', '');
+    await delay(300);
     await press(cdp, '?', '?');
     const help = await waitFor(async () => {
       const s = await pageState(cdp);
       return (s.dialog?.interactionOpen || s.dialog?.documentOpen) && /help|command|information menu|Review this information/i.test(`${s.dialog?.title||''}\n${s.dialog?.prompt||''}\n${s.dialog?.documentTitle||''}\n${s.dialog?.documentBody||''}`) ? s : null;
     }, 10000);
     const openPath = await shot(cdp, '02-read-only-help-menu-open.png');
-    writeState('02-read-only-help-menu-open-state.json', help);
+    writeState(outDir, '02-read-only-help-menu-open-state.json', help);
     if (!help.dialog?.interactionOpen) throw new Error(`expected real help topic interaction, got ${JSON.stringify(help.dialog)}`);
     if (!/Help/i.test(help.dialog?.title || '')) throw new Error(`expected Help title, got ${JSON.stringify(help.dialog)}`);
     if (/\bCHANGE\b|Settings panel/i.test(help.body)) throw new Error('help topic menu was mis-rendered with options/settings chrome');
@@ -104,20 +125,35 @@ async function main() {
       return s.dialog?.documentOpen || /NetHack|version information|Copyright|About/i.test(`${s.dialog?.documentBody || ''}\n${s.body}`) ? s : null;
     }, 10000);
     const docPath = await shot(cdp, '03-read-only-help-document-open.png');
-    writeState('03-read-only-help-document-open-state.json', doc);
+    writeState(outDir, '03-read-only-help-document-open-state.json', doc);
     if (!doc.dialog?.documentOpen) throw new Error(`expected read-only help document, got ${JSON.stringify(doc.dialog)}`);
     await press(cdp, 'Escape', '');
     await delay(500);
     const after = await pageState(cdp);
     const afterPath = await shot(cdp, '04-read-only-help-closed.png');
-    writeState('04-read-only-help-closed-state.json', after);
+    writeState(outDir, '04-read-only-help-closed-state.json', after);
     if (/Review this information|information menu open/i.test(`${after.promptPanel.text}\n${after.menuPanel.text}`)) throw new Error('read-only menu prompt remained visible after Escape');
-    const summary = { ok: true, outDir, screenshots: [openPath, docPath, afterPath], helpPrompt: help.prompt, documentOpen: doc.dialog.documentOpen, afterPrompt: after.prompt };
+    if (/Unknown command/i.test(after.body)) throw new Error('read-only menu dismissal leaked an unknown command into gameplay');
+    const summary = { ok: true, outDir, screenshots: [tipOpenPath, tipClosedPath, openPath, docPath, afterPath], tipPrompt: tip.prompt, afterContinuePrompt: afterContinue.prompt, helpPrompt: help.prompt, documentOpen: doc.dialog.documentOpen, afterPrompt: after.prompt };
     fs.writeFileSync(path.join(outDir, 'summary.json'), JSON.stringify(summary, null, 2));
     console.log(JSON.stringify(summary, null, 2));
+  } catch (error) {
+    scenarioError = error;
   } finally {
-    cleanup();
+    await page.close().catch((error) => { if (!scenarioError) scenarioError = error; });
   }
+  fs.rmSync(isolatedPlayground, { recursive: true, force: true });
+  qc.recordAssertions([{ id: 'scenario-completed', status: scenarioError ? 'failed' : 'passed', details: scenarioError ? String(scenarioError.message || scenarioError) : '' }]);
+  qc.recordLog({ id: 'electron-stdout', path: page.logs.stdout, classification: 'electron-stdout' });
+  qc.recordLog({ id: 'electron-stderr', path: page.logs.stderr, classification: 'electron-stderr' });
+  const validation = Harness.screenshotQc.validateManifest(qc.manifestFile, { expectedRunIdentity: page.outputIdentity, requireApproval: false });
+  if (!validation.ok) throw new Error(`Evidence Approval capture failed: ${validation.errors.join('; ')}`);
+  console.log(`real-read-only-menu-lifecycle-mcp-test: CAPTURED ${page.outputIdentity} ${qc.manifestFile}`);
+  if (scenarioError) throw scenarioError;
 }
-
-main().catch((error) => { console.error(error); process.exit(1); });
+const reviewIndex = process.argv.indexOf('--review');
+if (reviewIndex !== -1) {
+  Promise.resolve().then(() => reviewRun(process.argv[reviewIndex + 1], process.argv[reviewIndex + 2])).catch((error) => { console.error(error.stack || error); process.exit(1); });
+} else {
+  main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+}

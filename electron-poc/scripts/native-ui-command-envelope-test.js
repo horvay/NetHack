@@ -153,15 +153,15 @@ function commandFixture({ actionId = 'ground.openContainer', command = '#loot\n'
   assert(dipEvents.some((event) => event.name === 'bridge_ui_command_rejected' && event.actionId === 'ground.dipIntoTerrain'), `expected bridge_ui_command_rejected for ground.dipIntoTerrain, saw ${dipRun.stdout.slice(0, 1600)}`);
   assert.deepEqual(dipEvents.filter((event) => event.name === 'bridge_command' && event.transactionId === dip.transactionId).map((event) => event.keycode), [], 'ground.dipIntoTerrain no longer lowers hidden #dip');
 
-  const rub = commandFixture({ actionId: 'item.rub', command: '#rub\n', target: { selector: 'l', inventoryLetter: 'l', displayName: 'an oil lamp', location: { kind: 'inventory' } } });
+  const rub = commandFixture({ actionId: 'item.rub', command: '#rub\nl', target: { selector: 'l', inventoryLetter: 'l', displayName: 'an oil lamp', location: { kind: 'inventory' } } });
   const rubPlan = CommandGateway.validateActionExecuteCommand(rub, { uiProtocol: UiProtocolV2, inventoryRevision: 1 });
   assert.equal(rubPlan.ok, true, rubPlan.reason);
   const rubRun = await runBridgeWithInput([{ type: 'ui-command', command: rub }]);
   const rubEvents = events(rubRun.stdout);
   assert(rubEvents.some((event) => event.name === 'bridge_ui_command_accepted' && event.actionId === 'item.rub'), `expected bridge_ui_command_accepted for item.rub, saw ${rubRun.stdout.slice(0, 1600)}`);
-  assert.deepEqual(rubEvents.filter((event) => event.name === 'bridge_command' && event.transactionId === rub.transactionId).map((event) => event.keycode), Array.from('#rub\n').map((ch) => ch.charCodeAt(0)), 'item.rub lowers exactly #rub and no selector/follow-up answer');
+  assert.deepEqual(rubEvents.filter((event) => event.name === 'bridge_command' && event.transactionId === rub.transactionId).map((event) => event.keycode), Array.from('#rub\nl').map((ch) => ch.charCodeAt(0)), 'item.rub lowers #rub plus the exact selected inventory selector');
 
-  const rubNoTarget = commandFixture({ actionId: 'item.rub', command: '#rub\n', target: { location: { kind: 'inventory' }, displayName: 'an oil lamp' } });
+  const rubNoTarget = commandFixture({ actionId: 'item.rub', command: '#rub\nl', target: { location: { kind: 'inventory' }, displayName: 'an oil lamp' } });
   const rubNoTargetRun = await runBridgeWithInput([{ type: 'ui-command', command: rubNoTarget }]);
   const rubNoTargetEvents = events(rubNoTargetRun.stdout);
   assert(rubNoTargetEvents.some((event) => event.name === 'bridge_ui_command_rejected' && /selector target/i.test(event.reason || '')), `expected item.rub missing-selector rejection, saw ${rubNoTargetRun.stdout.slice(0, 1600)}`);

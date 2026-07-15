@@ -4,19 +4,23 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
 const Harness = require('./lib/electron-test-harness');
+const EvidenceApproval = require('./lib/evidence-approval');
 
 const root = path.resolve(__dirname, '..');
+const scriptName = path.basename(__filename, '.js');
+function reviewRun(outputDir, reviewFile) { const manifestFile = path.join(path.resolve(outputDir), 'evidence-approval.json'); const approval = EvidenceApproval.openEvidenceApproval({ manifestFile }); EvidenceApproval.applyEvidenceReview(approval, path.resolve(reviewFile)); const validation = Harness.screenshotQc.validateManifest(manifestFile, { expectedRunIdentity: approval.runIdentity, requireApproval: true }); if (!validation.ok) throw new Error(`Evidence Approval failed: ${validation.errors.join('; ')}`); EvidenceApproval.writeEvidenceReport(manifestFile); console.log(`${scriptName}: APPROVED ${approval.runIdentity} ${manifestFile}`); }
+function createEvidence(page) { return Harness.screenshotQc.createScreenshotQc({ rootDir: page.outputDir, runIdentity: page.outputIdentity, manifestFile: path.join(page.outputDir, 'evidence-approval.json') }); }
+async function finishEvidence(page, qc, scenarioError) { await page.close().catch(() => {}); qc.recordAssertions([{ id: 'scenario-contract', status: scenarioError ? 'failed' : 'passed', details: scenarioError?.message || '' }]); qc.recordLog({ id: 'electron-stdout', path: page.logs.stdout, classification: 'electron-stdout' }); qc.recordLog({ id: 'electron-stderr', path: page.logs.stderr, classification: 'electron-stderr' }); const validation = Harness.screenshotQc.validateManifest(qc.manifestFile, { expectedRunIdentity: page.outputIdentity, requireApproval: false }); if (!validation.ok) throw new Error(`Evidence Approval capture failed: ${validation.errors.join('; ')}`); EvidenceApproval.writeEvidenceReport(qc.manifestFile); console.log(`${scriptName}: CAPTURED ${page.outputIdentity} ${qc.manifestFile}`); if (scenarioError) throw scenarioError; }
 const repoRoot = path.resolve(root, '..');
 const bridge = path.join(root, 'shim-bridge', 'nh-shim-bridge');
 const sourcePlayground = path.join(repoRoot, 'playground');
-const outDir = process.env.NH_REAL_STARTUP_CHOICE_OUT_DIR || path.join(root, 'test-output', 'real-startup-choice');
-const noPreviousPlayground = path.join(outDir, 'no-previous-playground');
-const continuePlayground = path.join(outDir, 'continue-playground');
-const checkpointPlayground = path.join(outDir, 'checkpoint-playground');
+let outDir
+let noPreviousPlayground;
+let continuePlayground;
+let checkpointPlayground;
 const width = Number(process.env.NH_REAL_STARTUP_CHOICE_WIDTH || 1280);
 const height = Number(process.env.NH_REAL_STARTUP_CHOICE_HEIGHT || 900);
 
-const { waitFor, delay } = Harness;
 
 function resetPlayground(playground) {
   fs.rmSync(playground, { recursive: true, force: true });
@@ -87,7 +91,7 @@ function startBridge(playground, playerName, extraEnv = {}) {
 async function stopChild(child) {
   if (!child || child.exitCode !== null || child.signalCode !== null) return;
   child.kill('SIGTERM');
-  await Promise.race([new Promise((resolve) => child.once('exit', resolve)), delay(2000)]);
+  await Promise.race([new Promise((resolve) => child.once('exit', resolve)), Harness.delay(2000)]);
   if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
 }
 
@@ -95,13 +99,13 @@ async function createManualSave(playground, playerName) {
   let child;
   try {
     child = startBridge(playground, playerName);
-    await waitFor(() => child.output().stdout.includes('bridge_start'), 10000);
-    await waitFor(() => /welcome to NetHack|Hello /i.test(child.output().stdout), 15000);
+    await Harness.waitFor(() => child.output().stdout.includes('bridge_start'), 10000);
+    await Harness.waitFor(() => /welcome to NetHack|Hello /i.test(child.output().stdout), 15000);
     child.stdin.write(`${JSON.stringify({ type: 'keycode', keycode: 'S'.charCodeAt(0) })}\n`);
-    await waitFor(() => /Really save|Save the game/i.test(`${child.output().stdout}\n${child.output().stderr}`), 10000).catch(() => null);
+    await Harness.waitFor(() => /Really save|Save the game/i.test(`${child.output().stdout}\n${child.output().stderr}`), 10000).catch(() => null);
     child.stdin.write(`${JSON.stringify({ type: 'keycode', keycode: 'y'.charCodeAt(0) })}\n`);
-    await waitFor(() => saveFiles(playground).length > 0 ? true : null, 15000);
-    await Promise.race([new Promise((resolve) => child.once('exit', resolve)), delay(3000)]);
+    await Harness.waitFor(() => saveFiles(playground).length > 0 ? true : null, 15000);
+    await Promise.race([new Promise((resolve) => child.once('exit', resolve)), Harness.delay(3000)]);
     return { saveFiles: saveFiles(playground), output: child.output() };
   } finally {
     await stopChild(child);
@@ -112,16 +116,16 @@ async function createRecoverableCheckpoint(playground, playerName) {
   let child;
   try {
     child = startBridge(playground, playerName, { NH_TEST_SCENARIO_ID: 'regression/downstairs-current' });
-    await waitFor(() => child.output().stdout.includes('bridge_start'), 10000);
-    await waitFor(() => /bridge_test_scenario_loaded/.test(child.output().stdout), 15000);
-    await waitFor(() => /welcome to NetHack|Hello /i.test(child.output().stdout), 15000);
-    const lockFile = await waitFor(() => findOwnLevelZeroLock(playground, child.pid), 10000);
+    await Harness.waitFor(() => child.output().stdout.includes('bridge_start'), 10000);
+    await Harness.waitFor(() => /bridge_test_scenario_loaded/.test(child.output().stdout), 15000);
+    await Harness.waitFor(() => /welcome to NetHack|Hello /i.test(child.output().stdout), 15000);
+    const lockFile = await Harness.waitFor(() => findOwnLevelZeroLock(playground, child.pid), 10000);
     const base = path.basename(lockFile).replace(/\.0$/, '');
     child.stdin.write(`${JSON.stringify({ type: 'keycode', keycode: '>'.charCodeAt(0) })}\n`);
-    await waitFor(() => /You descend the stairs\.|Dlvl:?2|Dlvl\s*2/i.test(child.output().stdout), 20000);
-    await waitFor(() => fileSize(lockFile) > 4096 && fileSize(path.join(playground, `${base}.1`)) > 1024 ? true : null, 10000);
+    await Harness.waitFor(() => /You descend the stairs\.|Dlvl:?2|Dlvl\s*2/i.test(child.output().stdout), 20000);
+    await Harness.waitFor(() => fileSize(lockFile) > 4096 && fileSize(path.join(playground, `${base}.1`)) > 1024 ? true : null, 10000);
     child.kill('SIGKILL');
-    await Promise.race([new Promise((resolve) => child.once('exit', resolve)), delay(3000)]);
+    await Promise.race([new Promise((resolve) => child.once('exit', resolve)), Harness.delay(3000)]);
     return { base, lockFile, lockSize: fileSize(lockFile), levelFiles: fs.readdirSync(playground).filter((name) => name.startsWith(`${base}.`) && name !== `${base}.0`) };
   } finally {
     await stopChild(child);
@@ -149,33 +153,34 @@ async function runNoPreviousFlow(results) {
   resetPlayground(noPreviousPlayground);
   const page = await Harness.createElectronBrowserDriver({
     root,
-    port: 9651,
     width,
     height,
     env: { NH_ELECTRON_TEST_FIXTURES: '1', NH_TEST_PLAYGROUND: noPreviousPlayground },
   });
+  outDir = page.outputDir;
+  const qc = createEvidence(page);
+  let scenarioError;
   try {
     await page.waitForRendererReady({ timeoutMs: 10000, promptTest: true, automation: true, startButton: true });
-    results.noPrevious.initial = await waitFor(async () => {
+    results.noPrevious.initial = await Harness.waitFor(async () => {
       const state = await pageState(page);
       return state.startup.open && state.startup.continueHidden ? state : null;
     }, 10000);
-    results.screenshots.noPreviousModal = await page.screenshot(path.join(outDir, '01-no-previous-startup-modal.png'));
+    results.screenshots.noPreviousModal = await page.screenshotEvidence(qc, '01-no-previous-startup-modal', { classification: 'actual-player', viewport: { width, height, devicePixelRatio: 1 }, state: 'no-previous-startup-modal' });
     await page.click('#startup-new-game');
-    await waitFor(async () => (await pageState(page)).dialogs.includes('character-dialog'), 5000);
-    results.screenshots.noPreviousCharacter = await page.screenshot(path.join(outDir, '02-no-previous-character-dialog.png'));
+    await Harness.waitFor(async () => (await pageState(page)).dialogs.includes('character-dialog'), 5000);
+    results.screenshots.noPreviousCharacter = await page.screenshotEvidence(qc, '02-no-previous-character-dialog', { classification: 'actual-player', viewport: { width, height, devicePixelRatio: 1 }, state: 'no-previous-character-dialog' });
     await page.setInputValue('#player-name', 'StartFlow');
     await page.click('#confirm-character');
-    results.noPrevious.started = await waitFor(async () => {
+    results.noPrevious.started = await Harness.waitFor(async () => {
       const state = await pageState(page);
       return state.running && state.mapCells > 0 ? state : null;
     }, 20000);
-    results.screenshots.noPreviousStarted = await page.screenshot(path.join(outDir, '03-no-previous-new-game-started.png'));
+    results.screenshots.noPreviousStarted = await page.screenshotEvidence(qc, '03-no-previous-new-game-started', { classification: 'actual-player', viewport: { width, height, devicePixelRatio: 1 }, state: 'no-previous-new-game-started' });
+  } catch (error) {
+    scenarioError = error;
   } finally {
-    const output = page.output();
-    fs.writeFileSync(path.join(outDir, 'no-previous-electron-stdout.log'), output.stdout);
-    fs.writeFileSync(path.join(outDir, 'no-previous-electron-stderr.log'), output.stderr);
-    await page.close().catch(() => {});
+    await finishEvidence(page, qc, scenarioError);
   }
 }
 
@@ -185,30 +190,31 @@ async function runContinueFlow(results) {
   assert(results.continue.createdSave.saveFiles.length > 0, 'setup must create a manual save file');
   const page = await Harness.createElectronBrowserDriver({
     root,
-    port: 9652,
     width,
     height,
     env: { NH_ELECTRON_TEST_FIXTURES: '1', NH_TEST_PLAYGROUND: continuePlayground },
   });
+  outDir = page.outputDir;
+  const qc = createEvidence(page);
+  let scenarioError;
   try {
     await page.waitForRendererReady({ timeoutMs: 10000, promptTest: true, automation: true, startButton: true });
-    results.continue.initial = await waitFor(async () => {
+    results.continue.initial = await Harness.waitFor(async () => {
       const state = await pageState(page);
       return state.startup.open && !state.startup.continueHidden && state.recovery?.hasContinue ? state : null;
     }, 10000);
-    results.screenshots.continueModal = await page.screenshot(path.join(outDir, '04-continue-startup-modal.png'));
+    results.screenshots.continueModal = await page.screenshotEvidence(qc, '04-continue-startup-modal', { classification: 'actual-player', viewport: { width, height, devicePixelRatio: 1 }, state: 'continue-startup-modal' });
     await page.click('#startup-continue-game');
-    results.continue.started = await waitFor(async () => {
+    results.continue.started = await Harness.waitFor(async () => {
       const state = await pageState(page);
       const log = state.messages.join('\n');
       return state.running && /Restoring save file|Welcome back|Velkommen back/i.test(log) ? state : null;
     }, 25000);
-    results.screenshots.continuedGame = await page.screenshot(path.join(outDir, '05-continued-previous-game.png'));
+    results.screenshots.continuedGame = await page.screenshotEvidence(qc, '05-continued-previous-game', { classification: 'actual-player', viewport: { width, height, devicePixelRatio: 1 }, state: 'continued-previous-game' });
+  } catch (error) {
+    scenarioError = error;
   } finally {
-    const output = page.output();
-    fs.writeFileSync(path.join(outDir, 'continue-electron-stdout.log'), output.stdout);
-    fs.writeFileSync(path.join(outDir, 'continue-electron-stderr.log'), output.stderr);
-    await page.close().catch(() => {});
+    await finishEvidence(page, qc, scenarioError);
   }
 }
 
@@ -218,37 +224,40 @@ async function runCheckpointContinueFlow(results) {
   assert(results.checkpoint.createdCheckpoint.lockSize > 4096, 'setup must create a recoverable checkpoint lock');
   const page = await Harness.createElectronBrowserDriver({
     root,
-    port: 9653,
     width,
     height,
     env: { NH_ELECTRON_TEST_FIXTURES: '1', NH_TEST_PLAYGROUND: checkpointPlayground },
   });
+  outDir = page.outputDir;
+  const qc = createEvidence(page);
+  let scenarioError;
   try {
     await page.waitForRendererReady({ timeoutMs: 10000, promptTest: true, automation: true, startButton: true });
-    results.checkpoint.initial = await waitFor(async () => {
+    results.checkpoint.initial = await Harness.waitFor(async () => {
       const state = await pageState(page);
       return state.startup.open && !state.startup.continueHidden && state.recovery?.primaryCandidate?.kind === 'checkpoint' ? state : null;
     }, 10000);
-    results.screenshots.checkpointModal = await page.screenshot(path.join(outDir, '06-checkpoint-startup-modal.png'));
+    results.screenshots.checkpointModal = await page.screenshotEvidence(qc, '06-checkpoint-startup-modal', { classification: 'actual-player', viewport: { width, height, devicePixelRatio: 1 }, state: 'checkpoint-startup-modal' });
     await page.click('#startup-continue-game');
-    results.checkpoint.started = await waitFor(async () => {
+    results.checkpoint.started = await Harness.waitFor(async () => {
       const state = await pageState(page);
       const log = state.messages.join('\n');
       return state.running && /Restoring save file|Welcome back|Velkommen back|Dlvl:?2|Dlvl\s*2/i.test(log) ? state : null;
     }, 30000);
-    results.screenshots.checkpointContinuedGame = await page.screenshot(path.join(outDir, '07-checkpoint-recovered-game.png'));
+    results.screenshots.checkpointContinuedGame = await page.screenshotEvidence(qc, '07-checkpoint-recovered-game', { classification: 'actual-player', viewport: { width, height, devicePixelRatio: 1 }, state: 'checkpoint-recovered-game' });
+  } catch (error) {
+    scenarioError = error;
   } finally {
-    const output = page.output();
-    fs.writeFileSync(path.join(outDir, 'checkpoint-electron-stdout.log'), output.stdout);
-    fs.writeFileSync(path.join(outDir, 'checkpoint-electron-stderr.log'), output.stderr);
-    await page.close().catch(() => {});
+    await finishEvidence(page, qc, scenarioError);
   }
 }
 
 async function main() {
-  fs.rmSync(outDir, { recursive: true, force: true });
-  fs.mkdirSync(outDir, { recursive: true });
-  const results = { outDir, screenshots: {}, noPrevious: {}, continue: {}, checkpoint: {}, checks: {} };
+  if (process.argv[2] === '--review') return reviewRun(process.argv[3], process.argv[4]);
+  noPreviousPlayground = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'nh-startup-none-'));
+  continuePlayground = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'nh-startup-save-'));
+  checkpointPlayground = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'nh-startup-checkpoint-'));
+  const results = { screenshots: {}, noPrevious: {}, continue: {}, checkpoint: {}, checks: {} };
   await runNoPreviousFlow(results);
   await runContinueFlow(results);
   await runCheckpointContinueFlow(results);
@@ -265,10 +274,6 @@ async function main() {
     checkpointRecoveredAndRestored: results.checkpoint.started?.running === true,
   };
   const failed = Object.entries(results.checks).filter(([, ok]) => !ok).map(([name]) => name);
-  fs.writeFileSync(path.join(outDir, 'real-startup-choice-summary.json'), JSON.stringify(results, null, 2));
-  const md = ['# Real startup choice modal test', '', `Output: ${outDir}`, '', '## Checks', ...Object.entries(results.checks).map(([name, ok]) => `- ${ok ? 'PASS' : 'FAIL'} ${name}`), '', '## Screenshots', ...Object.entries(results.screenshots).map(([name, file]) => `- ${name}: ${file}`), ''].join('\n');
-  fs.writeFileSync(path.join(outDir, 'real-startup-choice-summary.md'), md);
-  console.log(md);
   if (failed.length) throw new Error(`startup choice checks failed: ${failed.join(', ')}`);
 }
 

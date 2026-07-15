@@ -23,8 +23,6 @@ const mapTooltipContents = document.getElementById('map-tooltip-contents');
 const directionHelper = document.getElementById('direction-helper');
 const directionHelperTitle = document.getElementById('direction-helper-title');
 const directionHelperOptions = document.getElementById('direction-helper-options');
-const messages = document.getElementById('messages');
-const messageHistoryBody = document.getElementById('message-history-body');
 const statusLines = document.getElementById('status-lines');
 const status = document.getElementById('status');
 const paths = document.getElementById('paths');
@@ -85,7 +83,6 @@ const settingContextualMenus = document.getElementById('setting-contextual-menus
 const settingAutoLootGold = document.getElementById('setting-auto-loot-gold');
 const itemActions = document.getElementById('item-actions');
 const systemActions = document.getElementById('system-actions');
-const equipmentSlots = document.getElementById('equipment-slots');
 const repeatActions = document.getElementById('repeat-actions');
 const repeatCountInput = document.getElementById('repeat-count');
 
@@ -174,11 +171,11 @@ const sharedModules = Object.freeze({
   publicItemKnowledge: window.NetHackPublicItemKnowledge,
   commandGateway: window.NetHackCommandGateway,
   messageLog: window.NetHackMessageLog,
-  promptRules: window.NetHackPromptRules,
   tileAssets: window.NetHackTileAssets,
   characterOptions: window.NetHackCharacterOptions,
   interactionModel: window.NetHackInteractionModel,
   inventoryActionService: window.NetHackInventoryActionService,
+  uxEquipmentScreen: window.NetHackUxEquipmentScreen,
   mapPresentation: window.NetHackMapPresentation,
   shimProtocol: window.NetHackShimProtocol,
   uiProtocolV2: window.NetHackUiProtocolV2,
@@ -189,6 +186,7 @@ const sharedModules = Object.freeze({
   containerContentsSnapshotAdapter: window.NetHackContainerContentsSnapshotAdapter,
   commandTransactionModel: window.NetHackCommandTransactionModel,
   transferTransactionModel: window.NetHackTransferTransactionModel,
+  transferSession: window.NetHackTransferSession,
   gameViewState: window.NetHackGameViewState,
   recordingSchema: window.NetHackRecordingSchema,
   statusHud: window.NetHackStatusHud,
@@ -205,7 +203,11 @@ const sharedModules = Object.freeze({
   uxOnboarding: window.NetHackUxOnboarding,
   uxCharacterCreation: window.NetHackUxCharacterCreation,
 });
+const transferSession = sharedModules.transferSession.createTransferSession({
+  idPrefix: 'renderer-transfer-session',
+});
 const uxRuntime = sharedModules.uxRuntime?.runtime;
+const itemEquipmentOwner = sharedModules.uxEquipmentScreen?.controller;
 uxRuntime?.setDiagnosticSink?.((entry) => diagnosticEvent('ux-runtime', entry.type, entry.detail || {}));
 const uxMountInspection = sharedModules.uxAppMounts?.inspectMounts?.(document) || [];
 for (const mount of uxMountInspection) {
@@ -236,7 +238,6 @@ const uxDialogService = Object.freeze({
 });
 if (uxInteractionDomain && uxNoticeService) uxRuntime?.installService?.('notice', 'interaction', uxNoticeService);
 if (uxInteractionDomain) uxRuntime?.installService?.('dialog', 'interaction', uxDialogService);
-const userMessageLog = sharedModules.messageLog?.createMessageLog({ limit: 240 });
 
 function applyFixedDialogContract(dialog, input) {
   if (!dialog || !sharedModules.uxDialogShell?.applyDialogSpec) return null;
@@ -291,7 +292,7 @@ uxFocusLayer?.register?.(interactionDialog, () => ({
   focusDelayMs: interactionDialog.dataset.dialogFamily === 'confirmation' ? 0 : 160,
 }));
 uxFocusLayer?.register?.(containerTransferPanel, () => ({
-  id: containerTransferState?.sessionKind === 'ground-pickup' ? 'ground-transfer' : 'container-transfer',
+  id: transferPresentation?.sessionKind === 'ground-pickup' ? 'ground-transfer' : 'container-transfer',
   domain: 'transfer',
   initialFocus: () => containerTransferPanel.querySelector('.container-item-row') || containerTransferPanel.querySelector('.container-transfer-heading button'),
   returnFocus: 'invoker',
@@ -312,23 +313,26 @@ let compassRunArmed = false;
 const maxShimLines = 400;
 const mapWidth = 80;
 const mapHeight = 21;
-let gameView = sharedModules.gameViewState?.createGameViewState ? sharedModules.gameViewState.createGameViewState({ mapWidth, mapHeight }) : null;
-const windowTypes = new Map();
-const statusLabels = new Map();
-const statusValues = new Map();
-let mapWindowId;
-let cursor = { x: 0, y: 0, window: undefined };
+let gameView = sharedModules.gameViewState.createGameViewState({ mapWidth, mapHeight });
+let gameViewSnapshot = gameView.snapshot();
+let lastRenderedGameViewMapRevision = gameViewSnapshot.mapRevision;
+function refreshGameViewSnapshot() {
+  const next = gameView.snapshot();
+  if (next.mapRevision !== lastRenderedGameViewMapRevision) publicTerrainLabelsDirty = true;
+  lastRenderedGameViewMapRevision = next.mapRevision;
+  gameViewSnapshot = next;
+  return next;
+}
+function publishRendererGameViewEvent(event) {
+  const result = gameView.process(event);
+  refreshGameViewSnapshot();
+  return result;
+}
 let shimEventCount = 0;
 let shimLines = [];
 let publicGroundPileShimEvidence = [];
-let messageHistory = [];
-let equipmentDragSuppressClickUntil = 0;
-let equipmentKeepOpenState = null;
-let pendingEquipmentSlotIntent = null;
-let equipmentRefreshTimer = null;
 let suppressInventoryLazyLoadUntil = 0;
 let suppressedInventoryOverviewUntil = 0;
-let suppressedEquipmentDialogRenderUntil = 0;
 let pendingShimEvents = [];
 let shimFlushScheduled = false;
 const seenShimEventNames = new Set();
@@ -338,36 +342,20 @@ let tileAssetsById = new Map();
 let projectInfo;
 let runningState = { running: false };
 let lastSentKey = { key: undefined, at: 0 };
-let activePrompt = null;
 let pendingPromptCancellation = null;
 let lastPromptCancellationAcknowledgement = null;
-let pendingBackingInventoryAction = null;
 let testPromptCancellationDiagnostics = [];
+let omitNextPromptCancellationOwnershipForTest = false;
 const cancellationAnswerTransports = new Set(['bridge_prompt_answer', 'bridge_line_answer', 'bridge_menu_answer', 'bridge_extcmd_answer']);
-let currentMenu = null;
-let extCommandCatalog = [];
 let documentWindow = null;
 let introWindow = null;
 let introLoreShown = false;
-let cachedInventoryChoices = [];
-let liveInventoryChoices = [];
-let liveInventoryRevision = 0;
-let publicInventorySnapshot = sharedModules.inventorySnapshotAdapter?.emptyInventoryState ? sharedModules.inventorySnapshotAdapter.emptyInventoryState() : { revision: 0, orderedItems: [] };
-let publicEquipmentSnapshot = sharedModules.equipmentSnapshotAdapter?.emptyEquipmentState ? sharedModules.equipmentSnapshotAdapter.emptyEquipmentState() : { revision: 0, inventoryRevision: 0, orderedSlots: [] };
-let publicGroundPileSnapshots = sharedModules.groundPileSnapshotAdapter?.emptyGroundPileState ? sharedModules.groundPileSnapshotAdapter.emptyGroundPileState() : { revision: 0, pilesByCoord: new Map() };
-let publicMapRevision = 0;
-let publicContainerContentsSnapshots = sharedModules.containerContentsSnapshotAdapter?.emptyContainerContentsState ? sharedModules.containerContentsSnapshotAdapter.emptyContainerContentsState() : { revision: 0, activeSessionId: undefined, sessionsById: new Map(), contentsBySessionId: new Map() };
-let inventorySnapshotFeatureFlags = { useSnapshotForOverview: true };
-let equipmentSnapshotFeatureFlags = { useSnapshotForPaperDoll: true };
-let transferInventorySnapshot = [];
 let inventoryLazyLoad = null;
 let lastInventoryActionQuery = '';
 let lastInventoryOverviewRequestAt = 0;
 let canceledInventoryLazyLoadMenuUntil = 0;
 let canceledInventoryLazyLoadSelectors = new Set();
 const inventoryLazyLoadTimeoutMs = 900;
-const menusByWindow = new Map();
-const textWindowsByWindow = new Map();
 let activeRecording = null;
 let currentRunConfig = null;
 let derivedPlayerCharacter = {};
@@ -384,62 +372,100 @@ let testSentPayloads = [];
 let testSentUiProtocolCommands = [];
 let testSentUiProtocolAcks = [];
 let recordingProtocolSequence = 0;
-let lastWorldCommand = '';
 let pendingExplicitGroundLookUntil = 0;
 let lastDirectionKey = '';
-let activeMapTargetPrompt = null;
-let activeMapTargetSelection = null;
 let activeWorkflowContext = null;
 let shopPaymentUiStatus = { phase: 'idle', text: '', until: 0 };
 let pendingNativeUiCommands = new Map();
 let pendingNativeUiCommandBridgeOutcomes = new Map();
-let publicCommandTransactions = sharedModules.commandTransactionModel?.emptyState ? sharedModules.commandTransactionModel.emptyState() : { revision: 0, activeId: undefined, byId: new Map(), lastCompleted: null, lastRejected: null };
-let publicTransferTransactions = sharedModules.transferTransactionModel?.emptyState ? sharedModules.transferTransactionModel.emptyState() : { revision: 0, activeSessionId: undefined, activeTransferId: undefined, sessionsById: new Map(), transfersById: new Map(), lastCompleted: null, lastRejected: null };
-// Renderer-local pending evidence exists only as the no-gameView fallback; when shared
-// game-view-state is available these mirrors are populated from state.pendingTransferEvidence.
-let pendingGroundPileEvidence = null;
-let pendingContainerContentsEvidence = null;
 let semanticActionCommandRevision = 0;
-let transferActionRevision = 0;
 let transferEventSequence = 0;
 let lastInteractionDialogSignature = '';
 let groundItemsHint = null;
 let pendingGroundItemsMessageList = null;
-let containerTransferState = null;
-let cachedContainerTransferView = null;
-let containerTransferCacheValidUntil = 0;
+let transferPresentation = null;
 let containerTransferRefreshGraceUntil = 0;
 let containerTransferExtendedPromptSuppressTokens = [];
 let containerTransferExtendedPromptSuppressSequence = 0;
 let containerTransferSuppressedExtendedPrompt = null;
 let containerTransferLastExtendedPromptSuppressionAt = 0;
 let containerTransferInternalSendDepth = 0;
-let forceClassicContainerTakeOutForTest = false;
-let pendingContainerTransferSelection = null;
-let pendingContainerInventoryProbeDismissal = null;
-let pendingGroundMenuTransferIntent = null;
 let directTransferPendingTimeout = null;
-let pendingDirectContainerOpen = null;
 let directContainerSnapshotTimeout = null;
 let testUiCommandHandler = null;
-let pendingGroundPickupRequest = null;
 let pendingContainerUnlockOpen = null;
 let stalePlaceholderStatusSuppressUntil = 0;
 let monsterSenseFarlookStatusUntil = 0;
 let pendingMonsterSenseFarlookTipSuppression = false;
 let lastMonsterSenseMessageAt = 0;
 const smallFixedOptionLimit = 4;
+const interactionPlanner = sharedModules.interactionModel.createInteractionPlanner();
+let lastInteractionPlannerDecisionSequence = 0;
+
+function interactionPlannerInput() {
+  const menu = gameViewSnapshot.currentMenu;
+  const prompt = gameViewSnapshot.activePrompt;
+  const transferOwner = transferSession.snapshot().owner;
+  const panelOwnsMenu = Boolean(transferOwner?.ownsMenu && menu?.awaitingSelection);
+  const transferOwnsPrompt = Boolean(transferOwner?.ownsPrompt);
+  const itemOwnership = itemEquipmentOwner?.ownership?.() || {};
+  const inventoryChoices = gameViewSnapshot.inventory?.orderedItems || [];
+  return {
+    gameView: gameViewSnapshot,
+    inventoryChoices,
+    extCommandCatalog: gameViewSnapshot.extCommandCatalog,
+    inventoryLoadState: inventoryLazyLoad?.status || '',
+    running: Boolean(runningState.running),
+    playable: Boolean(runningState.running),
+    terrainLabel: statusValue(25),
+    groundHint: groundItemsHint,
+    contextualPrompt: activeContextualPrompt,
+    lastInventoryActionQuery,
+    workflowLabel: activeWorkflowContext?.label || '',
+    smallFixedOptionLimit,
+    transfer: transferOwner ? {
+      id: transferOwner.id,
+      ownsPrompt: transferOwnsPrompt,
+      ownsMenu: panelOwnsMenu,
+      cancellation: transferOwner.cancellation,
+    } : null,
+    equipment: {
+      id: itemOwnership.id || '',
+      ownsPrompt: Boolean(itemOwnership.ownsPrompt),
+      ownsMenu: Boolean(itemOwnership.ownsMenu),
+    },
+  };
+}
+
+function interactionDecision(reason = 'presentation') {
+  const decision = interactionPlanner.decide(interactionPlannerInput());
+  if (decision.decisionSequence !== lastInteractionPlannerDecisionSequence) {
+    lastInteractionPlannerDecisionSequence = decision.decisionSequence;
+    diagnosticEvent('interaction', 'interaction.plan.decided', {
+      reason,
+      decisionSequence: decision.decisionSequence,
+      interactionId: decision.interactionId,
+      transition: decision.transition,
+      owner: decision.owner.kind,
+      requestId: decision.owner.requestId,
+      promptClassification: decision.prompt.classification || decision.prompt.kind,
+      menuClassification: decision.menu.classification || decision.menu.kind,
+      contextActionCount: decision.contextActions.length,
+    });
+  }
+  return decision;
+}
 
 function summarizeCommandTransactions() {
-  const byId = publicCommandTransactions?.byId instanceof Map ? publicCommandTransactions.byId : new Map();
+  const byId = gameViewSnapshot.commandTransactions?.byId instanceof Map ? gameViewSnapshot.commandTransactions.byId : new Map();
   return {
-    revision: publicCommandTransactions?.revision || 0,
-    activeId: publicCommandTransactions?.activeId || '',
-    lastCompleted: publicCommandTransactions?.lastCompleted || null,
-    lastRejected: publicCommandTransactions?.lastRejected || null,
-    protocolAcks: (gameView?.state?.commandProtocolAcks || []).slice(-8),
-    lastProtocolAck: gameView?.state?.lastCommandProtocolAck || null,
-    lastProtocolRejection: gameView?.state?.lastCommandProtocolRejection || null,
+    revision: gameViewSnapshot.commandTransactions?.revision || 0,
+    activeId: gameViewSnapshot.commandTransactions?.activeId || '',
+    lastCompleted: gameViewSnapshot.commandTransactions?.lastCompleted || null,
+    lastRejected: gameViewSnapshot.commandTransactions?.lastRejected || null,
+    protocolAcks: gameViewSnapshot.commandProtocolAcks.slice(-8),
+    lastProtocolAck: gameViewSnapshot.lastCommandProtocolAck,
+    lastProtocolRejection: gameViewSnapshot.lastCommandProtocolRejection,
     transactions: Array.from(byId.values()).slice(-8).map((tx) => ({ 
       transactionId: tx.transactionId,
       status: tx.status,
@@ -699,8 +725,8 @@ function refreshFailedInteractionSurface() {
   actionableFailureHoldUntil = 0;
   actionableFailureNotice = null;
   uxNoticeService?.stateChanged?.();
-  if (currentMenu?.awaitingSelection) renderMenuPanel();
-  else if (activePrompt) renderPromptPanel();
+  if (gameViewSnapshot.currentMenu?.awaitingSelection) renderMenuPanel();
+  else if (gameViewSnapshot.activePrompt) renderPromptPanel();
   else restoreFailureSurfaceState(interactionDialog, state.preserved);
   window.setTimeout(() => restoreFailureSurfaceState(interactionDialog, state.preserved), 0);
   diagnosticEvent('failure-presentation', 'failure.explicit-refresh', { surface: 'interaction', retryDispatched: false, stableId: state.preserved.stableId });
@@ -753,12 +779,9 @@ function setRunningState(state) {
   renderContextActionBar();
 }
 
-function makeEmptyMap() {
-  return Array.from({ length: mapHeight }, () => Array.from({ length: mapWidth }, () => ({ ch: ' ', assetId: undefined, glyph: undefined })));
-}
 
-let mapCells = makeEmptyMap();
 let mapCellElements = [];
+const mapInteractionClassCells = new Set();
 const publicTerrainLabelsByCoord = new Map();
 let publicTerrainLabelsDirty = true;
 let mapRenderScheduled = false;
@@ -767,6 +790,7 @@ let activeTooltipCellKey = '';
 const dirtyMapCells = new Set();
 const renderStats = { fullRenders: 0, partialRenders: 0, cellsUpdated: 0, scheduledFlushes: 0, immediateFlushes: 0, lastRenderDurationMs: 0, lastRenderMode: 'none' };
 let shimEventBatchDepth = 0;
+let deferredGameViewEffects = null;
 const performanceEvents = [];
 function recordPerformanceEvent(type, payload = {}) {
   if (typeof performance === 'undefined') return;
@@ -781,21 +805,21 @@ if (typeof window !== 'undefined') {
 function automationState() {
   return {
     status: status?.dataset?.status || status?.textContent || '',
-    messages: messageHistory.slice(-8).map((item) => item.text || String(item)),
-    activePrompt: activePrompt ? { question: activePrompt.question, choices: activePrompt.choices } : null,
-    currentMenu: currentMenu ? { title: currentMenu.title, itemCount: currentMenu.items?.length || 0 } : null,
+    messages: gameViewSnapshot.messages.slice(-8),
+    activePrompt: gameViewSnapshot.activePrompt ? { question: gameViewSnapshot.activePrompt.question, choices: gameViewSnapshot.activePrompt.choices } : null,
+    currentMenu: gameViewSnapshot.currentMenu ? { title: gameViewSnapshot.currentMenu.title, itemCount: gameViewSnapshot.currentMenu.items?.length || 0 } : null,
     runningState,
     commandTransactions: summarizeCommandTransactions(),
     shimEventCount,
-    mapWindowId,
-    cursor: { ...cursor },
+    mapWindowId: gameViewSnapshot.mapWindowId,
+    cursor: { ...gameViewSnapshot.cursor },
     mapCells: gameGrid?.childElementCount || 0,
     renderStats: { ...renderStats },
     diagnostics: {
       modules: Object.fromEntries(Object.entries(sharedModules).map(([name, mod]) => [name, mod?.version || mod?.migrationPhase || 'unavailable'])),
       focusMode,
       rawShimLogCount: shimLines.length,
-      messageLogCount: messageHistory.length,
+      messageLogCount: gameViewSnapshot.messages.length,
       tileManifestCount: tileAssetsById.size,
     },
   };
@@ -812,11 +836,15 @@ function normalizeCell(cell) {
     color: cell?.color,
     tileidx: cell?.tileidx,
     glyphFlags: cell?.glyphFlags,
+    objectId: cell?.objectId,
+    displayName: cell?.displayName,
     backgroundGlyph: cell?.backgroundGlyph,
     backgroundSemanticKind: cell?.backgroundSemanticKind,
     backgroundSemanticName: cell?.backgroundSemanticName,
     objectLayerGlyph: cell?.objectLayerGlyph,
     objectLayerChar: cell?.objectLayerChar,
+    objectLayerObjectId: cell?.objectLayerObjectId,
+    objectLayerDisplayName: cell?.objectLayerDisplayName,
     objectLayerSemanticKind: cell?.objectLayerSemanticKind,
     objectLayerSemanticName: cell?.objectLayerSemanticName,
     objectLayerSemanticAppearance: cell?.objectLayerSemanticAppearance,
@@ -907,7 +935,7 @@ const legacyCssDungeonAssetIds = new Set([
 
 function cellAt(x, y) {
   if (x < 0 || y < 0 || x >= mapWidth || y >= mapHeight) return null;
-  return normalizeCell(mapCells[y][x]);
+  return normalizeCell(gameViewSnapshot.mapCells[y][x]);
 }
 
 function glyphAt(x, y) {
@@ -1087,10 +1115,26 @@ function resetMapCellElement(cellEl, x, y, normalized) {
 }
 
 function applyMapCellInteractionClasses(cellEl, x, y) {
-  if (cursor.window === mapWindowId && cursor.x === x && cursor.y === y) cellEl.classList.add('cursor');
-  if (activeMapTargetPrompt && activeMapTargetSelection?.x === x && activeMapTargetSelection?.y === y) cellEl.classList.add('selected-map-target');
-  if (activeMapTargetPrompt && cursor.window === mapWindowId && cursor.x === x && cursor.y === y) cellEl.classList.add('target-origin');
-  if (directionKeyForMapDelta(x - cursor.x, y - cursor.y)) cellEl.classList.add('adjacent-move-target');
+  const isCursor = gameViewSnapshot.cursor.window === gameViewSnapshot.mapWindowId
+    && gameViewSnapshot.cursor.x === x
+    && gameViewSnapshot.cursor.y === y;
+  const isAdjacentTarget = Boolean(directionKeyForMapDelta(x - gameViewSnapshot.cursor.x, y - gameViewSnapshot.cursor.y));
+  if (isCursor) cellEl.classList.add('cursor');
+  if (isAdjacentTarget) cellEl.classList.add('adjacent-move-target');
+  if (isCursor || isAdjacentTarget) mapInteractionClassCells.add(cellEl);
+}
+
+function refreshMapCellInteractionClasses() {
+  for (const cellEl of mapInteractionClassCells) cellEl.classList.remove('cursor', 'adjacent-move-target');
+  mapInteractionClassCells.clear();
+  const { x, y, window } = gameViewSnapshot.cursor;
+  if (window !== gameViewSnapshot.mapWindowId) return;
+  for (let dy = -1; dy <= 1; dy += 1) {
+    for (let dx = -1; dx <= 1; dx += 1) {
+      const cellEl = mapCellElements[y + dy]?.[x + dx];
+      if (cellEl) applyMapCellInteractionClasses(cellEl, x + dx, y + dy);
+    }
+  }
 }
 
 function renderMapCellLayers(cellEl, layers = []) {
@@ -1111,9 +1155,9 @@ function renderMapCellLayers(cellEl, layers = []) {
 }
 
 function applyMapCellToElement(cellEl, x, y) {
-  const normalized = normalizeCell(mapCells[y][x]);
+  const normalized = normalizeCell(gameViewSnapshot.mapCells[y][x]);
   if (sharedModules.mapPresentation?.cellViewModel) {
-    const model = sharedModules.mapPresentation.cellViewModel(normalized, x, y, { tileMapConfig, tileAssetsById, cells: mapCells, cursor, mapWindowId, playerCharacter: currentPlayerCharacter() });
+    const model = sharedModules.mapPresentation.cellViewModel(normalized, x, y, { tileMapConfig, tileAssetsById, cells: gameViewSnapshot.mapCells, cursor: gameViewSnapshot.cursor, mapWindowId: gameViewSnapshot.mapWindowId, playerCharacter: currentPlayerCharacter() });
     resetMapCellElement(cellEl, x, y, normalized);
     cellEl.className = model.classes.join(' ');
     if (model.assetId) cellEl.dataset.tileId = model.assetId;
@@ -1233,7 +1277,7 @@ function publicGroundTooltipContents(x, y) {
 
 function mapTooltipInfoForCell(cell, x, y) {
   if (sharedModules.mapPresentation?.tooltipInfoForCell) {
-    const info = sharedModules.mapPresentation.tooltipInfoForCell(cell, x, y, { tileMapConfig, tileAssetsById, cells: mapCells, playerCharacter: currentPlayerCharacter() });
+    const info = sharedModules.mapPresentation.tooltipInfoForCell(cell, x, y, { tileMapConfig, tileAssetsById, cells: gameViewSnapshot.mapCells, playerCharacter: currentPlayerCharacter() });
     if (!info) return null;
     const contents = Array.isArray(info.contents) ? info.contents.map((entry) => ({ ...entry })) : [];
     const identities = new Set(contents.map((entry) => tooltipContentIdentity(entry.label)));
@@ -1309,29 +1353,34 @@ function showMapTooltipForCell(cellEl) {
   const x = Number(cellEl.dataset.mapX);
   const y = Number(cellEl.dataset.mapY);
   if (!Number.isFinite(x) || !Number.isFinite(y)) return hideMapTooltip();
-  const info = mapTooltipInfoForCell(mapCells[y]?.[x], x, y);
+  const info = mapTooltipInfoForCell(gameViewSnapshot.mapCells[y]?.[x], x, y);
   if (!info) return hideMapTooltip();
   const contentSignature = (info.contents || []).map((content) => `${content.label}:${content.kind}`).join('|');
-  const nextKey = `${x},${y}:${info.assetId || info.glyph}:${info.title}:${contentSignature}`;
+  const nextKey = `${x},${y}:${info.assetId || info.glyph}:${info.title}:${info.description || ''}:${contentSignature}`;
   if (activeTooltipCellKey !== nextKey) {
     activeTooltipCellKey = nextKey;
     mapTooltipTitle.textContent = info.title;
-    mapTooltipDescription.textContent = info.description;
+    mapTooltipDescription.textContent = info.description === 'Fixture' ? 'Dungeon feature' : info.description;
     if (mapTooltipDescription) mapTooltipDescription.hidden = !info.description;
     if (mapTooltipContents) {
       mapTooltipContents.replaceChildren();
-      for (const content of info.contents || []) {
+      const tooltipContents = (info.contents || []).slice();
+      const visibleContents = tooltipContents.length && String(tooltipContents[0]?.label || '').trim().toLowerCase() === String(info.title || '').trim().toLowerCase()
+        ? tooltipContents.slice(1)
+        : tooltipContents;
+      mapTooltipContents.classList.toggle('also-only', visibleContents.length > 0 && visibleContents.length < tooltipContents.length);
+      for (const content of visibleContents) {
         const row = document.createElement('li');
         const label = document.createElement('span');
         label.className = 'map-tooltip-content-label';
         label.textContent = content.label;
         const kind = document.createElement('span');
         kind.className = 'map-tooltip-content-kind';
-        kind.textContent = content.kind;
+        kind.textContent = content.kind === 'Fixture' ? 'Dungeon feature' : content.kind;
         row.append(label, kind);
         mapTooltipContents.append(row);
       }
-      mapTooltipContents.hidden = (info.contents || []).length < 2;
+      mapTooltipContents.hidden = visibleContents.length === 0;
     }
     mapTooltip.classList.toggle('map-tooltip-statue', Boolean(info.isStatue));
     mapTooltipIcon.className = 'map-tooltip-icon';
@@ -1364,8 +1413,8 @@ function updateMapTooltipFromPointer(event) {
 }
 
 function updateGameGridMetadata() {
-  gameGrid.dataset.mapWindowId = mapWindowId == null ? '' : String(mapWindowId);
-  gameGrid.dataset.cursor = `${cursor.x},${cursor.y}`;
+  gameGrid.dataset.mapWindowId = gameViewSnapshot.mapWindowId == null ? '' : String(gameViewSnapshot.mapWindowId);
+  gameGrid.dataset.cursor = `${gameViewSnapshot.cursor.x},${gameViewSnapshot.cursor.y}`;
   gameGrid.dataset.tileManifestCount = String(tileAssetsById.size);
   gameGrid.dataset.bounds = `0,0,${mapWidth - 1},${mapHeight - 1}`;
   gameGrid.dataset.gridSize = `${mapWidth}x${mapHeight}`;
@@ -1388,6 +1437,7 @@ function buildGameGrid() {
     }
   }
   gameGrid.appendChild(fragment);
+  refreshMapCellInteractionClasses();
   renderStats.fullRenders += 1;
   renderStats.cellsUpdated += mapWidth * mapHeight;
   dirtyMapCells.clear();
@@ -1423,6 +1473,7 @@ function renderGameGrid({ full = false } = {}) {
     renderStats.partialRenders += 1;
     renderStats.cellsUpdated += dirty.length;
   }
+  refreshMapCellInteractionClasses();
   updateGameGridMetadata();
   updatePublicTerrainLabelCache();
   reconcileGroundItemsHintWithCurrentMap();
@@ -1450,34 +1501,6 @@ function flushMapRenderNow() {
   }
   renderStats.immediateFlushes += 1;
   renderGameGrid();
-}
-function isScrolledNearBottom(element, threshold = 32) {
-  if (!element) return true;
-  return element.scrollHeight - element.scrollTop - element.clientHeight <= threshold;
-}
-
-function scrollElementToBottom(element) {
-  if (!element) return;
-  element.scrollTop = element.scrollHeight;
-  if (typeof window.requestAnimationFrame === 'function') {
-    window.requestAnimationFrame(() => { element.scrollTop = element.scrollHeight; });
-  }
-}
-
-function renderMessages({ forceScroll = false } = {}) {
-  const shouldScrollRecent = forceScroll || isScrolledNearBottom(messages);
-  const shouldScrollHistory = forceScroll || isScrolledNearBottom(messageHistoryBody);
-  if (!messageHistory.length) {
-    messages.textContent = 'Waiting to begin…';
-    messageHistoryBody.textContent = '';
-    if (shouldScrollRecent) scrollElementToBottom(messages);
-    if (shouldScrollHistory) scrollElementToBottom(messageHistoryBody);
-    return;
-  }
-  messages.textContent = messageHistory.slice(-80).join('\n');
-  messageHistoryBody.textContent = messageHistory.join('\n');
-  if (shouldScrollRecent) scrollElementToBottom(messages);
-  if (shouldScrollHistory) scrollElementToBottom(messageHistoryBody);
 }
 
 
@@ -1516,15 +1539,15 @@ let uxCharacterCreation = null;
 function discoveryPublicState() {
   const game = gameView?.snapshot?.() || {};
   const contextCommands = {};
-  for (const action of (typeof buildContextActions === 'function' ? buildContextActions() : [])) {
+  for (const action of interactionDecision('discovery-public-state').contextActions) {
     if (action.id === 'open-container' || action.command === 'ground-panel') contextCommands['item.loot'] = { available: true };
   }
   return {
     game,
     contextCommands,
-    coreExtendedCommands: Array.isArray(extCommandCatalog) ? extCommandCatalog.slice() : [],
+    coreExtendedCommands: Array.isArray(gameViewSnapshot.extCommandCatalog) ? gameViewSnapshot.extCommandCatalog.slice() : [],
     commandAvailability: {
-      'run.save': activePrompt || currentMenu?.awaitingSelection ? { available: false, reason: 'Finish the current NetHack choice before saving.' } : { available: true },
+      'run.save': gameViewSnapshot.activePrompt || gameViewSnapshot.currentMenu?.awaitingSelection ? { available: false, reason: 'Finish the current NetHack choice before saving.' } : { available: true },
     },
     presentationSettings: userSettings,
   };
@@ -1583,7 +1606,7 @@ function initializeDiscoveryDomain() {
     keyHints: () => userSettings.keyHints || 'contextual',
     onDiagnostic: (entry) => diagnosticEvent('discovery', entry.type, entry.detail || {}),
     onClose(reason, previous) {
-      if (reason === 'escape' && previous?.mode === 'core' && activePrompt?.kind === 'extended command') sendActivePromptCancellation(activePrompt);
+      if (reason === 'escape' && previous?.mode === 'core' && gameViewSnapshot.activePrompt?.kind === 'extended command') sendActivePromptCancellation(gameViewSnapshot.activePrompt);
     },
   });
   uxHelpCenter = sharedModules.uxHelpCenter.createHelpController({
@@ -1628,7 +1651,6 @@ function initializeDiscoveryDomain() {
     openActionsButton.textContent = 'Commands';
     openActionsButton.setAttribute('aria-controls', 'ux-command-palette');
   }
-  if (actionDialog) actionDialog.dataset.compatibilityPresenter = 'disabled';
   return uxDiscoveryController;
 }
 
@@ -1683,30 +1705,20 @@ function resetGameOverState() {
 function resetGameView() {
   resetGameOverState();
   pendingConfirmedSaveAction = null;
-  if (sharedModules.gameViewState?.createGameViewState) gameView = sharedModules.gameViewState.createGameViewState({ mapWidth, mapHeight });
-  windowTypes.clear();
-  statusLabels.clear();
-  statusValues.clear();
-  mapWindowId = undefined;
-  cursor = { x: 0, y: 0, window: undefined };
-  mapCells = makeEmptyMap();
+  omitNextPromptCancellationOwnershipForTest = false;
+  closeContainerTransferPanel();
+  gameView = sharedModules.gameViewState.createGameViewState({ mapWidth, mapHeight });
+  gameViewSnapshot = gameView.snapshot();
+  lastRenderedGameViewMapRevision = gameViewSnapshot.mapRevision;
   publicTerrainLabelsByCoord.clear();
   publicTerrainLabelsDirty = true;
-  syncGameViewGlobals.lastMapRevision = undefined;
-  userMessageLog?.clear();
-  messageHistory = [];
   monsterSenseFarlookStatusUntil = 0;
   pendingMonsterSenseFarlookTipSuppression = false;
   lastMonsterSenseMessageAt = 0;
-  renderMessages();
   statusLines.textContent = 'Status appears when play begins.';
-  statsPanel.textContent = '';
-  activePrompt = null;
   pendingPromptCancellation = null;
   lastPromptCancellationAcknowledgement = null;
-  pendingBackingInventoryAction = null;
   activeContextualPrompt = null;
-  currentMenu = null;
   movementMode = 'walk';
   updateMovementModeButtons();
   compassRunArmed = false;
@@ -1720,53 +1732,31 @@ function resetGameView() {
   pendingExplicitGroundLookUntil = 0;
   lastDirectionKey = '';
   lastInventoryOverviewRequestAt = 0;
-  activeMapTargetPrompt = null;
-  activeMapTargetSelection = null;
   groundItemsHint = null;
   pendingGroundItemsMessageList = null;
   clearWorkflowContext();
-  document.body.classList.remove('map-target-mode');
-  cachedInventoryChoices = [];
   lastInventoryActionQuery = '';
-  liveInventoryChoices = [];
-  liveInventoryRevision = 0;
-  publicInventorySnapshot = sharedModules.inventorySnapshotAdapter?.emptyInventoryState ? sharedModules.inventorySnapshotAdapter.emptyInventoryState() : { revision: 0, orderedItems: [] };
-  publicEquipmentSnapshot = sharedModules.equipmentSnapshotAdapter?.emptyEquipmentState ? sharedModules.equipmentSnapshotAdapter.emptyEquipmentState() : { revision: 0, inventoryRevision: 0, orderedSlots: [] };
-  publicCommandTransactions = sharedModules.commandTransactionModel?.emptyState ? sharedModules.commandTransactionModel.emptyState() : { revision: 0, activeId: undefined, byId: new Map(), lastCompleted: null, lastRejected: null };
-  publicTransferTransactions = sharedModules.transferTransactionModel?.emptyState ? sharedModules.transferTransactionModel.emptyState() : { revision: 0, activeSessionId: undefined, activeTransferId: undefined, sessionsById: new Map(), transfersById: new Map(), lastCompleted: null, lastRejected: null };
-  publicGroundPileSnapshots = sharedModules.groundPileSnapshotAdapter?.emptyGroundPileState ? sharedModules.groundPileSnapshotAdapter.emptyGroundPileState() : { revision: 0, pilesByCoord: new Map() };
-  publicMapRevision = 0;
-  publicContainerContentsSnapshots = sharedModules.containerContentsSnapshotAdapter?.emptyContainerContentsState ? sharedModules.containerContentsSnapshotAdapter.emptyContainerContentsState() : { revision: 0, activeSessionId: undefined, sessionsById: new Map(), contentsBySessionId: new Map() };
-  pendingGroundPileEvidence = null;
-  pendingContainerContentsEvidence = null;
   transferEventSequence = 0;
-  transferInventorySnapshot = [];
-  pendingGroundPickupRequest = null;
   pendingContainerUnlockOpen = null;
   clearInventoryLazyLoad();
-  closeContainerTransferPanel();
-  menusByWindow.clear();
-  textWindowsByWindow.clear();
   closeInteractionDialog();
+  itemEquipmentOwner?.reset?.({ reason: 'game-reset' });
   renderPromptPanel();
   renderMenuPanel();
-  renderEquipmentSlots();
   renderGameGrid({ full: true });
   renderContextActionBar();
+  scheduleUxPublicStatePublish('game-reset');
 }
 
-function isGenericDirectionPromptMessage(text) {
-  return sharedModules.messageLog?.isGenericDirectionPromptMessage ? sharedModules.messageLog.isGenericDirectionPromptMessage(text) : /^\s*(?:(?:choose|pick|select)\s+a\s+direction(?:\s+or\s+map\s+target)?|(?:in\s+)?what\s+direction\??)\.?\s*$/i.test(String(text || ''));
-}
 
 function groundItemTextsFromMessage(text) {
   const raw = String(text || '').trim();
   if (/\bthings? that are here\s*:?\s*$/i.test(raw)) {
-    pendingGroundItemsMessageList = { x: cursor.x, y: cursor.y, items: [], until: Date.now() + 2500 };
+    pendingGroundItemsMessageList = { x: gameViewSnapshot.cursor.x, y: gameViewSnapshot.cursor.y, items: [], until: Date.now() + 2500 };
     return [];
   }
-  if (pendingGroundItemsMessageList && Date.now() <= pendingGroundItemsMessageList.until && pendingGroundItemsMessageList.x === cursor.x && pendingGroundItemsMessageList.y === cursor.y) {
-    if (isGenericDirectionPromptMessage(raw) || /^(?:Never mind|Pick up|Search|Wait|Inspect(?:\s*\/\s*look)?|More\s*\/\s*advanced)\.?$/i.test(raw)) {
+  if (pendingGroundItemsMessageList && Date.now() <= pendingGroundItemsMessageList.until && pendingGroundItemsMessageList.x === gameViewSnapshot.cursor.x && pendingGroundItemsMessageList.y === gameViewSnapshot.cursor.y) {
+    if (sharedModules.messageLog.isGenericDirectionPromptMessage(raw) || /^(?:Never mind|Pick up|Search|Wait|Inspect(?:\s*\/\s*look)?|More\s*\/\s*advanced)\.?$/i.test(raw)) {
       pendingGroundItemsMessageList = null;
       return [];
     }
@@ -1822,18 +1812,18 @@ function maybeRememberVisibleLockedContainerMessage(text = '') {
 }
 
 function groundPileCoordHere() {
-  return { x: Number(cursor.x) || 0, y: Number(cursor.y) || 0 };
+  return { x: Number(gameViewSnapshot.cursor.x) || 0, y: Number(gameViewSnapshot.cursor.y) || 0 };
 }
 
 function groundPileAtCoord(coord = groundPileCoordHere()) {
-  return sharedModules.groundPileSnapshotAdapter?.groundPileAt ? sharedModules.groundPileSnapshotAdapter.groundPileAt(publicGroundPileSnapshots, coord) : null;
+  return sharedModules.groundPileSnapshotAdapter?.groundPileAt ? sharedModules.groundPileSnapshotAdapter.groundPileAt(gameViewSnapshot.groundPiles, coord) : null;
 }
 
 function applyPublicGroundPileSnapshot(items = [], source = { layer: 'renderer' }, coord = groundPileCoordHere()) {
   const adapter = sharedModules.groundPileSnapshotAdapter;
   if (!adapter?.normalizeGroundPileSnapshotPayload || !adapter?.applyGroundPileSnapshot) return null;
   const previousPile = groundPileAtCoord(coord);
-  const revision = (publicGroundPileSnapshots?.revision || 0) + 1;
+  const revision = (gameViewSnapshot.groundPiles?.revision || 0) + 1;
   const payload = adapter.normalizeGroundPileSnapshotPayload({ revision, coord, items });
   const event = adapter.createGroundPileSnapshotEvent(payload, { sequence: Date.now() % Number.MAX_SAFE_INTEGER, source });
   const checked = sharedModules.uiProtocolV2?.validateEventEnvelope ? sharedModules.uiProtocolV2.validateEventEnvelope(event) : { ok: true, errors: [] };
@@ -1841,18 +1831,13 @@ function applyPublicGroundPileSnapshot(items = [], source = { layer: 'renderer' 
     diagnosticEvent('state', 'ground-pile.snapshot.rejected', { errors: checked.errors.slice(), source, coord });
     return null;
   }
-  if (gameView) {
-    const result = gameView.process(event);
-    syncGameViewGlobals();
-    applyGameViewEffects(result.effects);
-    syncGameViewGlobals();
-  } else {
-    publicGroundPileSnapshots = adapter.applyGroundPileSnapshot(publicGroundPileSnapshots, payload, { source, event });
-  }
+  const result = gameView.process(event);
+  refreshGameViewPresentation();
+  applyGameViewEffects(result.effects);
+  refreshGameViewPresentation();
   const nextPile = groundPileAtCoord(coord);
   const delta = adapter.groundPileDelta ? adapter.groundPileDelta(previousPile, nextPile) : null;
-  diagnosticEvent('state', 'ground-pile.snapshot.accepted', { revision: payload.revision, coord: payload.coord, itemCount: payload.items.length, delta, sourcePath: gameView ? 'shared-game-view-state' : 'renderer-fallback' });
-  if (!gameView) maybeAttachGroundPileEvidence(delta, nextPile);
+  diagnosticEvent('state', 'ground-pile.snapshot.accepted', { revision: payload.revision, coord: payload.coord, itemCount: payload.items.length, delta, sourcePath: 'shared-game-view-state' });
   return { snapshot: nextPile, event, delta };
 }
 
@@ -1876,24 +1861,29 @@ function normalizedGroundIdentityName(text = '') {
 
 function mergeVisibleGroundItemsWithExistingPublicIds(items = [], coord = groundPileCoordHere(), { complete = true } = {}) {
   const existingItems = groundPileAtCoord(coord)?.items || [];
-  const adapter = sharedModules.groundPileSnapshotAdapter;
-  if (adapter?.reconcileGroundPileObservation && adapter?.visibleTextObservation) return adapter.reconcileGroundPileObservation(existingItems, adapter.visibleTextObservation(items), { complete });
   if (!existingItems.length) return items;
   const byName = new Map();
+  const ambiguousNames = new Set();
   for (const existing of existingItems) {
     const key = normalizedGroundIdentityName(existing.displayName || existing.text || existing.semanticName || existing.semanticAppearance || '');
-    if (!key || byName.has(key)) continue;
-    byName.set(key, existing);
+    if (!key) continue;
+    if (byName.has(key)) ambiguousNames.add(key);
+    else byName.set(key, existing);
   }
-  return items.map((item) => {
+  const identifiedItems = items.map((item) => {
     if (Number.isInteger(item?.objectId) && item.objectId > 0) return item;
     const key = normalizedGroundIdentityName(item?.displayName || item?.text || item?.semanticName || item?.semanticAppearance || '');
-    const existing = byName.get(key);
+    const existing = ambiguousNames.has(key) ? null : byName.get(key);
     return existing && Number.isInteger(existing.objectId) && existing.objectId > 0 ? { ...existing, ...item, objectId: existing.objectId } : item;
   });
+  const adapter = sharedModules.groundPileSnapshotAdapter;
+  return adapter?.reconcileGroundPileObservation && adapter?.visibleTextObservation
+    ? adapter.reconcileGroundPileObservation(existingItems, adapter.visibleTextObservation(identifiedItems), { complete })
+    : identifiedItems;
 }
 
 function rememberGroundPileFromVisibleTexts(texts = [], source = { layer: 'renderer' }, coord = groundPileCoordHere(), { merge = false } = {}) {
+  if (gameViewSnapshot.transferTransactions?.activeSessionId) return null;
   const adapter = sharedModules.groundPileSnapshotAdapter;
   if (!adapter) return null;
   const incoming = adapter.textLinesToGroundItems ? adapter.textLinesToGroundItems(texts) : texts.map((text) => ({ displayName: String(text || ''), location: { kind: 'ground' } }));
@@ -1901,13 +1891,13 @@ function rememberGroundPileFromVisibleTexts(texts = [], source = { layer: 'rende
 }
 
 function containerSnapshotIdentity() {
-  const displayName = containerDisplayName(containerTransferState?.actionMenu || currentMenu);
+  const sessionContainer = transferSession.snapshot().container || {};
+  const displayName = sessionContainer.displayName || containerDisplayName(gameViewSnapshot.currentMenu);
   const groundContainer = groundSnapshotItemsHere().find((item) => Array.isArray(item.actionAffordances) && item.actionAffordances.includes('container')) || null;
-  const snapshotSession = publicContainerContentsSnapshots?.activeSessionId ? sharedModules.containerContentsSnapshotAdapter?.containerContentsAt?.(publicContainerContentsSnapshots, publicContainerContentsSnapshots.activeSessionId) : null;
-  const stateContainerId = Number.isInteger(containerTransferState?.containerId) ? containerTransferState.containerId : undefined;
-  const objectId = Number.isInteger(snapshotSession?.container?.objectId) ? snapshotSession.container.objectId : (Number.isInteger(stateContainerId) ? stateContainerId : (Number.isInteger(groundContainer?.objectId) ? groundContainer.objectId : undefined));
-  const publicId = objectId != null ? `container-${objectId}` : (containerPromptCacheKey(containerTransferState?.prompt || containerTransferState?.actionMenu?.prompt || displayName || 'container') || displayName.toLowerCase().replace(/[^a-z0-9_.:-]+/g, '-') || 'container');
-  const publicSource = snapshotSession?.container || groundContainer || {};
+  const snapshotSession = gameViewSnapshot.containerContents?.activeSessionId ? sharedModules.containerContentsSnapshotAdapter?.containerContentsAt?.(gameViewSnapshot.containerContents, gameViewSnapshot.containerContents.activeSessionId) : null;
+  const objectId = Number.isInteger(snapshotSession?.container?.objectId) ? snapshotSession.container.objectId : (Number.isInteger(sessionContainer.objectId) ? sessionContainer.objectId : (Number.isInteger(groundContainer?.objectId) ? groundContainer.objectId : undefined));
+  const publicId = objectId != null ? `container-${objectId}` : (String(sessionContainer.publicId || displayName || 'container').toLowerCase().replace(/[^a-z0-9_.:-]+/g, '-') || 'container');
+  const publicSource = snapshotSession?.container || sessionContainer || groundContainer || {};
   return {
     publicId,
     displayName,
@@ -1918,8 +1908,8 @@ function containerSnapshotIdentity() {
   };
 }
 
-function containerContentsSnapshotForSession(sessionId = containerTransferState?.transferSessionId || publicContainerContentsSnapshots?.activeSessionId) {
-  return sharedModules.containerContentsSnapshotAdapter?.containerContentsAt ? sharedModules.containerContentsSnapshotAdapter.containerContentsAt(publicContainerContentsSnapshots, sessionId) : null;
+function containerContentsSnapshotForSession(sessionId = transferPresentation?.transferSessionId || gameViewSnapshot.containerContents?.activeSessionId) {
+  return sharedModules.containerContentsSnapshotAdapter?.containerContentsAt ? sharedModules.containerContentsSnapshotAdapter.containerContentsAt(gameViewSnapshot.containerContents, sessionId) : null;
 }
 
 function processPublicContainerEvent(event) {
@@ -1930,41 +1920,29 @@ function processPublicContainerEvent(event) {
     diagnosticEvent('state', 'container-contents.snapshot.rejected', { errors: checked.errors.slice(), eventType: event.eventType });
     return null;
   }
-  if (gameView) {
-    const result = gameView.process(event);
-    syncGameViewGlobals();
-    applyGameViewEffects(result.effects);
-    syncGameViewGlobals();
-    return result;
-  }
-  if (event.eventType === 'container.session.opened') publicContainerContentsSnapshots = adapter.openSession(publicContainerContentsSnapshots, event.payload);
-  else if (event.eventType === 'container.session.closed') publicContainerContentsSnapshots = adapter.closeSession(publicContainerContentsSnapshots, event.payload);
-  else if (event.eventType === 'container.contents.snapshot') {
-    const applied = adapter.applyContainerContentsSnapshot(publicContainerContentsSnapshots, event.payload, { source: event.source, event });
-    publicContainerContentsSnapshots = applied.state;
-    if (applied.accepted) {
-      const delta = adapter.containerContentsDelta(applied.previous, applied.snapshot);
-      maybeAttachContainerContentsEvidence(delta, applied.snapshot);
-    } else diagnosticEvent('state', 'container-contents.snapshot.rejected', { reason: applied.reason, sessionId: event.payload?.sessionId, revision: event.payload?.revision });
-  }
-  return { event, state: publicContainerContentsSnapshots };
+  const result = gameView.process(event);
+  refreshGameViewPresentation();
+  applyGameViewEffects(result.effects);
+  refreshGameViewPresentation();
+  return result;
 }
 
 function ensurePublicContainerSnapshotSession() {
   const adapter = sharedModules.containerContentsSnapshotAdapter;
-  if (!adapter?.createContainerSessionEvent || !containerTransferState?.active || containerTransferState.sessionKind !== 'container') return null;
-  if (!containerTransferState.transferSessionId) return null;
-  const existing = publicContainerContentsSnapshots?.sessionsById?.get?.(containerTransferState.transferSessionId);
+  if (!adapter?.createContainerSessionEvent || !transferPresentation?.active || transferPresentation.sessionKind !== 'container') return null;
+  const sessionId = transferSession.snapshot().sessionId;
+  if (!sessionId) return null;
+  const existing = gameViewSnapshot.containerContents?.sessionsById?.get?.(sessionId);
   if (existing?.status === 'active') return existing;
-  const session = { sessionId: containerTransferState.transferSessionId, container: containerSnapshotIdentity() };
+  const session = { sessionId, container: containerSnapshotIdentity() };
   const event = adapter.createContainerSessionEvent('container.session.opened', session, { sequence: Date.now() % Number.MAX_SAFE_INTEGER, source: { layer: 'renderer' } });
   processPublicContainerEvent(event);
-  return publicContainerContentsSnapshots?.sessionsById?.get?.(session.sessionId) || null;
+  return gameViewSnapshot.containerContents?.sessionsById?.get?.(session.sessionId) || null;
 }
 
 function closePublicContainerSnapshotSession(reason = 'container transfer panel closed') {
   const adapter = sharedModules.containerContentsSnapshotAdapter;
-  const sessionId = containerTransferState?.transferSessionId || publicContainerContentsSnapshots?.activeSessionId;
+  const sessionId = transferPresentation?.transferSessionId || gameViewSnapshot.containerContents?.activeSessionId;
   if (!adapter?.createContainerSessionEvent || !sessionId) return;
   const event = adapter.createContainerSessionEvent('container.session.closed', { sessionId, container: containerSnapshotIdentity(), reason }, { sequence: Date.now() % Number.MAX_SAFE_INTEGER, source: { layer: 'renderer' }, reason });
   processPublicContainerEvent(event);
@@ -1972,9 +1950,9 @@ function closePublicContainerSnapshotSession(reason = 'container transfer panel 
 
 function rememberContainerContentsFromVisibleRows(rows = [], source = { layer: 'renderer' }) {
   const adapter = sharedModules.containerContentsSnapshotAdapter;
-  if (!adapter?.rowsToContainerItems || !adapter?.createContainerContentsSnapshotEvent || !containerTransferState?.active || containerTransferState.sessionKind !== 'container') return null;
+  if (!adapter?.rowsToContainerItems || !adapter?.createContainerContentsSnapshotEvent || !transferPresentation?.active || transferPresentation.sessionKind !== 'container') return null;
   ensurePublicContainerSnapshotSession();
-  const sessionId = containerTransferState.transferSessionId || publicContainerContentsSnapshots?.activeSessionId || '';
+  const sessionId = transferSession.snapshot().sessionId || gameViewSnapshot.containerContents?.activeSessionId || '';
   if (!sessionId) return null;
   const previous = containerContentsSnapshotForSession(sessionId);
   const revision = (previous?.revision || 0) + 1;
@@ -1983,8 +1961,7 @@ function rememberContainerContentsFromVisibleRows(rows = [], source = { layer: '
   processPublicContainerEvent(event);
   const next = containerContentsSnapshotForSession(sessionId);
   const delta = adapter.containerContentsDelta ? adapter.containerContentsDelta(previous, next) : null;
-  diagnosticEvent('state', 'container-contents.snapshot.accepted', { revision: payload.revision, sessionId, itemCount: payload.items.length, delta, sourcePath: gameView ? 'shared-game-view-state' : 'renderer-fallback' });
-  if (!gameView) maybeAttachContainerContentsEvidence(delta, next);
+  diagnosticEvent('state', 'container-contents.snapshot.accepted', { revision: payload.revision, sessionId, itemCount: payload.items.length, delta, sourcePath: 'shared-game-view-state' });
   return { snapshot: next, event, delta };
 }
 
@@ -1995,8 +1972,8 @@ function isEdibleGroundItemText(text) {
 function rememberGroundItemsHere(source, texts = []) {
   const items = texts.map((value) => String(value || '').trim()).filter(Boolean);
   groundItemsHint = {
-    x: cursor.x,
-    y: cursor.y,
+    x: gameViewSnapshot.cursor.x,
+    y: gameViewSnapshot.cursor.y,
     source,
     at: Date.now(),
     items,
@@ -2014,64 +1991,26 @@ function rememberMonsterSenseMessage(text) {
   }
 }
 
-function appendMessage(text, { allowConsecutiveDuplicate = false, logPrompt = true } = {}) {
-  const normalizedForDiagnostics = String(text || '').trim();
-  const result = userMessageLog ? userMessageLog.append(text, { allowConsecutiveDuplicate, logPrompt }) : null;
-  if (result) {
-    messageHistory = result.entries;
-    renderMessages();
-    const suppressionReason = result.appended ? '' : (result.duplicate ? 'duplicate' : (sharedModules.messageLog?.isGenericDirectionPromptMessage?.(normalizedForDiagnostics) ? 'generic-direction-prompt' : (!normalizedForDiagnostics ? 'blank' : 'filtered')));
-    diagnosticEvent('message', result.appended ? 'message.visible.appended' : 'message.visible.suppressed', {
-      rawText: String(text || ''),
-      displayText: normalizedForDiagnostics,
-      logPrompt: logPrompt !== false,
-      allowConsecutiveDuplicate,
-      suppressionReason,
-      messageIndex: result.appended ? result.entries.length : null,
-      historyLength: result.entries.length,
-    });
-    if (result.appended) {
-      const normalizedText = String(text || '').trim();
-      if (maybeRememberPlayerCharacterFromMessage(normalizedText)) renderGameGrid({ full: true });
-      rememberMonsterSenseMessage(normalizedText);
-      const groundTexts = groundItemTextsFromMessage(normalizedText);
-      if (groundTexts.length) rememberGroundItemsHere('message', groundTexts);
-      else maybeRememberVisibleLockedContainerMessage(normalizedText);
-      const droppedGroundText = droppedGroundItemTextFromMessage(normalizedText);
-      if (droppedGroundText) rememberGroundPileFromVisibleTexts([droppedGroundText], { layer: 'renderer' }, groundPileCoordHere(), { merge: true });
-      clearGroundItemsHintForDestroyedContainerMessage(normalizedText);
-      maybeFinishEmptyContainerPaneFromMessage(normalizedText);
-    }
-    if (result.appended) {
-      maybeShowContextualPrompt(String(text || '').trim());
-      uxOnboarding?.observe?.({ type: 'consequence-visible', confirmed: true });
-    }
-    return result.appended;
+function appendMessage(text, { allowConsecutiveDuplicate = false, logPrompt = true, alreadyPublished = false, appended: publishedAppendResult } = {}) {
+  const normalized = String(text || '').trim();
+  let appended = Boolean(alreadyPublished && publishedAppendResult !== false);
+  if (!alreadyPublished && normalized) {
+    const result = publishRendererGameViewEvent({ name: 'renderer_publish_message', text: normalized, allowConsecutiveDuplicate, logPrompt });
+    appended = Boolean((result?.effects || []).some((item) => item.type === 'message-published' && item.appended));
   }
-  if (!text) {
-    diagnosticEvent('message', 'message.visible.suppressed', { rawText: String(text || ''), displayText: '', suppressionReason: 'blank' });
-    return false;
-  }
-  const normalized = String(text).trim();
-  if (!normalized) {
-    diagnosticEvent('message', 'message.visible.suppressed', { rawText: String(text || ''), displayText: normalized, suppressionReason: 'blank' });
-    return false;
-  }
-  if (isGenericDirectionPromptMessage(normalized)) {
-    diagnosticEvent('message', 'message.visible.suppressed', { rawText: String(text || ''), displayText: normalized, suppressionReason: 'generic-direction-prompt' });
-    return false;
-  }
-  const previous = messageHistory[messageHistory.length - 1];
-  if (!allowConsecutiveDuplicate && previous === normalized) {
-    renderMessages();
-    diagnosticEvent('message', 'message.visible.suppressed', { rawText: String(text || ''), displayText: normalized, suppressionReason: 'duplicate', historyLength: messageHistory.length });
-    return false;
-  }
-  messageHistory.push(normalized);
+  const suppressionReason = appended ? '' : (sharedModules.messageLog?.isGenericDirectionPromptMessage?.(normalized) && logPrompt === false ? 'generic-direction-prompt' : (!normalized ? 'blank' : 'duplicate'));
+  diagnosticEvent('message', appended ? 'message.visible.appended' : 'message.visible.suppressed', {
+    rawText: String(text || ''),
+    displayText: normalized,
+    logPrompt: logPrompt !== false,
+    allowConsecutiveDuplicate,
+    suppressionReason,
+    messageIndex: appended ? gameViewSnapshot.messages.length : null,
+    historyLength: gameViewSnapshot.messages.length,
+  });
+  if (!appended) return false;
   if (maybeRememberPlayerCharacterFromMessage(normalized)) renderGameGrid({ full: true });
   rememberMonsterSenseMessage(normalized);
-  if (messageHistory.length > 240) messageHistory = messageHistory.slice(-240);
-  renderMessages();
   const groundTexts = groundItemTextsFromMessage(normalized);
   if (groundTexts.length) rememberGroundItemsHere('message', groundTexts);
   else maybeRememberVisibleLockedContainerMessage(normalized);
@@ -2081,14 +2020,9 @@ function appendMessage(text, { allowConsecutiveDuplicate = false, logPrompt = tr
   maybeFinishEmptyContainerPaneFromMessage(normalized);
   maybeShowContextualPrompt(normalized);
   uxOnboarding?.observe?.({ type: 'consequence-visible', confirmed: true });
-  diagnosticEvent('message', 'message.visible.appended', { rawText: String(text || ''), displayText: normalized, logPrompt: logPrompt !== false, allowConsecutiveDuplicate, messageIndex: messageHistory.length, historyLength: messageHistory.length });
   return true;
 }
 
-function isLockedDoorMessage(text) {
-  return sharedModules.promptRules?.isLockedDoorMessage ? sharedModules.promptRules.isLockedDoorMessage(text) : /\b(?:door|gateway)\b.*\blocked\b/i.test(String(text || ''))
-    || /\blocked\b.*\bdoor\b/i.test(String(text || ''));
-}
 
 function dismissContextualPrompt() {
   activeContextualPrompt = null;
@@ -2136,30 +2070,79 @@ function sendTravelToCell(cellEl) {
   gameGrid.focus({ preventScroll: true });
 }
 
-function showLockedDoorPrompt(message) {
-  if (!userSettings.contextualMenus || activePrompt || currentMenu?.awaitingSelection || interactionDialog.open || introDialog.open) return;
-  const direction = lastDirectionKey;
-  activeContextualPrompt = { kind: 'locked-door', message, direction };
-  promptPanel.hidden = false;
-  promptPanel.textContent = direction ? `Door is locked near ${direction.toUpperCase()}; choose an action from the visible sheet.` : 'Door is locked; choose an action from the visible sheet.';
+function unlockDoorWithInventoryTool(tool = {}, direction = '') {
+  const selector = selectorForInventoryItem(tool);
+  if (!selector) return;
+  const label = publicInventoryItemLabel(tool);
+  activeContextualPrompt = null;
+  closeInteractionDialog();
   hideDirectionHelper();
-  showInteractionDialog({
-    title: 'Locked door actions',
-    prompt: `${message || 'The door is locked.'}\nChoose an action.`,
-    dialogClass: 'context-dialog locked-door-dialog',
-    cancelText: 'Close',
-    closeKind: 'close',
-    family: 'command',
-    options: [
-      { key: '', className: 'context-choice primary-context', label: 'Kick door', text: direction ? `Try kicking ${direction.toUpperCase()}.` : 'NetHack will ask which direction.', onClick: kickLockedDoorFromContext },
-      { key: '', className: 'context-choice', label: 'Search nearby', text: 'Spend a turn searching for hidden doors or traps.', onClick: () => { activeContextualPrompt = null; closeInteractionDialog(); sendPlayableKey('s'); gameGrid.focus({ preventScroll: true }); } },
-      { key: '', className: 'context-choice', label: 'Close', text: 'Close this suggestion without sending a command.', onClick: dismissContextualPrompt },
-    ],
-  });
+  sendPlayableKey('a');
+  window.setTimeout(() => sendPlayableText(selector), 60);
+  if (direction && /^[hjklyubn]$/.test(direction)) window.setTimeout(() => sendPlayableKey(direction), 120);
+  else appendMessage(`Unlock with ${label}: choose the door direction when NetHack asks.`);
+  gameGrid.focus({ preventScroll: true });
+}
+
+function showLockedDoorPrompt(message) {
+  if (!userSettings.contextualMenus || gameViewSnapshot.activePrompt || gameViewSnapshot.currentMenu?.awaitingSelection || interactionDialog.open || introDialog.open) return;
+  const direction = lastDirectionKey;
+  const directionLabel = direction ? (contextDirectionLabels.get(direction) || direction.toUpperCase()) : '';
+  const tools = availableLockTools().map((tool) => ({ selector: selectorForInventoryItem(tool), label: publicInventoryItemLabel(tool) })).filter((tool) => tool.selector);
+  activeContextualPrompt = { kind: 'locked-door', message, direction, directionLabel, tools };
+  promptPanel.textContent = direction ? `Door is locked to the ${directionLabel}; choose an action from the visible sheet.` : 'Door is locked; choose an action from the visible sheet.';
+  hideDirectionHelper();
+  renderPromptPanel();
+}
+
+function renderContextualPrompt(contextDialog) {
+  const context = activeContextualPrompt || {};
+  const direction = context.direction || '';
+  const options = contextDialog.options.map((option) => ({
+    ...option,
+    key: '',
+    className: `context-choice${option.primary ? ' primary-context' : ''}`,
+    onClick: () => {
+      if (option.id.startsWith('unlock:')) {
+        const tool = availableLockTools().find((candidate) => selectorForInventoryItem(candidate) === option.toolSelector);
+        if (tool) unlockDoorWithInventoryTool(tool, direction);
+        return;
+      }
+      if (option.id === 'kick') kickLockedDoorFromContext();
+      else if (option.id === 'search') {
+        activeContextualPrompt = null;
+        closeInteractionDialog();
+        sendPlayableKey('s');
+        gameGrid.focus({ preventScroll: true });
+      } else if (option.id === 'close' || option.id === 'map.ignore') dismissContextualPrompt();
+      else if (option.id === 'map.pickup') {
+        activeContextualPrompt = null;
+        closeInteractionDialog();
+        if (!openGroundTransferPanelFromSnapshot('map context')) setStatus('Ground panel needs a public ground snapshot before direct transfer; no pickup menu fallback was sent.');
+        gameGrid.focus({ preventScroll: true });
+      } else if (option.id === 'map.walk') {
+        activeContextualPrompt = null;
+        closeInteractionDialog();
+        sendMovementCommand(direction);
+      } else if (option.id === 'map.open') commandThenDirection('o', direction, 'Open');
+      else if (option.id === 'map.close') commandThenDirection('c', direction, 'Close');
+      else if (option.id === 'map.kick') {
+        activeContextualPrompt = null;
+        closeInteractionDialog();
+        kickDirectionFromContext(direction);
+        gameGrid.focus({ preventScroll: true });
+      } else if (option.id === 'map.travel') {
+        const cell = gameGrid.querySelector(`.tile-cell[data-map-x="${context.x}"][data-map-y="${context.y}"]`);
+        if (cell) sendTravelToCell(cell);
+      }
+    },
+  }));
+  const dialogClass = contextDialog.kind === 'map-cell' ? 'context-dialog map-context-dialog' : 'context-dialog locked-door-dialog';
+  showInteractionDialog({ title: contextDialog.title, prompt: contextDialog.prompt, dialogClass, cancelText: 'Close', closeKind: 'close', family: contextDialog.family, options });
 }
 
 function maybeShowContextualPrompt(text) {
-  if (isLockedDoorMessage(text)) showLockedDoorPrompt(text);
+  if (sharedModules.interactionModel.isLockedDoorMessage(text)) showLockedDoorPrompt(text);
   renderContextActionBar();
 }
 
@@ -2174,7 +2157,7 @@ function directionLabel(key) {
 }
 
 function currentCell() {
-  return mapCells[cursor.y]?.[cursor.x] || { ch: ' ' };
+  return gameViewSnapshot.mapCells[gameViewSnapshot.cursor.y]?.[gameViewSnapshot.cursor.x] || { ch: ' ' };
 }
 
 function cellFeatureGlyph(cell) {
@@ -2190,7 +2173,7 @@ function cellTextSignature(cell) {
 }
 
 function recentMessagesMatch(pattern) {
-  return messageHistory.slice(-8).some((line) => pattern.test(String(line || '')));
+  return gameViewSnapshot.messages.slice(-8).some((line) => pattern.test(String(line || '')));
 }
 
 function currentCellHasVisibleGroundObject() {
@@ -2224,7 +2207,7 @@ function groundSnapshotHasAffordanceHere(token) {
 function hasKnownGroundItemsHere() {
   const snapshot = groundSnapshotHere();
   if (snapshot) return groundSnapshotItemsHere().length > 0;
-  return Boolean((groundItemsHint && groundItemsHint.x === cursor.x && groundItemsHint.y === cursor.y) || currentCellHasVisibleGroundObject());
+  return Boolean((groundItemsHint && groundItemsHint.x === gameViewSnapshot.cursor.x && groundItemsHint.y === gameViewSnapshot.cursor.y) || currentCellHasVisibleGroundObject());
 }
 
 function dedupeGroundTexts(texts = []) {
@@ -2251,7 +2234,7 @@ function groundItemTextsHere() {
   // large box".  Preserve that visible text alongside the snapshot so action
   // exposure can be sourced to public messages without adding hidden tokens.
   if (snapshot) return dedupeGroundTexts([...snapshotTexts, ...hintTexts]);
-  const menuTexts = currentMenu?.suppressPicker && isGroundLookMenu(currentMenu) ? currentMenu.items.map((item) => `${item.text || ''} ${menuItemSemanticDisplayName(item) || ''}`.trim()) : [];
+  const menuTexts = gameViewSnapshot.currentMenu?.suppressPicker && sharedModules.interactionModel.isGroundLookMenu(gameViewSnapshot.currentMenu) ? gameViewSnapshot.currentMenu.items.map((item) => `${item.text || ''} ${menuItemSemanticDisplayName(item) || ''}`.trim()) : [];
   const cell = normalizeCell(currentCell());
   const semanticDisplay = publicSemanticNameForCell(cell);
   const objectLayerDisplay = publicObjectLayerSemanticNameForCell(cell);
@@ -2277,7 +2260,7 @@ function publicGroundItemTextsHere() {
 }
 
 function visibleMessageGroundTextDetailsHere() {
-  if (!groundItemsHint || groundItemsHint.x !== cursor.x || groundItemsHint.y !== cursor.y || !Array.isArray(groundItemsHint.items)) return [];
+  if (!groundItemsHint || groundItemsHint.x !== gameViewSnapshot.cursor.x || groundItemsHint.y !== gameViewSnapshot.cursor.y || !Array.isArray(groundItemsHint.items)) return [];
   return groundItemsHint.items.map((text) => ({ text: String(text || ''), source: groundItemsHint.source === 'message' ? 'visible-message' : String(groundItemsHint.source || 'unknown') }));
 }
 
@@ -2321,15 +2304,15 @@ function dipTerrainLabelFromPublicText(text = '') {
 
 function currentDipTerrainTargetLabel() {
   const terrain = `${statusValue(25) || ''} ${cellTextSignature(currentCell())}`;
-  return dipTerrainLabelFromPublicText(terrain) || publicTerrainLabelsByCoord.get(`${cursor.x},${cursor.y}`) || '';
+  return dipTerrainLabelFromPublicText(terrain) || publicTerrainLabelsByCoord.get(`${gameViewSnapshot.cursor.x},${gameViewSnapshot.cursor.y}`) || '';
 }
 
 function updatePublicTerrainLabelCache({ force = false } = {}) {
   if (!force && !publicTerrainLabelsDirty) return;
   publicTerrainLabelsByCoord.clear();
-  for (let y = 0; y < mapCells.length; y += 1) {
-    for (let x = 0; x < (mapCells[y] || []).length; x += 1) {
-      const cell = normalizeCell(mapCells[y][x]);
+  for (let y = 0; y < gameViewSnapshot.mapCells.length; y += 1) {
+    for (let x = 0; x < (gameViewSnapshot.mapCells[y] || []).length; x += 1) {
+      const cell = normalizeCell(gameViewSnapshot.mapCells[y][x]);
       const label = dipTerrainLabelFromPublicText(cellTextSignature(cell));
       if (label) publicTerrainLabelsByCoord.set(`${x},${y}`, label);
     }
@@ -2366,13 +2349,13 @@ function currentMapCellHasVisibleNonContainerGroundObject() {
 }
 
 function reconcileGroundItemsHintWithCurrentMap() {
-  if (!groundItemsHint || groundItemsHint.x !== cursor.x || groundItemsHint.y !== cursor.y) return;
+  if (!groundItemsHint || groundItemsHint.x !== gameViewSnapshot.cursor.x || groundItemsHint.y !== gameViewSnapshot.cursor.y) return;
   if (!groundTextsContainContainer(groundItemsHint.items)) return;
   if (currentMapCellHasVisibleNonContainerGroundObject()) groundItemsHint = null;
 }
 
 function clearGroundItemsHintForDestroyedContainerMessage(text = '') {
-  if (!groundItemsHint || groundItemsHint.x !== cursor.x || groundItemsHint.y !== cursor.y) return;
+  if (!groundItemsHint || groundItemsHint.x !== gameViewSnapshot.cursor.x || groundItemsHint.y !== gameViewSnapshot.cursor.y) return;
   if (!groundTextsContainContainer(groundItemsHint.items)) return;
   if (/\b(?:totally destroyed|destroy(?:ed)?|shatter(?:ed)?|smash(?:ed)?)\b.*\b(?:container|chest|box|large box|ice box)\b/i.test(String(text || ''))) groundItemsHint = null;
 }
@@ -2428,114 +2411,19 @@ function currentGroundContainerDirectOpenItem(item = {}) {
   return Number.isInteger(candidate?.objectId) && candidate.objectId > 0 ? candidate : null;
 }
 
-function cellLooksLikeLockedDoor(cell, signature = cellTextSignature(cell)) {
-  return cellHasAffordance(cell, 'door.locked') || /\b(?:locked|resists|stuck)\b/i.test(signature);
-}
-
-function cellLooksLikeShopkeeper(cell) {
-  const normalized = normalizeCell(cell);
-  return cellHasAffordance(normalized, 'monster.shopkeeper')
-    || /\bshopkeeper\b/i.test(`${normalized.semanticKind || ''} ${normalized.semanticName || ''}`);
-}
-
-function shopkeeperRecipientId(cell) {
-  const tokens = normalizeCell(cell).actionAffordances || [];
-  return tokens.map((token) => String(token).match(/^monster\.shopkeeper\.id\.(\d+)$/)?.[1]).find(Boolean) || '';
-}
-
-function adjacentShopkeeperRecipientIds() {
-  const ids = new Set();
-  for (let y = Math.max(0, cursor.y - 1); y <= Math.min(mapHeight - 1, cursor.y + 1); y += 1) {
-    for (let x = Math.max(0, cursor.x - 1); x <= Math.min(mapWidth - 1, cursor.x + 1); x += 1) {
-      if (x === cursor.x && y === cursor.y) continue;
-      const id = shopkeeperRecipientId(mapCells[y]?.[x]);
-      if (id) ids.add(id);
-    }
-  }
-  return ids;
-}
-
-function unpaidInventoryItems(recipientId = '') {
-  if (!recipientId || !publicInventorySnapshot?.revision) return [];
-  const ownerToken = `shop.unpaid.owner.${recipientId}`;
-  return (publicInventorySnapshot.orderedItems || []).filter((item) => {
-    const tokens = Array.isArray(item?.actionAffordances) ? item.actionAffordances : [];
-    return tokens.includes('shop.unpaid') && tokens.includes(ownerToken);
-  });
-}
-
-function unpaidInventoryItemCount(recipientId = '') {
-  return unpaidInventoryItems(recipientId).reduce((total, item) => {
-    const quantity = Number(item?.quantity);
-    return total + (Number.isSafeInteger(quantity) && quantity > 0 ? quantity : 1);
-  }, 0);
-}
-
-function shopPaymentAction(direction, cell) {
-  const recipientId = shopkeeperRecipientId(cell);
-  if (!recipientId || adjacentShopkeeperRecipientIds().size !== 1) return null;
-  const itemCount = unpaidInventoryItemCount(recipientId);
-  if (!itemCount) return null;
-  return {
-    id: `pay-shopkeeper-${direction}-${recipientId}`,
-    label: `Pay shopkeeper (${itemCount} item${itemCount === 1 ? '' : 's'})`,
-    command: 'ext',
-    ext: 'pay',
-    direction,
-    recipientId,
-    primary: true,
-    unpaidItemCount: itemCount,
-  };
-}
-
-function actionForAdjacentCell(x, y) {
-  const direction = directionKeyForMapDelta(x - cursor.x, y - cursor.y);
-  if (!direction) return [];
-  const cell = normalizeCell(mapCells[y]?.[x]);
-  const signature = cellTextSignature(cell);
-  const labelDirection = directionLabel(direction);
-  const actions = [];
-  const semanticKind = String(cell.semanticKind || '').toLowerCase();
-  const isObjectLike = semanticKind === 'object' || semanticKind === 'item';
-  const closedDoor = !isObjectLike && (cell.ch === '+' || /closed door|locked door|door.*closed|trapped door/.test(signature) || cellHasAffordance(cell, 'door.closed') || cellHasAffordance(cell, 'door.locked') || cellHasAffordance(cell, 'door.trapped'));
-  const openDoor = !isObjectLike && (cell.ch === '/' || /open door/.test(signature) || cellHasAffordance(cell, 'door.open'));
-  if (closedDoor) {
-    actions.push({ id: `open-${direction}`, label: `Open ${labelDirection} door`, command: 'direction', key: 'o', direction, primary: true });
-    actions.push({ id: `kick-door-${direction}`, label: `Kick ${labelDirection} door`, command: 'kick-direction', direction });
-    if (cellLooksLikeLockedDoor(cell, signature)) actions.push({ id: `force-door-${direction}`, label: `Force ${labelDirection} lock`, command: 'ext-direction', ext: 'force', direction });
-  }
-  if (openDoor) actions.push({ id: `close-${direction}`, label: `Close ${labelDirection} door`, command: 'direction', key: 'c', direction });
-  // Floor container actions operate on containers at the hero's current square.
-  // Direct open uses a typed container.snapshot; #tip/#force/#untrap still use
-  // their explicit NetHack extended commands.  The open command toward an
-  // adjacent chest only reports that something lootable is over there, so do not
-  // advertise adjacent chest/container actions here.
-  // Workstream D intentionally does not expose door/trap untrap variants or
-  // any #untrap+direction auto-answer route.
-  if (cellLooksLikeContainer(cell)) {
-    const containerLabel = /\bchest\b/.test(signature) ? 'chest' : (/\bbox\b/.test(signature) ? 'box' : 'container');
-    actions.push({ id: `kick-container-${direction}`, label: `Kick ${labelDirection} ${containerLabel}`, command: 'kick-direction', direction });
-  }
-  if (/\b(?:pet|peaceful|tame|kitten|dog|cat|pony|horse|monster|creature|shopkeeper)\b/.test(signature) && !/\bplayer\b/.test(signature)) {
-    const shopkeeper = cellLooksLikeShopkeeper(cell);
-    const creatureLabel = shopkeeper ? 'shopkeeper' : (/pet|tame|kitten|dog|cat|pony|horse/.test(signature) ? 'pet' : 'creature');
-    actions.push({ id: `chat-${direction}`, label: `Chat with ${labelDirection} ${creatureLabel}`, command: 'ext-direction', ext: 'chat', direction, primary: shopkeeper || /pet|tame|peaceful/.test(signature) });
-    const payment = shopkeeper ? shopPaymentAction(direction, cell) : null;
-    if (payment) actions.push(payment);
-    if (!shopkeeper && !/pet|tame|peaceful/.test(signature)) actions.push({ id: `fight-${direction}`, label: `Attack ${labelDirection} creature`, command: 'direction', key: 'F', direction });
-  }
-  return actions;
-}
 
 function armContainerUnlockContinuation(action, item = {}) {
   if (action?.id !== 'open-container') return;
   const containerItem = currentGroundContainerItemForDirectOpen(item);
-  pendingContainerUnlockOpen = { phase: 'open-requested', x: cursor.x, y: cursor.y, armedAt: performance.now(), action: { ...action }, item: { ...containerItem } };
+  pendingContainerUnlockOpen = { phase: 'open-requested', x: gameViewSnapshot.cursor.x, y: gameViewSnapshot.cursor.y, armedAt: performance.now(), action: { ...action }, item: { ...containerItem } };
 }
 
 function containerUnlockContinuationIsCurrent(maxAgeMs = 12000) {
   if (!pendingContainerUnlockOpen) return false;
-  if (pendingContainerUnlockOpen.x !== cursor.x || pendingContainerUnlockOpen.y !== cursor.y) return false;
+  if (pendingContainerUnlockOpen.x !== gameViewSnapshot.cursor.x || pendingContainerUnlockOpen.y !== gameViewSnapshot.cursor.y) {
+    pendingContainerUnlockOpen = null;
+    return false;
+  }
   const effectiveMaxAgeMs = pendingContainerUnlockOpen.phase === 'awaiting-unlock-result' ? Math.max(maxAgeMs, 120000) : maxAgeMs;
   const age = performance.now() - (pendingContainerUnlockOpen.armedAt || pendingContainerUnlockOpen.answeredAt || 0);
   if (age > effectiveMaxAgeMs) {
@@ -2543,6 +2431,13 @@ function containerUnlockContinuationIsCurrent(maxAgeMs = 12000) {
     return false;
   }
   return true;
+}
+
+function containerUnlockTargetIsCurrent() {
+  if (!containerUnlockContinuationIsCurrent()) return false;
+  const expectedObjectId = Number(pendingContainerUnlockOpen.item?.objectId);
+  if (!Number.isInteger(expectedObjectId) || expectedObjectId <= 0) return false;
+  return groundSnapshotItemsHere().some((item) => Number(item?.objectId) === expectedObjectId);
 }
 
 function clearContainerUnlockContinuation() {
@@ -2555,9 +2450,9 @@ function isContainerUnlockPrompt(query = '') {
 }
 
 function noteContainerUnlockAnswer(text = '') {
-  if (!containerUnlockContinuationIsCurrent() || !activePrompt || activePrompt.kind !== 'question' || !isContainerUnlockPrompt(activePrompt.query)) return;
+  if (!containerUnlockContinuationIsCurrent() || !gameViewSnapshot.activePrompt || gameViewSnapshot.activePrompt.kind !== 'question' || !isContainerUnlockPrompt(gameViewSnapshot.activePrompt.query)) return;
   const answer = String(text || '').trim().charAt(0).toLowerCase();
-  if (answer === 'y') pendingContainerUnlockOpen = { ...pendingContainerUnlockOpen, phase: 'awaiting-unlock-result', answeredAt: performance.now(), query: activePrompt.query };
+  if (answer === 'y') pendingContainerUnlockOpen = { ...pendingContainerUnlockOpen, phase: 'awaiting-unlock-result', answeredAt: performance.now(), query: gameViewSnapshot.activePrompt.query };
   else if (answer === 'n' || answer === 'q' || answer === '\u001b') pendingContainerUnlockOpen = null;
 }
 
@@ -2569,15 +2464,23 @@ function publicInventoryItemLabel(item = {}) {
     .trim();
 }
 
-function lockedContainerUnlockTools() {
-  return (publicInventorySnapshot?.orderedItems || []).filter((item) => {
+function availableLockTools() {
+  return (gameViewSnapshot.inventory?.orderedItems || []).filter((item) => {
+    if (!selectorForInventoryItem(item)) return false;
     const label = publicInventoryItemLabel(item);
-    return Boolean(selectorForInventoryItem(item)) && /\b(?:skeleton key|lock pick|credit card)\b/i.test(label);
+    const appearance = cleanEquipmentText(item.semanticAppearance || '').trim();
+    const publicClass = String(item.publicClass || '').trim().toLowerCase();
+    const affordances = Array.isArray(item.actionAffordances) ? item.actionAffordances : [];
+    const isPublicTool = publicClass === 'tool' || item.objectClass === '(' || affordances.includes('apply');
+    if (!isPublicTool) return false;
+    return /\b(?:skeleton key|lock pick|credit card)\b/i.test(label)
+      || /^(?:key|lock pick|credit card)$/i.test(appearance)
+      || /^key$/i.test(label);
   });
 }
 
 function wieldedContainerForceItem() {
-  const mainHand = (publicEquipmentSnapshot?.orderedSlots || []).find((slot) => slot?.slotId === 'mainHand' && slot?.item);
+  const mainHand = (gameViewSnapshot.equipment?.orderedSlots || []).find((slot) => slot?.slotId === 'mainHand' && slot?.item);
   if (!mainHand?.item) return null;
   const item = mainHand.item;
   const label = publicInventoryItemLabel(item);
@@ -2586,7 +2489,7 @@ function wieldedContainerForceItem() {
 }
 
 function lockedContainerTargetLabel(item = {}) {
-  const raw = `${publicInventoryItemLabel(item)} ${cleanEquipmentText(containerTransferState?.prompt || pendingDirectContainerOpen?.displayName || currentGroundContainerTargetText() || '')}`.trim() || 'container';
+  const raw = `${publicInventoryItemLabel(item)} ${cleanEquipmentText(transferPresentation?.prompt || transferSession.snapshot().container?.displayName || currentGroundContainerTargetText() || '')}`.trim() || 'container';
   if (/\blarge box\b/i.test(raw)) return 'large box';
   if (/\bice box\b/i.test(raw)) return 'ice box';
   if (/\bchest\b/i.test(raw)) return 'chest';
@@ -2597,24 +2500,44 @@ function lockedContainerTargetLabel(item = {}) {
 function unlockContainerWithInventoryTool(tool = {}, request = {}) {
   const selector = selectorForInventoryItem(tool);
   if (!selector) return;
+  const transactionId = `container-unlock-${Number(request.item?.objectId || pendingContainerUnlockOpen?.item?.objectId || 0)}-${Date.now()}`;
   activeContextualPrompt = null;
   closeInteractionDialog();
   hideDirectionHelper();
   pendingContainerUnlockOpen = {
     ...(pendingContainerUnlockOpen || {}),
-    phase: 'awaiting-unlock-confirmation',
-    x: cursor.x,
-    y: cursor.y,
+    phase: 'awaiting-unlock-target',
+    x: gameViewSnapshot.cursor.x,
+    y: gameViewSnapshot.cursor.y,
     armedAt: performance.now(),
     answeredAt: performance.now(),
     action: request.action || pendingContainerUnlockOpen?.action || { id: 'open-container', label: 'Open container', ext: 'loot' },
     item: request.item || pendingContainerUnlockOpen?.item || currentGroundContainerItemForDirectOpen({}),
+    tool: { ...tool },
+    transactionId,
     query: `Unlock with ${publicInventoryItemLabel(tool)}`,
-    autoConfirm: true,
   };
-  sendPlayableKey('a');
-  window.setTimeout(() => sendPlayableKey(selector), 60);
-  window.setTimeout(() => sendPlayableKey('.'), 120);
+  Promise.resolve(sendSemanticActionCommand(`a${selector}`, {
+    id: 'item.apply',
+    label: `Apply ${publicInventoryItemLabel(tool)}`,
+  }, tool, {
+    actionId: 'item.apply',
+    selector,
+  }, {
+    source: 'container-unlock',
+    transactionId,
+    target: {
+      itemId: tool.objectId,
+      selector,
+      inventoryLetter: selector,
+      location: { kind: 'inventory' },
+      displayName: tool.displayName || tool.text || publicInventoryItemLabel(tool),
+      semanticKnown: tool.semanticKnown !== false,
+      known: tool.known || { identity: true, quantity: true },
+    },
+  })).then((accepted) => {
+    if (accepted === false && pendingContainerUnlockOpen?.transactionId === transactionId) clearContainerUnlockContinuation();
+  });
   gameGrid.focus({ preventScroll: true });
 }
 
@@ -2624,9 +2547,8 @@ function showLockedContainerActionSheet(event = {}) {
     item: pendingContainerUnlockOpen?.item || directContainerIdentityForRefresh(),
   };
   const target = lockedContainerTargetLabel(request.item);
-  const tools = lockedContainerUnlockTools();
+  const tools = availableLockTools();
   const forceItem = wieldedContainerForceItem();
-  pendingDirectContainerOpen = null;
   closeContainerTransferPanel('Locked container choices opened.');
   activeContextualPrompt = { kind: 'locked-container', message: String(event.reason || 'The container is locked.'), target };
   const options = tools.map((tool) => {
@@ -2651,86 +2573,65 @@ function showLockedContainerActionSheet(event = {}) {
   return true;
 }
 
-function maybeContinueContainerOpenAfterUnlock(message = '') {
-  if (!containerUnlockContinuationIsCurrent() || pendingContainerUnlockOpen.phase !== 'awaiting-unlock-result') return;
-  const text = String(message || '');
-  if (/\b(?:succeed|unlock|picked|click)\b/i.test(text) && !/fail|cannot|can't|not|unable/i.test(text)) {
-    const request = { ...pendingContainerUnlockOpen, phase: 'opening-after-unlock' };
-    pendingContainerUnlockOpen = request;
-    window.setTimeout(async () => {
-      if (pendingContainerUnlockOpen !== request) return;
-      if (activePrompt || currentMenu?.awaitingSelection) return;
-      const result = await sendGroundOpenContainerAction(request.action || { id: 'open-container', label: 'Open container', ext: 'loot' }, request.item || {});
-      if (result !== false && result?.ok !== false) appendMessage('Container opened.');
-      pendingContainerUnlockOpen = null;
-    }, 120);
-  } else if (/\b(?:fail|cannot|can't|not|unable|no longer|give up|stop)\b/i.test(text)) {
-    pendingContainerUnlockOpen = null;
+function answerOwnedContainerUnlockPrompt(prompt = {}, key = '', nextPhase = '') {
+  const requestId = String(prompt.requestId || prompt.promptId || '').trim();
+  if (!requestId || !containerUnlockTargetIsCurrent()) return false;
+  const transactionId = String(pendingContainerUnlockOpen.transactionId || '').trim();
+  const promptTransactionId = String(prompt.transactionId || '').trim();
+  if (!transactionId || promptTransactionId !== transactionId) {
+    clearContainerUnlockContinuation();
+    return false;
   }
+  pendingContainerUnlockOpen = {
+    ...pendingContainerUnlockOpen,
+    phase: nextPhase,
+    answeredAt: performance.now(),
+    ownerRequestId: requestId,
+    query: prompt.query || pendingContainerUnlockOpen.query || '',
+  };
+  publishRendererGameViewEvent({ name: 'renderer_dismiss_interaction', expectedRequestId: requestId, clearMenu: false });
+  closeInteractionDialog({ force: true });
+  sendRecordedShimInput({
+    type: 'keycode',
+    keycode: key.charCodeAt(0),
+    guiActionId: 'container.unlock',
+    actionId: 'container.unlock',
+    actionLabel: 'Unlock container',
+    expectedRequestId: requestId,
+    transactionId,
+    actionTransactionId: transactionId,
+    commandPosition: 1,
+    commandLength: 1,
+  }, 'container-unlock-followup');
+  lastSentKey = { key: undefined, at: 0 };
+  return true;
 }
 
-function actionsForCurrentCell() {
-  const actions = [];
-  const signature = cellTextSignature(currentCell());
-  if (hasKnownGroundItemsHere()) actions.push({ id: 'pickup', label: 'Pick up', command: 'ground-panel', primary: true });
-  const edibleGround = edibleGroundContextHere();
-  if (edibleGround) actions.unshift({ id: 'eat-ground', label: edibleGround.label, command: 'key', key: 'e', primary: true });
-  const stairDirection = currentStairDirection();
-  if (stairDirection === 'down') actions.unshift({ id: 'descend', label: 'Go down stairs', command: 'terrain-action', action: 'stairsDown', terrain: 'stairs.down', primary: true });
-  if (stairDirection === 'up') actions.unshift({ id: 'ascend', label: 'Go up stairs', command: 'terrain-action', action: 'stairsUp', terrain: 'stairs.up', primary: true });
-  if (stairDirection === 'ladder-up') actions.unshift({ id: 'ascend-ladder', label: 'Go up ladder', command: 'terrain-action', action: 'ladderUp', terrain: 'ladder.up', primary: true });
-  const dipTerrainTarget = currentDipTerrainTargetLabel();
-  if (terrainAtPlayerMatches(/fountain/)) actions.push({ id: 'drink-fountain', label: 'Drink from fountain', command: 'terrain-action', action: 'drink', terrain: 'fountain', primary: true });
-  if (dipTerrainTarget === 'fountain') actions.push({ id: 'dip-terrain', label: `Dip item in ${dipTerrainTarget}`, command: 'terrain-dip', action: 'dip', terrain: dipTerrainTarget, targetDisplayName: dipTerrainTarget });
-  if (terrainAtPlayerMatches(/sink/)) {
-    actions.push({ id: 'drink-sink', label: 'Drink from sink', command: 'key', key: 'q', primary: true });
-    actions.push({ id: 'kick-sink', label: 'Kick sink', command: 'key', key: '\u0004' });
-  }
-  if (terrainAtPlayerMatches(/altar/)) {
-    actions.push({ id: 'offer', label: 'Offer sacrifice', command: 'ext', ext: 'offer', primary: true });
-    actions.push({ id: 'pray', label: 'Pray at altar', command: 'ext', ext: 'pray' });
-    actions.push({ id: 'drop-altar', label: 'Drop for identification', command: 'key', key: 'd' });
-  }
-  // Trap/door #untrap variants are deliberately not exposed in this slice;
-  // only visible current-square ground containers can use ground.untrapContainer.
-  if (currentGroundLooksLikeContainer()) {
-    // Floor containers are semantic container targets, not door-open targets.
-    // Opening a container hydrates the panel with a typed container.snapshot
-    // command instead of routing through the Extended-command menu. Do not show
-    // the button until a stable public object id is available for that snapshot.
-    if (currentGroundContainerDirectOpenItem()) actions.push({ id: 'open-container', label: currentGroundContainerActionLabel(), command: 'ext', ext: 'loot', primary: true });
-    actions.push({ id: 'tip-container', label: 'Tip', command: 'ext', ext: 'tip' });
-    if (currentGroundHasLockedContainer()) actions.push({ id: 'force-container', label: 'Force lock', command: 'ext', ext: 'force' });
-    if (currentGroundHasTrappedContainer()) actions.push({ id: 'untrap-container', label: 'Untrap', command: 'ext', ext: 'untrap', primary: true });
-  }
-  if (terrainAtPlayerMatches(/engraving|grave|floor|room floor|corridor|\./)) actions.push({ id: 'engrave', label: 'Engrave', command: 'key', key: 'E' });
-  return actions;
-}
-
-function buildContextActions() {
-  const actions = [
-    { id: 'search', label: 'Search', command: 'key', key: 's', primary: true },
-    { id: 'wait', label: 'Wait', command: 'keys', keys: 'm.' },
-    { id: 'look', label: 'Inspect / look', command: 'key', key: ';' },
-  ];
-  if (!runningState.running && status.dataset.status !== 'playable tile game running') return actions;
-  actions.unshift(...actionsForCurrentCell());
-  for (let y = Math.max(0, cursor.y - 1); y <= Math.min(mapHeight - 1, cursor.y + 1); y += 1) {
-    for (let x = Math.max(0, cursor.x - 1); x <= Math.min(mapWidth - 1, cursor.x + 1); x += 1) {
-      if (x === cursor.x && y === cursor.y) continue;
-      actions.push(...actionForAdjacentCell(x, y));
-    }
-  }
-  actions.push({ id: 'more', label: 'More / advanced…', command: 'more' });
-  const seen = new Set();
-  const unique = actions.filter((action) => {
-    if (seen.has(action.id)) return false;
-    seen.add(action.id);
-    return true;
+function maybeDispatchContainerOpenAfterUnlock() {
+  if (!containerUnlockTargetIsCurrent() || pendingContainerUnlockOpen.phase !== 'opening-after-unlock') return false;
+  if (gameViewSnapshot.activePrompt || gameViewSnapshot.currentMenu?.awaitingSelection) return false;
+  const request = { ...pendingContainerUnlockOpen, phase: 'open-dispatched' };
+  pendingContainerUnlockOpen = request;
+  Promise.resolve(sendGroundOpenContainerAction(
+    request.action || { id: 'open-container', label: 'Open container', ext: 'loot' },
+    request.item || {},
+  )).then((accepted) => {
+    if ((accepted === false || accepted?.ok === false) && pendingContainerUnlockOpen === request) clearContainerUnlockContinuation();
   });
-  const payments = unique.filter((action) => /^pay-shopkeeper-/.test(action.id || ''));
-  return [...payments, ...unique.filter((action) => !/^pay-shopkeeper-/.test(action.id || ''))].slice(0, 12);
+  return true;
 }
+
+function maybeContinueContainerOpenAfterUnlock(message = '') {
+  if (!containerUnlockTargetIsCurrent() || pendingContainerUnlockOpen.phase !== 'awaiting-unlock-result') return;
+  const text = String(message || '');
+  const succeeded = /\byou succeed(?:ed)? in (?:unlocking|picking) the (?:lock|container|chest|box)\b|\byou (?:unlocked|picked) the (?:lock|container|chest|box)\b|\bthe lock clicks open\b/i.test(text);
+  const failed = /\b(?:fail(?:ed)?|cannot|can't|unable) to (?:unlock|pick)|\bgive up (?:trying to )?(?:unlock|pick)|\bthe lock (?:resists|does not open)\b/i.test(text);
+  if (succeeded) {
+    pendingContainerUnlockOpen = { ...pendingContainerUnlockOpen, phase: 'opening-after-unlock' };
+    maybeDispatchContainerOpenAfterUnlock();
+  } else if (failed) pendingContainerUnlockOpen = null;
+}
+
 
 async function runContextAction(action) {
   if (!action || hasActiveUiInputOwner()) return;
@@ -2741,7 +2642,7 @@ async function runContextAction(action) {
     setStatus(shopPaymentUiStatus.text);
   }
   if (isShopPaymentAction) {
-    const current = buildContextActions().find((candidate) => candidate.id === action.id);
+    const current = interactionDecision('validate-context-action').contextActions.find((candidate) => candidate.id === action.id);
     if (!current) {
       const message = 'Payment is no longer available. Your bill or shopkeeper context changed.';
       shopPaymentUiStatus = { phase: 'result', text: message, until: Date.now() + 5000 };
@@ -2794,7 +2695,7 @@ async function runContextAction(action) {
 
 function renderContextActionBar() {
   if (!contextActionBar) return;
-  const actions = buildContextActions();
+  const actions = interactionDecision('render-context-actions').contextActions;
   contextActionBar.textContent = '';
   for (const action of actions) {
     const button = document.createElement('button');
@@ -2802,11 +2703,7 @@ function renderContextActionBar() {
     button.className = `context-action-button${action.primary ? ' primary-context' : ''}`;
     button.dataset.contextActionId = action.id;
     button.textContent = action.label;
-    button.title = /^pay-shopkeeper-/.test(action.id || '')
-      ? `Open the current NetHack shop bill for ${action.unpaidItemCount} unpaid item${action.unpaidItemCount === 1 ? '' : 's'}. You can review and choose items before paying.`
-      : (action.id === 'open-container' || (action.command === 'ext' && /^Open\b/i.test(action.label || '') && /box|chest|bag|container/i.test(action.label || '')))
-        ? `${action.label}; opens the container.`
-        : (action.command === 'direction' ? `${action.label}; then choose a direction.` : (action.command === 'ext' || action.command === 'ext-direction' ? `${action.label}; follow-up choices appear here.` : action.label));
+    button.title = action.title;
     button.addEventListener('click', () => {
       uxOnboarding?.observe?.({ type: 'here-actions-opened', confirmed: true });
       runContextAction(action);
@@ -2820,35 +2717,15 @@ function showMapContextActionSheet(cellEl) {
   const x = Number(cellEl.dataset.mapX);
   const y = Number(cellEl.dataset.mapY);
   if (!Number.isFinite(x) || !Number.isFinite(y)) return false;
-  const direction = mapCellDirectionFromCursor(cellEl);
-  const sameCell = cursor.x === x && cursor.y === y;
-  const tooltip = mapTooltipInfoForCell(mapCells[y]?.[x], x, y);
-  const targetName = tooltip?.title || `map ${x},${y}`;
-  activeContextualPrompt = { kind: 'map-cell', x, y, direction, targetName };
-  const options = [];
-  if (sameCell) {
-    const groundRows = groundItemModelsHere().slice(0, 8);
-    options.push({ key: '', className: 'context-choice primary-context', label: 'Pick up here', text: 'Open the ground item list.', onClick: () => { activeContextualPrompt = null; closeInteractionDialog(); if (!openGroundTransferPanelFromSnapshot('map context')) setStatus('Ground panel needs a public ground snapshot before direct transfer; no pickup menu fallback was sent.'); gameGrid.focus({ preventScroll: true }); } });
-    for (const item of groundRows) {
-      options.push({ key: '', className: 'context-choice ground-context-choice', label: `Actions: ${cleanEquipmentText(item.text || 'ground item')}`, text: 'Open the complete contextual action menu for this ground item.', onClick: (button) => { activeContextualPrompt = null; closeInteractionDialog(); showGroundItemContextMenu(item, button); } });
-    }
-  }
-  if (direction) {
-    options.push({ key: '', className: 'context-choice primary-context', label: 'Walk here', text: `Move ${direction.toUpperCase()} to this adjacent cell.`, onClick: () => { activeContextualPrompt = null; closeInteractionDialog(); sendMovementCommand(direction); } });
-    options.push({ key: '', className: 'context-choice', label: 'Open toward cell', text: 'Open a door or container in that direction.', onClick: () => commandThenDirection('o', direction, 'Open') });
-    options.push({ key: '', className: 'context-choice', label: 'Close toward cell', text: 'Close a door in that direction.', onClick: () => commandThenDirection('c', direction, 'Close') });
-    options.push({ key: '', className: 'context-choice', label: 'Kick toward cell', text: 'Kick a door, boulder, or monster in that direction.', onClick: () => { activeContextualPrompt = null; closeInteractionDialog(); kickDirectionFromContext(direction); gameGrid.focus({ preventScroll: true }); } });
-  } else if (!sameCell) {
-    options.push({ key: '', className: 'context-choice primary-context', label: 'Travel here', text: 'Start NetHack travel and move the targeting cursor to this map cell.', onClick: () => sendTravelToCell(cellEl) });
-  }
-  options.push({ key: '', className: 'context-choice', label: 'Ignore', text: 'Close this action sheet without sending a command.', onClick: dismissContextualPrompt });
-  showInteractionDialog({
-    title: 'Map cell actions',
-    prompt: `Actions for ${targetName} at ${x},${y}.`,
-    dialogClass: 'context-dialog map-context-dialog',
-    cancelText: 'Close',
-    options,
-  });
+  const tooltip = mapTooltipInfoForCell(gameViewSnapshot.mapCells[y]?.[x], x, y);
+  activeContextualPrompt = {
+    kind: 'map-cell',
+    x,
+    y,
+    direction: mapCellDirectionFromCursor(cellEl),
+    targetName: tooltip?.title || `map ${x},${y}`,
+  };
+  renderPromptPanel();
   return true;
 }
 
@@ -2861,202 +2738,39 @@ function cleanStatusValue(field, value) {
 }
 
 function statusValue(field) {
-  return cleanStatusValue(field, statusValues.get(field));
+  return cleanStatusValue(field, gameViewSnapshot.statusValues.get(field));
 }
 
 function rawStatusValue(field) {
-  const value = statusValues.get(field);
+  const value = gameViewSnapshot.statusValues.get(field);
   return typeof value === 'string' ? value.trim() : value;
 }
 
 function allStatusStats() {
-  return Array.from(statusValues.entries())
+  return Array.from(gameViewSnapshot.statusValues.entries())
     .filter(([, value]) => value != null && value !== '')
     .sort(([a], [b]) => a - b)
-    .map(([field, value]) => ({ label: statusFieldNames.get(field) || statusLabels.get(field) || `field ${field}`, value: cleanStatusValue(field, value) || '(hidden)' }));
+    .map(([field, value]) => ({ label: statusFieldNames.get(field) || gameViewSnapshot.statusLabels.get(field) || `field ${field}`, value: cleanStatusValue(field, value) || '(hidden)' }));
 }
 
-function createStatChip(label, value, important = false, extraClass = '') {
-  if (value == null || value === '') return null;
-  const chip = document.createElement('span');
-  chip.className = ['stat-chip', important ? 'important' : '', extraClass].filter(Boolean).join(' ');
-  const labelNode = document.createElement('span');
-  labelNode.textContent = label;
-  const valueNode = document.createElement('strong');
-  valueNode.textContent = value;
-  chip.append(labelNode, valueNode);
-  return chip;
-}
-
-function addStatChip(fragment, label, value, important = false, extraClass = '') {
-  const chip = createStatChip(label, value, important, extraClass);
-  if (chip) fragment.appendChild(chip);
-}
-
-function addStatusGroup(fragment, group) {
-  if (!group?.items?.length) return;
-  const section = document.createElement('section');
-  section.className = `status-group status-group-${group.id || 'misc'}`;
-  section.setAttribute('aria-label', `${group.label} status`);
-  const title = document.createElement('span');
-  title.className = 'status-group-label';
-  title.textContent = group.label;
-  section.appendChild(title);
-  for (const item of group.items) {
-    const chip = createStatChip(item.label, item.value, item.important, [item.severity, item.className].filter(Boolean).join(' '));
-    if (chip) {
-      if (item.field != null) chip.dataset.statusField = String(item.field);
-      section.appendChild(chip);
-    }
-  }
-  fragment.appendChild(section);
-}
-
-function conditionMaskValue() {
-  return sharedModules.statusHud?.parseConditionMask ? sharedModules.statusHud.parseConditionMask(statusValues.get(22)) : 0;
-}
 
 function meaningfulConditions() {
-  return sharedModules.statusHud?.conditionLabels ? sharedModules.statusHud.conditionLabels(statusValues.get(22)).join(' ') : '';
+  return sharedModules.statusHud?.conditionLabels ? sharedModules.statusHud.conditionLabels(gameViewSnapshot.statusValues.get(22)).join(' ') : '';
 }
 
-function renderStatusLines() {
+function renderRawStatusLines() {
   const fields = allStatusStats().map((stat) => `${stat.label}: ${stat.value || '(hidden in HUD)'}`);
   statusLines.textContent = fields.length ? fields.join('  |  ') : 'Status appears when play begins.';
-  statsPanel.textContent = '';
-  const fragment = document.createDocumentFragment();
-  const statusGroups = sharedModules.statusHud?.buildStatusGroups ? sharedModules.statusHud.buildStatusGroups(statusValues) : [];
-  if (statusGroups.length) {
-    for (const group of statusGroups) addStatusGroup(fragment, group);
-  } else {
-    const hudChips = sharedModules.statusHud?.buildHudChips ? sharedModules.statusHud.buildHudChips(statusValues) : [];
-    for (const chip of hudChips) addStatChip(fragment, chip.label, chip.value, chip.important, [chip.severity, chip.className].filter(Boolean).join(' '));
-  }
-  if (!fragment.childNodes.length) {
-    const empty = document.createElement('span');
-    empty.className = 'stat-chip';
-    empty.textContent = 'Status will appear when the dungeon starts.';
-    fragment.appendChild(empty);
-  }
-  statsPanel.appendChild(fragment);
-  renderEquipmentSlots();
-}
-
-function equipmentItemFromInventory(pattern) {
-  return cachedInventoryChoices.find((item) => pattern.test(String(item.text || '')));
 }
 
 function cleanEquipmentText(text) {
-  return menuItemName(String(text || '').replace(/^\s*[a-z$]\s*[-+]\s+/i, '')).replace(/\s+/g, ' ').trim();
-}
-
-function equipmentSlotSearchText(item) {
-  return `${item?.text || ''} ${item?.itemState || ''} ${item?.state || ''}`;
-}
-
-function equipmentSlotModels(sourceItems = cachedInventoryChoices) {
-  const equipmentSnapshotMatchesInventory = !publicInventorySnapshot?.revision || Number(publicEquipmentSnapshot?.inventoryRevision || 0) >= Number(publicInventorySnapshot.revision || 0);
-  if (equipmentSnapshotFeatureFlags.useSnapshotForPaperDoll && equipmentSnapshotMatchesInventory && publicEquipmentSnapshot?.orderedSlots?.length && sharedModules.equipmentSnapshotAdapter?.equipmentSnapshotToRendererSlotModels) {
-    const snapshotModels = sharedModules.equipmentSnapshotAdapter.equipmentSnapshotToRendererSlotModels(publicEquipmentSnapshot, { inventoryByObjectId: publicInventorySnapshot?.itemsByObjectId });
-    if (snapshotModels.length) return snapshotModels;
-  }
-  const findItem = (pattern) => sourceItems.find((item) => pattern.test(equipmentSlotSearchText(item)));
-  const isExplicitHandWeapon = (item) => /\b(?:weapon in (?:hand|left hand|right hand)|wielded)\b/i.test(equipmentSlotSearchText(item));
-  const hasAlternateWeaponMarker = (item) => /\b(?:alternate weapon|secondary weapon|offhand|off-hand|not wielded)\b/i.test(equipmentSlotSearchText(item));
-  const handWeapons = sourceItems.filter((item) => isExplicitHandWeapon(item));
-  const mainHand = handWeapons.find((item) => !hasAlternateWeaponMarker(item)) || handWeapons[0];
-  const quiver = findItem(/\bin quiver\b/i);
-  const amulet = findItem(/\b(?:being worn|on neck)\b/i) && findItem(/\bamulet\b/i);
-  const leftRing = findItem(/\bon left hand\b/i);
-  const rightRing = findItem(/\bon right hand\b/i);
-  const worn = sourceItems.filter((item) => /\bbeing worn\b/i.test(equipmentSlotSearchText(item)));
-  const wornBy = (pattern) => worn.find((item) => pattern.test(String(item.text || '')));
-  const fallbackWeapon = statusValue(23) ? { text: statusValue(23), selector: 0 } : null;
-  const fallbackArmor = statusValue(24) ? { text: statusValue(24), selector: 0 } : null;
-  const alternateItem = sourceItems.find((item) => hasAlternateWeaponMarker(item) && item !== mainHand);
-  const swapActionsFor = (slotId, item) => (sharedModules.inventoryActionService?.equipmentSlotActionAffordances?.({ id: slotId, item }, { items: sourceItems, alternateItem }) || [])
-    .filter((entry) => entry.enabled !== false)
-    .map((entry) => ({ label: entry.label, key: entry.execution?.keys || '', actionId: entry.id, refreshInventory: true }));
-  // Paper doll groups shirts with the visible body-armor card for now. The
-  // shared inventory action service still models shirt/suit/cloak as separate
-  // NetHack layers for double-click replacement routing.
-  return [
-    { id: 'main-hand', label: 'Weapon / main hand', item: mainHand || fallbackWeapon, empty: 'Empty hand / no wielded item known', equipKey: 'w', removeKey: 'w', actions: [{ label: 'Wield/change', key: 'w' }, ...swapActionsFor('main-hand', mainHand || fallbackWeapon)] },
-    { id: 'offhand', label: 'Alternate / offhand', item: alternateItem, empty: 'No alternate/offhand metadata known', equipKey: 'x', removeKey: 'x', actions: swapActionsFor('offhand', alternateItem) },
-    { id: 'quiver', label: 'Quiver / ammo', item: quiver, empty: 'No quivered ammo known', equipKey: 'Q', removeKey: 'Q', actions: [{ label: 'Set quiver', key: 'Q' }, { label: 'Throw/fire', key: 't' }] },
-    { id: 'armor-suit', label: 'Armor / body', item: wornBy(/(?:mail|armor|leather|robe|shirt|dragon scales|suit)/i) || fallbackArmor, empty: 'No body armor worn', equipKey: 'W', removeKey: 'T', actions: [{ label: 'Wear armor', key: 'W' }, { label: 'Take off', key: 'T' }] },
-    { id: 'cloak', label: 'Cloak', item: wornBy(/cloak|mummy wrapping/i), empty: 'No cloak worn', equipKey: 'W', removeKey: 'T', actions: [{ label: 'Wear cloak', key: 'W' }, { label: 'Take off', key: 'T' }] },
-    { id: 'helmet', label: 'Helmet / head', item: wornBy(/(?:helm|helmet|hat|fedora|dunce cap)/i), empty: 'No helmet worn', equipKey: 'W', removeKey: 'T', actions: [{ label: 'Wear helmet', key: 'W' }, { label: 'Take off', key: 'T' }] },
-    { id: 'gloves', label: 'Gloves', item: wornBy(/(?:gloves|gauntlets|fumble boots)/i), empty: 'No gloves worn', equipKey: 'W', removeKey: 'T', actions: [{ label: 'Wear gloves', key: 'W' }, { label: 'Take off', key: 'T' }] },
-    { id: 'boots', label: 'Boots', item: wornBy(/boots|shoes/i), empty: 'No boots worn', equipKey: 'W', removeKey: 'T', actions: [{ label: 'Wear boots', key: 'W' }, { label: 'Take off', key: 'T' }] },
-    { id: 'shield', label: 'Shield', item: wornBy(/shield/i), empty: 'No shield worn', equipKey: 'W', removeKey: 'T', actions: [{ label: 'Wear shield', key: 'W' }, { label: 'Take off', key: 'T' }] },
-    { id: 'amulet', label: 'Amulet', item: amulet, empty: 'No amulet worn', equipKey: 'P', removeKey: 'R', actions: [{ label: 'Put on', key: 'P' }, { label: 'Remove', key: 'R' }] },
-    { id: 'left-ring', label: 'Left ring', item: leftRing, empty: 'No left ring worn', equipKey: 'P', removeKey: 'R', actions: [{ label: 'Put on ring', key: 'P' }, { label: 'Remove', key: 'R' }] },
-    { id: 'right-ring', label: 'Right ring', item: rightRing, empty: 'No right ring worn', equipKey: 'P', removeKey: 'R', actions: [{ label: 'Put on ring', key: 'P' }, { label: 'Remove', key: 'R' }] },
-    { id: 'eyes', label: 'Eyes / blindfold', item: wornBy(/(?:blindfold|lenses|towel)/i), empty: 'No eyewear/blindfold worn', equipKey: 'P', removeKey: 'R', actions: [{ label: 'Put on', key: 'P' }, { label: 'Remove', key: 'R' }] },
-  ];
-}
-
-function renderEquipmentSlots() {
-  if (!equipmentSlots) return;
-  equipmentSlots.textContent = '';
-  const fragment = document.createDocumentFragment();
-  for (const slot of equipmentSlotModels()) {
-    const card = equipmentSlotElement(slot, false);
-    fragment.appendChild(card);
-  }
-  equipmentSlots.appendChild(fragment);
-}
-
-function equipmentSlotElement(slot, commandWithSelector = true) {
-  const card = document.createElement('section');
-  card.className = `equipment-slot${slot.item ? ' equipped' : ''}`;
-  card.dataset.slot = slot.id;
-  const title = document.createElement('strong');
-  title.textContent = slot.label;
-  const value = document.createElement('span');
-  value.className = 'equipment-item';
-  value.textContent = slot.item ? cleanEquipmentText(slot.item.text) : slot.empty;
-  const actions = document.createElement('span');
-  actions.className = 'equipment-slot-actions';
-  const emptySlotActions = slot.id === 'offhand'
-    ? []
-    : slot.actions.filter((action) => action.actionId !== 'slot.swapMainAlternate' && !/^(?:T|R|x)$/.test(String(action.key || ''))).slice(0, 1);
-  const visibleActions = slot.item
-    ? (commandWithSelector ? slot.actions.filter((action) => action.key === slot.removeKey || (action.key === 'x' && slot.id !== 'offhand') || slot.removeKey === slot.equipKey) : slot.actions)
-    : emptySlotActions;
-  const blockerLabels = Array.isArray(slot.blockerLabels) ? slot.blockerLabels.filter(Boolean) : [];
-  const blockerTokens = Array.isArray(slot.blockedBy) ? slot.blockedBy.filter(Boolean) : [];
-  if (blockerLabels.length) {
-    const blockers = document.createElement('span');
-    blockers.className = 'equipment-slot-blockers';
-    blockers.dataset.blockerTokens = blockerTokens.join(' ');
-    blockers.textContent = blockerLabels.slice(0, 2).join(' ');
-    card.dataset.blockerTokens = blockerTokens.join(' ');
-    card.title = blockerLabels.join(' ');
-    card.append(title, value, blockers);
-  } else {
-    card.append(title, value);
-  }
-  for (const action of visibleActions) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.dataset.commandKey = action.key;
-    if (action.actionId) button.dataset.actionId = action.actionId;
-    if (action.refreshInventory) button.dataset.refreshInventory = 'true';
-    if (commandWithSelector && slot.item?.selector && ['T', 'R', 'Q', 'w'].includes(action.key)) button.dataset.itemSelector = String.fromCharCode(slot.item.selector);
-    button.textContent = action.label;
-    button.title = action.actionId === 'slot.swapMainAlternate' ? 'Swap the main-hand weapon with the alternate weapon, then refresh this equipment screen.' : (slot.item?.selector && commandWithSelector ? `${action.label} ${cleanEquipmentText(slot.item.text)}.` : `${action.label}; choose matching gear if a picker opens.`);
-    actions.appendChild(button);
-  }
-  card.append(actions);
-  return card;
+  return sharedModules.interactionModel.menuItemName(String(text || '').replace(/^\s*[a-z$]\s*[-+]\s+/i, '')).replace(/\s+/g, ' ').trim();
 }
 
 function menuLooksLikeRememberedGroundItems(menu) {
   if (!groundItemsHint?.items?.length) return false;
   const hintText = groundItemsHint.items.join('\n').toLowerCase();
-  const rows = (menu?.items || []).filter((item) => item.selector).map((item) => menuItemName(item.text).toLowerCase()).filter(Boolean);
+  const rows = (menu?.items || []).filter((item) => item.selector).map((item) => sharedModules.interactionModel.menuItemName(item.text).toLowerCase()).filter(Boolean);
   return rows.length > 0 && rows.every((row) => hintText.includes(row));
 }
 
@@ -3069,8 +2783,8 @@ function markInventoryOverviewRequest() {
 }
 
 function activeInventoryActionPromptOwnsMenu() {
-  return Boolean(activePrompt?.kind === 'question'
-    && isInventoryActionPrompt(activePrompt.query, activePrompt.choices)
+  return Boolean(gameViewSnapshot.activePrompt?.kind === 'question'
+    && sharedModules.interactionModel.isInventoryActionPrompt(gameViewSnapshot.activePrompt.query, gameViewSnapshot.activePrompt.choices)
     && !activePromptIsOrphaned());
 }
 
@@ -3078,10 +2792,10 @@ function rememberedInventoryActionPromptOwnsMenu(menu) {
   const rememberedActionQuery = String(lastInventoryActionQuery || '').trim();
   return Boolean(rememberedActionQuery
     && /^Menu$/i.test(String(menu?.prompt || '').trim())
-    && activePrompt?.kind === 'menu selection'
-    && currentMenu?.awaitingSelection
+    && gameViewSnapshot.activePrompt?.kind === 'menu selection'
+    && gameViewSnapshot.currentMenu?.awaitingSelection
     && !inventoryOverviewRequestActive()
-    && isInventoryActionPrompt(rememberedActionQuery, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$?*-'));
+    && sharedModules.interactionModel.isInventoryActionPrompt(rememberedActionQuery, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$?*-'));
 }
 
 function isExplicitInventoryOverviewMenu(menu) {
@@ -3096,12 +2810,12 @@ function rowLooksLikePublicInventoryItem(item) {
 }
 
 function isInventoryOverviewMenu(menu) {
-  if (menu?.suppressPicker || isGroundLookMenu(menu)) return false;
+  if (menu?.suppressPicker || sharedModules.interactionModel.isGroundLookMenu(menu)) return false;
   const prompt = String(menu?.prompt || '').trim();
   const selectableItems = (menu?.items || []).filter((item) => item.selector);
   const rowsLookLikeInventory = selectableItems.length > 0 && selectableItems.every((item) => rowLooksLikePublicInventoryItem(item));
   if (isExplicitInventoryOverviewMenu(menu) && rowsLookLikeInventory && !activeInventoryActionPromptOwnsMenu() && !rememberedInventoryActionPromptOwnsMenu(menu)) return true;
-  if (menuKind(menu) === 'inventory' && /^(?:Inventory|Possessions):?$/i.test(prompt)) return !activeInventoryActionPromptOwnsMenu() || inventoryOverviewRequestActive();
+  if (sharedModules.interactionModel.menuKind(menu) === 'inventory' && /^(?:Inventory|Possessions):?$/i.test(prompt)) return !activeInventoryActionPromptOwnsMenu() || inventoryOverviewRequestActive();
   if (prompt && !/^Menu$/i.test(prompt)) return false;
   if (!inventoryOverviewRequestActive()) return false;
   // Ground-look rows and a real inventory overview can have the same raw shape,
@@ -3117,44 +2831,6 @@ function isInventoryOverviewMenu(menu) {
   return rowsLookLikeInventory;
 }
 
-function snapshotInventoryRowsForOverview(menu) {
-  if (!inventorySnapshotFeatureFlags.useSnapshotForOverview) return [];
-  if (!publicInventorySnapshot?.revision || !sharedModules.inventorySnapshotAdapter?.publicItemToLegacyChoice) return [];
-  const snapshotRows = (publicInventorySnapshot.orderedItems || [])
-    .map((item) => ({ ...sharedModules.inventorySnapshotAdapter.publicItemToLegacyChoice(item), snapshotSource: 'inventory.snapshot' }))
-    .filter((item) => itemHasNetHackSelector(item));
-  if (!snapshotRows.length) return [];
-  const menuRows = (menu?.items || []).filter((item) => itemHasNetHackSelector(item));
-  if (!menuRows.length) return snapshotRows;
-  const menuKeys = new Set(menuRows.map((item) => String.fromCharCode(item.selector)));
-  const snapshotKeys = new Set(snapshotRows.map((item) => String.fromCharCode(item.selector)));
-  const sameSelectorSet = menuKeys.size === snapshotKeys.size
-    && Array.from(menuKeys).every((key) => snapshotKeys.has(key))
-    && Array.from(snapshotKeys).every((key) => menuKeys.has(key));
-  return sameSelectorSet ? snapshotRows : [];
-}
-
-function publicInventorySnapshotRows() {
-  if (!publicInventorySnapshot?.revision || !sharedModules.inventorySnapshotAdapter?.publicItemToLegacyChoice) return [];
-  return (publicInventorySnapshot.orderedItems || [])
-    .map((item) => ({ ...sharedModules.inventorySnapshotAdapter.publicItemToLegacyChoice(item), snapshotSource: 'inventory.snapshot' }))
-    .filter((item) => itemHasNetHackSelector(item));
-}
-
-function refreshOpenEquipmentDialogFromPublicSnapshots() {
-  if (!interactionDialog?.open || !interactionDialog.classList.contains('rpg-equipment-dialog')) return false;
-  const snapshotRows = publicInventorySnapshotRows();
-  if (!snapshotRows.length) return false;
-  currentMenu = { ...(currentMenu || {}), prompt: 'Inventory:', items: snapshotRows, awaitingSelection: false, how: 0, menuPurpose: 'inventory.displayInventory', purpose: 'inventory.displayInventory', owner: { kind: 'inventory' } };
-  if (gameView?.state) gameView.state.currentMenu = currentMenu;
-  renderMenuPanel();
-  return true;
-}
-
-function inventoryActionAffordancesForItem(item) {
-  const visibleItems = Array.isArray(currentMenu?.items) && currentMenu.items.length ? currentMenu.items : cachedInventoryChoices;
-  return sharedModules.inventoryActionService?.itemActionAffordances?.(item, { items: visibleItems }) || [];
-}
 
 function groundItemActionAffordancesForItem(item) {
   const context = { isOnAltar: terrainAtPlayerMatches(/altar/), onAltar: terrainAtPlayerMatches(/altar/) };
@@ -3162,8 +2838,8 @@ function groundItemActionAffordancesForItem(item) {
 }
 
 function groundItemModelsHere() {
-  const menuRows = currentMenu?.suppressPicker && isGroundLookMenu(currentMenu)
-    ? currentMenu.items.map((item) => ({ ...item, groundSource: 'look-menu' })) : [];
+  const menuRows = gameViewSnapshot.currentMenu?.suppressPicker && sharedModules.interactionModel.isGroundLookMenu(gameViewSnapshot.currentMenu)
+    ? gameViewSnapshot.currentMenu.items.map((item) => ({ ...item, groundSource: 'look-menu' })) : [];
   if (menuRows.length) return menuRows;
   const snapshotRows = groundSnapshotItemsHere().map((item, index) => ({
     text: item.displayName || item.text || 'ground item',
@@ -3187,58 +2863,8 @@ function groundItemModelsHere() {
   return groundItemTextsHere().map((text, index) => ({ text, selector: 0, syntheticGroundItem: true, syntheticSelector: `here-${index}`, groundSource: groundItemsHint?.source || 'cell' }));
 }
 
-function equipmentActionForItem(item, context = {}) {
-  const fromService = sharedModules.inventoryActionService?.primaryEquipmentActionForItem?.(item, context);
-  if (fromService) return fromService;
-  const text = String(item?.text || '');
-  if (/\b(?:being worn|on left hand|on right hand|weapon in (?:hand|left hand|right hand)|wielded|in quiver)\b/i.test(text)) return null;
-  if (/\b(?:ring|amulet|blindfold|lenses|towel)\b/i.test(text)) return { label: 'Put on', key: 'P' };
-  if (/\b(?:arrow|arrows|bolt|bolts|dart|darts|ya|shuriken|rock|rocks|stone|stones|sling bullet|ammo|missile)\b/i.test(text)) return { label: 'Ready in quiver', key: 'Q', actionId: 'item.quiver' };
-  if (/\b(?:mail|armor|leather|robe|shirt|cloak|helm|helmet|hat|gloves|gauntlets|boots|shoes|shield|dragon scales|mummy wrapping)\b/i.test(text)) return { label: 'Wear in matching slot', key: 'W', actionId: 'item.wear' };
-  if (/[)]/.test(text) || /\b(?:sword|dagger|axe|mace|staff|spear|club|bow|crossbow|weapon|pick-axe|lance)\b/i.test(text)) return { label: 'Wield in main hand', key: 'w', actionId: 'item.wield.mainHand' };
-  return null;
-}
-
-function equipmentDropRouteForItem(item, slot) {
-  const fromService = sharedModules.inventoryActionService?.routeEquipmentDrop?.(item, slot, { items: cachedInventoryChoices });
-  if (fromService) return fromService;
-  return { ok: false, reason: 'No inventory action service route is available for that equipment drop.' };
-}
-
-function activeRingSlotIntent() {
-  if (!pendingEquipmentSlotIntent?.targetRingHand) return null;
-  if (Date.now() - Number(pendingEquipmentSlotIntent.at || 0) > 30000) {
-    pendingEquipmentSlotIntent = null;
-    return null;
-  }
-  return pendingEquipmentSlotIntent;
-}
-
-function clearPendingEquipmentSlotIntent() {
-  pendingEquipmentSlotIntent = null;
-}
-
-function equipmentFollowupSelectionKeys(item, key, actionPrompt = '') {
-  const prompt = String(actionPrompt || '');
-  if (/put on/i.test(prompt) && /\bring\b/i.test(String(item?.text || ''))) {
-    const slotIntent = activeRingSlotIntent();
-    const route = sharedModules.inventoryActionService?.routeInventoryAction?.(item, { id: 'item.putOn.ring', params: { targetRingHand: slotIntent?.targetRingHand || '' } }, { items: cachedInventoryChoices, targetRingHand: slotIntent?.targetRingHand || '' });
-    clearPendingEquipmentSlotIntent();
-    if (!route?.ok) return { ok: false, keys: '', reason: route?.reason || 'No ring finger is available.', actionId: 'item.putOn.ring' };
-    const suffix = route.autoAnswerHand ? route.ringHand : '';
-    return { ok: true, keys: `${key}${suffix}`, message: route.message, actionId: route.actionId || 'item.putOn.ring', selector: key, ringHand: route.ringHand, autoAnswerHand: route.autoAnswerHand };
-  }
-  return { ok: true, keys: key, selector: key };
-}
-
-function setEquipmentDropFeedback(text, good = false) {
-  if (!interactionFeedback) return;
-  interactionFeedback.textContent = text;
-  interactionFeedback.classList.toggle('good-feedback', Boolean(good));
-}
-
-function closeInventoryContextMenu() {
-  const menu = document.querySelector('.inventory-context-menu');
+function closeGroundItemContextMenu() {
+  const menu = document.querySelector('.ground-item-context-menu');
   if (!menu) return false;
   uxFocusLayer?.close?.(menu);
   menu.remove();
@@ -3254,298 +2880,33 @@ function sectionTitle(section) {
   return 'Primary actions';
 }
 
-function isEquipmentAffordanceAction(affordance) {
-  return /^(?:item\.(?:wear|putOn|quiver|wield|takeOff|remove)|slot\.(?:clear|swap)|item\.swapArmor)/i.test(String(affordance?.id || affordance?.actionId || ''));
-}
-
-function hasBackingInventoryActionSurface() {
-  const equipmentInventoryDialogOpen = Boolean(interactionDialog?.open
-    && (interactionDialog.classList.contains('rpg-equipment-dialog') || /Equipment\s*\/\s*Inventory/i.test(interactionTitle?.textContent || '')));
-  return Boolean(equipmentInventoryDialogOpen
-    && currentMenu
-    && (menuKind(currentMenu) === 'inventory' || currentMenu.awaitingSelection || /Inventory/i.test(currentMenu.prompt || ''))
-    && !isGroundPickupMenu(currentMenu)
-    && !isGroundLookMenu(currentMenu));
-}
-
-function backingInventoryActionSurfaceIdentity() {
-  if (!hasBackingInventoryActionSurface()) return null;
-  return {
-    window: currentMenu?.window,
-    menuId: String(currentMenu?.menuId || ''),
-    requestId: String(currentMenu?.requestId || ''),
-    menuRequestId: String(currentMenu?.menuRequestId || ''),
-    transactionId: String(currentMenu?.transactionId || ''),
-    lifecycleRevision: currentMenu?.lifecycleRevision,
-    lifecycle: String(currentMenu?.lifecycle || ''),
-    menuPurpose: String(currentMenu?.menuPurpose || currentMenu?.purpose || ''),
-    ownerKind: String(currentMenu?.owner?.kind || ''),
-    requestSourceLayer: String(currentMenu?.requestSource?.layer || ''),
-    prompt: String(currentMenu?.prompt || ''),
-  };
-}
-
-function backingInventoryActionSurfaceStillActive(identity) {
-  if (!identity || !hasBackingInventoryActionSurface()) return false;
-  // The reducer owns menu lifecycle truth. Renderer-local presentation can
-  // briefly retain the answered backing menu while its close/snapshot effects
-  // drain; do not let that stale copy block a direct item command forever.
-  if (gameView?.state && !gameView.state.currentMenu) return false;
-  const reducedRequestId = String(gameView?.state?.currentMenu?.requestId || gameView?.state?.currentMenu?.menuRequestId || '');
-  if (reducedRequestId && identity.requestId && reducedRequestId !== identity.requestId) return false;
-  const currentRequestId = String(currentMenu?.requestId || currentMenu?.menuRequestId || '');
-  const currentTransactionId = String(currentMenu?.transactionId || '');
-  if (identity.transactionId && currentTransactionId && identity.transactionId !== currentTransactionId) return false;
-  if (identity.requestId || currentRequestId) return identity.requestId === currentRequestId;
-  if (identity.window != null || currentMenu?.window != null) return identity.window === (currentMenu?.window ?? null);
-  return String(currentMenu?.prompt || '') === identity.prompt;
-}
-
-function currentInventoryItemForOwnedAction(item = {}, authoritativeRows = [], revision = publicInventorySnapshot?.revision) {
-  const resolved = sharedModules.commandTransactionModel?.resolveExactOwnedInventoryItem?.(item, { revision, orderedItems: authoritativeRows }, revision);
-  return resolved?.ok ? resolved.item : null;
-}
-
-function observeBackingInventoryActionStability() {
-  const pending = pendingBackingInventoryAction;
-  if (!pending || pending.observing) return;
-  pending.observing = true;
-  const observe = () => {
-    if (pendingBackingInventoryAction !== pending) return;
-    const owner = semanticActionActiveInputOwner();
-    const result = sharedModules.commandTransactionModel?.observeOwnedRevisionStability?.(pending.flow, {
-      ownerClosed: !backingInventoryActionSurfaceStillActive(pending.surface),
-      activeInputOwner: owner,
-      revision: currentActionExpectedRevision(),
-      equipmentInventoryRevision: publicEquipmentSnapshot?.inventoryRevision || 0,
-    });
-    if (!result) return;
-    pending.flow = result.flow;
-    if (result.code === 'prompt-interposition' || result.code === 'stale-revision') {
-      pendingBackingInventoryAction = null;
-      setEquipmentDropFeedback(result.code === 'prompt-interposition'
-        ? 'NetHack opened another choice while Inventory was closing. Finish or cancel it, then try the equipment action again.'
-        : 'Inventory changed while the equipment action was preparing. Review the current items and try again.');
-      diagnosticEvent('transaction', 'equipment.backing-menu.release.rejected', { code: result.code, flow: result.flow });
-      return;
-    }
-    if (!result.ready) {
-      pending.observing = false;
-      if (result.code === 'revision-observed') window.queueMicrotask(observeBackingInventoryActionStability);
-      return;
-    }
-    const authoritativeRevision = publicInventorySnapshot?.revision;
-    const authoritativeRows = publicInventorySnapshot?.orderedItems;
-    if (!Number.isSafeInteger(authoritativeRevision) || authoritativeRevision <= 0
-      || authoritativeRevision !== result.revision?.inventory || !Array.isArray(authoritativeRows)) {
-      pendingBackingInventoryAction = null;
-      setEquipmentDropFeedback('Inventory did not provide a current authoritative item snapshot. Reopen Inventory and try again.');
-      diagnosticEvent('transaction', 'inventory.backing-menu.snapshot-rejected', { objectId: pending.item?.objectId, revision: result.revision, authoritativeRevision });
-      return;
-    }
-    const requiresExactItem = pending.requiresExactItem;
-    const exactResolution = requiresExactItem
-      ? sharedModules.commandTransactionModel?.resolveExactOwnedInventoryItem?.(pending.item, publicInventorySnapshot, result.revision.inventory)
-      : { ok: true, item: pending.item };
-    const currentItem = exactResolution?.ok ? exactResolution.item : null;
-    if (requiresExactItem && !currentItem) {
-      pendingBackingInventoryAction = null;
-      setEquipmentDropFeedback('That exact item changed or disappeared while Inventory was closing. Review the current items and try again.');
-      diagnosticEvent('transaction', 'inventory.backing-menu.target-rejected', { objectId: pending.item.objectId, revision: result.revision, code: exactResolution?.code || 'unresolved' });
-      return;
-    }
-    pendingBackingInventoryAction = null;
-    diagnosticEvent('transaction', 'inventory.backing-menu.release.stable', { requestId: pending.surface.requestId, transactionId: pending.surface.transactionId, revision: result.revision, objectId: currentItem?.objectId });
-    pending.dispatch(currentItem, result.revision);
-  };
-  window.queueMicrotask(observe);
-}
-
-function sendActionCommandFromInventorySurface(keys, options = {}) {
-  const command = String(keys || '');
-  if (!command) return;
-  const backingSurface = options.cancelBackingInventoryMenu !== false ? backingInventoryActionSurfaceIdentity() : null;
-  const afterSend = typeof options.afterSend === 'function' ? options.afterSend : null;
-  let sent = false;
-  const sendCommand = (currentItem = options.item, stableRevision = null) => {
-    if (sent) return;
-    sent = true;
-    const expectedRevision = stableRevision || (options.recomputeExpectedRevisionBeforeSend ? currentActionExpectedRevision() : options.expectedRevision);
-    if (options.semanticAction) sendSemanticActionCommand(command, options.semanticAction, currentItem, options.route, { source: options.source || 'semantic-action', expectedRevision, target: options.target, payload: options.payload });
-    else sendPlayableText(command);
-    afterSend?.();
-  };
-  if (!backingSurface) {
-    sendCommand();
-    return;
-  }
-  if (pendingBackingInventoryAction) {
-    setEquipmentDropFeedback('The current Inventory close is already preparing one item action.');
-    diagnosticEvent('transaction', 'inventory.backing-menu.release.duplicate-blocked', { requestId: backingSurface.requestId, transactionId: backingSurface.transactionId });
-    return;
-  }
-  const model = sharedModules.commandTransactionModel;
-  const transactionId = String(backingSurface.transactionId || '').trim();
-  const exactItemObjectId = options.item?.objectId;
-  const requiresExactItem = Boolean(options.semanticAction);
-  const surfaceIsAuthoritative = Number.isSafeInteger(backingSurface.window)
-    && Boolean(backingSurface.menuId && backingSurface.requestId && backingSurface.menuRequestId
-      && backingSurface.requestId === backingSurface.menuRequestId && transactionId
-      && Number.isSafeInteger(backingSurface.lifecycleRevision) && backingSurface.lifecycleRevision > 0);
-  if (!surfaceIsAuthoritative || !model?.createOwnedInputFlow
-    || (requiresExactItem && (typeof exactItemObjectId !== 'number' || !Number.isSafeInteger(exactItemObjectId) || exactItemObjectId <= 0))) {
-    setEquipmentDropFeedback('Inventory does not have an exact authoritative menu and item owner. Close it and reopen before trying this action.');
-    diagnosticEvent('transaction', 'inventory.backing-menu.release.unowned', { surface: backingSurface, objectId: exactItemObjectId });
-    return;
-  }
-  pendingBackingInventoryAction = {
-    surface: backingSurface,
-    item: options.item,
-    requiresExactItem,
-    dispatch: sendCommand,
-    observing: false,
-    flow: model.createOwnedInputFlow({
-      kind: 'menu-cancel',
-      requestId: backingSurface.requestId,
-      transactionId,
-      window: backingSurface.window,
-      menuId: backingSurface.menuId,
-      menuPurpose: backingSurface.menuPurpose,
-      ownerKind: backingSurface.ownerKind,
-      requestSourceLayer: backingSurface.requestSourceLayer,
-      lifecycleRevision: backingSurface.lifecycleRevision,
-      acknowledgementEvent: 'bridge_menu_answer',
-      acknowledgementLifecycle: 'answered',
-      responseKey: '\u001b',
-      baselineRevision: currentActionExpectedRevision(),
-      requiredRevisionAdvance: ['inventory'],
-      requireLinkedEquipmentRevision: isEquipmentAffordanceAction(options.semanticAction),
-    }),
-  };
-  diagnosticEvent('transaction', 'inventory.backing-menu.release.requested', { surface: backingSurface, command: options.semanticAction?.id || options.route?.actionId || command, objectId: exactItemObjectId });
-  const promptOwner = activePrompt || { kind: 'read-only menu', transactionId };
-  const cancellationSent = sendActivePromptCancellation(promptOwner, { forceMenu: currentMenu, transactionId });
-  if (cancellationSent === false) {
-    pendingBackingInventoryAction = null;
-    setEquipmentDropFeedback('Inventory could not be closed through its active request owner. No item command was sent.');
-  }
-}
-
-function executeInventoryAction(item, affordance) {
-  closeInventoryContextMenu();
-  const route = sharedModules.inventoryActionService?.routeInventoryAction?.(item, affordance, { items: cachedInventoryChoices }) || { ok: true, command: affordance?.execution?.keys || '' };
-  const keys = route.command || '';
-  if (affordance?.id === 'item.inspect' || !keys) {
-    setEquipmentDropFeedback(route.ok === false ? (route.reason || 'That action is not available.') : `${cleanEquipmentText(item?.text || 'Item')}: more details are not available yet; no turn spent.`);
-    return;
-  }
-  const equipmentAction = isEquipmentAffordanceAction(affordance);
-  const feedback = route.message || `${affordance.label.replace(/…/g, '')}: ${cleanEquipmentText(item?.text || 'item')}.`;
-  if (equipmentAction) beginEquipmentKeepOpenAction(feedback);
-  const expectedRevision = currentActionExpectedRevision();
-  sendActionCommandFromInventorySurface(keys, {
-    semanticAction: affordance,
-    item,
-    route,
-    expectedRevision,
-    source: 'inventory-context-action',
-    target: route.target,
-    payload: route.promptPolicy ? { promptPolicy: route.promptPolicy } : undefined,
-    recomputeExpectedRevisionBeforeSend: true,
-    afterSend: equipmentAction ? (() => refreshEquipmentInventoryAfterCompatAction(feedback)) : null,
-  });
-  setEquipmentDropFeedback(feedback, true);
-}
-
-function executeEquipmentSlotAction(slot, action) {
-  closeInventoryContextMenu();
-  const route = sharedModules.inventoryActionService?.routeEquipmentSlotAction?.(action?.id || action?.actionId, slot, { items: cachedInventoryChoices, alternateItem: equipmentSlotModels(cachedInventoryChoices).find((model) => model.id === 'offhand')?.item });
-  if (!route?.ok) {
-    setEquipmentDropFeedback(route?.reason || 'This equipment action is not available.');
-    return;
-  }
-  beginEquipmentKeepOpenAction(route.message || action.label);
-  const expectedRevision = currentActionExpectedRevision();
-  sendActionCommandFromInventorySurface(route.command || action?.execution?.keys || '', {
-    semanticAction: action,
-    item: slot.item || {},
-    route,
-    expectedRevision,
-    source: 'equipment-slot-action',
-    recomputeExpectedRevisionBeforeSend: true,
-    afterSend: route.refreshInventory ? (() => refreshEquipmentInventoryAfterCompatAction(route.message || action.label)) : null,
-  });
-  setEquipmentDropFeedback(route.message || action.label, true);
-}
-
 function actionMenuHint(entry) {
-  if (entry?.enabled === false) return entry.disabledReasonLabel || entry.disabledReason || 'This action is blocked by visible equipment state.';
-  if (entry?.id === 'slot.swapMainAlternate') return 'Swap your main-hand and alternate weapons.';
-  if (entry?.id === 'slot.clear.quiver') return 'Clear or change the readied ammunition.';
+  if (entry?.enabled === false) return entry.disabledReasonLabel || entry.disabledReason || 'This action is blocked by visible public state.';
   if (/^ground\.pickupThen\./.test(entry?.id || '')) return 'First picks up the ground item; then uses the visible follow-up choice.';
   if (entry?.execution?.route === 'pickupGroundItem') return 'Picks up this row from the ground list, or opens pickup if the list needs refreshing.';
   if (/inspect/i.test(entry?.id || entry?.label || '')) return 'View item details without spending a turn.';
   const key = entry?.execution?.keys || entry?.key || '';
   const keyHint = key ? `Shortcut: ${key.replace(/\u001b/g, 'Esc').replace(/\n/g, ' Enter')}.` : '';
-  if (entry?.id === 'item.drop' && /^d.$/.test(String(key))) return `${keyHint} Drops this visible inventory row directly.`.trim();
   const pickerHint = entry?.promptPlan?.length ? 'A follow-up picker may appear.' : '';
   return [keyHint, pickerHint].filter(Boolean).join(' ') || 'Choose this action.';
 }
 
-function showEquipmentSlotContextMenu(slot, anchorOrEvent) {
-  const eventTarget = anchorOrEvent?.target;
-  const slotCard = eventTarget?.closest?.('.equipment-slot') || anchorOrEvent?.closest?.('.equipment-slot');
-  const contextInvoker = eventTarget?.closest?.('button, [tabindex]') || slotCard || anchorOrEvent?.currentTarget || anchorOrEvent || document.activeElement;
-  const slotActions = slot.id === 'offhand' && !slot.item ? [] : (sharedModules.inventoryActionService?.equipmentSlotActionAffordances?.(slot, { items: cachedInventoryChoices, alternateItem: equipmentSlotModels(cachedInventoryChoices).find((model) => model.id === 'offhand')?.item }) || []);
-  const itemActions = slot.item ? inventoryActionAffordancesForItem(slot.item).filter((entry) => !(slot.id === 'offhand' && entry.id === 'item.takeOff')) : [];
-  const actions = [...slotActions, ...itemActions].filter((entry) => entry.enabled !== false);
-  if (!actions.length) return;
-  closeInventoryContextMenu();
-  const menu = document.createElement('div');
-  menu.className = 'inventory-context-menu equipment-slot-context-menu';
-  menu.setAttribute('role', 'menu');
-  menu.tabIndex = -1;
-  const header = document.createElement('div');
-  header.className = 'inventory-context-header';
-  header.innerHTML = `<strong>${escapeHtml(slot.label)}</strong><span>${escapeHtml(slot.item ? cleanEquipmentText(slot.item.text) : slot.empty)}</span>`;
-  menu.appendChild(header);
-  for (const entry of actions) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = `inventory-context-action danger-${entry.dangerLevel || 'safe'}`;
-    button.dataset.actionId = entry.id;
-    button.setAttribute('role', 'menuitem');
-    button.innerHTML = `<strong>${escapeHtml(entry.label)}</strong><span>${escapeHtml(actionMenuHint(entry))}</span>`;
-    button.addEventListener('click', () => entry.id === 'slot.swapMainAlternate' ? executeEquipmentSlotAction(slot, entry) : executeInventoryAction(slot.item, entry));
-    menu.appendChild(button);
-  }
-  const compactDrawerOwner = window.matchMedia?.('(max-width: 960px)')?.matches
-    ? interactionDialog?.querySelector?.('.paper-doll-panel')
-    : null;
-  if (compactDrawerOwner) {
-    menu.classList.add('equipment-slot-action-drawer');
-    menu.dataset.presentation = 'in-flow-drawer';
-    compactDrawerOwner.appendChild(menu);
-  } else {
-    (interactionDialog?.open ? interactionDialog : document.body).appendChild(menu);
-    const isPointerEvent = Number.isFinite(anchorOrEvent?.clientX) && Number.isFinite(anchorOrEvent?.clientY);
-    const rect = anchorOrEvent?.currentTarget?.getBoundingClientRect?.() || anchorOrEvent?.target?.getBoundingClientRect?.() || anchorOrEvent?.getBoundingClientRect?.() || { left: 24, top: 24, bottom: 24 };
-    const inventoryPaneRect = interactionOptions?.getBoundingClientRect?.();
-    const preferredLeft = inventoryPaneRect?.width >= 346 ? inventoryPaneRect.left + 8 : (isPointerEvent ? anchorOrEvent.clientX : rect.left);
-    menu.style.left = `${Math.min(Math.max(8, preferredLeft), Math.max(8, window.innerWidth - (menu.offsetWidth || 330) - 8))}px`;
-    const dialogRect = interactionDialog?.getBoundingClientRect?.();
-    const safeBottom = Math.min(window.innerHeight, dialogRect?.bottom || window.innerHeight) - 8;
-    menu.style.top = `${Math.min(Math.max(8, isPointerEvent ? anchorOrEvent.clientY : rect.bottom), Math.max(8, safeBottom - Math.min(560, menu.offsetHeight || 420)))}px`;
-  }
-  setEquipmentDropFeedback('');
-  uxFocusLayer?.open?.({ id: 'equipment-slot-context', element: menu, domain: 'items', initialFocus: () => menu.querySelector('[role="menuitem"]'), returnFocus: contextInvoker, escapePolicy: 'close' });
+function showGroundItemFeedback(text, good = false) {
+  if (!text) return;
+  showPlayerNotice({
+    id: `ground-item:${good ? 'accepted' : 'info'}:${shimEventCount}`,
+    kind: good ? 'success' : 'info',
+    message: String(text),
+    source: 'result',
+    persistence: 'transient',
+  });
 }
 
 function executeGroundItemAction(item, affordance) {
-  closeInventoryContextMenu();
+  closeGroundItemContextMenu();
   const keys = affordance?.execution?.keys || '';
   if (affordance?.id === 'ground.inspect' || !keys) {
-    setEquipmentDropFeedback(`${cleanEquipmentText(item?.text || 'Ground item')}: inspect the visible ground row or use Look for more details.`);
+    showGroundItemFeedback(`${cleanEquipmentText(item?.text || 'Ground item')}: inspect the visible ground row or use Look for more details.`);
     return;
   }
   const route = affordance?.execution?.route || '';
@@ -3572,7 +2933,7 @@ function executeGroundItemAction(item, affordance) {
     sendPlayableText(keys);
     appendMessage(`${affordance.label}.`);
   }
-  setEquipmentDropFeedback(`${affordance.label.replace(/…/g, '')}: ${itemName}.`, true);
+  showGroundItemFeedback(`${affordance.label.replace(/…/g, '')}: ${itemName}.`, true);
   gameGrid.focus({ preventScroll: true });
 }
 
@@ -3580,9 +2941,9 @@ function showGroundItemContextMenu(item, anchorOrEvent) {
   const contextInvoker = anchorOrEvent?.currentTarget || anchorOrEvent?.target || anchorOrEvent || document.activeElement;
   const actions = groundItemActionAffordancesForItem(item);
   if (!actions.length) return;
-  closeInventoryContextMenu();
+  closeGroundItemContextMenu();
   const menu = document.createElement('div');
-  menu.className = 'inventory-context-menu ground-item-context-menu';
+  menu.className = 'ground-item-context-menu';
   menu.setAttribute('role', 'menu');
   menu.tabIndex = -1;
   const header = document.createElement('div');
@@ -3621,63 +2982,9 @@ function showGroundItemContextMenu(item, anchorOrEvent) {
   const wantedTop = isPointerEvent ? anchorOrEvent.clientY : (rect.bottom || rect.top || 24);
   menu.style.left = `${Math.min(Math.max(8, wantedLeft), Math.max(8, window.innerWidth - 360))}px`;
   menu.style.top = `${Math.min(Math.max(8, wantedTop), Math.max(8, window.innerHeight - Math.min(620, menu.offsetHeight || 460)))}px`;
-  setEquipmentDropFeedback('');
   uxFocusLayer?.open?.({ id: 'ground-item-context', element: menu, domain: 'items', initialFocus: () => menu.querySelector('[role="menuitem"]'), returnFocus: contextInvoker, escapePolicy: 'close' });
 }
 
-function showInventoryContextMenu(item, anchorOrEvent) {
-  const contextInvoker = anchorOrEvent?.currentTarget || anchorOrEvent?.target || anchorOrEvent || document.activeElement;
-  const actions = inventoryActionAffordancesForItem(item);
-  if (!actions.length) return;
-  closeInventoryContextMenu();
-  const menu = document.createElement('div');
-  menu.className = 'inventory-context-menu';
-  menu.setAttribute('role', 'menu');
-  menu.tabIndex = -1;
-  const header = document.createElement('div');
-  header.className = 'inventory-context-header';
-  header.innerHTML = `<strong>${escapeHtml(cleanEquipmentText(item?.text || 'Item'))}</strong><span>Choose an action for this item.</span>`;
-  menu.appendChild(header);
-  const groups = new Map();
-  for (const action of actions) {
-    const section = action.section || 'primary';
-    if (!groups.has(section)) groups.set(section, []);
-    groups.get(section).push(action);
-  }
-  for (const [section, entries] of groups.entries()) {
-    const sectionEl = document.createElement('section');
-    const title = document.createElement('div');
-    title.className = 'inventory-context-section-title';
-    title.textContent = sectionTitle(section);
-    sectionEl.appendChild(title);
-    for (const entry of entries) {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = `inventory-context-action danger-${entry.dangerLevel || 'safe'}`;
-      button.dataset.actionId = entry.id;
-      if (entry.disabledReasonToken) button.dataset.disabledReasonToken = entry.disabledReasonToken;
-      if (Array.isArray(entry.blockerTokens) && entry.blockerTokens.length) button.dataset.blockerTokens = entry.blockerTokens.join(' ');
-      if (entry.disabledReasonLabel) button.dataset.disabledReasonLabel = entry.disabledReasonLabel;
-      button.disabled = entry.enabled === false;
-      button.setAttribute('role', 'menuitem');
-      button.innerHTML = `<strong>${escapeHtml(entry.label)}</strong><span>${escapeHtml(actionMenuHint(entry))}</span>`;
-      button.addEventListener('click', () => executeInventoryAction(item, entry));
-      sectionEl.appendChild(button);
-    }
-    menu.appendChild(sectionEl);
-  }
-  (interactionDialog?.open ? interactionDialog : document.body).appendChild(menu);
-  const isPointerEvent = Number.isFinite(anchorOrEvent?.clientX) && Number.isFinite(anchorOrEvent?.clientY);
-  const rect = anchorOrEvent?.currentTarget?.getBoundingClientRect?.() || anchorOrEvent?.target?.getBoundingClientRect?.() || anchorOrEvent?.getBoundingClientRect?.() || { left: 24, top: 24, bottom: 24 };
-  const wantedLeft = isPointerEvent ? anchorOrEvent.clientX : (rect.left || 24);
-  const wantedTop = isPointerEvent ? anchorOrEvent.clientY : (rect.bottom || rect.top || 24);
-  const left = Math.min(Math.max(8, wantedLeft), Math.max(8, window.innerWidth - 340));
-  const top = Math.min(Math.max(8, wantedTop), Math.max(8, window.innerHeight - Math.min(560, menu.offsetHeight || 420)));
-  menu.style.left = `${left}px`;
-  menu.style.top = `${top}px`;
-  setEquipmentDropFeedback('');
-  uxFocusLayer?.open?.({ id: 'inventory-item-context', element: menu, domain: 'items', initialFocus: () => menu.querySelector('[role="menuitem"]'), returnFocus: contextInvoker, escapePolicy: 'close' });
-}
 
 function currentPlayerAvatarTile() {
   const directComboId = sharedModules.tileAssets?.playerComboAvatarAssetId?.(currentPlayerCharacter(), tileAssetsById);
@@ -3687,9 +2994,9 @@ function currentPlayerAvatarTile() {
   const directRoleTile = directRoleId ? tileAssetsById.get(directRoleId) : undefined;
   if (directRoleTile?.installedPath) return { tile: directRoleTile, assetId: directRoleId, source: 'character-role' };
   const candidateCells = [];
-  const cursorCell = mapCells[cursor.y]?.[cursor.x];
+  const cursorCell = gameViewSnapshot.mapCells[gameViewSnapshot.cursor.y]?.[gameViewSnapshot.cursor.x];
   if (cursorCell) candidateCells.push(cursorCell);
-  for (const row of mapCells) {
+  for (const row of gameViewSnapshot.mapCells) {
     for (const cell of row) {
       const normalized = normalizeCell(cell);
       if (sharedModules.tileAssets?.isPlayerCell?.(normalized) || (normalized.assetId === 'hero-avatar' || Number(normalized.glyph) === 725)) candidateCells.push(cell);
@@ -3705,121 +3012,190 @@ function currentPlayerAvatarTile() {
   return fallbackTile?.installedPath ? { tile: fallbackTile, assetId: 'hero-avatar', source: 'fallback' } : { tile: null, assetId: 'hero-avatar', source: 'glyph-fallback' };
 }
 
-function renderEquipmentScreenPanel(items) {
-  const panel = document.createElement('div');
-  panel.className = 'rpg-equipment-screen';
-  const paper = document.createElement('section');
-  paper.className = 'paper-doll-panel';
-  const heading = document.createElement('div');
-  heading.className = 'paper-doll-heading';
-  heading.innerHTML = '<strong>Hero equipment</strong>';
-  const avatarInfo = currentPlayerAvatarTile();
-  const avatar = document.createElement('div');
-  avatar.className = 'player-avatar-display';
-  avatar.dataset.tileId = avatarInfo.assetId || 'hero-avatar';
-  avatar.dataset.avatarSource = avatarInfo.source;
-  avatar.setAttribute('aria-label', `${avatarInfo.tile?.name || 'Hero avatar'} enlarged player tile`);
-  if (avatarInfo.tile?.installedPath) {
-    avatar.classList.add('has-player-avatar-tile');
-    const avatarTileUrl = tileUrl(avatarInfo.tile);
-    const avatarSrc = avatarTileUrl.replace(/^url\(["']?/, '').replace(/["']?\)$/, '');
-    avatar.dataset.avatarSrc = avatarSrc;
-    avatar.innerHTML = `<img class="player-avatar-image" src="${avatarSrc}" alt="" aria-hidden="true" style="display: block; width: 100%; height: 100%; object-fit: contain; object-position: center bottom;"><span class="player-avatar-fallback" aria-hidden="true">@</span>`;
-  } else {
-    avatar.innerHTML = '<span class="player-avatar-fallback" aria-hidden="true">@</span>';
-  }
-  const stage = document.createElement('div');
-  stage.className = 'paper-doll-stage';
-  const slots = document.createElement('div');
-  slots.className = 'paper-doll-slots';
-  const slotModels = equipmentSlotModels(items);
-  for (const slot of slotModels) {
-    const card = equipmentSlotElement(slot, true);
-    if (slot.item) {
-      card.tabIndex = 0;
-      card.setAttribute('aria-label', `${slot.label}: ${cleanEquipmentText(slot.item.text)}. Press Shift+F10 for actions.`);
-    }
-    slots.appendChild(card);
-  }
-  slots.addEventListener('click', (event) => {
-    const button = event.target.closest('button[data-command-key], button[data-command-code]');
-    if (!button) return;
-    sendCommandButton(button);
-  });
-  slots.addEventListener('contextmenu', (event) => {
-    const card = event.target.closest('.equipment-slot');
-    if (!card) return;
-    const slot = slotModels.find((model) => model.id === card.dataset.slot);
-    if (!slot) return;
-    event.preventDefault();
-    showEquipmentSlotContextMenu(slot, event);
-  });
-  slots.addEventListener('keydown', (event) => {
-    if (!((event.key === 'F10' && event.shiftKey) || event.key === 'ContextMenu')) return;
-    const card = event.target.closest('.equipment-slot');
-    if (!card) return;
-    const slot = slotModels.find((model) => model.id === card.dataset.slot);
-    if (!slot) return;
-    event.preventDefault();
-    event.stopPropagation();
-    showEquipmentSlotContextMenu(slot, event);
-  });
-  slots.addEventListener('dragover', (event) => {
-    const card = event.target.closest('.equipment-slot');
-    if (!card) return;
-    event.preventDefault();
-    event.stopPropagation();
-    card.classList.add('drag-over');
-  });
-  slots.addEventListener('dragleave', (event) => event.target.closest('.equipment-slot')?.classList.remove('drag-over'));
-  slots.addEventListener('drop', (event) => {
-    closeInventoryContextMenu();
-    const card = event.target.closest('.equipment-slot');
-    if (!card) return;
-    event.preventDefault();
-    event.stopPropagation();
-    equipmentDragSuppressClickUntil = Date.now() + 800;
-    card.classList.remove('drag-over');
-    const selector = event.dataTransfer?.getData('application/x-nethack-selector') || event.dataTransfer?.getData('text/plain') || '';
-    const item = items.find((choice) => String.fromCharCode(choice.selector) === selector);
-    const slot = slotModels.find((model) => model.id === card.dataset.slot);
-    const route = equipmentDropRouteForItem(item, slot);
-    if (route.ok) {
-      beginEquipmentKeepOpenAction(route.message);
-      setEquipmentDropFeedback(route.message, true);
-      if (route.actionId) card.dataset.lastDropActionId = route.actionId;
-      equipmentDragSuppressClickUntil = Date.now() + 1000;
-      suppressInventoryLazyLoadUntil = Date.now() + 1000;
-      interactionDialog.style.pointerEvents = 'none';
-      window.setTimeout(() => { interactionDialog.style.pointerEvents = ''; }, 900);
-      sendActionCommandFromInventorySurface(route.command, {
-        semanticAction: { id: route.actionId, label: route.message || route.actionId },
-        item,
-        route,
-        source: 'equipment-drop-action',
-        recomputeExpectedRevisionBeforeSend: true,
-        afterSend: () => refreshEquipmentInventoryAfterCompatAction(route.message),
-      });
-    } else {
-      setEquipmentDropFeedback(route.reason || 'Invalid equipment drop target.');
-    }
-  });
-  stage.append(avatar, slots);
-  paper.append(heading, stage);
-  panel.appendChild(paper);
-  return panel;
+function itemEquipmentTransferOwnerSignal() {
+  const owner = transferSession.snapshot().owner;
+  return owner?.id ? Object.freeze({ id: owner.id, active: true }) : null;
 }
 
-function equipmentInventoryOption(item) {
-  const key = String.fromCharCode(item.selector);
-  const visibleItems = Array.isArray(currentMenu?.items) && currentMenu.items.length ? currentMenu.items : cachedInventoryChoices;
-  const action = equipmentActionForItem(item, { items: visibleItems });
-  const equipped = /\b(?:being worn|on left hand|on right hand|weapon in (?:hand|left hand|right hand)|wielded|in quiver)\b/i.test(String(item.text || ''));
-  const removeKey = /\b(?:on left hand|on right hand)\b/i.test(String(item.text || '')) ? 'R' : (/\b(?:being worn)\b/i.test(String(item.text || '')) ? 'T' : (/\b(?:weapon in (?:hand|left hand|right hand)|wielded|in quiver)\b/i.test(String(item.text || '')) ? ( /\bin quiver\b/i.test(String(item.text || '')) ? 'Q' : 'w') : ''));
-  const removeActionId = removeKey === 'T' ? 'item.takeOff' : (removeKey === 'R' ? 'item.remove.accessory' : (removeKey === 'Q' ? 'slot.clear.quiver' : (removeKey === 'w' ? 'slot.clear.mainHand' : '')));
-  const rowAction = equipped && removeKey ? { label: removeKey === 'T' ? 'Take off' : (removeKey === 'R' ? 'Remove' : 'Change'), key: removeKey, actionId: removeActionId } : action;
-  return { key, rowAction };
+function itemEquipmentAvatar() {
+  const avatar = currentPlayerAvatarTile();
+  if (!avatar.tile?.installedPath) return Object.freeze({ src: '', alt: 'Hero' });
+  const src = tileUrl(avatar.tile).replace(/^url\(["']?/, '').replace(/["']?\)$/, '');
+  return Object.freeze({ src, alt: avatar.tile.name || 'Hero' });
 }
+
+function itemEquipmentIcon(item = {}) {
+  const glyph = item.glyphChar && item.glyphChar > 0 && item.glyphChar < 128 ? String.fromCharCode(item.glyphChar) : '';
+  const assetId = mappedAssetIdForCell({
+    ch: glyph,
+    glyph: item.glyph,
+    semanticKind: item.semanticKind,
+    semanticName: item.semanticName,
+    semanticAppearance: item.semanticAppearance,
+    semanticKnown: item.semanticKnown,
+    cmapIndex: item.cmapIndex,
+  });
+  const tile = assetId ? tileAssetsById.get(assetId) : null;
+  if (!tile?.installedPath) return null;
+  return Object.freeze({ src: tileUrl(tile).replace(/^url\(["']?/, '').replace(/["']?\)$/, ''), alt: '' });
+}
+
+function itemEquipmentInteraction(decision = interactionDecision('item-equipment-reconcile')) {
+  return Object.freeze({
+    id: decision.interactionId || '',
+    owner: decision.owner,
+    prompt: gameViewSnapshot.activePrompt,
+    menu: gameViewSnapshot.currentMenu,
+    promptPlan: decision.prompt,
+    menuPlan: decision.menu,
+  });
+}
+
+function reconcileItemEquipmentOwner(decision = null) {
+  if (!itemEquipmentOwner) return null;
+  const pendingBefore = itemEquipmentOwner.snapshot?.().pendingIntentId || '';
+  const result = itemEquipmentOwner.reconcile({
+    inventory: gameViewSnapshot.inventory,
+    equipment: gameViewSnapshot.equipment,
+    statusValues: gameViewSnapshot.statusValues,
+    messages: gameViewSnapshot.messages,
+    transferOwner: itemEquipmentTransferOwnerSignal(),
+    interaction: itemEquipmentInteraction(decision || interactionDecision('item-equipment-reconcile')),
+    avatar: itemEquipmentAvatar(),
+    iconResolver: itemEquipmentIcon,
+    onIntent: dispatchItemEquipmentIntent,
+    onDiagnostic: (entry) => diagnosticEvent('items', entry.type, entry.detail || {}),
+  });
+  if (pendingBefore && !itemEquipmentOwner.snapshot?.().pendingIntentId) suppressInventoryLazyLoadUntil = 0;
+  return result;
+}
+
+function nativeMenuMatchesItemCorrelation(menu = {}, correlation = {}) {
+  const requestId = String(menu.requestId || menu.menuRequestId || '');
+  const menuRequestId = String(menu.menuRequestId || requestId);
+  const purpose = String(menu.menuPurpose || menu.purpose || '');
+  return Boolean(requestId
+    && requestId === String(correlation.requestId || '')
+    && menuRequestId === String(correlation.menuRequestId || correlation.requestId || '')
+    && String(menu.transactionId || '') === String(correlation.transactionId || '')
+    && (Number.isSafeInteger(correlation.window) ? menu.window === correlation.window : !Number.isSafeInteger(menu.window))
+    && String(menu.menuId || '') === String(correlation.menuId || '')
+    && Number(menu.lifecycleRevision || 0) === Number(correlation.lifecycleRevision || 0)
+    && purpose === String(correlation.purpose || '')
+    && String(menu.owner?.kind || '') === String(correlation.ownerKind || ''));
+}
+function nativePromptMatchesItemCorrelation(prompt = {}, correlation = {}) {
+  return Boolean(prompt.requestId
+    && String(prompt.requestId) === String(correlation.requestId || '')
+    && String(prompt.transactionId || '') === String(correlation.transactionId || '')
+    && (Number.isSafeInteger(correlation.window) ? prompt.window === correlation.window : !Number.isSafeInteger(prompt.window))
+    && Number(prompt.lifecycleRevision || 0) === Number(correlation.lifecycleRevision || 0)
+    && String(prompt.kind || '') === String(correlation.kind || '')
+    && String(prompt.promptPurpose || prompt.purpose || '') === String(correlation.purpose || '')
+    && String(prompt.query || '') === String(correlation.query || '')
+    && String(prompt.choices || '') === String(correlation.choices || ''));
+}
+
+async function dispatchItemEquipmentIntent(intent = {}) {
+  if (intent.type === 'cancel-native-overview' || intent.type === 'cancel-native-interaction') {
+    const currentMenu = gameViewSnapshot.currentMenu;
+    const expectedRequestId = String(intent.correlation?.requestId || '');
+    const currentRequestId = String(currentMenu?.requestId || currentMenu?.menuRequestId || '');
+    if (!currentMenu || !nativeMenuMatchesItemCorrelation(currentMenu, intent.correlation)) {
+      diagnosticEvent('items', 'native-menu.cancel-rejected', { expectedRequestId, currentRequestId, type: intent.type });
+      return false;
+    }
+    return sendActivePromptCancellation(
+      gameViewSnapshot.activePrompt || { kind: 'read-only menu', requestId: expectedRequestId, transactionId: intent.correlation?.transactionId || '' },
+      { forceMenu: currentMenu, transactionId: intent.correlation?.transactionId || '' },
+    );
+  }
+  if (intent.type === 'execute-item-action') {
+    if (String(intent.command || '').length > 1) {
+      suppressInventoryLazyLoadUntil = Date.now() + 3000;
+      clearInventoryLazyLoad();
+    }
+    return sendSemanticActionCommand(
+      intent.command,
+      intent.action,
+      intent.item,
+      intent.route,
+      {
+        source: intent.source || 'item-equipment-owner',
+        transactionId: intent.transactionId,
+        expectedRevision: intent.expectedRevision,
+        target: intent.route?.target,
+        payload: intent.route?.promptPolicy ? { promptPolicy: intent.route.promptPolicy } : undefined,
+      },
+    );
+  }
+  if (intent.type === 'select-native-prompt-followup') {
+    const currentPrompt = gameViewSnapshot.activePrompt;
+    if (!currentPrompt || !nativePromptMatchesItemCorrelation(currentPrompt, intent.correlation)) {
+      diagnosticEvent('items', 'native-prompt-followup.selection-rejected', {
+        expectedRequestId: intent.correlation?.requestId || '',
+        currentRequestId: currentPrompt?.requestId || '',
+      });
+      return false;
+    }
+    return sendRecordedShimInput({
+      type: 'keycode',
+      keycode: intent.selector.charCodeAt(0),
+      transactionId: intent.transactionId,
+      expectedRequestId: intent.correlation.requestId,
+      guiActionId: intent.action?.id || 'item.followup',
+      actionLabel: intent.action?.label || 'Choose item',
+      followupPlan: 'native-prompt-selection',
+    }, 'item-equipment-native-followup');
+  }
+  if (intent.type === 'select-native-followup') {
+    const currentMenu = gameViewSnapshot.currentMenu;
+    if (!currentMenu || !nativeMenuMatchesItemCorrelation(currentMenu, intent.correlation)) {
+      diagnosticEvent('items', 'native-followup.selection-rejected', {
+        expectedRequestId: intent.correlation?.requestId || '',
+        currentRequestId: currentMenu?.requestId || currentMenu?.menuRequestId || '',
+      });
+      return false;
+    }
+    return sendRecordedShimInput({
+      type: 'keycode',
+      keycode: intent.selector.charCodeAt(0),
+      transactionId: intent.transactionId,
+      expectedRequestId: intent.correlation.requestId,
+      guiActionId: intent.action?.id || 'item.followup',
+      actionLabel: intent.action?.label || 'Choose item',
+      followupPlan: 'native-menu-selection',
+    }, 'item-equipment-native-followup');
+  }
+  return false;
+}
+
+function openItemEquipmentOwner(decision) {
+  if (!itemEquipmentOwner || itemEquipmentTransferOwnerSignal()) return false;
+  if (itemEquipmentOwner.snapshot?.().open) return true;
+  const inventory = gameViewSnapshot.inventory;
+  if (!Number.isSafeInteger(inventory?.revision) || inventory.revision <= 0) {
+    diagnosticEvent('items', 'workspace.open-rejected', { code: 'missing-authoritative-inventory' });
+    return false;
+  }
+  itemEquipmentOwner.open({
+    documentRoot: document,
+    mount: sharedModules.uxAppMounts?.lookupMount?.('items', document),
+    inventory,
+    equipment: gameViewSnapshot.equipment,
+    statusValues: gameViewSnapshot.statusValues,
+    transferOwner: null,
+    interaction: itemEquipmentInteraction(decision),
+    avatar: itemEquipmentAvatar(),
+    iconResolver: itemEquipmentIcon,
+    initialMode: 'equipment',
+    invoker: document.activeElement,
+    onIntent: dispatchItemEquipmentIntent,
+    onDiagnostic: (entry) => diagnosticEvent('items', entry.type, entry.detail || {}),
+  });
+  return itemEquipmentOwner.snapshot().open;
+}
+
 
 function isGameOverMessage(text) {
   const line = String(text || '').replace(/\s+/g, ' ').trim();
@@ -4018,8 +3394,7 @@ function renderGameOverSummary() {
 
 function renderGameOverSections() {
   const fragment = document.createDocumentFragment();
-  const sections = gameOverState?.sections?.length ? gameOverState.sections : [{ title: 'Recent messages', body: messageHistory.slice(-40).join('\n') }];
-  for (const section of sections) {
+  for (const section of gameOverState?.sections || []) {
     const details = document.createElement('details');
     details.open = true;
     const summary = document.createElement('summary');
@@ -4029,6 +3404,15 @@ function renderGameOverSections() {
     details.append(summary, pre);
     fragment.appendChild(details);
   }
+  const logDetails = document.createElement('details');
+  logDetails.open = true;
+  const logSummary = document.createElement('summary');
+  logSummary.textContent = 'Game log';
+  const log = document.createElement('pre');
+  log.className = 'game-over-log';
+  log.textContent = gameViewSnapshot.messages.length ? gameViewSnapshot.messages.join('\n') : '(no messages captured)';
+  logDetails.append(logSummary, log);
+  fragment.appendChild(logDetails);
   gameOverSections.replaceChildren(fragment);
 }
 
@@ -4057,76 +3441,10 @@ function showGameOverModal() {
   setStatus('game over; final statistics displayed');
 }
 
-function equipmentInventorySignature(items = cachedInventoryChoices) {
-  return (items || []).filter((item) => item?.selector).map((item) => `${item.selector}:${item.text || ''}`).join('\n');
-}
-
-function equipmentDialogKeepOpenActive() {
-  return Boolean(equipmentKeepOpenState?.active)
-    && Date.now() < Number(equipmentKeepOpenState.until || 0)
-    && interactionDialog?.open
-    && interactionDialog.classList.contains('rpg-equipment-dialog');
-}
-
-function clearEquipmentKeepOpenState() {
-  equipmentKeepOpenState = null;
-  clearPendingEquipmentSlotIntent();
-  interactionDialog?.removeAttribute?.('data-equipment-action-pending');
-}
-
-function isEquipmentFollowupPrompt(query, choices = '') {
-  const q = String(query || '').toLowerCase();
-  const c = String(choices || '').toLowerCase();
-  return isInventoryActionPrompt(query, choices)
-    || /what do you want to (?:wear|wield|take off|remove|put on)|which (?:ring|hand|finger)|left or right|use two weapons|ready|quiver|cursed|stuck|welded|remove.*anyway|take.*off.*anyway/.test(q)
-    || (/^[lr-]+$/.test(c) && /ring|hand|finger/.test(q));
-}
-
-function isEquipmentActionMenu(menu) {
-  if (!menu?.awaitingSelection) return false;
-  const prompt = String(menu.prompt || lastInventoryActionQuery || '').trim();
-  return isEquipmentFollowupPrompt(prompt, '') || /wear|wield|take off|remove|put on|quiver|ready/i.test(prompt);
-}
-
-function beginEquipmentKeepOpenAction(feedback = '') {
-  if (!interactionDialog?.open || !interactionDialog.classList.contains('rpg-equipment-dialog')) return false;
-  equipmentKeepOpenState = {
-    ...(equipmentKeepOpenState || {}),
-    active: true,
-    until: Date.now() + 30000,
-    feedback: String(feedback || interactionFeedback?.textContent || 'Updating equipment…'),
-    inventorySignature: equipmentKeepOpenState?.inventorySignature || equipmentInventorySignature(),
-  };
-  interactionDialog.dataset.equipmentActionPending = 'true';
-  if (feedback) setEquipmentDropFeedback(feedback, true);
-  return true;
-}
-
-function finishEquipmentKeepOpenAction() {
-  const currentSignature = equipmentInventorySignature(currentMenu?.items || cachedInventoryChoices);
-  if (equipmentKeepOpenState?.awaitingRefresh && !equipmentKeepOpenState?.refreshRequested && currentSignature === equipmentKeepOpenState.inventorySignature) return;
-  if (equipmentKeepOpenState) {
-    equipmentKeepOpenState.awaitingRefresh = false;
-    equipmentKeepOpenState.refreshRequested = false;
-    equipmentKeepOpenState.inventorySignature = currentSignature;
-    equipmentKeepOpenState.until = Date.now() + 30000;
-    interactionDialog?.setAttribute?.('data-equipment-action-pending', 'true');
-  }
-  if (interactionDialog?.open && interactionDialog.classList.contains('rpg-equipment-dialog')) {
-    interactionDialog.style.pointerEvents = '';
-  }
-}
 
 function closeInteractionDialog({ force = false } = {}) {
-  closeInventoryContextMenu();
-  const closingInventory = interactionDialog?.open && interactionDialog.classList.contains('rpg-equipment-dialog');
-  if (!force && equipmentDialogKeepOpenActive()) {
-    focusMode = 'modal';
-    activeContextualPrompt = null;
-    if (equipmentKeepOpenState?.feedback) setEquipmentDropFeedback(equipmentKeepOpenState.feedback, true);
-    return;
-  }
-  clearEquipmentKeepOpenState();
+  void force;
+  closeGroundItemContextMenu();
   focusMode = 'game';
   activeContextualPrompt = null;
   if (interactionDialog.open) interactionDialog.close('silent');
@@ -4150,7 +3468,6 @@ function closeInteractionDialog({ force = false } = {}) {
   interactionConfirm.hidden = true;
   interactionText.oninput = null;
   lastInteractionDialogSignature = '';
-  if (closingInventory) uxOnboarding?.observe?.({ type: 'inventory-closed', confirmed: true });
 }
 
 function visibleInteractionChoices() {
@@ -4180,19 +3497,19 @@ function activateFocusedInteractionControl() {
 }
 
 function activeSingleSelectMenuOwnsHotkeys() {
-  const menuOwnsSingleSelection = Boolean(currentMenu?.awaitingSelection
-    && Number(currentMenu?.how || 0) > 0
-    && Number(currentMenu?.how || 0) !== 2);
-  const promptOwnsSingleSelection = Boolean(activePrompt?.kind === 'question'
+  const menuOwnsSingleSelection = Boolean(gameViewSnapshot.currentMenu?.awaitingSelection
+    && Number(gameViewSnapshot.currentMenu?.how || 0) > 0
+    && Number(gameViewSnapshot.currentMenu?.how || 0) !== 2);
+  const promptOwnsSingleSelection = Boolean(gameViewSnapshot.activePrompt?.kind === 'question'
     && !isActiveDirectionPrompt()
-    && (isInventoryActionPrompt(activePrompt.query, activePrompt.choices) || isItemClassPrompt(activePrompt.query, activePrompt.choices)));
+    && (sharedModules.interactionModel.isInventoryActionPrompt(gameViewSnapshot.activePrompt.query, gameViewSnapshot.activePrompt.choices) || sharedModules.interactionModel.isItemClassPrompt(gameViewSnapshot.activePrompt.query, gameViewSnapshot.activePrompt.choices)));
   return Boolean(interactionDialog?.open && (menuOwnsSingleSelection || promptOwnsSingleSelection));
 }
 
 function activeFixedChoicePromptOwnsHotkeys() {
   return Boolean(interactionDialog?.open
-    && activePrompt?.kind === 'question'
-    && isFixedChoicePrompt(activePrompt.query, activePrompt.choices)
+    && gameViewSnapshot.activePrompt?.kind === 'question'
+    && sharedModules.interactionModel.isFixedChoicePrompt(gameViewSnapshot.activePrompt.query, gameViewSnapshot.activePrompt.choices)
     && interactionTextRow?.hidden);
 }
 
@@ -4211,7 +3528,7 @@ function handleSingleSelectMenuHotkey(event) {
   if (!button) return false;
   event.preventDefault();
   event.stopPropagation();
-  closeInventoryContextMenu();
+  closeGroundItemContextMenu();
   button.click();
   return true;
 }
@@ -4223,7 +3540,7 @@ function handleFixedChoicePromptHotkey(event) {
   if (!button) return false;
   event.preventDefault();
   event.stopPropagation();
-  closeInventoryContextMenu();
+  closeGroundItemContextMenu();
   button.click();
   return true;
 }
@@ -4243,18 +3560,11 @@ function handleInteractionNavigationKeydown(event) {
 }
 
 function showInteractionDialog({ title, prompt, options = [], cancelText = 'Cancel', textEntry = false, textLabel = 'Filter or type selection', textPlaceholder = '', dialogClass = '', family = '', closeKind = '', escapePolicy = '', confirmText = '', clearText = 'Clear selection', selectAllText = 'Select visible', onConfirm, onClear, onSelectAll, feedback, panelControls = null, contextLines = [] }) {
-  const isRpgEquipmentDialog = /\brpg-equipment-dialog\b/.test(String(dialogClass || ''));
-  if (isRpgEquipmentDialog && containerTransferState?.active && containerTransferState.sessionKind === 'container') {
-    closeInteractionDialog({ force: true });
-    clearTransferPanelOwnerChrome();
-    return;
-  }
-  if (isRpgEquipmentDialog && Date.now() < suppressedEquipmentDialogRenderUntil) return;
   const resolvedFamily = family || sharedModules.uxDialogShell?.inferFamily?.({
     dialogClass,
     textEntry,
-    multi: Number(currentMenu?.how || 0) === 2,
-    readOnly: activePrompt?.kind === 'read-only menu',
+    multi: Number(gameViewSnapshot.currentMenu?.how || 0) === 2,
+    readOnly: gameViewSnapshot.activePrompt?.kind === 'read-only menu',
   }) || 'single-select';
   const optionKeysSignature = options.map((option) => option.key || '').join('');
   const interactionSignature = `${title || ''}\n${prompt || ''}\n${dialogClass || ''}\n${textEntry ? 'text' : 'buttons'}\n${optionKeysSignature}`;
@@ -4270,7 +3580,7 @@ function showInteractionDialog({ title, prompt, options = [], cancelText = 'Canc
     interactionContext.textContent = lines.length ? `Recent context:\n${lines.join('\n')}` : '';
   }
   interactionDialog.className = ['interaction-dialog', dialogClass].filter(Boolean).join(' ');
-  const resolvedCloseKind = closeKind || (resolvedFamily === 'document' && !activePrompt && !currentMenu?.awaitingSelection ? 'close' : 'cancel');
+  const resolvedCloseKind = closeKind || (resolvedFamily === 'document' && !gameViewSnapshot.activePrompt && !gameViewSnapshot.currentMenu?.awaitingSelection ? 'close' : 'cancel');
   const requestedCancel = String(cancelText || '').replace(/\s*\/\s*Esc\s*/i, '').trim();
   interactionCancel.textContent = /^(Close|Cancel|Back|Continue)$/i.test(requestedCancel)
     ? requestedCancel.replace(/^./, (letter) => letter.toUpperCase())
@@ -4300,6 +3610,7 @@ function showInteractionDialog({ title, prompt, options = [], cancelText = 'Canc
   const previousChoiceKey = previousFocusedChoice?.dataset?.key || '';
   const previousScrollTop = interactionOptions.scrollTop;
   interactionOptions.textContent = '';
+  let optionDragSuppressClickUntil = 0;
   for (const option of options) {
     const button = document.createElement('button');
     button.type = 'button';
@@ -4307,6 +3618,7 @@ function showInteractionDialog({ title, prompt, options = [], cancelText = 'Canc
     button.dataset.key = option.key || '';
     button.dataset.stableId = String(option.stableId || option.objectId || option.key || '');
     button.dataset.filterText = `${option.label || ''} ${option.text || ''} ${option.key || ''} ${option.filterText || ''}`.toLowerCase();
+    button.dataset.filterTags = Array.isArray(option.filterTags) ? option.filterTags.join(' ') : '';
     if (option.role) button.setAttribute('role', option.role);
     if (option.role === 'checkbox') button.setAttribute('aria-checked', 'false');
     if (option.ariaLabel) button.setAttribute('aria-label', option.ariaLabel);
@@ -4333,19 +3645,17 @@ function showInteractionDialog({ title, prompt, options = [], cancelText = 'Canc
         event.dataTransfer?.setData('application/x-nethack-selector', selector);
         event.dataTransfer?.setData('text/plain', selector);
         event.dataTransfer?.setDragImage?.(button, 12, 12);
-        equipmentDragSuppressClickUntil = Date.now() + 800;
+        optionDragSuppressClickUntil = Date.now() + 800;
         button.classList.add('dragging');
-        setEquipmentDropFeedback(`Drag ${button.dataset.dragItemName || 'item'} to a compatible hero equipment slot.`);
       });
       button.addEventListener('dragend', () => {
-        equipmentDragSuppressClickUntil = Date.now() + 800;
+        optionDragSuppressClickUntil = Date.now() + 800;
         button.classList.remove('dragging');
-        document.querySelectorAll('.equipment-slot.drag-over').forEach((el) => el.classList.remove('drag-over'));
       });
     }
     button.innerHTML = option.html || `<strong>${option.label || option.key}</strong><span>${option.text || ''}</span>`;
     button.addEventListener('click', (event) => {
-      if (Date.now() < equipmentDragSuppressClickUntil) {
+      if (Date.now() < optionDragSuppressClickUntil) {
         event.preventDefault();
         event.stopPropagation();
         return;
@@ -4355,13 +3665,13 @@ function showInteractionDialog({ title, prompt, options = [], cancelText = 'Canc
         event.stopPropagation();
         return;
       }
-      closeInventoryContextMenu();
+      closeGroundItemContextMenu();
       if (option.onClick) option.onClick(button, event);
       else sendPlayableText(option.key);
     });
     if (option.onDoubleClick) {
       button.addEventListener('dblclick', (event) => {
-        closeInventoryContextMenu();
+        closeGroundItemContextMenu();
         event.preventDefault();
         event.stopPropagation();
         option.onDoubleClick(button, event);
@@ -4381,7 +3691,7 @@ function showInteractionDialog({ title, prompt, options = [], cancelText = 'Canc
       family: resolvedFamily,
       title: interactionTitle.textContent || 'NetHack choice',
       description: interactionPrompt.textContent || '',
-      initialFocus: textEntry ? '#interaction-text' : (resolvedFamily === 'confirmation' ? '.decline-choice, .safe-choice, [data-key="n"]' : 'first-choice'),
+      initialFocus: textEntry ? '#interaction-text' : (resolvedFamily === 'confirmation' ? '[data-key="y"]' : 'first-choice'),
       returnFocus: 'invoker',
       escapePolicy: escapePolicy || (resolvedCloseKind === 'close' ? 'close' : 'cancel'),
       primaryAction: onConfirm ? { label: confirmText || 'Confirm' } : undefined,
@@ -4394,13 +3704,12 @@ function showInteractionDialog({ title, prompt, options = [], cancelText = 'Canc
     interactionDialog.showModal();
     interactionTitle.tabIndex = -1;
   }
-  if (isRpgEquipmentDialog) uxOnboarding?.observe?.({ type: 'inventory-opened', confirmed: true });
   uxFocusLayer?.open?.({
     id: interactionSpec?.id || 'interaction',
     element: interactionDialog,
     domain: 'interaction',
     initialFocus: () => {
-      if (resolvedFamily === 'confirmation') return interactionOptions.querySelector('.decline-choice, .safe-choice, [data-key="n"], [data-key="\u001b"]') || interactionCancel;
+      if (resolvedFamily === 'confirmation') return interactionOptions.querySelector('[data-key="y"]') || visibleInteractionChoices()[0] || interactionCancel;
       if (textEntry) return interactionText;
       return visibleInteractionChoices()[0] || interactionCancel;
     },
@@ -4422,9 +3731,9 @@ function showInteractionDialog({ title, prompt, options = [], cancelText = 'Canc
     interactionText.focus({ preventScroll: true });
     interactionText.select();
   } else {
-    const safeConfirmationChoice = resolvedFamily === 'confirmation' ? interactionOptions.querySelector('.decline-choice, .safe-choice, [data-key="n"], [data-key="\u001b"]') : null;
+    const affirmativeConfirmationChoice = resolvedFamily === 'confirmation' ? interactionOptions.querySelector('[data-key="y"]') : null;
     const [firstChoice] = visibleInteractionChoices();
-    (safeConfirmationChoice || firstChoice || interactionCancel).focus({ preventScroll: true });
+    (affirmativeConfirmationChoice || firstChoice || interactionCancel).focus({ preventScroll: true });
   }
   const applyFilter = () => {
     const raw = interactionText.value.trim().toLowerCase();
@@ -4574,44 +3883,82 @@ function groundItemsFromTextWindowLines(lines) {
 }
 
 function currentInventoryTransferRows() {
-  const source = liveInventoryChoices.length ? liveInventoryChoices : (cachedInventoryChoices.length ? cachedInventoryChoices : transferInventorySnapshot);
-  const snapshotByLetter = new Map((publicInventorySnapshot?.orderedItems || []).map((item) => [String(item.inventoryLetter || item.selector || '').trim(), item]));
+  const source = gameViewSnapshot.cachedInventoryChoices.length ? gameViewSnapshot.cachedInventoryChoices : (gameViewSnapshot.inventory?.orderedItems || []);
+  const snapshotByLetter = new Map((gameViewSnapshot.inventory?.orderedItems || []).map((item) => [String(item.inventoryLetter || item.selector || '').trim(), item]));
   return source.filter((item) => itemHasNetHackSelector(item)).map((item) => {
-    if (Number.isInteger(item.objectId) && item.objectId > 0) return item;
     const selector = transferItemKey(item) || String(item.inventoryLetter || '').trim();
     const snapshot = snapshotByLetter.get(selector);
-    return snapshot && Number.isInteger(snapshot.objectId) && snapshot.objectId > 0
-      ? { ...item, objectId: snapshot.objectId, quantity: item.quantity ?? snapshot.quantity, displayName: item.displayName || item.text || snapshot.displayName, semanticName: item.semanticName || snapshot.semanticName, semanticAppearance: item.semanticAppearance || snapshot.semanticAppearance, semanticKnown: item.semanticKnown ?? snapshot.semanticKnown, known: item.known ? { ...item.known } : (snapshot.known ? { ...snapshot.known } : undefined) }
-      : item;
+    if (!snapshot) return item;
+    return {
+      ...snapshot,
+      ...item,
+      objectId: Number.isInteger(item.objectId) && item.objectId > 0 ? item.objectId : snapshot.objectId,
+      quantity: item.quantity ?? snapshot.quantity,
+      text: `${selector ? `${selector} - ` : ''}${snapshot.displayName || item.displayName || item.text || 'item'}`,
+      displayName: snapshot.displayName || item.displayName || item.text,
+      semanticName: item.semanticName || snapshot.semanticName,
+      semanticAppearance: item.semanticAppearance || snapshot.semanticAppearance,
+      semanticKnown: item.semanticKnown ?? snapshot.semanticKnown,
+      publicClass: item.publicClass || snapshot.publicClass,
+      known: item.known ? { ...item.known } : (snapshot.known ? { ...snapshot.known } : undefined),
+      knownFields: item.knownFields ? { ...item.knownFields } : (snapshot.knownFields ? { ...snapshot.knownFields } : undefined),
+      ownership: item.ownership ? { ...item.ownership } : (snapshot.ownership ? { ...snapshot.ownership } : undefined),
+      filterGroups: Array.isArray(item.filterGroups) ? item.filterGroups.slice() : (Array.isArray(snapshot.filterGroups) ? snapshot.filterGroups.slice() : undefined),
+      actionAffordances: Array.isArray(item.actionAffordances) ? item.actionAffordances.slice() : (Array.isArray(snapshot.actionAffordances) ? snapshot.actionAffordances.slice() : undefined),
+    };
   });
+}
+
+function transferShortcutForIndex(index) {
+  const alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  return alphabet[index] || '';
+}
+
+function publicGroundTransferDisplayName(item = {}) {
+  const glyphCode = Number(item.glyphChar);
+  const ch = typeof item.objectClass === 'string' && item.objectClass.length
+    ? item.objectClass[0]
+    : (Number.isInteger(glyphCode) && glyphCode > 0 && glyphCode < 128 ? String.fromCharCode(glyphCode) : '');
+  const publicName = item.semanticKnown === false
+    ? sharedModules.tileAssets?.publicDisplayNameForCell?.({ ...item, ch, semanticKind: item.semanticKind || 'object' })
+    : '';
+  return String(publicName || item.displayName || item.text || item.semanticName || item.semanticAppearance || 'ground item').trim();
 }
 
 function groundPanelItemsFromPublicSnapshot(coord = groundPileCoordHere(), pileOverride = null) {
   const pile = pileOverride || groundPileAtCoord(coord);
-  return (pile?.items || []).map((item, index) => ({
-    text: item.displayName || item.text || item.semanticName || item.semanticAppearance || 'ground item',
-    displayName: item.displayName || item.text || item.semanticName || item.semanticAppearance || 'ground item',
-    objectId: Number.isInteger(item.objectId) ? item.objectId : undefined,
-    quantity: Number.isInteger(item.quantity) ? item.quantity : undefined,
-    glyph: item.glyph,
-    glyphChar: item.glyphChar,
-    objectClass: item.objectClass,
-    semanticKind: item.semanticKind || 'object',
-    semanticName: item.semanticName,
-    semanticAppearance: item.semanticAppearance,
-    semanticKnown: item.semanticKnown,
-    known: item.known ? { ...item.known } : undefined,
-    actionAffordances: Array.isArray(item.actionAffordances) ? item.actionAffordances.slice() : undefined,
-    syntheticSelector: Number.isInteger(item.objectId) && item.objectId > 0 ? `ground-object-${item.objectId}` : `ground-snapshot-${index}`,
-  }));
+  return (pile?.items || []).map((item, index) => {
+    const displayName = publicGroundTransferDisplayName(item);
+    return {
+      ...item,
+      text: displayName,
+      displayName,
+      objectId: Number.isInteger(item.objectId) ? item.objectId : undefined,
+      quantity: Number.isInteger(item.quantity) ? item.quantity : undefined,
+      glyph: item.glyph,
+      glyphChar: item.glyphChar,
+      objectClass: item.objectClass,
+      publicClass: item.publicClass,
+      semanticKind: item.semanticKind || 'object',
+      semanticName: item.semanticName,
+      semanticAppearance: item.semanticAppearance,
+      semanticKnown: item.semanticKnown,
+      known: item.known ? { ...item.known } : undefined,
+      knownFields: item.knownFields ? { ...item.knownFields } : undefined,
+      ownership: item.ownership ? { ...item.ownership } : undefined,
+      filterGroups: Array.isArray(item.filterGroups) ? item.filterGroups.slice() : undefined,
+      actionAffordances: Array.isArray(item.actionAffordances) ? item.actionAffordances.slice() : undefined,
+      displaySelector: transferShortcutForIndex(index),
+      syntheticSelector: Number.isInteger(item.objectId) && item.objectId > 0 ? `ground-object-${item.objectId}` : `ground-snapshot-${index}`,
+    };
+  });
 }
 
 function hydrateGroundTransferPanelFromPublicSnapshot(snapshot = null) {
-  if (!containerTransferState?.active || containerTransferState.sessionKind !== 'ground-pickup' || !snapshot?.coord) return false;
+  if (!transferPresentation?.active || transferPresentation.sessionKind !== 'ground-pickup' || !snapshot?.coord) return false;
   if (Number(snapshot.coord.x) !== Number(groundPileCoordHere().x) || Number(snapshot.coord.y) !== Number(groundPileCoordHere().y)) return false;
-  containerTransferState.leftItems = groundPanelItemsFromPublicSnapshot(snapshot.coord, snapshot);
-  containerTransferState.snapshotGroundItems = true;
-  updateTransferSessionOwnership();
+  const leftRows = groundPanelItemsFromPublicSnapshot(snapshot.coord, snapshot);
+  dispatchTransferSessionEvent({ type: 'pane', side: 'left', rows: leftRows });
   renderContainerTransferPanel();
   return true;
 }
@@ -4621,33 +3968,45 @@ function openGroundTransferPanelFromSnapshot(reason = 'public ground snapshot') 
   // A snapshot-backed open is not coupled to any older comma/pickup menu.
   // Invalidate only this panel's deferred handoff; live NetHack prompts remain
   // authoritative and are never force-cleared here.
-  pendingGroundMenuTransferIntent = null;
   const leftItems = groundPanelItemsFromPublicSnapshot(coord);
   if (!leftItems.length) return false;
   const inventoryRows = currentInventoryTransferRows();
-  containerTransferState = {
-    ...(containerTransferState || {}),
+  transferPresentation = {
+    ...(transferPresentation || {}),
     active: true,
     sessionKind: 'ground-pickup',
-    phase: 'ground-snapshot',
+    presentationMode: 'ground-snapshot',
     prompt: 'Ground items',
-    leftItems,
-    rightItems: inventoryRows.slice(),
     snapshotGroundItems: true,
     textWindowGroundItems: false,
     interrupted: false,
     loadedSides: { left: true, right: inventoryRows.length > 0 },
     feedback: inventoryRows.length
-      ? 'Drag items between the ground and your inventory.'
-      : 'Ground items are ready. Your inventory will appear when NetHack finishes updating it.',
+      ? 'Select items with the checkboxes or letter shortcuts, then press Enter. You can also drag items between panes.'
+      : 'Ground items are ready. Select with letter shortcuts; your inventory will appear when NetHack finishes updating it.'
   };
-  ensureTransferSessionOwnership('ground-pickup', { prompt: 'Ground items', requestId: `ground-snapshot-${coord.x}-${coord.y}`, menuRequestId: '', items: leftItems });
+  dispatchTransferSessionEvent({
+    type: 'open',
+    kind: 'ground-pickup',
+    route: 'direct',
+    sessionId: transferSession.snapshot().sessionId,
+    prompt: transferPresentation.prompt,
+    groundCoord: coord,
+    leftRows: leftItems,
+    rightRows: inventoryRows,
+    loadedSides: transferPresentation.loadedSides,
+    feedback: transferPresentation.feedback,
+  });
   renderContainerTransferPanel();
   setStatus('Pick up items from the ground.');
   return true;
 }
 
 function notePassiveGroundTextWindow(lines) {
+  // A NetHack menu can emit a short text window while an active transfer is
+  // settling. It is not a complete observation of the floor pile; the public
+  // ground snapshot remains authoritative for the session.
+  if (transferSession.snapshot().active || gameViewSnapshot.transferTransactions?.activeSessionId) return true;
   const cleanLines = (lines || []).map((line) => String(line || '').trim()).filter(Boolean);
   const items = groundItemsFromTextWindowLines(cleanLines);
   if (!items.length) return false;
@@ -4659,7 +4018,7 @@ function notePassiveGroundTextWindow(lines) {
   const passiveStatus = 'Ground items here — use Pick up or comma.';
   setStatus(passiveStatus);
   window.setTimeout(() => {
-    if (!containerTransferState?.active && hasKnownGroundItemsHere()) setStatus(passiveStatus);
+    if (!transferPresentation?.active && hasKnownGroundItemsHere()) setStatus(passiveStatus);
   }, 0);
   return true;
 }
@@ -4673,7 +4032,7 @@ function openDocumentWindow({ title, lines }) {
   // pickup/transfer UI.  Explicit Pickup or comma remains the sole opener.
   if (isPassiveGroundTextWindow(title, cleanLines) && notePassiveGroundTextWindow(cleanLines)) return;
   if (isIntroLoreWindow(cleanLines)) {
-    if (!introLoreShown && !activePrompt && !interactionDialog.open) openIntroWindow({ lines: cleanLines });
+    if (!introLoreShown && !gameViewSnapshot.activePrompt && !interactionDialog.open) openIntroWindow({ lines: cleanLines });
     else {
       appendMessage('NetHack repeated startup text during item selection; keeping the current prompt open.');
       setStatus('current item prompt remains active');
@@ -4703,64 +4062,14 @@ introDialog.addEventListener('close', () => {
   // clicks "Begin the descent"; doing so leaked an unsolicited blank command
   // into the live game and produced "Unknown command ' '." at startup.
   introWindow = null;
-  if (activePrompt) window.setTimeout(renderPromptPanel, 0);
+  if (gameViewSnapshot.activePrompt) window.setTimeout(renderPromptPanel, 0);
 });
 
-function promptSelectorSet(query, choices) {
-  if (sharedModules.interactionModel?.selectorSet) return sharedModules.interactionModel.selectorSet(query, choices);
-  if (sharedModules.promptRules?.selectorSet) return sharedModules.promptRules.selectorSet(query, choices);
-  const selectors = new Set(String(choices || '').split('').filter((key) => /[A-Za-z$?*\-]/.test(key)));
-  const bracket = String(query || '').match(/\[([^\]]+)\]/);
-  const source = bracket ? bracket[1] : '';
-  for (const range of source.match(/[A-Za-z$]-[A-Za-z$]/g) || []) {
-    const [start, end] = range.split('-').map((letter) => letter.charCodeAt(0));
-    const low = Math.min(start, end);
-    const high = Math.max(start, end);
-    for (let code = low; code <= high; code += 1) selectors.add(String.fromCharCode(code));
-  }
-  const compactSelectorRuns = source.replace(/\bor\b/ig, ' ').match(/[A-Za-z$?*\-]{2,}|[A-Za-z$?*\-]/g) || [];
-  for (const run of compactSelectorRuns) {
-    if (/^or$/i.test(run)) continue;
-    for (const key of run.split('')) selectors.add(key);
-  }
-  for (const key of source.match(/\b[A-Za-z$]\b/g) || []) selectors.add(key);
-  return selectors;
-}
 
-const inventoryActionPromptPattern = /what do you want to|what would you like to|which item|use or apply|write with|engrave with|drop|read|eat|quaff|apply|wield|wear|take off|remove|zap|throw|fire|drink|put on|write|engrave|quiver|rub|dip|invoke|offer|force|name|call|identify|what is|whatis/i;
-const itemClassLabels = new Map([
-  ['!', 'Potions'], ['?', 'Scrolls'], ['+', 'Spellbooks'], ['=', 'Rings'], ['"', 'Amulets'], ['/', 'Wands'], ['(', 'Tools'], [')', 'Weapons'], ['[', 'Armor'], ['%', 'Food'], ['*', 'Gems/rocks'], ['$', 'Gold'], ['`', 'Boulders/statues'], ['_', 'Iron balls'], ['.', 'Current square'], ['#', 'Dungeon feature'], ['-', 'Nothing / bare hands'],
-]);
-const itemClassGroups = new Map([
-  ['!', 'Consumables'], ['?', 'Consumables'], ['+', 'Magic'], ['=', 'Worn magic'], ['"', 'Worn magic'], ['/', 'Magic'], ['(', 'Tools'], [')', 'Equipment'], ['[', 'Equipment'], ['%', 'Consumables'], ['*', 'Treasure'], ['$', 'Treasure'], ['`', 'Dungeon'], ['_', 'Dungeon'], ['.', 'Context'], ['#', 'Context'], ['-', 'Context'],
-]);
-const itemClassDescriptions = new Map([
-  ['!', 'Potion inventory or discoveries'], ['?', 'Scroll inventory or discoveries'], ['+', 'Spellbook choices'], ['=', 'Rings and ring discoveries'], ['"', 'Amulets and amulet discoveries'], ['/', 'Wands'], ['(', 'Tools, containers, and utility items'], [')', 'Weapons and ammunition'], ['[', 'Armor and worn gear'], ['%', 'Food, corpses, and comestibles'], ['*', 'Gems, rocks, and stones'], ['$', 'Gold and coins'], ['`', 'Boulders and statues'], ['_', 'Iron balls and chains'], ['.', 'Objects on the current square'], ['#', 'Dungeon features'], ['-', 'No item or bare hands when offered'],
-]);
 
-function isFixedChoicePromptChoices(choices) {
-  const raw = String(choices || '');
-  if (!raw) return false;
-  const withoutEsc = raw.replace(/\u001b/g, '');
-  return /^[ynaqYNQA]+$/.test(withoutEsc) && /[ynYN]/.test(withoutEsc);
-}
 
-function isExplicitInventorySelectorQuestion(query) {
-  return /what do you want to|what would you like to|which item|write with|engrave with|which object|what item/i.test(String(query || ''));
-}
 
-function isFixedChoicePrompt(query, choices) {
-  return isFixedChoicePromptChoices(choices) && !isExplicitInventorySelectorQuestion(query);
-}
 
-function isInventoryActionPrompt(query, choices) {
-  if (isFixedChoicePrompt(query, choices)) return false;
-  if (sharedModules.interactionModel?.isInventoryActionPrompt) return sharedModules.interactionModel.isInventoryActionPrompt(query, choices);
-  if (sharedModules.promptRules?.isInventoryActionPrompt) return sharedModules.promptRules.isInventoryActionPrompt(query, choices) && inventoryActionPromptPattern.test(String(query || ''));
-  const q = String(query || '');
-  if (!inventoryActionPromptPattern.test(q)) return false;
-  return promptSelectorSet(q, choices).size > 0;
-}
 
 function inventoryPromptKey(query, choices) {
   return `${String(query || '')}\n${String(choices || '')}`;
@@ -4796,21 +4105,10 @@ function lazyLoadedInventoryChoices(query, choices) {
   return inventoryLazyLoad?.promptKey === key && inventoryLazyLoad.status === 'loaded' && Array.isArray(inventoryLazyLoad.rows) ? inventoryLazyLoad.rows : [];
 }
 
-function promptRequiresNamedInventoryRows(query) {
-  return /\b(?:quaff|drink)\b/i.test(String(query || ''));
-}
 
-function inventoryTextRowActionMatches(query, itemName) {
-  const q = String(query || '').toLowerCase();
-  const name = String(itemName || '').toLowerCase();
-  if (/\b(?:quaff|drink)\b/.test(q)) return /potion|liquid|water|juice|booze/.test(name);
-  if (/\bread\b/.test(q)) return /scroll|spellbook|book/.test(name);
-  if (/\beat\b/.test(q)) return /food|ration|corpse|apple|orange|pear|melon|banana|carrot|egg|tin|cream pie|candy bar|lichen/.test(name);
-  return true;
-}
 
 function inventoryRowsFromTextWindowLines(lines, query, choices) {
-  const selectors = promptSelectorSet(query, choices);
+  const selectors = sharedModules.interactionModel.selectorSet(query, choices);
   if (!selectors.size) return [];
   const rows = [];
   const seen = new Set();
@@ -4823,7 +4121,7 @@ function inventoryRowsFromTextWindowLines(lines, query, choices) {
       if (!selectors.has(key) || seen.has(key)) continue;
       const itemName = String(match[2] || '').replace(/\s+/g, ' ').trim();
       if (!itemName || /^(?:what do you want|choose|never mind)/i.test(itemName)) continue;
-      if (!inventoryTextRowActionMatches(query, itemName)) continue;
+      if (!sharedModules.interactionModel.inventoryTextRowActionMatches(query, itemName)) continue;
       seen.add(key);
       rows.push({ selector: key.charCodeAt(0), text: `${key} - ${itemName}`, glyphChar: /potion|liquid|water|juice|booze/i.test(itemName) ? '!'.charCodeAt(0) : undefined, semanticKind: 'object', semanticName: itemName });
     }
@@ -4837,23 +4135,23 @@ function maybeCompleteInventoryLazyLoadFromTextWindow(lines) {
   if (!rows.length) return false;
   if (inventoryLazyLoad.timer) window.clearTimeout(inventoryLazyLoad.timer);
   inventoryLazyLoad = { ...inventoryLazyLoad, status: 'loaded', rows, timer: null };
-  cachedInventoryChoices = cachedInventoryChoices.length ? cachedInventoryChoices : rows;
-  if (activePrompt?.kind === 'question' && inventoryPromptKey(activePrompt.query, activePrompt.choices) === inventoryLazyLoad.promptKey) window.setTimeout(renderPromptPanel, 0);
+  publishRendererGameViewEvent({ name: 'renderer_publish_inventory_choices', items: rows });
+  if (gameViewSnapshot.activePrompt?.kind === 'question' && inventoryPromptKey(gameViewSnapshot.activePrompt.query, gameViewSnapshot.activePrompt.choices) === inventoryLazyLoad.promptKey) window.setTimeout(renderPromptPanel, 0);
   setStatus('inventory choices loaded');
   return true;
 }
 
 function actionInventoryOptions(query, choices) {
-  const selectors = promptSelectorSet(query, choices);
-  const sourceRows = cachedInventoryChoices.length ? cachedInventoryChoices : lazyLoadedInventoryChoices(query, choices);
+  const selectors = sharedModules.interactionModel.selectorSet(query, choices);
+  const sourceRows = gameViewSnapshot.cachedInventoryChoices.length ? gameViewSnapshot.cachedInventoryChoices : lazyLoadedInventoryChoices(query, choices);
   if (!selectors.size || !sourceRows.length) return [];
-  return sourceRows.filter((item) => selectors.has(String.fromCharCode(item.selector)) && (!promptRequiresNamedInventoryRows(query) || inventoryTextRowActionMatches(query, item.text || menuItemSemanticDisplayName(item) || '')));
+  return sourceRows.filter((item) => selectors.has(String.fromCharCode(item.selector)) && (!sharedModules.interactionModel.promptRequiresNamedInventoryRows(query) || sharedModules.interactionModel.inventoryTextRowActionMatches(query, item.text || menuItemSemanticDisplayName(item) || '')));
 }
 
 function maybeCompleteInventoryLazyLoadFromMenu() {
   if (!inventoryLazyLoad || !['loading', 'loaded'].includes(inventoryLazyLoad.status)) return false;
   const selectors = inventoryLazyLoad.selectors || new Set();
-  const rows = (currentMenu?.items || []).filter((item) => item?.selector && selectors.has(String.fromCharCode(item.selector)));
+  const rows = (gameViewSnapshot.currentMenu?.items || []).filter((item) => item?.selector && selectors.has(String.fromCharCode(item.selector)));
   if (!rows.length) return false;
   const previousCount = Array.isArray(inventoryLazyLoad.rows) ? inventoryLazyLoad.rows.length : 0;
   if (inventoryLazyLoad.timer) window.clearTimeout(inventoryLazyLoad.timer);
@@ -4862,8 +4160,12 @@ function maybeCompleteInventoryLazyLoadFromMenu() {
 }
 
 function ensureInventoryLazyLoad(query, choices) {
+  // Transfer Session and the locked-container continuation already own exact
+  // public inventory rows. Expanding either prompt with `?` would replace the
+  // correlated prompt before its selected row can be dispatched.
+  if (transferSession.snapshot().pending?.direction === 'inventory-to-ground' || pendingContainerUnlockOpen?.phase === 'awaiting-unlock-target') return null;
   if (Date.now() < suppressInventoryLazyLoadUntil) return null;
-  const selectors = promptSelectorSet(query, choices);
+  const selectors = sharedModules.interactionModel.selectorSet(query, choices);
   if (!selectors.has('?')) return null;
   const key = inventoryPromptKey(query, choices);
   if (inventoryLazyLoad?.promptKey === key) return inventoryLazyLoad;
@@ -4872,103 +4174,21 @@ function ensureInventoryLazyLoad(query, choices) {
   inventoryLazyLoad.timer = window.setTimeout(() => {
     if (!inventoryLazyLoad || inventoryLazyLoad.promptKey !== key || inventoryLazyLoad.status !== 'loading') return;
     inventoryLazyLoad = { ...inventoryLazyLoad, status: 'failed', timer: null };
-    if (activePrompt?.kind === 'question' && inventoryPromptKey(activePrompt.query, activePrompt.choices) === key) renderPromptPanel();
+    if (gameViewSnapshot.activePrompt?.kind === 'question' && inventoryPromptKey(gameViewSnapshot.activePrompt.query, gameViewSnapshot.activePrompt.choices) === key) renderPromptPanel();
   }, inventoryLazyLoadTimeoutMs);
   sendPlayableKey('?');
   return inventoryLazyLoad;
 }
 
-function specialInventorySelectorLabel(key, query) {
-  const q = String(query || '').toLowerCase();
-  if ((key === 'l' || key === 'r') && /which hand|left or right|ring/.test(q)) return { label: key === 'l' ? 'Left hand' : 'Right hand', text: `Put the ring on your ${key === 'l' ? 'left' : 'right'} hand.` };
-  if (key === '-') {
-    if (/wield|weapon|fight|bare/.test(q)) return { label: 'Bare hands', text: 'Use no weapon for this action.' };
-    if (/write|engrave/.test(q)) return { label: 'Fingers / no tool', text: 'Write without selecting an inventory tool.' };
-    if (/quiver|fire|throw/.test(q)) return { label: 'No quiver item', text: 'Clear or avoid selecting ammunition.' };
-    return { label: 'No item', text: 'Continue without selecting an inventory item.' };
-  }
-  if (key === '?') return { label: 'Show matching inventory', text: 'List matching items.' };
-  if (key === '*') return { label: 'Show all inventory', text: 'List all inventory.' };
-  if (key === '$') return { label: 'Gold', text: 'Choose carried gold.' };
-  return null;
-}
 
-function specialInventorySelectorOptions(query, choices, existingKeys = new Set()) {
-  return Array.from(promptSelectorSet(query, choices))
-    .filter((key) => !existingKeys.has(key))
-    .map((key) => {
-      const special = specialInventorySelectorLabel(key, query);
-      if (!special) return null;
-      const hint = key === '\u001b' ? 'Esc' : key;
-      return {
-        key,
-        label: special.label,
-        text: special.text,
-        className: 'letter-choice special-selector-choice gui-visible-choice',
-        ariaLabel: `${special.label}; shortcut ${hint}`,
-        html: `<strong>${special.label}</strong><span>${special.text}</span><span class="selector-hint">${hint}</span>`,
-      };
-    })
-    .filter(Boolean);
-}
 
-function selectorFallbackOptions(query, choices) {
-  const selectors = Array.from(promptSelectorSet(query, choices));
-  return selectors.map((key) => {
-    const special = specialInventorySelectorLabel(key, query);
-    return special ? {
-      key,
-      label: special.label,
-      text: special.text,
-      className: 'letter-choice special-selector-choice gui-visible-choice',
-      ariaLabel: `${special.label}; shortcut ${key}`,
-      html: `<strong>${special.label}</strong><span>${special.text}</span><span class="selector-hint">${key}</span>`,
-    } : {
-      key,
-      label: `Item ${key}`,
-      text: 'Name unavailable.',
-      className: 'letter-choice unavailable-item-choice gui-visible-choice',
-      ariaLabel: `Item shortcut ${key}; name unavailable`,
-      html: `<strong>Item ${escapeHtml(key)}</strong><span>Name unavailable.</span><span class="selector-hint">${escapeHtml(key)}</span>`,
-    };
-  });
-}
 
-function isDirectionPrompt(query) {
-  return sharedModules.interactionModel?.isDirectionPrompt ? sharedModules.interactionModel.isDirectionPrompt(query) : (sharedModules.promptRules?.isDirectionPrompt ? sharedModules.promptRules.isDirectionPrompt(query) : /direction|dir\?|in what direction|where do you want/i.test(String(query || '')));
-}
 
-function isItemClassPrompt(query, choices) {
-  if (sharedModules.interactionModel?.isItemClassPrompt) return sharedModules.interactionModel.isItemClassPrompt(query, choices);
-  if (isDirectionPrompt(query)) return false;
-  if (sharedModules.promptRules?.isItemClassPrompt) return sharedModules.promptRules.isItemClassPrompt(query, choices);
-  const q = String(query || '');
-  const c = String(choices || '');
-  return /what type|which class|object class|type of object|drop type/i.test(q) || /[!?+="/()[\]%$`_*#.-]/.test(c);
-}
 
-function itemClassOptions(query, choices) {
-  const source = String(choices || '') || (String(query || '').match(/\[([^\]]+)\]/)?.[1] || '!?+="/()[%*$');
-  const keys = Array.from(new Set(source.split('').filter((key) => key.trim() && key !== '[' && key !== ']')));
-  return keys.map((key) => {
-    const label = itemClassLabels.get(key) || `Object class ${key}`;
-    const group = itemClassGroups.get(key) || 'Other';
-    const description = itemClassDescriptions.get(key) || `Select object class ${key}`;
-    return {
-      key,
-      label,
-      text: `${group}: ${description}`,
-      className: 'class-choice gui-visible-choice',
-      filterText: `${group} ${description}`,
-      ariaLabel: `${label}; ${description}; shortcut ${key}`,
-      html: `<strong>${label}</strong><span>${escapeHtml(description)}</span><span class="class-group">${escapeHtml(group)}</span><span class="selector-hint">${key}</span>`,
-    };
-  });
-}
 
 function objectClassPanelControls(classRows = []) {
   if (!classRows.length) return null;
-  const groups = Array.from(new Set(classRows.map((row) => itemClassGroups.get(row.key) || 'Other')));
+  const groups = Array.from(new Set(classRows.map((row) => row.group || 'Other')));
   const wrap = document.createElement('div');
   wrap.className = 'object-class-panel-controls';
   const heading = document.createElement('strong');
@@ -4985,8 +4205,8 @@ function objectClassPanelControls(classRows = []) {
       const rows = Array.from(interactionOptions.querySelectorAll('.choice-button.class-choice'));
       let visible = 0;
       for (const row of rows) {
-        const key = row.dataset.key || '';
-        const show = group === 'all' || (itemClassGroups.get(key) || 'Other') === group;
+        const classGroup = classRows.find((entry) => entry.key === row.dataset.key)?.group || 'Other';
+        const show = group === 'all' || classGroup === group;
         row.hidden = !show;
         if (show) visible += 1;
       }
@@ -5000,92 +4220,12 @@ function objectClassPanelControls(classRows = []) {
   return wrap;
 }
 
-function seriousPromptProfile(query) {
-  const q = String(query || '').toLowerCase();
-  if (/really quit|quit without saving|give up/.test(q)) return { action: 'Quit without saving', safe: 'Do not quit', note: 'Destructive confirmation: this ends the run without saving.' };
-  if (/really save|save (?:and|then)|save.*game|save.*exit/.test(q)) return { action: 'Save and exit', safe: 'Keep playing', note: 'Serious confirmation: saving exits the current play session.' };
-  if (/explore mode|enter explore|switch.*explore/.test(q)) return { action: 'Enter explore mode', safe: 'Stay in normal play', note: 'Serious confirmation: explore mode changes scoring/conduct expectations.' };
-  if (/two-weapon|twoweapon|use two weapons|fight with two weapons/.test(q)) return { action: 'Enable two-weapon fighting', safe: 'Keep current weapon style', note: 'Equipment confirmation: this may change combat state and off-hand use.' };
-  if (/pray|prayer/.test(q)) return { action: 'Pray now', safe: 'Do not pray', note: 'Serious confirmation: prayer can anger your god if mistimed.' };
-  if (/sit/.test(q)) return { action: 'Sit anyway', safe: 'Remain standing', note: 'Serious confirmation: sitting can trigger terrain, throne, or trap effects.' };
-  if (/offer|sacrifice/.test(q)) return { action: 'Offer sacrifice', safe: 'Do not offer', note: 'Serious confirmation: sacrifice consequences depend on altar and corpse state.' };
-  if (/attack.*peaceful|peaceful.*attack/.test(q)) return { action: 'Attack peaceful creature', safe: 'Do not attack', note: 'Danger confirmation: this can anger peaceful monsters or shopkeepers.' };
-  if (/cursed|welded|stuck|weld|remove.*anyway|take.*off.*anyway|slip/.test(q)) return { action: 'Remove despite curse/stuck risk', safe: 'Leave equipped', note: 'Danger confirmation: cursed or stuck equipment may resist or harm removal.' };
-  if (/break|destroy/.test(q)) return { action: 'Destroy it anyway', safe: 'Do not destroy', note: 'Danger confirmation: this may permanently destroy an item.' };
-  return null;
-}
 
-function shopOfferInfo(query) {
-  const text = String(query || '').replace(/\s+/g, ' ').trim();
-  const match = text.match(/\boffers(?: only)?\s+(\d+)\s+gold piece(?:s)?\s+for\s+(?:the|your)\s+(.+?)\.\s*Sell\s+(it|them)\?/i);
-  if (!match) return null;
-  const lead = text.slice(0, match.index).trim();
-  const offerSentence = text.slice(match.index, match.index + match[0].length).replace(/\.\s*Sell\s+(?:it|them)\?\s*$/i, '.');
-  return { amount: match[1], item: match[2], pronoun: match[3].toLowerCase(), plural: match[3].toLowerCase() === 'them', prompt: `${lead ? `${lead} ` : ''}${offerSentence}`.trim() };
-}
 
-function shopOfferPromptCopy(query) {
-  const offer = shopOfferInfo(query);
-  return offer?.prompt || String(query || '');
-}
 
-function shopOfferChoiceInfo(query, key) {
-  const offer = shopOfferInfo(query);
-  if (!offer) return null;
-  const lowerKey = String(key).toLowerCase();
-  if (lowerKey === 'y') return { label: 'Accept offer', note: `Sell ${offer.item}; receive ${offer.amount} gold.`, sort: 0, className: 'accept-choice' };
-  if (lowerKey === 'n' || key === '\u001b') return { label: 'Decline offer', note: `Keep ${offer.item}.`, sort: 1, className: 'decline-choice' };
-  if (lowerKey === 'a') return { label: 'Accept remaining offers', note: 'Accept this and later offers in this drop.', sort: 2, className: 'accept-choice secondary-offer-choice' };
-  if (lowerKey === 'q') return { label: 'Stop selling', note: 'Decline this and remaining dropped items.', sort: 3, className: 'decline-choice secondary-offer-choice' };
-  return null;
-}
 
-function yesNoChoiceLabel(key, query, choices) {
-  const def = String(query || '').match(/\[.*?\(([a-z?])\).*?\]/i)?.[1];
-  const suffix = def && def.toLowerCase() === String(key).toLowerCase() ? ' (default)' : '';
-  const q = String(query || '').toLowerCase();
-  const profile = seriousPromptProfile(query);
-  const lowerKey = String(key).toLowerCase();
-  const shopOfferChoice = shopOfferChoiceInfo(query, key);
-  if (shopOfferChoice) return `${shopOfferChoice.label}${suffix}`;
-  if (profile && /^y$/i.test(String(key))) return `${profile.action}${suffix}`;
-  if (profile && (lowerKey === 'n' || key === '\u001b')) return `${profile.safe}${suffix}`;
-  const contextual = {};
-  if (/which hand|left or right|ring/i.test(q)) Object.assign(contextual, { l: 'Left hand', r: 'Right hand' });
-  if (/what direction|in what direction|choose a direction/i.test(q)) Object.assign(contextual, { '<': 'Up / stairs up', '>': 'Down / stairs down', '.': 'Self / current square' });
-  const labels = { y: 'Yes', n: 'No', q: 'Quit', a: 'All', m: 'More', r: 'Rename', '?': 'Help/list', '*': 'List all', '\u001b': 'Cancel', ...contextual };
-  return `${labels[lowerKey] || labels[String(key)] || String(key).toUpperCase()}${suffix}`;
-}
 
-function dangerousPromptInfo(query, key) {
-  const profile = seriousPromptProfile(query);
-  if (!profile) return null;
-  const affirmative = /^y$/i.test(String(key || ''));
-  const safe = /^n$/i.test(String(key || '')) || String(key) === '\u001b';
-  if (affirmative) return { className: 'danger-choice', note: profile.note, sort: 2 };
-  if (safe) return { className: 'safe-choice', note: 'Safe path: cancels or declines this serious action.', sort: 0 };
-  return { className: 'serious-choice', note: profile.note, sort: 1 };
-}
 
-function choiceButtonOptions(query, choices) {
-  return String(choices || '').split('').filter((key) => Boolean(key) && key !== '\u001b').map((key, index) => {
-    const visibleLabel = yesNoChoiceLabel(key, query, choices);
-    const hint = key === '\u001b' ? 'Esc' : key;
-    const shopOffer = shopOfferChoiceInfo(query, key);
-    const danger = dangerousPromptInfo(query, key);
-    const note = shopOffer?.note || danger?.note || '';
-    const extraClass = shopOffer?.className || danger?.className || '';
-    return {
-      key,
-      label: visibleLabel,
-      text: note,
-      sort: shopOffer ? shopOffer.sort : (danger ? danger.sort : index + 1),
-      className: `letter-choice gui-visible-choice${extraClass ? ` ${extraClass}` : ''}`,
-      ariaLabel: `${visibleLabel}; shortcut ${hint}${danger ? '; serious confirmation' : ''}`,
-      html: `<strong>${visibleLabel}</strong><span class="choice-note${danger ? ' danger-note' : ''}">${note ? escapeHtml(note) : ''}</span><span class="selector-hint">${hint}</span>`,
-    };
-  }).sort((a, b) => (a.sort ?? 1) - (b.sort ?? 1));
-}
 
 function hideDirectionHelper() {
   // Default gameplay must keep a compact movement pad visible on the right side
@@ -5095,92 +4235,13 @@ function hideDirectionHelper() {
   renderDirectionHelper('Movement', { promptActive: false });
 }
 
-function targetPromptKind(query = activeMapTargetPrompt?.query || '') {
-  const q = `${workflowPrefix()} ${query}`.toLowerCase();
-  if (/spell|cast|zap|throw|fire|projectile|wand|force bolt|magic missile/.test(q)) return 'aim';
-  if (/travel|jump/.test(q)) return 'travel';
-  if (/what is|whatis|look|glance|where|target|map/.test(q)) return 'inspect';
-  return 'target';
-}
 
-function targetPromptActionLabel(query = activeMapTargetPrompt?.query || '') {
-  const kind = targetPromptKind(query);
-  if (kind === 'aim') return 'Fire at target';
-  if (kind === 'travel') return /jump/i.test(`${workflowPrefix()} ${query}`) ? 'Jump to target' : 'Travel to target';
-  if (kind === 'inspect') return 'Inspect target';
-  return 'Choose target';
-}
 
-function mapTargetCellForSelection() {
-  if (!activeMapTargetSelection) return null;
-  return mapCellElements[activeMapTargetSelection.y]?.[activeMapTargetSelection.x] || null;
-}
 
-function targetSelectionPath() {
-  return mapTargetPathFromCursor(mapTargetCellForSelection());
-}
 
-function moveMapTargetSelection(dx, dy) {
-  if (!activeMapTargetPrompt) return false;
-  const base = activeMapTargetSelection || { x: cursor.x, y: cursor.y };
-  activeMapTargetSelection = {
-    x: normalizeMapCoord(base.x + dx, mapWidth),
-    y: normalizeMapCoord(base.y + dy, mapHeight),
-  };
-  renderGameGrid({ full: true });
-  renderTargetSelectionControls();
-  return true;
-}
 
-function chooseSelectedMapTarget() {
-  return chooseMapTargetCell(mapTargetCellForSelection());
-}
 
-function targetPreviewDetails(query, x, y, path, distance) {
-  const kind = targetPromptKind(query);
-  const cell = mapCells[y]?.[x];
-  const tileText = publicSemanticNameForCell(cell) || cell?.semanticKind || cell?.ch || 'unknown terrain';
-  if (kind === 'aim') {
-    return {
-      label: `Projectile/spell line · range ${distance || 0}`,
-      status: distance ? 'Line preview: straight/diagonal cursor path shown; blocked-line and maximum range require NetHack line-of-effect data.' : 'Self target selected; confirm only if the spell/item allows it.',
-      detail: `Aim target: ${tileText}. No raw path keys are sent until Fire at target is confirmed.`,
-    };
-  }
-  if (kind === 'travel') {
-    return {
-      label: `Route preview · ${distance || 0} step${distance === 1 ? '' : 's'}`,
-      status: 'Path validity/interruption feedback is a NetHack-data placeholder; travel starts only after confirmation.',
-      detail: `Destination: ${tileText}.`,
-    };
-  }
-  if (kind === 'inspect') {
-    return {
-      label: 'Inspection target',
-      status: 'Map cell will be inspected after confirmation; no cursor path is sent while previewing.',
-      detail: `Visible cell: ${tileText}.`,
-    };
-  }
-  return { label: `Target preview · range ${distance || 0}`, status: 'Validity unknown until NetHack answers this prompt.', detail: `Selected cell: ${tileText}.` };
-}
 
-function renderTargetSelectionControls() {
-  const controls = directionHelper.querySelector('.target-selection-controls');
-  if (!controls || !activeMapTargetPrompt) return;
-  const x = activeMapTargetSelection?.x ?? cursor.x;
-  const y = activeMapTargetSelection?.y ?? cursor.y;
-  const path = targetSelectionPath();
-  const distance = Math.max(Math.abs(x - cursor.x), Math.abs(y - cursor.y));
-  const action = targetPromptActionLabel(activeMapTargetPrompt.query);
-  const preview = targetPreviewDetails(activeMapTargetPrompt.query, x, y, path, distance);
-  controls.querySelector('.target-selection-summary').textContent = `Target map ${x},${y}${distance ? ` · range ${distance}` : ' · self'}`;
-  controls.querySelector('.target-selection-path').textContent = path && path !== '.' ? `Preview: ${path.length} step cursor path; NetHack receives it only when you confirm.` : 'Preview: current square/self.';
-  controls.querySelector('.target-preview-label').textContent = preview.label;
-  controls.querySelector('.target-preview-status').textContent = preview.status;
-  controls.querySelector('.target-preview-detail').textContent = preview.detail;
-  const confirm = controls.querySelector('[data-target-confirm]');
-  if (confirm) confirm.textContent = action;
-}
 
 function focusDirectionHelperButton(delta = 1) {
   const buttons = Array.from(directionHelperOptions.querySelectorAll('button.direction-pad-button'));
@@ -5242,43 +4303,6 @@ function renderDirectionHelper(query, { promptActive = true } = {}) {
   }
 }
 
-function renderTargetSelectionControlsPanel(query) {
-  const controls = document.createElement('div');
-  controls.className = 'target-selection-controls';
-  controls.innerHTML = `
-    <strong>Map target</strong>
-    <span class="target-selection-summary"></span>
-    <span class="target-selection-path"></span>
-    <span class="target-preview-label"></span>
-    <span class="target-preview-status"></span>
-    <span class="target-preview-detail"></span>
-    <div class="target-nudge-pad" aria-label="Move highlighted target before confirming">
-      <button type="button" data-target-step="-1,-1" aria-label="Move target northwest">↖</button>
-      <button type="button" data-target-step="0,-1" aria-label="Move target north">↑</button>
-      <button type="button" data-target-step="1,-1" aria-label="Move target northeast">↗</button>
-      <button type="button" data-target-step="-1,0" aria-label="Move target west">←</button>
-      <button type="button" data-target-confirm>${escapeHtml(targetPromptActionLabel(query))}</button>
-      <button type="button" data-target-step="1,0" aria-label="Move target east">→</button>
-      <button type="button" data-target-step="-1,1" aria-label="Move target southwest">↙</button>
-      <button type="button" data-target-step="0,1" aria-label="Move target south">↓</button>
-      <button type="button" data-target-step="1,1" aria-label="Move target southeast">↘</button>
-    </div>
-    <button type="button" class="target-cancel" data-target-cancel>Cancel targeting</button>
-    <span class="target-help">Click a map cell or nudge the highlighted cell, then confirm; raw vi/numpad target keys remain optional.</span>
-  `;
-  controls.addEventListener('click', (event) => {
-    const step = event.target.closest('button[data-target-step]')?.dataset.targetStep;
-    if (step) {
-      const [dx, dy] = step.split(',').map((value) => Number(value) || 0);
-      moveMapTargetSelection(dx, dy);
-      return;
-    }
-    if (event.target.closest('button[data-target-confirm]')) chooseSelectedMapTarget();
-    if (event.target.closest('button[data-target-cancel]')) cancelActiveInteraction();
-  });
-  directionHelperOptions.appendChild(controls);
-  renderTargetSelectionControls();
-}
 
 function directionChoiceOptions() {
   return [
@@ -5288,143 +4312,23 @@ function directionChoiceOptions() {
   ].map(([key, label, text]) => ({ key, label, text, isCenter: key === '.', className: 'direction-choice' }));
 }
 
-function questionDialogTitle(query, choices, hasInventoryRows) {
-  const q = String(query || '');
-  if (isDirectionPrompt(q)) return 'Choose direction';
-  if (/write with|engrave with/i.test(q)) return 'Choose engraving tool';
-  if (isItemClassPrompt(q, choices) && !hasInventoryRows) return 'Choose item class';
-  if (hasInventoryRows || isInventoryActionPrompt(q, choices)) return 'Choose item';
-  if (/name|call|annotate/i.test(q)) return 'Name item';
-  if (shopOfferInfo(q)) return 'Shopkeeper offer';
-  if (/\?\s*$/.test(q) && isFixedChoicePrompt(q, choices)) return 'Confirm';
-  return 'Question';
-}
 
-function isCommandHelpPrompt(query) {
-  return /what\s+(?:command|does)|command\s+(?:help|description)|describe\s+(?:a\s+)?command/i.test(String(query || ''));
-}
 
-function lineInputDialogTitle(query) {
-  const q = String(query || '');
-  if (/wish/i.test(q)) return 'Wish granted — type your wish';
-  if (isCommandHelpPrompt(q)) return 'Choose command help topic';
-  if (/engrave|write in|write on/i.test(q)) return 'Enter engraving text';
-  if (/name|call|annotate/i.test(q)) return 'Name item';
-  if (/what do you want to (read|eat|quaff|apply|zap|drop|throw|wear|wield|remove|write)/i.test(q)) return 'Choose item';
-  if (/file|save/i.test(q)) return 'Name file';
-  return 'Type answer';
-}
 
 function recentPromptContextLines(query, limit = 5) {
   const promptText = String(query || '').trim();
-  return messageHistory
+  return gameViewSnapshot.messages
     .slice(-12)
     .map((line) => String(line || '').trim())
     .filter((line) => line && line !== promptText && !/^GUI\b/.test(line))
     .slice(-limit);
 }
 
-function readOnlyMenuTitle(menu) {
-  const prompt = String(menu?.prompt || '').trim();
-  const firstRow = (menu?.items || []).map((item) => menuTextWithoutSelector(item?.text || '').trim()).find(Boolean) || '';
-  const tipMatch = firstRow.match(/^Tip:\s*(.+)$/i) || prompt.match(/^Tip:\s*(.+)$/i);
-  if (tipMatch) return 'Tip';
-  if (/help|commands/i.test(`${prompt} ${firstRow}`)) return 'Help';
-  if (prompt && !/^Menu$/i.test(prompt)) return prompt;
-  return 'Review information';
-}
 
-function menuDialogTitle(menu, kind, hasSelection) {
-  const prompt = String(menu?.prompt || '');
-  if (!hasSelection && isReadOnlyInformationalMenu(menu)) return readOnlyMenuTitle(menu);
-  if (kind === 'transfer') {
-    if (/pay|bill|shop|unpaid|price|debt/i.test(prompt)) return 'Shop payment';
-    if (/loot|container|chest|box|bag|sack|tip/i.test(prompt)) return 'Container transfer';
-    return 'Transfer items';
-  }
-  if (kind === 'spell') return /enhance|skill/i.test(prompt) ? 'Skills' : 'Spellbook';
-  if (kind === 'options') return 'Options';
-  if (kind === 'help') return 'Help';
-  if (kind === 'context') return /there/i.test(prompt) ? 'There actions' : 'Here actions';
-  if (kind === 'inventory') {
-    const actionPrompt = /^Menu$/i.test(prompt.trim()) && lastInventoryActionQuery ? lastInventoryActionQuery : prompt;
-    if (/quaff|drink/i.test(actionPrompt)) return 'Choose potion';
-    return /drop|read|eat|apply|wield|wear|take off|remove|zap|throw|fire|pick up|identify|name|call|what is|whatis|dip|rub|invoke|offer|force|quiver/i.test(actionPrompt) ? 'Choose item' : 'Inventory';
-  }
-  if (/help|commands/i.test(prompt)) return 'Help';
-  return hasSelection ? 'Choose option' : 'Review information';
-}
 
-function shouldCacheInventoryChoices(menu) {
-  if (sharedModules.interactionModel?.shouldCacheInventoryChoices) return sharedModules.interactionModel.shouldCacheInventoryChoices(menu);
-  const prompt = String(menu?.prompt || '').toLowerCase();
-  return /inventory|possessions/.test(prompt);
-}
 
-function normalizeExtendedCommand(command, index = 0) {
-  if (typeof command === 'string') return { name: command, description: '' };
-  if (!command || typeof command !== 'object') return null;
-  const name = String(command.name || command.ef_txt || command.command || '').trim();
-  if (!name) return null;
-  return {
-    ...command,
-    index: command.index ?? index,
-    name,
-    description: String(command.description || command.desc || command.ef_desc || ''),
-  };
-}
 
-function commandHelpOptions() {
-  const fallbackCatalog = ['open', 'close', 'kick', 'search', 'pickup', 'inventory', 'pay', 'showspells', 'enhance', 'options', 'loot', 'rub', 'force', 'jump', 'chat', 'pray'].map((name) => ({ name, description: '' }));
-  const catalog = (extCommandCatalog.length ? extCommandCatalog : fallbackCatalog).map(normalizeExtendedCommand).filter(Boolean);
-  const quickKeyCommands = [
-    { key: 'o\n', label: 'Open', text: 'Open doors and containers' },
-    { key: 'c\n', label: 'Close', text: 'Close doors' },
-    { key: 's\n', label: 'Search', text: 'Search nearby spaces' },
-    { key: ',\n', label: 'Pick up', text: 'Pick up objects here' },
-    { key: 'i\n', label: 'Inventory', text: 'Show carried inventory' },
-    { key: 'Z\n', label: 'Cast spell', text: 'Cast a known spell' },
-  ];
-  const seen = new Set();
-  const extended = catalog
-    .slice()
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .filter((cmd) => {
-      const key = cmd.name.toLowerCase();
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    })
-    .slice(0, 48)
-    .map((cmd) => ({
-      key: `${cmd.name}\n`,
-      label: `#${cmd.name}`,
-      text: cmd.description || 'Extended command help topic',
-      className: 'command-help-choice',
-      ariaLabel: `Explain command ${cmd.name}`,
-      html: `<strong>${escapeHtml(cmd.name)}</strong><span>${escapeHtml(cmd.description || 'Extended command')}</span><span class="selector-hint">help topic</span>`,
-      filterText: `extended #${cmd.name} ${cmd.description || ''}`,
-    }));
-  return [
-    ...quickKeyCommands.map((cmd) => ({
-      ...cmd,
-      className: 'command-help-choice quick-command-help-choice',
-      ariaLabel: `Explain ${cmd.label}`,
-      html: `<strong>${escapeHtml(cmd.label)}</strong><span>${escapeHtml(cmd.text)}</span><span class="selector-hint">visible command</span>`,
-      filterText: `${cmd.label} ${cmd.text}`,
-    })),
-    ...extended,
-  ];
-}
 
-function setMapTargetMode(prompt = null) {
-  activeMapTargetPrompt = prompt;
-  activeMapTargetSelection = prompt ? { x: cursor.x, y: cursor.y } : null;
-  document.body.classList.toggle('map-target-mode', Boolean(prompt));
-  gameGrid?.classList.toggle('map-target-mode', Boolean(prompt));
-  gameGrid?.setAttribute('aria-label', prompt ? 'Tile NetHack full-level dungeon grid; click a visible map cell or use target controls to choose a map target' : 'Tile NetHack full-level dungeon grid');
-  renderGameGrid({ full: true });
-}
 
 function workflowPrefix() {
   return activeWorkflowContext?.label ? `${activeWorkflowContext.label} → ` : '';
@@ -5436,12 +4340,11 @@ function workflowPromptText(text) {
 }
 
 function clearPromptOwnerState({ clearWorkflow = false, clearMenu = false } = {}) {
-  activePrompt = null;
-  if (gameView?.state) gameView.state.activePrompt = null;
-  if (clearMenu) {
-    currentMenu = null;
-    if (gameView?.state) gameView.state.currentMenu = null;
-  }
+  publishRendererGameViewEvent({
+    name: 'renderer_dismiss_interaction',
+    expectedRequestId: gameViewSnapshot.activePrompt?.requestId || gameViewSnapshot.currentMenu?.requestId || '',
+    clearMenu,
+  });
   if (clearWorkflow) {
     clearWorkflowContext();
     lastInventoryActionQuery = '';
@@ -5455,31 +4358,31 @@ function clearPromptOwnerState({ clearWorkflow = false, clearMenu = false } = {}
 
 function pruneContainerTransferExtendedPromptSuppressTokens(now = performance.now()) {
   containerTransferExtendedPromptSuppressTokens = containerTransferExtendedPromptSuppressTokens.filter((token) => !token.consumed && token.expiresAt > now);
-  if (activePrompt?.kind !== 'extended command') containerTransferSuppressedExtendedPrompt = null;
+  if (gameViewSnapshot.activePrompt?.kind !== 'extended command') containerTransferSuppressedExtendedPrompt = null;
 }
 
 function activeExtendedPromptHasExplicitInternalContainerMarker() {
-  if (activePrompt?.kind !== 'extended command') return false;
-  const ownerKind = String(activePrompt.owner?.kind || '').toLowerCase();
-  const sourceText = `${activePrompt.requestSource?.layer || ''} ${activePrompt.requestSource?.source || ''} ${activePrompt.requestSource?.reason || ''}`.toLowerCase();
+  if (gameViewSnapshot.activePrompt?.kind !== 'extended command') return false;
+  const ownerKind = String(gameViewSnapshot.activePrompt.owner?.kind || '').toLowerCase();
+  const sourceText = `${gameViewSnapshot.activePrompt.requestSource?.layer || ''} ${gameViewSnapshot.activePrompt.requestSource?.source || ''} ${gameViewSnapshot.activePrompt.requestSource?.reason || ''}`.toLowerCase();
   return ownerKind === 'container' || /container-transfer|container transfer|internal-container/.test(sourceText);
 }
 
 function activeExtendedPromptIsExplicitPlayerCommand() {
-  if (activePrompt?.kind !== 'extended command') return false;
-  const ownerKind = String(activePrompt.owner?.kind || '').toLowerCase();
-  const sourceText = `${activePrompt.requestSource?.layer || ''} ${activePrompt.requestSource?.source || ''} ${activePrompt.requestSource?.reason || ''}`.toLowerCase();
+  if (gameViewSnapshot.activePrompt?.kind !== 'extended command') return false;
+  const ownerKind = String(gameViewSnapshot.activePrompt.owner?.kind || '').toLowerCase();
+  const sourceText = `${gameViewSnapshot.activePrompt.requestSource?.layer || ''} ${gameViewSnapshot.activePrompt.requestSource?.source || ''} ${gameViewSnapshot.activePrompt.requestSource?.reason || ''}`.toLowerCase();
   return ownerKind === 'player' || /player|user|command-button|quick-action|manual-command/.test(sourceText);
 }
 
 function activeExtendedPromptSuppressionReason() {
-  if (!containerTransferState?.active || activePrompt?.kind !== 'extended command') return '';
-  if (containerTransferSuppressedExtendedPrompt?.prompt === activePrompt) return containerTransferSuppressedExtendedPrompt.reason || 'container transfer internal command routing';
+  if (!transferPresentation?.active || gameViewSnapshot.activePrompt?.kind !== 'extended command') return '';
+  if (containerTransferSuppressedExtendedPrompt?.prompt === gameViewSnapshot.activePrompt) return containerTransferSuppressedExtendedPrompt.reason || 'container transfer internal command routing';
   const now = performance.now();
   pruneContainerTransferExtendedPromptSuppressTokens(now);
   const token = containerTransferExtendedPromptSuppressTokens.find((candidate) => !candidate.consumed && candidate.expiresAt > now);
   if (activeExtendedPromptHasExplicitInternalContainerMarker() && !activeExtendedPromptIsExplicitPlayerCommand()) {
-    containerTransferSuppressedExtendedPrompt = { prompt: activePrompt, reason: 'container transfer internal command routing', tokenId: token?.id || 0 };
+    containerTransferSuppressedExtendedPrompt = { prompt: gameViewSnapshot.activePrompt, reason: 'container transfer internal command routing', tokenId: token?.id || 0 };
     if (token) token.consumed = true;
     pruneContainerTransferExtendedPromptSuppressTokens(now);
     diagnosticEvent('prompt', 'container-transfer.extended-command-suppressed', { reason: containerTransferSuppressedExtendedPrompt.reason, tokenId: token?.id || 0, command: token?.command || '', promptMarker: 'internal-container' });
@@ -5488,7 +4391,7 @@ function activeExtendedPromptSuppressionReason() {
   if (!token || activeExtendedPromptIsExplicitPlayerCommand()) return '';
   token.consumed = true;
   containerTransferLastExtendedPromptSuppressionAt = now;
-  containerTransferSuppressedExtendedPrompt = { prompt: activePrompt, reason: token.reason || 'container transfer internal command routing', tokenId: token.id };
+  containerTransferSuppressedExtendedPrompt = { prompt: gameViewSnapshot.activePrompt, reason: token.reason || 'container transfer internal command routing', tokenId: token.id };
   pruneContainerTransferExtendedPromptSuppressTokens(now);
   diagnosticEvent('prompt', 'container-transfer.extended-command-suppressed', { reason: containerTransferSuppressedExtendedPrompt.reason, tokenId: token.id, command: token.command || '' });
   return containerTransferSuppressedExtendedPrompt.reason;
@@ -5515,10 +4418,10 @@ function suppressContainerTransferExtendedPrompt(reason = 'container transfer in
   }
 }
 
-function transferPanelOwnsMenu(menu = currentMenu) {
-  if (!containerTransferState?.active || !menu?.awaitingSelection) return false;
-  if (containerTransferState.sessionKind === 'ground-pickup') return panelOwnedGroundPickupMenu(menu);
-  if (containerTransferState.sessionKind !== 'container') return false;
+function transferPanelOwnsMenu(menu = gameViewSnapshot.currentMenu) {
+  if (!transferPresentation?.active || !menu?.awaitingSelection) return false;
+  if (transferPresentation.sessionKind === 'ground-pickup') return panelOwnedGroundPickupMenu(menu);
+  if (transferPresentation.sessionKind !== 'container') return false;
   return isContainerActionMenu(menu)
     || isContainerExpectedTakeOutMenu(menu)
     || isContainerExpectedPutInMenu(menu)
@@ -5528,15 +4431,14 @@ function transferPanelOwnsMenu(menu = currentMenu) {
 
 function clearTransferPanelOwnerChrome() {
   const suppressedExtendedPromptReason = activeExtendedPromptSuppressionReason();
-  const panelOwnsMenu = transferPanelOwnsMenu(currentMenu);
-  const transferOwnsPrompt = (activePrompt?.kind === 'menu selection' && panelOwnsMenu)
-    || (activePrompt?.kind === 'read-only menu' && panelOwnsMenu)
-    || activePrompt?.owner?.kind === 'container'
-    || activePrompt?.owner?.kind === 'ground'
+  const panelOwnsMenu = transferPanelOwnsMenu(gameViewSnapshot.currentMenu);
+  const transferOwnsPrompt = (gameViewSnapshot.activePrompt?.kind === 'menu selection' && panelOwnsMenu)
+    || (gameViewSnapshot.activePrompt?.kind === 'read-only menu' && panelOwnsMenu)
+    || gameViewSnapshot.activePrompt?.owner?.kind === 'container'
+    || gameViewSnapshot.activePrompt?.owner?.kind === 'ground'
     || Boolean(suppressedExtendedPromptReason);
   if (transferOwnsPrompt) {
-    activePrompt = null;
-    if (gameView?.state) gameView.state.activePrompt = null;
+    publishRendererGameViewEvent({ name: 'renderer_dismiss_interaction', expectedRequestId: gameViewSnapshot.activePrompt?.requestId || '', clearMenu: false });
     // Keep containerTransferSuppressedExtendedPrompt associated with the prompt
     // object through this render pass. Clearing it here can let later cleanup
     // calls treat the same internal prompt as new and consume bounded
@@ -5546,11 +4448,11 @@ function clearTransferPanelOwnerChrome() {
   // A genuinely unrelated live prompt/menu must remain visible and retain its
   // NetHack owner. renderMenuPanel/renderActivePrompt will close the transfer
   // shell without answering it; never turn it into an invisible ghost lock.
-  if ((currentMenu?.awaitingSelection && !panelOwnsMenu) || (activePrompt && !transferOwnsPrompt)) return;
-  const staleExtendedDialog = containerTransferState?.active
+  if ((gameViewSnapshot.currentMenu?.awaitingSelection && !panelOwnsMenu) || (gameViewSnapshot.activePrompt && !transferOwnsPrompt)) return;
+  const staleExtendedDialog = transferPresentation?.active
     && interactionDialog?.open
     && /Extended command|filter\/type any # command|matching options/i.test(`${interactionTitle?.textContent || ''}\n${interactionPrompt?.textContent || ''}`)
-    && activePrompt?.kind !== 'extended command';
+    && gameViewSnapshot.activePrompt?.kind !== 'extended command';
   if (staleExtendedDialog) closeInteractionDialog({ force: true });
   if (promptPanel) {
     promptPanel.hidden = true;
@@ -5563,23 +4465,23 @@ function clearTransferPanelOwnerChrome() {
 }
 
 function containerTransferReadyStatusText() {
-  if (!containerTransferState?.active) return '';
-  const isGroundPickup = containerTransferState.sessionKind === 'ground-pickup';
-  const leftLoaded = (containerTransferState.leftItems || []).length > 0 || (!isGroundPickup && containerPaneLoaded('left'));
-  const rightLoaded = (containerTransferState.rightItems || []).length > 0 || (!isGroundPickup && containerPaneLoaded('right'));
+  if (!transferPresentation?.active) return '';
+  const isGroundPickup = transferPresentation.sessionKind === 'ground-pickup';
+  const leftLoaded = containerMenuItems('left').length > 0 || (!isGroundPickup && containerPaneLoaded('left'));
+  const rightLoaded = containerMenuItems('right').length > 0 || (!isGroundPickup && containerPaneLoaded('right'));
   if (leftLoaded && rightLoaded) return isGroundPickup ? 'Ground items ready.' : 'Container and inventory ready.';
-  return containerTransferState.feedback || (isGroundPickup ? 'ground transfer panel active' : 'container transfer panel active');
+  return transferPresentation.feedback || (isGroundPickup ? 'ground transfer panel active' : 'container transfer panel active');
 }
 
 function settleTransferPanelOwnership() {
-  if (!containerTransferState?.active) return;
+  if (!transferPresentation?.active) return;
   clearTransferPanelOwnerChrome();
   const statusText = containerTransferReadyStatusText();
   if (statusText) setStatus(statusText);
 }
 
 function activePromptIsOrphaned() {
-  return Boolean(activePrompt)
+  return Boolean(gameViewSnapshot.activePrompt)
     && !isActiveDirectionPrompt()
     && !interactionDialog?.open
     && !documentDialog?.open
@@ -5601,50 +4503,78 @@ function clearWorkflowContext() {
   activeWorkflowContext = null;
 }
 
+function promptOptionForDom(option, promptPlan) {
+  if (Number(option?.selector) > 0) {
+    const key = option.key || String.fromCharCode(option.selector);
+    const glyph = option.glyphChar > 0 && option.glyphChar < 128 ? String.fromCharCode(option.glyphChar) : '';
+    const assetId = mappedAssetIdForCell({ ch: glyph, glyph: option.glyph, semanticKind: option.semanticKind, semanticName: option.semanticName, semanticAppearance: option.semanticAppearance, semanticKnown: option.semanticKnown, cmapIndex: option.cmapIndex });
+    const tile = assetId ? tileAssetsById.get(assetId) : undefined;
+    return {
+      ...option,
+      key,
+      className: 'inventory-row action-inventory-row',
+      filterText: `${option.itemClass || ''} ${menuItemSemanticFilterText(option)}`,
+      stableId: Number.isInteger(option.objectId) ? `object:${option.objectId}` : key,
+      ariaLabel: `Choose ${option.itemName || option.text}${option.itemState ? `, ${option.itemState}` : ''}; shortcut ${key}`,
+      html: renderInventoryOption(option, key, tile, assetId, { actionVerb: promptPlan.actionVerb }),
+    };
+  }
+  const key = option?.key || '';
+  const hint = option?.hint || (key === '\u001b' ? 'Esc' : key);
+  const classGroup = option?.group ? `<span class="class-group">${escapeHtml(option.group)}</span>` : '';
+  const noteClass = option?.serious ? 'choice-note danger-note' : 'choice-note';
+  return {
+    ...option,
+    className: `${option?.className || 'letter-choice'} gui-visible-choice`,
+    ariaLabel: `${option?.label || 'Choice'}${option?.text ? `; ${option.text}` : ''}${hint ? `; shortcut ${hint}` : ''}`,
+    html: `<strong>${escapeHtml(option?.label || key)}</strong><span class="${noteClass}">${escapeHtml(option?.text || '')}</span>${classGroup}${hint ? `<span class="selector-hint">${escapeHtml(hint)}</span>` : ''}`,
+  };
+}
+
 function renderPromptPanel() {
-  setMapTargetMode(null);
-  if (introDialog.open && activePrompt) {
+  reconcileItemEquipmentOwner({ interactionId: '', owner: Object.freeze({ kind: 'gameplay' }), prompt: Object.freeze({}), menu: Object.freeze({}) });
+  const decision = interactionDecision('render-prompt');
+  const promptPlan = decision.prompt;
+  if (decision.owner.kind === 'context-dialog') {
+    hideDirectionHelper();
+    promptPanel.hidden = false;
+    renderContextualPrompt(decision.contextDialog);
+    return;
+  }
+  if (introDialog.open && gameViewSnapshot.activePrompt) {
     hideDirectionHelper();
     promptPanel.hidden = false;
     promptPanel.textContent = 'Intro is open; NetHack prompt is waiting behind it.';
     return;
   }
-  if (!activePrompt) {
+  if (!gameViewSnapshot.activePrompt) {
     hideDirectionHelper();
     promptPanel.hidden = true;
     promptPanel.textContent = 'No active prompt.';
-    if (runningState.running && !currentMenu?.awaitingSelection && !topmostEscapeLayer()) showReadyNotice(`state:your-turn:${publicCommandTransactions?.revision || shimEventCount}`);
+    if (runningState.running && !gameViewSnapshot.currentMenu?.awaitingSelection && !topmostEscapeLayer()) showReadyNotice(`state:your-turn:${gameViewSnapshot.commandTransactions?.revision || shimEventCount}`);
     return;
   }
-  if (activePrompt.kind === 'read-only menu') {
+  if (gameViewSnapshot.activePrompt.kind === 'read-only menu' || decision.owner.kind === 'menu') {
     hideDirectionHelper();
     promptPanel.hidden = true;
     promptPanel.textContent = 'No active prompt.';
     return;
   }
-  // Equipment-screen actions stream a compatibility command plus selector into
-  // NetHack.  The transient native "what do you want to wear/wield/remove?"
-  // prompt may be emitted before the queued selector is consumed.  Keep the
-  // paper-doll dialog mounted instead of replacing it with a one-frame picker.
-  if (equipmentDialogKeepOpenActive() && (isEquipmentFollowupPrompt(activePrompt.query, activePrompt.choices) || (activePrompt.kind === 'menu selection' && isEquipmentActionMenu(currentMenu)))) {
-    promptPanel.hidden = false;
-    promptPanel.textContent = workflowPromptText(activePrompt.query || activePrompt.kind);
-    if (equipmentKeepOpenState?.feedback) {
-      const promptHint = workflowPromptText(activePrompt.query || 'Equipment action pending');
-      setEquipmentDropFeedback(`${equipmentKeepOpenState.feedback} ${promptHint}`.trim(), true);
-    }
+  if (decision.owner.kind === 'equipment') {
+    reconcileItemEquipmentOwner(decision);
+    promptPanel.hidden = true;
+    if (interactionDialog?.open) closeInteractionDialog({ force: true });
+    promptPanel.textContent = 'Item/equipment owner has the active prompt.';
     return;
   }
-  if (equipmentDialogKeepOpenActive()) clearEquipmentKeepOpenState();
-  const suppressedExtendedPromptReason = activeExtendedPromptSuppressionReason();
-  if (suppressedExtendedPromptReason) {
+  if (decision.owner.kind === 'transfer') {
     hideDirectionHelper();
     clearTransferPanelOwnerChrome();
     closeInteractionDialog({ force: true });
-    setStatus(suppressedExtendedPromptReason);
+    setStatus(activeExtendedPromptSuppressionReason() || 'transfer interaction active');
     return;
   }
-  if (activePrompt.kind === 'extended command' && activeWorkflowContext?.submittedExtendedCommand) {
+  if (gameViewSnapshot.activePrompt.kind === 'extended command' && activeWorkflowContext?.submittedExtendedCommand) {
     hideDirectionHelper();
     promptPanel.hidden = true;
     promptPanel.textContent = 'No active prompt.';
@@ -5652,198 +4582,90 @@ function renderPromptPanel() {
     setStatus(`${activeWorkflowContext.label} command in progress`);
     return;
   }
-  // Real NetHack prompts supersede renderer-only contextual suggestions.  A
-  // locked-door hint can be opened from the preceding "This door is locked."
-  // message, then NetHack immediately emits its autounlock yes/no prompt.  If
-  // the stale contextual owner remains set, Enter/Y in the real prompt is
-  // misrouted to "Kick door" instead of answering NetHack's prompt.
   activeContextualPrompt = null;
   promptPanel.hidden = false;
-  promptPanel.textContent = workflowPromptText(activePrompt.query || activePrompt.kind);
-  if (activePrompt.kind === 'question') {
-    const query = activePrompt.query || 'Choose an answer.';
-    const workflowQuery = workflowPromptText(query);
-    const choices = String(activePrompt.choices || '').split('').filter(Boolean);
-    const directionPrompt = isDirectionPrompt(query);
-    const itemClassPrompt = !directionPrompt && isItemClassPrompt(query, activePrompt.choices);
-    const inventoryActionPrompt = !itemClassPrompt && isInventoryActionPrompt(query, activePrompt.choices);
-    const inventoryOptions = inventoryActionPrompt ? actionInventoryOptions(query, activePrompt.choices) : [];
-    const inventoryRows = inventoryOptions.map((item) => {
-      const key = String.fromCharCode(item.selector);
-      const glyph = item.glyphChar && item.glyphChar > 0 && item.glyphChar < 128 ? String.fromCharCode(item.glyphChar) : '';
-      const assetId = mappedAssetIdForCell({ ch: glyph, glyph: item.glyph, semanticKind: item.semanticKind, semanticName: item.semanticName, semanticAppearance: item.semanticAppearance, semanticKnown: item.semanticKnown, cmapIndex: item.cmapIndex });
-      const tile = assetId ? tileAssetsById.get(assetId) : undefined;
-      return {
-        key,
-        text: item.text,
-        className: 'inventory-row action-inventory-row',
-        filterText: `${menuItemClass(item)} ${menuItemSemanticFilterText(item)}`,
-        stableId: Number.isInteger(item.objectId) ? `object:${item.objectId}` : key,
-        ariaLabel: `Choose ${menuItemName(item.text)}${menuItemState(item.text) ? `, ${menuItemState(item.text)}` : ''}; shortcut ${key}`,
-        html: renderInventoryOption(item, key, tile, assetId, query),
-      };
-    });
-    const existingInventoryKeys = new Set(inventoryRows.map((row) => row.key));
-    const requiresNamedInventoryRows = inventoryActionPrompt && promptRequiresNamedInventoryRows(query);
-    const specialInventoryRows = inventoryActionPrompt && !requiresNamedInventoryRows ? specialInventorySelectorOptions(query, activePrompt.choices, existingInventoryKeys) : [];
-    let lazyLoadState = null;
-    if (inventoryActionPrompt && !inventoryRows.length && !cachedInventoryChoices.length) lazyLoadState = ensureInventoryLazyLoad(query, activePrompt.choices);
-    const waitingForNamedInventoryRows = requiresNamedInventoryRows && !inventoryRows.length && lazyLoadState?.status === 'loading';
-    const namedInventoryLoadFailed = requiresNamedInventoryRows && !inventoryRows.length && lazyLoadState?.status === 'failed';
-    const fallbackInventoryRows = inventoryActionPrompt && !requiresNamedInventoryRows && !inventoryRows.length && lazyLoadState?.status !== 'loading' ? selectorFallbackOptions(query, activePrompt.choices) : [];
-    const classRows = itemClassPrompt && !inventoryRows.length ? itemClassOptions(query, activePrompt.choices) : [];
-    if (directionPrompt) {
-      promptPanel.hidden = true;
-      promptPanel.textContent = 'No active prompt.';
-      setMapTargetMode(null);
-      showPlayerNotice({ id: `prompt:direction:${activePrompt.requestId || activePrompt.lifecycleRevision || shimEventCount}`, kind: 'info', message: 'Choose a direction', source: 'prompt', persistence: 'until-state-change' });
-      renderDirectionHelper(query, { promptActive: true });
-      return;
-    }
-    hideDirectionHelper();
-    const leadingSpecialInventoryRows = specialInventoryRows.filter((row) => row.key === '-' || row.key === '$');
-    const trailingSpecialInventoryRows = specialInventoryRows.filter((row) => row.key !== '-' && row.key !== '$');
-    const loadingInventoryRows = inventoryActionPrompt && !inventoryRows.length && (lazyLoadState?.status === 'loading' || waitingForNamedInventoryRows);
-    const options = loadingInventoryRows ? [] : (inventoryRows.length ? [...leadingSpecialInventoryRows, ...inventoryRows, ...trailingSpecialInventoryRows] : (fallbackInventoryRows.length ? fallbackInventoryRows : (classRows.length ? classRows : choiceButtonOptions(query, activePrompt.choices))));
-    const hasInventoryRows = inventoryRows.length > 0;
-    const hasSmallFixedSet = options.length > 0 && options.length <= smallFixedOptionLimit;
-    const needsTyping = !loadingInventoryRows && !hasSmallFixedSet && (hasInventoryRows || fallbackInventoryRows.length > 0 || classRows.length > 0);
-    const loadingLabel = requiresNamedInventoryRows ? 'drinkable item choices' : 'inventory choices';
-    const offerInfo = shopOfferInfo(query);
+  promptPanel.textContent = workflowPromptText(promptPlan.prompt || gameViewSnapshot.activePrompt.kind);
+  if (promptPlan.kind === 'direction') {
+    promptPanel.hidden = true;
+    promptPanel.textContent = 'No active prompt.';
+    showPlayerNotice({ id: `prompt:direction:${promptPlan.requestId || promptPlan.lifecycleRevision || shimEventCount}`, kind: 'info', message: promptPlan.title, source: 'prompt', persistence: 'until-state-change' });
+    renderDirectionHelper(promptPlan.prompt, { promptActive: true });
+    return;
+  }
+  if (activeContextualPrompt) activeContextualPrompt = null;
+  hideDirectionHelper();
+  if (gameViewSnapshot.activePrompt.kind === 'question') {
+    const query = gameViewSnapshot.activePrompt.query || 'Choose an answer.';
+    let lazyLoadState = inventoryLazyLoad;
+    if (promptPlan.shouldRequestInventory && !promptPlan.inventoryRows.length) lazyLoadState = ensureInventoryLazyLoad(query, gameViewSnapshot.activePrompt.choices);
+    const loadingInventoryRows = promptPlan.classification === 'inventory' && !promptPlan.inventoryRows.length && lazyLoadState?.status === 'loading';
+    const namedInventoryLoadFailed = promptPlan.requiresNamedInventoryRows && !promptPlan.inventoryRows.length && lazyLoadState?.status === 'failed';
+    const options = loadingInventoryRows ? [] : promptPlan.options.map((option) => promptOptionForDom(option, promptPlan));
+    const hasInventoryRows = promptPlan.inventoryRows.length > 0;
+    const needsTyping = !loadingInventoryRows && promptPlan.textEntry;
+    const loadingLabel = promptPlan.requiresNamedInventoryRows ? 'drinkable item choices' : 'inventory choices';
     const promptText = loadingInventoryRows
-      ? `${query}\nLoading ${loadingLabel}…`
-      : (namedInventoryLoadFailed
-        ? `${query}\nNo drinkable item names yet.`
-        : (hasInventoryRows
-          ? query
-          : (fallbackInventoryRows.length ? `${query}\nItem names unavailable.` : (offerInfo ? shopOfferPromptCopy(query) : query))));
+      ? `${promptPlan.prompt}\nLoading ${loadingLabel}…`
+      : (namedInventoryLoadFailed ? `${promptPlan.prompt}\nNo drinkable item names yet.` : (promptPlan.fallbackRows.length ? `${promptPlan.prompt}\nItem names unavailable.` : promptPlan.prompt));
     showPlayerNotice({
-      id: `prompt:${inventoryActionPrompt ? 'item' : (isFixedChoicePrompt(query, activePrompt.choices) ? 'confirmation' : 'choice')}:${activePrompt.requestId || activePrompt.lifecycleRevision || shimEventCount}`,
+      id: `prompt:${promptPlan.classification}:${promptPlan.requestId || promptPlan.lifecycleRevision || shimEventCount}`,
       kind: 'info',
-      message: inventoryActionPrompt ? 'Choose an item' : (isFixedChoicePrompt(query, activePrompt.choices) ? 'Confirm your choice' : 'Choose an option'),
+      message: promptPlan.classification === 'inventory' ? 'Choose an item' : (promptPlan.classification === 'confirmation' ? 'Confirm your choice' : 'Choose an option'),
       source: 'prompt',
       persistence: 'until-state-change',
     });
     showInteractionDialog({
-      title: workflowPromptText(loadingInventoryRows ? 'Loading inventory choices…' : (namedInventoryLoadFailed ? 'Drinkable items unavailable' : questionDialogTitle(query, activePrompt.choices, hasInventoryRows))),
+      title: workflowPromptText(loadingInventoryRows ? 'Loading inventory choices…' : (namedInventoryLoadFailed ? 'Drinkable items unavailable' : promptPlan.title)),
       prompt: workflowPromptText(promptText),
       options,
-      dialogClass: loadingInventoryRows ? 'inventory-dialog action-inventory-dialog inventory-loading-dialog' : (hasInventoryRows ? 'inventory-dialog action-inventory-dialog' : (offerInfo ? 'shop-offer-confirm-dialog' : (seriousPromptProfile(query) ? 'destructive-confirm-dialog' : (classRows.length ? 'class-dialog' : '')))),
+      family: promptPlan.family,
+      dialogClass: loadingInventoryRows ? 'inventory-dialog action-inventory-dialog inventory-loading-dialog' : (hasInventoryRows ? 'inventory-dialog action-inventory-dialog' : (promptPlan.offer ? 'shop-offer-confirm-dialog' : (promptPlan.serious ? 'destructive-confirm-dialog' : (promptPlan.classRows.length ? 'class-dialog' : '')))),
       textEntry: needsTyping,
       textLabel: hasInventoryRows ? 'Filter items' : 'Filter choices',
       textPlaceholder: hasInventoryRows ? 'Filter items…' : 'Filter choices…',
       confirmText: needsTyping ? 'Confirm selection' : 'Confirm',
       onConfirm: needsTyping ? (() => sendPlayableText(`${interactionText.value}\n`)) : null,
       onClear: needsTyping ? (() => { interactionText.value = ''; interactionText.dispatchEvent(new Event('input')); interactionText.focus({ preventScroll: true }); }) : null,
-      feedback: hasInventoryRows && needsTyping ? ((value, visible) => menuSelectionFeedback(value, visible, inventoryOptions, false)) : undefined,
-      panelControls: hasInventoryRows && needsTyping ? objectActionPanelControls(query, inventoryOptions) : (classRows.length ? objectClassPanelControls(classRows) : null),
+      feedback: hasInventoryRows && needsTyping ? ((value, visible) => menuSelectionFeedback(value, visible, promptPlan.inventoryRows, false)) : undefined,
+      panelControls: hasInventoryRows && needsTyping ? objectActionPanelControls(promptPlan.filters, promptPlan.actionVerb) : (promptPlan.classRows.length ? objectClassPanelControls(promptPlan.classRows) : null),
     });
-  } else if (activePrompt.kind === 'line input') {
-    hideDirectionHelper();
-    showPlayerNotice({ id: `prompt:text:${activePrompt.requestId || activePrompt.lifecycleRevision || shimEventCount}`, kind: 'info', message: 'Enter text', source: 'prompt', persistence: 'until-state-change' });
-    const classRows = isItemClassPrompt(activePrompt.query, activePrompt.choices) ? itemClassOptions(activePrompt.query, activePrompt.choices) : [];
-    const commandRows = !classRows.length && isCommandHelpPrompt(activePrompt.query) ? commandHelpOptions() : [];
-    const query = activePrompt.query || '';
-    const engravingText = /engrave|write in|write on/i.test(String(query));
-    const wishText = /wish/i.test(String(query));
+    return;
+  }
+  if (promptPlan.kind === 'line-input') {
+    showPlayerNotice({ id: `prompt:text:${promptPlan.requestId || promptPlan.lifecycleRevision || shimEventCount}`, kind: 'info', message: 'Enter text', source: 'prompt', persistence: 'until-state-change' });
+    const classRows = promptPlan.classRows.map((option) => promptOptionForDom(option, promptPlan));
+    const commandRows = promptPlan.classification === 'command-help' ? promptPlan.options.map((option) => promptOptionForDom(option, promptPlan)) : [];
     const smallClassSet = classRows.length > 0 && classRows.length <= smallFixedOptionLimit;
-    const promptCopy = classRows.length
-      ? (query || 'Choose an object class.')
-      : (commandRows.length ? (query || 'Choose a command topic.') : (query || 'Type your answer.'));
     showInteractionDialog({
-      title: workflowPromptText(classRows.length ? 'Choose item class' : lineInputDialogTitle(query)),
-      prompt: workflowPromptText(promptCopy),
+      title: workflowPromptText(promptPlan.title),
+      prompt: workflowPromptText(promptPlan.prompt),
       options: classRows.length ? classRows : commandRows,
-      dialogClass: classRows.length ? 'class-dialog' : (commandRows.length ? 'command-help-dialog' : (wishText ? 'text-entry-dialog wish-text-dialog' : (engravingText ? 'text-entry-dialog engraving-text-dialog' : 'text-entry-dialog'))),
-      textEntry: classRows.length ? !smallClassSet : (commandRows.length ? true : true),
-      textLabel: classRows.length ? 'Filter classes' : (commandRows.length ? 'Search command help topics' : (wishText ? 'Wish text' : (engravingText ? 'Engraving text' : 'Type answer'))),
-      textPlaceholder: classRows.length ? 'Filter classes…' : (commandRows.length ? 'Search commands…' : (wishText ? 'blessed greased +2 gray dragon scale mail…' : (engravingText ? 'Elbereth, a note, or leave blank…' : ''))),
-      contextLines: recentPromptContextLines(query),
+      family: promptPlan.family,
+      dialogClass: classRows.length ? 'class-dialog' : (commandRows.length ? 'command-help-dialog' : (promptPlan.wishText ? 'text-entry-dialog wish-text-dialog' : (promptPlan.engravingText ? 'text-entry-dialog engraving-text-dialog' : 'text-entry-dialog'))),
+      textEntry: !smallClassSet || !classRows.length,
+      textLabel: classRows.length ? 'Filter classes' : (commandRows.length ? 'Search command help topics' : (promptPlan.wishText ? 'Wish text' : (promptPlan.engravingText ? 'Engraving text' : 'Type answer'))),
+      textPlaceholder: classRows.length ? 'Filter classes…' : (commandRows.length ? 'Search commands…' : (promptPlan.wishText ? 'blessed greased +2 gray dragon scale mail…' : (promptPlan.engravingText ? 'Elbereth, a note, or leave blank…' : ''))),
+      contextLines: recentPromptContextLines(promptPlan.prompt),
       confirmText: commandRows.length ? 'Submit command' : 'Confirm',
-      // Free-text prompts keep this visible affordance: onConfirm: () => sendPlayableText(...)
       onConfirm: classRows.length && smallClassSet ? null : () => sendPlayableText(`${interactionText.value}\n`),
       onClear: (classRows.length && !smallClassSet) || commandRows.length ? (() => { interactionText.value = ''; interactionText.dispatchEvent(new Event('input')); interactionText.focus({ preventScroll: true }); }) : null,
-      panelControls: classRows.length ? objectClassPanelControls(classRows) : null,
+      panelControls: classRows.length ? objectClassPanelControls(promptPlan.classRows) : null,
     });
-  } else if (activePrompt.kind === 'extended command') {
-    hideDirectionHelper();
-    showPlayerNotice({ id: `prompt:command:${activePrompt.requestId || activePrompt.lifecycleRevision || shimEventCount}`, kind: 'info', message: 'Choose a command', source: 'prompt', persistence: 'until-state-change' });
-    const fallbackCatalog = ['adjust', 'chat', 'dip', 'enhance', 'force', 'loot', 'offer', 'pray', 'ride', 'rub', 'sit', 'untrap', 'wipe'].map((name) => ({ name, description: '' }));
-    const catalog = (extCommandCatalog.length ? extCommandCatalog : fallbackCatalog)
-      .map(normalizeExtendedCommand)
-      .filter(Boolean);
-    const options = catalog
-      .slice()
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .map((cmd) => ({ key: `${cmd.name}\n`, label: `#${cmd.name}`, text: cmd.description || '' }));
-    showInteractionDialog({ title: workflowPromptText('Extended command (#)'), prompt: workflowPromptText(activePrompt.query || 'Choose an extended command.'), options, family: 'command', textEntry: true, textLabel: 'Filter commands', textPlaceholder: 'Filter commands…' });
+    return;
+  }
+  if (promptPlan.kind === 'extended-command') {
+    showPlayerNotice({ id: `prompt:command:${promptPlan.requestId || promptPlan.lifecycleRevision || shimEventCount}`, kind: 'info', message: 'Choose a command', source: 'prompt', persistence: 'until-state-change' });
+    const options = promptPlan.options.map((option) => promptOptionForDom(option, promptPlan));
+    showInteractionDialog({ title: workflowPromptText(promptPlan.title), prompt: workflowPromptText(promptPlan.prompt), options, family: promptPlan.family, textEntry: true, textLabel: 'Filter commands', textPlaceholder: 'Filter commands…' });
   }
 }
 
-function menuKind(menu) {
-  const prompt = String(menu?.prompt || '').toLowerCase();
-  const itemText = (menu?.items || []).slice(0, 8).map((item) => item.text || '').join(' ').toLowerCase();
-  if (/^(?:spell|skill)\.rows$/.test(String(menu?.menuPurpose || menu?.purpose || ''))) return 'spell';
-  if (/herecmdmenu|therecmdmenu|context action|what do you want to do here|what do you want to do there/.test(`${prompt} ${itemText}`)) return 'context';
-  if (isReadOnlyInformationalMenu(menu)) return /help|commands/i.test(`${prompt} ${itemText}`) ? 'help' : 'menu';
-  if (sharedModules.interactionModel?.menuKind) return sharedModules.interactionModel.menuKind(menu);
-  if (isExplicitTransferMenu(menu)) return 'transfer';
-  if (/\b(?:about|long description|list of game commands|history of nethack|info on a character|what a given key does|keyboard commands|extended commands|nethack license|help|commands)\b/.test(`${prompt} ${itemText}`)) return 'help';
-  // Keep renderer fallback aligned with interaction-model: inventory object choosers beat bare "spell" matches.
-  const looksLikeSpell = /choose which spell|cast (?:a |the )?spell|which spell|spell to cast|enhance (?:your )?skills?|which skill|skill points|advance (?:a |your )?skill/.test(prompt)
-    || (/\b(?:pw|power)\s*[:=]?\s*\d+/.test(itemText) && /\bfail(?:ure)?\s*[:=]?\s*\d+/.test(itemText))
-    || (/\b(?:cast|enhance|advance)\b/.test(prompt) && !/\bspellbook\b/.test(itemText));
-  const looksLikeInventory = /do what with|what (?:do you want|would you like) to|which item|pick up what|drop what|inventory|possessions|things that are here|identify|name|call|wear|wield|apply|eat|quaff|drink|read|zap|throw|potion|scroll|wand|spellbook|ring|amulet|food ration|corpse/.test(`${prompt} ${itemText}`);
-  if (looksLikeInventory && !looksLikeSpell) return 'inventory';
-  if (looksLikeSpell || /spell|cast|power|failure|skill|enhance|advance/.test(`${prompt} ${itemText}`)) return 'spell';
-  if (/option|autopickup|pickup_types|toggle/.test(`${prompt} ${itemText}`)) return 'options';
-  if (/inventory|possessions|things that are here|pick up|drop|wear|wield|apply|eat|quaff|drink|read|zap|throw|potion|scroll|wand|spellbook|ring|amulet|food ration|corpse/.test(`${prompt} ${itemText}`)) return 'inventory';
-  if (/help|commands|what do you want/.test(prompt)) return 'help';
-  return 'menu';
-}
 
-function isGroundLookMenu(menu) {
-  const prompt = String(menu?.prompt || '').toLowerCase();
-  return /things that are here|you see here|there (?:is|are) here/.test(prompt);
-}
 
-function shouldSuppressPassiveGroundMenu(menu, how) {
-  return sharedModules.interactionModel?.shouldSuppressPassiveGroundMenu ? sharedModules.interactionModel.shouldSuppressPassiveGroundMenu(menu, how) : (Number(how || 0) === 0 && menuKind(menu) === 'inventory' && isGroundLookMenu(menu));
-}
 
-function menuPickerPrompt(menu, kind, multi, hasSelection) {
-  const rawPrompt = String(menu?.prompt || '');
-  const prompt = workflowPromptText(kind === 'inventory' && /^Menu$/i.test(rawPrompt.trim()) && lastInventoryActionQuery ? lastInventoryActionQuery : rawPrompt);
-  if (kind === 'transfer') return prompt || 'Transfer items';
-  if (kind === 'context') return prompt || 'Choose an action.';
-  if (kind === 'spell') return prompt || 'Choose a spell or skill.';
-  if (kind === 'options') return prompt || 'Choose an option.';
-  if (kind === 'help') return prompt || 'Choose a help topic.';
-  if (kind === 'inventory' && /pick up/i.test(prompt)) return prompt || 'Pick up items';
-  if (kind === 'inventory') return prompt || 'Choose item';
-  return menu.prompt || (multi ? 'Select items, then Confirm.' : (hasSelection ? 'Choose an option.' : 'Review information.'));
-}
 
-function menuItemClass(item) {
-  if (sharedModules.interactionModel?.menuItemClass) return sharedModules.interactionModel.menuItemClass(item);
-  const text = String(item.text || '').toLowerCase();
-  if (/weapon|sword|dagger|mace|axe|bow|arrow|dart|rock/.test(text)) return 'weapon';
-  if (/armor|mail|helm|boots|gloves|cloak|shield/.test(text)) return 'armor';
-  if (/potion|scroll|wand|spellbook|ring|amulet/.test(text)) return 'magic';
-  if (/food|ration|corpse|apple|carrot|egg|tin/.test(text)) return 'food';
-  if (/tool|marker|lamp|lantern|key|lock pick|pick-axe|pickaxe|bag|sack|box|chest|horn|whistle|towel|camera|stethoscope|can of oil|tinning kit|oil lamp/.test(text)) return 'tool';
-  return '';
-}
 
-function menuItemState(text) {
-  if (sharedModules.interactionModel?.menuItemState) return sharedModules.interactionModel.menuItemState(text);
-  const match = String(text || '').match(/\((weapon in (?:hand|left hand|right hand)|being worn|wielded|in quiver|on (?:left|right) hand)\)/i);
-  return match ? match[1] : '';
-}
 
-function menuItemName(text) {
-  return sharedModules.interactionModel?.menuItemName ? sharedModules.interactionModel.menuItemName(text) : String(text || '').replace(/^\s*[a-z$]\s*[-+]\s+/i, '').replace(/\s*\((?:weapon in (?:hand|left hand|right hand)|being worn|wielded|in quiver|on (?:left|right) hand|alternate weapon; not wielded)\)\s*/ig, ' ').replace(/\s+/g, ' ').trim();
-}
 
 function selectedKeysFromMenuExpression(value) {
   return new Set(menuSelectionPartsFromExpression(value).map((part) => part.key));
@@ -5906,45 +4728,27 @@ function menuSelectionFeedback(value, visibleCount, selectable, multi) {
   return hits ? `${multi ? 'Selection' : 'Typed selector'}: ${raw} · ${hits} item${hits === 1 ? '' : 's'}.` : `${visibleCount} match${visibleCount === 1 ? '' : 'es'} for “${raw}”.`;
 }
 
-function inventoryActionVerb(query) {
-  const q = String(query || '').toLowerCase();
-  if (/write with|engrave with/.test(q)) return 'Write with';
-  if (/read/.test(q)) return 'Read';
-  if (/eat/.test(q)) return 'Eat';
-  if (/quaff|drink/.test(q)) return 'Quaff';
-  if (/apply|use/.test(q)) return 'Apply';
-  if (/wield|weapon/.test(q)) return 'Wield';
-  if (/wear/.test(q)) return 'Wear';
-  if (/take off/.test(q)) return 'Take off';
-  if (/remove/.test(q)) return 'Remove';
-  if (/put on/.test(q)) return 'Put on';
-  if (/quiver/.test(q)) return 'Quiver';
-  if (/zap/.test(q)) return 'Zap';
-  if (/throw/.test(q)) return 'Throw';
-  if (/fire/.test(q)) return 'Fire';
-  if (/rub/.test(q)) return 'Rub';
-  if (/dip/.test(q)) return 'Dip';
-  if (/invoke/.test(q)) return 'Invoke';
-  if (/offer/.test(q)) return 'Offer';
-  if (/name|call/.test(q)) return 'Name/call';
-  return 'Choose';
-}
 
 function parseInventoryItemMetadata(item) {
   const text = String(item?.text || '');
   const lower = text.toLowerCase();
+  const known = item?.knownFields && typeof item.knownFields === 'object' ? item.knownFields : {};
   const count = menuItemMaxCount(item);
-  const beatitude = lower.match(/\b(blessed|uncursed|cursed)\b/)?.[1] || '';
-  const charges = text.match(/\((\d+):(-?\d+)\)/)?.[0] || '';
+  const beatitude = lower.match(/\b(blessed|uncursed|cursed)\b/)?.[1] || String(known.beatitude || '');
+  const chargePair = text.match(/\((\d+):(-?\d+)\)/)?.[0] || '';
+  const charges = chargePair || (known.charges != null ? String(known.charges) : '');
+  const enchantment = text.match(/(?:^|\s)([+-]\d+)\b/)?.[1] || (known.enchantment != null ? `${Number(known.enchantment) >= 0 ? '+' : ''}${known.enchantment}` : '');
   const nutrition = lower.match(/partly eaten|corpse|ration|food|tin|egg|apple|carrot/)?.[0] || '';
   const stack = count > 1 ? `${count} in stack` : '';
-  return { count, beatitude, charges, nutrition, stack };
+  const condition = [known.erosion, known.corrosion, known.poisoned === true ? 'poisoned' : ''].filter((value) => value !== '' && value != null && value !== false).join(' · ');
+  const weight = known.weight != null ? `${known.weight} wt` : '';
+  const ownership = item?.ownership?.state && item.ownership.state !== 'owned' ? String(item.ownership.state) : '';
+  return { count, beatitude, charges, enchantment, nutrition, stack, condition, weight, ownership };
 }
 
-function renderInventoryActionBadges(item, query, category, state) {
-  const action = inventoryActionVerb(query);
+function renderInventoryActionBadges(item, actionVerb, category, state) {
   const meta = parseInventoryItemMetadata(item);
-  const actionBadge = action && !/^Choose$/i.test(action) ? `<span class="item-action-pill">${escapeHtml(action)}</span>` : '';
+  const actionBadge = actionVerb && actionVerb !== 'Choose' ? `<span class="item-action-pill">${escapeHtml(actionVerb)}</span>` : '';
   // Avoid redundant nutrition/context chips that only restate the class badge (e.g. FOOD + food).
   const nutritionAddsInfo = meta.nutrition && (!category || !String(meta.nutrition).toLowerCase().includes(String(category).toLowerCase())) && !/^(?:food|ration|corpse)$/i.test(meta.nutrition);
   const badges = [
@@ -5952,61 +4756,23 @@ function renderInventoryActionBadges(item, query, category, state) {
     state ? `<span class="item-badge equipped">${escapeHtml(state)}</span>` : '',
     category ? `<span class="item-badge item-class-${escapeHtml(category)}">${escapeHtml(category)}</span>` : '',
     meta.beatitude ? `<span class="item-badge item-beatitude">${escapeHtml(meta.beatitude)}</span>` : '',
+    meta.enchantment ? `<span class="item-badge item-enchantment">${escapeHtml(meta.enchantment)}</span>` : '',
     meta.charges ? `<span class="item-badge item-charges">charges ${escapeHtml(meta.charges.replace(/[()]/g, ''))}</span>` : '',
     meta.stack ? `<span class="item-badge item-stack">${escapeHtml(meta.stack)}</span>` : '',
+    meta.condition ? `<span class="item-badge item-condition">${escapeHtml(meta.condition)}</span>` : '',
+    meta.weight ? `<span class="item-badge item-weight">${escapeHtml(meta.weight)}</span>` : '',
+    meta.ownership ? `<span class="item-badge item-ownership">${escapeHtml(meta.ownership)}</span>` : '',
     nutritionAddsInfo ? `<span class="item-badge item-context">${escapeHtml(meta.nutrition)}</span>` : '',
   ].filter(Boolean).join('');
   return badges;
 }
 
-function objectActionFilterSet(query) {
-  const q = String(query || '').toLowerCase();
-  if (/put on/.test(q)) return [['all', 'All candidates'], ['rings', 'Rings'], ['amulets', 'Amulets'], ['cursed-risk', 'Cursed/stuck risk']];
-  if (/remove|take off/.test(q)) return [['all', 'All equipped'], ['worn', 'Worn gear'], ['rings', 'Rings'], ['cursed-risk', 'Cursed/stuck risk']];
-  if (/wear/.test(q)) return [['all', 'All candidates'], ['armor', 'Armor slots'], ['accessories', 'Accessories'], ['cursed-risk', 'Cursed/stuck risk']];
-  if (/wield|two-weapon|weapon/.test(q)) return [['all', 'All candidates'], ['weapons', 'Weapons'], ['offhand', 'Off-hand candidates'], ['cursed-risk', 'Cursed/stuck risk']];
-  if (/zap/.test(q)) return [['all', 'All candidates'], ['wands', 'Wands'], ['charged', 'Charged/known']];
-  if (/throw|fire|quiver/.test(q)) return [['all', 'All candidates'], ['projectiles', 'Projectiles'], ['equipped', 'Quiver/equipped'], ['stacks', 'Stacks']];
-  if (/rub/.test(q)) return [['all', 'All candidates'], ['rub-targets', 'Lamps/stones'], ['tools', 'Tools']];
-  if (/dip/.test(q)) return [['all', 'All candidates'], ['dip-items', 'Dip items'], ['liquids', 'Potions/liquids'], ['equipped', 'Equipped']];
-  if (/offer/.test(q)) return [['all', 'All candidates'], ['corpses', 'Corpses/food'], ['ground', 'Altar-ready']];
-  if (/invoke/.test(q)) return [['all', 'All candidates'], ['artifacts', 'Artifacts/special'], ['equipped', 'Equipped']];
-  if (/apply|use|force|untrap/.test(q)) return [['all', 'All candidates'], ['tools', 'Tools'], ['containers', 'Containers'], ['charged', 'Charged/known']];
-  return [];
-}
-
-function objectActionFilterMatches(filter, text) {
-  const value = String(text || '').toLowerCase();
-  if (filter === 'all') return true;
-  if (filter === 'tools') return /tool|pick|key|lock|lamp|lantern|marker|horn|whistle|bag|sack|box|chest|camera|towel|stethoscope/.test(value);
-  if (filter === 'containers') return /bag|sack|box|chest|container/.test(value);
-  if (filter === 'charged') return /\(\d+:-?\d+\)|wand|marker|charged|charges/.test(value);
-  if (filter === 'wands') return /wand|\//.test(value);
-  if (filter === 'projectiles') return /arrow|dart|dagger|rock|stone|spear|knife|shuriken|bolt|ammo|projectile/.test(value);
-  if (filter === 'equipped') return /weapon in (?:hand|left hand|right hand)|being worn|wielded|quiver|left hand|right hand|equipped/.test(value);
-  if (filter === 'stacks') return /\b\d+\s+/.test(value);
-  if (filter === 'rub-targets') return /lamp|lantern|stone|gray stone|touchstone|flint|luckstone/.test(value);
-  if (filter === 'armor') return /armor|mail|helm|helmet|hat|boots|gloves|cloak|shield|shirt|robe|suit/.test(value);
-  if (filter === 'accessories') return /ring|amulet|blindfold|towel|lenses/.test(value);
-  if (filter === 'rings') return /ring|left hand|right hand/.test(value);
-  if (filter === 'amulets') return /amulet/.test(value);
-  if (filter === 'worn') return /being worn|weapon in (?:hand|left hand|right hand)|wielded|left hand|right hand|quiver/.test(value);
-  if (filter === 'weapons') return /weapon|sword|dagger|mace|axe|bow|yumi|arrow|dart|spear|knife|club|staff/.test(value);
-  if (filter === 'offhand') return /dagger|knife|short sword|saber|weapon|uncursed|blessed/.test(value) && !/two-handed|bow|launcher|crossbow/.test(value);
-  if (filter === 'cursed-risk') return /cursed|welded|stuck|weapon in (?:hand|left hand|right hand)|being worn|left hand|right hand/.test(value);
-  if (filter === 'dip-items') return !/fountain|pool|sink/.test(value);
-  if (filter === 'liquids') return /potion|water|liquid|fountain|pool|sink/.test(value);
-  if (filter === 'corpses') return /corpse|food|egg|tin|comestible/.test(value);
-  if (filter === 'ground') return /corpse|altar|sacrifice|offer/.test(value);
-  if (filter === 'artifacts') return /artifact|named|amulet|quest|orb|eye|mitre|scepter|staff|bane|brand|special/.test(value);
-  return true;
-}
 
 function applyObjectActionFilter(filter, button) {
   const rows = Array.from(interactionOptions.querySelectorAll('.choice-button.inventory-row'));
   let visible = 0;
   for (const row of rows) {
-    const show = objectActionFilterMatches(filter, `${row.innerText} ${row.dataset.filterText || ''}`);
+    const show = filter === 'all' || String(row.dataset.filterTags || '').split(' ').includes(filter);
     row.hidden = !show;
     if (show) visible += 1;
   }
@@ -6016,12 +4782,10 @@ function applyObjectActionFilter(filter, button) {
   if (first && document.activeElement?.closest?.('#interaction-panel-controls')) first.focus({ preventScroll: true });
 }
 
-function objectActionPanelControls(query, inventoryOptions = []) {
-  const filters = objectActionFilterSet(query);
+function objectActionPanelControls(filters = [], verb = 'Choose') {
   if (!filters.length) return null;
   const wrap = document.createElement('div');
   wrap.className = 'object-action-panel-controls';
-  const verb = inventoryActionVerb(query);
   const heading = document.createElement('strong');
   heading.textContent = `${verb} filters`;
   wrap.appendChild(heading);
@@ -6049,14 +4813,15 @@ function menuItemSemanticFilterText(item) {
   return `${item?.semanticKind || ''} ${displayName || ''}`.trim();
 }
 
-function renderInventoryOption(item, key, tile, assetId, query = '', options = {}) {
-  const category = menuItemClass(item);
-  const state = menuItemState(item.text);
-  const itemName = menuItemName(item.text);
+function renderInventoryOption(item, key, tile, assetId, options = {}) {
+  const category = item.itemClass || sharedModules.interactionModel.menuItemClass(item);
+  const sourceText = item.text || item.displayName || item.semanticName || item.semanticAppearance || 'item';
+  const state = item.itemState || sharedModules.interactionModel.menuItemState(sourceText);
+  const itemName = item.itemName || sharedModules.interactionModel.menuItemName(sourceText) || 'item';
   const isStatue = String(item.semanticKind || '').toLowerCase() === 'statue';
   const iconClass = `menu-tile${isStatue ? ' statue-menu-tile' : ''}`;
   const icon = tile ? `<span class="${iconClass}" aria-hidden="true" data-tile-id="${assetId}" style="background-image: ${tileUrl(tile)}"></span>` : `<span class="${iconClass} menu-tile-fallback" aria-hidden="true"></span>`;
-  const badges = renderInventoryActionBadges(item, query, category, state);
+  const badges = renderInventoryActionBadges(item, options.actionVerb || '', category, state);
   // Keep rows single-line: only show a compact semantic badge when it adds info not already in the name.
   // Per-row action guidance is omitted (prompt/panel already explain the workflow).
   const showSemantic = options.showSemantic === true;
@@ -6073,12 +4838,9 @@ function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]));
 }
 
-function menuTextWithoutSelector(text) {
-  return String(text || '').replace(/^\s*[A-Za-z$]\s*[-+]\s*/, '').replace(/\s+/g, ' ').trim();
-}
 
 function parseSpellMenuText(text) {
-  const clean = menuTextWithoutSelector(text);
+  const clean = sharedModules.interactionModel.menuTextWithoutSelector(text);
   const power = clean.match(/\b(?:Pw|Power)\s*[:=]?\s*(\d+)/i);
   const fail = clean.match(/\bFail(?:ure)?\s*[:=]?\s*(\d+%?)/i);
   const level = clean.match(/\b(?:Lvl|Level)\s*[:=]?\s*(\d+)/i);
@@ -6092,7 +4854,7 @@ function parseSpellMenuText(text) {
 }
 
 function parseSkillMenuText(text) {
-  const clean = menuTextWithoutSelector(text);
+  const clean = sharedModules.interactionModel.menuTextWithoutSelector(text);
   const slotCost = clean.match(/\b(?:cost|slots?)\s*[:=]?\s*(\d+)/i);
   const rank = clean.match(/\b(?:Basic|Skilled|Expert|Master|Grand Master|Unskilled|Restricted)\b/i);
   const canAdvance = /advance|enhance|increase|raise|\*/i.test(clean);
@@ -6100,7 +4862,7 @@ function parseSkillMenuText(text) {
 }
 
 function parseOptionMenuText(text) {
-  const clean = menuTextWithoutSelector(text);
+  const clean = sharedModules.interactionModel.menuTextWithoutSelector(text);
   const match = clean.match(/^([^:=\s]+)\s*(?::|=|\s)\s*(.*)$/);
   const name = match ? match[1] : clean;
   const value = match ? match[2].trim() : '';
@@ -6109,7 +4871,7 @@ function parseOptionMenuText(text) {
 }
 
 function parseTransferMenuText(text) {
-  const clean = menuTextWithoutSelector(text);
+  const clean = sharedModules.interactionModel.menuTextWithoutSelector(text);
   const leadingPrice = clean.match(/^\s*(\d+)\s+(?:zorkmids?|zm|gold(?: pieces?)?)\s*,\s*/i);
   const trailingPrice = clean.match(/(?:,|\s)(\d+)\s+(?:zorkmids?|zm|gold(?: pieces?)?)\b/i);
   const price = leadingPrice || trailingPrice;
@@ -6125,9 +4887,6 @@ function menuSelectableRows(menu) {
   return (menu?.items || []).filter((item) => item?.selector);
 }
 
-function isReadOnlyInformationalMenu(menu) {
-  return Boolean(menu?.awaitingSelection) && !Number(menu?.how || 0) && !menuSelectableRows(menu).length;
-}
 
 function isStaleTransferPlaceholderMenu(menu) {
   const rows = (menu?.items || []).filter((item) => String(item?.text || '').trim());
@@ -6138,9 +4897,9 @@ function isStaleTransferPlaceholderMenu(menu) {
 }
 
 function isFarlookTipReadOnlyMenu(menu) {
-  if (!isReadOnlyInformationalMenu(menu)) return false;
+  if (!sharedModules.interactionModel.isReadOnlyInformationalMenu(menu)) return false;
   const prompt = String(menu?.prompt || '');
-  const body = (menu?.items || []).map((item) => menuTextWithoutSelector(item?.text || '')).join('\n');
+  const body = (menu?.items || []).map((item) => sharedModules.interactionModel.menuTextWithoutSelector(item?.text || '')).join('\n');
   return /Tip:\s*Farlooking or selecting a map location/i.test(`${prompt}\n${body}`)
     || (/\bfarlook(?:ing)?\b/i.test(body) && /\bGame time does not advance\b/i.test(body));
 }
@@ -6180,7 +4939,7 @@ function readOnlyMenuPanelControls(menu) {
   const list = document.createElement('div');
   list.className = 'read-only-menu-rows';
   for (const item of rows) {
-    const text = menuTextWithoutSelector(item.text || '').trim() || String(item.text || '').trim();
+    const text = sharedModules.interactionModel.menuTextWithoutSelector(item.text || '').trim() || String(item.text || '').trim();
     if (!text) continue;
     const row = document.createElement('div');
     row.className = 'read-only-menu-row';
@@ -6198,21 +4957,11 @@ function readOnlyMenuPanelControls(menu) {
   return wrap;
 }
 
-function isShopPaymentMenu(menu) {
-  const prompt = String(menu?.prompt || '').toLowerCase();
-  return /\b(?:pay for which items?|pay which (?:shop )?bill items?|which items? (?:do you want to )?pay for|itemized bill(?:ing)?)\b/.test(prompt);
-}
 
-function isExplicitTransferMenu(menu) {
-  const prompt = String(menu?.prompt || '').toLowerCase();
-  if (!menuSelectableRows(menu).length || !Number(menu?.how || 0)) return false;
-  if (isShopPaymentMenu(menu)) return true;
-  return /\b(?:loot|take out|put in|stash|container contents|from (?:the )?(?:chest|box|bag|sack)|into (?:the )?(?:chest|box|bag|sack))\b/.test(prompt);
-}
 
 function transferMenuModel(menu) {
   const prompt = String(menu?.prompt || '');
-  const shop = isShopPaymentMenu(menu);
+  const shop = sharedModules.interactionModel.isShopPaymentMenu(menu);
   const container = /loot|container contents|take out|put in|stash|chest|box|bag|sack|tip/i.test(prompt);
   const source = shop ? 'Shop bill' : (container ? 'Container contents' : (/pick up|ground/i.test(prompt) ? 'Ground' : 'Source'));
   const destination = shop ? 'Shopkeeper payment' : (container ? 'Inventory / floor' : 'Inventory / floor');
@@ -6222,27 +4971,12 @@ function transferMenuModel(menu) {
   return { shop, container, source, destination, totalPrice, pricedRows, rowCount: rows.length };
 }
 
-function menuPanelControlFilter(kind, filter, button) {
+function menuPanelControlFilter(filter, button) {
   const rows = Array.from(interactionOptions.querySelectorAll('.choice-button'));
-  for (const row of rows) {
-    const text = row.innerText || '';
-    let show = true;
-    if (kind === 'spell') {
-      if (filter === 'castable') {
-        const fail = text.match(/Fail\s*(\d+)/i);
-        show = !fail || Number(fail[1]) < 50;
-      } else if (filter === 'risky') show = /Fail\s*(?:[5-9]\d|100)/i.test(text);
-      else if (filter === 'advance') show = /can advance|Advance/i.test(text);
-      else if (filter === 'restricted') show = /Restricted/i.test(text);
-    } else if (kind === 'options') {
-      if (filter === 'toggles') show = /\bToggle\b/i.test(text);
-      else if (filter === 'values') show = /\bChange\b|\b(?:true|false|on|off|yes|no|\$|pickup_types)\b/i.test(text);
-    }
-    row.hidden = !show;
-  }
+  for (const row of rows) row.hidden = filter !== 'all' && !String(row.dataset.filterTags || '').split(' ').includes(filter);
   interactionPanelControls?.querySelectorAll('button[data-panel-filter]')?.forEach((control) => control.setAttribute('aria-pressed', String(control === button)));
   const visible = rows.filter((row) => !row.hidden).length;
-  interactionFeedback.textContent = `${visible} ${kind === 'options' ? 'option' : 'row'}${visible === 1 ? '' : 's'} shown.`;
+  interactionFeedback.textContent = `${visible} row${visible === 1 ? '' : 's'} shown.`;
 }
 
 function transferPanelControls(menu, model = transferMenuModel(menu)) {
@@ -6267,21 +5001,14 @@ function transferPanelControls(menu, model = transferMenuModel(menu)) {
   return wrap;
 }
 
-function specializedMenuPanelControls(kind, menu, selectable) {
-  if (kind !== 'spell' && kind !== 'options') return null;
+function specializedMenuPanelControls(menuPlan) {
+  if (!menuPlan.filters.length) return null;
   const wrap = document.createElement('div');
-  wrap.className = `${kind}-panel-controls`;
-  const prompt = String(menu?.prompt || '');
-  const isSkill = kind === 'spell' && /skill|enhance|advance/i.test(prompt);
+  wrap.className = `${menuPlan.kind}-panel-controls`;
   const heading = document.createElement('strong');
-  heading.textContent = kind === 'options'
-    ? 'Settings'
-    : (isSkill ? 'Skills' : 'Spells');
+  heading.textContent = menuPlan.filterHeading;
   wrap.appendChild(heading);
-  const filters = kind === 'options'
-    ? [['all', 'All options'], ['toggles', 'Toggles'], ['values', 'Value options']]
-    : (isSkill ? [['all', 'All skills'], ['advance', 'Can advance'], ['restricted', 'Restricted']] : [['all', 'All spells'], ['castable', 'Low failure'], ['risky', 'High failure']]);
-  for (const [filter, label] of filters) {
+  for (const [filter, label] of menuPlan.filters) {
     const control = document.createElement('button');
     control.type = 'button';
     control.dataset.panelFilter = filter;
@@ -6289,7 +5016,7 @@ function specializedMenuPanelControls(kind, menu, selectable) {
     control.textContent = label;
     control.addEventListener('click', (event) => {
       event.preventDefault();
-      menuPanelControlFilter(kind, filter, control);
+      menuPanelControlFilter(filter, control);
     });
     wrap.appendChild(control);
   }
@@ -6334,19 +5061,19 @@ function isPromptlessObjectSelectionMenu(menu) {
 }
 
 function expectedContainerLoadingSide() {
-  if (!containerTransferState?.active || containerTransferState.sessionKind !== 'container') return '';
+  if (!transferPresentation?.active || transferPresentation.sessionKind !== 'container') return '';
   const choreography = currentTransferChoreographyState({ kind: 'container' });
   if (choreography.autoLoadingSide) return choreography.autoLoadingSide;
-  if (containerTransferState.autoLoadingSide) return containerTransferState.autoLoadingSide;
-  if (choreography.autoInventoryLoadPending || containerTransferState.autoInventoryLoadPending) return 'right';
-  const loading = containerTransferState.loadingSides || {};
+  if (transferPresentation.autoLoadingSide) return transferPresentation.autoLoadingSide;
+  if (choreography.autoInventoryLoadPending || transferPresentation.autoInventoryLoadPending) return 'right';
+  const loading = transferPresentation.loadingSides || {};
   if (loading.left && !containerPaneLoaded('left')) return 'left';
   if (loading.right && !containerPaneLoaded('right')) return 'right';
   // If menu transaction metadata arrives without the renderer-side loading
   // flag, keep ownership only for an established container action transaction
   // while a pane is still missing. Promptless object menus in that transaction
   // are container/inventory pane probes, not the global Inventory overlay.
-  const hasContainerTransaction = Boolean(containerTransferState.actionMenu || containerTransferState.takeOutMenu || containerTransferState.putInMenu);
+  const hasContainerTransaction = Boolean(transferSession.snapshot().active);
   if (hasContainerTransaction && !containerPaneLoaded('left')) return 'left';
   if (hasContainerTransaction && !containerPaneLoaded('right')) return 'right';
   return '';
@@ -6357,7 +5084,7 @@ function isContainerExpectedTakeOutMenu(menu) {
 }
 
 function isContainerInventoryProbeMenu(menu) {
-  if (!containerTransferState?.active || containerTransferState.sessionKind !== 'container') return false;
+  if (!transferPresentation?.active || transferPresentation.sessionKind !== 'container') return false;
   if (!isPromptlessSelectableMenu(menu)) return false;
   const choreography = currentTransferChoreographyState({ kind: 'container' });
   // NetHack's inventory overview is promptless.  During container right-pane
@@ -6365,16 +5092,16 @@ function isContainerInventoryProbeMenu(menu) {
   // shim_select_menu flips the same menu to awaitingSelection.  Keep ownership
   // for that just-requested inventory probe instead of reopening the global
   // Equipment / Inventory overlay over the transfer panel.
-  const graceUntil = Number(containerTransferState.inventoryProbeGraceUntil || 0);
-  const graceWindow = containerTransferState.inventoryProbeMenuWindow;
+  const graceUntil = Number(transferPresentation.inventoryProbeGraceUntil || 0);
+  const graceWindow = transferPresentation.inventoryProbeMenuWindow;
   const menuWindow = menu?.window;
   const graceMatches = Date.now() < graceUntil
     && (graceWindow == null || menuWindow == null || Number(graceWindow) === Number(menuWindow));
   return Boolean(graceMatches
     || inventoryOverviewRequestActive()
     || choreography.autoInventoryLoadPending
-    || containerTransferState.autoInventoryLoadPending
-    || containerTransferState.loadingSides?.right);
+    || transferPresentation.autoInventoryLoadPending
+    || transferPresentation.loadingSides?.right);
 }
 
 function isContainerExpectedPutInMenu(menu) {
@@ -6396,22 +5123,22 @@ function containerActionSelector(menu, action) {
 }
 
 function markContainerPaneLoading(side, loading = true) {
-  if (!containerTransferState) return;
-  containerTransferState.loadingSides = { ...(containerTransferState.loadingSides || {}), [side]: Boolean(loading) };
+  if (!transferPresentation) return;
+  transferPresentation.loadingSides = { ...(transferPresentation.loadingSides || {}), [side]: Boolean(loading) };
 }
 
 function markContainerPaneLoaded(side) {
-  if (!containerTransferState) return;
-  containerTransferState.loadedSides = { ...(containerTransferState.loadedSides || {}), [side]: true };
+  if (!transferPresentation) return;
+  transferPresentation.loadedSides = { ...(transferPresentation.loadedSides || {}), [side]: true };
   markContainerPaneLoading(side, false);
 }
 
 function containerPaneLoaded(side) {
-  return Boolean(containerTransferState?.loadedSides?.[side]);
+  return Boolean(transferPresentation?.loadedSides?.[side]);
 }
 
 function containerPaneNeedsLoad(side) {
-  return Boolean(containerTransferState?.active && containerTransferState.sessionKind === 'container' && !containerPaneLoaded(side));
+  return Boolean(transferPresentation?.active && transferPresentation.sessionKind === 'container' && !containerPaneLoaded(side));
 }
 
 function isEmptyContainerContentsMessage(text = '') {
@@ -6430,18 +5157,18 @@ function emptyContainerContentsMessageFromPrompt(prompt = '') {
 }
 
 function maybeFinishEmptyContainerPaneFromMessage(text = '') {
-  if (!containerTransferState?.active || containerTransferState.sessionKind !== 'container') return false;
+  if (!transferPresentation?.active || transferPresentation.sessionKind !== 'container') return false;
   if (!isEmptyContainerContentsMessage(text)) return false;
-  containerTransferState.leftItems = [];
-  containerTransferState.autoLoadingSide = containerTransferState.autoLoadingSide === 'left' ? '' : containerTransferState.autoLoadingSide;
+  transferPresentation.autoLoadingSide = transferPresentation.autoLoadingSide === 'left' ? '' : transferPresentation.autoLoadingSide;
   markContainerPaneLoaded('left');
-  applyTransferChoreographyPatch({ autoLoadingSide: containerTransferState.autoLoadingSide, refreshIntent: { kind: 'container-empty-left-pane', side: 'left', reason: 'empty container message' } }, 'empty container pane loaded');
+  applyTransferChoreographyPatch({ autoLoadingSide: transferPresentation.autoLoadingSide, refreshIntent: { kind: 'container-empty-left-pane', side: 'left', reason: 'empty container message' } }, 'empty container pane loaded');
   rememberContainerContentsFromVisibleRows([], { layer: 'renderer', reason: 'empty-container-message' });
+  dispatchTransferSessionEvent({ type: 'pane', side: 'left', rows: [] });
   const hydratedRight = hydrateContainerRightPaneFromInventoryCache({ preserveExisting: true });
   if (containerPaneLoaded('right')) {
-    containerTransferState.feedback = 'Both panes loaded. Drag items between container and inventory.';
+    transferPresentation.feedback = 'Both panes loaded. Drag items between container and inventory.';
   } else {
-    containerTransferState.feedback = hydratedRight
+    transferPresentation.feedback = hydratedRight
       ? 'Container is empty. Using cached inventory while NetHack catches up…'
       : 'Container is empty. Loading your inventory…';
   }
@@ -6451,35 +5178,35 @@ function maybeFinishEmptyContainerPaneFromMessage(text = '') {
 }
 
 function containerInventoryCacheKnown() {
-  return Boolean(liveInventoryRevision || publicInventorySnapshot?.revision || liveInventoryChoices.length || cachedInventoryChoices.length || transferInventorySnapshot.length);
+  return Boolean(gameViewSnapshot.inventory?.revision || gameViewSnapshot.cachedInventoryChoices.length);
 }
 
 function hydrateContainerRightPaneFromInventoryCache({ preserveExisting = true } = {}) {
-  if (!containerTransferState?.active || containerTransferState.sessionKind !== 'container') return false;
-  const existingRows = Array.isArray(containerTransferState.rightItems) ? containerTransferState.rightItems : [];
+  if (!transferPresentation?.active || transferPresentation.sessionKind !== 'container') return false;
+  const existingRows = containerMenuItems('right');
   if (preserveExisting && existingRows.length) {
-    containerTransferState.autoInventoryLoadPending = false;
+    transferPresentation.autoInventoryLoadPending = false;
     markContainerPaneLoaded('right');
     return true;
   }
   const rows = currentInventoryTransferRows();
   if (!rows.length && !containerInventoryCacheKnown()) return false;
-  containerTransferState.rightItems = rows.slice();
-  containerTransferState.autoInventoryLoadPending = false;
+  transferPresentation.autoInventoryLoadPending = false;
   markContainerPaneLoaded('right');
+  dispatchTransferSessionEvent({ type: 'inventory', rows });
   return true;
 }
 
 function scheduleContainerAutoAction(side) {
-  if (!containerTransferState?.active || containerTransferState.sessionKind !== 'container') return;
-  const actionMenu = containerTransferState.actionMenu || currentMenu;
+  if (!transferPresentation?.active || transferPresentation.sessionKind !== 'container') return;
+  const actionMenu = gameViewSnapshot.currentMenu;
   if (!isContainerActionMenu(actionMenu)) return;
   const action = side === 'left' ? 'out' : 'in';
   if (!containerActionRow(actionMenu, action)) {
     markContainerPaneLoaded(side);
     if (side === 'left') rememberContainerContentsFromVisibleRows([], { layer: 'renderer', reason: 'no-takeout-action' });
     if (side === 'right') hydrateContainerRightPaneFromInventoryCache({ preserveExisting: true });
-    containerTransferState.feedback = side === 'left'
+    transferPresentation.feedback = side === 'left'
       ? 'Container has no take-out action; showing the container side as empty.'
       : 'NetHack has no put-in action for this container; showing inventory side as empty.';
     const nextSide = side === 'left' ? 'right' : 'left';
@@ -6489,22 +5216,22 @@ function scheduleContainerAutoAction(side) {
     return;
   }
   if (side === 'right') hydrateContainerRightPaneFromInventoryCache({ preserveExisting: true });
-  containerTransferState.autoLoadingSide = side;
+  transferPresentation.autoLoadingSide = side;
   if (!containerPaneLoaded(side)) markContainerPaneLoading(side, true);
-  containerTransferState.feedback = side === 'left' ? 'Loading container contents…' : (containerPaneLoaded('right') ? 'Refreshing inventory candidates…' : 'Loading your inventory…');
-  applyTransferChoreographyPatch({ autoLoadingSide: side, autoNextSide: '', refreshIntent: { kind: 'container-auto-load-pane', side, command: containerActionSelector(actionMenu, action), reason: containerTransferState.feedback } }, 'container pane auto-load scheduled');
+  transferPresentation.feedback = side === 'left' ? 'Loading container contents…' : (containerPaneLoaded('right') ? 'Refreshing inventory candidates…' : 'Loading your inventory…');
+  applyTransferChoreographyPatch({ autoLoadingSide: side, autoNextSide: '', refreshIntent: { kind: 'container-auto-load-pane', side, command: containerActionSelector(actionMenu, action), reason: transferPresentation.feedback } }, 'container pane auto-load scheduled');
   renderContainerTransferPanel();
   const scheduledWindow = actionMenu?.window;
   const scheduledRequestId = String(actionMenu?.requestId || actionMenu?.menuRequestId || '').trim();
   window.setTimeout(() => {
-    if (!containerTransferState?.active || containerTransferState.autoLoadingSide !== side) return;
+    if (!transferPresentation?.active || transferPresentation.autoLoadingSide !== side) return;
     // The side flag is shared choreography state and can legitimately be reused
     // by a later delayed category/item-menu transfer. Do not let an older
     // action-menu auto-load timer wake up in that later phase and send a second
     // `o`/`i` into the real Take out/Put in choreography.
-    if (!isContainerActionMenu(currentMenu)) return;
-    const currentWindow = currentMenu?.window;
-    const currentRequestId = String(currentMenu?.requestId || currentMenu?.menuRequestId || '').trim();
+    if (!isContainerActionMenu(gameViewSnapshot.currentMenu)) return;
+    const currentWindow = gameViewSnapshot.currentMenu?.window;
+    const currentRequestId = String(gameViewSnapshot.currentMenu?.requestId || gameViewSnapshot.currentMenu?.menuRequestId || '').trim();
     if (scheduledWindow != null && currentWindow != null && Number(currentWindow) !== Number(scheduledWindow)) return;
     if (scheduledRequestId && currentRequestId && scheduledRequestId !== currentRequestId) return;
     sendPlayableText(containerActionSelector(actionMenu, action));
@@ -6512,12 +5239,12 @@ function scheduleContainerAutoAction(side) {
 }
 
 function maybeStartContainerAutoLoadFromActionMenu(menu) {
-  if (!containerTransferState?.active || containerTransferState.sessionKind !== 'container') return;
-  if (containerTransferState.autoLoadingSide) return;
+  if (!transferPresentation?.active || transferPresentation.sessionKind !== 'container') return;
+  if (transferPresentation.autoLoadingSide) return;
   const choreography = currentTransferChoreographyState({ kind: 'container' });
-  if (choreography.autoNextSide || containerTransferState.autoNextSide) {
-    const side = choreography.autoNextSide || containerTransferState.autoNextSide;
-    containerTransferState.autoNextSide = '';
+  if (choreography.autoNextSide || transferPresentation.autoNextSide) {
+    const side = choreography.autoNextSide || transferPresentation.autoNextSide;
+    transferPresentation.autoNextSide = '';
     applyTransferChoreographyPatch({ autoNextSide: '' }, 'container queued auto-load side consumed');
     scheduleContainerAutoAction(side);
     return;
@@ -6527,39 +5254,38 @@ function maybeStartContainerAutoLoadFromActionMenu(menu) {
 }
 
 function reopenContainerActionMenuForAuto(side) {
-  if (!containerTransferState?.active || containerTransferState.sessionKind !== 'container') return;
-  containerTransferState.autoNextSide = '';
+  if (!transferPresentation?.active || transferPresentation.sessionKind !== 'container') return;
+  transferPresentation.autoNextSide = '';
   markContainerPaneLoading(side, true);
-  containerTransferState.feedback = side === 'right' ? 'Refreshing inventory…' : 'Refreshing container contents…';
-  applyTransferChoreographyPatch({ autoNextSide: '', autoLoadingSide: '', refreshIntent: { kind: 'container-direct-refresh-for-auto-load', side, command: '', delayMs: 0, reason: containerTransferState.feedback } }, 'container direct refresh scheduled');
+  transferPresentation.feedback = side === 'right' ? 'Refreshing inventory…' : 'Refreshing container contents…';
+  applyTransferChoreographyPatch({ autoNextSide: '', autoLoadingSide: '', refreshIntent: { kind: 'container-direct-refresh-for-auto-load', side, command: '', delayMs: 0, reason: transferPresentation.feedback } }, 'container direct refresh scheduled');
   renderContainerTransferPanel();
   if (side === 'right') hydrateContainerRightPaneFromInventoryCache({ preserveExisting: false });
   else requestDirectContainerSnapshotRefresh('auto-load');
 }
 
 function loadContainerRightPaneFromInventoryOverview() {
-  if (!containerTransferState?.active || containerTransferState.sessionKind !== 'container') return;
+  if (!transferPresentation?.active || transferPresentation.sessionKind !== 'container') return;
   const hydratedFromCache = hydrateContainerRightPaneFromInventoryCache({ preserveExisting: true });
-  containerTransferState.autoInventoryLoadPending = !hydratedFromCache;
+  transferPresentation.autoInventoryLoadPending = !hydratedFromCache;
   if (!hydratedFromCache) markContainerPaneLoading('right', true);
-  containerTransferState.feedback = hydratedFromCache ? 'Container contents loaded. Using cached inventory while NetHack catches up…' : 'Container contents loaded. Loading your inventory…';
-  applyTransferChoreographyPatch({ autoInventoryLoadPending: !hydratedFromCache, refreshIntent: { kind: hydratedFromCache ? 'container-inventory-cache-hydrated' : 'container-inventory-overview-requested', side: 'right', command: hydratedFromCache ? '' : 'i', delayMs: hydratedFromCache ? 0 : 250, reason: containerTransferState.feedback } }, 'container inventory pane refresh intent');
+  transferPresentation.feedback = hydratedFromCache ? 'Container contents loaded. Using cached inventory while NetHack catches up…' : 'Container contents loaded. Loading your inventory…';
+  applyTransferChoreographyPatch({ autoInventoryLoadPending: !hydratedFromCache, refreshIntent: { kind: hydratedFromCache ? 'container-inventory-cache-hydrated' : 'container-inventory-overview-requested', side: 'right', command: hydratedFromCache ? '' : 'i', delayMs: hydratedFromCache ? 0 : 250, reason: transferPresentation.feedback } }, 'container inventory pane refresh intent');
   renderContainerTransferPanel();
   sendPlayableText('\u001b');
   if (hydratedFromCache) return;
   window.setTimeout(() => {
-    if (!containerTransferState?.active || !containerTransferState.autoInventoryLoadPending || containerPaneLoaded('right')) return;
-    if (!currentMenu?.awaitingSelection && !activePrompt) sendPlayableText('i');
+    if (!transferPresentation?.active || !transferPresentation.autoInventoryLoadPending || containerPaneLoaded('right')) return;
+    if (!gameViewSnapshot.currentMenu?.awaitingSelection && !gameViewSnapshot.activePrompt) sendPlayableText('i');
   }, 250);
 }
 
 function containerDisplayName(menu) {
-  if (containerTransferState?.sessionKind === 'ground-pickup') return 'ground pickup';
+  if (transferPresentation?.sessionKind === 'ground-pickup') return 'ground pickup';
   const prompts = [
-    currentMenu?.prompt,
+    gameViewSnapshot.currentMenu?.prompt,
     menu?.prompt,
-    containerTransferState?.prompt,
-    cachedContainerTransferView?.prompt,
+    transferPresentation?.prompt,
   ].map((prompt) => String(prompt || '').trim()).filter(Boolean);
   let fallback = '';
   for (const prompt of prompts) {
@@ -6568,129 +5294,79 @@ function containerDisplayName(menu) {
     if (name && !/^it$/i.test(name)) return name;
     if (name && !fallback) fallback = name;
   }
-  if (/^it$/i.test(fallback) && cachedContainerTransferView?.promptKey && !/^it$/i.test(cachedContainerTransferView.promptKey)) return cachedContainerTransferView.promptKey;
   return fallback || 'container';
 }
 
-function containerPromptCacheKey(prompt) {
-  const text = String(prompt || '').trim().toLowerCase();
-  const match = text.match(/(.+?)\s+is empty\.\s*do what/) || text.match(/do what with\s+(.+?)\?/);
-  return (match ? match[1] : text).replace(/^the\s+/, '').replace(/\s+/g, ' ').trim();
-}
-
-function rememberContainerTransferView() {
-  if (!containerTransferState?.active || containerTransferState.sessionKind !== 'container') return;
-  const nextPromptKey = containerPromptCacheKey(containerTransferState.prompt || containerTransferState.actionMenu?.prompt || '');
-  const promptKey = /^it$/i.test(nextPromptKey) && cachedContainerTransferView?.promptKey ? cachedContainerTransferView.promptKey : nextPromptKey;
-  cachedContainerTransferView = {
-    sessionKind: 'container',
-    prompt: containerTransferState.prompt || '',
-    promptKey,
-    leftItems: (containerTransferState.leftItems || []).map((item) => ({ ...item })),
-    rightItems: (containerTransferState.rightItems || []).map((item) => ({ ...item })),
-    loadedSides: { ...(containerTransferState.loadedSides || {}) },
-    loadingSides: { ...(containerTransferState.loadingSides || {}) },
-    feedback: containerTransferState.feedback || '',
-    at: Date.now(),
-    validUntil: containerTransferCacheValidUntil,
-  };
-}
-
-function restoreCachedContainerTransferView(prompt) {
-  if (!cachedContainerTransferView || Date.now() > (cachedContainerTransferView.validUntil || 0)) return null;
-  const promptKey = containerPromptCacheKey(prompt);
-  if (promptKey && cachedContainerTransferView.promptKey && promptKey !== cachedContainerTransferView.promptKey) return null;
-  return {
-    ...cachedContainerTransferView,
-    leftItems: (cachedContainerTransferView.leftItems || []).map((item) => ({ ...item })),
-    rightItems: (cachedContainerTransferView.rightItems || []).map((item) => ({ ...item })),
-    loadedSides: { ...(cachedContainerTransferView.loadedSides || {}) },
-    loadingSides: { ...(cachedContainerTransferView.loadingSides || {}) },
-  };
-}
-
-function allowTransientContainerCacheRestore(durationMs = 5000) {
-  containerTransferCacheValidUntil = Math.max(containerTransferCacheValidUntil, Date.now() + durationMs);
-  rememberContainerTransferView();
-}
 
 function keepContainerTransferOpenThroughRefresh(durationMs = 3000) {
-  if (!containerTransferState?.active || containerTransferState.sessionKind !== 'container') return;
+  if (!transferPresentation?.active || transferPresentation.sessionKind !== 'container') return;
   containerTransferRefreshGraceUntil = Math.max(containerTransferRefreshGraceUntil, Date.now() + durationMs);
-  allowTransientContainerCacheRestore(durationMs + 1000);
+  dispatchTransferSessionEvent({ type: 'refresh', side: 'left', reason: 'classic container choreography refresh' });
 }
 
 function containerTransferInRefreshGrace() {
-  return Boolean(containerTransferState?.active && containerTransferState.sessionKind === 'container' && Date.now() < containerTransferRefreshGraceUntil);
+  return Boolean(transferPresentation?.active && transferPresentation.sessionKind === 'container' && Date.now() < containerTransferRefreshGraceUntil);
 }
 
 function shouldKeepContainerPanelBehindVisiblePrompt() {
   if (!containerTransferInRefreshGrace()) return false;
-  if (containerTransferState.interrupted) return false;
-  const hasStableRows = Boolean((containerTransferState.leftItems || []).length || (containerTransferState.rightItems || []).length || cachedContainerTransferView);
+  if (transferPresentation.interrupted) return false;
+  const hasStableRows = Boolean(containerMenuItems('left').length || containerMenuItems('right').length);
   if (!hasStableRows) return false;
-  return Boolean(interactionDialog?.open || activePrompt?.owner?.kind === 'container');
+  return Boolean(interactionDialog?.open || gameViewSnapshot.activePrompt?.owner?.kind === 'container');
 }
 
-function clearContainerTransferCache() {
-  cachedContainerTransferView = null;
-  containerTransferCacheValidUntil = 0;
+function clearTransferRefreshGrace() {
   containerTransferRefreshGraceUntil = 0;
 }
 
 function updateContainerTransferStateFromMenu(menu) {
   if (!menu) return false;
+  dispatchTransferSessionEvent({
+    type: 'menu',
+    menu,
+    sessionId: transferPresentation?.transferSessionId || '',
+    kind: transferPresentation?.sessionKind || '',
+    groundCoord: groundPileCoordHere(),
+    container: containerSnapshotIdentity(),
+    inventoryRows: currentInventoryTransferRows(),
+  });
   if (isGroundPickupMenu(menu)) {
     const inventoryRows = currentInventoryTransferRows();
-    let feedback = inventoryRows.length
-      ? 'Ground items refreshed. Drag either direction: ground to inventory picks up, inventory to ground drops.'
-      : 'Ground items refreshed. Drag or double-click a ground item into your inventory; open Inventory once to populate the carried-item pane.';
-    const pendingPickup = pendingGroundPickupRequest;
-    const pendingMatch = pendingPickup ? bestGroundPickupMenuMatch(menu, pendingPickup.itemName) : null;
-    if (pendingPickup) feedback = pendingMatch
-      ? `Picking up ${menuItemName(pendingMatch.text || pendingPickup.itemName)} from the opened NetHack menu.`
-      : `Pickup choices opened, but ${menuItemName(pendingPickup.itemName)} was not found. Drag a visible ground row instead.`;
-    containerTransferState = {
-      ...(containerTransferState || {}),
+    const groundRows = menu.items.filter((item) => item.selector);
+    const feedback = inventoryRows.length
+      ? 'Select items to pick up, then choose Take selected. Press the shown letters to toggle rows, or drag one item between lists.'
+      : 'Select items to pick up with the shown letters, then choose Take selected. Open Inventory once to populate the carried-item list.';
+    transferPresentation = {
+      ...(transferPresentation || {}),
       active: true,
       sessionKind: 'ground-pickup',
-      phase: 'ground-pickup',
+      presentationMode: 'ground-pickup',
       prompt: menu.prompt || 'Pick up what?',
-      leftItems: menu.items.filter((item) => item.selector),
-      rightItems: inventoryRows.slice(),
-      pickupMenu: clonePlainMenu(menu),
       interrupted: false,
       feedback,
     };
-    rememberGroundPileFromVisibleRows(containerTransferState.leftItems, { layer: 'renderer', window: menu.window });
-    ensureTransferSessionOwnership('ground-pickup', menu);
+    rememberGroundPileFromVisibleRows(groundRows, { layer: 'renderer', window: menu.window });
     renderContainerTransferPanel();
-    if (pendingPickup) {
-      pendingGroundPickupRequest = null;
-      if (pendingMatch?.selector) window.setTimeout(() => transferContainerItem('left', String.fromCharCode(pendingMatch.selector)), 0);
-    }
     return true;
   }
   if (isContainerActionMenu(menu)) {
     clearContainerUnlockContinuation();
     containerTransferRefreshGraceUntil = 0;
-    const menuPrompt = menu.prompt || containerTransferState?.prompt || 'Container inventory';
-    const restored = (!containerTransferState?.active || containerTransferState?.sessionKind !== 'container') ? restoreCachedContainerTransferView(menuPrompt) : null;
-    const previous = restored || containerTransferState || {};
-    const firstOpen = !restored && (previous.sessionKind !== 'container' || !previous.active);
-    containerTransferState = {
+    const menuPrompt = menu.prompt || transferPresentation?.prompt || 'Container inventory';
+    const previous = transferPresentation?.sessionKind === 'container' ? transferPresentation : {};
+    const firstOpen = !previous.active;
+    transferPresentation = {
       ...previous,
       active: true,
       sessionKind: 'container',
-      phase: 'action',
+      presentationMode: 'action',
       prompt: menuPrompt || previous.prompt || 'Container inventory',
-      actionMenu: clonePlainMenu(menu),
       interrupted: false,
       loadedSides: firstOpen ? { left: false, right: false } : { ...(previous.loadedSides || {}) },
       loadingSides: firstOpen ? { left: true, right: true } : { ...(previous.loadingSides || {}) },
       feedback: previous.feedback || 'Loading container contents and your inventory…',
     };
-    ensureTransferSessionOwnership('container', menu);
     const emptyPromptMessage = emptyContainerContentsMessageFromPrompt(menuPrompt);
     if (emptyPromptMessage) {
       appendMessage(emptyPromptMessage, { logPrompt: false });
@@ -6703,7 +5379,7 @@ function updateContainerTransferStateFromMenu(menu) {
     maybeStartContainerAutoLoadFromActionMenu(menu);
     return true;
   }
-  if (isContainerCategoryMenu(menu) && containerTransferState?.active) {
+  if (isContainerCategoryMenu(menu) && transferPresentation?.active) {
     const allTypes = (menu.items || []).find((item) => item.selector && /^\s*(?:[a-zA-Z]\s*[-+]\s*)?All types\b/i.test(String(item.text || '')))
       || (menu.items || []).find((item) => item.selector && /^\s*All types\b/i.test(String(item.text || '')))
       || (menu.items || []).find((item) => item.selector && /\bAll types\b/i.test(String(item.text || '')) && !/auto-select/i.test(String(item.text || '')));
@@ -6711,60 +5387,42 @@ function updateContainerTransferStateFromMenu(menu) {
       closeContainerTransferPanel('Container category menu needs manual selection because no All types row was available.');
       return false;
     }
-    const loadingSide = containerTransferState.autoLoadingSide || (/^\s*Put in/i.test(String(menu.prompt || '')) ? 'right' : 'left');
+    const loadingSide = transferPresentation.autoLoadingSide || (/^\s*Put in/i.test(String(menu.prompt || '')) ? 'right' : 'left');
     const pending = currentPendingContainerTransferSelection();
     const pendingMatchesCategory = Boolean(pending && ((pending.action === 'out' && loadingSide === 'left') || (pending.action === 'in' && loadingSide === 'right')));
     markContainerPaneLoading(loadingSide, true);
-    containerTransferState.autoLoadingSide = loadingSide;
-    containerTransferState.feedback = pendingMatchesCategory
+    transferPresentation.autoLoadingSide = loadingSide;
+    transferPresentation.feedback = pendingMatchesCategory
       ? 'Choosing all object types, then applying the dragged item selector when NetHack opens the item menu.'
       : 'Choosing all object types so the container panel can show item names, not category rows.';
-    applyTransferChoreographyPatch({ autoLoadingSide: loadingSide, refreshIntent: { kind: 'container-category-all-types', side: loadingSide, command: 'all-types', reason: containerTransferState.feedback } }, 'container category all-types selection scheduled');
+    applyTransferChoreographyPatch({ autoLoadingSide: loadingSide, refreshIntent: { kind: 'container-category-all-types', side: loadingSide, command: 'all-types', reason: transferPresentation.feedback } }, 'container category all-types selection scheduled');
     renderContainerTransferPanel();
-    if (allTypes) window.setTimeout(() => {
-      // Category menus are intermediary choreography, not the transfer's final
-      // confirmation. Send them as plain menu routing so their bridge answer
-      // cannot complete the pending transfer and clear the delayed item selector.
-      // Category menus are PICK_ANY style: choose "All types" and confirm it as
-      // one step; splitting the newline into a later timer let stale routing
-      // timers interleave and occasionally left the final item selector without
-      // its terminating Enter.
-      sendPlayableText(`${String.fromCharCode(allTypes.selector)}\n`);
-    }, 0);
     return true;
   }
   if (isContainerExpectedTakeOutMenu(menu)) {
     clearContainerUnlockContinuation();
     const rows = menu.items.filter((item) => item.selector);
-    const shouldFlushPendingTransfer = currentPendingContainerTransferSelection()?.action === 'out' && isContainerExpectedTakeOutMenu(menu);
-    containerTransferState = {
-      ...(containerTransferState || { active: true }),
+    transferPresentation = {
+      ...(transferPresentation || { active: true }),
       active: true,
       sessionKind: 'container',
-      phase: 'takeout',
-      leftItems: shouldFlushPendingTransfer ? ((containerTransferState?.leftItems || []).slice()) : rows,
-      takeOutMenu: clonePlainMenu(menu),
+      presentationMode: 'takeout',
       interrupted: false,
       autoLoadingSide: '',
       feedback: containerPaneLoaded('right') ? 'Both panes loaded. Drag items between container and inventory.' : 'Container contents loaded. Loading your inventory…',
     };
     applyTransferChoreographyPatch({ autoLoadingSide: '', refreshIntent: { kind: 'container-left-pane-loaded', side: 'left', reason: 'take-out item menu visible' } }, 'container left pane loaded');
     markContainerPaneLoaded('left');
-    updateTransferSessionOwnership({ ownerRequestId: menu.requestId || menu.menuRequestId || '' });
     rememberContainerContentsFromVisibleRows(rows, { layer: 'renderer', window: menu.window });
     renderContainerTransferPanel();
-    if (shouldFlushPendingTransfer) {
-      window.setTimeout(() => flushPendingContainerTransferSelection(menu), 0);
-    } else if (currentPendingContainerTransferSelection()?.action === 'out') {
-      containerTransferState.feedback = 'Waiting for NetHack item menu before applying the dragged take-out selector.';
-    } else if (containerPaneNeedsLoad('right')) {
+    if (containerPaneNeedsLoad('right')) {
       const scheduledWindow = menu?.window;
       const scheduledRequestId = String(menu?.requestId || menu?.menuRequestId || '').trim();
       window.setTimeout(() => {
-        if (!containerTransferState?.active || !containerPaneNeedsLoad('right')) return;
-        if (!isContainerExpectedTakeOutMenu(currentMenu)) return;
-        const currentWindow = currentMenu?.window;
-        const currentRequestId = String(currentMenu?.requestId || currentMenu?.menuRequestId || '').trim();
+        if (!transferPresentation?.active || !containerPaneNeedsLoad('right')) return;
+        if (!isContainerExpectedTakeOutMenu(gameViewSnapshot.currentMenu)) return;
+        const currentWindow = gameViewSnapshot.currentMenu?.window;
+        const currentRequestId = String(gameViewSnapshot.currentMenu?.requestId || gameViewSnapshot.currentMenu?.menuRequestId || '').trim();
         if (scheduledWindow != null && currentWindow != null && Number(currentWindow) !== Number(scheduledWindow)) return;
         if (scheduledRequestId && currentRequestId && scheduledRequestId !== currentRequestId) return;
         loadContainerRightPaneFromInventoryOverview();
@@ -6775,14 +5433,11 @@ function updateContainerTransferStateFromMenu(menu) {
   if (isContainerExpectedPutInMenu(menu)) {
     clearContainerUnlockContinuation();
     const rows = menu.items.filter((item) => item.selector);
-    const shouldFlushPendingTransfer = currentPendingContainerTransferSelection()?.action === 'in' && isContainerExpectedPutInMenu(menu);
-    containerTransferState = {
-      ...(containerTransferState || { active: true }),
+    transferPresentation = {
+      ...(transferPresentation || { active: true }),
       active: true,
       sessionKind: 'container',
-      phase: 'putin',
-      rightItems: shouldFlushPendingTransfer ? ((containerTransferState?.rightItems || []).slice()) : rows,
-      putInMenu: clonePlainMenu(menu),
+      presentationMode: 'putin',
       interrupted: false,
       autoLoadingSide: '',
       inventoryProbeGraceUntil: 0,
@@ -6791,20 +5446,15 @@ function updateContainerTransferStateFromMenu(menu) {
     };
     applyTransferChoreographyPatch({ autoLoadingSide: '', refreshIntent: { kind: 'container-right-pane-loaded', side: 'right', reason: 'put-in item menu visible' } }, 'container right pane loaded');
     markContainerPaneLoaded('right');
-    updateTransferSessionOwnership({ ownerRequestId: menu.requestId || menu.menuRequestId || '' });
     renderContainerTransferPanel();
-    if (shouldFlushPendingTransfer) {
-      window.setTimeout(() => flushPendingContainerTransferSelection(menu), 0);
-    } else if (currentPendingContainerTransferSelection()?.action === 'in') {
-      containerTransferState.feedback = 'Waiting for NetHack item menu before applying the dragged put-in selector.';
-    } else if (containerPaneNeedsLoad('left')) {
+    if (containerPaneNeedsLoad('left')) {
       const scheduledWindow = menu?.window;
       const scheduledRequestId = String(menu?.requestId || menu?.menuRequestId || '').trim();
       window.setTimeout(() => {
-        if (!containerTransferState?.active || !containerPaneNeedsLoad('left')) return;
-        if (!isContainerExpectedPutInMenu(currentMenu)) return;
-        const currentWindow = currentMenu?.window;
-        const currentRequestId = String(currentMenu?.requestId || currentMenu?.menuRequestId || '').trim();
+        if (!transferPresentation?.active || !containerPaneNeedsLoad('left')) return;
+        if (!isContainerExpectedPutInMenu(gameViewSnapshot.currentMenu)) return;
+        const currentWindow = gameViewSnapshot.currentMenu?.window;
+        const currentRequestId = String(gameViewSnapshot.currentMenu?.requestId || gameViewSnapshot.currentMenu?.menuRequestId || '').trim();
         if (scheduledWindow != null && currentWindow != null && Number(currentWindow) !== Number(scheduledWindow)) return;
         if (scheduledRequestId && currentRequestId && scheduledRequestId !== currentRequestId) return;
         reopenContainerActionMenuForAuto('left');
@@ -6812,17 +5462,14 @@ function updateContainerTransferStateFromMenu(menu) {
     }
     return true;
   }
-  if (containerTransferState?.active && isInventoryOverviewMenu(menu)) {
-    transferInventorySnapshot = menu.items.filter((item) => item.selector);
-    containerTransferState.rightItems = currentInventoryTransferRows();
-    if (containerTransferState.sessionKind === 'container') {
-      containerTransferState.autoInventoryLoadPending = false;
-      containerTransferState.inventoryProbeGraceUntil = menu?.awaitingSelection ? 0 : Date.now() + 5000;
-      containerTransferState.inventoryProbeMenuWindow = menu?.awaitingSelection ? undefined : menu?.window;
-      containerTransferState.feedback = containerPaneLoaded('left') ? 'Both panes loaded. Drag items between container and inventory.' : 'Inventory loaded. Loading container contents…';
+  if (transferPresentation?.active && isInventoryOverviewMenu(menu)) {
+    if (transferPresentation.sessionKind === 'container') {
+      transferPresentation.autoInventoryLoadPending = false;
+      transferPresentation.inventoryProbeGraceUntil = menu?.awaitingSelection ? 0 : Date.now() + 5000;
+      transferPresentation.inventoryProbeMenuWindow = menu?.awaitingSelection ? undefined : menu?.window;
+      transferPresentation.feedback = containerPaneLoaded('left') ? 'Both panes loaded. Drag items between container and inventory.' : 'Inventory loaded. Loading container contents…';
       markContainerPaneLoaded('right');
       applyTransferChoreographyPatch({ autoInventoryLoadPending: false, autoLoadingSide: '', refreshIntent: { kind: 'container-inventory-overview-loaded', side: 'right', reason: 'inventory overview menu visible' } }, 'container inventory overview loaded');
-      updateTransferSessionOwnership({ ownerRequestId: menu.requestId || menu.menuRequestId || '' });
       renderContainerTransferPanel();
       if (interactionDialog.open) closeInteractionDialog();
       return true;
@@ -6833,29 +5480,10 @@ function updateContainerTransferStateFromMenu(menu) {
   return false;
 }
 
-function clonePlainMenu(menu) {
-  return menu ? { ...menu, items: (menu.items || []).map((item) => ({ ...item })) } : null;
-}
 
-function transferRowsForOwnership(side) {
-  return containerMenuItems(side).map((item) => ({
-    selector: transferItemKey(item),
-    text: containerTransferDisplayName(item, side),
-    objectId: item.objectId,
-    quantity: item.quantity || menuItemMaxCount(item),
-    semanticKnown: item.semanticKnown === true || item.known?.identity === true,
-    known: item.known ? { ...item.known } : { identity: item.semanticKnown === true, appearance: Boolean(item.semanticAppearance || item.appearanceName) },
-    ...(item.semanticAppearance ? { semanticAppearance: item.semanticAppearance } : {}),
-    ...(item.appearanceName ? { appearanceName: item.appearanceName } : {}),
-  }));
-}
-
-function currentTransferPanesForOwnership() {
-  return { left: transferRowsForOwnership('left'), right: transferRowsForOwnership('right') };
-}
 
 function transferSessionKindForState() {
-  return containerTransferState?.sessionKind === 'ground-pickup' ? 'ground-pickup' : 'container';
+  return transferPresentation?.sessionKind === 'ground-pickup' ? 'ground-pickup' : 'container';
 }
 
 function transferProtocolEvent(eventType, payload = {}) {
@@ -6873,343 +5501,158 @@ function transferProtocolEvent(eventType, payload = {}) {
 
 function effectAsTransferModelResult(item) {
   if (!item || !/^transfer-/.test(String(item.type || ''))) return null;
-  return { state: publicTransferTransactions, session: item.session || null, transfer: item.transfer || null, rejected: item.rejection || item.rejected || null, effect: item };
+  return { state: gameViewSnapshot.transferTransactions, session: item.session || null, transfer: item.transfer || null, rejected: item.rejection || item.rejected || null, effect: item };
 }
 
 function processSharedTransferEvent(eventType, payload = {}) {
-  if (!gameView?.process) return null;
   const event = transferProtocolEvent(eventType, payload);
   const checked = sharedModules.uiProtocolV2?.validateEventEnvelope ? sharedModules.uiProtocolV2.validateEventEnvelope(event) : { ok: true, errors: [] };
   if (!checked.ok) {
     const rejected = { type: 'transfer-transaction-rejected', reason: 'transfer protocol validation failed', errors: checked.errors.slice(), eventType, payload };
     diagnosticEvent('transaction', 'transfer.shared-event.rejected', rejected);
-    return { state: publicTransferTransactions, rejected, effect: rejected };
+    return { rejected, effect: rejected };
   }
   const result = gameView.process(event);
-  syncGameViewGlobals();
+  refreshGameViewPresentation();
   applyGameViewEffects(result.effects);
-  syncGameViewGlobals();
+  refreshGameViewPresentation();
   const transferEffect = (result.effects || []).find((item) => /^transfer-/.test(String(item.type || '')));
   return effectAsTransferModelResult(transferEffect);
 }
+function syncTransferPresentationFromSession(snapshot = transferSession.snapshot()) {
+  if (!snapshot.active) {
+    if (transferPresentation) {
+      transferPresentation = {
+        ...transferPresentation,
+        active: false,
+        transferSessionId: '',
+        feedback: snapshot.closedReason || transferPresentation.feedback || 'Transfer Session closed.',
+        selectedItemIds: { left: [], right: [] },
+      };
+    }
+    return snapshot;
+  }
+  transferPresentation = {
+    ...(transferPresentation || {}),
+    active: true,
+    sessionKind: snapshot.kind,
+    transferSessionId: snapshot.sessionId,
+    feedback: snapshot.feedback,
+    loadedSides: { ...snapshot.loadedSides },
+    loadingSides: { ...snapshot.loadingSides },
+    selectedItemIds: {
+      left: snapshot.selection.left.slice(),
+      right: snapshot.selection.right.slice(),
+    },
+  };
+  return snapshot;
+}
 
-function applyTransferModelResult(result) {
-  if (!result || !result.state) return null;
-  publicTransferTransactions = result.state;
-  if (gameView?.state?.transferTransactions && result.state !== gameView.state.transferTransactions) gameView.state.transferTransactions = result.state;
-  if (result.effect) diagnosticEvent('transaction', `transfer.${result.effect.type || 'effect'}`, result.effect, { transactionId: result.effect.transfer?.transferId || result.effect.transferId || result.effect.rejection?.transferId || '', requestId: result.effect.transfer?.expectedRequestId || '' });
+function dispatchTransferSessionEvent(event = {}) {
+  const result = transferSession.dispatch(event);
+  for (const effect of result.effects) {
+    if (effect.type === 'publish-transfer-lifecycle') {
+      processSharedTransferEvent(effect.eventType, effect.payload);
+      continue;
+    }
+    if (effect.type === 'dispatch-direct') {
+      const transfer = {
+        transferId: effect.transferId,
+        sessionId: effect.sessionId,
+        direction: effect.direction,
+        selector: effect.row.inventoryLetter || effect.row.selector || '',
+        itemName: effect.row.displayName || effect.row.text || 'item',
+      };
+      const itemName = transfer.itemName;
+      const sent = effect.direction === 'ground-to-inventory' || effect.direction === 'inventory-to-ground'
+        ? sendDirectGroundTransfer(effect.row, transfer, itemName, effect.direction)
+        : sendDirectContainerTransfer(effect.row, transfer, itemName, effect.direction);
+      Promise.resolve(sent).then((ack) => {
+        if (!ack?.ok) setStatus(`transfer rejected: ${ack?.reason || 'command was not accepted'}`);
+      });
+      continue;
+    }
+    if (effect.type === 'dispatch-classic') {
+      const transfer = effect.transferId ? (gameViewSnapshot.transferTransactions.transfersById?.get?.(effect.transferId) || {
+        transferId: effect.transferId,
+        sessionId: effect.sessionId,
+        direction: effect.direction,
+        expectedRequestId: effect.expectedRequestId || '',
+      }) : null;
+      sendTransferText(effect.text, transfer, { expectedRequestId: effect.expectedRequestId || '', source: 'transfer-session-classic-adapter' });
+      continue;
+    }
+    if (effect.type === 'request-classic-menu') {
+      const command = effect.direction === 'container-to-inventory' ? 'o' : (effect.direction === 'inventory-to-container' ? 'i' : (effect.direction === 'ground-to-inventory' ? ',' : 'd'));
+      sendTransferText(command, gameViewSnapshot.transferTransactions.transfersById?.get?.(effect.transferId) || null, { source: 'transfer-session-classic-adapter' });
+      continue;
+    }
+    if (effect.type === 'refresh-direct') {
+      if (effect.kind === 'container' && effect.side === 'left') requestDirectContainerSnapshotRefresh('transfer-session-refresh', { sessionOwnsLoading: true });
+      else if (effect.side === 'right') sendPlayableText('i');
+      continue;
+    }
+    if (effect.type === 'refresh-classic') {
+      const command = effect.kind === 'container' ? (effect.side === 'left' ? 'o' : 'i') : (effect.side === 'left' ? ',' : 'i');
+      sendPlayableText(command);
+    }
+  }
+  syncTransferPresentationFromSession(result.snapshot);
+  if (!result.snapshot.active && containerTransferPanel && !containerTransferPanel.hidden) renderContainerTransferPanel();
   return result;
 }
 
+
 function currentTransferCommandState(options = {}) {
-  const helper = sharedModules.gameViewState?.transferPanelCommandState;
-  const kind = options.kind || transferSessionKindForState();
-  const viewState = gameView?.state || {
-    transferTransactions: publicTransferTransactions,
-    pendingTransferEvidence: { ground: pendingGroundPileEvidence, container: pendingContainerContentsEvidence },
-  };
-  const query = {
-    kind,
-    sessionId: Object.prototype.hasOwnProperty.call(options, 'sessionId') ? options.sessionId : (containerTransferState?.transferSessionId || ''),
-    transferId: Object.prototype.hasOwnProperty.call(options, 'transferId') ? options.transferId : (containerTransferState?.pendingTransferId || ''),
-    pendingTransferEvidence: viewState.pendingTransferEvidence,
-    strictTransferId: Boolean(options.strictTransferId),
-    allowHistorical: Boolean(options.allowHistorical),
-  };
-  if (kind === 'ground-pickup') query.groundCoord = options.groundCoord || groundPileCoordHere();
-  else query.container = options.container || containerSnapshotIdentity();
-  if (helper) return helper(viewState, query);
-  const transferId = String(query.transferId || publicTransferTransactions.activeTransferId || '').trim();
-  const sessionId = String(query.sessionId || publicTransferTransactions.activeSessionId || '').trim();
+  const snapshot = transferSession.snapshot();
+  const requestedSessionId = Object.prototype.hasOwnProperty.call(options, 'sessionId') ? String(options.sessionId || '') : '';
+  const requestedTransferId = Object.prototype.hasOwnProperty.call(options, 'transferId') ? String(options.transferId || '') : '';
+  const sessionMatches = !requestedSessionId || requestedSessionId === snapshot.sessionId;
+  const transferMatches = !requestedTransferId || requestedTransferId === snapshot.pending?.transferId;
   return {
-    source: 'renderer-fallback',
-    sessionId,
-    session: sessionId ? publicTransferTransactions.sessionsById?.get?.(sessionId) || null : null,
-    transferId,
-    transfer: transferId ? publicTransferTransactions.transfersById?.get?.(transferId) || null : null,
-    pendingEvidenceKind: kind === 'ground-pickup' ? 'ground-pile' : 'container-contents',
-    pendingEvidence: kind === 'ground-pickup' ? pendingGroundPileEvidence : pendingContainerContentsEvidence,
+    source: 'transfer-session',
+    sessionId: sessionMatches ? snapshot.sessionId : '',
+    session: sessionMatches && snapshot.active ? { sessionId: snapshot.sessionId, kind: snapshot.kind, status: snapshot.status, ownerRequestId: snapshot.owner?.requestId || '', panes: snapshot.panes, loadedSides: snapshot.loadedSides } : null,
+    transferId: sessionMatches && transferMatches ? snapshot.pending?.transferId || '' : '',
+    transfer: sessionMatches && transferMatches ? snapshot.pending : null,
+    pendingTransferEvidence: null,
   };
 }
 
-function currentTransferChoreographyState(options = {}) {
-  const helper = sharedModules.gameViewState?.transferPanelChoreographyState;
-  const fallbackChoreography = {
-    pendingSelection: pendingContainerTransferSelection || containerTransferState?.pendingTransferSelection || null,
-    autoLoadingSide: containerTransferState?.autoLoadingSide || '',
-    autoNextSide: containerTransferState?.autoNextSide || '',
-    reopenPending: Boolean(containerTransferState?.reopenPending),
-    autoInventoryLoadPending: Boolean(containerTransferState?.autoInventoryLoadPending),
-    refreshIntent: containerTransferState?.refreshIntent || null,
+function currentTransferChoreographyState() {
+  const snapshot = transferSession.snapshot();
+  const pending = currentPendingContainerTransferSelection();
+  return {
+    source: 'transfer-session',
+    pendingSelection: pending,
+    autoLoadingSide: transferPresentation?.autoLoadingSide || '',
+    autoNextSide: transferPresentation?.autoNextSide || '',
+    reopenPending: Boolean(transferPresentation?.reopenPending),
+    autoInventoryLoadPending: Boolean(transferPresentation?.autoInventoryLoadPending),
+    refreshIntent: snapshot.refresh ? { ...snapshot.refresh } : (transferPresentation?.refreshIntent || null),
   };
-  if (!helper) return { source: 'renderer-fallback', sessionId: containerTransferState?.transferSessionId || '', pendingSelection: fallbackChoreography.pendingSelection, ...fallbackChoreography };
-  const kind = options.kind || transferSessionKindForState();
-  const viewState = gameView?.state || { transferTransactions: publicTransferTransactions, pendingTransferEvidence: { ground: pendingGroundPileEvidence, container: pendingContainerContentsEvidence } };
-  const query = {
-    kind,
-    sessionId: Object.prototype.hasOwnProperty.call(options, 'sessionId') ? options.sessionId : (containerTransferState?.transferSessionId || ''),
-    transferId: Object.prototype.hasOwnProperty.call(options, 'transferId') ? options.transferId : (containerTransferState?.pendingTransferId || ''),
-    fallbackChoreography,
-  };
-  if (kind === 'ground-pickup') query.groundCoord = options.groundCoord || groundPileCoordHere();
-  else query.container = options.container || containerSnapshotIdentity();
-  return helper(viewState, query);
 }
 
-function applyTransferChoreographyPatch(patch = {}, reason = '') {
-  if (!containerTransferState?.active) return null;
-  if (!containerTransferState.transferSessionId) ensureTransferSessionOwnership();
-  const sessionId = containerTransferState.transferSessionId || currentTransferCommandState({ transferId: '' }).sessionId || publicTransferTransactions.activeSessionId || '';
-  if (!sessionId) return null;
-  const payload = { sessionId, ...patch, reason: reason || patch.reason || '' };
-  const model = sharedModules.transferTransactionModel;
-  const result = processSharedTransferEvent('transfer.choreography.updated', payload)
-    || (model?.updateChoreography ? applyTransferModelResult(model.updateChoreography(publicTransferTransactions, sessionId, payload)) : null);
-  const choreography = result?.session?.choreography || null;
-  if (choreography && containerTransferState) {
-    containerTransferState.pendingTransferSelection = choreography.pendingSelection || null;
-    containerTransferState.autoLoadingSide = choreography.autoLoadingSide || '';
-    containerTransferState.autoNextSide = choreography.autoNextSide || '';
-    containerTransferState.reopenPending = Boolean(choreography.reopenPending);
-    containerTransferState.autoInventoryLoadPending = Boolean(choreography.autoInventoryLoadPending);
-    containerTransferState.refreshIntent = choreography.refreshIntent || null;
-    pendingContainerTransferSelection = choreography.pendingSelection || null;
-  }
-  return choreography;
+function applyTransferChoreographyPatch(patch = {}) {
+  if (!transferPresentation?.active) return null;
+  if (Object.prototype.hasOwnProperty.call(patch, 'autoLoadingSide')) transferPresentation.autoLoadingSide = patch.autoLoadingSide || '';
+  if (Object.prototype.hasOwnProperty.call(patch, 'autoNextSide')) transferPresentation.autoNextSide = patch.autoNextSide || '';
+  if (Object.prototype.hasOwnProperty.call(patch, 'reopenPending')) transferPresentation.reopenPending = Boolean(patch.reopenPending);
+  if (Object.prototype.hasOwnProperty.call(patch, 'autoInventoryLoadPending')) transferPresentation.autoInventoryLoadPending = Boolean(patch.autoInventoryLoadPending);
+  if (patch.clearRefreshIntent) transferPresentation.refreshIntent = null;
+  else if (Object.prototype.hasOwnProperty.call(patch, 'refreshIntent')) transferPresentation.refreshIntent = patch.refreshIntent || null;
+  return currentTransferChoreographyState();
 }
 
 function transferChoreographyReopenPending() {
   const shared = currentTransferChoreographyState();
-  return Boolean(shared.reopenPending || containerTransferState?.reopenPending);
+  return Boolean(shared.reopenPending || transferPresentation?.reopenPending);
 }
 
-function maybeAttachGroundPileEvidence(delta, pile) {
-  if (!pendingGroundPileEvidence?.transferId || !delta?.publicEvidence || !delta.changed) return;
-  const currentTransfer = publicTransferTransactions?.transfersById?.get?.(pendingGroundPileEvidence.transferId);
-  if (currentTransfer?.result?.groundPileDelta) { pendingGroundPileEvidence = null; return; }
-  const model = sharedModules.transferTransactionModel;
-  const evidenceDelta = (sharedModules.groundPileSnapshotAdapter?.groundPileDelta && pendingGroundPileEvidence.beforePile && pile)
-    ? sharedModules.groundPileSnapshotAdapter.groundPileDelta(pendingGroundPileEvidence.beforePile, pile)
-    : delta;
-  if (model?.attachGroundPileDelta) {
-    const attached = processSharedTransferEvent('transfer.ground-pile-evidence.attached', { transferId: pendingGroundPileEvidence.transferId, sessionId: pendingGroundPileEvidence.sessionId, coord: pendingGroundPileEvidence.coord, groundPileDelta: evidenceDelta }) || applyTransferModelResult(model.attachGroundPileDelta(publicTransferTransactions, { transferId: pendingGroundPileEvidence.transferId, sessionId: pendingGroundPileEvidence.sessionId, coord: pendingGroundPileEvidence.coord }, evidenceDelta));
-    if (attached?.transfer?.result?.groundPileDelta) {
-      pendingGroundPileEvidence.delta = evidenceDelta;
-      pendingGroundPileEvidence.afterPile = pile;
-      pendingGroundPileEvidence = null;
-    }
-  } else {
-    const sameCoord = Number(delta.coord?.x) === Number(pendingGroundPileEvidence.coord?.x) && Number(delta.coord?.y) === Number(pendingGroundPileEvidence.coord?.y);
-    if (sameCoord) { pendingGroundPileEvidence.delta = evidenceDelta; pendingGroundPileEvidence.afterPile = pile; }
-  }
-}
 
-function maybeAttachContainerContentsEvidence(delta, snapshot) {
-  if (!pendingContainerContentsEvidence?.transferId || !delta?.publicEvidence || !delta.changed) return;
-  const currentTransfer = publicTransferTransactions?.transfersById?.get?.(pendingContainerContentsEvidence.transferId);
-  if (currentTransfer?.result?.containerContentsDelta) { pendingContainerContentsEvidence = null; return; }
-  const model = sharedModules.transferTransactionModel;
-  const evidenceDelta = (sharedModules.containerContentsSnapshotAdapter?.containerContentsDelta && pendingContainerContentsEvidence.beforeSnapshot && snapshot)
-    ? sharedModules.containerContentsSnapshotAdapter.containerContentsDelta(pendingContainerContentsEvidence.beforeSnapshot, snapshot)
-    : delta;
-  if (model?.attachContainerContentsDelta) {
-    const attached = processSharedTransferEvent('transfer.container-contents-evidence.attached', { transferId: pendingContainerContentsEvidence.transferId, sessionId: pendingContainerContentsEvidence.sessionId, container: pendingContainerContentsEvidence.container, containerContentsDelta: evidenceDelta }) || applyTransferModelResult(model.attachContainerContentsDelta(publicTransferTransactions, { transferId: pendingContainerContentsEvidence.transferId, sessionId: pendingContainerContentsEvidence.sessionId, container: pendingContainerContentsEvidence.container }, evidenceDelta));
-    if (attached?.transfer?.result?.containerContentsDelta) {
-      pendingContainerContentsEvidence.delta = evidenceDelta;
-      pendingContainerContentsEvidence.afterSnapshot = snapshot;
-      pendingContainerContentsEvidence = null;
-    }
-  } else if (delta.sessionId === pendingContainerContentsEvidence.sessionId) {
-    pendingContainerContentsEvidence.delta = evidenceDelta;
-    pendingContainerContentsEvidence.afterSnapshot = snapshot;
-  }
-}
 
-function ensureTransferSessionOwnership(kind = transferSessionKindForState(), menu = currentMenu) {
-  const model = sharedModules.transferTransactionModel;
-  if (!model?.openSession || !containerTransferState?.active) return null;
-  const panes = currentTransferPanesForOwnership();
-  const commandState = currentTransferCommandState({ kind, transferId: '' });
-  const sessionId = containerTransferState.transferSessionId || commandState.sessionId || publicTransferTransactions.activeSessionId || `renderer-${kind}-session-${++transferActionRevision}`;
-  const evidenceIdentity = kind === 'ground-pickup' ? { groundCoord: groundPileCoordHere() } : { container: containerSnapshotIdentity() };
-  const payload = {
-    sessionId,
-    kind,
-    ...evidenceIdentity,
-    prompt: containerTransferState.prompt || menu?.prompt || '',
-    ownerRequestId: menu?.requestId || menu?.menuRequestId || '',
-    leftRows: panes.left,
-    rightRows: panes.right,
-    loadedSides: containerTransferState.loadedSides || {},
-  };
-  const result = processSharedTransferEvent('transfer.session.opened', payload) || applyTransferModelResult(model.openSession(publicTransferTransactions, payload));
-  if (result?.session) {
-    containerTransferState.transferSessionId = result.session.sessionId;
-    if (kind === 'container') ensurePublicContainerSnapshotSession();
-  }
-  return result?.session || null;
-}
 
-function transferSessionUpdatePayload(patch = {}) {
-  if (!containerTransferState?.active) return null;
-  if (!containerTransferState.transferSessionId) {
-    const commandState = currentTransferCommandState({ transferId: '' });
-    if (commandState.sessionId) containerTransferState.transferSessionId = commandState.sessionId;
-    else ensureTransferSessionOwnership();
-  }
-  const panes = currentTransferPanesForOwnership();
-  const kind = transferSessionKindForState();
-  const evidenceIdentity = kind === 'ground-pickup' ? { kind, groundCoord: groundPileCoordHere() } : { kind, container: containerSnapshotIdentity() };
-  return {
-    sessionId: containerTransferState.transferSessionId,
-    ...evidenceIdentity,
-    leftRows: panes.left,
-    rightRows: panes.right,
-    loadedSides: containerTransferState.loadedSides || {},
-    feedback: containerTransferState.feedback || '',
-    ...patch,
-  };
-}
 
-function updateTransferSessionOwnership(patch = {}) {
-  const model = sharedModules.transferTransactionModel;
-  if (!model?.updateSession || !containerTransferState?.active) return null;
-  const payload = transferSessionUpdatePayload(patch);
-  if (!payload?.sessionId) return null;
-  const result = processSharedTransferEvent('transfer.session.updated', payload) || applyTransferModelResult(model.updateSession(publicTransferTransactions, payload.sessionId, payload));
-  return result?.session || null;
-}
-
-function applyOptimisticTransferSessionPatch(patch = {}) {
-  const model = sharedModules.transferTransactionModel;
-  if (!model?.updateSession || !containerTransferState?.active) return null;
-  const payload = transferSessionUpdatePayload(patch);
-  if (!payload?.sessionId) return null;
-  // Keep optimistic pane projection in the shared transfer session model without
-  // re-entering the full game-view reducer/effect loop while NetHack selection
-  // menus are still being choreographed. Public evidence and completion still
-  // flow through game-view events; this is the visual/session patch boundary.
-  const result = applyTransferModelResult(model.updateSession(publicTransferTransactions, payload.sessionId, payload));
-  if (result?.state && gameView?.state) gameView.state.transferTransactions = result.state;
-  syncGameViewGlobals();
-  return result?.session || null;
-}
-
-function directionForTransfer(sourceSide) {
-  const ground = containerTransferState?.sessionKind === 'ground-pickup';
-  if (ground) return sourceSide === 'left' ? 'ground-to-inventory' : 'inventory-to-ground';
-  return sourceSide === 'left' ? 'container-to-inventory' : 'inventory-to-container';
-}
-
-function beginTransferOwnership(sourceSide, selector, itemName, expectedRequestId = '') {
-  const model = sharedModules.transferTransactionModel;
-  if (!model?.beginTransfer || !containerTransferState?.active) return null;
-  if (!containerTransferState.transferSessionId) ensureTransferSessionOwnership();
-  const direction = directionForTransfer(sourceSide);
-  const transferId = `renderer-transfer-${++transferActionRevision}-${direction}`;
-  const evidenceIdentity = containerTransferState.sessionKind === 'ground-pickup' ? { groundCoord: groundPileCoordHere() } : { container: containerSnapshotIdentity() };
-  const payload = {
-    transferId,
-    sessionId: containerTransferState.transferSessionId,
-    ...evidenceIdentity,
-    direction,
-    sourceSide,
-    targetSide: sourceSide === 'left' ? 'right' : 'left',
-    selector,
-    itemName,
-    expectedRequestId,
-    beforePanes: currentTransferPanesForOwnership(),
-  };
-  const result = processSharedTransferEvent('transfer.begun', payload) || applyTransferModelResult(model.beginTransfer(publicTransferTransactions, payload));
-  if (result?.transfer) {
-    containerTransferState.pendingTransferId = result.transfer.transferId;
-    containerTransferState.transferSessionId = result.transfer.sessionId;
-    if (gameView) {
-      syncGameViewGlobals();
-    } else if (direction === 'ground-to-inventory' || direction === 'inventory-to-ground') {
-      const coord = groundPileCoordHere();
-      pendingGroundPileEvidence = {
-        transferId: result.transfer.transferId,
-        sessionId: result.transfer.sessionId,
-        direction,
-        coord,
-        beforePile: groundPileAtCoord(coord),
-        delta: null,
-        at: Date.now(),
-      };
-    } else if (direction === 'container-to-inventory' || direction === 'inventory-to-container') {
-      ensurePublicContainerSnapshotSession();
-      pendingContainerContentsEvidence = {
-        transferId: result.transfer.transferId,
-        direction,
-        sessionId: result.transfer.sessionId,
-        container: containerSnapshotIdentity(),
-        beforeSnapshot: containerContentsSnapshotForSession(result.transfer.sessionId),
-        delta: null,
-        at: Date.now(),
-      };
-    }
-  }
-  return result?.transfer || null;
-}
-
-function pendingTransferForOwnership() {
-  return currentTransferCommandState().transfer || null;
-}
-
-function transferEventMatchesPending(event = {}) {
-  const transfer = pendingTransferForOwnership();
-  if (!transfer) return false;
-  const eventTransactionId = String(event.transactionId || event.inputTransactionId || event.actionTransactionId || event.guiAction?.transactionId || event.guiAction?.actionTransactionId || '').trim();
-  const expectedRequestId = String(transfer.expectedRequestId || '').trim();
-  const eventRequestId = String(event.requestId || event.menuRequestId || event.promptId || '').trim();
-  if (eventTransactionId && eventTransactionId === transfer.transferId) return !expectedRequestId || !eventRequestId || eventRequestId === expectedRequestId;
-  if (expectedRequestId) return Boolean(eventRequestId && eventRequestId === expectedRequestId);
-  return false;
-}
-
-function transferEventTargetsPendingTransfer(event = {}) {
-  const transfer = pendingTransferForOwnership();
-  if (!transfer) return false;
-  const eventTransactionId = String(event.transactionId || event.inputTransactionId || event.actionTransactionId || event.guiAction?.transactionId || event.guiAction?.actionTransactionId || '').trim();
-  return Boolean(eventTransactionId && eventTransactionId === transfer.transferId);
-}
-
-function completeTransferOwnership(status = 'success', reason = '') {
-  const model = sharedModules.transferTransactionModel;
-  if (!model?.completeTransfer || !containerTransferState?.active) return null;
-  const commandState = currentTransferCommandState();
-  const transferId = commandState.transferId;
-  if (!transferId) return null;
-  updateTransferSessionOwnership();
-  const groundPileDelta = !gameView && commandState.pendingEvidenceKind === 'ground-pile' && commandState.pendingEvidence?.transferId === transferId ? commandState.pendingEvidence.delta : null;
-  const containerContentsDelta = !gameView && commandState.pendingEvidenceKind === 'container-contents' && commandState.pendingEvidence?.transferId === transferId ? commandState.pendingEvidence.delta : null;
-  const payload = { transferId, status, reason, afterPanes: currentTransferPanesForOwnership(), groundPileDelta, containerContentsDelta };
-  const result = processSharedTransferEvent('transfer.completed', payload) || applyTransferModelResult(model.completeTransfer(publicTransferTransactions, { transferId, status, reason }, { afterPanes: payload.afterPanes, groundPileDelta, containerContentsDelta }));
-  if (groundPileDelta && pendingGroundPileEvidence?.transferId === transferId) pendingGroundPileEvidence = null;
-  if (containerContentsDelta && pendingContainerContentsEvidence?.transferId === transferId) pendingContainerContentsEvidence = null;
-  if (result?.transfer && containerTransferState?.pendingTransferId === transferId) containerTransferState.pendingTransferId = '';
-  clearDirectTransferPending(transferId);
-  return result?.transfer || null;
-}
-
-function rejectTransferFollowup(event = {}, reason = 'stale transfer follow-up') {
-  const model = sharedModules.transferTransactionModel;
-  if (!model?.rejectFollowup) return null;
-  const explicitTransferId = event.transferId || event.transactionId || event.inputTransactionId || event.actionTransactionId || event.guiAction?.transactionId || '';
-  const commandState = currentTransferCommandState({ transferId: explicitTransferId, strictTransferId: Boolean(explicitTransferId) });
-  const transferId = commandState.transferId;
-  if (!transferId) return null;
-  const payload = { transferId, sessionId: event.sessionId || commandState.sessionId || containerTransferState?.transferSessionId || '', reason, requestId: event.requestId || event.menuRequestId || event.promptId || '', expectedRequestId: event.expectedRequestId || '' };
-  const result = processSharedTransferEvent('transfer.rejected', payload) || applyTransferModelResult(model.rejectFollowup(publicTransferTransactions, { ...event, transferId }, reason));
-  if (containerTransferState?.pendingTransferId === transferId) containerTransferState.pendingTransferId = '';
-  clearDirectTransferPending(transferId);
-  if (containerTransferState?.active) {
-    containerTransferState.feedback = reason;
-    renderContainerTransferPanel();
-  }
-  return result?.transfer || null;
-}
 
 function transferActionPayload(transfer = {}, index = 0, length = 1, options = {}) {
   return {
@@ -7220,7 +5663,7 @@ function transferActionPayload(transfer = {}, index = 0, length = 1, options = {
     targetText: String(transfer.itemName || '').slice(0, 240),
     followupPlan: 'confirm-transfer>refresh-panes',
     expectedRequestId: String(Object.prototype.hasOwnProperty.call(options, 'expectedRequestId') ? options.expectedRequestId : (transfer.expectedRequestId || '')).trim(),
-    transactionId: transfer.transferId || '',
+    transactionId: options.inputTransactionId || transfer.transferId || '',
     actionTransactionId: transfer.transferId || '',
     commandPosition: index + 1,
     commandLength: length,
@@ -7234,38 +5677,34 @@ function sendTransferText(text, transfer = null, options = {}) {
   }
   noteContainerUnlockAnswer(text);
   const command = sharedModules.commandGateway?.normalizeTextInput ? sharedModules.commandGateway.normalizeTextInput(text) : String(text || '');
+  const expectedRequestId = String(Object.prototype.hasOwnProperty.call(options, 'expectedRequestId') ? options.expectedRequestId : (transfer.expectedRequestId || '')).trim();
+  const ownerInput = [gameViewSnapshot.currentMenu, gameViewSnapshot.activePrompt]
+    .find((owner) => String(owner?.requestId || owner?.menuRequestId || owner?.promptId || '').trim() === expectedRequestId);
+  const ownerRequestId = String(ownerInput?.requestId || ownerInput?.menuRequestId || ownerInput?.promptId || '').trim();
+  const inputTransactionId = expectedRequestId && expectedRequestId === ownerRequestId
+    ? String(ownerInput?.transactionId || '')
+    : '';
+  const actionOptions = inputTransactionId ? { ...options, inputTransactionId } : options;
   [...command].forEach((key, index) => {
-    if (key.length === 1 && isSupportedPlayableKey(key)) sendRecordedShimInput({ type: 'keycode', keycode: key.charCodeAt(0), ...transferActionPayload(transfer, index, command.length, options) }, options.source || 'transfer-action');
+    if (key.length === 1 && isSupportedPlayableKey(key)) sendRecordedShimInput({ type: 'keycode', keycode: key.charCodeAt(0), ...transferActionPayload(transfer, index, command.length, actionOptions) }, options.source || 'transfer-action');
   });
   lastSentKey = { key: undefined, at: 0 };
   setStatus(`sent transfer action: ${command.replace(/\n/g, '↵')}`);
 }
 
 function closeContainerTransferPanel(reason = '') {
-  if (!containerTransferState && containerTransferPanel?.hidden) return false;
-  if (containerTransferState?.active && containerTransferState.directTransferPendingId) {
-    containerTransferState.feedback = `Waiting for NetHack to confirm the current direct transfer before closing${reason ? ` (${reason.replace(/[.!]+$/, '')})` : ''}.`;
+  if (!transferPresentation && containerTransferPanel?.hidden) return false;
+  if (transferSession.snapshot().pending?.route === 'direct') {
+    transferPresentation.feedback = `Waiting for NetHack to confirm the current direct transfer before closing${reason ? ` (${reason.replace(/[.!]+$/, '')})` : ''}.`;
     renderContainerTransferPanel();
     return false;
   }
-  rememberContainerTransferView();
-  const commandState = currentTransferCommandState({ transferId: '' });
-  applyTransferChoreographyPatch({ clearPendingSelection: true, autoLoadingSide: '', autoNextSide: '', reopenPending: false, autoInventoryLoadPending: false, clearRefreshIntent: true }, reason || 'transfer panel closed');
-  if (containerTransferState?.sessionKind === 'container') closePublicContainerSnapshotSession(reason || 'transfer panel closed');
-  if (sharedModules.transferTransactionModel?.closeSession && (commandState.sessionId || publicTransferTransactions.activeSessionId)) {
-    const payload = { sessionId: commandState.sessionId || publicTransferTransactions.activeSessionId, reason: reason || 'transfer panel closed' };
-    const closed = processSharedTransferEvent('transfer.session.closed', payload) || applyTransferModelResult(sharedModules.transferTransactionModel.closeSession(publicTransferTransactions, payload, payload.reason));
-    if (closed?.state) publicTransferTransactions = closed.state;
-  }
-  if (/^(?:Container panel closed|Ground pickup panel closed)|interruption/i.test(String(reason || '')) || !reason) clearContainerTransferCache();
-  pendingContainerTransferSelection = null;
-  pendingGroundMenuTransferIntent = null;
-  pendingGroundPickupRequest = null;
-  if (!gameView) {
-    pendingGroundPileEvidence = null;
-    pendingContainerContentsEvidence = null;
-  } else syncGameViewGlobals();
-  containerTransferState = reason ? { active: false, sessionKind: cachedContainerTransferView?.sessionKind, prompt: cachedContainerTransferView?.prompt, feedback: reason, leftItems: cachedContainerTransferView?.leftItems || [], rightItems: cachedContainerTransferView?.rightItems || [], loadedSides: cachedContainerTransferView?.loadedSides || {} } : null;
+  applyTransferChoreographyPatch({ autoLoadingSide: '', autoNextSide: '', reopenPending: false, autoInventoryLoadPending: false, clearRefreshIntent: true });
+  if (transferPresentation?.sessionKind === 'container') closePublicContainerSnapshotSession(reason || 'transfer panel closed');
+  dispatchTransferSessionEvent({ type: 'close', reason: reason || 'Transfer Session closed.' });
+  clearTransferRefreshGrace();
+  refreshGameViewPresentation();
+  transferPresentation = reason ? { active: false, feedback: reason } : null;
   if (containerTransferPanel) {
     containerTransferPanel.hidden = true;
     containerTransferPanel.replaceChildren();
@@ -7276,15 +5715,14 @@ function closeContainerTransferPanel(reason = '') {
 }
 
 function cancelContainerTransferPanel() {
-  if (containerTransferState?.directTransferPendingId) {
-    closeContainerTransferPanel(containerTransferState.sessionKind === 'ground-pickup' ? 'Ground pickup panel close requested.' : 'Container panel close requested.');
+  if (transferSession.snapshot().pending?.route === 'direct') {
+    closeContainerTransferPanel(transferPresentation.sessionKind === 'ground-pickup' ? 'Ground pickup panel close requested.' : 'Container panel close requested.');
     return;
   }
-  const isGroundPickup = containerTransferState?.sessionKind === 'ground-pickup';
-  const groundReleaseAlreadyRequested = Boolean(isGroundPickup && pendingGroundMenuTransferIntent);
-  pendingGroundMenuTransferIntent = null;
-  if (!isGroundPickup || (currentMenu?.awaitingSelection && !groundReleaseAlreadyRequested)) {
-    if (currentMenu?.awaitingSelection) sendActivePromptCancellation(null, { forceMenu: currentMenu, transactionId: currentMenu.transactionId });
+  const isGroundPickup = transferPresentation?.sessionKind === 'ground-pickup';
+  const groundReleaseAlreadyRequested = false;
+  if (!isGroundPickup || (gameViewSnapshot.currentMenu?.awaitingSelection && !groundReleaseAlreadyRequested)) {
+    if (gameViewSnapshot.currentMenu?.awaitingSelection) sendActivePromptCancellation(null, { forceMenu: gameViewSnapshot.currentMenu, transactionId: gameViewSnapshot.currentMenu.transactionId });
     else sendPlayableText('\u001b');
   }
   if (!isGroundPickup) clearPromptOwnerState({ clearWorkflow: true, clearMenu: true });
@@ -7293,10 +5731,10 @@ function cancelContainerTransferPanel() {
   gameGrid?.focus?.({ preventScroll: true });
 }
 
+
 function containerMenuItems(side) {
-  const state = containerTransferState || {};
-  if (side === 'left') return state.leftItems || [];
-  return state.rightItems || [];
+  const transferView = transferSession.snapshot();
+  return transferView.active ? panelItemsFromTransferRows(transferView.panes?.[side] || [], side) : [];
 }
 
 function itemHasNetHackSelector(item) {
@@ -7313,51 +5751,85 @@ function findContainerTransferItem(side, selector) {
   return containerMenuItems(side).find((item) => transferItemKey(item) === wanted) || null;
 }
 
-function fallbackShortInventoryName(text) {
-  return menuItemName(text)
-    .replace(/\b(?:blessed|uncursed|cursed)\b/ig, ' ')
-    .replace(/\s[+-]\d+\b/g, ' ')
-    .replace(/^\s*(?:a|an|the)\s+/i, '')
-    .replace(/\s+/g, ' ')
-    .trim();
+
+function containerTransferDisplayName(item) {
+  const publicLabel = sharedModules.publicItemKnowledge?.publicDisplayLabel?.(item, { neutral: '' });
+  if (publicLabel) return sharedModules.interactionModel.menuItemName(publicLabel);
+  const textName = sharedModules.interactionModel.menuItemName(item?.text || '');
+  const displayName = sharedModules.interactionModel.menuItemName(item?.displayName || '');
+  if (!textName || /^(?:item|object|unknown)$/i.test(textName)) return displayName || 'item';
+  return textName;
 }
 
-function inventoryTransferDisplayName(item) {
-  const semantic = String(item?.semanticKnown === false && item?.semanticAppearance ? item.semanticAppearance : item?.semanticName || '').trim();
-  const fallback = fallbackShortInventoryName(item?.text || 'item');
-  const usefulSemantic = semantic && !/^(?:object|item|unknown)$/i.test(semantic) ? semantic : '';
-  const base = usefulSemantic && !(fallback && fallback.length > usefulSemantic.length && fallback.toLowerCase().includes(usefulSemantic.toLowerCase())) ? usefulSemantic : fallback;
-  const count = Number(item?.quantity) || menuItemMaxCount(item);
-  if (count > 1 && base && !/^\d+\b/.test(base)) return `${count} ${base}`;
-  return base || 'item';
+function transferSelectionId(item = {}, side = '') {
+  return Number(item.objectId) > 0 ? `${side || 'item'}-object-${Number(item.objectId)}` : transferItemKey(item);
 }
 
-function containerTransferDisplayName(item, side) {
-  return side === 'right' ? inventoryTransferDisplayName(item) : menuItemName(item.text || 'item');
+function selectedTransferIds(side) {
+  return transferSession.snapshot().selection?.[side] || [];
+}
+
+function transferItemIsSelected(item, side) {
+  return selectedTransferIds(side).includes(transferSelectionId(item, side));
+}
+
+function setTransferItemSelected(item, side, selected) {
+  dispatchTransferSessionEvent({ type: 'toggle', side, selector: transferItemKey(item), selected });
+}
+
+function toggleTransferItemSelection(item, side) {
+  setTransferItemSelected(item, side, !transferItemIsSelected(item, side));
+  renderContainerTransferPanel();
+}
+
+function selectAllEligibleContainerItems() {
+  const snapshot = transferSession.snapshot();
+  if (!transferPresentation?.active || transferPresentation.sessionKind !== 'container' || snapshot.pending || !snapshot.loadedSides?.left) return;
+  const eligible = containerMenuItems('left').filter((item) => Boolean(transferItemKey(item)));
+  if (!eligible.length) return;
+  dispatchTransferSessionEvent({
+    type: 'select-all',
+    side: 'left',
+    rowKeys: eligible.map((item) => transferSelectionId(item, 'left')),
+  });
+  renderContainerTransferPanel();
+}
+
+function transferRowGlyph(item = {}) {
+  const glyphCode = Number(item.glyphChar);
+  if (typeof item.objectClass === 'string' && item.objectClass.length) return item.objectClass[0];
+  return Number.isInteger(glyphCode) && glyphCode > 0 && glyphCode < 128 ? String.fromCharCode(glyphCode) : '';
 }
 
 function renderContainerItemRow(item, side) {
   const button = document.createElement('button');
   const key = transferItemKey(item);
   const displayKey = String(item?.displaySelector || '').trim();
-  const isGroundPickup = containerTransferState?.sessionKind === 'ground-pickup';
+  const isGroundPickup = transferPresentation?.sessionKind === 'ground-pickup';
   const draggable = Boolean(key) && (isGroundPickup ? (side === 'left' || itemHasNetHackSelector(item)) : true);
+  const cleanName = containerTransferDisplayName(item);
+  const keycap = itemHasNetHackSelector(item) ? key : (displayKey || '—');
+  const selected = transferItemIsSelected(item, side);
+  const glyph = transferRowGlyph(item);
+  const assetId = mappedAssetIdForCell({ ...item, ch: glyph, semanticKind: item.semanticKind || 'object' });
+  const tile = assetId ? tileAssetsById.get(assetId) : undefined;
+  const sourceLabel = isGroundPickup && side === 'left' ? 'Ground item' : (side === 'left' ? 'Container item' : 'Inventory item');
+  const targetLabel = isGroundPickup ? (side === 'left' ? 'inventory' : 'ground') : (side === 'left' ? 'inventory' : 'container');
+
   button.type = 'button';
   button.className = 'container-item-row';
   button.draggable = draggable;
   button.dataset.containerSide = side;
   button.dataset.selector = key;
+  button.dataset.shortcut = keycap.length === 1 ? keycap : '';
   button.dataset.filterText = `${item.text || ''} ${menuItemSemanticFilterText(item)}`.toLowerCase();
-  const cleanName = containerTransferDisplayName(item, side);
   button.dataset.itemName = cleanName;
-  const sourceLabel = isGroundPickup && side === 'left' ? 'Ground item' : (side === 'left' ? 'Container item' : 'Inventory item');
-  const targetLabel = isGroundPickup ? (side === 'left' ? 'inventory' : 'ground') : (side === 'left' ? 'inventory' : 'container');
-  const shortcutLabel = itemHasNetHackSelector(item) ? `shortcut ${key}` : '';
-  const keycap = itemHasNetHackSelector(item) ? key : (displayKey || (isGroundPickup ? 'ground' : '—'));
-  button.dataset.stableId = Number.isInteger(item?.objectId) ? `object:${item.objectId}` : (displayKey || key);
-  button.setAttribute('aria-label', `${sourceLabel} ${cleanName}; ${draggable ? `drag to ${targetLabel}; ` : ''}${isGroundPickup && side === 'left' ? 'actions available with right click or Shift+F10; ' : ''}${shortcutLabel}`.replace(/;\s*$/, ''));
-  const stateMeta = side === 'right' ? '' : menuItemState(item.text);
-  button.innerHTML = `<span class="selector-keycap" aria-hidden="true">${escapeHtml(keycap)}</span><span class="menu-item-main"><span class="menu-item-name">${escapeHtml(cleanName)}</span>${stateMeta ? `<span class="menu-meta">${escapeHtml(stateMeta)}</span>` : ''}</span>`;
+  button.dataset.stableId = transferSelectionId(item, side);
+  button.setAttribute('role', 'checkbox');
+  button.setAttribute('aria-checked', String(selected));
+  button.setAttribute('aria-label', `${selected ? 'Selected' : 'Not selected'} ${sourceLabel} ${cleanName}; shortcut ${keycap}; press Enter to move selected items; ${draggable ? `drag to ${targetLabel}; ` : ''}${isGroundPickup && side === 'left' ? 'actions available with right click or Shift+F10' : ''}`.replace(/;\s*$/, ''));
+  button.innerHTML = `<span class="transfer-checkbox" aria-hidden="true">${selected ? '☑' : '☐'}</span>${renderInventoryOption({ ...item, text: cleanName }, keycap, tile, assetId, { showSemantic: true })}${selected ? '<span class="transfer-selected-label" aria-hidden="true">Selected</span>' : ''}`;
+  button.addEventListener('click', () => toggleTransferItemSelection(item, side));
   button.addEventListener('dragstart', (event) => {
     if (!draggable) {
       event.preventDefault();
@@ -7369,11 +5841,10 @@ function renderContainerItemRow(item, side) {
     if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer?.setDragImage?.(button, 12, 12);
     button.classList.add('dragging');
-    if (containerTransferState?.active) {
-      const target = isGroundPickup ? (side === 'left' ? 'inventory' : 'ground') : (side === 'left' ? 'inventory' : 'container');
-      containerTransferState.feedback = `Dragging ${cleanName} to ${target}. Release over the highlighted area to move the item.`;
+    if (transferPresentation?.active) {
+      transferPresentation.feedback = `Dragging ${cleanName} to ${targetLabel}. Release over the highlighted area to move the item.`;
       const feedbackLine = containerTransferPanel?.querySelector('.container-transfer-heading span');
-      if (feedbackLine) feedbackLine.textContent = containerTransferState.feedback;
+      if (feedbackLine) feedbackLine.textContent = transferPresentation.feedback;
     }
   });
   button.addEventListener('dragend', () => {
@@ -7392,12 +5863,15 @@ function renderContainerItemRow(item, side) {
       }
     });
   }
-  if (draggable) button.addEventListener('dblclick', () => transferContainerItem(side, key));
+  if (draggable) button.addEventListener('dblclick', () => {
+    setTransferItemSelected(item, side, false);
+    transferContainerItem(side, key);
+  });
   return button;
 }
 
 function normalizedItemMatchText(text) {
-  return menuItemName(String(text || '')).toLowerCase().replace(/\b(?:a|an|the|some|uncursed|blessed|cursed)\b/g, ' ').replace(/[^a-z0-9$]+/g, ' ').replace(/\s+/g, ' ').trim();
+  return sharedModules.interactionModel.menuItemName(String(text || '')).toLowerCase().replace(/\b(?:a|an|the|some|uncursed|blessed|cursed)\b/g, ' ').replace(/[^a-z0-9$]+/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
 function resolveContainerTransferMenuSelector(menu, requestedSelector, requestedItemName = '') {
@@ -7421,27 +5895,19 @@ function resolveContainerTransferMenuSelector(menu, requestedSelector, requested
   return { selector: '', row: null, remapped: false, reason: nameMatches.length > 1 ? 'multiple current NetHack rows matched the dragged item name' : 'dragged selector is not available in the current NetHack menu' };
 }
 
-function bestGroundPickupMenuMatch(menu, requestedName) {
-  const wanted = normalizedItemMatchText(requestedName);
-  if (!wanted) return null;
-  const rows = (menu?.items || []).filter((item) => item.selector);
-  return rows.find((item) => normalizedItemMatchText(item.text) === wanted)
-    || rows.find((item) => normalizedItemMatchText(item.text).includes(wanted) || wanted.includes(normalizedItemMatchText(item.text)))
-    || null;
-}
 
 function sendDropInventorySelector(selector) {
   const drop = () => {
     sendPlayableText('d');
     window.setTimeout(() => sendPlayableText(selector), 90);
   };
-  if (currentMenu?.awaitingSelection) {
+  if (gameViewSnapshot.currentMenu?.awaitingSelection) {
     sendPlayableText('\u001b');
     window.setTimeout(drop, 120);
   } else drop();
 }
 
-function inputOwnerDiagnostic(ownerPrompt = activePrompt, ownerMenu = currentMenu) {
+function inputOwnerDiagnostic(ownerPrompt = gameViewSnapshot.activePrompt, ownerMenu = gameViewSnapshot.currentMenu) {
   if (ownerPrompt && !activePromptIsOrphaned()) return {
     kind: 'prompt',
     requestId: ownerPrompt.requestId || ownerPrompt.promptId || '',
@@ -7460,186 +5926,22 @@ function inputOwnerDiagnostic(ownerPrompt = activePrompt, ownerMenu = currentMen
   return null;
 }
 
-function panelOwnedGroundPickupMenu(menu = currentMenu) {
-  if (!containerTransferState?.active || containerTransferState.sessionKind !== 'ground-pickup' || !isGroundPickupMenu(menu)) return false;
-  const panelMenu = containerTransferState.pickupMenu;
+function panelOwnedGroundPickupMenu(menu = gameViewSnapshot.currentMenu) {
+  if (!transferPresentation?.active || transferPresentation.sessionKind !== 'ground-pickup' || !isGroundPickupMenu(menu)) return false;
   const session = currentTransferCommandState({ kind: 'ground-pickup', transferId: '' }).session;
   const menuRequestId = String(menu?.requestId || menu?.menuRequestId || '').trim();
-  const panelRequestId = String(panelMenu?.requestId || panelMenu?.menuRequestId || session?.ownerRequestId || '').trim();
-  if (menuRequestId || panelRequestId) return Boolean(menuRequestId && panelRequestId && menuRequestId === panelRequestId);
-  return panelMenu?.window != null && menu?.window != null && Number(panelMenu.window) === Number(menu.window);
+  const ownerRequestId = String(session?.ownerRequestId || '').trim();
+  if (menuRequestId || ownerRequestId) return Boolean(menuRequestId && ownerRequestId && menuRequestId === ownerRequestId);
+  return Boolean(transferSession.snapshot().owner?.ownsMenu);
 }
 
-function groundMenuReleaseMatchesIntent(event = {}, intent = pendingGroundMenuTransferIntent) {
-  if (!intent || event.name !== 'bridge_menu_answer') return false;
-  const eventRequestId = String(event.requestId || event.menuRequestId || '').trim();
-  if (intent.requestId || eventRequestId) return Boolean(intent.requestId && eventRequestId && intent.requestId === eventRequestId);
-  return intent.window != null && event.window != null && Number(intent.window) === Number(event.window);
-}
 
-function menuAnswerWasCancelled(event = {}) {
-  const selected = String(event.selection || event.selections || event.selectors || '').trim();
-  return !Number(event.return || 0) && !Number(event.selector || 0) && !selected && !event.answer;
-}
-
-function requestGroundMenuReleaseThenTransfer(sourceSide, selector) {
-  if (!panelOwnedGroundPickupMenu(currentMenu)) return false;
-  const menu = currentMenu;
-  const requestId = String(menu.requestId || menu.menuRequestId || '').trim();
-  if (pendingGroundMenuTransferIntent) {
-    diagnosticEvent('transaction', 'ground-transfer.menu-release.duplicate-ignored', {
-      existing: { ...pendingGroundMenuTransferIntent }, requested: { sourceSide, selector: String(selector || ''), requestId, window: menu.window },
-    });
-    return true;
-  }
-  const requestedItem = findContainerTransferItem(sourceSide, selector)
-    || (menu.items || []).find((item) => itemHasNetHackSelector(item) && String.fromCharCode(Number(item.selector)) === String(selector || ''))
-    || null;
-  pendingGroundMenuTransferIntent = {
-    sourceSide,
-    selector: String(selector || ''),
-    itemId: Number.isInteger(requestedItem?.objectId) ? requestedItem.objectId : undefined,
-    itemName: requestedItem ? containerTransferDisplayName(requestedItem, sourceSide) : '',
-    requestId,
-    window: menu.window,
-    sessionId: containerTransferState.transferSessionId || '',
-    requestedAt: Date.now(),
-  };
-  containerTransferState.feedback = 'Finishing the open pickup choice, then moving your item…';
-  renderContainerTransferPanel();
-  diagnosticEvent('transaction', 'ground-transfer.menu-release.requested', {
-    intent: { ...pendingGroundMenuTransferIntent },
-    activeInputOwner: inputOwnerDiagnostic(null, menu),
-    handoff: 'escape exact panel-owned pickup menu, await matching bridge_menu_answer, then dispatch direct command',
-  }, { requestId });
-  sendActivePromptCancellation(null, { forceMenu: menu, transactionId: menu.transactionId });
-  window.setTimeout(() => {
-    const pending = pendingGroundMenuTransferIntent;
-    if (!pending || pending.requestedAt !== pendingGroundMenuTransferIntent?.requestedAt || pending.requestId !== requestId || pending.window !== menu.window) return;
-    if (!containerTransferState?.active || containerTransferState.transferSessionId !== pending.sessionId) return;
-    pendingGroundMenuTransferIntent = null;
-    containerTransferState.feedback = 'NetHack is still waiting on the pickup choice. Choose Done to cancel it, then reopen the panel.';
-    renderContainerTransferPanel();
-    diagnosticEvent('transaction', 'ground-transfer.menu-release.timed-out', {
-      intent: { ...pending },
-      activeInputOwner: inputOwnerDiagnostic(),
-    }, { requestId });
-  }, 3000);
-  return true;
-}
-
-function resumeGroundTransferAfterMenuRelease(event = {}) {
-  const pending = pendingGroundMenuTransferIntent;
-  if (!groundMenuReleaseMatchesIntent(event, pending)) return false;
-  pendingGroundMenuTransferIntent = null;
-  const cancelled = menuAnswerWasCancelled(event);
-  diagnosticEvent('transaction', 'ground-transfer.menu-release.confirmed', {
-    intent: { ...pending },
-    answer: { requestId: event.requestId || event.menuRequestId || '', window: event.window, return: event.return, selector: event.selector, selectors: event.selectors || '' },
-    cancelled,
-  }, { requestId: pending.requestId });
-  if (!cancelled) {
-    if (containerTransferState?.active) {
-      containerTransferState.feedback = 'NetHack completed the pickup choice. The item lists are updating.';
-      renderContainerTransferPanel();
-    }
-    diagnosticEvent('transaction', 'ground-transfer.menu-release.direct-dispatch-skipped', { intent: pending, reason: 'pickup menu completed a selection instead of accepting the requested cancellation' });
-    return true;
-  }
-  window.setTimeout(() => {
-    if (!containerTransferState?.active || containerTransferState.sessionKind !== 'ground-pickup' || containerTransferState.transferSessionId !== pending.sessionId) return;
-    const owner = inputOwnerDiagnostic();
-    const topLevelCommandPrompt = activePrompt && (activePrompt.promptPurpose === 'prompt.command' || activePrompt.query === 'Choose a command.');
-    if ((owner?.kind === 'prompt' && !topLevelCommandPrompt) || owner?.kind === 'menu') {
-      containerTransferState.feedback = 'NetHack needs another choice first. Finish or cancel it, then try the move again.';
-      renderContainerTransferPanel();
-      diagnosticEvent('transaction', 'ground-transfer.menu-release.retry-blocked', { intent: pending, activeInputOwner: owner });
-      return;
-    }
-    const currentRows = containerMenuItems(pending.sourceSide);
-    const idMatches = pending.itemId != null ? currentRows.filter((item) => Number(item.objectId) === Number(pending.itemId)) : [];
-    const nameMatches = pending.itemId == null && pending.itemName
-      ? currentRows.filter((item) => normalizedItemMatchText(containerTransferDisplayName(item, pending.sourceSide)) === normalizedItemMatchText(pending.itemName))
-      : [];
-    const currentItem = idMatches.length === 1 ? idMatches[0] : (nameMatches.length === 1 ? nameMatches[0] : null);
-    if (!currentItem) {
-      containerTransferState.feedback = 'That item changed while the pickup choice was closing. Review the refreshed list and try again.';
-      renderContainerTransferPanel();
-      diagnosticEvent('transaction', 'ground-transfer.menu-release.target-rejected', {
-        intent: pending,
-        idMatchCount: idMatches.length,
-        nameMatchCount: nameMatches.length,
-        currentRows: currentRows.map((item) => ({ selector: transferItemKey(item), objectId: item.objectId, text: containerTransferDisplayName(item, pending.sourceSide) })),
-      });
-      return;
-    }
-    const currentSelector = transferItemKey(currentItem);
-    diagnosticEvent('transaction', 'ground-transfer.menu-release.target-resolved', {
-      intent: pending,
-      resolvedSelector: currentSelector,
-      resolvedItemId: currentItem.objectId,
-      selectorChanged: currentSelector !== pending.selector,
-    });
-    transferContainerItem(pending.sourceSide, currentSelector);
-  }, 0);
-  return true;
-}
-
-function isContainerInventoryProbeBlockingTransfer(menu = currentMenu) {
-  if (!containerTransferState?.active || containerTransferState.sessionKind !== 'container') return false;
-  if (!menu?.awaitingSelection || currentPendingContainerTransferSelection()) return false;
-  if (!containerPaneLoaded('left') || !containerPaneLoaded('right')) return false;
-  if (isContainerActionMenu(menu) || isContainerTakeOutMenu(menu) || isContainerPutInMenu(menu) || isContainerCategoryMenu(menu) || isGroundPickupMenu(menu)) return false;
-  return isInventoryOverviewMenu(menu) || isContainerInventoryProbeMenu(menu);
-}
-
-function flushPendingContainerInventoryProbeDismissal(trigger = 'menu-closed') {
-  const pending = pendingContainerInventoryProbeDismissal;
-  if (!pending || !containerTransferState?.active) return false;
-  pendingContainerInventoryProbeDismissal = null;
-  window.setTimeout(() => {
-    if (!containerTransferState?.active || activePrompt || currentMenu?.awaitingSelection) return;
-    diagnosticEvent('transaction', 'container-transfer.inventory-probe-dismissed', { trigger, sourceSide: pending.sourceSide, selector: pending.selector });
-    transferContainerItem(pending.sourceSide, pending.selector);
-  }, 0);
-  return true;
-}
-
-function dismissContainerInventoryProbeThenTransfer(sourceSide, selector) {
-  if (!isContainerInventoryProbeBlockingTransfer(currentMenu)) return false;
-  const key = String(selector || '');
-  pendingContainerInventoryProbeDismissal = { sourceSide, selector: key, at: Date.now(), menuWindow: currentMenu?.window, requestId: currentMenu?.requestId || currentMenu?.menuRequestId || '' };
-  containerTransferState.feedback = 'Closing the internal inventory refresh and applying your drag immediately…';
-  renderContainerTransferPanel();
-  sendPlayableText('\u001b');
-  clearPromptOwnerState({ clearWorkflow: true, clearMenu: true });
-  window.setTimeout(() => {
-    if (!pendingContainerInventoryProbeDismissal || pendingContainerInventoryProbeDismissal.selector !== key) return;
-    if (!activePrompt && !currentMenu?.awaitingSelection) flushPendingContainerInventoryProbeDismissal('local-menu-clear-timeout');
-  }, 250);
-  return true;
-}
-
-function canUseDirectContainerTransfer(item) {
-  if (!containerTransferState?.active || containerTransferState.sessionKind !== 'container' || forceClassicContainerTakeOutForTest) return false;
-  const topLevelCommandPrompt = activePrompt && (activePrompt.promptPurpose === 'prompt.command' || activePrompt.query === 'Choose a command.');
-  if ((activePrompt && !topLevelCommandPrompt) || currentMenu?.awaitingSelection) return false;
-  const identity = containerSnapshotIdentity();
-  return Number.isInteger(identity.objectId) && identity.objectId > 0 && Number.isInteger(item?.objectId) && item.objectId > 0;
-}
-
-function canUseDirectContainerToInventoryTransfer(item) {
-  return canUseDirectContainerTransfer(item);
-}
-
-function canUseDirectInventoryToContainerTransfer(item) {
-  return canUseDirectContainerTransfer(item);
-}
 
 function panelItemsFromTransferRows(rows = [], side = 'left') {
   return (rows || []).map((row, index) => {
     const selector = String(row?.selector || '').trim();
     const item = {
+      ...row,
       text: row?.text || row?.displayName || 'item',
       displayName: row?.displayName || row?.text || 'item',
       objectId: Number.isInteger(row?.objectId) ? row.objectId : undefined,
@@ -7653,7 +5955,7 @@ function panelItemsFromTransferRows(rows = [], side = 'left') {
 
 function stableContainerItemDisplayKeys(items = []) {
   const alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const previous = containerTransferState?.containerItemKeysByObjectId || {};
+  const previous = transferPresentation?.containerItemKeysByObjectId || {};
   const used = new Set();
   const next = {};
   for (const item of items || []) {
@@ -7673,7 +5975,7 @@ function stableContainerItemDisplayKeys(items = []) {
     next[id] = key;
     used.add(key);
   }
-  if (containerTransferState) containerTransferState.containerItemKeysByObjectId = next;
+  if (transferPresentation) transferPresentation.containerItemKeysByObjectId = next;
   return next;
 }
 
@@ -7681,7 +5983,7 @@ function panelItemsFromContainerSnapshot(snapshot = null) {
   const items = snapshot?.items || [];
   const displayKeys = stableContainerItemDisplayKeys(items);
   return items.map((item, index) => ({
-    text: item.text || item.displayName || 'item',
+    text: item.displayName || item.text || 'item',
     displayName: item.displayName || item.text || 'item',
     objectId: Number.isInteger(item.objectId) ? item.objectId : undefined,
     quantity: Number.isInteger(item.quantity) ? item.quantity : undefined,
@@ -7691,51 +5993,17 @@ function panelItemsFromContainerSnapshot(snapshot = null) {
     semanticName: item.semanticName,
     semanticAppearance: item.semanticAppearance,
     semanticKnown: item.semanticKnown,
+    publicClass: item.publicClass,
+    known: item.known ? { ...item.known } : undefined,
+    knownFields: item.knownFields ? { ...item.knownFields } : undefined,
+    ownership: item.ownership ? { ...item.ownership } : undefined,
+    filterGroups: Array.isArray(item.filterGroups) ? item.filterGroups.slice() : undefined,
+    actionAffordances: Array.isArray(item.actionAffordances) ? item.actionAffordances.slice() : undefined,
     displaySelector: Number.isInteger(item.objectId) && item.objectId > 0 ? displayKeys[String(item.objectId)] : '',
     syntheticSelector: `container-object-${Number.isInteger(item.objectId) ? item.objectId : index}`,
   }));
 }
 
-function reconcileContainerTransferAfterDirectRejection(rawEvent = {}, transferBeforeReject = null) {
-  if (!containerTransferState?.active || containerTransferState.sessionKind !== 'container') return false;
-  const reason = rawEvent.reason || 'direct NetHack container transfer rejected';
-  const sessionId = rawEvent.sessionId || transferBeforeReject?.sessionId || containerTransferState.transferSessionId || publicContainerContentsSnapshots?.activeSessionId || '';
-  const snapshot = containerContentsSnapshotForSession(sessionId);
-  const beforePanes = transferBeforeReject?.panesBefore || null;
-  const staleContainer = /container is no longer|container location is stale|hero cannot access floor containers/i.test(String(reason));
-  const rejectedBeforeDispatch = /needs stable public container and item IDs/i.test(String(reason));
-  if (rejectedBeforeDispatch && beforePanes?.left) {
-    containerTransferState.leftItems = panelItemsFromTransferRows(beforePanes.left, 'left');
-    markContainerPaneLoaded('left');
-  } else if (snapshot?.items) {
-    containerTransferState.leftItems = panelItemsFromContainerSnapshot(snapshot);
-    markContainerPaneLoaded('left');
-  } else if (beforePanes?.left) {
-    containerTransferState.leftItems = panelItemsFromTransferRows(beforePanes.left, 'left');
-    markContainerPaneLoaded('left');
-  }
-  const authoritativeInventoryKnown = Boolean(publicInventorySnapshot?.revision || liveInventoryRevision);
-  const inventoryRows = publicInventorySnapshot?.revision ? publicInventorySnapshotRows() : currentInventoryTransferRows();
-  if (rejectedBeforeDispatch && beforePanes?.right) {
-    containerTransferState.rightItems = panelItemsFromTransferRows(beforePanes.right, 'right');
-    markContainerPaneLoaded('right');
-  } else if (inventoryRows.length || authoritativeInventoryKnown) {
-    containerTransferState.rightItems = inventoryRows.slice();
-    markContainerPaneLoaded('right');
-  } else if (beforePanes?.right) {
-    containerTransferState.rightItems = panelItemsFromTransferRows(beforePanes.right, 'right');
-    markContainerPaneLoaded('right');
-  }
-  clearPendingContainerTransferSelection();
-  if (containerTransferState.pendingTransferId === (rawEvent.transferId || rawEvent.transactionId || '')) containerTransferState.pendingTransferId = '';
-  containerTransferState.feedback = staleContainer
-    ? `Direct transfer rejected: ${reason}. Close and reopen the container; no menu fallback was attempted after core rejection.`
-    : `Direct transfer rejected: ${reason}. Panes restored from NetHack state; no menu fallback was attempted after core rejection.`;
-  applyTransferChoreographyPatch({ clearPendingSelection: true, reopenPending: false, autoLoadingSide: '', autoNextSide: '', autoInventoryLoadPending: false, clearRefreshIntent: true }, 'direct container transfer rejected; optimistic pane projection reconciled');
-  updateTransferSessionOwnership();
-  renderContainerTransferPanel();
-  return true;
-}
 
 function dispatchUiCommand(command) {
   if (typeof testUiCommandHandler === 'function') return testUiCommandHandler(command);
@@ -7747,81 +6015,25 @@ function setDirectTransferPending(pending = null) {
     window.clearTimeout(directTransferPendingTimeout);
     directTransferPendingTimeout = null;
   }
-  if (!containerTransferState) return;
-  containerTransferState.directTransferPending = pending ? { ...pending, coord: pending.coord ? { ...pending.coord } : undefined } : null;
-  containerTransferState.directTransferPendingId = pending?.transferId || '';
   if (pending?.transferId) {
     const expectedTransferId = pending.transferId;
     directTransferPendingTimeout = window.setTimeout(() => {
       directTransferPendingTimeout = null;
-      if (!containerTransferState?.active || containerTransferState.directTransferPendingId !== expectedTransferId) return;
-      const transferBeforeReject = pendingTransferForOwnership();
-      const reason = 'timed out waiting for the NetHack transfer result';
-      diagnosticEvent('transaction', `${pending.kind || 'direct'}-transfer.direct.timed-out`, { pending: { ...pending }, reason }, { transactionId: expectedTransferId });
-      rejectTransferFollowup({ transferId: expectedTransferId, reason }, reason);
-      if (pending.kind === 'ground') reconcileGroundTransferAfterDirectRejection({ transferId: expectedTransferId, reason }, transferBeforeReject);
-      else reconcileContainerTransferAfterDirectRejection({ transferId: expectedTransferId, reason }, transferBeforeReject);
+      if (transferSession.snapshot().pending?.transferId !== expectedTransferId) return;
+      diagnosticEvent('transaction', `${pending.kind || 'direct'}-transfer.direct.timed-out`, { pending: { ...pending } }, { transactionId: expectedTransferId });
+      dispatchTransferSessionEvent({ type: 'tick' });
+      renderContainerTransferPanel();
     }, 5000);
   }
 }
 
 function clearDirectTransferPending(transferId = '') {
-  if (!containerTransferState) return;
-  const currentId = containerTransferState.directTransferPendingId || containerTransferState.directTransferPending?.transferId || '';
-  if (!transferId || currentId === transferId) setDirectTransferPending(null);
+  const pendingId = transferSession.snapshot().pending?.transferId || '';
+  if (!transferId || !pendingId || pendingId === transferId) setDirectTransferPending(null);
 }
 
-function directTransferEventMatchesPending(rawEvent = {}, kind = '') {
-  const pending = containerTransferState?.directTransferPending;
-  const pendingId = pending?.transferId || containerTransferState?.directTransferPendingId || '';
-  const eventId = rawEvent.transferId || rawEvent.transactionId || '';
-  if (!pendingId || !eventId || pendingId !== eventId) return false;
-  if (kind && pending?.kind && pending.kind !== kind) return false;
-  if (pending?.direction && rawEvent.direction && pending.direction !== rawEvent.direction) return false;
-  if (pending?.itemId != null && rawEvent.itemId != null && Number(pending.itemId) !== Number(rawEvent.itemId)) return false;
-  if (pending?.containerId != null && rawEvent.containerId != null && Number(pending.containerId) !== Number(rawEvent.containerId)) return false;
-  if (pending?.coord && rawEvent.coord && (Number(pending.coord.x) !== Number(rawEvent.coord.x) || Number(pending.coord.y) !== Number(rawEvent.coord.y))) return false;
-  return true;
-}
 
-function canUseDirectGroundTransfer(item) {
-  if (!containerTransferState?.active || containerTransferState.sessionKind !== 'ground-pickup') return false;
-  return Number.isInteger(item?.objectId) && item.objectId > 0;
-}
 
-function reconcileGroundTransferAfterDirectRejection(rawEvent = {}, transferBeforeReject = null) {
-  if (!containerTransferState?.active || containerTransferState.sessionKind !== 'ground-pickup') return false;
-  const reason = rawEvent.reason || 'direct NetHack ground transfer rejected';
-  const coord = groundPileCoordHere();
-  const beforePanes = transferBeforeReject?.panesBefore || null;
-  const groundSnapshot = groundPileAtCoord(coord);
-  const snapshotRows = groundPanelItemsFromPublicSnapshot(coord, groundSnapshot);
-  if (groundSnapshot) containerTransferState.leftItems = snapshotRows;
-  else if (beforePanes?.left) containerTransferState.leftItems = panelItemsFromTransferRows(beforePanes.left, 'left');
-  const inventoryRows = currentInventoryTransferRows();
-  const hasInventorySnapshot = Boolean(publicInventorySnapshot?.revision || liveInventoryRevision);
-  if (hasInventorySnapshot) containerTransferState.rightItems = inventoryRows.slice();
-  else if (beforePanes?.right) containerTransferState.rightItems = panelItemsFromTransferRows(beforePanes.right, 'right');
-  if (containerTransferState.pendingTransferId === (rawEvent.transferId || rawEvent.transactionId || '')) containerTransferState.pendingTransferId = '';
-  const ownershipConflict = rawEvent.blockerToken === 'blocked.input.promptActive'
-    || rawEvent.blockerToken === 'blocked.input.menuActive'
-    || rawEvent.blockerToken === 'blocked.input.transferActive'
-    || /another prompt, menu, or transfer owns input|direct command is blocked/i.test(String(reason));
-  containerTransferState.feedback = ownershipConflict
-    ? 'NetHack opened another choice before the move could start. Finish or cancel it, then try the move again.'
-    : 'That move could not be completed. The item lists were refreshed; try again.';
-  diagnosticEvent('transaction', 'ground-transfer.direct.rejection-reconciled', {
-    reason,
-    blockerToken: rawEvent.blockerToken || '',
-    activeInputOwner: rawEvent.activeInputOwner || null,
-    ownershipConflict,
-    transferId: rawEvent.transferId || rawEvent.transactionId || '',
-  }, { transactionId: rawEvent.transferId || rawEvent.transactionId || '' });
-  applyTransferChoreographyPatch({ clearPendingSelection: true, reopenPending: false, autoLoadingSide: '', autoNextSide: '', autoInventoryLoadPending: false, clearRefreshIntent: true }, 'direct ground transfer rejected; snapshot panes reconciled');
-  updateTransferSessionOwnership();
-  renderContainerTransferPanel();
-  return true;
-}
 
 function publicCommandItemFields(item = {}, displayName = '') {
   const knowledge = sharedModules.publicItemKnowledge;
@@ -7857,18 +6069,22 @@ async function sendDirectGroundTransfer(item, transfer, itemName, direction) {
       count: 'all',
     },
   };
-  if (containerTransferState?.active) setDirectTransferPending({ kind: 'ground', transferId, itemId: item.objectId, direction, coord });
+  if (transferPresentation?.active) setDirectTransferPending({ kind: 'ground', transferId, itemId: item.objectId, direction, coord });
   diagnosticEvent('transaction', 'ground-transfer.direct.requested', { command }, { transactionId: command.transactionId });
   const ack = await Promise.resolve(dispatchUiCommand(command)).catch((error) => ({ ok: false, reason: String(error?.message || error) }));
-  if (!ack?.ok && containerTransferState?.active) {
+  if (!ack?.ok && transferSession.snapshot().active) {
     const reason = ack?.reason || 'direct ground transfer was not accepted by the bridge';
-    const rejection = { transferId: transfer?.transferId || command.transactionId || command.commandId, reason, blockerToken: ack?.blockerToken || '', activeInputOwner: ack?.activeInputOwner || null };
-    diagnosticEvent('transaction', 'ground-transfer.direct.rejected', { command, ack: rejection }, { transactionId: command.transactionId });
+    diagnosticEvent('transaction', 'ground-transfer.direct.rejected', { command, ack }, { transactionId: command.transactionId });
     clearDirectTransferPending(transferId);
-    rejectTransferFollowup(rejection, reason);
-    reconcileGroundTransferAfterDirectRejection(rejection, transfer);
-  } else if (ack?.ok && containerTransferState?.active) {
-    containerTransferState.feedback = `${direction === 'inventory-to-ground' ? 'Dropping' : 'Picking up'} ${itemName}…`;
+    dispatchTransferSessionEvent({
+      type: 'rejected',
+      transferId,
+      sessionId: transfer?.sessionId || transferSession.snapshot().sessionId,
+      direction,
+      itemId: item.objectId,
+      reason,
+      failureKind: ack?.blockerToken || 'rejected',
+    });
     renderContainerTransferPanel();
   }
   return ack;
@@ -7888,20 +6104,28 @@ async function sendDirectContainerTransfer(item, transfer, itemName, direction) 
     payload: {
       direction,
       transferId,
-      sessionId: transfer?.sessionId || containerTransferState?.transferSessionId || '',
+      sessionId: transfer?.sessionId || transferPresentation?.transferSessionId || '',
       containerId: identity.objectId,
       itemId: item.objectId,
       item: { objectId: item.objectId, ...publicCommandItemFields(item, itemName), quantity: Number.isInteger(item.quantity) ? item.quantity : undefined, location: { kind: sourceLocation } },
     },
   };
-  if (containerTransferState?.active) setDirectTransferPending({ kind: 'container', transferId, itemId: item.objectId, containerId: identity.objectId, direction });
+  if (transferPresentation?.active) setDirectTransferPending({ kind: 'container', transferId, itemId: item.objectId, containerId: identity.objectId, direction });
   diagnosticEvent('transaction', 'container-transfer.direct.requested', { command }, { transactionId: command.transactionId });
   const ack = await Promise.resolve(dispatchUiCommand(command)).catch((error) => ({ ok: false, reason: String(error?.message || error) }));
-  if (!ack?.ok && containerTransferState?.active) {
+  if (!ack?.ok && transferSession.snapshot().active) {
     const reason = ack?.reason || 'direct transfer was not accepted by the bridge';
     clearDirectTransferPending(transferId);
-    rejectTransferFollowup({ transferId: transfer?.transferId || command.transactionId || command.commandId, sessionId: command.payload.sessionId, reason }, reason);
-    reconcileContainerTransferAfterDirectRejection({ transferId: transfer?.transferId || command.transactionId || command.commandId, sessionId: command.payload.sessionId, reason }, transfer);
+    dispatchTransferSessionEvent({
+      type: 'rejected',
+      transferId,
+      sessionId: command.payload.sessionId || transferSession.snapshot().sessionId,
+      direction,
+      itemId: item.objectId,
+      reason,
+      failureKind: ack?.blockerToken || 'rejected',
+    });
+    renderContainerTransferPanel();
   }
   return ack;
 }
@@ -7914,242 +6138,81 @@ async function sendDirectInventoryToContainerTransfer(item, transfer, itemName) 
   return sendDirectContainerTransfer(item, transfer, itemName, 'inventory-to-container');
 }
 
-function removeContainerTransferRow(side, selector) {
-  if (!containerTransferState?.active) return null;
-  const key = String(selector || '');
-  const prop = side === 'left' ? 'leftItems' : 'rightItems';
-  const rows = Array.isArray(containerTransferState[prop]) ? containerTransferState[prop] : [];
-  const index = rows.findIndex((item) => transferItemKey(item) === key);
-  if (index < 0) return null;
-  const next = rows.slice();
-  const [removed] = next.splice(index, 1);
-  containerTransferState[prop] = next;
-  return removed || null;
-}
 
-function addContainerTransferRow(side, item) {
-  if (!containerTransferState?.active || !item) return;
-  const prop = side === 'left' ? 'leftItems' : 'rightItems';
-  const rows = Array.isArray(containerTransferState[prop]) ? containerTransferState[prop] : [];
-  const key = transferItemKey(item);
-  if (key && rows.some((row) => transferItemKey(row) === key)) return;
-  containerTransferState[prop] = rows.concat([{ ...item }]);
-}
 
-function projectContainerTransferVisualItems(sourceSide, selector, fallbackItem = null) {
-  if (!containerTransferState?.active) return null;
-  const key = String(selector || '');
-  const targetSide = sourceSide === 'left' ? 'right' : 'left';
-  const sourceProp = sourceSide === 'left' ? 'leftItems' : 'rightItems';
-  const targetProp = targetSide === 'left' ? 'leftItems' : 'rightItems';
-  const sourceRows = Array.isArray(containerTransferState[sourceProp]) ? containerTransferState[sourceProp] : [];
-  const targetRows = Array.isArray(containerTransferState[targetProp]) ? containerTransferState[targetProp] : [];
-  const index = sourceRows.findIndex((item) => transferItemKey(item) === key);
-  const moved = index >= 0 ? sourceRows[index] : fallbackItem;
-  if (!moved) return null;
-  const nextSource = index >= 0 ? sourceRows.filter((_, rowIndex) => rowIndex !== index) : sourceRows.slice();
-  const movedKey = transferItemKey(moved);
-  const nextTarget = targetRows.concat([{ ...moved }]);
-  containerTransferState[sourceProp] = nextSource;
-  containerTransferState[targetProp] = nextTarget;
-  return moved;
-}
-
-function sharedOptimisticTransferMove(sourceSide, selector, fallbackItem = null, options = {}) {
-  const helper = sharedModules.gameViewState?.transferPanelOptimisticMoveState;
-  const itemName = options.itemName || containerTransferDisplayName(fallbackItem || findContainerTransferItem(sourceSide, selector) || { text: selector }, sourceSide);
-  if (!helper) {
-    const moved = projectContainerTransferVisualItems(sourceSide, selector, fallbackItem);
-    return moved ? { ok: true, source: 'renderer-visual-fallback', movedRow: moved, itemName, sessionPatch: null, refreshPlan: { feedback: '' } } : { ok: false, reason: 'no shared transfer pane helper and no visual row', itemName };
-  }
-  const kind = options.kind || transferSessionKindForState();
-  const viewState = gameView?.state || { transferTransactions: publicTransferTransactions, pendingTransferEvidence: { ground: pendingGroundPileEvidence, container: pendingContainerContentsEvidence } };
-  const query = {
-    kind,
-    sessionId: Object.prototype.hasOwnProperty.call(options, 'sessionId') ? options.sessionId : (containerTransferState?.transferSessionId || ''),
-    transferId: Object.prototype.hasOwnProperty.call(options, 'transferId') ? options.transferId : (containerTransferState?.pendingTransferId || ''),
-    sourceSide,
-    selector,
-    itemName,
-    loadedSides: containerTransferState?.loadedSides || {},
-    fallbackPanes: currentTransferPanesForOwnership(),
-    fallbackRow: fallbackItem ? { selector: transferItemKey(fallbackItem), text: itemName, objectId: fallbackItem.objectId, quantity: fallbackItem.quantity || menuItemMaxCount(fallbackItem) } : null,
-  };
-  if (kind === 'ground-pickup') query.groundCoord = options.groundCoord || groundPileCoordHere();
-  else query.container = options.container || containerSnapshotIdentity();
-  const move = helper(viewState, query);
-  const moved = projectContainerTransferVisualItems(sourceSide, selector, fallbackItem);
-  if (move.ok && move.sessionPatch?.feedback && containerTransferState) containerTransferState.feedback = move.sessionPatch.feedback;
-  return { ...move, visualMoved: moved || null, itemName: move.itemName || itemName };
-}
-
-function optimisticallyMoveContainerTransferRow(sourceSide, selector) {
-  // Migration fallback retained for older tests/contexts that do not have the
-  // shared game-view-state pane helper. Normal transfer actions use
-  // sharedOptimisticTransferMove so row movement is a renderer projection of
-  // shared transfer session panes instead of ad-hoc mutation.
-  if (!containerTransferState?.active || containerTransferState.sessionKind !== 'container') return null;
-  return sharedOptimisticTransferMove(sourceSide, selector).visualMoved || null;
-}
 
 function currentPendingContainerTransferSelection() {
-  const shared = currentTransferChoreographyState({ kind: 'container' });
-  return shared.pendingSelection || pendingContainerTransferSelection || containerTransferState?.pendingTransferSelection || null;
-}
-
-function clearPendingContainerTransferSelection() {
-  applyTransferChoreographyPatch({ clearPendingSelection: true }, 'container pending selection cleared');
-  pendingContainerTransferSelection = null;
-  if (containerTransferState) containerTransferState.pendingTransferSelection = null;
-}
-
-function setPendingContainerTransferSelection(action, selector, sourceSide, transferId = '') {
-  const item = findContainerTransferItem(sourceSide, selector);
-  pendingContainerTransferSelection = {
-    action,
-    selector: String(selector || ''),
-    sourceSide,
-    itemName: containerTransferDisplayName(item || { text: selector }, sourceSide),
-    item: {
-      ...(Number.isInteger(item?.objectId) ? { objectId: item.objectId } : {}),
-      ...(transferItemKey(item) ? { inventoryLetter: transferItemKey(item) } : {}),
-      ...publicCommandItemFields(item || {}, containerTransferDisplayName(item || { text: selector }, sourceSide)),
-    },
-    transferId: String(transferId || containerTransferState?.pendingTransferId || publicTransferTransactions.activeTransferId || '').trim(),
-    at: Date.now(),
+  const pending = transferSession.snapshot().pending;
+  if (!pending || !/^container-/.test(String(pending.direction || ''))) return null;
+  return {
+    action: pending.direction === 'container-to-inventory' ? 'out' : 'in',
+    selector: pending.rowKey || pending.row?.inventoryLetter || pending.row?.selector || '',
+    sourceSide: pending.sourceSide,
+    itemName: pending.row?.displayName || pending.row?.text || '',
+    transferId: pending.transferId,
   };
-  if (containerTransferState) containerTransferState.pendingTransferSelection = { ...pendingContainerTransferSelection };
-  applyTransferChoreographyPatch({ pendingSelection: pendingContainerTransferSelection, refreshIntent: { kind: 'container-pending-item-menu-selection', side: sourceSide, transferId: pendingContainerTransferSelection.transferId, command: '', reason: `waiting for ${action === 'out' ? 'take-out' : 'put-in'} item menu` } }, 'container pending transfer selection recorded');
-  allowTransientContainerCacheRestore();
 }
 
-function pendingContainerTransferMatchesMenu(menu) {
-  const pending = currentPendingContainerTransferSelection();
-  if (!pending || !containerTransferState?.active || containerTransferState.sessionKind !== 'container') return false;
-  return pending.action === 'out' ? isContainerExpectedTakeOutMenu(menu) : isContainerExpectedPutInMenu(menu);
+
+function selectedTransferEntries(sides = ['left', 'right']) {
+  const snapshot = transferSession.snapshot();
+  return sides.flatMap((side) => {
+    const selected = new Set(snapshot.selection?.[side] || []);
+    return containerMenuItems(side)
+      .filter((item) => selected.has(transferSelectionId(item, side)))
+      .map((item) => ({ side, itemId: item.objectId, selector: transferItemKey(item) }));
+  });
 }
 
-function flushPendingContainerTransferSelection(menu) {
-  if (!pendingContainerTransferMatchesMenu(menu)) return false;
-  const pending = currentPendingContainerTransferSelection();
-  const resolved = resolveContainerTransferMenuSelector(menu, pending.selector, pending.itemName || '');
-  const selectorToSend = resolved.selector;
-  clearPendingContainerTransferSelection();
-  if (!selectorToSend) {
-    containerTransferState.feedback = 'That item moved. Refresh the list and try again.';
-    containerTransferState.reopenPending = false;
-    applyTransferChoreographyPatch({ reopenPending: false, clearRefreshIntent: true }, 'stale container item requires explicit refresh');
+function cancelQueuedTransfers() {
+  dispatchTransferSessionEvent({ type: 'clear-selection' });
+}
+
+function processNextQueuedTransfer() {
+  const snapshot = syncTransferPresentationFromSession();
+  if (snapshot.active) renderContainerTransferPanel();
+  return snapshot.pending;
+}
+
+function submitSelectedTransfers(options = {}) {
+  if (!transferSession.snapshot().active) return false;
+  const sides = options.groundOnly ? ['left'] : ['left', 'right'];
+  if (!selectedTransferEntries(sides).length) {
+    transferPresentation.feedback = 'Select one or more items, then press Enter.';
     renderContainerTransferPanel();
-    showFailureNotice({ id: `transfer:${pending.transferId || shimEventCount}:stale-selector`, kind: 'stale-revision', reason: resolved.reason || 'item moved', transactionId: pending.transferId || '' });
-    sendPlayableText('\u001b');
-    return true;
+    return false;
   }
-  containerTransferState.feedback = `${pending.action === 'out' ? 'Taking out' : 'Putting in'} ${pending.itemName || 'the selected item'}; waiting for NetHack to confirm the transfer.`;
-  containerTransferState.reopenPending = true;
-  applyTransferChoreographyPatch({ reopenPending: true, refreshIntent: { kind: 'container-direct-refresh-after-selection', side: pending.sourceSide, transferId: pending.transferId || '', command: '', delayMs: 0, reason: containerTransferState.feedback } }, 'container item selector sent');
-  allowTransientContainerCacheRestore();
+  dispatchTransferSessionEvent({ type: 'submit', sides });
   renderContainerTransferPanel();
-  const transfer = pending.transferId ? publicTransferTransactions.transfersById?.get?.(pending.transferId) : null;
-  // We are already running from the delayed item-menu choreography callback; send
-  // the final selector+Enter atomically now so another menu/timer cannot be
-  // observed between selector and newline.
-  sendTransferText(`${selectorToSend}\n`, transfer, { expectedRequestId: menu?.requestId || menu?.menuRequestId || '', source: 'transfer-menu-selector' });
   return true;
 }
 
+function takeAllGroundItems() {
+  if (transferSession.snapshot().kind !== 'ground-pickup') return false;
+  dispatchTransferSessionEvent({ type: 'select-all', side: 'left' });
+  renderContainerTransferPanel();
+  return submitSelectedTransfers({ groundOnly: true });
+}
+
 function transferContainerItem(sourceSide, selector) {
-  if (!containerTransferState?.active || !selector) return;
-  if (containerTransferState.directTransferPendingId) {
-    containerTransferState.feedback = 'Waiting for NetHack to confirm the current direct transfer before starting another.';
+  if (!transferSession.snapshot().active || !selector) return;
+  const item = findContainerTransferItem(sourceSide, selector);
+  if (!item) {
+    transferPresentation.feedback = 'That item moved. Refresh the list and try again.';
     renderContainerTransferPanel();
     return;
   }
-  const isGroundPickup = containerTransferState.sessionKind === 'ground-pickup';
-  if (isGroundPickup) {
-    if (requestGroundMenuReleaseThenTransfer(sourceSide, selector)) return;
-    const topLevelCommandPrompt = activePrompt && (activePrompt.promptPurpose === 'prompt.command' || activePrompt.query === 'Choose a command.');
-    if ((activePrompt && !topLevelCommandPrompt && !activePromptIsOrphaned()) || currentMenu?.awaitingSelection) {
-      const owner = inputOwnerDiagnostic();
-      containerTransferState.feedback = 'NetHack needs another choice first. Finish or cancel it, then try the move again.';
-      renderContainerTransferPanel();
-      diagnosticEvent('transaction', 'ground-transfer.direct.blocked-before-dispatch', {
-        sourceSide,
-        selector: String(selector || ''),
-        activeInputOwner: owner,
-        panelOwnedPickupMenu: panelOwnedGroundPickupMenu(currentMenu),
-      }, { requestId: owner?.requestId || '' });
-      return;
-    }
-    const item = findContainerTransferItem(sourceSide, selector);
-    const direction = sourceSide === 'right' ? 'inventory-to-ground' : 'ground-to-inventory';
-    const itemName = containerTransferDisplayName(item || { text: selector }, sourceSide);
-    const transfer = beginTransferOwnership(sourceSide, selector, itemName, '');
-    if (!canUseDirectGroundTransfer(item)) {
-      const reason = 'That item is still updating. Review the refreshed list and try again.';
-      rejectTransferFollowup({ transferId: transfer?.transferId || '', reason }, reason);
-      reconcileGroundTransferAfterDirectRejection({ transferId: transfer?.transferId || '', reason }, transfer);
-      return;
-    }
-    const move = sharedOptimisticTransferMove(sourceSide, selector, item, { kind: 'ground-pickup', transferId: transfer?.transferId || '', itemName, groundCoord: groundPileCoordHere() });
-    containerTransferState.feedback = `${direction === 'inventory-to-ground' ? 'Dropping' : 'Picking up'} ${itemName}…`;
-    containerTransferState.dropPending = false;
-    containerTransferState.reopenPending = false;
-    applyTransferChoreographyPatch({ reopenPending: false, clearRefreshIntent: true }, 'direct ground transfer has no pickup menu refresh choreography');
-    updateTransferSessionOwnership(move.sessionPatch || {});
-    renderContainerTransferPanel();
-    sendDirectGroundTransfer(item, transfer, itemName, direction).then((ack) => {
-      if (!ack?.ok) setStatus('ground transfer needs attention');
-    });
-    return;
-  }
-  const actionMenu = containerTransferState.actionMenu || currentMenu;
-  const takingOut = sourceSide === 'left';
-  const action = takingOut ? 'out' : 'in';
-  const activeTakeOut = takingOut && isContainerExpectedTakeOutMenu(currentMenu);
-  const activePutIn = !takingOut && isContainerExpectedPutInMenu(currentMenu);
-  const activeAction = isContainerActionMenu(currentMenu);
-  const wrongSelectionMenu = currentMenu?.awaitingSelection && !activeTakeOut && !activePutIn && !activeAction;
-  if ((wrongSelectionMenu || isContainerInventoryProbeBlockingTransfer(currentMenu)) && dismissContainerInventoryProbeThenTransfer(sourceSide, selector)) return;
-  const itemBeforeMove = findContainerTransferItem(sourceSide, selector);
-  const itemNameBeforeMove = itemBeforeMove ? containerTransferDisplayName(itemBeforeMove, sourceSide) : 'the selected item';
-  const visiblePanesBeforeAttempt = {
-    left: (containerTransferState.leftItems || []).map((item) => ({ ...item })),
-    right: (containerTransferState.rightItems || []).map((item) => ({ ...item })),
-  };
-  const directTransferEligible = takingOut ? canUseDirectContainerToInventoryTransfer(itemBeforeMove) : canUseDirectInventoryToContainerTransfer(itemBeforeMove);
-  const activeMenuResolution = (activeTakeOut || activePutIn) ? resolveContainerTransferMenuSelector(currentMenu, selector, itemNameBeforeMove) : null;
-  const commandSelector = directTransferEligible ? (activeMenuResolution?.selector || selector) : selector;
-  if (directTransferEligible && (activeTakeOut || activePutIn) && !activeMenuResolution?.selector) {
-    containerTransferState.feedback = 'That item moved. Refresh the list and try again.';
-    containerTransferState.reopenPending = false;
-    applyTransferChoreographyPatch({ reopenPending: false, clearRefreshIntent: true }, 'stale active container item requires explicit refresh');
-    renderContainerTransferPanel();
-    showFailureNotice({ id: `transfer:stale-active:${shimEventCount}`, kind: 'stale-revision', reason: activeMenuResolution?.reason || 'item moved' });
-    return;
-  }
-  const transfer = beginTransferOwnership(sourceSide, commandSelector, itemNameBeforeMove, (activeTakeOut || activePutIn || activeAction) ? (currentMenu?.requestId || currentMenu?.menuRequestId || '') : '');
-  if (directTransferEligible) {
-    clearPendingContainerTransferSelection();
-    keepContainerTransferOpenThroughRefresh();
-    const direction = takingOut ? 'container-to-inventory' : 'inventory-to-container';
-    const move = sharedOptimisticTransferMove(sourceSide, selector, itemBeforeMove, { kind: 'container', transferId: transfer?.transferId || '', itemName: itemNameBeforeMove });
-    const moved = move.visualMoved || itemBeforeMove;
-    const itemName = moved ? containerTransferDisplayName(moved, sourceSide) : itemNameBeforeMove;
-    containerTransferState.feedback = move.sessionPatch?.feedback || `${takingOut ? 'Taking out' : 'Putting in'} ${itemName} through the direct NetHack container transfer path.`;
-    applyOptimisticTransferSessionPatch(move.sessionPatch || {});
-    renderContainerTransferPanel();
-    sendDirectContainerTransfer(itemBeforeMove, transfer, itemName, direction).then((ack) => {
-      if (!ack?.ok) setStatus(`container transfer rejected: ${ack?.reason || 'direct transfer was not accepted'}`);
-    });
-    return;
-  }
-  const reason = 'Direct container transfer needs stable public container and item IDs with no active NetHack menu; no hidden classic fallback was attempted.';
-  rejectTransferFollowup({ transferId: transfer?.transferId || '', sessionId: transfer?.sessionId || containerTransferState?.transferSessionId || '', reason }, reason);
-  reconcileContainerTransferAfterDirectRejection({ transferId: transfer?.transferId || '', sessionId: transfer?.sessionId || containerTransferState?.transferSessionId || '', reason }, { ...(transfer || {}), panesBefore: visiblePanesBeforeAttempt });
+  dispatchTransferSessionEvent({
+    type: 'move',
+    sourceSide,
+    selector,
+    objectId: Number.isInteger(item.objectId) ? item.objectId : undefined,
+  });
+  renderContainerTransferPanel();
 }
 
 function requestContainerPaneRefresh(side) {
-  if (!containerTransferState?.active) return;
+  if (!transferPresentation?.active) return;
   const failureState = clearFailureSurfaceLock(containerTransferPanel, { restore: false });
   if (failureState) {
     actionableFailureHoldUntil = 0;
@@ -8158,24 +6221,24 @@ function requestContainerPaneRefresh(side) {
     pendingTransferFailureRestore = { preserved: failureState.preserved, remainingRenders: 4, expiresAt: Date.now() + 5000 };
     diagnosticEvent('failure-presentation', 'failure.explicit-refresh', { surface: 'transfer', side, retryDispatched: false, stableId: failureState.preserved.stableId });
   }
-  if (containerTransferState.sessionKind === 'ground-pickup') {
+  if (transferPresentation.sessionKind === 'ground-pickup') {
     if (side === 'right') {
-      containerTransferState.feedback = 'Refreshing inventory by opening the Inventory overview.';
+      transferPresentation.feedback = 'Refreshing inventory by opening the Inventory overview.';
       renderContainerTransferPanel();
-      sendPlayableText(`${currentMenu?.awaitingSelection ? '\u001b' : ''}i`);
+      sendPlayableText(`${gameViewSnapshot.currentMenu?.awaitingSelection ? '\u001b' : ''}i`);
     } else {
       const rows = groundPanelItemsFromPublicSnapshot(groundPileCoordHere());
       if (rows.length) {
-        containerTransferState.leftItems = rows;
-        containerTransferState.feedback = 'Ground items refreshed.';
+        dispatchTransferSessionEvent({ type: 'pane', side: 'left', rows });
+        transferPresentation.feedback = 'Select items to pick up, then choose Take selected, or choose Pick up all.';
       } else {
-        containerTransferState.feedback = 'Ground items cannot be refreshed yet.';
+        transferPresentation.feedback = 'Ground items cannot be refreshed yet.';
       }
       renderContainerTransferPanel();
     }
     return;
   }
-  containerTransferState.feedback = side === 'left' ? 'Refreshing container contents…' : 'Refreshing inventory…';
+  transferPresentation.feedback = side === 'left' ? 'Refreshing container contents…' : 'Refreshing inventory…';
   renderContainerTransferPanel();
   if (side === 'left') requestDirectContainerSnapshotRefresh('pane-refresh');
   else {
@@ -8184,38 +6247,60 @@ function requestContainerPaneRefresh(side) {
   }
 }
 
+function handleContainerTransferPanelKeydown(event) {
+  if (!transferPresentation?.active || event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey) return;
+  const target = event.target;
+  if (target?.matches?.('input, textarea, select')) return;
+  if (event.key === 'Enter') {
+    if (target?.matches?.('button') && !target.classList.contains('container-item-row')) return;
+    event.preventDefault();
+    event.stopPropagation();
+    submitSelectedTransfers();
+    return;
+  }
+  if (!/^[A-Za-z]$/.test(event.key)) return;
+  const focusedPane = target?.closest?.('[data-container-pane]')?.dataset?.containerPane || 'left';
+  const rows = Array.from(containerTransferPanel.querySelectorAll(`[data-container-pane="${focusedPane}"] .container-item-row`));
+  const row = rows.find((candidate) => candidate.dataset.shortcut === event.key);
+  if (!row) return;
+  event.preventDefault();
+  event.stopPropagation();
+  row.focus({ preventScroll: true });
+  row.click();
+}
+
 function renderContainerTransferPanel() {
   if (!containerTransferPanel) return;
-  if (containerTransferPanel.hidden && containerTransferState?.active) lastContainerTransferInteractionSnapshot = null;
+  if (containerTransferPanel.hidden && transferPresentation?.active) lastContainerTransferInteractionSnapshot = null;
   if (!containerTransferPanel.hidden && containerTransferPanel.childElementCount) {
     const previousInteraction = snapshotFailureSurface(containerTransferPanel);
     if (previousInteraction.stableId) lastContainerTransferInteractionSnapshot = previousInteraction;
   }
-  if (containerTransferState?.active && containerTransferState.sessionKind === 'container' && interactionDialog?.open && interactionDialog.classList.contains('rpg-equipment-dialog')) {
-    closeInteractionDialog({ force: true });
+  if (transferPresentation?.active && transferPresentation.sessionKind === 'container' && itemEquipmentOwner?.ownership?.().active) {
+    itemEquipmentOwner.close({ reason: 'transfer-session', cancelNative: false });
   }
-  if (!containerTransferState?.active) {
+  if (!transferPresentation?.active) {
     uxFocusLayer?.close?.(containerTransferPanel);
     containerTransferPanel.hidden = true;
     containerTransferPanel.replaceChildren();
     return;
   }
-  rememberContainerTransferView();
   containerTransferPanel.hidden = false;
   clearTransferPanelOwnerChrome();
-  const state = containerTransferState;
+  const state = transferPresentation;
   const isGroundPickup = state.sessionKind === 'ground-pickup';
   const lockedFailure = failureSurfaceState.get(containerTransferPanel);
   const bothContainerPanesLoaded = !isGroundPickup && containerPaneLoaded('left') && containerPaneLoaded('right');
-  const priorityFeedback = /rejected|timed out|could not|failed|item changed|another choice|no longer available/i.test(String(state.feedback || ''));
+  const priorityFeedback = transferSession.snapshot().status !== 'ready'
+    || /rejected|timed out|could not|failed|item changed|another choice|no longer available|\bselected items? moved\b|continuing selected items/i.test(String(state.feedback || ''));
   const displayFeedback = bothContainerPanesLoaded && !priorityFeedback
-    ? 'Both panes loaded. Drag items between container and inventory.'
-    : (state.feedback || 'Drag items between panes.');
+    ? 'Select items to move, then choose Move selected. Press the shown letters to toggle rows, or drag one item between lists.'
+    : (state.feedback || 'Select items to move, then choose Move selected.');
   if (bothContainerPanesLoaded && !priorityFeedback) {
     state.feedback = displayFeedback;
     setStatus('container transfer panel ready');
   }
-  const titleText = isGroundPickup ? 'Pick up from ground' : `Open ${containerDisplayName(state.actionMenu || currentMenu)}`;
+  const titleText = isGroundPickup ? 'Pick up from ground' : `Open ${containerDisplayName(state.actionMenu || gameViewSnapshot.currentMenu)}`;
   const title = document.createElement('div');
   title.className = 'container-transfer-heading';
   title.innerHTML = `<div><strong id="container-transfer-title">${escapeHtml(titleText)}</strong><span id="container-transfer-description">${escapeHtml(displayFeedback)}</span></div>`;
@@ -8249,6 +6334,27 @@ function renderContainerTransferPanel() {
     const list = document.createElement('div');
     list.className = 'container-item-list';
     const items = containerMenuItems(side);
+    if (isGroundPickup && side === 'left' && items.length) {
+      const takeAll = document.createElement('button');
+      takeAll.type = 'button';
+      takeAll.dataset.takeAllGround = 'true';
+      takeAll.textContent = `Pick up all (${items.length})`;
+      takeAll.disabled = Boolean(transferSession.snapshot().pending);
+      takeAll.addEventListener('click', takeAllGroundItems);
+      pane.querySelector('.container-pane-title')?.appendChild(takeAll);
+    }
+    if (!isGroundPickup && side === 'left') {
+      const eligible = items.filter((item) => Boolean(transferItemKey(item)));
+      const selected = new Set(selectedTransferIds('left'));
+      const allSelected = eligible.length > 0 && eligible.every((item) => selected.has(transferSelectionId(item, 'left')));
+      const selectAll = document.createElement('button');
+      selectAll.type = 'button';
+      selectAll.dataset.selectAllContainer = 'true';
+      selectAll.textContent = 'Select all';
+      selectAll.disabled = loading || !state.loadedSides?.left || !eligible.length || allSelected || Boolean(transferSession.snapshot().pending);
+      selectAll.addEventListener('click', selectAllEligibleContainerItems);
+      pane.querySelector('.container-pane-title')?.appendChild(selectAll);
+    }
     if (items.length) items.forEach((item) => list.appendChild(renderContainerItemRow(item, side)));
     else {
       const note = document.createElement('p');
@@ -8284,7 +6390,25 @@ function renderContainerTransferPanel() {
     });
     grid.appendChild(pane);
   }
-  containerTransferPanel.replaceChildren(title, grid);
+  const selectedLeft = selectedTransferIds('left').length;
+  const selectedRight = selectedTransferIds('right').length;
+  const selectedCount = selectedLeft + selectedRight;
+  const selectedVerb = isGroundPickup
+    ? (selectedRight === 0 ? 'Take' : (selectedLeft === 0 ? 'Drop' : 'Move'))
+    : (selectedLeft > 0 && selectedRight === 0 ? 'Take' : 'Move');
+  const footer = document.createElement('div');
+  footer.className = 'container-transfer-footer';
+  footer.innerHTML = `<span class="container-transfer-selected-count" aria-live="polite">${selectedCount} selected</span>`;
+  const moveSelected = document.createElement('button');
+  moveSelected.type = 'button';
+  moveSelected.className = 'container-transfer-selected-action';
+  moveSelected.dataset.transferSelected = 'true';
+  moveSelected.disabled = selectedCount === 0 || Boolean(transferSession.snapshot().pending);
+  moveSelected.innerHTML = `${selectedVerb} ${selectedCount || ''} selected <kbd>Enter</kbd>`;
+  moveSelected.addEventListener('click', () => submitSelectedTransfers());
+  footer.appendChild(moveSelected);
+  containerTransferPanel.replaceChildren(title, grid, footer);
+  containerTransferPanel.onkeydown = handleContainerTransferPanelKeydown;
   const firstTransferItem = containerTransferPanel.querySelector('.container-item-row');
   const transferCloseButton = containerTransferPanel.querySelector('.container-transfer-heading button');
   const firstTransferControl = firstTransferItem || transferCloseButton;
@@ -8306,10 +6430,10 @@ function renderContainerTransferPanel() {
 }
 
 function maybeHandleContainerInterruption(text) {
-  if (!containerTransferState?.active) return;
+  if (!transferPresentation?.active) return;
   if (/\b(?:You (?:are hit|stop|hear|feel|can't|cannot|are attacked|die)|hits?|misses?|bites?|stings?|kicks?|claws?|engulfs?|interrupt|paralyz|faint|hunger|confused|stunned|afraid|scared)\b/i.test(String(text || ''))) {
     showFailureNotice({ id: `transfer:interrupted:${shimEventCount}`, kind: 'interrupted', reason: text, surface: containerTransferPanel });
-    closeContainerTransferPanel('Container panel closed because NetHack reported an interruption.');
+    closeContainerTransferPanel('Transfer Session interrupted by NetHack.');
   }
 }
 
@@ -8339,22 +6463,22 @@ function transferSelectionSummary(menu, selectedParts) {
 function renderStructuredMenuOption(kind, item, key, tile, assetId) {
   if (kind === 'transfer') {
     const transfer = parseTransferMenuText(item.text);
-    const shopPayment = transfer.unpaid || /pay|bill|shop/i.test(String(currentMenu?.prompt || ''));
+    const shopPayment = transfer.unpaid || /pay|bill|shop/i.test(String(gameViewSnapshot.currentMenu?.prompt || ''));
     const base = renderInventoryOption({ ...item, text: transfer.name || item.text }, key, tile, assetId);
     const price = transfer.price ? `<span class="menu-meta price-meta">${escapeHtml(transfer.price)} zm</span>` : '';
     const mode = shopPayment ? '<span class="item-badge shop-badge">shop bill</span>' : '<span class="item-badge transfer-badge">transfer</span>';
     return `${base}<span class="row-action-pill">${shopPayment ? 'Pay' : 'Transfer'}</span>${mode}${price}`;
   }
   if (kind === 'spell') {
-    const prompt = String(currentMenu?.prompt || '');
-    const publicRows = currentMenu?.publicRows;
+    const prompt = String(gameViewSnapshot.currentMenu?.prompt || '');
+    const publicRows = gameViewSnapshot.currentMenu?.publicRows;
     const source = publicRows?.classificationConfidence === 'typed' ? 'typed' : 'fallback';
     const publicRow = Array.isArray(publicRows?.rows) ? publicRows.rows.find((row) => String(row.selector || '') === key) : null;
     if (source === 'typed' && !publicRow) {
-      const controlLabel = menuTextWithoutSelector(item.text) || item.text || 'Menu action';
+      const controlLabel = sharedModules.interactionModel.menuTextWithoutSelector(item.text) || item.text || 'Menu action';
       return `<span class="selector-keycap" aria-hidden="true">${key}</span><span class="row-action-pill">Choose</span><span class="menu-item-main"><span class="menu-item-name">${escapeHtml(controlLabel)}</span></span>`;
     }
-    const skillMenu = publicRows?.kind === 'skill' || /skill|enhance|advance/i.test(`${currentMenu?.menuPurpose || ''} ${prompt}`);
+    const skillMenu = publicRows?.kind === 'skill' || /skill|enhance|advance/i.test(`${gameViewSnapshot.currentMenu?.menuPurpose || ''} ${prompt}`);
     if (skillMenu) {
       const skill = publicRow
         ? sharedModules.uxHelpCenter?.normalizeSkillRow?.(publicRow, source)
@@ -8380,7 +6504,7 @@ function renderStructuredMenuOption(kind, item, key, tile, assetId) {
     return `<span class="selector-keycap" aria-hidden="true">${key}</span><span class="row-action-pill">${option.isToggle ? 'Toggle' : 'Change'}</span><span class="menu-item-main"><span class="menu-item-name">${escapeHtml(option.name)}</span><span class="menu-badges">${option.value ? `<span class="menu-meta option-value">${escapeHtml(option.value)}</span>` : ''}</span></span>`;
   }
   if (kind === 'context') {
-    const clean = menuTextWithoutSelector(item.text).replace(/^#/, '').trim();
+    const clean = sharedModules.interactionModel.menuTextWithoutSelector(item.text).replace(/^#/, '').trim();
     const verb = clean.match(/^(open|close|kick|pickup|pick up|loot|chat|talk|look|travel|attack|fire|untrap|search|sit|pray|offer|pay)\b/i)?.[0] || 'Do';
     const target = clean.replace(new RegExp(`^${verb}\\s*`, 'i'), '').trim();
     return `<span class="selector-keycap" aria-hidden="true">${key}</span><span class="row-action-pill">${escapeHtml(verb.replace(/^./, (c) => c.toUpperCase()))}</span><span class="menu-item-main"><span class="menu-item-name">${escapeHtml(target || clean || 'Context action')}</span></span>`;
@@ -8413,29 +6537,52 @@ function typedMagicReadOnlyPanel(menu) {
   return panel.childElementCount ? panel : null;
 }
 
+function continueReadOnlyMenu(menu = gameViewSnapshot.currentMenu) {
+  if (!menu?.awaitingSelection || Number(menu.how || 0)) return false;
+  const requestId = String(menu.requestId || menu.menuRequestId || '');
+  const transactionId = String(menu.transactionId || '');
+  if (!requestId || !transactionId) {
+    setStatus('information menu is missing its input owner');
+    diagnosticEvent('user-action', 'user-action.blocked', {
+      source: 'read-only-menu-continue',
+      reason: 'missing menu request or transaction owner',
+    });
+    return false;
+  }
+  return sendRecordedShimInput({
+    type: 'keycode',
+    keycode: ' '.charCodeAt(0),
+    transactionId,
+    expectedRequestId: requestId,
+    guiActionId: 'interaction.continue',
+    actionLabel: 'Continue',
+    followupPlan: 'continue',
+  }, 'read-only-menu-continue');
+}
+
 function renderMenuPanel() {
-  if (updateContainerTransferStateFromMenu(currentMenu)) {
+  if (updateContainerTransferStateFromMenu(gameViewSnapshot.currentMenu)) {
     clearTransferPanelOwnerChrome();
     if (interactionDialog.open) closeInteractionDialog();
     return;
   }
-  if (containerTransferState?.active && currentMenu?.awaitingSelection && !isGroundPickupMenu(currentMenu) && !isContainerActionMenu(currentMenu) && !isContainerExpectedTakeOutMenu(currentMenu) && !isContainerExpectedPutInMenu(currentMenu) && !isContainerCategoryMenu(currentMenu)) {
+  if (transferPresentation?.active && gameViewSnapshot.currentMenu?.awaitingSelection && !isGroundPickupMenu(gameViewSnapshot.currentMenu) && !isContainerActionMenu(gameViewSnapshot.currentMenu) && !isContainerExpectedTakeOutMenu(gameViewSnapshot.currentMenu) && !isContainerExpectedPutInMenu(gameViewSnapshot.currentMenu) && !isContainerCategoryMenu(gameViewSnapshot.currentMenu)) {
     closeContainerTransferPanel('Transfer panel closed for a different NetHack prompt.');
   }
-  if (!currentMenu || !currentMenu.items.length || currentMenu.suppressPicker) {
-    menuPanel.hidden = !currentMenu?.suppressPicker;
-    menuPanel.textContent = currentMenu?.suppressPicker ? `${currentMenu.prompt || 'Ground items'} ${currentMenu.items.map((item) => item.text).filter(Boolean).join('; ')}` : 'No active menu.';
+  if (!gameViewSnapshot.currentMenu || !gameViewSnapshot.currentMenu.items.length || gameViewSnapshot.currentMenu.suppressPicker) {
+    menuPanel.hidden = !gameViewSnapshot.currentMenu?.suppressPicker;
+    menuPanel.textContent = gameViewSnapshot.currentMenu?.suppressPicker ? `${gameViewSnapshot.currentMenu.prompt || 'Ground items'} ${gameViewSnapshot.currentMenu.items.map((item) => item.text).filter(Boolean).join('; ')}` : 'No active menu.';
     return;
   }
-  if (isCanceledInventoryLazyLoadMenu(currentMenu)) {
-    currentMenu.__canceledInventoryLazyLoadMenu = true;
+  if (isCanceledInventoryLazyLoadMenu(gameViewSnapshot.currentMenu)) {
+    gameViewSnapshot.currentMenu.__canceledInventoryLazyLoadMenu = true;
     menuPanel.hidden = true;
     menuPanel.textContent = 'No active menu.';
     closeInteractionDialog();
     return;
   }
-  if (isStaleTransferPlaceholderMenu(currentMenu)) {
-    const shouldAnswerReadOnlyMenu = activePrompt?.kind === 'read-only menu' || currentMenu?.awaitingSelection;
+  if (isStaleTransferPlaceholderMenu(gameViewSnapshot.currentMenu)) {
+    const shouldAnswerReadOnlyMenu = gameViewSnapshot.activePrompt?.kind === 'read-only menu' || gameViewSnapshot.currentMenu?.awaitingSelection;
     clearPromptOwnerState({ clearWorkflow: true, clearMenu: true });
     closeInteractionDialog({ force: true });
     if (shouldAnswerReadOnlyMenu) sendRecordedShimInput({ type: 'keycode', keycode: ' '.charCodeAt(0) }, 'stale-placeholder-menu-continue');
@@ -8443,190 +6590,72 @@ function renderMenuPanel() {
     setStatus('information menu suppressed');
     return;
   }
-  if (shouldSuppressMonsterSenseFarlookTip(currentMenu)) {
+  if (shouldSuppressMonsterSenseFarlookTip(gameViewSnapshot.currentMenu)) {
     suppressMonsterSenseFarlookTipMenu();
     return;
   }
-  const kind = menuKind(currentMenu);
-  if (kind === 'inventory' && Date.now() < suppressedInventoryOverviewUntil) {
-    currentMenu = null;
+  reconcileItemEquipmentOwner({ interactionId: '', owner: Object.freeze({ kind: 'gameplay' }), prompt: Object.freeze({}), menu: Object.freeze({}) });
+  const decision = interactionDecision('render-menu');
+  const menuPlan = decision.menu;
+  const kind = menuPlan.kind;
+  reconcileItemEquipmentOwner(decision);
+  const itemOwnership = itemEquipmentOwner?.ownership?.() || {};
+  if (itemOwnership.ownsMenu || itemOwnership.ownsPrompt) {
     menuPanel.hidden = true;
-    menuPanel.textContent = 'No active menu.';
-    closeInteractionDialog({ force: true });
+    menuPanel.textContent = 'Item/equipment owner has the active native follow-up.';
+    if (interactionDialog?.open) closeInteractionDialog({ force: true });
     return;
-  }
-  if (equipmentDialogKeepOpenActive() && isEquipmentActionMenu(currentMenu)) {
-    const directSelector = String(equipmentKeepOpenState?.directTargetSelector || '');
-    const directTarget = directSelector ? (currentMenu.items || []).find((item) => String.fromCharCode(item.selector || 0) === directSelector) : null;
-    const directTargetNoLongerEquipped = directTarget && !/\b(?:being worn|on left hand|on right hand|weapon in (?:hand|left hand|right hand)|wielded|in quiver)\b/i.test(String(directTarget.text || ''));
-    if (directTargetNoLongerEquipped) {
-      activePrompt = null;
-      if (gameView?.state) gameView.state.activePrompt = null;
-      currentMenu = { ...currentMenu, prompt: 'Inventory:', awaitingSelection: false, how: 0 };
-      if (gameView?.state) gameView.state.currentMenu = currentMenu;
-    }
   }
   menuPanel.hidden = false;
-  const selectableCount = currentMenu.items.filter((item) => item.selector).length;
-  const menuPanelLabel = kind === 'inventory' ? 'Inventory' : kind === 'transfer' ? 'Transfer' : kind === 'context' ? 'Context actions' : kind === 'spell' ? 'Spell/skill' : kind === 'options' ? 'Options' : 'Menu';
-  const menuPanelPrompt = kind === 'inventory' && /^Menu$/i.test(String(currentMenu.prompt || '').trim()) && lastInventoryActionQuery ? lastInventoryActionQuery : currentMenu.prompt;
-  menuPanel.textContent = `${menuPanelLabel}: ${menuPanelPrompt || `${selectableCount} item${selectableCount === 1 ? '' : 's'}`}`;
-  if (isInventoryOverviewMenu(currentMenu) || (interactionDialog?.open && interactionDialog.classList.contains('rpg-equipment-dialog') && kind === 'inventory')) {
-    const menuInventoryRows = currentMenu.items.filter((item) => item.selector);
-    transferInventorySnapshot = menuInventoryRows;
-    const snapshotInventoryRows = snapshotInventoryRowsForOverview(currentMenu);
-    const selectable = (snapshotInventoryRows.length ? snapshotInventoryRows : menuInventoryRows).slice(0, 120);
-    const paperDoll = renderEquipmentScreenPanel(selectable);
-    showInteractionDialog({
-      title: workflowPromptText('Equipment / Inventory'),
-      prompt: '',
-      dialogClass: 'inventory-dialog rpg-equipment-dialog',
-      cancelText: 'Cancel',
-      textEntry: selectable.length > smallFixedOptionLimit,
-      textLabel: 'Search items',
-      textPlaceholder: 'Search items',
-      panelControls: paperDoll,
-      feedback: (value, visible) => value.trim() ? `${visible} matching item${visible === 1 ? '' : 's'}` : '',
-      options: selectable.map((item) => {
-        const key = String.fromCharCode(item.selector);
-        const glyph = item.glyphChar && item.glyphChar > 0 && item.glyphChar < 128 ? String.fromCharCode(item.glyphChar) : '';
-        const assetId = mappedAssetIdForCell({ ch: glyph, glyph: item.glyph, semanticKind: item.semanticKind, semanticName: item.semanticName, semanticAppearance: item.semanticAppearance, semanticKnown: item.semanticKnown, cmapIndex: item.cmapIndex });
-        const tile = assetId ? tileAssetsById.get(assetId) : undefined;
-        const { rowAction } = equipmentInventoryOption(item);
-        const blockerLabelHint = Array.isArray(rowAction?.blockerLabels) && rowAction.blockerLabels.length ? `; ${rowAction.blockerLabels.join(' ')}` : '';
-        const layeredActionHint = rowAction?.takeOffSelectors?.length > 1 ? `; removes ${rowAction.takeOffSelectors.length} armor layers first` : blockerLabelHint;
-        const actionTitle = rowAction ? [rowAction.message || rowAction.label, ...(rowAction.blockerLabels || [])].filter(Boolean).join(' ') : '';
-        const actionClass = rowAction?.enabled === false ? 'row-action-pill equipment-row-action blocked' : 'row-action-pill equipment-row-action';
-        const actionLabel = rowAction?.enabled === false ? `${rowAction.label} blocked` : rowAction?.label;
-        const actionAttrs = rowAction ? [
-          rowAction.disabledReasonToken ? `data-disabled-reason-token="${escapeHtml(rowAction.disabledReasonToken)}"` : '',
-          Array.isArray(rowAction.blockerTokens) && rowAction.blockerTokens.length ? `data-blocker-tokens="${escapeHtml(rowAction.blockerTokens.join(' '))}"` : '',
-          rowAction.disabledReasonLabel ? `data-disabled-reason-label="${escapeHtml(rowAction.disabledReasonLabel)}"` : '',
-        ].filter(Boolean).join(' ') : '';
-        const actionHtml = rowAction ? `<span class="${actionClass}" ${actionAttrs} title="${escapeHtml(actionTitle)}">${escapeHtml(actionLabel)}</span>` : '<span class="row-action-pill equipment-row-action muted">Inspect</span>';
-        return {
-          key,
-          text: item.text,
-          className: 'inventory-row rpg-inventory-row',
-          draggable: Boolean(rowAction && rowAction.enabled !== false),
-          suppressClickAction: true,
-          onContextMenu: (event) => showInventoryContextMenu(item, event),
-          onKeyContextMenu: (button) => showInventoryContextMenu(item, button),
-          dragData: { selector: key, itemName: menuItemName(item.text) },
-          filterText: `${menuItemClass(item)} ${menuItemSemanticFilterText(item)} ${menuItemState(item.text)}`,
-          stableId: Number.isInteger(item.objectId) ? `object:${item.objectId}` : key,
-          ariaLabel: `${rowAction ? `${rowAction.label}${layeredActionHint}${rowAction.enabled === false ? '; blocked by visible equipment state' : '; draggable to compatible equipment slots'}` : 'Inventory'} ${menuItemName(item.text)}${menuItemState(item.text) ? `, ${menuItemState(item.text)}` : ''}; Actions menu available with right click or Shift+F10; shortcut ${key}`,
-          html: `${renderInventoryOption(item, key, tile, assetId, '', { showSemantic: false })}${actionHtml}`,
-          onDoubleClick: () => {
-            if (rowAction) {
-              if (rowAction.enabled === false) {
-                setEquipmentDropFeedback(rowAction.disabledReasonLabel || rowAction.disabledReason || 'This action is blocked by visible equipment state.');
-                return;
-              }
-              equipmentDragSuppressClickUntil = Date.now() + 1000;
-              suppressInventoryLazyLoadUntil = Date.now() + 1000;
-              interactionDialog.style.pointerEvents = 'none';
-              window.setTimeout(() => { interactionDialog.style.pointerEvents = ''; }, 900);
-              const feedback = rowAction.message || `${rowAction.label}: ${cleanEquipmentText(item.text)}.`;
-              beginEquipmentKeepOpenAction(feedback);
-              sendActionCommandFromInventorySurface(rowAction.command || `${rowAction.key}${key}`, {
-                semanticAction: { id: rowAction.actionId || rowAction.id || rowAction.key, label: rowAction.label, promptPlan: rowAction.promptPlan || [] },
-                item,
-                route: rowAction,
-                source: 'equipment-row-action',
-                afterSend: () => refreshEquipmentInventoryAfterCompatAction(feedback),
-              });
-              setEquipmentDropFeedback(feedback, true);
-            }
-          },
-        };
-      }),
-    });
-    finishEquipmentKeepOpenAction();
+  const selectableCount = menuPlan.selectable.length;
+  menuPanel.textContent = `${workflowPromptText(menuPlan.title || 'Menu')}: ${workflowPromptText(menuPlan.prompt || `${selectableCount} item${selectableCount === 1 ? '' : 's'}`)}`;
+  if (isInventoryOverviewMenu(gameViewSnapshot.currentMenu)) {
+    if (openItemEquipmentOwner(decision)) {
+      menuPanel.hidden = true;
+      menuPanel.textContent = 'Inventory and equipment shown in the item/equipment workspace.';
+      if (interactionDialog?.open) closeInteractionDialog({ force: true });
+    }
     return;
   }
-  if (equipmentDialogKeepOpenActive() && isEquipmentActionMenu(currentMenu)) {
-    const selectable = currentMenu.items.filter((item) => item.selector).slice(0, 120);
-    const paperDoll = renderEquipmentScreenPanel(cachedInventoryChoices.length ? cachedInventoryChoices : selectable);
-    const actionPrompt = String(currentMenu.prompt || lastInventoryActionQuery || 'Choose equipment item.');
-    showInteractionDialog({
-      title: workflowPromptText('Equipment / Inventory'),
-      prompt: '',
-      dialogClass: 'inventory-dialog rpg-equipment-dialog',
-      cancelText: 'Cancel',
-      textEntry: selectable.length > smallFixedOptionLimit,
-      textLabel: 'Search items',
-      textPlaceholder: 'Search items',
-      panelControls: paperDoll,
-      feedback: (value, visible) => value.trim() ? `${visible} matching item${visible === 1 ? '' : 's'}` : workflowPromptText(actionPrompt),
-      options: selectable.map((item) => {
-        const key = String.fromCharCode(item.selector);
-        const glyph = item.glyphChar && item.glyphChar > 0 && item.glyphChar < 128 ? String.fromCharCode(item.glyphChar) : '';
-        const assetId = mappedAssetIdForCell({ ch: glyph, glyph: item.glyph, semanticKind: item.semanticKind, semanticName: item.semanticName, semanticAppearance: item.semanticAppearance, semanticKnown: item.semanticKnown, cmapIndex: item.cmapIndex });
-        const tile = assetId ? tileAssetsById.get(assetId) : undefined;
-        return {
-          key,
-          text: item.text,
-          className: 'inventory-row rpg-inventory-row',
-          filterText: `${menuItemClass(item)} ${menuItemSemanticFilterText(item)} ${menuItemState(item.text)}`,
-          stableId: Number.isInteger(item.objectId) ? `object:${item.objectId}` : key,
-          ariaLabel: `${menuItemName(item.text)}${menuItemState(item.text) ? `, ${menuItemState(item.text)}` : ''}; shortcut ${key}`,
-          html: renderInventoryOption(item, key, tile, assetId, '', { showSemantic: false }),
-          onClick: () => {
-            const routed = equipmentFollowupSelectionKeys(item, key, actionPrompt);
-            if (!routed.ok) {
-              setEquipmentDropFeedback(routed.reason || 'That equipment choice is not available.');
-              return;
-            }
-            if (routed.message) setEquipmentDropFeedback(routed.message, true);
-            sendSemanticActionCommand(routed.keys, { id: routed.actionId || 'equipment.followup.select', label: routed.message || actionPrompt }, item, { ...routed, actionId: routed.actionId || 'equipment.followup.select' }, { source: 'equipment-followup-selector', expectedRequestId: activePrompt?.requestId || currentMenu?.requestId || '' });
-          },
-        };
-      }),
-    });
-    if (equipmentKeepOpenState?.feedback) setEquipmentDropFeedback(`${equipmentKeepOpenState.feedback} ${workflowPromptText(actionPrompt)}`.trim(), true);
-    return;
-  }
-  if (!currentMenu.awaitingSelection && !Number(currentMenu.how || 0)) {
+  if (!gameViewSnapshot.currentMenu.awaitingSelection && !Number(gameViewSnapshot.currentMenu.how || 0)) {
     menuPanel.hidden = true;
     menuPanel.textContent = 'No active menu.';
     return;
   }
-  if (currentMenu.awaitingSelection) {
-    const selectable = menuSelectableRows(currentMenu).slice(0, 80);
-    const noticeMessage = !Number(currentMenu.how || 0)
+  if (gameViewSnapshot.currentMenu.awaitingSelection) {
+    const selectable = menuPlan.selectable.slice(0, 80);
+    const noticeMessage = !Number(gameViewSnapshot.currentMenu.how || 0)
       ? 'Review information'
       : (kind === 'inventory' || kind === 'transfer' ? 'Choose an item' : (kind === 'spell' ? 'Choose an option' : 'Choose an option'));
     showPlayerNotice({
-      id: `menu:${kind}:${currentMenu.requestId || currentMenu.lifecycleRevision || currentMenu.window || shimEventCount}`,
+      id: `menu:${kind}:${gameViewSnapshot.currentMenu.requestId || gameViewSnapshot.currentMenu.lifecycleRevision || gameViewSnapshot.currentMenu.window || shimEventCount}`,
       kind: 'info',
       message: noticeMessage,
       source: 'prompt',
       persistence: 'until-state-change',
     });
-    const multi = currentMenu.how === 2;
-    const hasSelection = Boolean(currentMenu.how);
+    const multi = menuPlan.multi;
+    const hasSelection = menuPlan.hasSelection;
     if (!hasSelection) {
       promptPanel.hidden = true;
       promptPanel.textContent = 'No active prompt.';
       menuPanel.hidden = true;
       menuPanel.textContent = 'Menu shown in dialog.';
-      const readOnlyTitle = menuDialogTitle(currentMenu, kind, false);
-      const readOnlyCopy = /^Tip$/i.test(readOnlyTitle)
-        ? 'Review this tip, then choose Continue to return to the map.'
-        : 'Review this information, then choose Continue to return to the map.';
       showInteractionDialog({
-        title: readOnlyTitle,
-        prompt: workflowPromptText(readOnlyCopy),
+        title: workflowPromptText(menuPlan.title),
+        prompt: workflowPromptText(menuPlan.prompt),
         dialogClass: 'read-only-menu-dialog',
         cancelText: 'Cancel',
-        panelControls: kind === 'spell' ? (typedMagicReadOnlyPanel(currentMenu) || readOnlyMenuPanelControls(currentMenu)) : readOnlyMenuPanelControls(currentMenu),
+        panelControls: kind === 'spell' ? (typedMagicReadOnlyPanel(gameViewSnapshot.currentMenu) || readOnlyMenuPanelControls(gameViewSnapshot.currentMenu)) : readOnlyMenuPanelControls(gameViewSnapshot.currentMenu),
         options: [{
           key: ' ',
           className: 'context-choice primary-context read-only-continue',
           label: 'Continue',
           text: 'Close this NetHack menu and return to the map.',
-          onClick: () => sendPlayableText(' '),
+          onClick: (button) => {
+            button.disabled = true;
+            if (continueReadOnlyMenu(gameViewSnapshot.currentMenu) === false) button.disabled = false;
+          },
         }],
       });
       return;
@@ -8637,14 +6666,14 @@ function renderMenuPanel() {
       closeInteractionDialog();
       return;
     }
-    const prompt = menuPickerPrompt(currentMenu, kind, multi, hasSelection);
+    const prompt = workflowPromptText(menuPlan.prompt);
     const selectedMenuParts = new Map(menuSelectionPartsFromExpression(interactionText.value).map((part) => [part.key, part]));
     const selectedMenuKeys = new Set(selectedMenuParts.keys());
-    const shopPaymentMenu = kind === 'transfer' && isShopPaymentMenu(currentMenu);
+    const shopPaymentMenu = kind === 'transfer' && menuPlan.shopPayment;
     const syncMenuSelectionText = () => {
       interactionText.value = serializeMenuSelection(selectedMenuParts);
       interactionText.dispatchEvent(new Event('input'));
-      if (multi && kind === 'transfer') interactionFeedback.textContent = transferSelectionSummary(currentMenu, selectedMenuParts);
+      if (multi && kind === 'transfer') interactionFeedback.textContent = transferSelectionSummary(gameViewSnapshot.currentMenu, selectedMenuParts);
       if (shopPaymentMenu && interactionConfirm) interactionConfirm.disabled = selectedMenuParts.size === 0;
     };
     const setRowSelected = (button, key, selected) => {
@@ -8702,13 +6731,12 @@ function renderMenuPanel() {
         interactionText.focus({ preventScroll: true });
       }
     }) : (showMenuFilter ? (() => { interactionText.value = ''; interactionText.dispatchEvent(new Event('input')); interactionText.focus({ preventScroll: true }); }) : null);
-    const transferModel = kind === 'transfer' ? transferMenuModel(currentMenu) : null;
-    const groundPickupMenu = kind === 'inventory' && isGroundPickupMenu(currentMenu);
-    const transferPrompt = shopPaymentMenu ? 'Choose items to pay for.' : prompt;
-    const chooserPrompt = multi && !shopPaymentMenu ? `${transferPrompt}\nSelect items, then Confirm.` : transferPrompt;
+    const transferModel = kind === 'transfer' ? transferMenuModel(gameViewSnapshot.currentMenu) : null;
+    const groundPickupMenu = kind === 'inventory' && isGroundPickupMenu(gameViewSnapshot.currentMenu);
+    const chooserPrompt = prompt;
     if (shopPaymentMenu) shopPaymentUiStatus = { phase: 'choosing', text: 'Choose items to pay for', until: 0 };
     showInteractionDialog({
-      title: shopPaymentMenu ? 'Shop payment' : workflowPromptText(menuDialogTitle(currentMenu, kind, hasSelection)), 
+      title: workflowPromptText(menuPlan.title),
       prompt: chooserPrompt,
       dialogClass: kind === 'inventory' ? `inventory-dialog${multi ? ' multi-select-menu-dialog' : ''}` : (kind === 'transfer' ? `transfer-dialog${multi ? ' multi-select-menu-dialog' : ''}` : (kind === 'context' ? 'context-menu-dialog' : (kind === 'spell' ? 'spell-dialog' : (kind === 'options' ? 'options-dialog' : (multi ? 'multi-select-menu-dialog' : ''))))),
       textEntry: showMenuFilter,
@@ -8721,16 +6749,16 @@ function renderMenuPanel() {
       onConfirm: hasSelection ? confirmSelection : null,
       onSelectAll: multi ? selectVisibleRows : null,
       onClear: clearMenuSelection,
-      feedback: kind === 'transfer' ? (() => transferSelectionSummary(currentMenu, selectedMenuParts)) : (kind === 'inventory' && showMenuFilter ? ((value, visible) => menuSelectionFeedback(value, visible, selectable, multi)) : undefined),
-      panelControls: kind === 'transfer' ? transferPanelControls(currentMenu, transferModel) : specializedMenuPanelControls(kind, currentMenu, selectable),
+      feedback: kind === 'transfer' ? (() => transferSelectionSummary(gameViewSnapshot.currentMenu, selectedMenuParts)) : (kind === 'inventory' && showMenuFilter ? ((value, visible) => menuSelectionFeedback(value, visible, selectable, multi)) : undefined),
+      panelControls: kind === 'transfer' ? transferPanelControls(gameViewSnapshot.currentMenu, transferModel) : specializedMenuPanelControls(menuPlan),
       options: selectable.map((item) => {
         const key = String.fromCharCode(item.selector);
         const glyph = item.glyphChar && item.glyphChar > 0 && item.glyphChar < 128 ? String.fromCharCode(item.glyphChar) : '';
         const assetId = mappedAssetIdForCell({ ch: glyph, glyph: item.glyph, semanticKind: item.semanticKind, semanticName: item.semanticName, semanticAppearance: item.semanticAppearance, semanticKnown: item.semanticKnown, cmapIndex: item.cmapIndex });
         const tile = assetId ? tileAssetsById.get(assetId) : undefined;
-        const category = menuItemClass(item);
+        const category = sharedModules.interactionModel.menuItemClass(item);
         const maxCount = menuItemMaxCount(item);
-        const quantityControl = multi && !shopPaymentMenu && maxCount > 1 ? `<span class="quantity-control" hidden><span class="quantity-label">Qty</span><button type="button" class="quantity-step" data-step="-1" aria-label="Decrease ${menuItemName(item.text)} quantity">−</button><input class="quantity-input" type="number" min="1" max="${maxCount}" value="${maxCount}" aria-label="Quantity for ${menuItemName(item.text)}" /><button type="button" class="quantity-step" data-step="1" aria-label="Increase ${menuItemName(item.text)} quantity">+</button><button type="button" class="quantity-max" aria-label="Select all ${maxCount}">All</button></span>` : '';
+        const quantityControl = multi && !shopPaymentMenu && maxCount > 1 ? `<span class="quantity-control" hidden><span class="quantity-label">Qty</span><button type="button" class="quantity-step" data-step="-1" aria-label="Decrease ${sharedModules.interactionModel.menuItemName(item.text)} quantity">−</button><input class="quantity-input" type="number" min="1" max="${maxCount}" value="${maxCount}" aria-label="Quantity for ${sharedModules.interactionModel.menuItemName(item.text)}" /><button type="button" class="quantity-step" data-step="1" aria-label="Increase ${sharedModules.interactionModel.menuItemName(item.text)} quantity">+</button><button type="button" class="quantity-max" aria-label="Select all ${maxCount}">All</button></span>` : '';
         return {
           key,
           text: item.text,
@@ -8738,7 +6766,7 @@ function renderMenuPanel() {
           filterText: `${category} ${menuItemSemanticFilterText(item)}`,
           role: multi ? 'checkbox' : 'option',
           stableId: Number.isInteger(item.objectId) ? `object:${item.objectId}` : key,
-          ariaLabel: `${multi ? 'Toggle' : 'Choose'} ${menuItemName(item.text)}${menuItemState(item.text) ? `, ${menuItemState(item.text)}` : ''}; ${groundPickupMenu ? 'Ground item actions available with right click or Shift+F10; ' : ''}shortcut ${key}${!shopPaymentMenu && maxCount > 1 ? `; quantity 1 to ${maxCount}` : ''}`,
+          ariaLabel: `${multi ? 'Toggle' : 'Choose'} ${sharedModules.interactionModel.menuItemName(item.text)}${sharedModules.interactionModel.menuItemState(item.text) ? `, ${sharedModules.interactionModel.menuItemState(item.text)}` : ''}; ${groundPickupMenu ? 'Ground item actions available with right click or Shift+F10; ' : ''}shortcut ${key}${!shopPaymentMenu && maxCount > 1 ? `; quantity 1 to ${maxCount}` : ''}`,
           html: kind === 'inventory'
             ? `${multi ? '<span class="selection-chip" aria-hidden="true">☐</span>' : ''}${renderInventoryOption(item, key, tile, assetId)}${quantityControl}`
             : `${multi ? '<span class="selection-chip" aria-hidden="true">☐</span>' : ''}${renderStructuredMenuOption(kind, item, key, tile, assetId)}${quantityControl}`,
@@ -8788,7 +6816,7 @@ function mapCellDirectionFromCursor(cellEl) {
   const x = Number(cellEl?.dataset?.mapX);
   const y = Number(cellEl?.dataset?.mapY);
   if (!Number.isFinite(x) || !Number.isFinite(y)) return '';
-  return directionKeyForMapDelta(x - cursor.x, y - cursor.y);
+  return directionKeyForMapDelta(x - gameViewSnapshot.cursor.x, y - gameViewSnapshot.cursor.y);
 }
 
 function directionKeyForStep(dx, dy) {
@@ -8803,8 +6831,8 @@ function mapTargetPathFromCursor(cellEl) {
   const x = Number(cellEl?.dataset?.mapX);
   const y = Number(cellEl?.dataset?.mapY);
   if (!Number.isFinite(x) || !Number.isFinite(y)) return '';
-  let dx = x - cursor.x;
-  let dy = y - cursor.y;
+  let dx = x - gameViewSnapshot.cursor.x;
+  let dy = y - gameViewSnapshot.cursor.y;
   if (!dx && !dy) return '.';
   const keys = [];
   const limit = Math.max(mapWidth, mapHeight) + 8;
@@ -8818,28 +6846,9 @@ function mapTargetPathFromCursor(cellEl) {
   return keys.join('');
 }
 
-function chooseMapTargetCell(cellEl) {
-  if (!activeMapTargetPrompt || !cellEl || !gameGrid.contains(cellEl)) return false;
-  const path = mapTargetPathFromCursor(cellEl);
-  if (!path) return false;
-  const adjacentDirection = path.length === 1 && /^[hjklyubn]$/.test(path) ? path : '';
-  const answer = adjacentDirection || `${path}.`;
-  sendPlayableText(answer);
-  const x = cellEl.dataset.mapX;
-  const y = cellEl.dataset.mapY;
-  appendMessage(adjacentDirection ? `Target selected: ${adjacentDirection}.` : 'Map target selected.');
-  activePrompt = null;
-  activeMapTargetSelection = null;
-  setMapTargetMode(null);
-  hideDirectionHelper();
-  closeInteractionDialog();
-  renderPromptPanel();
-  gameGrid.focus({ preventScroll: true });
-  return true;
-}
 
 function summarizeTransferTransactions() {
-  const state = publicTransferTransactions || {};
+  const state = gameViewSnapshot.transferTransactions || {};
   return {
     revision: state.revision || 0,
     activeSessionId: state.activeSessionId || '',
@@ -8851,58 +6860,14 @@ function summarizeTransferTransactions() {
   };
 }
 
-function syncGameViewGlobals() {
-  if (!gameView) return;
-  const state = gameView.state;
-  mapWindowId = state.mapWindowId;
-  cursor = state.cursor;
-  mapCells = state.mapCells;
-  if (state.mapRevision !== syncGameViewGlobals.lastMapRevision) {
-    syncGameViewGlobals.lastMapRevision = state.mapRevision;
-    publicTerrainLabelsDirty = true;
-  }
-  activePrompt = state.activePrompt;
-  currentMenu = state.currentMenu;
-  if (currentMenu) {
-    const magicKind = /skill|enhance|advance/i.test(String(currentMenu.menuPurpose || currentMenu.purpose || '')) ? 'skill'
-      : (/spell/i.test(String(currentMenu.menuPurpose || currentMenu.purpose || '')) ? 'spell' : '');
-    const publicRows = magicKind === 'skill' ? state.skillRows : (magicKind === 'spell' ? state.spellRows : null);
-    if (publicRows && String(publicRows.requestId || '') === String(currentMenu.requestId || currentMenu.menuRequestId || '') && String(publicRows.menuId || '') === String(currentMenu.menuId || '')) {
-      currentMenu = { ...currentMenu, publicRows };
-    }
-  }
-  cachedInventoryChoices = state.cachedInventoryChoices;
-  publicInventorySnapshot = state.inventory || publicInventorySnapshot;
-  publicEquipmentSnapshot = state.equipment || publicEquipmentSnapshot;
-  publicGroundPileSnapshots = state.groundPiles || publicGroundPileSnapshots;
-  publicContainerContentsSnapshots = state.containerContents || publicContainerContentsSnapshots;
-  publicCommandTransactions = state.commandTransactions || publicCommandTransactions;
-  publicTransferTransactions = state.transferTransactions || publicTransferTransactions;
-  pendingGroundPileEvidence = state.pendingTransferEvidence?.ground || null;
-  pendingContainerContentsEvidence = state.pendingTransferEvidence?.container || null;
-  if (containerTransferState?.active) {
-    const choreography = currentTransferChoreographyState();
-    const sharedChoreography = choreography.source === 'shared-session-choreography';
-    pendingContainerTransferSelection = sharedChoreography ? choreography.pendingSelection : (choreography.pendingSelection || pendingContainerTransferSelection);
-    containerTransferState.pendingTransferSelection = sharedChoreography ? choreography.pendingSelection : (choreography.pendingSelection || containerTransferState.pendingTransferSelection || null);
-    containerTransferState.autoLoadingSide = sharedChoreography ? choreography.autoLoadingSide : (choreography.autoLoadingSide || containerTransferState.autoLoadingSide || '');
-    containerTransferState.autoNextSide = sharedChoreography ? choreography.autoNextSide : (choreography.autoNextSide || containerTransferState.autoNextSide || '');
-    containerTransferState.reopenPending = sharedChoreography ? Boolean(choreography.reopenPending) : Boolean(choreography.reopenPending || containerTransferState.reopenPending);
-    containerTransferState.autoInventoryLoadPending = sharedChoreography ? Boolean(choreography.autoInventoryLoadPending) : Boolean(choreography.autoInventoryLoadPending || containerTransferState.autoInventoryLoadPending);
-    containerTransferState.refreshIntent = sharedChoreography ? choreography.refreshIntent : (choreography.refreshIntent || containerTransferState.refreshIntent || null);
-  }
-  if (currentMenu && isCanceledInventoryLazyLoadMenu(currentMenu)) currentMenu.__canceledInventoryLazyLoadMenu = true;
-  if (currentMenu && Date.now() < suppressedInventoryOverviewUntil && menuKind(currentMenu) === 'inventory') currentMenu = null;
-  if (currentMenu && inventoryOverviewRequestActive() && isInventoryOverviewMenu(currentMenu) && activePrompt && isInventoryActionPrompt(activePrompt.query, activePrompt.choices)) {
+function refreshGameViewPresentation() {
+  refreshGameViewSnapshot();
+  if (gameViewSnapshot.currentMenu && inventoryOverviewRequestActive() && isInventoryOverviewMenu(gameViewSnapshot.currentMenu) && gameViewSnapshot.activePrompt && sharedModules.interactionModel.isInventoryActionPrompt(gameViewSnapshot.activePrompt.query, gameViewSnapshot.activePrompt.choices)) {
     clearPromptOwnerState({ clearWorkflow: true });
-    state.activePrompt = null;
-    activePrompt = null;
   }
-  if (currentMenu && isInventoryOverviewMenu(currentMenu)) transferInventorySnapshot = currentMenu.items.filter((item) => item.selector);
-  const completedInventoryLazyLoad = currentMenu?.__canceledInventoryLazyLoadMenu ? false : maybeCompleteInventoryLazyLoadFromMenu();
-  if (completedInventoryLazyLoad) cachedInventoryChoices = cachedInventoryChoices.length ? cachedInventoryChoices : inventoryLazyLoad.rows;
-  extCommandCatalog = state.extCommandCatalog;
-  if (completedInventoryLazyLoad && activePrompt?.kind === 'question') window.setTimeout(renderPromptPanel, 0);
+  const completedInventoryLazyLoad = isCanceledInventoryLazyLoadMenu(gameViewSnapshot.currentMenu) ? false : maybeCompleteInventoryLazyLoadFromMenu();
+  if (completedInventoryLazyLoad) publishRendererGameViewEvent({ name: 'renderer_publish_inventory_choices', items: inventoryLazyLoad.rows });
+  if (completedInventoryLazyLoad && gameViewSnapshot.activePrompt?.kind === 'question') window.setTimeout(renderPromptPanel, 0);
 }
 
 function diagnosticCategoryForEffect(effect = {}) {
@@ -8916,31 +6881,52 @@ function diagnosticCategoryForEffect(effect = {}) {
 let uxPublicStatePublishScheduled = false;
 const pendingUxPublicStateReasons = new Set();
 const pendingUxPublicStateEffectTypes = new Set();
+const pendingUxPublicStateDomains = new Set();
+const allUxPublicStateDomains = Object.freeze(['interaction', 'shell', 'discovery', 'map', 'items', 'transfer', 'run-lifecycle', 'conformance']);
+function uxPublicStateDomainsForEffect(effect = {}) {
+  const type = String(effect.type || 'unknown');
+  if (/^(?:dirty-map-|render-map$|map-reset$|flush-map$|ground-pile-)/.test(type)) return ['map'];
+  if (type === 'status') return [];
+  if (type === 'render-status') return ['shell'];
+  if (/message|milestone/.test(type)) return ['shell', 'discovery'];
+  if (/inventory|equipment/.test(type)) return ['items', 'transfer', 'discovery'];
+  if (/transfer|container/.test(type)) return ['transfer', 'items'];
+  if (/prompt|menu|interaction|document|command-/.test(type)) return ['interaction', 'shell', 'discovery'];
+  return allUxPublicStateDomains;
+}
 function publishUxPublicState() {
   uxPublicStatePublishScheduled = false;
   if (!uxRuntime?.publishPublicState) return;
   const reasons = Array.from(pendingUxPublicStateReasons);
   const effectTypes = Array.from(pendingUxPublicStateEffectTypes);
+  const domains = Array.from(pendingUxPublicStateDomains);
   pendingUxPublicStateReasons.clear();
   pendingUxPublicStateEffectTypes.clear();
+  pendingUxPublicStateDomains.clear();
   try {
     uxRuntime.publishPublicState({
-      game: gameView?.snapshot?.() || {},
+      game: gameViewSnapshot,
       presentationSettings: userSettings,
       session: {
         restored: currentRunConfig?.runKind === 'continue',
         replay: Boolean(currentRunConfig?.replay),
         onboardingSuppressed: currentRunConfig?.runKind === 'continue' || Boolean(currentRunConfig?.replay),
       },
-    }, { reasons, effectTypes });
+    }, { reasons, effectTypes, domains });
   } catch (error) {
-    diagnosticEvent('ux-runtime', 'public-state.publish-failed', { reasons, message: String(error?.message || error) });
+    diagnosticEvent('ux-runtime', 'public-state.publish-failed', { reasons, domains, message: String(error?.message || error) });
   }
 }
 
 function scheduleUxPublicStatePublish(reason, effects = []) {
+  const domains = new Set();
+  for (const effect of effects || []) {
+    pendingUxPublicStateEffectTypes.add(String(effect?.type || 'unknown'));
+    for (const domain of uxPublicStateDomainsForEffect(effect)) domains.add(domain);
+  }
+  if (!domains.size) return;
   pendingUxPublicStateReasons.add(String(reason || 'state-change'));
-  for (const effect of effects || []) pendingUxPublicStateEffectTypes.add(String(effect?.type || 'unknown'));
+  for (const domain of domains) pendingUxPublicStateDomains.add(domain);
   if (uxPublicStatePublishScheduled) return;
   uxPublicStatePublishScheduled = true;
   if (typeof window.requestAnimationFrame === 'function') window.requestAnimationFrame(publishUxPublicState);
@@ -8951,7 +6937,6 @@ function applyGameViewEffects(effects) {
   for (const item of effects || []) {
     diagnosticEvent(diagnosticCategoryForEffect(item), `view-effect.${item.type || 'unknown'}`, item, { transactionId: item.transaction?.transactionId || item.transactionId || '', requestId: item.prompt?.requestId || item.menu?.requestId || item.requestId || '' });
     if (item.type === 'ground-pile-snapshot') {
-      publicGroundPileSnapshots = item.groundPiles || publicGroundPileSnapshots;
       hydrateGroundTransferPanelFromPublicSnapshot(item.snapshot);
       renderContextActionBar();
     }
@@ -8959,10 +6944,8 @@ function applyGameViewEffects(effects) {
       diagnosticEvent('state', 'ground-pile.snapshot.rejected', item);
     }
     else if (item.type === 'container-session-opened' || item.type === 'container-session-closed') {
-      publicContainerContentsSnapshots = item.containerContents || publicContainerContentsSnapshots;
     }
     else if (item.type === 'container-contents-snapshot') {
-      publicContainerContentsSnapshots = item.containerContents || publicContainerContentsSnapshots;
       hydrateDirectContainerPanelFromSnapshot(item.snapshot?.sessionId || item.sessionId || '');
     }
     else if (item.type === 'container-contents-snapshot-rejected') {
@@ -8972,12 +6955,6 @@ function applyGameViewEffects(effects) {
       handleDirectContainerSnapshotRejected(item);
     }
     else if (/^transfer-/.test(String(item.type || ''))) {
-      publicTransferTransactions = item.transferTransactions || gameView?.state?.transferTransactions || publicTransferTransactions;
-      if (item.pendingTransferEvidence || gameView?.state?.pendingTransferEvidence) {
-        const pending = item.pendingTransferEvidence || gameView.state.pendingTransferEvidence;
-        pendingGroundPileEvidence = pending?.ground || null;
-        pendingContainerContentsEvidence = pending?.container || null;
-      }
       if (item.type === 'transfer-transaction-rejected' || item.type === 'transfer-transaction-followup-rejected') {
         const transferId = item.transfer?.transferId || item.rejection?.transferId || '';
         diagnosticEvent('transaction', 'transfer.rejected', item, { transactionId: transferId, requestId: item.transfer?.expectedRequestId || '' });
@@ -9003,16 +6980,22 @@ function applyGameViewEffects(effects) {
       publicTerrainLabelsByCoord.clear();
       publicTerrainLabelsDirty = true;
       if (gameGrid.childElementCount === mapWidth * mapHeight && mapCellElements.length === mapHeight) {
-        markAllMapCellsDirty();
+        if (Array.isArray(item.dirtyCells)) {
+          for (const coord of item.dirtyCells) markMapCellNeighborhoodDirty(Number(coord?.x), Number(coord?.y));
+        } else markAllMapCellsDirty();
         mapNeedsFullRender = false;
       } else {
         dirtyMapCells.clear();
         mapNeedsFullRender = true;
       }
     }
-    else if (item.type === 'flush-map') flushMapRenderNow();
+    else if (item.type === 'flush-map') {
+      for (const coord of item.dirtyCells || []) markMapCellNeighborhoodDirty(Number(coord?.x), Number(coord?.y));
+      flushMapRenderNow();
+    }
     else if (item.type === 'message') {
-      appendMessage(item.text, { logPrompt: item.logPrompt !== false });
+      appendMessage(item.text, { logPrompt: item.logPrompt !== false, alreadyPublished: true, appended: item.appended });
+      reconcileItemEquipmentOwner();
       rememberDeathCauseCandidate(item.text);
       if (isGameOverMessage(item.text)) {
         ensureGameOverState(deathCauseFromText(item.text));
@@ -9021,17 +7004,17 @@ function applyGameViewEffects(effects) {
     } else if (gameOverState?.active && (item.type === 'render-menu' || item.type === 'menu-changed' || item.type === 'render-prompt' || item.type === 'close-interaction' || item.type === 'open-document')) {
       if (item.type === 'open-document') appendGameOverSection(item.document?.title || 'NetHack statistics', item.document?.lines || []);
     } else if (item.type === 'render-menu' || item.type === 'menu-changed') {
-      if (currentMenu?.suppressPicker && isGroundLookMenu(currentMenu)) rememberGroundItemsHere('passive-menu', currentMenu.items.map((menuItem) => `${menuItem.text || ''} ${menuItemSemanticDisplayName(menuItem) || ''}`.trim()).filter(Boolean));
-      renderMenuPanel(); renderEquipmentSlots(); renderContextActionBar();
+      if (gameViewSnapshot.currentMenu?.suppressPicker && sharedModules.interactionModel.isGroundLookMenu(gameViewSnapshot.currentMenu)) rememberGroundItemsHere('passive-menu', gameViewSnapshot.currentMenu.items.map((menuItem) => `${menuItem.text || ''} ${menuItemSemanticDisplayName(menuItem) || ''}`.trim()).filter(Boolean));
+      renderMenuPanel(); renderContextActionBar();
     }
     else if (item.type === 'render-prompt') {
-      const ownedPrompt = gameView?.state?.activePrompt || activePrompt;
-      if (ownedPrompt?.kind === 'question' && pendingContainerUnlockOpen?.autoConfirm && isContainerUnlockPrompt(ownedPrompt.query)) {
-        pendingContainerUnlockOpen = { ...pendingContainerUnlockOpen, phase: 'awaiting-unlock-result', autoConfirm: false, answeredAt: performance.now(), query: ownedPrompt.query };
-        activePrompt = null;
-        if (gameView?.state) gameView.state.activePrompt = null;
-        closeInteractionDialog({ force: true });
-        window.setTimeout(() => sendPlayableKey('y'), 0);
+      const ownedPrompt = gameViewSnapshot.activePrompt;
+      if (ownedPrompt?.kind === 'question' && pendingContainerUnlockOpen?.phase === 'awaiting-unlock-target' && /\b(?:what|which).*(?:direction|way)|in what direction/i.test(String(ownedPrompt.query || ''))) {
+        answerOwnedContainerUnlockPrompt(ownedPrompt, '.', 'awaiting-unlock-confirmation');
+        continue;
+      }
+      if (ownedPrompt?.kind === 'question' && pendingContainerUnlockOpen?.phase === 'awaiting-unlock-confirmation' && isContainerUnlockPrompt(ownedPrompt.query)) {
+        answerOwnedContainerUnlockPrompt(ownedPrompt, 'y', 'awaiting-unlock-result');
         continue;
       }
       if (ownedPrompt?.kind === 'extended command' && uxCommandPalette?.element?.open) {
@@ -9044,8 +7027,7 @@ function applyGameViewEffects(effects) {
       }
       const suppressedExtendedPromptReason = activeExtendedPromptSuppressionReason();
       if (suppressedExtendedPromptReason) {
-        activePrompt = null;
-        if (gameView?.state) gameView.state.activePrompt = null;
+        publishRendererGameViewEvent({ name: 'renderer_dismiss_interaction', expectedRequestId: gameViewSnapshot.activePrompt?.requestId || '', clearMenu: false });
         containerTransferSuppressedExtendedPrompt = null;
         closeInteractionDialog({ force: true });
         if (promptPanel) {
@@ -9055,23 +7037,13 @@ function applyGameViewEffects(effects) {
         setStatus(suppressedExtendedPromptReason);
       } else renderPromptPanel();
     }
-    else if (item.type === 'render-status') { renderStatusLines(); renderContextActionBar(); }
-    else if (item.type === 'inventory-snapshot') {
-      publicInventorySnapshot = item.inventory || publicInventorySnapshot;
-      liveInventoryRevision = publicInventorySnapshot.revision || liveInventoryRevision;
+    else if (item.type === 'render-status') { renderRawStatusLines(); reconcileItemEquipmentOwner(); renderContextActionBar(); }
+    else if (item.type === 'inventory-snapshot' || item.type === 'equipment-snapshot') {
+      reconcileItemEquipmentOwner();
       renderContextActionBar();
     }
-    else if (item.type === 'equipment-snapshot') {
-      publicEquipmentSnapshot = item.equipment || publicEquipmentSnapshot;
-      renderEquipmentSlots();
-      if (!refreshOpenEquipmentDialogFromPublicSnapshots() && interactionDialog?.open && interactionDialog.classList.contains('rpg-equipment-dialog') && currentMenu) renderMenuPanel();
-    }
-    else if (item.type === 'command-transaction-started') {
-      if (equipmentKeepOpenState?.active) equipmentKeepOpenState.transactionId = item.transaction?.transactionId || equipmentKeepOpenState.transactionId;
+    else if (item.type === 'command-transaction-started' || item.type === 'command-transaction-updated') {
       diagnosticEvent('transaction', 'command.awaiting-core', { transactionId: item.transaction?.transactionId || '', semanticAction: item.transaction?.semanticAction || '' }, { transactionId: item.transaction?.transactionId || '' });
-    }
-    else if (item.type === 'command-transaction-updated') {
-      if (equipmentKeepOpenState?.active && item.transaction?.transactionId) equipmentKeepOpenState.transactionId = item.transaction.transactionId;
     }
     else if (item.type === 'command-transaction-completed') {
       const uiProtocolCommand = item.transaction?.guiAction?.uiProtocol;
@@ -9086,18 +7058,15 @@ function applyGameViewEffects(effects) {
         executionSource: 'public-state-transaction',
         replayBehavior: 'replay executes recorded input events only',
       }, 'command-transaction');
-      if (equipmentKeepOpenState?.active && (!equipmentKeepOpenState.transactionId || equipmentKeepOpenState.transactionId === item.transaction?.transactionId)) {
-        const changed = item.result?.delta?.changedCount || 0;
-        equipmentKeepOpenState.awaitingRefresh = false;
-        equipmentKeepOpenState.refreshRequested = false;
-        equipmentKeepOpenState.inventorySignature = equipmentInventorySignature();
-        equipmentKeepOpenState.until = Date.now() + 2500;
-        setEquipmentDropFeedback(changed ? `${equipmentKeepOpenState.feedback || 'Equipment updated'} Complete (${changed} public change${changed === 1 ? '' : 's'}).` : `${equipmentKeepOpenState.feedback || 'Command complete'} No visible equipment change yet.`, true);
-      }
-      const transactionId = item.transaction?.transactionId || item.result?.transactionId || `revision-${publicCommandTransactions?.revision || shimEventCount}`;
+      const transactionId = item.transaction?.transactionId || item.result?.transactionId || `revision-${gameViewSnapshot.commandTransactions?.revision || shimEventCount}`;
       const semanticAction = String(item.transaction?.semanticAction || item.result?.action || 'command');
       const semanticActionId = String(item.result?.actionId || item.transaction?.semanticActionId || item.transaction?.guiAction?.actionId || '');
       const failed = item.result?.status === 'failure' || item.transaction?.status === 'rejected';
+      itemEquipmentOwner?.settle?.({
+        intentId: transactionId,
+        status: failed ? 'rejected' : 'completed',
+        reason: item.result?.reason || item.transaction?.reason || '',
+      });
       const benignCancellation = failed && sharedModules.uxFailurePresentation?.isBenignCancellationRejection?.(item);
       if (benignCancellation) {
         diagnosticEvent('transaction', 'command.cancellation-rejection-suppressed', { reason: item.result?.reason || item.transaction?.reason || '', transactionId });
@@ -9113,64 +7082,45 @@ function applyGameViewEffects(effects) {
       }
     }
     else if (item.type === 'command-transaction-completion-rejected') {
+      itemEquipmentOwner?.settle?.({ intentId: item.transactionId || '', status: 'rejected', reason: item.reason || '' });
       if (pendingConfirmedSaveAction && (!item.transactionId || item.transactionId === pendingConfirmedSaveAction.transactionId)) pendingConfirmedSaveAction = null;
+      const transferId = String(item.transactionId || item.event?.transactionId || item.rejection?.event?.transactionId || '');
+      const transferOwned = Boolean(transferId && (
+        transferSession.snapshot().pending?.transferId === transferId
+        || gameViewSnapshot.transferTransactions?.transfersById?.has?.(transferId)
+      ));
       const benignCancellation = sharedModules.uxFailurePresentation?.isBenignCancellationRejection?.(item);
-      if (benignCancellation) diagnosticEvent('transaction', 'command.cancellation-rejection-suppressed', { reason: item.reason || '', event: item.event || item.rejection?.event || null });
+      if (transferOwned) diagnosticEvent('transaction', 'command.transfer-completion-rejection-suppressed', { transferId, reason: item.reason || '' });
+      else if (benignCancellation) diagnosticEvent('transaction', 'command.cancellation-rejection-suppressed', { reason: item.reason || '', event: item.event || item.rejection?.event || null });
       else if (!/already completed/i.test(String(item.reason || ''))) showFailureNotice({ id: `command-completion:${item.transactionId || shimEventCount}`, kind: 'rejected', reason: item.reason || '', transactionId: item.transactionId || '' });
     }
     else if (item.type === 'inventory-updated') {
-      publicInventorySnapshot = item.inventory || publicInventorySnapshot;
-      publicEquipmentSnapshot = item.equipment || publicEquipmentSnapshot;
-      liveInventoryChoices = (item.items || []).filter((row) => row.selector);
-      liveInventoryRevision = item.revision || publicInventorySnapshot.revision || (liveInventoryRevision + 1);
-      cachedInventoryChoices = liveInventoryChoices.slice();
-      const shouldRefreshOpenEquipmentDialog = Boolean(interactionDialog?.open && interactionDialog.classList.contains('rpg-equipment-dialog') && currentMenu);
-      if (equipmentKeepOpenState?.active && (isEquipmentFollowupPrompt(activePrompt?.query, activePrompt?.choices) || isEquipmentActionMenu(currentMenu))) {
-        clearPromptOwnerState({ clearMenu: true });
-      }
-      if (containerTransferState?.active) {
-        const inventoryProbeRows = (currentMenu?.items || []).filter((row) => row.selector);
-        const inventoryProbePrompt = String(currentMenu?.prompt || '').trim();
+      if (transferPresentation?.active) {
+        const inventoryProbeRows = (gameViewSnapshot.currentMenu?.items || []).filter((row) => row.selector);
+        const inventoryProbePrompt = String(gameViewSnapshot.currentMenu?.prompt || '').trim();
         const inventoryProbeMenuLooksPromptless = (!inventoryProbePrompt || /^Menu$/i.test(inventoryProbePrompt))
           && inventoryProbeRows.length > 0
           && inventoryProbeRows.every((row) => rowLooksLikePublicInventoryItem(row));
-        if (containerTransferState.sessionKind === 'container' && (inventoryOverviewRequestActive() || inventoryProbeMenuLooksPromptless)) {
-          containerTransferState.inventoryProbeGraceUntil = Date.now() + 5000;
-          containerTransferState.inventoryProbeMenuWindow = currentMenu?.window;
+        if (transferPresentation.sessionKind === 'container' && (inventoryOverviewRequestActive() || inventoryProbeMenuLooksPromptless)) {
+          transferPresentation.inventoryProbeGraceUntil = Date.now() + 5000;
+          transferPresentation.inventoryProbeMenuWindow = gameViewSnapshot.currentMenu?.window;
         }
         const incomingInventoryRows = currentInventoryTransferRows();
-        if (containerTransferState.sessionKind === 'container' && (currentPendingContainerTransferSelection() || transferChoreographyReopenPending())) {
-          const existingRows = Array.isArray(containerTransferState.rightItems) ? containerTransferState.rightItems : [];
-          const seenKeys = new Set(existingRows.map((row) => transferItemKey(row)).filter(Boolean));
-          containerTransferState.rightItems = existingRows.concat(incomingInventoryRows.filter((row) => {
-            const key = transferItemKey(row);
-            if (!key || seenKeys.has(key)) return false;
-            seenKeys.add(key);
-            return true;
-          }));
-        } else containerTransferState.rightItems = incomingInventoryRows;
-        if (containerTransferState.sessionKind === 'container' && (currentTransferChoreographyState({ kind: 'container' }).autoInventoryLoadPending || containerTransferState.autoInventoryLoadPending || containerTransferState.loadingSides?.right || !containerPaneLoaded('right'))) {
-          containerTransferState.autoInventoryLoadPending = false;
-          containerTransferState.inventoryProbeGraceUntil = Date.now() + 5000;
-          containerTransferState.inventoryProbeMenuWindow = currentMenu?.window;
+        const rightRows = incomingInventoryRows;
+        if (transferPresentation.sessionKind === 'container' && (currentTransferChoreographyState({ kind: 'container' }).autoInventoryLoadPending || transferPresentation.autoInventoryLoadPending || transferPresentation.loadingSides?.right || !containerPaneLoaded('right'))) {
+          transferPresentation.autoInventoryLoadPending = false;
+          transferPresentation.inventoryProbeGraceUntil = Date.now() + 5000;
+          transferPresentation.inventoryProbeMenuWindow = gameViewSnapshot.currentMenu?.window;
           markContainerPaneLoaded('right');
-          containerTransferState.feedback = containerPaneLoaded('left') ? 'Both panes loaded. Drag items between container and inventory.' : 'Inventory loaded. Loading container contents…';
+          transferPresentation.feedback = containerPaneLoaded('left') ? 'Both panes loaded. Drag items between container and inventory.' : 'Inventory loaded. Loading container contents…';
           applyTransferChoreographyPatch({ autoInventoryLoadPending: false, autoLoadingSide: '', refreshIntent: { kind: 'container-inventory-snapshot-loaded', side: 'right', reason: 'inventory snapshot updated container pane' } }, 'container inventory snapshot loaded');
         }
-        updateTransferSessionOwnership();
-        const pendingTransfer = pendingTransferForOwnership();
-        const waitingForFinalContainerSelector = containerTransferState.sessionKind === 'container' && Boolean(currentPendingContainerTransferSelection());
-        const waitingForDirectTransferConfirmation = Boolean(pendingTransfer?.transferId && containerTransferState.directTransferPendingId === pendingTransfer.transferId);
-        if (pendingTransfer?.transferId && !pendingTransfer.expectedRequestId && !waitingForFinalContainerSelector && !waitingForDirectTransferConfirmation) {
-          processSharedTransferEvent('transfer.confirmed', { transferId: pendingTransfer.transferId, kind: 'public-inventory-snapshot', requestId: '', accepted: true });
-          completeTransferOwnership('success', 'confirmed by public inventory snapshot');
-        }
+        dispatchTransferSessionEvent({ type: 'inventory', rows: rightRows });
         renderContainerTransferPanel();
       }
-      renderEquipmentSlots();
+      reconcileItemEquipmentOwner();
       renderContextActionBar();
-      if (shouldRefreshOpenEquipmentDialog) refreshOpenEquipmentDialogFromPublicSnapshots();
-      if (activePrompt?.kind === 'question') renderPromptPanel();
+      if (gameViewSnapshot.activePrompt?.kind === 'question') renderPromptPanel();
     }
     else if (item.type === 'close-interaction') closeInteractionDialog();
     else if (item.type === 'hide-direction-helper') hideDirectionHelper();
@@ -9185,43 +7135,46 @@ function applyGameViewEffects(effects) {
 }
 
 function processShimGameEvent(event) {
-  if (gameView) {
-    const result = gameView.process(event);
-    // Mirror the deep shared view-state module into renderer globals while the
-    // DOM adapter is migrated incrementally.
-    windowTypes.clear();
-    for (const [key, value] of gameView.state.windowTypes) windowTypes.set(key, value);
-    statusLabels.clear();
-    for (const [key, value] of gameView.state.statusLabels) statusLabels.set(key, value);
-    statusValues.clear();
-    for (const [key, value] of gameView.state.statusValues) statusValues.set(key, value);
-    menusByWindow.clear();
-    for (const [key, value] of gameView.state.menusByWindow) menusByWindow.set(key, value);
-    textWindowsByWindow.clear();
-    for (const [key, value] of gameView.state.textWindowsByWindow) textWindowsByWindow.set(key, value);
-    syncGameViewGlobals();
-    const preRenderSuppressedExtendedPromptReason = activeExtendedPromptSuppressionReason();
-    if (preRenderSuppressedExtendedPromptReason) {
-      activePrompt = null;
-      if (gameView?.state) gameView.state.activePrompt = null;
-      containerTransferSuppressedExtendedPrompt = null;
-      closeInteractionDialog({ force: true });
-      setStatus(preRenderSuppressedExtendedPromptReason);
-    }
-    applyGameViewEffects(result.effects);
-    syncGameViewGlobals();
+  const result = gameView.process(event);
+  if (deferredGameViewEffects) {
+    deferredGameViewEffects.push(...(result.effects || []));
     return;
   }
-  event = event?.event || event?.raw || event;
-  if (event.name === 'shim_create_nhwindow') {
-    windowTypes.set(event.return, event.windowType);
-    if (event.windowType === 3) mapWindowId = event.return;
-  } else if (event.name === 'shim_clear_nhwindow') {
-    if (event.window === mapWindowId || event.return === mapWindowId) {
-      mapCells = makeEmptyMap();
-      scheduleMapRender({ full: true });
-    }
+  refreshGameViewPresentation();
+  const preRenderSuppressedExtendedPromptReason = activeExtendedPromptSuppressionReason();
+  if (preRenderSuppressedExtendedPromptReason) {
+    publishRendererGameViewEvent({ name: 'renderer_dismiss_interaction', expectedRequestId: gameViewSnapshot.activePrompt?.requestId || '', clearMenu: false });
+    containerTransferSuppressedExtendedPrompt = null;
+    closeInteractionDialog({ force: true });
+    setStatus(preRenderSuppressedExtendedPromptReason);
   }
+  applyGameViewEffects(result.effects);
+  refreshGameViewPresentation();
+}
+
+function flushDeferredGameViewEffects() {
+  if (!deferredGameViewEffects) return;
+  const effects = deferredGameViewEffects;
+  deferredGameViewEffects = null;
+  refreshGameViewPresentation();
+  applyGameViewEffects(effects);
+  refreshGameViewPresentation();
+}
+
+function publishTestMap(cells = [], cursor = { x: 0, y: 0 }) {
+  processShimGameEvent({ name: 'shim_create_nhwindow', return: 1, windowType: 3 });
+  processShimGameEvent({ name: 'shim_clear_nhwindow', window: 1 });
+  for (const entry of cells) {
+    processShimGameEvent({
+      name: 'shim_print_glyph',
+      window: 1,
+      ...entry,
+      x: normalizeMapCoord(entry.x, mapWidth),
+      y: normalizeMapCoord(entry.y, mapHeight),
+      char: entry.ch || entry.char || ' ',
+    });
+  }
+  processShimGameEvent({ name: 'shim_curs', window: 1, x: normalizeMapCoord(cursor.x, mapWidth), y: normalizeMapCoord(cursor.y, mapHeight) });
 }
 
 async function runVersion() {
@@ -9319,13 +7272,6 @@ function handleShimEvent(event) {
   const sourceEvent = event?.event || event?.raw || event || {};
   const appEvent = sharedModules.shimProtocol?.normalizeRawShimEvent ? sharedModules.shimProtocol.normalizeRawShimEvent(sourceEvent) : { event: sourceEvent, name: sourceEvent?.name };
   const rawEvent = appEvent.event || appEvent.raw || sourceEvent;
-  if (pendingBackingInventoryAction?.flow && pendingBackingInventoryAction.flow.status !== 'rejected' && cancellationAnswerTransports.has(rawEvent?.name)) {
-    const settlement = sharedModules.commandTransactionModel?.settleOwnedInputFlow?.(pendingBackingInventoryAction.flow, rawEvent);
-    if (settlement) {
-      pendingBackingInventoryAction.flow = settlement.flow;
-      diagnosticEvent('transaction', settlement.ok ? 'inventory.backing-menu.release.acknowledged' : 'inventory.backing-menu.release.acknowledgement-rejected', { code: settlement.code, flow: settlement.flow }, { transactionId: settlement.flow.transactionId, requestId: settlement.flow.requestId });
-    }
-  }
   if (pendingPromptCancellation && cancellationAnswerTransports.has(rawEvent?.name)) {
     // Match only the authoritative normalized public event. Production ingress
     // has already passed through game-process normalization and the preload
@@ -9444,9 +7390,9 @@ function handleShimEvent(event) {
     // or wrong-family answer must not leave stale ownership for a later event.
     pendingPromptCancellation = null;
   }
-  if (rawEvent?.name === 'bridge_prompt_answer' && Number(rawEvent.keycode) === 121 && /really save/i.test(String(activePrompt?.query || ''))) {
-    const transactionId = String(rawEvent.transactionId || activePrompt?.transactionId || gameView?.state?.activeTransactionId || '');
-    const transaction = transactionId ? gameView?.state?.commandTransactions?.byId?.get?.(transactionId) : null;
+  if (rawEvent?.name === 'bridge_prompt_answer' && Number(rawEvent.keycode) === 121 && /really save/i.test(String(gameViewSnapshot.activePrompt?.query || ''))) {
+    const transactionId = String(rawEvent.transactionId || gameViewSnapshot.activePrompt?.transactionId || gameViewSnapshot.activeTransactionId || '');
+    const transaction = transactionId ? gameViewSnapshot.commandTransactions.byId?.get?.(transactionId) : null;
     const actionId = String(transaction?.semanticActionId || transaction?.guiAction?.actionId || '');
     if (actionId === 'run.save-and-exit') pendingConfirmedSaveAction = { actionId, transactionId, confirmedAt: Date.now() };
   }
@@ -9461,7 +7407,6 @@ function handleShimEvent(event) {
   const suppressVerboseRendererShimDiagnostic = shimEventBatchDepth > 0 && ['shim_print_glyph', 'shim_clear_nhwindow', 'shim_display_nhwindow'].includes(rawEvent?.name);
   if (!suppressVerboseRendererShimDiagnostic) diagnosticEvent('shim-event', 'shim.event.renderer.received', { protocol: appEvent.protocol, kind: appEvent.kind, known: appEvent.known, name: rawEvent?.name || null, event: rawEvent });
   if (rawEvent.name) seenShimEventNames.add(rawEvent.name);
-  if (rawEvent.name === 'shim_print_glyph' || rawEvent.name === 'shim_clear_nhwindow') publicMapRevision += 1;
   if (rawEvent.name === 'shim_ground_pile_snapshot') {
     publicGroundPileShimEvidence.push(JSON.parse(JSON.stringify(rawEvent)));
     if (publicGroundPileShimEvidence.length > 32) publicGroundPileShimEvidence = publicGroundPileShimEvidence.slice(-32);
@@ -9510,12 +7455,12 @@ function handleShimEvent(event) {
     sendRecordedShimInput({ type: 'keycode', keycode: 'y'.charCodeAt(0) }, 'auto-disclosure');
     setStatus('collecting final NetHack statistics');
   }
-  const onboardingCursorBefore = { x: cursor.x, y: cursor.y, window: cursor.window };
+  const onboardingCursorBefore = { x: gameViewSnapshot.cursor.x, y: gameViewSnapshot.cursor.y, window: gameViewSnapshot.cursor.window };
   processShimGameEvent(appEvent);
   if (rawEvent.name === 'bridge_extcmd_answer' && uxCommandPalette?.element?.open && uxCommandPalette.model.snapshot().mode === 'core') {
     uxCommandPalette.close('core-answered');
   }
-  if (rawEvent.name === 'shim_curs' && introLoreShown && !introDialog?.open && (cursor.x !== onboardingCursorBefore.x || cursor.y !== onboardingCursorBefore.y) && cursor.window === mapWindowId) {
+  if (rawEvent.name === 'shim_curs' && introLoreShown && !introDialog?.open && (gameViewSnapshot.cursor.x !== onboardingCursorBefore.x || gameViewSnapshot.cursor.y !== onboardingCursorBefore.y) && gameViewSnapshot.cursor.window === gameViewSnapshot.mapWindowId) {
     uxOnboarding?.observe?.({ type: 'movement-confirmed', confirmed: true });
   }
   if (['shim_yn_function', 'shim_getlin', 'shim_get_ext_cmd', 'shim_select_menu'].includes(rawEvent.name) && !rawEvent.autoAnswered) {
@@ -9525,77 +7470,85 @@ function handleShimEvent(event) {
     uxOnboarding?.observe?.({ type: 'core-prompt-closed', ownerId: String(rawEvent.requestId || rawEvent.menuRequestId || rawEvent.promptId || `core:${rawEvent.name.replace('bridge_', 'shim_')}`) });
     if (rawEvent.name === 'bridge_menu_answer') uxOnboarding?.observe?.({ type: 'inventory-closed', confirmed: true });
   }
-  if (['bridge_extcmd_catalog', 'shim_get_ext_cmd'].includes(rawEvent.name) && gameView?.state?.activePrompt?.kind === 'extended command' && !pendingPromptCancellation && !uxCommandPalette?.element?.open) {
+  if (['bridge_extcmd_catalog', 'shim_get_ext_cmd'].includes(rawEvent.name) && gameViewSnapshot.activePrompt?.kind === 'extended command' && !pendingPromptCancellation && !uxCommandPalette?.element?.open) {
     closeInteractionDialog({ force: true });
     uxCommandPalette?.open?.({ mode: 'core', publicState: discoveryPublicState(), invoker: gameGrid });
-  }
-  if (['acknowledged', 'stabilizing'].includes(pendingBackingInventoryAction?.flow?.status)) {
-    observeBackingInventoryActionStability();
-  } else if (pendingBackingInventoryAction?.flow?.status === 'rejected') {
-    const rejected = pendingBackingInventoryAction;
-    pendingBackingInventoryAction = null;
-    setEquipmentDropFeedback('Inventory close acknowledgement did not exactly match its active menu owner. No item command was sent.');
-    diagnosticEvent('transaction', 'inventory.backing-menu.release.failed-closed', { flow: rejected.flow });
   }
   if ((rawEvent.name === 'shim_putstr' || rawEvent.name === 'shim_raw_print' || rawEvent.name === 'shim_raw_print_bold')) {
     maybeHandleContainerInterruption(rawEvent.text);
     maybeContinueContainerOpenAfterUnlock(rawEvent.text);
   }
-  if (containerTransferState?.active && activePrompt && activePrompt.kind !== 'menu selection' && !containerTransferState.dropPending && !containerTransferState.textWindowGroundItems && !currentPendingContainerTransferSelection()) {
+  maybeDispatchContainerOpenAfterUnlock();
+  if (transferPresentation?.active && gameViewSnapshot.activePrompt && gameViewSnapshot.activePrompt.kind !== 'menu selection' && !transferPresentation.dropPending && !transferPresentation.textWindowGroundItems && !currentPendingContainerTransferSelection()) {
+    const pendingTransfer = transferSession.snapshot().pending;
+    const groundDropPrompt = pendingTransfer?.direction === 'inventory-to-ground'
+      && /\bWhat do you want to drop\?/i.test(String(gameViewSnapshot.activePrompt.query || gameViewSnapshot.activePrompt.question || ''));
     const suppressedExtendedPromptReason = activeExtendedPromptSuppressionReason();
-    if (suppressedExtendedPromptReason) {
+    if (groundDropPrompt) {
+      dispatchTransferSessionEvent({
+        type: 'menu',
+        menu: {
+          ...gameViewSnapshot.activePrompt,
+          prompt: gameViewSnapshot.activePrompt.query || gameViewSnapshot.activePrompt.question || 'What do you want to drop?',
+          awaitingSelection: true,
+          how: 1,
+          items: currentInventoryTransferRows(),
+        },
+        inventoryRows: currentInventoryTransferRows(),
+      });
+      closeInteractionDialog({ force: true });
+      renderContainerTransferPanel();
+    } else if (suppressedExtendedPromptReason) {
       clearTransferPanelOwnerChrome();
       closeInteractionDialog({ force: true });
       setStatus(suppressedExtendedPromptReason);
     } else if (shouldKeepContainerPanelBehindVisiblePrompt()) {
-      containerTransferState.feedback = 'NetHack needs an answer before the container refresh can continue.';
+      transferPresentation.feedback = 'NetHack needs an answer before the container refresh can continue.';
       renderContainerTransferPanel();
     } else closeContainerTransferPanel('Transfer panel closed because NetHack opened a different prompt.');
   }
-  if (containerTransferState?.active && rawEvent.name === 'bridge_semantic_followup_rejected') {
-    rejectTransferFollowup(rawEvent, rawEvent.reason || 'semantic transfer follow-up rejected before NetHack consumed it');
+  if (transferSession.snapshot().pending && rawEvent.name === 'bridge_semantic_followup_rejected') {
+    dispatchTransferSessionEvent({
+      type: 'rejected',
+      transferId: rawEvent.transferId || rawEvent.transactionId || transferSession.snapshot().pending.transferId,
+      sessionId: transferSession.snapshot().sessionId,
+      requestId: rawEvent.requestId || rawEvent.menuRequestId || rawEvent.promptId || '',
+      reason: rawEvent.reason || 'semantic transfer follow-up rejected before NetHack consumed it',
+    });
   }
-  if (containerTransferState?.active && rawEvent.name === 'shim_ground_transfer_confirmed') {
+  if (transferSession.snapshot().active && [
+    'shim_ground_transfer_confirmed',
+    'shim_ground_transfer_rejected',
+    'shim_container_transfer_confirmed',
+    'shim_container_transfer_rejected',
+  ].includes(rawEvent.name)) {
+    const accepted = rawEvent.name.endsWith('_confirmed');
     const transferId = rawEvent.transferId || rawEvent.transactionId || '';
-    if (!directTransferEventMatchesPending(rawEvent, 'ground')) {
-      diagnosticEvent('transaction', 'ground-transfer.direct.confirmation-ignored', { transferId, reason: 'confirmation did not match the pending direct owner', event: rawEvent }, { transactionId: transferId });
+    const result = dispatchTransferSessionEvent({
+      type: accepted ? 'confirmed' : 'rejected',
+      transferId,
+      transactionId: rawEvent.transactionId || transferId,
+      sessionId: rawEvent.sessionId || transferSession.snapshot().sessionId,
+      direction: rawEvent.direction,
+      itemId: rawEvent.itemId,
+      requestId: rawEvent.requestId || rawEvent.menuRequestId || '',
+      reason: rawEvent.reason || (accepted ? 'authoritative NetHack transfer confirmation' : 'NetHack rejected the transfer'),
+      failureKind: rawEvent.failureKind || '',
+    });
+    const ignored = result.effects.find((effect) => effect.type === 'ignored-followup');
+    if (ignored) {
+      diagnosticEvent('transaction', 'transfer-session.followup-ignored', { transferId, reason: ignored.reason, event: rawEvent }, { transactionId: transferId });
     } else {
-      if (transferId) processSharedTransferEvent('transfer.confirmed', { transferId, kind: rawEvent.name, requestId: '', accepted: true });
-      completeTransferOwnership('success', rawEvent.reason || 'confirmed by direct NetHack ground transfer');
       clearDirectTransferPending(transferId);
-      containerTransferState.feedback = rawEvent.reason || 'Ground transfer completed.';
       renderContainerTransferPanel();
-    }
-  } else if (containerTransferState?.active && rawEvent.name === 'shim_ground_transfer_rejected') {
-    if (!directTransferEventMatchesPending(rawEvent, 'ground')) {
-      diagnosticEvent('transaction', 'ground-transfer.direct.rejection-ignored', { transferId: rawEvent.transferId || rawEvent.transactionId || '', reason: 'rejection did not match the pending direct owner', event: rawEvent });
-    } else {
-      const transferBeforeReject = pendingTransferForOwnership();
-      const rejectedTransferId = rawEvent.transferId || rawEvent.transactionId || transferBeforeReject?.transferId || '';
-      if (rejectedTransferId) rejectTransferFollowup({ ...rawEvent, transferId: rejectedTransferId }, rawEvent.reason || 'direct NetHack ground transfer rejected');
-      reconcileGroundTransferAfterDirectRejection({ ...rawEvent, transferId: rejectedTransferId }, transferBeforeReject);
-      showFailureNotice({ id: `ground-transfer:${rejectedTransferId || shimEventCount}`, kind: /stale|revision|moved/i.test(String(rawEvent.reason || '')) ? 'stale-revision' : 'rejected', reason: rawEvent.reason || '', transactionId: rejectedTransferId });
-    }
-  } else if (containerTransferState?.active && rawEvent.name === 'shim_container_transfer_confirmed') {
-    const transferId = rawEvent.transferId || rawEvent.transactionId || '';
-    if (!directTransferEventMatchesPending(rawEvent, 'container')) {
-      diagnosticEvent('transaction', 'container-transfer.direct.confirmation-ignored', { transferId, reason: 'confirmation did not match the pending direct owner', event: rawEvent }, { transactionId: transferId });
-    } else {
-      if (transferId) processSharedTransferEvent('transfer.confirmed', { transferId, kind: rawEvent.name, requestId: '', accepted: true });
-      completeTransferOwnership('success', rawEvent.reason || 'confirmed by direct NetHack container transfer');
-      clearDirectTransferPending(transferId);
-      containerTransferState.feedback = rawEvent.reason || 'Container transfer completed.';
-      renderContainerTransferPanel();
-    }
-  } else if (containerTransferState?.active && rawEvent.name === 'shim_container_transfer_rejected') {
-    if (!directTransferEventMatchesPending(rawEvent, 'container')) {
-      diagnosticEvent('transaction', 'container-transfer.direct.rejection-ignored', { transferId: rawEvent.transferId || rawEvent.transactionId || '', reason: 'rejection did not match the pending direct owner', event: rawEvent });
-    } else {
-      const transferBeforeReject = pendingTransferForOwnership();
-      const rejectedTransferId = rawEvent.transferId || rawEvent.transactionId || transferBeforeReject?.transferId || '';
-      if (rejectedTransferId) rejectTransferFollowup({ ...rawEvent, transferId: rejectedTransferId }, rawEvent.reason || 'direct NetHack container transfer rejected');
-      reconcileContainerTransferAfterDirectRejection({ ...rawEvent, transferId: rejectedTransferId }, transferBeforeReject);
-      showFailureNotice({ id: `container-transfer:${rejectedTransferId || shimEventCount}`, kind: /stale|revision|moved/i.test(String(rawEvent.reason || '')) ? 'stale-revision' : 'rejected', reason: rawEvent.reason || '', transactionId: rejectedTransferId });
+      if (!accepted) {
+        showFailureNotice({
+          id: `transfer-session:${transferId || shimEventCount}:rejected`,
+          kind: /stale|revision|moved/i.test(String(rawEvent.reason || '')) ? 'stale-revision' : 'rejected',
+          reason: rawEvent.reason || '',
+          transactionId: transferId,
+        });
+      }
     }
   } else if (rawEvent.name === 'shim_terrain_action_rejected') {
     const reason = rawEvent.reason || 'direct terrain action rejected';
@@ -9605,44 +7558,42 @@ function handleShimEvent(event) {
   } else if (rawEvent.name === 'shim_terrain_action_confirmed') {
     if (rawEvent.reason) setStatus(rawEvent.reason);
   }
-  const activePanelTransfer = containerTransferState?.active ? pendingTransferForOwnership() : null;
-  if (containerTransferState?.active && activePanelTransfer?.transferId && (rawEvent.name === 'bridge_menu_answer' || rawEvent.name === 'bridge_prompt_answer' || rawEvent.name === 'bridge_line_answer') && transferEventMatchesPending(rawEvent)) {
-    const pendingTransfer = activePanelTransfer;
+  const activePanelTransfer = transferSession.snapshot().pending;
+  if (activePanelTransfer && ['bridge_menu_answer', 'bridge_prompt_answer', 'bridge_line_answer'].includes(rawEvent.name)) {
     const cancelled = (rawEvent.name === 'bridge_menu_answer' && !Number(rawEvent.return || 0) && !rawEvent.answer && !rawEvent.selection)
       || Number(rawEvent.keycode) === 27
       || rawEvent.answer === '\u001b'
       || rawEvent.key === '\u001b';
-    if (pendingTransfer?.transferId) processSharedTransferEvent('transfer.confirmed', { transferId: pendingTransfer.transferId, kind: rawEvent.name, requestId: rawEvent.requestId || rawEvent.menuRequestId || rawEvent.promptId || '', accepted: !cancelled });
-    completeTransferOwnership(cancelled ? 'cancelled' : 'success', cancelled ? 'cancelled by player' : 'confirmed by NetHack prompt/menu answer');
-  } else if (containerTransferState?.active && activePanelTransfer?.transferId && (rawEvent.name === 'bridge_menu_answer' || rawEvent.name === 'bridge_prompt_answer' || rawEvent.name === 'bridge_line_answer') && transferEventTargetsPendingTransfer(rawEvent)) {
-    rejectTransferFollowup({ ...rawEvent, transferId: activePanelTransfer.transferId, expectedRequestId: activePanelTransfer.expectedRequestId || '' }, 'expected prompt request id does not match active prompt');
+    const requestId = rawEvent.requestId || rawEvent.menuRequestId || rawEvent.promptId || '';
+    dispatchTransferSessionEvent({
+      type: cancelled ? 'rejected' : 'confirmed',
+      transferId: rawEvent.transferId || activePanelTransfer.transferId,
+      sessionId: activePanelTransfer.sessionId,
+      requestId,
+      direction: activePanelTransfer.direction,
+      reason: cancelled ? 'cancelled by player' : 'confirmed by NetHack prompt/menu answer',
+    });
+    renderContainerTransferPanel();
   }
-  if (containerTransferState?.active && containerTransferState.dropPending && (rawEvent.name === 'bridge_prompt_answer' || rawEvent.name === 'bridge_menu_answer')) {
-    containerTransferState.dropPending = false;
+  if (transferPresentation?.active && transferPresentation.dropPending && (rawEvent.name === 'bridge_prompt_answer' || rawEvent.name === 'bridge_menu_answer')) {
+    transferPresentation.dropPending = false;
   }
-  if (containerTransferState?.active && pendingContainerInventoryProbeDismissal && rawEvent.name === 'bridge_menu_answer') {
-    flushPendingContainerInventoryProbeDismissal('bridge-menu-answer');
-  }
-  if (containerTransferState?.active && pendingGroundMenuTransferIntent && rawEvent.name === 'bridge_menu_answer') {
-    resumeGroundTransferAfterMenuRelease(rawEvent);
-  }
-  if (containerTransferState?.active && transferChoreographyReopenPending() && rawEvent.name === 'bridge_menu_answer') {
-    const shouldReopen = !containerTransferState.interrupted;
+  if (transferPresentation?.active && transferChoreographyReopenPending() && rawEvent.name === 'bridge_menu_answer') {
+    const shouldReopen = !transferPresentation.interrupted;
     const choreography = currentTransferChoreographyState();
-    const reopenCommand = choreography.refreshIntent?.command || (containerTransferState.sessionKind === 'ground-pickup' ? ',' : '');
-    if (containerTransferState.sessionKind === 'container') keepContainerTransferOpenThroughRefresh();
-    updateTransferSessionOwnership();
-    containerTransferState.reopenPending = false;
+    const reopenCommand = choreography.refreshIntent?.command || (transferPresentation.sessionKind === 'ground-pickup' ? ',' : '');
+    if (transferPresentation.sessionKind === 'container') keepContainerTransferOpenThroughRefresh();
+    transferPresentation.reopenPending = false;
     applyTransferChoreographyPatch({ reopenPending: false, clearRefreshIntent: true }, 'transfer refresh intent consumed after menu answer');
     if (shouldReopen) window.setTimeout(() => {
-      if (!containerTransferState?.active) return;
-      if (containerTransferState.sessionKind === 'ground-pickup') sendPlayableText(reopenCommand);
-      else if (!activePrompt && !currentMenu?.awaitingSelection) requestDirectContainerSnapshotRefresh('post-transfer-menu-answer');
+      if (!transferPresentation?.active) return;
+      if (transferPresentation.sessionKind === 'ground-pickup') sendPlayableText(reopenCommand);
+      else if (!gameViewSnapshot.activePrompt && !gameViewSnapshot.currentMenu?.awaitingSelection) requestDirectContainerSnapshotRefresh('post-transfer-menu-answer');
     }, 80);
   }
-  if (gameOverState?.active && rawEvent.name === 'shim_end_menu') appendGameOverSection(rawEvent.prompt || currentMenu?.prompt || 'NetHack statistics', (currentMenu?.items || []).map((item) => item.text || ''));
+  if (gameOverState?.active && rawEvent.name === 'shim_end_menu') appendGameOverSection(rawEvent.prompt || gameViewSnapshot.currentMenu?.prompt || 'NetHack statistics', (gameViewSnapshot.currentMenu?.items || []).map((item) => item.text || ''));
   if (gameOverState?.active && rawEvent.name === 'shim_select_menu' && Number(rawEvent.how || 0) === 0) {
-    diagnosticEvent('game-over', 'game-over.disclosure.menu.auto-space', { prompt: rawEvent.prompt || currentMenu?.prompt || '', requestId: rawEvent.requestId || currentMenu?.requestId || '' }, { requestId: rawEvent.requestId || currentMenu?.requestId || '' });
+    diagnosticEvent('game-over', 'game-over.disclosure.menu.auto-space', { prompt: rawEvent.prompt || gameViewSnapshot.currentMenu?.prompt || '', requestId: rawEvent.requestId || gameViewSnapshot.currentMenu?.requestId || '' }, { requestId: rawEvent.requestId || gameViewSnapshot.currentMenu?.requestId || '' });
     sendRecordedShimInput({ type: 'keycode', keycode: ' '.charCodeAt(0) }, 'auto-menu-space');
   }
   if (gameOverState?.active && rawEvent.name === 'shim_display_nhwindow' && documentWindow?.lines?.length) appendGameOverSection(documentWindow.title || 'NetHack statistics', documentWindow.lines);
@@ -9656,7 +7607,7 @@ function handleShimEvent(event) {
     if (rawEvent.autoAnswered) {
       // Auto-answered shim prompts (currently GUI ring-finger selection) are
       // evidence, not active UI ownership; do not treat them as visible item prompts.
-    } else if (isInventoryActionPrompt(rawEvent.query, rawEvent.choices)) lastInventoryActionQuery = rawEvent.query || '';
+    } else if (sharedModules.interactionModel.isInventoryActionPrompt(rawEvent.query, rawEvent.choices)) lastInventoryActionQuery = rawEvent.query || '';
     else lastInventoryActionQuery = '';
   }
   if (rawEvent.name === 'bridge_extcmd_answer' && activeWorkflowContext) delete activeWorkflowContext.submittedExtendedCommand;
@@ -9697,7 +7648,25 @@ function handleShimEvents(payload) {
   }
   shimEventBatchDepth += events.length > 1 ? 1 : 0;
   try {
-    for (const event of events) handleShimEvent(event);
+    for (let index = 0; index < events.length;) {
+      const source = events[index]?.event || events[index]?.raw || events[index] || {};
+      if (!['shim_clear_nhwindow', 'shim_print_glyph', 'shim_display_nhwindow'].includes(source.name)) {
+        handleShimEvent(events[index]);
+        index += 1;
+        continue;
+      }
+      deferredGameViewEffects = [];
+      try {
+        do {
+          handleShimEvent(events[index]);
+          index += 1;
+          const next = events[index]?.event || events[index]?.raw || events[index] || {};
+          if (!['shim_clear_nhwindow', 'shim_print_glyph', 'shim_display_nhwindow'].includes(next.name)) break;
+        } while (index < events.length);
+      } finally {
+        flushDeferredGameViewEffects();
+      }
+    }
   } finally {
     if (events.length > 1) shimEventBatchDepth -= 1;
     if (events.length > 1 && typeof performance !== 'undefined') {
@@ -9856,7 +7825,7 @@ function sendRecordedShimInput(payload, source = 'shim-input') {
     actionableFailureNotice = null;
   }
   uxNoticeService?.stateChanged?.();
-  diagnosticEvent('user-action', 'user-action.input.requested', { source, payload, activePrompt: activePrompt ? { kind: activePrompt.kind, requestId: activePrompt.requestId, query: activePrompt.query } : null, currentMenu: currentMenu ? { prompt: currentMenu.prompt, requestId: currentMenu.requestId, awaitingSelection: currentMenu.awaitingSelection } : null }, { transactionId: payload.transactionId || payload.actionTransactionId || '', requestId: payload.expectedRequestId || activePrompt?.requestId || currentMenu?.requestId || '' });
+  diagnosticEvent('user-action', 'user-action.input.requested', { source, payload, activePrompt: gameViewSnapshot.activePrompt ? { kind: gameViewSnapshot.activePrompt.kind, requestId: gameViewSnapshot.activePrompt.requestId, query: gameViewSnapshot.activePrompt.query } : null, currentMenu: gameViewSnapshot.currentMenu ? { prompt: gameViewSnapshot.currentMenu.prompt, requestId: gameViewSnapshot.currentMenu.requestId, awaitingSelection: gameViewSnapshot.currentMenu.awaitingSelection } : null }, { transactionId: payload.transactionId || payload.actionTransactionId || '', requestId: payload.expectedRequestId || gameViewSnapshot.activePrompt?.requestId || gameViewSnapshot.currentMenu?.requestId || '' });
   if (payload.type !== 'keycode' && activeRecording) {
     activeRecording.unsupportedShimInputs = activeRecording.unsupportedShimInputs || [];
     activeRecording.unsupportedShimInputs.push({ t: Math.round(performance.now()), source, payload });
@@ -9865,7 +7834,7 @@ function sendRecordedShimInput(payload, source = 'shim-input') {
     return false;
   }
   const sent = netHackAPI.shimInput(payload);
-  diagnosticEvent('shim-send', sent === false ? 'shim-send.rejected' : 'shim-send.sent', { source, payload, sent }, { transactionId: payload.transactionId || payload.actionTransactionId || '', requestId: payload.expectedRequestId || activePrompt?.requestId || currentMenu?.requestId || '' });
+  diagnosticEvent('shim-send', sent === false ? 'shim-send.rejected' : 'shim-send.sent', { source, payload, sent }, { transactionId: payload.transactionId || payload.actionTransactionId || '', requestId: payload.expectedRequestId || gameViewSnapshot.activePrompt?.requestId || gameViewSnapshot.currentMenu?.requestId || '' });
   if (payload.type === 'keycode') {
     const code = Number(payload.keycode);
     if (Number.isFinite(code) && code > 0 && code <= 126) {
@@ -9991,7 +7960,9 @@ async function startShimRun({ playerSpec, character = null, seed = '', recording
   publicGroundPileShimEvidence = [];
   seenShimEventNames.clear();
   resetGameView();
-  uxNoticeService?.beginRun?.(`run-${++noticeRunGeneration}`);
+  const runIdentity = `run-${++noticeRunGeneration}`;
+  uxNoticeService?.beginRun?.(runIdentity);
+  uxRuntime?.domain?.('shell')?.resetForRun?.(runIdentity);
   actionableFailureHoldUntil = 0;
   actionableFailureNotice = null;
   pendingNativeUiCommands = new Map();
@@ -10260,8 +8231,9 @@ function sendPlayableText(text) {
 }
 
 function selectorForInventoryItem(item = {}) {
-  if (typeof item.selector === 'number' && item.selector > 0 && item.selector < 127) return String.fromCharCode(item.selector);
-  return String(item.inventoryLetter || item.key || item.selector || '').slice(0, 1);
+  if (typeof item.inventoryLetter === 'string' && item.inventoryLetter.length === 1) return item.inventoryLetter;
+  if (typeof item.selector === 'number' && item.selector > 0 && item.selector < 128) return String.fromCharCode(item.selector);
+  return '';
 }
 
 function semanticActionPayload(action = {}, item = {}, route = {}, index = 0, length = 1, transactionId = '', options = {}) {
@@ -10309,9 +8281,9 @@ function recordUiProtocolAck(event, source = 'semantic-action') {
     testSentUiProtocolAcks.push(JSON.parse(JSON.stringify(normalized.event)));
     if (gameView?.process) {
       const result = gameView.process(normalized.event);
-      syncGameViewGlobals();
+      refreshGameViewPresentation();
       applyGameViewEffects(result.effects);
-      syncGameViewGlobals();
+      refreshGameViewPresentation();
     }
   }
   diagnosticEvent('ui-protocol-v2', normalized?.valid ? `ui-protocol-ack.${event?.eventType || 'accepted'}` : 'ui-protocol-ack.rejected', { source, eventType: event?.eventType || '', commandId: event?.payload?.commandId || '', actionId: event?.payload?.actionId || '', reason: event?.payload?.reason || '', blockerToken: event?.payload?.blockerToken || '', errors: normalized?.errors || [] }, { transactionId: event?.transactionId || event?.payload?.transactionId || '', requestId: '' });
@@ -10367,14 +8339,14 @@ function handleBridgeDirectEquipmentEvent(event = {}) {
   if (event.name === 'shim_equipment_change_confirmed') {
     createAndRecordCommandAck('command.completed', command, { status: 'success', result: { status: 'success', reason: event.reason || 'equipment change completed', action: event.action || '', itemId: event.itemId }, executionSource: 'bridge-ui-command', replayBehavior: 'preserved evidence only; no raw fallback input sent' }, source);
     if (commandId) pendingNativeUiCommands.delete(commandId);
-    setEquipmentDropFeedback(event.reason || 'Equipment updated.', true);
+    itemEquipmentOwner?.settle?.({ intentId: command.transactionId || event.transactionId || '', status: 'completed', message: event.reason || 'Equipment updated.' });
     setStatus(`equipment.change completed: ${event.action || 'equipment'}`);
     return;
   }
   const reason = event.reason || 'equipment change rejected';
   createAndRecordCommandAck('command.rejected', command, { reason, blockerToken: sharedModules.uiProtocolV2?.commandBlockerTokenForReason?.(reason, { blockerToken: event.blockerToken }) || 'blocked.public.tryInNetHack', supported: true, executionSource: 'bridge-ui-command', replayBehavior: 'preserved evidence only; no raw fallback input sent' }, source);
   if (commandId) pendingNativeUiCommands.delete(commandId);
-  setEquipmentDropFeedback(reason);
+  itemEquipmentOwner?.settle?.({ intentId: command.transactionId || event.transactionId || '', status: 'rejected', reason });
   setStatus(`blocked equipment.change: ${reason}`);
   showFailureNotice({ id: `equipment:${commandId || event.transactionId || shimEventCount}:rejected`, kind: event.blockerToken === 'blocked.input.staleRevision' ? 'stale-revision' : 'rejected', reason, blockerToken: event.blockerToken || '', transactionId: event.transactionId || commandId });
 }
@@ -10404,7 +8376,7 @@ function handleBridgeUiCommandEvent(event = {}) {
       executionSource: 'bridge-ui-command',
       replayBehavior: 'preserved evidence only; no raw fallback input sent',
     }, source);
-    setEquipmentDropFeedback(reason);
+    itemEquipmentOwner?.settle?.({ intentId: command?.transactionId || event.transactionId || '', status: 'rejected', reason });
     setStatus(`blocked ${event.actionId || plan?.actionId || 'v2 command'}: ${reason}`);
     showFailureNotice({ id: `ui-command:${commandId || event.transactionId || shimEventCount}:rejected`, kind: event.blockerToken === 'blocked.input.staleRevision' ? 'stale-revision' : 'rejected', reason, blockerToken: event.blockerToken || '', transactionId: event.transactionId || commandId });
   }
@@ -10413,24 +8385,24 @@ function handleBridgeUiCommandEvent(event = {}) {
 
 function currentActionExpectedRevision() {
   const revision = {};
-  const inventory = Math.max(publicInventorySnapshot?.revision || 0, liveInventoryRevision || 0, gameView?.state?.inventory?.revision || 0);
-  const equipment = Math.max(publicEquipmentSnapshot?.revision || 0, gameView?.state?.equipment?.revision || 0);
-  const ground = publicGroundPileSnapshots?.revision || 0;
+  const inventory = gameViewSnapshot.inventory?.revision || 0;
+  const equipment = gameViewSnapshot.equipment?.revision || 0;
+  const ground = gameViewSnapshot.groundPiles?.revision || 0;
   if (inventory > 0) revision.inventory = inventory;
   if (equipment > 0) revision.equipment = equipment;
   if (ground > 0) revision.ground = ground;
-  if (publicMapRevision > 0) revision.map = publicMapRevision;
+  if (gameViewSnapshot.mapRevision > 0) revision.map = gameViewSnapshot.mapRevision;
   return revision;
 }
 
 function buildActionExecuteContext() {
   return {
     uiProtocol: sharedModules.uiProtocolV2,
-    inventoryRevision: Math.max(publicInventorySnapshot?.revision || 0, liveInventoryRevision || 0, gameView?.state?.inventory?.revision || 0),
-    equipmentRevision: Math.max(publicEquipmentSnapshot?.revision || 0, gameView?.state?.equipment?.revision || 0),
-    groundRevision: publicGroundPileSnapshots?.revision || 0,
-    mapRevision: publicMapRevision,
-    inventoryItems: (publicInventorySnapshot?.orderedItems?.length ? publicInventorySnapshot.orderedItems : cachedInventoryChoices) || [],
+    inventoryRevision: gameViewSnapshot.inventory?.revision || 0,
+    equipmentRevision: gameViewSnapshot.equipment?.revision || 0,
+    groundRevision: gameViewSnapshot.groundPiles?.revision || 0,
+    mapRevision: gameViewSnapshot.mapRevision,
+    inventoryItems: (gameViewSnapshot.inventory?.orderedItems?.length ? gameViewSnapshot.inventory.orderedItems : gameViewSnapshot.cachedInventoryChoices) || [],
     groundItems: [...groundItemTextsHere(), ...(Array.isArray(currentCell()?.groundTexts) ? currentCell().groundTexts : [])],
     // GUI inventory/equipment dialogs are the source of these actions, not a
     // NetHack input owner. Block only live NetHack prompt/menu/transfer owners.
@@ -10468,44 +8440,56 @@ function sendGroundContainerExtendedAction(commandKeys, actionId, defaultLabel, 
 function startDirectContainerSnapshotPanel(item = {}, sessionId = '') {
   const displayName = cleanEquipmentText(item?.displayName || item?.text || item?.name || currentGroundContainerTargetText() || 'container');
   const inventoryRows = currentInventoryTransferRows();
-  pendingDirectContainerOpen = { sessionId, containerId: item.objectId, displayName, at: Date.now() };
-  containerTransferState = {
-    ...(containerTransferState || {}),
+  transferPresentation = {
+    ...(transferPresentation || {}),
     active: true,
     sessionKind: 'container',
-    phase: 'direct-snapshot',
+    presentationMode: 'direct-snapshot',
     prompt: `Open ${displayName}`,
-    containerId: Number.isInteger(item?.objectId) ? item.objectId : undefined,
-    leftItems: [],
-    rightItems: inventoryRows.slice(),
     interrupted: false,
     loadedSides: { left: false, right: true },
     loadingSides: { left: true, right: false },
-    transferSessionId: sessionId,
     feedback: 'Loading container contents from NetHack…',
   };
   renderContainerTransferPanel();
-  ensureTransferSessionOwnership('container');
+  dispatchTransferSessionEvent({
+    type: 'open',
+    kind: 'container',
+    route: 'direct',
+    sessionId,
+    prompt: transferPresentation.prompt,
+    container: {
+      publicId: `container-${item.objectId}`,
+      objectId: item.objectId,
+      displayName,
+      semanticKnown: item.semanticKnown !== false,
+      known: item.known || { identity: true, quantity: true },
+    },
+    leftRows: [],
+    rightRows: inventoryRows,
+    loadedSides: transferPresentation.loadedSides,
+    loadingSides: transferPresentation.loadingSides,
+    loading: true,
+    feedback: transferPresentation.feedback,
+  });
+  ensurePublicContainerSnapshotSession();
 }
 
 function hydrateDirectContainerPanelFromSnapshot(sessionId = '') {
-  if (!containerTransferState?.active || containerTransferState.sessionKind !== 'container') return false;
-  const wantedSession = sessionId || pendingDirectContainerOpen?.sessionId || containerTransferState.transferSessionId || publicContainerContentsSnapshots?.activeSessionId || '';
+  if (!transferPresentation?.active || transferPresentation.sessionKind !== 'container') return false;
+  const wantedSession = sessionId || transferSession.snapshot().sessionId || gameViewSnapshot.containerContents?.activeSessionId || '';
   const snapshot = containerContentsSnapshotForSession(wantedSession);
   if (!snapshot?.items) return false;
-  containerTransferState.leftItems = panelItemsFromContainerSnapshot(snapshot);
-  containerTransferState.rightItems = currentInventoryTransferRows().slice();
-  containerTransferState.transferSessionId = wantedSession;
-  if (Number.isInteger(snapshot?.container?.objectId) && snapshot.container.objectId > 0) containerTransferState.containerId = snapshot.container.objectId;
+  const leftRows = panelItemsFromContainerSnapshot(snapshot);
+  const rightRows = currentInventoryTransferRows();
   clearDirectContainerSnapshotTimeout();
-  containerTransferState.directSnapshotFailure = null;
   markContainerPaneLoaded('left');
   markContainerPaneLoaded('right');
-  containerTransferState.feedback = 'Both panes loaded. Drag items between container and inventory.';
-  containerTransferState.loadingSides = { ...(containerTransferState.loadingSides || {}), left: false, right: false };
-  pendingDirectContainerOpen = null;
+  transferPresentation.feedback = 'Both panes loaded. Drag items between container and inventory.';
+  transferPresentation.loadingSides = { ...(transferPresentation.loadingSides || {}), left: false, right: false };
   clearContainerUnlockContinuation();
-  updateTransferSessionOwnership();
+  dispatchTransferSessionEvent({ type: 'pane', side: 'left', rows: leftRows });
+  dispatchTransferSessionEvent({ type: 'inventory', rows: rightRows });
   renderContainerTransferPanel();
   return true;
 }
@@ -10530,14 +8514,14 @@ function clearDirectContainerSnapshotTimeout() {
 function scheduleDirectContainerSnapshotTimeout(sessionId = '', timeoutMs = 12000) {
   clearDirectContainerSnapshotTimeout();
   directContainerSnapshotTimeout = window.setTimeout(() => {
-    if (!pendingDirectContainerOpen || String(pendingDirectContainerOpen.sessionId || '') !== String(sessionId || '')) return;
+    if (!transferSession.snapshot().active || String(transferSession.snapshot().sessionId || '') !== String(sessionId || '')) return;
     handleDirectContainerSnapshotRejected({
       status: 'timeout',
       failureKind: 'timeout',
       reason: 'NetHack did not finish opening this container. Try again or use the normal NetHack flow.',
       sessionId,
       transactionId: sessionId,
-      containerId: pendingDirectContainerOpen.containerId,
+      containerId: transferSession.snapshot().container?.objectId,
     });
   }, timeoutMs);
 }
@@ -10546,15 +8530,15 @@ function handleDirectContainerSnapshotRejected(event = {}) {
   clearDirectContainerSnapshotTimeout();
   const message = directContainerSnapshotFailureMessage(event);
   const sessionId = String(event.sessionId || event.transactionId || '');
-  const pendingSessionId = String(pendingDirectContainerOpen?.sessionId || containerTransferState?.transferSessionId || '');
-  const matchesPanel = containerTransferState?.active && containerTransferState.sessionKind === 'container' && (!sessionId || !pendingSessionId || sessionId === pendingSessionId || String(event.transactionId || '') === pendingSessionId);
+  const pendingSessionId = String(transferSession.snapshot().sessionId || '');
+  const matchesContainer = Number(event.containerId) > 0 && Number(event.containerId) === Number(transferSession.snapshot().container?.objectId);
+  const matchesPanel = transferPresentation?.active && transferPresentation.sessionKind === 'container' && (!sessionId || !pendingSessionId || sessionId === pendingSessionId || String(event.transactionId || '') === pendingSessionId || matchesContainer);
   const locked = String(event.failureKind || event.status || '').trim() === 'locked' || /\blocked\b/i.test(String(event.reason || ''));
   const inputConflict = ['prompt-conflict', 'menu-conflict', 'transfer-conflict'].includes(String(event.failureKind || event.status || event.blockerToken || '').trim()) || /\b(?:prompt|menu) owns input\b/i.test(String(event.reason || ''));
   if (matchesPanel && inputConflict) {
     closeContainerTransferPanel(message);
-    pendingDirectContainerOpen = null;
-    setStatus(message);
     showFailureNotice({ id: `container-snapshot:${sessionId || shimEventCount}:input-conflict`, kind: 'rejected', reason: message, blockerToken: event.blockerToken || event.failureKind || '', transactionId: event.transactionId || sessionId });
+    setStatus(message);
     appendMessage(message, { allowConsecutiveDuplicate: true, logPrompt: false });
     diagnosticEvent('transaction', 'container-snapshot.direct.input-conflict', { ...event, message, matchesPanel }, { transactionId: event.transactionId || sessionId });
     return true;
@@ -10566,13 +8550,8 @@ function handleDirectContainerSnapshotRejected(event = {}) {
     return true;
   }
   if (matchesPanel) {
-    containerTransferState.feedback = message;
-    containerTransferState.directSnapshotFailure = { message, reason: event.reason || '', failureKind: event.failureKind || event.status || 'rejected', sessionId, containerId: event.containerId };
-    containerTransferState.loadingSides = { ...(containerTransferState.loadingSides || {}), left: false, right: false };
-    containerTransferState.loadedSides = { ...(containerTransferState.loadedSides || {}), left: false, right: true };
-    containerTransferState.leftItems = [];
-    containerTransferState.rightItems = currentInventoryTransferRows().slice();
-    pendingDirectContainerOpen = null;
+    dispatchTransferSessionEvent({ type: 'load-rejected', side: 'left', reason: message });
+    dispatchTransferSessionEvent({ type: 'inventory', rows: currentInventoryTransferRows() });
     renderContainerTransferPanel();
   }
   setStatus(message);
@@ -10584,24 +8563,22 @@ function handleDirectContainerSnapshotRejected(event = {}) {
 
 function directContainerIdentityForRefresh() {
   const identity = containerSnapshotIdentity();
-  if (Number.isInteger(identity.objectId) && identity.objectId > 0) return { objectId: identity.objectId, text: identity.displayName || containerTransferState?.prompt || 'container', semanticKnown: false, known: { identity: false, appearance: true } };
-  const pending = pendingDirectContainerOpen || {};
-  if (Number.isInteger(pending.containerId) && pending.containerId > 0) return { objectId: pending.containerId, text: pending.displayName || 'container', semanticKnown: false, known: { identity: false, appearance: true } };
+  if (Number.isInteger(identity.objectId) && identity.objectId > 0) return { objectId: identity.objectId, text: identity.displayName || transferPresentation?.prompt || 'container', semanticKnown: false, known: { identity: false, appearance: true } };
+  const sessionContainer = transferSession.snapshot().container || {};
+  if (Number.isInteger(sessionContainer.objectId) && sessionContainer.objectId > 0) return { objectId: sessionContainer.objectId, text: sessionContainer.displayName || 'container', semanticKnown: false, known: { identity: false, appearance: true } };
   return currentGroundContainerItemForDirectOpen({});
 }
 
-async function requestDirectContainerSnapshotRefresh(reason = 'manual-refresh') {
-  if (!containerTransferState?.active || containerTransferState.sessionKind !== 'container') return { ok: false, reason: 'no active container panel' };
+async function requestDirectContainerSnapshotRefresh(reason = 'manual-refresh', { sessionOwnsLoading = false } = {}) {
+  if (!transferPresentation?.active || transferPresentation.sessionKind !== 'container') return { ok: false, reason: 'no active container panel' };
   const item = directContainerIdentityForRefresh();
   if (!Number.isInteger(item?.objectId) || item.objectId <= 0) {
-    containerTransferState.feedback = 'Cannot refresh this container without a public container object id; no hidden menu fallback was attempted.';
+    transferPresentation.feedback = 'Cannot refresh this container without a public container object id; no hidden menu fallback was attempted.';
     renderContainerTransferPanel();
     return { ok: false, reason: 'direct container refresh requires a public container objectId' };
   }
-  const sessionId = containerTransferState.transferSessionId || pendingDirectContainerOpen?.sessionId || `container-${item.objectId}-${Date.now()}`;
-  pendingDirectContainerOpen = { sessionId, containerId: item.objectId, displayName: cleanEquipmentText(item.text || item.displayName || 'container'), at: Date.now(), reason };
-  containerTransferState.transferSessionId = sessionId;
-  containerTransferState.feedback = 'Refreshing container contents from NetHack…';
+  const sessionId = transferSession.snapshot().sessionId || `container-${item.objectId}-${Date.now()}`;
+  if (!sessionOwnsLoading) dispatchTransferSessionEvent({ type: 'refresh', side: 'left', reason: 'Refreshing container contents from NetHack…' });
   markContainerPaneLoading('left', true);
   renderContainerTransferPanel();
   const command = {
@@ -10616,9 +8593,9 @@ async function requestDirectContainerSnapshotRefresh(reason = 'manual-refresh') 
   diagnosticEvent('transaction', 'container-snapshot.direct.refresh-requested', { command, reason }, { transactionId: command.transactionId });
   scheduleDirectContainerSnapshotTimeout(sessionId);
   const ack = await Promise.resolve(dispatchUiCommand(command)).catch((error) => ({ ok: false, reason: String(error?.message || error) }));
-  if (!ack?.ok && containerTransferState?.active) {
+  if (!ack?.ok && transferPresentation?.active) {
     clearDirectContainerSnapshotTimeout();
-    containerTransferState.feedback = `Container refresh failed: ${ack?.reason || 'the action was not accepted'}.`;
+    transferPresentation.feedback = `Container refresh failed: ${ack?.reason || 'the action was not accepted'}.`;
     renderContainerTransferPanel();
   }
   return ack;
@@ -10680,7 +8657,7 @@ async function sendDirectTerrainAction(action = {}, item = {}) {
     expectedRevision: currentActionExpectedRevision(),
     payload: {
       action: terrainAction,
-      coord: { x: cursor.x, y: cursor.y },
+      coord: { x: gameViewSnapshot.cursor.x, y: gameViewSnapshot.cursor.y },
       terrain,
       ...(Number.isInteger(item?.objectId) && item.objectId > 0 ? { itemId: item.objectId } : {}),
     },
@@ -10718,12 +8695,12 @@ async function sendDirectTerrainAction(action = {}, item = {}) {
     executionSource: 'native-ui-command',
     replayBehavior: 'preserved evidence only; no raw fallback input sent',
   }, 'terrain-context');
-  setStatus(`sent direct terrain.action ${terrainAction} at ${cursor.x},${cursor.y}`);
+  setStatus(`sent direct terrain.action ${terrainAction} at ${gameViewSnapshot.cursor.x},${gameViewSnapshot.cursor.y}`);
   return true;
 }
 
 function terrainDipInventoryCandidates() {
-  const rows = publicInventorySnapshot?.orderedItems?.length ? publicInventorySnapshot.orderedItems : [];
+  const rows = gameViewSnapshot.inventory?.orderedItems?.length ? gameViewSnapshot.inventory.orderedItems : [];
   return rows.filter((item) => Number.isInteger(item?.objectId) && item.objectId > 0 && !/gold piece|zorkmid/i.test(String(item.displayName || item.text || '')));
 }
 
@@ -10769,7 +8746,13 @@ function normalizedEquipmentSlotId(value) {
 function equipmentChangePayloadForAction(action = {}, item = {}, route = {}) {
   const actionId = String(action?.id || action?.actionId || route?.actionId || route?.id || '').trim();
   const itemId = Number(item?.objectId ?? route?.itemId);
-  const slotId = normalizedEquipmentSlotId(route?.slotId || route?.slot || route?.params?.slotId || route?.params?.slot || '');
+  const requestedSlotId = normalizedEquipmentSlotId(route?.slotId || route?.slot || route?.params?.slotId || route?.params?.slot || '');
+  const wornMask = Number(item?.wornMask || 0);
+  const occupiedSlotId = Number.isSafeInteger(wornMask) && wornMask > 0
+    ? Object.entries(sharedModules.equipmentSnapshotAdapter?.wornMasks || {}).find(([, mask]) => (wornMask & mask) !== 0)?.[0] || ''
+    : '';
+  const slotId = requestedSlotId || occupiedSlotId;
+  if (actionId === 'item.takeOff' && ['armor.body', 'armor.cloak', 'armor.shirt'].includes(slotId)) return null;
   if (actionId === 'item.takeOff') return Number.isInteger(itemId) && itemId > 0 ? { action: 'takeOff', itemId, ...(slotId ? { slotId } : {}) } : null;
   if (actionId === 'item.remove.accessory') return Number.isInteger(itemId) && itemId > 0 ? { action: 'removeAccessory', itemId, ...(slotId ? { slotId } : {}) } : null;
   if (actionId === 'item.wield.mainHand') return Number.isInteger(itemId) && itemId > 0 ? { action: 'wieldMain', itemId, slotId: 'mainHand' } : null;
@@ -10805,7 +8788,7 @@ async function sendDirectEquipmentChangeCommand(command, action = {}, item = {},
   recordUiProtocolCommand(command, source);
   if (!plan?.ok) {
     createAndRecordCommandAck('command.rejected', command, { reason: plan?.reason || 'equipment.change rejected', blockerToken: plan?.blockerToken || 'blocked.input.malformedCommand', supported: Boolean(plan?.supported), executionSource: 'none', replayBehavior: 'preserved evidence only; no raw fallback input sent' }, source);
-    setEquipmentDropFeedback(plan?.reason || 'equipment.change rejected');
+    itemEquipmentOwner?.settle?.({ intentId: command.transactionId, status: 'rejected', reason: plan?.reason || 'equipment.change rejected' });
     setStatus(`blocked equipment.change: ${plan?.reason || 'validation failed'}`);
     showFailureNotice({ id: `equipment:${command.commandId}:validation`, kind: plan?.blockerToken === 'blocked.input.staleRevision' ? 'stale-revision' : 'rejected', reason: plan?.reason || 'Equipment change was not accepted.', blockerToken: plan?.blockerToken || '', transactionId: command.transactionId });
     return false;
@@ -10818,7 +8801,7 @@ async function sendDirectEquipmentChangeCommand(command, action = {}, item = {},
     pendingNativeUiCommands.delete(plan.commandId);
     const reason = sent?.reason || sent?.message || 'main process rejected equipment.change';
     createAndRecordCommandAck('command.rejected', command, { reason, blockerToken: sent?.blockerToken || 'blocked.public.tryInNetHack', supported: true, executionSource: 'native-ui-command', replayBehavior: 'preserved evidence only; no raw fallback input sent' }, source);
-    setEquipmentDropFeedback(reason);
+    itemEquipmentOwner?.settle?.({ intentId: command.transactionId, status: 'rejected', reason });
     setStatus(`blocked equipment.change: ${reason}`);
     showFailureNotice({ id: `equipment:${command.commandId}:dispatch`, kind: sent?.blockerToken === 'blocked.input.staleRevision' ? 'stale-revision' : 'rejected', reason, blockerToken: sent?.blockerToken || '', transactionId: command.transactionId });
     return false;
@@ -10854,6 +8837,19 @@ async function sendSemanticActionCommand(keys, action = {}, item = {}, route = {
     payload: options.payload,
   });
   let validationContext = actionContext;
+  const ownerState = itemEquipmentOwner?.snapshot?.();
+  if (String(options.source || '').startsWith('item-equipment-')
+    && Number(expectedRevision.inventory) > Number(actionContext.inventoryRevision)
+    && Number(expectedRevision.inventory) === Number(ownerState?.inventoryRevision)) {
+    validationContext = { ...validationContext, inventoryRevision: expectedRevision.inventory };
+    diagnosticEvent('items', 'action-validation.owner-inventory-revision', { intentId: transactionId, ownerRevision: expectedRevision.inventory, gameViewRevision: actionContext.inventoryRevision });
+  }
+  if (String(options.source || '').startsWith('item-equipment-')
+    && Number(expectedRevision.equipment) > Number(actionContext.equipmentRevision)
+    && Number(expectedRevision.equipment) === Number(ownerState?.equipmentRevision)) {
+    validationContext = { ...validationContext, equipmentRevision: expectedRevision.equipment };
+    diagnosticEvent('items', 'action-validation.owner-equipment-revision', { intentId: transactionId, ownerRevision: expectedRevision.equipment, gameViewRevision: actionContext.equipmentRevision });
+  }
   if (options.source === 'ground-context' && options.target?.location?.kind === 'ground' && options.target?.displayName && Array.isArray(actionContext.groundItems)) {
     const targetEvidence = String(options.target.displayName).split(/\s*,\s*/).filter(Boolean).map((displayName) => ({ displayName, location: { kind: 'ground' }, source: 'command-public-ground-target' }));
     validationContext = { ...actionContext, groundItems: [...actionContext.groundItems, ...targetEvidence] };
@@ -10870,10 +8866,10 @@ async function sendSemanticActionCommand(keys, action = {}, item = {}, route = {
       executionSource: 'none',
       replayBehavior: 'preserved evidence only; no raw fallback input sent',
     }, options.source || 'semantic-action');
-    setEquipmentDropFeedback(reason);
+    itemEquipmentOwner?.settle?.({ intentId: transactionId, status: 'rejected', reason });
     setStatus(`blocked ${action?.id || route?.actionId || 'GUI action'}: ${reason}`);
     showFailureNotice({ id: `action:${transactionId}:validation`, kind: v2Plan?.blockerToken === 'blocked.input.staleRevision' ? 'stale-revision' : 'rejected', reason, blockerToken: v2Plan?.blockerToken || '', transactionId });
-    diagnosticEvent('ui-protocol-v2', 'action-execute.blocked', { reason, actionId: v2Plan.actionId || action?.id || route?.actionId || '', keys: command }, { transactionId });
+    diagnosticEvent('ui-protocol-v2', 'action-execute.blocked', { reason, actionId: v2Plan.actionId || action?.id || route?.actionId || '', keys: command, expectedRevision: v2Plan?.expectedRevision, actualRevision: v2Plan?.actualRevision }, { transactionId });
     return false;
   }
   if (v2Plan?.ok) {
@@ -10894,7 +8890,7 @@ async function sendSemanticActionCommand(keys, action = {}, item = {}, route = {
         executionSource: 'native-ui-command',
         replayBehavior: 'preserved evidence only; no raw fallback input sent',
       }, options.source || 'semantic-action');
-      setEquipmentDropFeedback(reason);
+      itemEquipmentOwner?.settle?.({ intentId: transactionId, status: 'rejected', reason });
       setStatus(`blocked ${action?.id || route?.actionId || 'GUI action'}: ${reason}`);
       showFailureNotice({ id: `action:${transactionId}:dispatch`, kind: sent?.blockerToken === 'blocked.input.staleRevision' ? 'stale-revision' : 'rejected', reason, blockerToken: sent?.blockerToken || '', transactionId });
       diagnosticEvent('ui-protocol-v2', 'ui-command.rejected', { actionId: v2Plan.actionId, commandId: v2Plan.commandId, sent }, { transactionId });
@@ -11050,10 +9046,7 @@ directionHelper?.addEventListener('keydown', (event) => {
     setStatus('Run cancelled — compass will walk.');
   } else if (event.key === 'Escape') cancelActiveInteraction();
   else if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') document.activeElement?.click?.();
-  else if (activeMapTargetPrompt && event.target?.closest?.('.target-selection-controls')) {
-    const deltas = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
-    moveMapTargetSelection(...deltas[event.key]);
-  } else focusDirectionHelperButton(event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1);
+  else focusDirectionHelperButton(event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1);
 });
 
 movementActions?.addEventListener('keydown', (event) => {
@@ -11079,26 +9072,6 @@ function sendExtendedCommandButton(button) {
   gameGrid.focus({ preventScroll: true });
 }
 
-function refreshEquipmentInventoryAfterCompatAction(feedback = '', attempt = 0) {
-  if (feedback) beginEquipmentKeepOpenAction(feedback);
-  if (equipmentKeepOpenState) equipmentKeepOpenState.awaitingRefresh = true;
-  if (equipmentRefreshTimer) window.clearTimeout(equipmentRefreshTimer);
-  equipmentRefreshTimer = window.setTimeout(() => {
-    equipmentRefreshTimer = null;
-    if (!runningState.running && status.dataset.status !== 'playable tile game running') return;
-    if (activePrompt || currentMenu?.awaitingSelection) {
-      if (equipmentKeepOpenState) equipmentKeepOpenState.until = Date.now() + 7000;
-      if (attempt < 30) refreshEquipmentInventoryAfterCompatAction('', attempt + 1);
-      return;
-    }
-    if (equipmentKeepOpenState) {
-      equipmentKeepOpenState.until = Date.now() + 7000;
-      equipmentKeepOpenState.refreshRequested = true;
-    }
-    sendPlayableKey('i');
-    appendMessage('Updating inventory…');
-  }, attempt ? 250 : 260);
-}
 
 function sendCommandButton(button) {
   if (!button) return;
@@ -11122,49 +9095,9 @@ function sendCommandButton(button) {
     gameGrid.focus({ preventScroll: true });
     return;
   }
-  const itemSelector = button.dataset.itemSelector || '';
-  const slotCard = button.closest?.('.equipment-slot');
-  const slotId = String(slotCard?.dataset?.slot || button.dataset.slotId || '');
-  const targetRingHand = slotId === 'left-ring' ? 'l' : (slotId === 'right-ring' ? 'r' : '');
-  const fromEquipmentScreen = Boolean(button.closest?.('.rpg-equipment-screen')) && interactionDialog?.classList.contains('rpg-equipment-dialog');
-  const equipmentCommandKey = /^(?:w|W|T|R|P|Q|t|x)$/.test(key);
-  const equipmentAction = fromEquipmentScreen && (Boolean(itemSelector) || button.dataset.actionId === 'slot.swapMainAlternate' || equipmentCommandKey);
-  const equipmentFeedback = equipmentAction ? `${button.textContent.trim()}: ${slotCard?.querySelector('.equipment-item')?.textContent || 'equipment'}.` : '';
-  if (key === 'P' && targetRingHand) pendingEquipmentSlotIntent = { slotId, targetRingHand, at: Date.now(), source: fromEquipmentScreen ? 'equipment-dialog-slot-button' : 'equipment-slot-button' };
-  else if (key && key !== 'P') clearPendingEquipmentSlotIntent();
-  if (equipmentAction) beginEquipmentKeepOpenAction(equipmentFeedback);
-  setWorkflowContextFromButton(button, targetRingHand ? `Put on ${targetRingHand === 'r' ? 'right' : 'left'} ring` : button.textContent.trim());
-  if (button.dataset.actionId === 'slot.swapMainAlternate') {
-    // The equipment screen is backed by NetHack's inventory menu; cancel that
-    // menu first so compatibility `x` is interpreted as the world swap command,
-    // not as a menu selector/no-op.
-    sendActionCommandFromInventorySurface(key, { cancelBackingInventoryMenu: true });
-    setEquipmentDropFeedback('Swap main hand with alternate weapon.', true);
-    refreshEquipmentInventoryAfterCompatAction('Swap main hand with alternate weapon.');
-  } else if (itemSelector) {
-    const actionLabel = button.textContent.trim();
-    const actionId = button.dataset.actionId || (key === 'T' ? 'item.takeOff' : key === 'R' ? 'item.remove.accessory' : key === 'Q' ? 'slot.clear.quiver' : key === 'w' ? 'slot.clear.mainHand' : `equipment.${key}`);
-    const targetText = slotCard?.querySelector('.equipment-item')?.textContent || '';
-    const publicItem = cachedInventoryChoices.find((choice) => String.fromCharCode(choice?.selector || 0) === itemSelector)
-      || liveInventoryChoices.find((choice) => String.fromCharCode(choice?.selector || 0) === itemSelector)
-      || { selector: itemSelector.charCodeAt(0), text: targetText };
-    if (equipmentKeepOpenState) {
-      equipmentKeepOpenState.directTargetSelector = itemSelector;
-      equipmentKeepOpenState.directCommandKey = key;
-    }
-    const expectedRevision = currentActionExpectedRevision();
-    sendActionCommandFromInventorySurface(`${key}${itemSelector}`, {
-      semanticAction: { id: actionId, label: actionLabel },
-      item: { ...publicItem, selector: publicItem.selector || itemSelector.charCodeAt(0), text: publicItem.text || targetText },
-      route: { actionId, selector: itemSelector, targetText, slotId },
-      expectedRevision,
-      recomputeExpectedRevisionBeforeSend: true,
-      source: 'equipment-slot-button',
-    });
-  } else if (equipmentAction && fromEquipmentScreen) sendPlayableText(`${isInventoryOverviewMenu(currentMenu) ? '\u001b' : ''}${key}`);
-  else if (key === 'S') sendSemanticActionCommand('S', { id: 'run.save-and-exit', label: 'Save and exit' }, {}, { actionId: 'run.save-and-exit', label: 'Save and exit', command: 'S' }, { source: 'lifecycle-action', payload: { promptPolicy: 'core-owned' } });
+  setWorkflowContextFromButton(button, button.textContent.trim());
+  if (key === 'S') sendSemanticActionCommand('S', { id: 'run.save-and-exit', label: 'Save and exit' }, {}, { actionId: 'run.save-and-exit', label: 'Save and exit', command: 'S' }, { source: 'lifecycle-action', payload: { promptPolicy: 'core-owned' } });
   else sendPlayableKey(key);
-  if ((button.dataset.refreshInventory === 'true' || equipmentAction) && button.dataset.actionId !== 'slot.swapMainAlternate') refreshEquipmentInventoryAfterCompatAction(equipmentFeedback);
   if (key === '\u0004') appendMessage('Kick: choose a direction when NetHack asks (h/j/k/l/y/u/b/n or arrows).');
   if ('aezqrtwWTRPxQZ'.includes(key)) appendMessage(`${button.textContent.trim()}${'aeqrztwWTPRQZ'.includes(key) ? '; choose from the visible picker if NetHack asks.' : '.'}`);
   if ('SQ'.includes(key)) appendMessage(`${button.textContent.trim()}; confirm using the visible safe/danger buttons.`);
@@ -11225,25 +9158,21 @@ systemActions?.addEventListener('keydown', (event) => {
   const next = buttons[(index + (event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1) + buttons.length) % buttons.length];
   next?.focus({ preventScroll: true });
 });
-equipmentSlots?.addEventListener('click', (event) => {
-  sendActionDialogCommand(event.target.closest('button[data-command-key], button[data-command-code]'));
-});
 function sendActivePromptCancellation(prompt, options = {}) {
-  const menuOwner = options.forceMenu || currentMenu;
+  const menuOwner = options.forceMenu || gameViewSnapshot.currentMenu;
   const menuOwnsCancellation = Boolean(menuOwner?.awaitingSelection && (options.forceMenu || ['menu selection', 'read-only menu'].includes(String(prompt?.kind || ''))));
-  const plan = (menuOwnsCancellation
-    ? sharedModules.interactionModel?.cancellationPlanForMenu?.(menuOwner)
-    : sharedModules.interactionModel?.cancellationPlanForPrompt?.(prompt))
-    || { key: '\u001b', kind: 'escape', acknowledgementEvent: 'bridge_prompt_answer', canonicalChoice: false };
-  const responseKey = String(plan.key || '\u001b').slice(0, 1);
-  const requestId = String((menuOwnsCancellation ? (menuOwner?.requestId || menuOwner?.menuRequestId) : prompt?.requestId) || prompt?.promptId || '');
-  const transactionId = String(options.transactionId || (menuOwnsCancellation ? menuOwner?.transactionId : prompt?.transactionId) || gameView?.state?.activeTransactionId || `prompt-cancel:${requestId || shimEventCount + 1}`);
+  const plan = menuOwnsCancellation
+    ? sharedModules.interactionModel.cancellationPlanForMenu(menuOwner)
+    : sharedModules.interactionModel.cancellationPlanForPrompt(prompt);
+  const responseKey = String(plan.key).slice(0, 1);
+  const requestId = omitNextPromptCancellationOwnershipForTest ? '' : String((menuOwnsCancellation ? (menuOwner?.requestId || menuOwner?.menuRequestId) : prompt?.requestId) || prompt?.promptId || '');
+  const transactionId = String(options.transactionId || (menuOwnsCancellation ? menuOwner?.transactionId : prompt?.transactionId) || gameViewSnapshot.activeTransactionId || `prompt-cancel:${requestId || shimEventCount + 1}`);
   pendingPromptCancellation = {
     requestId,
     transactionId,
     responseKey,
-    promptFamily: plan.kind || 'escape',
-    acknowledgementEvent: plan.acknowledgementEvent || 'bridge_prompt_answer',
+    promptFamily: plan.kind,
+    acknowledgementEvent: plan.acknowledgementEvent,
     canonicalChoice: Boolean(plan.canonicalChoice),
     ...(menuOwnsCancellation ? {
       window: menuOwner?.window,
@@ -11254,6 +9183,7 @@ function sendActivePromptCancellation(prompt, options = {}) {
       lifecycleRevision: menuOwner?.lifecycleRevision,
     } : {}),
   };
+  omitNextPromptCancellationOwnershipForTest = false;
   lastPromptCancellationAcknowledgement = null;
   const payload = {
     type: 'keycode',
@@ -11274,42 +9204,24 @@ function sendActivePromptCancellation(prompt, options = {}) {
 }
 
 function cancelActiveInteraction() {
-  const cancelingShopPayment = Boolean(currentMenu && isShopPaymentMenu(currentMenu));
+  const cancelingShopPayment = Boolean(gameViewSnapshot.currentMenu && sharedModules.interactionModel.isShopPaymentMenu(gameViewSnapshot.currentMenu));
   if (cancelingShopPayment) {
     shopPaymentUiStatus = { phase: 'cancelled', text: 'Payment cancelled', until: Date.now() + 3000 };
     setStatus(shopPaymentUiStatus.text);
   }
-  const wasEquipmentDialog = interactionDialog?.open && interactionDialog.classList.contains('rpg-equipment-dialog');
-  const hasBackingInventoryOverview = wasEquipmentDialog && currentMenu && isInventoryOverviewMenu(currentMenu);
-  if (wasEquipmentDialog) suppressedEquipmentDialogRenderUntil = Date.now() + 900;
-  clearEquipmentKeepOpenState();
   if (activeContextualPrompt) {
     dismissContextualPrompt();
     return;
   }
-  if (activePrompt) {
+  if (gameViewSnapshot.activePrompt) {
     const canceledLazyInventory = rememberCanceledInventoryLazyLoad();
-    const cancelingReadOnlyMenu = activePrompt.kind === 'read-only menu';
-    sendActivePromptCancellation(activePrompt);
-    if (hasBackingInventoryOverview) {
-      // Closing the RPG inventory sends Esc to NetHack, but the native menu
-      // acknowledgment can arrive a few frames later.  Do not let the stale
-      // inventory menu re-enter the top context strip during that gap: it adds
-      // stats-panel padding and briefly changes the map/background layout.
-      suppressedInventoryOverviewUntil = Date.now() + 900;
-      suppressedEquipmentDialogRenderUntil = Date.now() + 900;
-      clearPromptOwnerState({ clearWorkflow: true, clearMenu: true });
-      if (menuPanel) {
-        menuPanel.hidden = true;
-        menuPanel.textContent = 'No active menu.';
-      }
-    } else {
-      activePrompt = null;
-      if (currentMenu) {
-        currentMenu.awaitingSelection = false;
-        if (cancelingReadOnlyMenu) currentMenu = null;
-      }
-    }
+    const cancelingReadOnlyMenu = gameViewSnapshot.activePrompt.kind === 'read-only menu';
+    sendActivePromptCancellation(gameViewSnapshot.activePrompt);
+      const menu = gameViewSnapshot.currentMenu
+        ? { ...gameViewSnapshot.currentMenu, awaitingSelection: false }
+        : null;
+      publishRendererGameViewEvent({ name: 'renderer_dismiss_interaction', expectedRequestId: gameViewSnapshot.activePrompt?.requestId || '', clearMenu: cancelingReadOnlyMenu });
+      if (menu && !cancelingReadOnlyMenu) publishRendererGameViewEvent({ name: 'renderer_publish_menu', menu });
     if (canceledLazyInventory) suppressInventoryLazyLoadUntil = Date.now() + 600;
     closeInteractionDialog({ force: true });
     clearWorkflowContext();
@@ -11318,15 +9230,8 @@ function cancelActiveInteraction() {
     updateModalOverlayLayoutLock();
     return;
   }
-  if (hasBackingInventoryOverview) {
-    suppressedInventoryOverviewUntil = Date.now() + 900;
-    suppressedEquipmentDialogRenderUntil = Date.now() + 900;
-    sendPlayableKey('\u001b');
-    clearPromptOwnerState({ clearWorkflow: true, clearMenu: true });
-    if (menuPanel) {
-      menuPanel.hidden = true;
-      menuPanel.textContent = 'No active menu.';
-    }
+  if (itemEquipmentOwner?.ownership?.().active) {
+    itemEquipmentOwner.close({ reason: 'cancel', cancelNative: true });
   }
   closeInteractionDialog({ force: true });
   clearWorkflowContext();
@@ -11339,7 +9244,7 @@ interactionCancel.addEventListener('click', (event) => {
 });
 interactionDialog.addEventListener('cancel', (event) => {
   event.preventDefault();
-  if (closeInventoryContextMenu()) return;
+  if (closeGroundItemContextMenu()) return;
   cancelActiveInteraction();
 });
 interactionText.addEventListener('keydown', (event) => {
@@ -11355,7 +9260,7 @@ interactionText.addEventListener('keydown', (event) => {
 });
 interactionDialog.addEventListener('keydown', (event) => {
   if (handleSingleSelectMenuHotkey(event) || handleFixedChoicePromptHotkey(event)) return;
-  if (event.key === 'Escape' && closeInventoryContextMenu()) {
+  if (event.key === 'Escape' && closeGroundItemContextMenu()) {
     event.preventDefault();
     event.stopPropagation();
     return;
@@ -11394,13 +9299,13 @@ function keyToNetHackCommand(event) {
   if (event.key === 'Enter') return '\n';
   if (event.key === 'Backspace') return '\b';
   if (event.key === 'Tab') return '\t';
-  if (event.key === ' ' || event.key === 'Spacebar') return activePrompt ? ' ' : '.';
+  if (event.key === ' ' || event.key === 'Spacebar') return gameViewSnapshot.activePrompt ? ' ' : '.';
   if (event.key && event.key.length === 1) return event.key;
   return undefined;
 }
 
 function isActiveDirectionPrompt() {
-  return Boolean(activePrompt?.kind === 'question' && isDirectionPrompt(activePrompt.query || ''));
+  return Boolean(gameViewSnapshot.activePrompt?.kind === 'question' && sharedModules.interactionModel.isDirectionPrompt(gameViewSnapshot.activePrompt.query || ''));
 }
 
 function activePromptOwnsUiInput() {
@@ -11410,12 +9315,12 @@ function activePromptOwnsUiInput() {
   // prompt answers must still reach NetHack.  Semantic v2 actions use the
   // stricter semanticActionActiveInputOwner() below so a second action cannot
   // be launched while NetHack owns a direction follow-up.
-  return Boolean(activePrompt && !isActiveDirectionPrompt() && !activePromptIsOrphaned());
+  return Boolean(gameViewSnapshot.activePrompt && !isActiveDirectionPrompt() && !activePromptIsOrphaned());
 }
 
 function semanticActionActiveInputOwner() {
-  if (activePrompt && !activePromptIsOrphaned()) return { kind: 'prompt', requestId: activePrompt.requestId || '', label: activePrompt.query || '' };
-  if (currentMenu && currentMenu.awaitingSelection) return { kind: 'menu', requestId: currentMenu.requestId || '', label: currentMenu.prompt || '' };
+  if (gameViewSnapshot.activePrompt && !activePromptIsOrphaned()) return { kind: 'prompt', requestId: gameViewSnapshot.activePrompt.requestId || '', label: gameViewSnapshot.activePrompt.query || '' };
+  if (gameViewSnapshot.currentMenu && gameViewSnapshot.currentMenu.awaitingSelection) return { kind: 'menu', requestId: gameViewSnapshot.currentMenu.requestId || '', label: gameViewSnapshot.currentMenu.prompt || '' };
   if (transferPanelOwnsUiInput()) return { kind: 'transfer', label: 'container transfer panel' };
   return null;
 }
@@ -11426,7 +9331,7 @@ function transferPanelOwnsUiInput() {
   // refresh ownership. Passive ground views remain non-modal so
   // Inventory/Equipment can still be opened from a ground item note before the
   // player chooses to pick up or drop anything.
-  return Boolean(containerTransferState?.active && containerTransferState.sessionKind === 'container' && containerTransferPanel && !containerTransferPanel.hidden);
+  return Boolean(transferPresentation?.active && transferPresentation.sessionKind === 'container' && containerTransferPanel && !containerTransferPanel.hidden);
 }
 
 function hasActiveUiInputOwner() {
@@ -11444,7 +9349,7 @@ function hasActiveUiInputOwner() {
     || gameOverDialog.open
     || transferPanelOwnsUiInput()
     || activePromptOwnsUiInput()
-    || (currentMenu && currentMenu.awaitingSelection)
+    || (gameViewSnapshot.currentMenu && gameViewSnapshot.currentMenu.awaitingSelection)
     || (focusMode !== 'game' && !activePromptIsOrphaned())
   );
 }
@@ -11459,7 +9364,7 @@ function handlePlayableKeydown(event) {
 
 function handleActiveDirectionPromptKeydown(event) {
   if (!isActiveDirectionPrompt()) return false;
-  if (interactionDialog.open || documentDialog.open || startupChoiceDialog.open || introDialog.open || characterDialog.open || actionDialog.open || settingsDialog.open || gameOverDialog.open || (currentMenu && currentMenu.awaitingSelection) || focusMode !== 'game') return false;
+  if (interactionDialog.open || documentDialog.open || startupChoiceDialog.open || introDialog.open || characterDialog.open || actionDialog.open || settingsDialog.open || gameOverDialog.open || (gameViewSnapshot.currentMenu && gameViewSnapshot.currentMenu.awaitingSelection) || focusMode !== 'game') return false;
   const key = keyToNetHackCommand(event);
   if (!key || !isSupportedPlayableKey(key)) return false;
   event.preventDefault();
@@ -11471,7 +9376,6 @@ function handleActiveDirectionPromptKeydown(event) {
 gameGrid.tabIndex = 0;
 gameGrid.addEventListener('click', (event) => {
   const cellEl = event.target?.closest?.('.tile-cell');
-  if (activeMapTargetPrompt && chooseMapTargetCell(cellEl)) return;
   const direction = cellEl && gameGrid.contains(cellEl) ? mapCellDirectionFromCursor(cellEl) : '';
   if (direction && runningState.running && !hasActiveUiInputOwner()) {
     sendMovementCommand(direction);
@@ -11491,7 +9395,7 @@ gameGrid.addEventListener('mousemove', updateMapTooltipFromPointer, { passive: t
 gameGrid.addEventListener('mouseleave', hideMapTooltip);
 gameGrid.addEventListener('blur', hideMapTooltip);
 document.addEventListener('pointerdown', (event) => {
-  if (!event.target?.closest?.('.inventory-context-menu')) closeInventoryContextMenu();
+  if (!event.target?.closest?.('.ground-item-context-menu')) closeGroundItemContextMenu();
 });
 
 /* Escape is routed once, during capture, before focused controls, native dialog
@@ -11501,7 +9405,6 @@ document.addEventListener('pointerdown', (event) => {
 let escapeDismissalKeyHeld = false;
 function clearActiveDragPresentation() {
   const activeDragElements = Array.from(document.querySelectorAll('.dragging, .drag-over'));
-  if (activeDragElements.length) equipmentDragSuppressClickUntil = Date.now() + 800;
   activeDragElements.forEach((element) => element.classList.remove('dragging', 'drag-over'));
 }
 function dialogEscapeLayer(dialog) {
@@ -11521,8 +9424,8 @@ function dialogEscapeLayer(dialog) {
   const layer = layers.get(dialog);
   return layer ? { ...layer, element: dialog, order: overlayLayerOpenOrder.get(dialog) || 0 } : null;
 }
-function visibleInventoryContextMenu() {
-  const menu = document.querySelector('.inventory-context-menu');
+function visibleGroundItemContextMenu() {
+  const menu = document.querySelector('.ground-item-context-menu');
   if (!menu?.isConnected || menu.getClientRects().length === 0) return null;
   const ownerDialog = menu.closest('dialog');
   return ownerDialog && !ownerDialog.open ? null : menu;
@@ -11535,25 +9438,22 @@ function topmostEscapeLayer() {
     .filter(Boolean)
     .sort((left, right) => right.order - left.order);
   const topDialogLayer = openDialogLayers[0] || null;
-  const contextMenu = visibleInventoryContextMenu();
+  const contextMenu = visibleGroundItemContextMenu();
   const contextOwnerDialog = contextMenu?.closest('dialog') || null;
   // A context menu is above its own dialog, but a newer native modal is in a
   // higher browser top layer. Body-owned ground menus likewise sit below any
   // open modal regardless of their numeric z-index.
   if (contextMenu && (!topDialogLayer || contextOwnerDialog === topDialogLayer.element)) {
-    return { id: 'item-context-menu', dismissible: true, order: Number.MAX_SAFE_INTEGER, dismiss: closeInventoryContextMenu };
+    return { id: 'ground-item-context-menu', dismissible: true, order: Number.MAX_SAFE_INTEGER, dismiss: closeGroundItemContextMenu };
   }
   if (topDialogLayer) return topDialogLayer;
-  if (containerTransferState?.active && containerTransferPanel && !containerTransferPanel.hidden) {
+  if (transferPresentation?.active && containerTransferPanel && !containerTransferPanel.hidden) {
     return {
-      id: containerTransferState.sessionKind === 'ground-pickup' ? 'ground-transfer' : 'container-transfer',
+      id: transferPresentation.sessionKind === 'ground-pickup' ? 'ground-transfer' : 'container-transfer',
       dismissible: true,
       order: overlayLayerOpenOrder.get(containerTransferPanel) || 0,
       dismiss: () => containerTransferPanel.querySelector('.container-transfer-heading button')?.click(),
     };
-  }
-  if (activeMapTargetPrompt && !directionHelper?.hidden) {
-    return { id: 'map-target', dismissible: true, order: 0, dismiss: () => directionHelper.querySelector('[data-target-cancel]')?.click() };
   }
   return null;
 }
@@ -11598,6 +9498,10 @@ function isTextEditingEvent(event) {
 document.addEventListener('keydown', (event) => {
   if (isTextEditingEvent(event)) return;
   if (handleActiveDirectionPromptKeydown(event)) return;
+  if (transferPresentation?.active) {
+    handleContainerTransferPanelKeydown(event);
+    if (event.defaultPrevented) return;
+  }
   if (hasActiveUiInputOwner()) {
     if (interactionDialog.open && !handleFixedChoicePromptHotkey(event)) handleInteractionNavigationKeydown(event);
     return;
@@ -11684,11 +9588,35 @@ if (typeof window !== 'undefined') {
     stop: () => netHackAPI.stop(),
   };
   window.__nethackPromptTest = {
-    reset() { resetGameView(); testSentInputs = []; testSentPayloads = []; testSentUiProtocolCommands = []; testSentUiProtocolAcks = []; pendingNativeUiCommands = new Map(); pendingNativeUiCommandBridgeOutcomes = new Map(); lastSentKey = { key: undefined, at: 0 }; pendingPromptCancellation = null; lastPromptCancellationAcknowledgement = null; pendingBackingInventoryAction = null; clearEquipmentKeepOpenState(); testPromptCancellationDiagnostics = []; pendingContainerTransferSelection = null; pendingContainerInventoryProbeDismissal = null; pendingGroundMenuTransferIntent = null; if (directTransferPendingTimeout) window.clearTimeout(directTransferPendingTimeout); directTransferPendingTimeout = null; pendingDirectContainerOpen = null; clearDirectContainerSnapshotTimeout(); containerTransferExtendedPromptSuppressTokens = []; containerTransferSuppressedExtendedPrompt = null; containerTransferLastExtendedPromptSuppressionAt = 0; containerTransferInternalSendDepth = 0; forceClassicContainerTakeOutForTest = false; testUiCommandHandler = null; clearContainerTransferCache(); publicGroundPileShimEvidence = []; publicMapRevision = 0; },
+    reset() {
+      resetGameView();
+      transferSession.dispatch({ type: 'reset' });
+      testSentInputs = [];
+      testSentPayloads = [];
+      testSentUiProtocolCommands = [];
+      testSentUiProtocolAcks = [];
+      pendingNativeUiCommands = new Map();
+      pendingNativeUiCommandBridgeOutcomes = new Map();
+      lastSentKey = { key: undefined, at: 0 };
+      pendingPromptCancellation = null;
+      lastPromptCancellationAcknowledgement = null;
+      testPromptCancellationDiagnostics = [];
+      if (directTransferPendingTimeout) window.clearTimeout(directTransferPendingTimeout);
+      directTransferPendingTimeout = null;
+      clearDirectContainerSnapshotTimeout();
+      containerTransferExtendedPromptSuppressTokens = [];
+      containerTransferSuppressedExtendedPrompt = null;
+      containerTransferLastExtendedPromptSuppressionAt = 0;
+      containerTransferInternalSendDepth = 0;
+      testUiCommandHandler = null;
+      clearTransferRefreshGrace();
+      publicGroundPileShimEvidence = [];
+      gameViewSnapshot.mapRevision = 0;
+    },
     clearSentInputs() { testSentInputs = []; testSentPayloads = []; testSentUiProtocolCommands = []; testSentUiProtocolAcks = []; pendingNativeUiCommands = new Map(); pendingNativeUiCommandBridgeOutcomes = new Map(); lastSentKey = { key: undefined, at: 0 }; },
     event: handleShimEvent,
     envelopedEvent: (event) => handleShimEvent(sharedModules.shimProtocol?.normalizeRawShimEvent ? sharedModules.shimProtocol.normalizeRawShimEvent(event) : event),
-    messages: () => messageHistory.slice(),
+    messages: () => gameViewSnapshot.messages.slice(),
     shimEvents: () => { flushShimEvents(); return shimLines.map((line) => { try { return JSON.parse(line); } catch { return null; } }).filter(Boolean); },
     publicGroundPileShimEvidence: () => publicGroundPileShimEvidence.map((event) => JSON.parse(JSON.stringify(event))),
     sentInputs: () => testSentInputs.slice(),
@@ -11697,12 +9625,10 @@ if (typeof window !== 'undefined') {
     sentUiProtocolAcks: () => testSentUiProtocolAcks.map((event) => JSON.parse(JSON.stringify(event))),
     cancellationAcknowledgement: () => lastPromptCancellationAcknowledgement ? { ...lastPromptCancellationAcknowledgement } : null,
     cancellationPending: () => pendingPromptCancellation ? { ...pendingPromptCancellation } : null,
-    ownedInventoryActionPending: () => pendingBackingInventoryAction ? { flow: JSON.parse(JSON.stringify(pendingBackingInventoryAction.flow)), item: JSON.parse(JSON.stringify(pendingBackingInventoryAction.item || {})), currentItem: JSON.parse(JSON.stringify(currentInventoryItemForOwnedAction(pendingBackingInventoryAction.item, publicInventorySnapshot?.orderedItems || []) || null)), rows: JSON.parse(JSON.stringify(publicInventorySnapshot?.orderedItems || [])) } : null,
     cancellationDiagnostics: () => testPromptCancellationDiagnostics.map((entry) => ({ type: entry.type, payload: { ...entry.payload } })),
     clearActivePromptRequestOwnershipForTest() {
-      if (activePrompt) { activePrompt.requestId = ''; activePrompt.promptId = ''; }
-      if (gameView?.state?.activePrompt) { gameView.state.activePrompt.requestId = ''; gameView.state.activePrompt.promptId = ''; }
-      return activePrompt ? { ...activePrompt } : null;
+      omitNextPromptCancellationOwnershipForTest = true;
+      return gameViewSnapshot.activePrompt ? { ...gameViewSnapshot.activePrompt, requestId: '', promptId: '' } : null;
     },
     nativeUiCommand(command) { return netHackAPI.uiCommand(command); },
     setUiCommandHandlerForTest(handler = null) { testUiCommandHandler = typeof handler === 'function' ? handler : null; return { active: Boolean(testUiCommandHandler) }; },
@@ -11728,7 +9654,7 @@ if (typeof window !== 'undefined') {
       return sendSemanticActionCommand(keys, action, {}, route, options);
     },
     helper: () => ({ hidden: directionHelper.hidden, bodyActive: document.body.classList.contains('direction-helper-active'), title: directionHelperTitle.textContent, text: directionHelper.innerText }),
-    prompt: () => (activePrompt ? { ...activePrompt } : null),
+    prompt: () => (gameViewSnapshot.activePrompt ? { ...gameViewSnapshot.activePrompt } : null),
     dialog: () => ({
       interactionOpen: interactionDialog.open,
       title: interactionTitle.textContent,
@@ -11770,45 +9696,6 @@ if (typeof window !== 'undefined') {
     clearFailureForTest() { const surface = currentFailureSurface(); if (surface) clearFailureSurfaceLock(surface); actionableFailureHoldUntil = 0; actionableFailureNotice = null; uxNoticeService?.stateChanged?.(); return this.failureState(); },
     confirm() { interactionConfirm.click(); },
     cancel: cancelActiveInteraction,
-    forceCloseCurrentMenuForTest() {
-      const owned = pendingBackingInventoryAction?.flow;
-      if (owned?.status === 'pending') {
-        const closingMenuItems = Array.isArray(currentMenu?.items) ? currentMenu.items.map((item) => ({
-          ...item,
-          inventoryLetter: item.inventoryLetter || sharedModules.inventorySnapshotAdapter?.selectorToLetter?.(item.selector),
-        })) : [];
-        handleShimEvent({
-          name: 'bridge_menu_answer', window: owned.window,
-          menuId: owned.menuId, requestId: owned.requestId, menuRequestId: owned.requestId,
-          transactionId: owned.transactionId, inputTransactionId: owned.transactionId,
-          lifecycleRevision: owned.lifecycleRevision, lifecycle: owned.acknowledgementLifecycle,
-          menuPurpose: owned.menuPurpose,
-          requestSource: { layer: owned.requestSourceLayer, window: owned.window },
-          owner: { kind: owned.ownerKind, window: owned.window },
-          activeRequestMatch: true, inputMatchesMenuTransaction: true,
-          return: 0, selector: 0, selectors: '',
-        });
-        const revision = Math.max(publicInventorySnapshot?.revision || 0, liveInventoryRevision || 0, publicEquipmentSnapshot?.revision || 0) + 1;
-        liveInventoryRevision = revision;
-        publicInventorySnapshot = { ...publicInventorySnapshot, revision, orderedItems: closingMenuItems };
-        publicEquipmentSnapshot = { ...publicEquipmentSnapshot, revision, inventoryRevision: revision };
-        if (gameView?.state) {
-          gameView.state.inventory = publicInventorySnapshot;
-          gameView.state.equipment = publicEquipmentSnapshot;
-        }
-        observeBackingInventoryActionStability();
-      } else {
-        currentMenu = null;
-        activePrompt = null;
-        if (gameView?.state) {
-          gameView.state.currentMenu = null;
-          gameView.state.activePrompt = null;
-        }
-        renderPromptPanel();
-        renderMenuPanel();
-      }
-      return { sent: testSentInputs.slice(), prompt: activePrompt, menuOpen: Boolean(currentMenu) };
-    },
     setRunning(running = true) {
       const isRunning = Boolean(running);
       if (isRunning) {
@@ -11821,74 +9708,81 @@ if (typeof window !== 'undefined') {
     },
     statusHud: () => ({ text: statsPanel?.innerText || '', groups: Array.from(statsPanel?.querySelectorAll('.status-group') || []).map((group) => ({ label: group.querySelector('.status-group-label')?.textContent || '', text: group.innerText, fields: Array.from(group.querySelectorAll('.stat-chip')).map((chip) => ({ field: chip.dataset.statusField || '', label: chip.querySelector('span')?.textContent || '', value: chip.querySelector('strong')?.textContent || '', className: chip.className || '' })) })) }),
     setCursor(x = 10, y = 10) {
-      mapWindowId = 1;
-      cursor = { window: 1, x: normalizeMapCoord(x, mapWidth), y: normalizeMapCoord(y, mapHeight) };
-      if (gameView?.state) {
-        gameView.state.mapWindowId = mapWindowId;
-        gameView.state.cursor = { ...cursor };
-      }
+      processShimGameEvent({ name: 'shim_create_nhwindow', return: 1, windowType: 3 });
+      processShimGameEvent({ name: 'shim_curs', window: 1, x: normalizeMapCoord(x, mapWidth), y: normalizeMapCoord(y, mapHeight) });
       renderGameGrid({ full: true });
       renderContextActionBar();
-      return { ...cursor };
+      return { ...gameViewSnapshot.cursor };
     },
-    inventory: () => ({ liveRevision: liveInventoryRevision, snapshotRevision: publicInventorySnapshot?.revision || 0, snapshotItems: (publicInventorySnapshot?.orderedItems || []).map((item) => ({ objectId: item.objectId, inventoryLetter: item.inventoryLetter || '', displayName: item.displayName || '', known: item.known ? { ...item.known } : undefined, semanticName: item.semanticName, semanticAppearance: item.semanticAppearance, calledName: item.calledName, individualName: item.individualName, actionAffordances: Array.isArray(item.actionAffordances) ? item.actionAffordances.slice() : [] })), unpaidItemCount: (publicInventorySnapshot?.orderedItems || []).filter((item) => item.actionAffordances?.includes('shop.unpaid')).reduce((total, item) => total + (Number.isSafeInteger(Number(item.quantity)) && Number(item.quantity) > 0 ? Number(item.quantity) : 1), 0), featureFlags: { ...inventorySnapshotFeatureFlags }, live: liveInventoryChoices.map((item) => ({ selector: item.selector ? String.fromCharCode(item.selector) : '', text: item.text || '' })), cached: cachedInventoryChoices.map((item) => ({ selector: item.selector ? String.fromCharCode(item.selector) : '', text: item.text || '' })) }),
-    setInventorySnapshotFeatureFlags(flags = {}) { inventorySnapshotFeatureFlags = { ...inventorySnapshotFeatureFlags, ...flags }; renderMenuPanel(); return { ...inventorySnapshotFeatureFlags }; },
+    inventory: () => ({ revision: gameViewSnapshot.inventory?.revision || 0, items: (gameViewSnapshot.inventory?.orderedItems || []).map((item) => ({ objectId: item.objectId, inventoryLetter: item.inventoryLetter || '', displayName: item.displayName || '', known: item.known ? { ...item.known } : undefined, semanticName: item.semanticName, semanticAppearance: item.semanticAppearance, calledName: item.calledName, individualName: item.individualName, actionAffordances: Array.isArray(item.actionAffordances) ? item.actionAffordances.slice() : [] })), unpaidItemCount: (gameViewSnapshot.inventory?.orderedItems || []).filter((item) => item.actionAffordances?.includes('shop.unpaid')).reduce((total, item) => total + (Number.isSafeInteger(Number(item.quantity)) && Number(item.quantity) > 0 ? Number(item.quantity) : 1), 0) }),
     setAuthoritativeInventoryForTest(items = [], revision = 1) {
-      const orderedItems = (Array.isArray(items) ? items : []).map((item) => ({ ...item, inventoryLetter: item.inventoryLetter || sharedModules.inventorySnapshotAdapter?.selectorToLetter?.(item.selector) || '' }));
-      publicInventorySnapshot = { ...publicInventorySnapshot, revision: Number(revision) || 1, orderedItems };
-      liveInventoryRevision = publicInventorySnapshot.revision;
-      if (gameView?.state) gameView.state.inventory = publicInventorySnapshot;
-      renderMenuPanel();
-      return { revision: publicInventorySnapshot.revision, count: orderedItems.length };
+      const normalizedRevision = Number(revision) || 1;
+      const publicItems = (Array.isArray(items) ? items : []).map((item) => {
+        const inventoryLetter = item.inventoryLetter || sharedModules.inventorySnapshotAdapter?.selectorToLetter?.(item.selector) || '';
+        return { ...item, selector: item.selector || inventoryLetter.charCodeAt(0), inventoryLetter, text: item.text || `${inventoryLetter ? `${inventoryLetter} - ` : ''}${item.displayName || item.semanticName || 'item'}` };
+      });
+      handleShimEvent({ name: 'shim_update_inventory', revision: normalizedRevision, inventoryRevision: normalizedRevision, equipmentRevision: Math.max(normalizedRevision, gameViewSnapshot.equipment?.revision || 0), reason: 'renderer test public inventory', items: publicItems });
+      return { revision: gameViewSnapshot.inventory.revision, count: gameViewSnapshot.inventory.orderedItems.length };
     },
-    setEquipmentSnapshotFeatureFlags(flags = {}) { equipmentSnapshotFeatureFlags = { ...equipmentSnapshotFeatureFlags, ...flags }; renderEquipmentSlots(); return { ...equipmentSnapshotFeatureFlags }; },
-    equipmentSnapshot: () => ({ revision: publicEquipmentSnapshot?.revision || 0, inventoryRevision: publicEquipmentSnapshot?.inventoryRevision || 0, featureFlags: { ...equipmentSnapshotFeatureFlags }, slots: (publicEquipmentSnapshot?.orderedSlots || []).map((slot) => ({ slotId: slot.slotId, rendererSlotId: slot.rendererSlotId || '', label: slot.label || '', objectId: slot.objectId, publicStatus: slot.publicStatus, blockedBy: Array.isArray(slot.blockedBy) ? slot.blockedBy.slice() : [], item: slot.item ? { objectId: slot.item.objectId, inventoryLetter: slot.item.inventoryLetter || '', displayName: slot.item.displayName || '', known: slot.item.known ? { ...slot.item.known } : undefined, semanticName: slot.item.semanticName, semanticAppearance: slot.item.semanticAppearance, calledName: slot.item.calledName, individualName: slot.item.individualName } : null })) }),
-    groundSnapshots: () => ({ revision: publicGroundPileSnapshots?.revision || 0, piles: Array.from(publicGroundPileSnapshots?.pilesByCoord || []).map(([key, pile]) => ({ key, revision: pile.revision || 0, coord: { ...(pile.coord || {}) }, items: (pile.items || []).map((item) => ({ objectId: item.objectId, displayName: item.displayName || '', quantity: item.quantity, known: item.known ? { ...item.known } : undefined, semanticName: item.semanticName, semanticAppearance: item.semanticAppearance, semanticKnown: item.semanticKnown, objectClass: item.objectClass, actionAffordances: Array.isArray(item.actionAffordances) ? item.actionAffordances.slice() : undefined, location: item.location ? { ...item.location } : undefined })) })), pendingEvidence: pendingGroundPileEvidence ? { transferId: pendingGroundPileEvidence.transferId, direction: pendingGroundPileEvidence.direction, coord: { ...pendingGroundPileEvidence.coord }, delta: pendingGroundPileEvidence.delta || null, attached: Boolean(pendingGroundPileEvidence.attached) } : null }),
+    equipmentSnapshot: () => ({ revision: gameViewSnapshot.equipment?.revision || 0, inventoryRevision: gameViewSnapshot.equipment?.inventoryRevision || 0, slots: (gameViewSnapshot.equipment?.orderedSlots || []).map((slot) => ({ slotId: slot.slotId, rendererSlotId: slot.rendererSlotId || '', label: slot.label || '', objectId: slot.objectId, publicStatus: slot.publicStatus, blockedBy: Array.isArray(slot.blockedBy) ? slot.blockedBy.slice() : [], item: slot.item ? { objectId: slot.item.objectId, inventoryLetter: slot.item.inventoryLetter || '', displayName: slot.item.displayName || '', known: slot.item.known ? { ...slot.item.known } : undefined, semanticName: slot.item.semanticName, semanticAppearance: slot.item.semanticAppearance, calledName: slot.item.calledName, individualName: slot.item.individualName } : null })) }),
+    itemEquipment: () => itemEquipmentOwner?.snapshot?.() || null,
+    groundSnapshots: () => ({ revision: gameViewSnapshot.groundPiles?.revision || 0, piles: Array.from(gameViewSnapshot.groundPiles?.pilesByCoord || []).map(([key, pile]) => ({ key, revision: pile.revision || 0, coord: { ...(pile.coord || {}) }, items: (pile.items || []).map((item) => ({ objectId: item.objectId, displayName: item.displayName || '', quantity: item.quantity, known: item.known ? { ...item.known } : undefined, semanticName: item.semanticName, semanticAppearance: item.semanticAppearance, semanticKnown: item.semanticKnown, objectClass: item.objectClass, actionAffordances: Array.isArray(item.actionAffordances) ? item.actionAffordances.slice() : undefined, location: item.location ? { ...item.location } : undefined })) })), pendingEvidence: gameViewSnapshot.pendingTransferEvidence.ground ? { transferId: gameViewSnapshot.pendingTransferEvidence.ground.transferId, direction: gameViewSnapshot.pendingTransferEvidence.ground.direction, coord: { ...gameViewSnapshot.pendingTransferEvidence.ground.coord }, delta: gameViewSnapshot.pendingTransferEvidence.ground.delta || null, attached: Boolean(gameViewSnapshot.pendingTransferEvidence.ground.attached) } : null }),
     setGroundPileSnapshotForTest(items = [], coord = groundPileCoordHere()) { return applyPublicGroundPileSnapshot(items, { layer: 'test' }, coord); },
-    containerSnapshots: () => ({ revision: publicContainerContentsSnapshots?.revision || 0, activeSessionId: publicContainerContentsSnapshots?.activeSessionId || '', sessions: Array.from(publicContainerContentsSnapshots?.sessionsById || []).map(([, session]) => ({ ...session, container: { ...(session.container || {}) } })), snapshots: Array.from(publicContainerContentsSnapshots?.contentsBySessionId || []).map(([sessionId, snapshot]) => ({ sessionId, revision: snapshot.revision || 0, container: { ...(snapshot.container || {}) }, items: (snapshot.items || []).map((item) => ({ objectId: item.objectId, inventoryLetter: item.inventoryLetter || '', displayName: item.displayName || '', quantity: item.quantity, known: item.known ? { ...item.known } : undefined, semanticName: item.semanticName, semanticAppearance: item.semanticAppearance, location: item.location ? { ...item.location } : undefined })) })), pendingEvidence: pendingContainerContentsEvidence ? { transferId: pendingContainerContentsEvidence.transferId, direction: pendingContainerContentsEvidence.direction, sessionId: pendingContainerContentsEvidence.sessionId, delta: pendingContainerContentsEvidence.delta || null } : null }),
+    containerSnapshots: () => ({ revision: gameViewSnapshot.containerContents?.revision || 0, activeSessionId: gameViewSnapshot.containerContents?.activeSessionId || '', sessions: Array.from(gameViewSnapshot.containerContents?.sessionsById || []).map(([, session]) => ({ ...session, container: { ...(session.container || {}) } })), snapshots: Array.from(gameViewSnapshot.containerContents?.contentsBySessionId || []).map(([sessionId, snapshot]) => ({ sessionId, revision: snapshot.revision || 0, container: { ...(snapshot.container || {}) }, items: (snapshot.items || []).map((item) => ({ objectId: item.objectId, inventoryLetter: item.inventoryLetter || '', displayName: item.displayName || '', quantity: item.quantity, known: item.known ? { ...item.known } : undefined, semanticName: item.semanticName, semanticAppearance: item.semanticAppearance, location: item.location ? { ...item.location } : undefined })) })), pendingEvidence: gameViewSnapshot.pendingTransferEvidence.container ? { transferId: gameViewSnapshot.pendingTransferEvidence.container.transferId, direction: gameViewSnapshot.pendingTransferEvidence.container.direction, sessionId: gameViewSnapshot.pendingTransferEvidence.container.sessionId, delta: gameViewSnapshot.pendingTransferEvidence.container.delta || null } : null }),
     commandTransactions: summarizeCommandTransactions,
     transferTransactions: summarizeTransferTransactions,
     transferPanelCommandState: () => currentTransferCommandState(),
     clearLocalTransferPanelTransferForTest() {
-      if (containerTransferState) {
-        containerTransferState.pendingTransferId = '';
-        if (containerTransferState.pendingTransferSelection) containerTransferState.pendingTransferSelection.transferId = '';
-      }
-      if (pendingContainerTransferSelection) pendingContainerTransferSelection.transferId = '';
+      if (transferSession.snapshot().pending) dispatchTransferSessionEvent({ type: 'cancel', reason: 'test cleared pending transfer' });
       return this.transferPanelCommandState();
     },
-    equipment: () => ({ text: equipmentSlots?.innerText || '', snapshot: window.__nethackPromptTest?.equipmentSnapshot?.(), slots: Array.from(equipmentSlots?.querySelectorAll('.equipment-slot') || []).map((slot) => ({ slot: slot.dataset.slot, text: slot.innerText, equipped: slot.classList.contains('equipped') })) }),
+    equipment: () => itemEquipmentOwner?.snapshot?.() || null,
     movement: () => ({ mode: movementMode, text: movementActions?.innerText || '', buttons: Array.from(movementActions?.querySelectorAll('button') || []).map((button) => ({ text: button.textContent, pressed: button.getAttribute('aria-pressed'), direction: button.dataset.moveDirection || '', mode: button.dataset.movementMode || '' })) }),
     contextActions: () => ({ text: contextActionBar?.innerText || '', buttons: Array.from(contextActionBar?.querySelectorAll('button') || []).map((button) => ({ id: button.dataset.contextActionId, text: button.textContent, className: button.className, title: button.title })) }),
     currentCell: () => ({ ...normalizeCell(currentCell()), groundLooksLikeContainer: currentGroundLooksLikeContainer(), visibleNonContainerGroundObject: currentMapCellHasVisibleNonContainerGroundObject(), groundTexts: publicGroundItemTextsHere(), visibleMessageGroundTexts: visibleMessageGroundTextDetailsHere() }),
     clickContextAction(idOrLabel) { const needle = String(idOrLabel || ''); const button = Array.from(contextActionBar?.querySelectorAll('button') || []).find((candidate) => candidate.dataset.contextActionId === needle || candidate.textContent === needle); button?.click(); return { clicked: Boolean(button), sent: testSentInputs.slice(), actions: this.contextActions() }; },
-    target: () => ({ active: Boolean(activeMapTargetPrompt), prompt: activeMapTargetPrompt, selection: activeMapTargetSelection ? { ...activeMapTargetSelection } : null, controls: directionHelper.querySelector('.target-selection-controls')?.innerText || '', selectedCells: Array.from(gameGrid.querySelectorAll('.selected-map-target')).map((cell) => `${cell.dataset.mapX},${cell.dataset.mapY}`), bodyActive: document.body.classList.contains('map-target-mode'), gridLabel: gameGrid.getAttribute('aria-label') }),
+    target: () => ({ active: false, prompt: null, selection: null, controls: '', selectedCells: [], bodyActive: false, gridLabel: gameGrid.getAttribute('aria-label') }),
     context: () => (activeContextualPrompt ? { ...activeContextualPrompt } : null),
     pendingContainerUnlockOpen: () => (pendingContainerUnlockOpen ? { ...pendingContainerUnlockOpen } : null),
     setContainerStateForTest(state = null) {
-      clearContainerTransferCache();
-      containerTransferState = state ? { ...state } : null;
+      clearTransferRefreshGrace();
+      const { leftItems = [], rightItems = [], ...presentationState } = state || {};
+      transferPresentation = state ? presentationState : null;
+      if (transferPresentation?.active) {
+        dispatchTransferSessionEvent({
+          type: 'open',
+          kind: transferSessionKindForState(),
+          route: presentationState.route || (presentationState.presentationMode === 'classic' ? 'classic' : 'direct'),
+          sessionId: presentationState.transferSessionId || '',
+          prompt: transferPresentation.prompt,
+          groundCoord: groundPileCoordHere(),
+          container: { publicId: presentationState.containerId ? `container-${presentationState.containerId}` : 'container', ...(Number.isInteger(presentationState.containerId) ? { objectId: presentationState.containerId } : {}), displayName: String(presentationState.prompt || 'container').replace(/^Open\s+/i, '') },
+          leftRows: leftItems,
+          rightRows: rightItems,
+          loadedSides: transferPresentation.loadedSides,
+          loadingSides: transferPresentation.loadingSides,
+          loading: Boolean(transferPresentation.loadingSides?.left || transferPresentation.loadingSides?.right),
+          feedback: transferPresentation.feedback,
+        });
+      } else {
+        transferSession.dispatch({ type: 'reset' });
+      }
       renderContainerTransferPanel();
       return this.container();
     },
-    setForceClassicContainerTakeOutForTest(value = true) {
-      forceClassicContainerTakeOutForTest = Boolean(value);
-      return { forceClassicContainerTakeOutForTest };
-    },
     container: () => ({
-      active: Boolean(containerTransferState?.active),
+      active: Boolean(transferPresentation?.active),
       extendedPromptSuppressionTokens: containerTransferExtendedPromptSuppressTokens.map((token) => ({ id: token.id, reason: token.reason, command: token.command, consumed: Boolean(token.consumed), expiresInMs: Math.max(0, Math.round(token.expiresAt - performance.now())) })),
       hidden: Boolean(containerTransferPanel?.hidden),
       text: containerTransferPanel?.innerText || '',
-      phase: containerTransferState?.phase || '',
+      status: transferSession.snapshot().status,
       left: Array.from(containerTransferPanel?.querySelectorAll('[data-container-pane="left"] .container-item-row') || []).map((row) => ({ selector: row.dataset.selector, text: row.innerText })),
       right: Array.from(containerTransferPanel?.querySelectorAll('[data-container-pane="right"] .container-item-row') || []).map((row) => ({ selector: row.dataset.selector, text: row.innerText })),
-      menu: currentMenu ? { prompt: currentMenu.prompt || '', awaitingSelection: Boolean(currentMenu.awaitingSelection), how: currentMenu.how, items: (currentMenu.items || []).map((item) => ({ selector: item.selector ? String.fromCharCode(item.selector) : '', text: item.text || '' })) } : null,
-      pendingTransfer: currentPendingContainerTransferSelection() ? { ...currentPendingContainerTransferSelection() } : null,
-      transferSessionId: containerTransferState?.transferSessionId || '',
-      pendingTransferId: containerTransferState?.pendingTransferId || '',
-      directTransferPendingId: containerTransferState?.directTransferPendingId || '',
-      pendingGroundMenuTransferIntent: pendingGroundMenuTransferIntent ? { ...pendingGroundMenuTransferIntent } : null,
+      menu: gameViewSnapshot.currentMenu ? { prompt: gameViewSnapshot.currentMenu.prompt || '', awaitingSelection: Boolean(gameViewSnapshot.currentMenu.awaitingSelection), how: gameViewSnapshot.currentMenu.how, items: (gameViewSnapshot.currentMenu.items || []).map((item) => ({ selector: item.selector ? String.fromCharCode(item.selector) : '', text: item.text || '' })) } : null,
+      pendingTransfer: currentPendingContainerTransferSelection(),
+      transferSessionId: transferPresentation?.transferSessionId || '',
+      pendingTransferId: transferSession.snapshot().pending?.transferId || '',
+      directTransferPendingId: transferSession.snapshot().pending?.route === 'direct' ? transferSession.snapshot().pending.transferId : '',
     }),
     transferContainerItem,
     refreshTransferPane: requestContainerPaneRefresh,
@@ -11897,19 +9791,12 @@ if (typeof window !== 'undefined') {
     setCells(cells = []) {
       if (startupChoiceDialog?.open) startupChoiceDialog.close('tooltip-test');
       startupChoiceShown = true;
-      mapCells = makeEmptyMap();
-      for (const entry of cells) {
-        const x = normalizeMapCoord(entry.x, mapWidth);
-        const y = normalizeMapCoord(entry.y, mapHeight);
-        mapCells[y][x] = { ...entry, ch: entry.ch || entry.char || ' ' };
-      }
-      mapWindowId = 1;
-      cursor = { window: 1, x: 0, y: 0 };
+      publishTestMap(cells, { x: 0, y: 0 });
       renderGameGrid({ full: true });
       hideMapTooltip();
       return automationState();
     },
-    tooltipInfoFor(x, y) { return mapTooltipInfoForCell(mapCells[y]?.[x], x, y); },
+    tooltipInfoFor(x, y) { return mapTooltipInfoForCell(gameViewSnapshot.mapCells[y]?.[x], x, y); },
     showFor(x, y) {
       const cellEl = mapCellElements[y]?.[x];
       showMapTooltipForCell(cellEl);
@@ -11939,9 +9826,9 @@ if (isBrowserPreview) {
     '          |....|         ',
     '          ------         ',
   ];
-  sample.forEach((line, y) => line.split('').forEach((ch, x) => { mapCells[y + 2][x + 4] = { ch, assetId: mappedAssetIdForCell({ ch }) }; }));
-  mapWindowId = 1;
-  cursor = { window: 1, x: 17, y: 5 };
+  const previewCells = [];
+  sample.forEach((line, y) => line.split('').forEach((ch, x) => previewCells.push({ x: x + 4, y: y + 2, ch, assetId: mappedAssetIdForCell({ ch }) })));
+  publishTestMap(previewCells, { x: 17, y: 5 });
   renderGameGrid({ full: true });
 }
 runVersion();

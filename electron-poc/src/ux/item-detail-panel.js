@@ -17,7 +17,10 @@
     return value;
   }
   function primaryAction(actions = []) {
-    return actions.find((action) => action.enabled && action.section === 'primary' && action.danger === 'safe')
+    // A consumable's defining action remains primary even when NetHack marks it
+    // as cautionary; generic safe actions such as wielding must not displace it.
+    return actions.find((action) => action.enabled && ['item.quaff', 'item.read.scroll', 'item.study'].includes(action.id))
+      || actions.find((action) => action.enabled && action.section === 'primary' && action.danger === 'safe')
       || actions.find((action) => action.enabled && action.section === 'primary' && action.danger !== 'caution')
       || null;
   }

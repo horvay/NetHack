@@ -1,0 +1,30 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "identity/unidentified-monster-detection-potion",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current",
+    "role": "Valkyrie",
+    "race": "human",
+    "gender": "female",
+    "alignment": "lawful"
+  },
+  "level": {
+    "safeAreaAroundHero": 4,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [],
+  "monsters": [
+    { "typeId": "JACKAL", "at": { "dx": 3, "dy": 0 }, "attitude": "hostile", "asleep": false, "hp": 4, "maxHp": 4 }
+  ],
+  "inventory": [
+    { "typeId": "POT_MONSTER_DETECTION", "identityKnown": false, "beatitudeKnown": true, "beatitude": "uncursed" }
+  ],
+  "expectedPublicFacts": {
+    "inventoryRows": ["uncursed potion"],
+    "monsterRows": ["jackal"],
+    "messages": ["unidentified monster detection potion fixture"]
+  }
+}

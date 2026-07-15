@@ -63,9 +63,9 @@ for (const [name, fixture] of Object.entries(fixtures)) {
 
   const view = GameViewState.createGameViewState({ mapWidth: 80, mapHeight: 21 });
   const result = view.process(fixture.event);
-  assert.equal(view.state.equipment.revision, fixture.expected.revision, `${name}: reducer stores equipment revision`);
-  assert.equal(view.state.equipment.inventoryRevision, fixture.expected.inventoryRevision, `${name}: reducer stores source inventory revision`);
-  assert.equal(view.state.equipment.orderedSlots.length, snapshot.slots.length, `${name}: reducer stores ordered canonical slots`);
+  assert.equal(view.snapshot().equipment.revision, fixture.expected.revision, `${name}: reducer stores equipment revision`);
+  assert.equal(view.snapshot().equipment.inventoryRevision, fixture.expected.inventoryRevision, `${name}: reducer stores source inventory revision`);
+  assert.equal(view.snapshot().equipment.orderedSlots.length, snapshot.slots.length, `${name}: reducer stores ordered canonical slots`);
   assert(result.effects.some((effect) => effect.type === 'equipment-snapshot'), `${name}: reducer emits equipment-snapshot diagnostic effect`);
   assert(result.effects.some((effect) => effect.type === 'inventory-updated'), `${name}: reducer preserves compatibility inventory-updated effect`);
 }
@@ -107,10 +107,10 @@ compatibility.process({ name: 'shim_start_menu', window: 30 });
 compatibility.process({ name: 'shim_add_menu', window: 30, selector: 97, text: 'a - a +0 spear (weapon in hand)', glyphChar: 41, semanticKind: 'object', semanticName: 'spear' });
 compatibility.process({ name: 'shim_add_menu', window: 30, selector: 99, text: 'c - a +0 ring mail (being worn)', glyphChar: 91, semanticKind: 'object', semanticName: 'ring mail' });
 compatibility.process({ name: 'shim_end_menu', window: 30, prompt: 'Inventory:' });
-assert.equal(compatibility.state.cachedInventoryChoices.length, 2, 'classic inventory/equipment compatibility choices remain populated');
-assert.equal(compatibility.state.equipment.slotsById.get('mainHand')?.objectId, 2001, 'equipment snapshot coexists with current equipment screen text source');
+assert.equal(compatibility.snapshot().cachedInventoryChoices.length, 2, 'classic inventory/equipment compatibility choices remain populated');
+assert.equal(compatibility.snapshot().equipment.slotsById.get('mainHand')?.objectId, 2001, 'equipment snapshot coexists with current equipment screen text source');
 
-const rendererModels = EquipmentSnapshot.equipmentSnapshotToRendererSlotModels(compatibility.state.equipment, { inventoryByObjectId: compatibility.state.inventory.itemsByObjectId });
+const rendererModels = EquipmentSnapshot.equipmentSnapshotToRendererSlotModels(compatibility.snapshot().equipment, { inventoryByObjectId: compatibility.snapshot().inventory.itemsByObjectId });
 assert(rendererModels.some((entry) => entry.id === 'main-hand' && /spear/.test(entry.item?.text || '')), 'gated renderer slot models can consume equipment.snapshot');
 assert(rendererModels.some((entry) => entry.id === 'armor-suit' && /ring mail/.test(entry.item?.text || '')), 'canonical armor.body maps to existing renderer armor-suit card only behind flag');
 
@@ -138,6 +138,30 @@ const wieldedToolSnapshot = EquipmentSnapshot.adaptShimInventoryUpdateToEquipmen
 ] });
 assert.equal(wieldedToolSnapshot.collectionValid, true, 'a wielded tool produces a valid equipment snapshot instead of aborting the event batch');
 assert.equal(slot(wieldedToolSnapshot, 'mainHand')?.item?.displayName, 'a tin opener (wielded)', 'wielded tool remains visible in the main-hand slot');
+const quiveredUnknownGemSnapshot = EquipmentSnapshot.adaptShimInventoryUpdateToEquipmentSnapshot({ revision: 34, inventoryRevision: 34, equipmentRevision: 34, items: [
+  { selector: 104, objectId: 7250, text: 'h - a yellow gem (in quiver pouch)', glyphChar: 42, wornMask: 512, semanticKind: 'object', semanticName: 'citrine', semanticAppearance: 'yellow gem', semanticKnown: false, known: { identity: false, appearance: true }, publicClass: 'gem', equipmentSlots: ['quiver'] },
+] });
+const quiveredUnknownGem = slot(quiveredUnknownGemSnapshot, 'quiver')?.item;
+assert(quiveredUnknownGem, 'quivered unidentified gem reaches the equipment snapshot');
+assert.equal(quiveredUnknownGem.displayName, 'a yellow gem (in quiver pouch)', 'equipment adapter preserves NetHack’s complete public gem name and state');
+assert.equal(quiveredUnknownGem.semanticAppearance, 'yellow gem', 'equipment adapter preserves complete gem appearance');
+assert.equal(quiveredUnknownGem.semanticName, undefined, 'equipment adapter drops the quivered unidentified gem’s hidden identity');
+assert.doesNotMatch(JSON.stringify(quiveredUnknownGem), /citrine/i, 'equipment snapshot does not leak the unidentified gem type');
+assert.equal(UiProtocolV2.validateEventEnvelope(EquipmentSnapshot.createEquipmentSnapshotEvent({}, { snapshot: quiveredUnknownGemSnapshot })).ok, true, 'canonical quivered gem equipment snapshot validates through the public protocol');
+const quiveredKnownGemSnapshot = EquipmentSnapshot.adaptShimInventoryUpdateToEquipmentSnapshot({ revision: 35, inventoryRevision: 35, equipmentRevision: 35, items: [
+  { selector: 105, objectId: 7251, text: 'i - a chrysoberyl stone (in quiver pouch)', glyphChar: 42, wornMask: 512, semanticKind: 'object', semanticName: 'chrysoberyl', semanticKnown: true, known: { identity: true, appearance: true }, publicClass: 'gem', equipmentSlots: ['quiver'] },
+] });
+const quiveredKnownGem = slot(quiveredKnownGemSnapshot, 'quiver')?.item;
+assert.equal(quiveredKnownGem?.displayName, 'a chrysoberyl stone (in quiver pouch)', 'equipment adapter preserves an identified gem’s full NetHack name and state');
+assert.equal(quiveredKnownGem?.semanticName, 'chrysoberyl', 'equipment adapter preserves an identified gem’s known semantic name');
+const gemHandRejected = EquipmentSnapshot.normalizeEquipmentSnapshotPayload({ revision: 35, inventoryRevision: 35, slots: [
+  { slotId: 'mainHand', item: { objectId: 7251, displayName: 'a red gem', semanticKnown: false, semanticAppearance: 'red gem', publicClass: 'gem' } },
+  { slotId: 'offHand', item: { objectId: 7251, displayName: 'a red gem', semanticKnown: false, semanticAppearance: 'red gem', publicClass: 'gem' } },
+] });
+assert.equal(slot(gemHandRejected, 'mainHand')?.item, undefined, 'gem compatibility does not broaden to main hand');
+assert.equal(slot(gemHandRejected, 'offHand')?.item, undefined, 'gem compatibility does not broaden to off hand');
+
+
 
 
 const explicitAlternateSnapshot = EquipmentSnapshot.adaptShimInventoryUpdateToEquipmentSnapshot({ revision: 32, inventoryRevision: 32, equipmentRevision: 32, items: [
@@ -194,8 +218,8 @@ assert.deepEqual(sequenceEvents.map((event) => event.eventType), ['inventory.sna
 const staleEquipmentView = GameViewState.createGameViewState({ mapWidth: 80, mapHeight: 21 });
 staleEquipmentView.process({ name: 'shim_update_inventory', revision: 12, inventoryRevision: 12, equipmentRevision: 12, items: [{ selector: 97, objectId: 9201, text: 'a - new spear (weapon in hand)', glyphChar: 41, wornMask: 256, semanticKind: 'object', semanticName: 'spear', semanticKnown: true }] });
 const staleEquipmentResult = staleEquipmentView.process({ name: 'shim_update_inventory', revision: 11, inventoryRevision: 11, equipmentRevision: 11, items: [{ selector: 97, objectId: 9201, text: 'a - old dagger (weapon in hand)', glyphChar: 41, wornMask: 256, semanticKind: 'object', semanticName: 'dagger', semanticKnown: true }] });
-assert.equal(staleEquipmentView.state.equipment.revision, 12, 'stale lower equipment revision does not replace accepted snapshot');
-assert.equal(staleEquipmentView.state.equipment.slotsById.get('mainHand')?.item?.displayName, 'new spear (weapon in hand)', 'stale lower equipment revision does not roll paper-doll item names backward');
+assert.equal(staleEquipmentView.snapshot().equipment.revision, 12, 'stale lower equipment revision does not replace accepted snapshot');
+assert.equal(staleEquipmentView.snapshot().equipment.slotsById.get('mainHand')?.item?.displayName, 'new spear (weapon in hand)', 'stale lower equipment revision does not roll paper-doll item names backward');
 assert(staleEquipmentResult.effects.some((effect) => effect.type === 'equipment-snapshot-rejected' && effect.stale), 'stale equipment update emits a rejected diagnostic effect');
 
 console.log('equipment snapshot tests OK');

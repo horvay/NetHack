@@ -3,11 +3,9 @@
   else root.NetHackUxRuntime = factory();
 }(typeof globalThis !== 'undefined' ? globalThis : this, function factory() {
   const version = 'nethack-ux-runtime/v1';
+  const immutableGameSnapshotBrand = Symbol.for('nethack.game-view-state.immutable-snapshot');
   const DOMAIN_IDS = Object.freeze([
     'interaction', 'shell', 'discovery', 'map', 'items', 'transfer', 'run-lifecycle', 'conformance',
-  ]);
-  const PROVIDER_SLOTS = Object.freeze([
-    'shell-regions', 'catalog-entries', 'context-actions', 'run-lifecycle-actions',
   ]);
   const SERVICE_SLOTS = Object.freeze(['notice', 'dialog']);
 
@@ -15,6 +13,7 @@
     if (value == null || typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return value;
     if (typeof value === 'bigint') return String(value);
     if (typeof value === 'function' || typeof value === 'symbol') return undefined;
+    if (Object.isFrozen(value) && value[immutableGameSnapshotBrand] === true) return value;
     if (seen.has(value)) throw new TypeError('UX runtime snapshots must not contain cycles');
     seen.add(value);
     let copy;
@@ -36,7 +35,6 @@
   function createRuntime(options = {}) {
     const domains = new Map();
     const registrationOrder = [];
-    const providers = new Map(PROVIDER_SLOTS.map((slot) => [slot, []]));
     const services = new Map();
     const subscribers = new Map();
     const diagnostics = [];
@@ -87,41 +85,6 @@
       return Object.freeze(registrationOrder.map((id, index) => Object.freeze({ id, order: index + 1 })));
     }
 
-    function registerProvider(slot, ownerId, provider) {
-      const providerSlot = String(slot || '');
-      let domainId;
-      try { domainId = requireDomainId(ownerId); }
-      catch (error) {
-        record('provider.registration-rejected', { slot: providerSlot, ownerId: String(ownerId || ''), reason: 'unknown-domain' });
-        throw error;
-      }
-      if (!PROVIDER_SLOTS.includes(providerSlot)) {
-        record('provider.registration-rejected', { slot: providerSlot, ownerId: domainId, reason: 'unknown-slot' });
-        throw new TypeError(`Unknown UX provider slot: ${providerSlot || '(empty)'}`);
-      }
-      if (!domains.has(domainId)) {
-        record('provider.registration-rejected', { slot: providerSlot, ownerId: domainId, reason: 'domain-not-registered' });
-        throw new Error(`Register UX domain before its provider: ${domainId}`);
-      }
-      if (!provider || typeof provider !== 'object') {
-        record('provider.registration-rejected', { slot: providerSlot, ownerId: domainId, reason: 'invalid-provider' });
-        throw new TypeError(`UX provider ${providerSlot} requires an object`);
-      }
-      const slotProviders = providers.get(providerSlot);
-      if (slotProviders.some((entry) => entry.ownerId === domainId)) {
-        record('provider.registration-rejected', { slot: providerSlot, ownerId: domainId, reason: 'duplicate-owner' });
-        throw new Error(`UX provider already registered for ${providerSlot}: ${domainId}`);
-      }
-      const entry = Object.freeze({ ownerId: domainId, provider: Object.freeze({ ...provider }), order: slotProviders.length + 1 });
-      slotProviders.push(entry);
-      record('provider.registered', { slot: providerSlot, ownerId: domainId, order: entry.order });
-      return entry.provider;
-    }
-
-    function providerSnapshot(slot) {
-      const entries = providers.get(String(slot || '')) || [];
-      return Object.freeze(entries.slice());
-    }
 
     function subscribePublicState(ownerId, listener) {
       const domainId = requireDomainId(ownerId);
@@ -138,7 +101,9 @@
       const immutableSnapshot = immutableCopy(snapshot || {});
       const immutableMeta = immutableCopy(meta || {});
       latestPublicState = Object.freeze({ snapshot: immutableSnapshot, meta: immutableMeta });
+      const requestedDomains = Array.isArray(immutableMeta.domains) ? new Set(immutableMeta.domains) : null;
       for (const subscriber of subscribers.values()) {
+        if (requestedDomains && !requestedDomains.has(subscriber.ownerId)) continue;
         try { subscriber.listener(immutableSnapshot, immutableMeta); }
         catch (error) { record('public-state.subscriber-failed', { ownerId: subscriber.ownerId, message: String(error?.message || error) }); }
       }
@@ -182,13 +147,10 @@
     const api = {
       version,
       domainIds: DOMAIN_IDS,
-      providerSlots: PROVIDER_SLOTS,
       serviceSlots: SERVICE_SLOTS,
       registerDomain,
       domain,
       listDomains,
-      registerProvider,
-      providers: providerSnapshot,
       subscribePublicState,
       publishPublicState,
       latestPublicState: () => latestPublicState,
@@ -204,5 +166,5 @@
   }
 
   const runtime = createRuntime();
-  return Object.freeze({ version, DOMAIN_IDS, PROVIDER_SLOTS, SERVICE_SLOTS, immutableCopy, createRuntime, runtime });
+  return Object.freeze({ version, DOMAIN_IDS, SERVICE_SLOTS, immutableCopy, createRuntime, runtime });
 }));

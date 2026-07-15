@@ -1,11 +1,17 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { spawn } = require('node:child_process');
-const electronBin = require('electron');
+const Harness = require('./lib/electron-test-harness');
+const EvidenceApproval = require('./lib/evidence-approval');
+
+
 
 const root = path.resolve(__dirname, '..');
-const outDir = process.env.NH_SCENARIO_STAIRS_CONTEXT_OUT_DIR || path.join(root, 'test-output', 'real-scenario-stairs-context');
-const basePort = Number(process.env.NH_SCENARIO_STAIRS_CONTEXT_CDP_PORT || 9654);
+const scriptName = path.basename(__filename, '.js');
+function reviewRun(outputDir, reviewFile) { const manifestFile = path.join(path.resolve(outputDir), 'evidence-approval.json'); const approval = EvidenceApproval.openEvidenceApproval({ manifestFile }); EvidenceApproval.applyEvidenceReview(approval, path.resolve(reviewFile)); const validation = Harness.screenshotQc.validateManifest(manifestFile, { expectedRunIdentity: approval.runIdentity, requireApproval: true }); if (!validation.ok) throw new Error(`Evidence Approval failed: ${validation.errors.join('; ')}`); EvidenceApproval.writeEvidenceReport(manifestFile); console.log(`${scriptName}: APPROVED ${approval.runIdentity} ${manifestFile}`); }
+function createEvidence(page) { return Harness.screenshotQc.createScreenshotQc({ rootDir: page.outputDir, runIdentity: page.outputIdentity, manifestFile: path.join(page.outputDir, 'evidence-approval.json') }); }
+async function finishEvidence(page, qc, scenarioError) { await page.close().catch(() => {}); qc.recordAssertions([{ id: 'scenario-contract', status: scenarioError ? 'failed' : 'passed', details: scenarioError?.message || '' }]); qc.recordLog({ id: 'electron-stdout', path: page.logs.stdout, classification: 'electron-stdout' }); qc.recordLog({ id: 'electron-stderr', path: page.logs.stderr, classification: 'electron-stderr' }); const validation = Harness.screenshotQc.validateManifest(qc.manifestFile, { expectedRunIdentity: page.outputIdentity, requireApproval: false }); if (!validation.ok) throw new Error(`Evidence Approval capture failed: ${validation.errors.join('; ')}`); EvidenceApproval.writeEvidenceReport(qc.manifestFile); console.log(`${scriptName}: CAPTURED ${page.outputIdentity} ${qc.manifestFile}`); if (scenarioError) throw scenarioError; }
+let outDir, evidencePage, evidenceQc
+
 const width = 1360;
 const height = 920;
 
@@ -16,53 +22,16 @@ const cases = [
   { id: 'stairs/ladder-up-on-hero', expectedButtonId: 'ascend-ladder', expectedLabel: 'Go up ladder', forbiddenLabel: 'Go down ladder', expectedTerrainAction: 'ladderUp', expectedTerrain: 'ladder.up', expectedOutcome: /leaving the dungeon requires the visible NetHack confirmation flow/i, screenshotPrefix: 'up-ladder' },
 ];
 
-function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
-async function json(url) { const res = await fetch(url); if (!res.ok) throw new Error(`${res.status} ${url}`); return res.json(); }
-async function waitFor(fn, timeoutMs = 20000, stepMs = 150) {
-  const start = Date.now();
-  let last;
-  while (Date.now() - start < timeoutMs) {
-    try { const value = await fn(); if (value) return value; } catch (error) { last = error; }
-    await delay(stepMs);
-  }
-  throw last || new Error('timed out waiting');
-}
-async function connect(wsUrl) {
-  const ws = new WebSocket(wsUrl);
-  await new Promise((resolve, reject) => {
-    ws.addEventListener('open', resolve, { once: true });
-    ws.addEventListener('error', reject, { once: true });
-  });
-  let id = 0;
-  const pending = new Map();
-  ws.addEventListener('message', (event) => {
-    const msg = JSON.parse(event.data);
-    if (msg.id && pending.has(msg.id)) {
-      const callbacks = pending.get(msg.id);
-      pending.delete(msg.id);
-      msg.error ? callbacks.reject(new Error(JSON.stringify(msg.error))) : callbacks.resolve(msg.result);
-    }
-  });
-  return {
-    send(method, params = {}) {
-      const callId = ++id;
-      ws.send(JSON.stringify({ id: callId, method, params }));
-      return new Promise((resolve, reject) => pending.set(callId, { resolve, reject }));
-    },
-    close() { ws.close(); },
-  };
-}
+
+
+
+
 async function evalExpr(cdp, expression) {
   const res = await cdp.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression });
   if (res.exceptionDetails) throw new Error(JSON.stringify(res.exceptionDetails));
   return res.result.value;
 }
-async function screenshot(cdp, name) {
-  const res = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
-  const file = path.join(outDir, name);
-  fs.writeFileSync(file, Buffer.from(res.data, 'base64'));
-  return file;
-}
+async function screenshot(cdp, name) { return evidencePage.screenshotEvidence(evidenceQc, path.basename(name, path.extname(name)), { classification: 'synthetic-fixture', viewport: { width, height, devicePixelRatio: 1 }, state: path.basename(name, path.extname(name)) }); }
 async function click(cdp, selector) {
   const box = await evalExpr(cdp, `(() => { const el = document.querySelector(${JSON.stringify(selector)}); el?.scrollIntoView?.({block:'center', inline:'center'}); const r = el?.getBoundingClientRect(); return r ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : null; })()`);
   if (!box) throw new Error(`missing selector ${selector}`);
@@ -104,47 +73,34 @@ async function state(cdp) {
 async function startGame(cdp) {
   if (await evalExpr(cdp, `Boolean(document.getElementById('startup-choice-dialog')?.open)`)) await click(cdp, '#startup-new-game');
   else await click(cdp, '#start-shim');
-  await waitFor(async () => evalExpr(cdp, `Boolean(document.getElementById('character-dialog')?.open && document.getElementById('confirm-character'))`), 7000);
+  await Harness.waitFor(async () => evalExpr(cdp, `Boolean(document.getElementById('character-dialog')?.open && document.getElementById('confirm-character'))`), 7000);
   await click(cdp, '#confirm-character');
-  await waitFor(async () => (await state(cdp)).running, 20000);
+  await Harness.waitFor(async () => (await state(cdp)).running, 20000);
   await evalExpr(cdp, `(() => { document.getElementById('intro-dialog')?.close?.('continue'); document.getElementById('document-dialog')?.close?.('close'); document.getElementById('game-grid')?.focus?.(); })()`);
 }
 
 async function runCase(testCase, index) {
-  const port = basePort + index;
   const caseDirName = testCase.id.replace(/[\/]/g, '--');
-  const env = {
-    ...process.env,
-    AI_ORG_ELECTRON_CDP_PORT: String(port),
-    NH_ELECTRON_WINDOW_WIDTH: String(width),
-    NH_ELECTRON_WINDOW_HEIGHT: String(height),
-    NH_ELECTRON_TEST_FIXTURES: '1',
-    NH_SHIM_RESET_LOCKS: '1',
-    NH_TEST_SCENARIO_ID: testCase.id,
-    NETHACK_SEED: '424242',
-    NETHACKOPTIONS: '!tutorial,!autopickup',
-  };
-  const child = spawn(electronBin, ['.'], { cwd: root, env, stdio: ['ignore', 'pipe', 'pipe'] });
-  let logs = '';
-  child.stdout.on('data', (chunk) => { logs += chunk; process.stdout.write(chunk); });
-  child.stderr.on('data', (chunk) => { logs += chunk; process.stderr.write(chunk); });
-  let cdp;
-  const result = { id: testCase.id, screenshots: {}, checks: {} };
-  const cleanup = () => {
-    try { cdp?.close(); } catch {}
-    if (!child.killed) child.kill('SIGTERM');
-    fs.writeFileSync(path.join(outDir, `${caseDirName}-electron.log`), logs);
-  };
+  const page = await Harness.createElectronBrowserDriver({
+    root,
+    width,
+    height,
+    env: {
+      NH_ELECTRON_TEST_FIXTURES: '1',
+      NH_SHIM_RESET_LOCKS: '1',
+      NH_TEST_SCENARIO_ID: testCase.id,
+      NETHACK_SEED: '424242',
+      NETHACKOPTIONS: '!tutorial,!autopickup',
+    },
+  });
+  outDir = page.outputDir;
+  evidencePage = page;
+  evidenceQc = createEvidence(page);
+  const cdp = page.cdp;
+  const result = { id: testCase.id, runIdentity: page.outputIdentity, outputDir: outDir, screenshots: {}, checks: {} };
+  let scenarioError;
   try {
-    const pages = await waitFor(async () => {
-      const list = await json(`http://127.0.0.1:${port}/json/list`);
-      return list.find((page) => page.type === 'page') ? list : null;
-    }, 20000);
-    cdp = await connect((pages.find((page) => page.type === 'page') || pages[0]).webSocketDebuggerUrl);
-    await cdp.send('Page.enable');
-    await cdp.send('Runtime.enable');
-    await cdp.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
-    await waitFor(async () => (await evalExpr(cdp, "document.readyState === 'complete' && !!window.__nethackPromptTest")), 10000);
+    await page.waitForRendererReady({ timeoutMs: 10000, promptTest: true, automation: true });
     await startGame(cdp).catch(async (error) => {
       const startupDebug = await evalExpr(cdp, `(() => ({
         startButton: (() => { const el = document.getElementById('start-shim'); const r = el?.getBoundingClientRect(); return el ? { disabled: el.disabled, text: el.textContent, rect: r ? { x: r.x, y: r.y, width: r.width, height: r.height } : null } : null; })(),
@@ -156,14 +112,14 @@ async function runCase(testCase, index) {
       await screenshot(cdp, `${testCase.screenshotPrefix}-startup-timeout.png`).catch(() => undefined);
       throw error;
     });
-    const loaded = await waitFor(async () => {
+    const loaded = await Harness.waitFor(async () => {
       const s = await state(cdp);
       if (/bridge_test_scenario_failed/.test(`${s.seenShim}\n${s.shim}`)) throw new Error(s.shim);
       return /bridge_test_scenario_loaded/.test(`${s.seenShim}\n${s.shim}`) ? s : null;
     }, 10000);
     assert(`${testCase.id} loaded`, /bridge_test_scenario_loaded/.test(`${loaded.seenShim}\n${loaded.shim}`), loaded.shim.slice(-1000));
 
-    const ready = await waitFor(async () => {
+    const ready = await Harness.waitFor(async () => {
       const s = await state(cdp);
       const text = s.actions?.text || '';
       if (testCase.expectedLabel) return text.includes(testCase.expectedLabel) ? s : null;
@@ -185,7 +141,7 @@ async function runCase(testCase, index) {
       assert(`${testCase.id} omits wrong stair action`, result.checks.wrongStairDirectionAbsent, JSON.stringify(ready.actions));
       await evalExpr(cdp, `window.__nethackPromptTest.clearSentInputs();`);
       await click(cdp, `#context-action-bar button[data-context-action-id=${JSON.stringify(testCase.expectedButtonId)}]`);
-      await delay(400);
+      await Harness.delay(400);
       const afterClick = await state(cdp);
       result.afterClick = afterClick;
       result.screenshots.afterClick = await screenshot(cdp, `${testCase.screenshotPrefix}-02-after-click.png`);
@@ -209,41 +165,16 @@ async function runCase(testCase, index) {
     assert(`${testCase.id} has no fallback/developer UI`, !/Name unavailable|Inventory selector|Loading your inventory|Program in disorder|Please report these messages/i.test(ready.body), ready.body.slice(0, 1200));
     fs.writeFileSync(path.join(outDir, `${caseDirName}-debug.json`), JSON.stringify(result, null, 2));
     return result;
+  } catch (error) {
+    scenarioError = error;
   } finally {
-    cleanup();
-    await new Promise((resolve) => child.once('close', resolve));
+    await finishEvidence(page, evidenceQc, scenarioError);
   }
 }
 
 async function main() {
-  fs.rmSync(outDir, { recursive: true, force: true });
-  fs.mkdirSync(outDir, { recursive: true });
-  const results = [];
-  for (let i = 0; i < cases.length; i += 1) {
-    results.push(await runCase(cases[i], i));
-  }
-  const summary = [
-    '# Real scenario stairs context action MCP/CDP validation',
-    '',
-    'PASS',
-    '',
-    `Output: ${outDir}`,
-    '',
-    '## Checks',
-    ...results.flatMap((result) => [
-      `- ${result.id}: ${Object.entries(result.checks).map(([name, ok]) => `${ok ? 'PASS' : 'FAIL'} ${name}`).join('; ')}`,
-      `  - Buttons: ${(result.ready?.actions?.buttons || []).map((button) => `${button.id}:${button.text}`).join(' | ')}`,
-      result.afterClick ? `  - Sent after click: ${JSON.stringify(result.afterClick.sent)}; direct commands: ${JSON.stringify(result.afterClick.sentUiProtocolCommands)}` : '  - Sent after click: (not clicked; non-stair absence case)',
-    ]),
-    '',
-    '## Screenshots',
-    ...results.flatMap((result) => Object.entries(result.screenshots).map(([name, file]) => `- ${result.id} ${name}: ${file}`)),
-    '',
-    'This proof launches real Electron with fixture-backed NetHack scenarios, clicks the visible contextual stair/ladder buttons, verifies typed `terrain.action` commands with public coord/terrain payloads and no raw `<`/`>` sent-input fallback, and asserts NetHack-visible outcomes after each click. The non-stair floor scenario proves terrain actions are absent away from supported terrain.',
-    '',
-  ].join('\n');
-  fs.writeFileSync(path.join(outDir, 'real-scenario-stairs-context-summary.md'), summary);
-  console.log(summary);
+  if (process.argv[2] === '--review') return reviewRun(process.argv[3], process.argv[4]);
+  for (let index = 0; index < cases.length; index += 1) await runCase(cases[index], index);
 }
 
 main().catch((error) => { console.error(error.stack || error); process.exit(1); });

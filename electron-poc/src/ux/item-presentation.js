@@ -83,7 +83,7 @@
       : publicClass === 'armor' ? new Set(Array.from(SLOT_IDS).filter((slot) => slot.startsWith('armor.')))
         : publicClass === 'ring' ? new Set(['ring.left', 'ring.right'])
           : publicClass === 'amulet' ? new Set(['amulet'])
-            : publicClass === 'tool' ? new Set(['eyes']) : new Set();
+            : publicClass === 'tool' ? new Set(['mainHand', 'offHand', 'eyes']) : new Set();
     return Object.freeze(slots.filter((slot) => allowed.has(slot)));
   }
   function ownership(item) {

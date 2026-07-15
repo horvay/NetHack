@@ -77,17 +77,22 @@ async function pressKey(cdp, key, text = key) {
   await cdp.send('Input.dispatchKeyEvent', { type: 'keyUp', ...params, text: undefined });
 }
 async function pageState(cdp) {
-  return evalExpr(cdp, `(() => ({
-    status: window.__nethackAutomation?.state?.().status || '',
-    running: window.__nethackAutomation?.state?.().runningState?.running || false,
-    mode: window.__nethackAutomation?.state?.().runningState?.mode || '',
-    pid: window.__nethackAutomation?.state?.().runningState?.pid || 0,
-    shimEventCount: window.__nethackAutomation?.state?.().shimEventCount || 0,
-    mapWindowId: window.__nethackAutomation?.state?.().mapWindowId || null,
-    gameOverOpen: document.getElementById('game-over-dialog').open,
-    characterOpen: document.getElementById('character-dialog').open,
-    body: document.body.innerText,
-  }))()`);
+  return evalExpr(cdp, `(() => {
+    const promptTest = window.__nethackPromptTest;
+    return {
+      status: window.__nethackAutomation?.state?.().status || '',
+      running: window.__nethackAutomation?.state?.().runningState?.running || false,
+      mode: window.__nethackAutomation?.state?.().runningState?.mode || '',
+      pid: window.__nethackAutomation?.state?.().runningState?.pid || 0,
+      shimEventCount: window.__nethackAutomation?.state?.().shimEventCount || 0,
+      mapWindowId: window.__nethackAutomation?.state?.().mapWindowId || null,
+      gameOverOpen: document.getElementById('game-over-dialog').open,
+      characterOpen: document.getElementById('character-dialog').open,
+      inventory: promptTest?.inventory?.() || { revision: 0, items: [] },
+      itemEquipment: promptTest?.itemEquipment?.() || null,
+      body: document.body.innerText,
+    };
+  })()`);
 }
 
 (async () => {
@@ -115,11 +120,27 @@ async function pageState(cdp) {
 
     const playableRun = (state, previousPid = 0) => state.running && state.pid && state.pid !== previousPid && state.shimEventCount > 0 && state.mapWindowId && /welcome to NetHack/i.test(state.body || '') && !state.gameOverOpen && !state.characterOpen;
 
-    await evalExpr(cdp, `document.getElementById('start-shim').click(); document.getElementById('start-random-character').click(); true`);
-    const firstRun = await waitFor(async () => {
+    await evalExpr(cdp, `document.getElementById('start-shim')?.click(); true`);
+    await waitFor(async () => evalExpr(cdp, `document.getElementById('startup-choice-dialog')?.open || document.getElementById('character-dialog')?.open`), 5000);
+    await evalExpr(cdp, `document.getElementById('startup-new-game')?.click(); true`);
+    await waitFor(async () => evalExpr(cdp, `document.getElementById('character-dialog')?.open === true`), 5000);
+    await evalExpr(cdp, `document.getElementById('player-name').value = ${JSON.stringify(`DeathReset${process.pid}`)}; document.getElementById('confirm-character')?.click(); true`);
+    let firstRun;
+    try {
+      firstRun = await waitFor(async () => {
+        const state = await pageState(cdp);
+        return playableRun(state) ? state : null;
+      }, 20000);
+    } catch (error) {
+      throw new Error(`${error.message}: ${JSON.stringify(await pageState(cdp))}`);
+    }
+    await evalExpr(cdp, `document.querySelector('#intro-dialog button')?.click?.(); document.getElementById('inventory-equipment-button')?.click(); true`);
+    const firstInventory = await waitFor(async () => {
       const state = await pageState(cdp);
-      return playableRun(state) ? state : null;
-    }, 20000);
+      return state.itemEquipment?.open && state.inventory.revision > 0 && state.itemEquipment.inventoryRevision === state.inventory.revision ? state : null;
+    }, 10000);
+    const firstInventoryPath = await screenshot(cdp, path.join(evidenceDir, '00-first-run-inventory.png'));
+    await evalExpr(cdp, `window.NetHackUxEquipmentScreen.controller.close({ reason: 'death-regression-setup', cancelNative: false }); true`);
 
     const events = fs.readFileSync(fixturePath, 'utf8').trim().split(/\n+/).map((line) => JSON.parse(line));
     for (const event of events) {
@@ -134,7 +155,7 @@ async function pageState(cdp) {
       const state = await pageState(cdp);
       return state.characterOpen ? state : null;
     }, 5000);
-    await evalExpr(cdp, `document.getElementById('start-random-character').click(); true`);
+    await evalExpr(cdp, `document.getElementById('player-name').value = ${JSON.stringify(`DeathResetNext${process.pid}`)}; document.getElementById('confirm-character')?.click(); true`);
     const firstPid = firstRun.pid;
     const secondStarting = await waitFor(async () => {
       const state = await pageState(cdp);
@@ -157,6 +178,22 @@ async function pageState(cdp) {
     await evalExpr(cdp, `document.querySelector('#intro-dialog button')?.click?.(); true`);
     await waitFor(async () => evalExpr(cdp, `!document.getElementById('intro-dialog').open`), 5000);
     const dungeonPath = await screenshot(cdp, path.join(evidenceDir, '03-after-begin-descent-dungeon-visible.png'));
+    await evalExpr(cdp, `document.getElementById('inventory-equipment-button')?.click(); true`);
+    const secondInventory = await waitFor(async () => {
+      const state = await pageState(cdp);
+      return state.itemEquipment?.open ? state : null;
+    }, 10000);
+    const secondInventoryPath = await screenshot(cdp, path.join(evidenceDir, '05-new-run-inventory.png'));
+    const secondPublicNames = secondInventory.inventory.items.map((item) => item.displayName);
+    const visibleSecondNames = secondInventory.body;
+    assert.equal(secondInventory.itemEquipment.inventoryRevision, secondInventory.inventory.revision, 'new-game workspace uses the second run authoritative inventory revision');
+    assert.equal(secondInventory.itemEquipment.inventoryCount, secondInventory.inventory.items.length, 'new-game workspace row count matches the second run authoritative inventory');
+    const secondObjectIds = new Set(secondInventory.inventory.items.map((item) => `object:${item.objectId}`));
+    assert(secondObjectIds.has(secondInventory.itemEquipment.selectedStableId), 'new-game workspace selection belongs to the second run inventory');
+    assert.doesNotMatch(visibleSecondNames, /inventory revision changed before action execution/i, 'new-game workspace has no stale revision rejection');
+    assert.doesNotMatch(visibleSecondNames, /You were killed by|Goodbye .* the /i, 'new-game consequence feed contains no prior-run death messages');
+    for (const name of secondPublicNames) assert.match(visibleSecondNames, new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), `new-game workspace shows second-run item: ${name}`);
+    await evalExpr(cdp, `window.NetHackUxEquipmentScreen.controller.close({ reason: 'death-regression-verified', cancelNative: false }); true`);
 
     const beforeMove = await pageState(cdp);
     await pressKey(cdp, 'l');
@@ -166,7 +203,7 @@ async function pageState(cdp) {
 
     fs.writeFileSync(path.join(evidenceDir, 'electron-stdout.log'), stdout);
     fs.writeFileSync(path.join(evidenceDir, 'electron-stderr.log'), stderr);
-    const result = { ok: true, firstRun, characterModal, secondStarting, earlyInput, secondRun, beforeMove, afterMove, electronExit: { exitCode: child.exitCode, signalCode: child.signalCode }, screenshots: { beforePath, afterPath, dungeonPath, movementPath }, logs: { stdout: path.join(evidenceDir, 'electron-stdout.log'), stderr: path.join(evidenceDir, 'electron-stderr.log') } };
+    const result = { ok: true, firstRun, firstInventory, characterModal, secondStarting, earlyInput, secondRun, secondInventory, beforeMove, afterMove, electronExit: { exitCode: child.exitCode, signalCode: child.signalCode }, screenshots: { firstInventoryPath, beforePath, afterPath, dungeonPath, movementPath, secondInventoryPath }, logs: { stdout: path.join(evidenceDir, 'electron-stdout.log'), stderr: path.join(evidenceDir, 'electron-stderr.log') } };
     fs.writeFileSync(path.join(evidenceDir, 'death-new-random-regression-result.json'), `${JSON.stringify(result, null, 2)}\n`);
     assert.equal(child.exitCode, null, 'Electron process remains alive after first movement in new random game');
     assert.equal(child.signalCode, null, 'Electron process was not signalled after first movement in new random game');

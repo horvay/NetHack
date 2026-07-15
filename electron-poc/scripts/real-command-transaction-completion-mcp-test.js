@@ -1,18 +1,24 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { spawn } = require('node:child_process');
-const electronBin = require('electron');
+const Harness = require('./lib/electron-test-harness');
+const EvidenceApproval = require('./lib/evidence-approval');
 
 const root = path.resolve(__dirname, '..');
-const outDir = path.join(root, 'test-output', 'real-command-transaction-completion');
+const width = 1360;
+const height = 920;
+const { delay, waitFor } = Harness;
+async function evalExpr(cdp, expression) { return cdp.evalCheckedValue(expression, { awaitPromise: true }); }
 const scenarioId = 'identity/valkyrie-equipped-inventory';
-const port = Number(process.env.NH_COMMAND_TRANSACTION_CDP_PORT || 9657);
-function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
-async function json(url) { const res = await fetch(url); if (!res.ok) throw new Error(`${res.status} ${url}`); return res.json(); }
-async function waitFor(fn, timeoutMs = 20000, stepMs = 150) { const start = Date.now(); let last; while (Date.now() - start < timeoutMs) { try { const value = await fn(); if (value) return value; } catch (error) { last = error; } await delay(stepMs); } throw last || new Error('timed out'); }
-async function connect(wsUrl) { const ws = new WebSocket(wsUrl); await new Promise((resolve, reject) => { ws.addEventListener('open', resolve, { once: true }); ws.addEventListener('error', reject, { once: true }); }); let id = 0; const pending = new Map(); ws.addEventListener('message', (event) => { const msg = JSON.parse(event.data); if (msg.id && pending.has(msg.id)) { const p = pending.get(msg.id); pending.delete(msg.id); msg.error ? p.reject(new Error(JSON.stringify(msg.error))) : p.resolve(msg.result); } }); return { send(method, params = {}) { const callId = ++id; ws.send(JSON.stringify({ id: callId, method, params })); return new Promise((resolve, reject) => pending.set(callId, { resolve, reject })); }, close() { ws.close(); } }; }
-async function evalExpr(cdp, expression) { const res = await cdp.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression }); if (res.exceptionDetails) throw new Error(JSON.stringify(res.exceptionDetails)); return res.result.value; }
-async function shot(cdp, name) { const res = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }); const p = path.join(outDir, name); fs.writeFileSync(p, Buffer.from(res.data, 'base64')); return p; }
+async function shot(cdp, name) { const capture = await cdp.screenshotEvidence(cdp.qc, path.basename(name, path.extname(name)), { classification: 'actual-player', viewport: { width, height, zoomPercent: 100 }, state: name, viewSafeFormat: 'BMP', viewSafeScale: 0.25 }); return capture.raw.path; }
+function reviewRun(outputDir, reviewFile) {
+  const manifestFile = path.join(path.resolve(outputDir), 'evidence-approval.json');
+  const approval = EvidenceApproval.openEvidenceApproval({ manifestFile });
+  EvidenceApproval.applyEvidenceReview(approval, path.resolve(reviewFile));
+  const validation = Harness.screenshotQc.validateManifest(manifestFile, { expectedRunIdentity: approval.runIdentity, requireApproval: true });
+  if (!validation.ok) throw new Error(`Evidence Approval failed: ${validation.errors.join('; ')}`);
+  EvidenceApproval.writeEvidenceReport(manifestFile);
+  console.log(`real-command-transaction-completion-mcp-test: APPROVED ${approval.runIdentity} ${manifestFile}`);
+}
 async function click(cdp, selector) { const box = await evalExpr(cdp, `(() => { const el = document.querySelector(${JSON.stringify(selector)}); el?.scrollIntoView?.({block:'center', inline:'center'}); const r = el?.getBoundingClientRect(); return r ? {x:r.left+r.width/2,y:r.top+r.height/2,text:el.innerText} : null; })()`); if (!box) throw new Error(`missing selector ${selector}`); await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: box.x, y: box.y, button: 'left', clickCount: 1 }); await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: box.x, y: box.y, button: 'left', clickCount: 1 }); return box; }
 async function press(cdp, key, code, text) { const vk = key.length === 1 ? key.toUpperCase().charCodeAt(0) : 0; const params = { key, code: code || key, windowsVirtualKeyCode: vk, nativeVirtualKeyCode: vk }; if (text !== undefined) params.text = text; await cdp.send('Input.dispatchKeyEvent', { type: 'keyDown', ...params }); await cdp.send('Input.dispatchKeyEvent', { type: 'keyUp', ...params }); }
 async function boxForText(cdp, selector, pattern) { const box = await evalExpr(cdp, `(() => { const re = new RegExp(${JSON.stringify(pattern)}, 'i'); const el = Array.from(document.querySelectorAll(${JSON.stringify(selector)})).find((candidate) => re.test(candidate.innerText || '')); el?.scrollIntoView?.({block:'center', inline:'center'}); const r = el?.getBoundingClientRect(); return r ? {x:r.left+r.width/2,y:r.top+r.height/2,w:r.width,h:r.height,text:el.innerText,datasetKey:el.dataset.key || el.dataset.dragSelector || ''} : null; })()`); if (!box) throw new Error(`missing ${selector} matching ${pattern}`); return box; }
@@ -39,17 +45,16 @@ function assert(name, ok, detail = '') { if (!ok) throw new Error(`${name}${deta
 function isEquipmentScreen(s) { return Boolean(s.dialog?.interactionOpen) && /Equipment\s*\/\s*Inventory/i.test(s.dialog?.title || ''); }
 
 async function main() {
-  fs.rmSync(outDir, { recursive: true, force: true }); fs.mkdirSync(outDir, { recursive: true });
-  const child = spawn(electronBin, ['.'], { cwd: root, env: { ...process.env, AI_ORG_ELECTRON_CDP_PORT: String(port), NH_ELECTRON_WINDOW_WIDTH: '1360', NH_ELECTRON_WINDOW_HEIGHT: '920', NH_ELECTRON_TEST_FIXTURES: '1', NH_TEST_SCENARIO_ID: scenarioId, NETHACK_SEED: '660077', NETHACKOPTIONS: '!tutorial,!autopickup' }, stdio: ['ignore', 'pipe', 'pipe'] });
-  let logs = ''; child.stdout.on('data', (d) => { logs += d; }); child.stderr.on('data', (d) => { logs += d; });
-  let cdp; const cleanup = () => { try { cdp?.close(); } catch {} if (!child.killed) child.kill('SIGTERM'); fs.writeFileSync(path.join(outDir, 'electron.log'), logs); };
-  process.on('exit', cleanup);
+  const page = await Harness.createElectronBrowserDriver({
+    root, width, height,
+    env: { NH_ELECTRON_TEST_FIXTURES: '1', NH_TEST_SCENARIO_ID: scenarioId, NETHACK_SEED: '660077', NETHACKOPTIONS: '!tutorial,!autopickup' },
+  });
+  const outDir = page.outputDir;
+  const qc = Harness.screenshotQc.createScreenshotQc({ rootDir: outDir, runIdentity: page.outputIdentity, manifestFile: path.join(outDir, 'evidence-approval.json') });
+  const cdp = Object.freeze({ ...page, qc });
   const results = { scenarioId, outDir, screenshots: {}, checks: {} };
+  let scenarioError = null;
   try {
-    const pages = await waitFor(async () => { const list = await json(`http://127.0.0.1:${port}/json/list`); return list.find((page) => page.type === 'page') ? list : null; }, 20000);
-    cdp = await connect((pages.find((page) => page.type === 'page') || pages[0]).webSocketDebuggerUrl);
-    await cdp.send('Page.enable'); await cdp.send('Runtime.enable'); await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1360, height: 920, deviceScaleFactor: 1, mobile: false });
-    await waitFor(async () => (await evalExpr(cdp, "document.readyState === 'complete' && !!window.__nethackPromptTest")), 10000);
     await start(cdp);
     await waitFor(async () => { const s = await state(cdp); fs.writeFileSync(path.join(outDir, '00-start-wait-state.json'), JSON.stringify(s, null, 2)); if (/bridge_test_scenario_failed/.test(`${s.seenShim}\n${s.shim}`)) throw new Error(s.shim); return /bridge_test_scenario_loaded/.test(`${s.seenShim}\n${s.shim}`) ? s : null; }, 30000);
     await evalExpr(cdp, "window.__nethackPromptTest.clearSentInputs(); document.getElementById('game-grid')?.focus?.(); window.__nethackAutomation?.sendKeycode?.(105);");
@@ -96,11 +101,27 @@ async function main() {
       noFallbackOrDeveloperLabels: !/Inventory selector|Name unavailable|Program in disorder|Please report these messages/i.test(textAll),
     };
     fs.writeFileSync(path.join(outDir, 'summary.json'), JSON.stringify(results, null, 2));
-    const md = [`# Real command transaction completion smoke`, '', `Scenario: ${scenarioId}`, `Output: ${outDir}`, '', '## Checks', ...Object.entries(results.checks).map(([name, ok]) => `- ${ok ? 'PASS' : 'FAIL'} ${name}`), '', '## Screenshots', ...Object.entries(results.screenshots).map(([name, value]) => `- ${name}: ${value}`), ''].join('\n');
+    const md = [`# Real command transaction completion smoke`, '', `Scenario: ${scenarioId}`, `Output: ${outDir}`, '', '## Checks', ...Object.entries(results.checks).map(([name, ok]) => `- ${ok ? 'passed' : 'failed'} ${name}`), '', '## Screenshots', ...Object.entries(results.screenshots).map(([name, value]) => `- ${name}: ${value}`), ''].join('\n');
     fs.writeFileSync(path.join(outDir, 'summary.md'), md);
     console.log(md);
     const failed = Object.entries(results.checks).filter(([, ok]) => !ok).map(([name]) => name);
     if (failed.length) throw new Error(`Command transaction completion scenario failed: ${failed.join(', ')}`);
-  } finally { cleanup(); }
+  } catch (error) {
+    scenarioError = error;
+  } finally {
+    await page.close().catch((error) => { if (!scenarioError) scenarioError = error; });
+  }
+  qc.recordAssertions([{ id: 'scenario-completed', status: scenarioError ? 'failed' : 'passed', details: scenarioError ? String(scenarioError.message || scenarioError) : '' }]);
+  qc.recordLog({ id: 'electron-stdout', path: page.logs.stdout, classification: 'electron-stdout' });
+  qc.recordLog({ id: 'electron-stderr', path: page.logs.stderr, classification: 'electron-stderr' });
+  const validation = Harness.screenshotQc.validateManifest(qc.manifestFile, { expectedRunIdentity: page.outputIdentity, requireApproval: false });
+  if (!validation.ok) throw new Error(`Evidence Approval capture failed: ${validation.errors.join('; ')}`);
+  console.log(`real-command-transaction-completion-mcp-test: CAPTURED ${page.outputIdentity} ${qc.manifestFile}`);
+  if (scenarioError) throw scenarioError;
 }
-main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+const reviewIndex = process.argv.indexOf('--review');
+if (reviewIndex !== -1) {
+  Promise.resolve().then(() => reviewRun(process.argv[reviewIndex + 1], process.argv[reviewIndex + 2])).catch((error) => { console.error(error.stack || error); process.exit(1); });
+} else {
+  main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+}

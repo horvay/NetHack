@@ -1,23 +1,23 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { spawn } = require('node:child_process');
-const electronBin = require('electron');
+const Harness = require('./lib/electron-test-harness');
+const EvidenceApproval = require('./lib/evidence-approval');
 
 const root = path.resolve(__dirname, '..');
-const outDir = process.env.NH_LOCKED_DOOR_OUT_DIR || path.join(root, 'test-output', 'real-locked-door-autounlock');
-const port = Number(process.env.NH_LOCKED_DOOR_CDP_PORT || 9492);
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-async function json(url) { const res = await fetch(url); if (!res.ok) throw new Error(`${res.status} ${url}`); return res.json(); }
-async function waitFor(fn, timeoutMs = 20000, stepMs = 150) { const start = Date.now(); let last; while (Date.now() - start < timeoutMs) { try { const value = await fn(); if (value) return value; } catch (error) { last = error; } await delay(stepMs); } throw last || new Error('timed out waiting'); }
-async function connect(wsUrl) {
-  const ws = new WebSocket(wsUrl);
-  await new Promise((resolve, reject) => { ws.addEventListener('open', resolve, { once: true }); ws.addEventListener('error', reject, { once: true }); });
-  let id = 0; const pending = new Map();
-  ws.addEventListener('message', (event) => { const msg = JSON.parse(event.data); if (msg.id && pending.has(msg.id)) { const p = pending.get(msg.id); pending.delete(msg.id); msg.error ? p.reject(new Error(JSON.stringify(msg.error))) : p.resolve(msg.result); } });
-  return { send(method, params = {}) { const callId = ++id; ws.send(JSON.stringify({ id: callId, method, params })); return new Promise((resolve, reject) => pending.set(callId, { resolve, reject })); }, close() { ws.close(); } };
+const width = 1360;
+const height = 900;
+const { delay, waitFor } = Harness;
+async function evalExpr(cdp, expression) { return cdp.evalCheckedValue(expression, { awaitPromise: true }); }
+async function shot(cdp, name) { const capture = await cdp.screenshotEvidence(cdp.qc, path.basename(name, path.extname(name)), { classification: 'actual-player', viewport: { width, height, zoomPercent: 100 }, state: name, viewSafeFormat: 'BMP', viewSafeScale: 0.25 }); return capture.raw.path; }
+function reviewRun(outputDir, reviewFile) {
+  const manifestFile = path.join(path.resolve(outputDir), 'evidence-approval.json');
+  const approval = EvidenceApproval.openEvidenceApproval({ manifestFile });
+  EvidenceApproval.applyEvidenceReview(approval, path.resolve(reviewFile));
+  const validation = Harness.screenshotQc.validateManifest(manifestFile, { expectedRunIdentity: approval.runIdentity, requireApproval: true });
+  if (!validation.ok) throw new Error(`Evidence Approval failed: ${validation.errors.join('; ')}`);
+  EvidenceApproval.writeEvidenceReport(manifestFile);
+  console.log(`real-locked-door-autounlock-mcp-test: APPROVED ${approval.runIdentity} ${manifestFile}`);
 }
-async function evalExpr(cdp, expression) { const res = await cdp.send('Runtime.evaluate', { returnByValue: true, expression }); if (res.exceptionDetails) throw new Error(JSON.stringify(res.exceptionDetails)); return res.result.value; }
-async function shot(cdp, name) { const res = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }); const file = path.join(outDir, name); fs.writeFileSync(file, Buffer.from(res.data, 'base64')); return file; }
 async function press(cdp, key) { await cdp.send('Input.dispatchKeyEvent', { type: 'keyDown', key, text: key.length === 1 ? key : undefined, windowsVirtualKeyCode: key.length === 1 ? key.toUpperCase().charCodeAt(0) : undefined }); await cdp.send('Input.dispatchKeyEvent', { type: 'keyUp', key, windowsVirtualKeyCode: key.length === 1 ? key.toUpperCase().charCodeAt(0) : undefined }); }
 async function click(cdp, selector) {
   const box = await evalExpr(cdp, `(() => { const el = document.querySelector(${JSON.stringify(selector)}); el?.scrollIntoView?.({block:'center', inline:'center'}); const r = el?.getBoundingClientRect(); return r ? {x:r.left + r.width / 2, y:r.top + r.height / 2} : null; })()`);
@@ -38,20 +38,20 @@ async function state(cdp) { return evalExpr(cdp, `(() => ({
 }))()`); }
 function directionFromTo(a, b) { const dx = Math.sign(b.x - a.x), dy = Math.sign(b.y - a.y); return { '-1,-1':'y', '0,-1':'k', '1,-1':'u', '-1,0':'h', '1,0':'l', '-1,1':'b', '0,1':'j', '1,1':'n' }[`${dx},${dy}`]; }
 
-(async () => {
-  fs.mkdirSync(outDir, { recursive: true });
-  let cdp; let stdout = ''; let stderr = '';
-  const child = spawn(electronBin, ['.'], { cwd: root, env: { ...process.env, AI_ORG_ELECTRON_CDP_PORT: String(port), NH_ELECTRON_WINDOW_WIDTH: '1360', NH_ELECTRON_WINDOW_HEIGHT: '900', NH_SHIM_TEST_LOCKED_DOOR_SCENE: '1', NETHACK_SEED: '424242' }, stdio: ['ignore', 'pipe', 'pipe'] });
-  const cleanup = () => { try { cdp?.close(); } catch {} if (!child.killed) child.kill('SIGTERM'); };
-  process.on('exit', cleanup);
-  child.stdout.on('data', (data) => { stdout += data.toString(); process.stdout.write(data); });
-  child.stderr.on('data', (data) => { stderr += data.toString(); process.stderr.write(data); });
+async function main() {
+  const page = await Harness.createElectronBrowserDriver({
+    root,
+    width,
+    height,
+    env: { NH_SHIM_TEST_LOCKED_DOOR_SCENE: '1', NETHACK_SEED: '424242' },
+  });
+  const outDir = page.outputDir;
+  const qc = Harness.screenshotQc.createScreenshotQc({ rootDir: outDir, runIdentity: page.outputIdentity, manifestFile: path.join(outDir, 'evidence-approval.json') });
+  const cdp = Object.freeze({ ...page, qc });
   const results = { outDir, screenshots: {}, checks: {} };
+  let scenarioError = null;
   try {
-    const pages = await waitFor(async () => (await json(`http://127.0.0.1:${port}/json/list`)).find((p) => p.type === 'page' && p.webSocketDebuggerUrl), 20000);
-    cdp = await connect(pages.webSocketDebuggerUrl);
-    await cdp.send('Page.enable'); await cdp.send('Runtime.enable');
-    await waitFor(async () => evalExpr(cdp, `document.readyState === 'complete' && !!window.__nethackAutomation && !!window.__nethackPromptTest`), 10000);
+    await page.waitForRendererReady({ timeoutMs: 10000, promptTest: true, automation: true, startButton: true });
     await click(cdp, '#start-shim');
     await delay(100);
     const characterOpen = await evalExpr(cdp, `document.getElementById('character-dialog')?.open`);
@@ -87,16 +87,25 @@ function directionFromTo(a, b) { const dx = Math.sign(b.x - a.x), dy = Math.sign
     results.checks.followupInputAccepted = /\./.test(results.afterWait.sent || '') || /sent key: wait|command accepted/i.test(results.afterWait.status || '');
     const ok = Object.values(results.checks).every(Boolean);
     fs.writeFileSync(path.join(outDir, 'real-locked-door-autounlock-result.json'), JSON.stringify(results, null, 2));
-    fs.writeFileSync(path.join(outDir, 'electron-stdout.log'), stdout);
-    fs.writeFileSync(path.join(outDir, 'electron-stderr.log'), stderr);
     if (!ok) throw new Error(`Checks failed: ${JSON.stringify(results.checks)}`);
   } catch (error) {
+    scenarioError = error;
     results.error = error.stack || String(error);
     fs.writeFileSync(path.join(outDir, 'real-locked-door-autounlock-failure.json'), JSON.stringify(results, null, 2));
-    fs.writeFileSync(path.join(outDir, 'electron-stdout.log'), stdout);
-    fs.writeFileSync(path.join(outDir, 'electron-stderr.log'), stderr);
-    cleanup();
-    throw error;
+  } finally {
+    await page.close().catch((error) => { if (!scenarioError) scenarioError = error; });
   }
-  cleanup();
-})().catch((error) => { console.error(error.stack || error); process.exit(1); });
+  qc.recordAssertions(Object.entries(results.checks).map(([id, ok]) => ({ id, status: ok ? 'passed' : 'failed', details: ok ? '' : 'Observable scenario condition was not satisfied.' })).concat([{ id: 'scenario-completed', status: scenarioError ? 'failed' : 'passed', details: scenarioError ? String(scenarioError.message || scenarioError) : '' }]));
+  qc.recordLog({ id: 'electron-stdout', path: page.logs.stdout, classification: 'electron-stdout' });
+  qc.recordLog({ id: 'electron-stderr', path: page.logs.stderr, classification: 'electron-stderr' });
+  const validation = Harness.screenshotQc.validateManifest(qc.manifestFile, { expectedRunIdentity: page.outputIdentity, requireApproval: false });
+  if (!validation.ok) throw new Error(`Evidence Approval capture failed: ${validation.errors.join('; ')}`);
+  console.log(`real-locked-door-autounlock-mcp-test: CAPTURED ${page.outputIdentity} ${qc.manifestFile}`);
+  if (scenarioError) throw scenarioError;
+}
+const reviewIndex = process.argv.indexOf('--review');
+if (reviewIndex !== -1) {
+  Promise.resolve().then(() => reviewRun(process.argv[reviewIndex + 1], process.argv[reviewIndex + 2])).catch((error) => { console.error(error.stack || error); process.exit(1); });
+} else {
+  main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+}

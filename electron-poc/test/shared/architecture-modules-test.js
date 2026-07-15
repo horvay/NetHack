@@ -105,8 +105,8 @@ assert.equal(menuMetadata.mismatch, false);
 const view = GameViewState.createGameViewState({ mapWidth: 80, mapHeight: 21 });
 view.process({ name: 'shim_create_nhwindow', return: 1, windowType: 3 });
 view.process({ name: 'shim_print_glyph', window: 1, x: 2, y: 3, char: '@', glyph: 725 });
-assert.equal(view.state.mapWindowId, 1);
-assert.equal(view.state.mapCells[3][2].ch, '@');
+assert.equal(view.snapshot().mapWindowId, 1);
+assert.equal(view.snapshot().mapCells[3][2].ch, '@');
 
 assert.equal(RecordingSchema.validateRecording({ schema: RecordingSchema.v1, inputs: [{ key: 'a' }] }).ok, true);
 assert.equal(RecordingSchema.validateRecording({ schema: RecordingSchema.v2, events: [{ type: 'input', key: 'a' }, { type: 'checkpoint', name: 'after-a' }] }).ok, true);

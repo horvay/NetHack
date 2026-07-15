@@ -159,8 +159,8 @@ for (const command of examples) {
   const result = game.uiCommand(command);
   assert.equal(result.ok, false, 'registered-but-unimplemented direct route must fail closed');
   assert.equal(result.blockerToken, 'blocked.input.unsupportedRoute');
-  assert.match(result.reason, /refusing generic key fallback/);
-  assert(diagnostics.some((event) => event.type === 'command.rejected' && event.payload?.commandType === 'container.tip' && event.payload?.fallback === 'none'), 'game-process records no-fallback direct route rejection evidence');
+  assert.equal(result.implementationState, 'registered-unimplemented');
+  assert(diagnostics.some((event) => event.type === 'command.rejected' && event.payload?.commandType === 'container.tip' && event.payload?.planningAuthority === 'CommandGateway'), 'game-process records CommandGateway-owned implementation-state rejection evidence');
 }
 
 const scanDir = path.join(outDir, 'clean-scan');

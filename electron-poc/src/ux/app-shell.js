@@ -44,13 +44,13 @@
     const runtime = options.runtime;
     const documentRoot = options.documentRoot || globalRoot?.document;
     let connected = false;
-    let latestSnapshot = null;
-    let statusValues = [];
     let previousDungeon = '';
     let pendingMapFocus = false;
     let settingsStore;
     let settings;
-    let statusController;
+    let hudDensity = 'compact';
+    let statusMount;
+    let messageMount;
     let consequenceFeed;
     let historyDialog;
     let characterSheet;
@@ -59,12 +59,41 @@
     let densityButton;
     let mapModeButton;
     let subscription;
-    let compatibilityObserver;
-    let reclaimingCompatibility = false;
     const cleanupListeners = [];
 
     function noticeService() { return runtime?.service?.('notice'); }
     function dialogService() { return runtime?.service?.('dialog'); }
+
+    function publicGameFacts() {
+      return runtime?.latestPublicState?.()?.snapshot?.game || {};
+    }
+
+    function renderStatusFacts(values = publicGameFacts().statusValues || []) {
+      return globalRoot.NetHackUxStatusPresentation?.renderStatusPresentation?.(statusMount, values, {
+        documentRoot,
+        density: hudDensity,
+        adaptive: true,
+        onExplain(item, explanation) {
+          noticeService()?.show?.({
+            id: `status:explain:${item.field ?? item.label}`,
+            dedupeKey: `status:explain:${item.field ?? item.label}`,
+            kind: item.severity === 'danger' ? 'warning' : 'info',
+            message: explanation,
+            source: 'presentation',
+            persistence: 'transient',
+          });
+        },
+      });
+    }
+
+    function renderMessageFacts() {
+      if (!messageMount) return [];
+      const wasNearBottom = messageMount.scrollHeight - messageMount.scrollTop - messageMount.clientHeight <= 32;
+      const previousScrollTop = messageMount.scrollTop;
+      const events = consequenceFeed?.render?.(messageMount, documentRoot) || [];
+      if (!wasNearBottom) messageMount.scrollTop = Math.min(previousScrollTop, Math.max(0, messageMount.scrollHeight - messageMount.clientHeight));
+      return events;
+    }
 
     function recordDiagnostic(type, detail = {}) {
       try { options.onDiagnostic?.({ type, detail }); } catch {}
@@ -135,16 +164,16 @@
       }
     }
 
-    function setDensity(value, { persist = true } = {}) {
-      const density = value === 'detailed' ? 'detailed' : 'compact';
-      statusController?.setDensity?.(density);
+    function setDensity(value, { persist = true, render = true } = {}) {
+      hudDensity = value === 'detailed' ? 'detailed' : 'compact';
+      if (render) renderStatusFacts();
       if (densityButton) {
-        densityButton.textContent = density === 'compact' ? 'HUD: Compact' : 'HUD: Detailed';
-        densityButton.setAttribute('aria-pressed', String(density === 'detailed'));
+        densityButton.textContent = hudDensity === 'compact' ? 'Stats: Auto' : 'Stats: Full';
+        densityButton.setAttribute('aria-pressed', String(hudDensity === 'detailed'));
       }
-      documentRoot.body.dataset.uxHudDensity = density;
-      if (persist) persistPresentationPatch({ hudDensity: density });
-      return density;
+      documentRoot.body.dataset.uxHudDensity = hudDensity;
+      if (persist) persistPresentationPatch({ hudDensity });
+      return hudDensity;
     }
 
     function centerFollowMap() {
@@ -187,7 +216,7 @@
     }
 
     function focusMapWhenSafe() {
-      if (!pendingMapFocus || presentationOwnerActive(latestSnapshot?.game)) return false;
+      if (!pendingMapFocus || presentationOwnerActive(publicGameFacts())) return false;
       const map = documentRoot.getElementById('game-grid');
       if (!map?.focus) return false;
       pendingMapFocus = false;
@@ -233,16 +262,14 @@
     }
 
     function update(snapshot) {
-      latestSnapshot = snapshot || {};
-      const game = latestSnapshot.game || {};
-      statusValues = game.statusValues || [];
+      const game = snapshot?.game || {};
       documentRoot.body.dataset.uxPromptOwned = String(Boolean(game.activePrompt || game.currentMenu?.awaitingSelection));
-      statusController?.update?.(statusValues);
-      characterSheet?.update?.(statusValues);
+      renderStatusFacts(game.statusValues || []);
+      characterSheet?.update?.(game.statusValues || []);
       const canonicalMessages = game.messages || [];
       consequenceFeed?.syncCanonicalLines?.(canonicalMessages, { source: 'core-message' });
       if (hasCanonicalMessageContent(canonicalMessages)) consequenceFeed?.setOpeningChronicle?.(openingChronicleLines(canonicalMessages));
-      consequenceFeed?.render?.(documentRoot.getElementById('messages'), documentRoot);
+      renderMessageFacts();
       if (historyDialog?.dialog?.()?.open) historyDialog.render();
       handleLevelTransition(game);
       focusMapWhenSafe();
@@ -260,43 +287,25 @@
         const model = globalRoot.NetHackUxMessagePresentation?.createHistoryModel?.(consequenceFeed.log);
         historyDialog = globalRoot.NetHackUxMessagePresentation?.createHistoryDialog?.({ documentRoot, model, log: consequenceFeed.log, dialogService: dialogService(), noticeService: noticeService(), mount: documentRoot.body });
         characterSheet = globalRoot.NetHackUxCharacterSheet?.createCharacterSheet?.({ documentRoot, dialogService: dialogService(), mount: documentRoot.body });
-        const statusMount = documentRoot.getElementById('stats-panel');
-        const messageMount = documentRoot.getElementById('messages');
-        statusController = globalRoot.NetHackUxStatusPresentation?.createStatusController?.({
-          mount: statusMount, documentRoot,
-          noticeService: noticeService(), density: settings.hudDensity,
-        });
-        const reclaimCompatibilityPresentation = () => {
-          if (reclaimingCompatibility) return;
-          const statusOwned = statusMount.querySelector('.ux-status-chip, .ux-status-empty');
-          const messagesOwned = messageMount.querySelector('.ux-consequence-row, .ux-consequence-empty');
-          if (statusOwned && messagesOwned) return;
-          reclaimingCompatibility = true;
-          try {
-            if (!statusOwned) statusController?.render?.({ force: true });
-            if (!messagesOwned) consequenceFeed?.render?.(messageMount, documentRoot);
-          } finally {
-            reclaimingCompatibility = false;
-          }
-        };
-        compatibilityObserver = new MutationObserver(reclaimCompatibilityPresentation);
-        compatibilityObserver.observe(statusMount, { childList: true, subtree: true });
-        compatibilityObserver.observe(messageMount, { childList: true, subtree: true });
-        setDensity(settings.hudDensity, { persist: false });
+        statusMount = documentRoot.getElementById('stats-panel');
+        messageMount = documentRoot.getElementById('messages');
+        setDensity(settings.hudDensity, { persist: false, render: false });
         setMapMode(settings.map?.mode, { persist: false });
         const listen = (target, type, listener, options) => {
           target?.addEventListener?.(type, listener, options);
           cleanupListeners.push(() => target?.removeEventListener?.(type, listener, options));
         };
-        listen(characterButton, 'click', () => characterSheet?.open?.(statusValues, characterButton));
+        listen(characterButton, 'click', () => characterSheet?.open?.(publicGameFacts().statusValues || [], characterButton));
         listen(historyButton, 'click', () => historyDialog?.open?.(historyButton));
-        listen(densityButton, 'click', () => setDensity(statusController?.density?.() === 'compact' ? 'detailed' : 'compact'));
+        listen(densityButton, 'click', () => setDensity(hudDensity === 'compact' ? 'detailed' : 'compact'));
         listen(mapModeButton, 'click', () => setMapMode(documentRoot.body.dataset.uxMapMode === 'follow' ? 'full' : 'follow'));
         listen(globalRoot, 'resize', () => { if (documentRoot.body.dataset.uxMapMode === 'follow') globalRoot.requestAnimationFrame?.(centerFollowMap); });
         listen(documentRoot, 'close', () => globalRoot.setTimeout?.(focusMapWhenSafe, 0), true);
+        if (!runtime?.latestPublicState?.()?.snapshot) {
+          renderStatusFacts([]);
+          renderMessageFacts();
+        }
         subscription = runtime?.subscribePublicState?.('shell', update);
-        const current = runtime?.latestPublicState?.();
-        if (current?.snapshot) update(current.snapshot);
         recordDiagnostic('shell.connected', { density: settings.hudDensity, mapMode: settings.map?.mode || 'full' });
         return true;
       } catch (error) {
@@ -311,7 +320,6 @@
       connect,
       disconnect() {
         subscription?.unsubscribe?.();
-        compatibilityObserver?.disconnect?.();
         while (cleanupListeners.length) cleanupListeners.pop()();
         connected = false;
       },
@@ -320,7 +328,7 @@
         if (!consequenceFeed) throw new Error('App shell must be connected before resetting consequence History');
         const outcome = consequenceFeed.resetForRun(runIdentity);
         if (outcome.reset) {
-          consequenceFeed.render(documentRoot.getElementById('messages'), documentRoot);
+          renderMessageFacts();
           if (historyDialog?.dialog?.()?.open) historyDialog.render();
         }
         return outcome;
@@ -328,7 +336,7 @@
       setDensity,
       setMapMode,
       centerFollowMap,
-      state: () => Object.freeze({ connected, density: statusController?.density?.() || settings?.hudDensity || 'compact', mapMode: documentRoot?.body?.dataset?.uxMapMode || 'full', previousDungeon, pendingMapFocus, messageCount: consequenceFeed?.log?.size?.() || 0 }),
+      state: () => Object.freeze({ connected, density: hudDensity || settings?.hudDensity || 'compact', mapMode: documentRoot?.body?.dataset?.uxMapMode || 'full', previousDungeon, pendingMapFocus, messageCount: consequenceFeed?.log?.size?.() || 0 }),
     });
   }
 
@@ -346,10 +354,6 @@
       },
     });
     runtime.registerDomain('shell', browserController);
-    runtime.registerProvider('shell-regions', 'shell', Object.freeze({
-      version,
-      regions: Object.freeze(['hero-status', 'player-notice', 'command-entry', 'context-actions', 'map', 'consequences', 'history']),
-    }));
     if (root.document.readyState === 'loading') root.document.addEventListener('DOMContentLoaded', () => browserController.connect(), { once: true });
     else root.setTimeout(() => browserController.connect(), 0);
     return browserController;

@@ -1,17 +1,23 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { spawn } = require('node:child_process');
-const electronBin = require('electron');
+const Harness = require('./lib/electron-test-harness');
+const EvidenceApproval = require('./lib/evidence-approval');
 const root = path.resolve(__dirname, '..');
-const outDir = process.env.NH_SCENARIO_CONTAINER_OUT_DIR || path.join(root, 'test-output', 'real-scenario-container');
+const width = 1360;
+const height = 920;
+const { delay, waitFor } = Harness;
+async function evalExpr(cdp, expression) { return cdp.evalCheckedValue(expression, { awaitPromise: true }); }
 const scenarioId = process.env.NH_SCENARIO_CONTAINER_ID || 'container/unlocked-chest-on-hero';
-const port = Number(process.env.NH_SCENARIO_CONTAINER_CDP_PORT || 9631);
-function delay(ms) { return new Promise((r) => setTimeout(r, ms)); }
-async function json(url) { const res = await fetch(url); if (!res.ok) throw new Error(`${res.status} ${url}`); return res.json(); }
-async function waitFor(fn, timeoutMs = 20000, stepMs = 150) { const start = Date.now(); let last; while (Date.now() - start < timeoutMs) { try { const v = await fn(); if (v) return v; } catch (e) { last = e; } await delay(stepMs); } throw last || new Error('timed out'); }
-async function connect(wsUrl) { const ws = new WebSocket(wsUrl); await new Promise((resolve, reject) => { ws.addEventListener('open', resolve, { once: true }); ws.addEventListener('error', reject, { once: true }); }); let id = 0; const pending = new Map(); ws.addEventListener('message', (event) => { const msg = JSON.parse(event.data); if (msg.id && pending.has(msg.id)) { const p = pending.get(msg.id); pending.delete(msg.id); msg.error ? p.reject(new Error(JSON.stringify(msg.error))) : p.resolve(msg.result); } }); return { send(method, params = {}) { const callId = ++id; ws.send(JSON.stringify({ id: callId, method, params })); return new Promise((resolve, reject) => pending.set(callId, { resolve, reject })); }, close() { ws.close(); } }; }
-async function evalExpr(cdp, expression) { const res = await cdp.send('Runtime.evaluate', { returnByValue: true, expression }); if (res.exceptionDetails) throw new Error(JSON.stringify(res.exceptionDetails)); return res.result.value; }
-async function shot(cdp, name) { const res = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }); const p = path.join(outDir, name); fs.writeFileSync(p, Buffer.from(res.data, 'base64')); return p; }
+async function shot(cdp, name) { const capture = await cdp.screenshotEvidence(cdp.qc, path.basename(name, path.extname(name)), { classification: 'actual-player', viewport: { width, height, zoomPercent: 100 }, state: name, viewSafeFormat: 'BMP', viewSafeScale: 0.25 }); return capture.raw.path; }
+function reviewRun(outputDir, reviewFile) {
+  const manifestFile = path.join(path.resolve(outputDir), 'evidence-approval.json');
+  const approval = EvidenceApproval.openEvidenceApproval({ manifestFile });
+  EvidenceApproval.applyEvidenceReview(approval, path.resolve(reviewFile));
+  const validation = Harness.screenshotQc.validateManifest(manifestFile, { expectedRunIdentity: approval.runIdentity, requireApproval: true });
+  if (!validation.ok) throw new Error(`Evidence Approval failed: ${validation.errors.join('; ')}`);
+  EvidenceApproval.writeEvidenceReport(manifestFile);
+  console.log(`real-scenario-container-mcp-test: APPROVED ${approval.runIdentity} ${manifestFile}`);
+}
 async function settleAfterDrag(cdp) {
   await evalExpr(cdp, `(async () => {
     document.activeElement?.blur?.(); window.scrollTo(0, 0);
@@ -119,15 +125,15 @@ async function start(cdp) {
   await waitFor(async () => !(await state(cdp)).dialogs.includes('intro-dialog'), 5000);
 }
 async function main() {
-  fs.rmSync(outDir, { recursive: true, force: true }); fs.mkdirSync(outDir, { recursive: true });
-  const child = spawn(electronBin, ['.'], { cwd: root, env: { ...process.env, AI_ORG_ELECTRON_CDP_PORT: String(port), NH_ELECTRON_WINDOW_WIDTH: '1360', NH_ELECTRON_WINDOW_HEIGHT: '920', NH_ELECTRON_TEST_FIXTURES: '1', NH_TEST_SCENARIO_ID: scenarioId, NETHACK_SEED: '424242', NETHACKOPTIONS: '!tutorial,!autopickup,pettype:none' }, stdio: ['ignore', 'pipe', 'pipe'] });
-  let cdp; const cleanup = () => { try { cdp?.close(); } catch {} if (!child.killed) child.kill('SIGTERM'); };
-  process.on('exit', cleanup); child.stdout.on('data', (d) => process.stdout.write(d)); child.stderr.on('data', (d) => process.stderr.write(d));
+  const page = await Harness.createElectronBrowserDriver({
+    root, width, height,
+    env: { NH_ELECTRON_TEST_FIXTURES: '1', NH_TEST_SCENARIO_ID: scenarioId, NETHACK_SEED: '424242', NETHACKOPTIONS: '!tutorial,!autopickup,pettype:none' },
+  });
+  const outDir = page.outputDir;
+  const qc = Harness.screenshotQc.createScreenshotQc({ rootDir: outDir, runIdentity: page.outputIdentity, manifestFile: path.join(outDir, 'evidence-approval.json') });
+  const cdp = Object.freeze({ ...page, qc });
+  let scenarioError = null;
   try {
-    const pages = await waitFor(async () => { const list = await json(`http://127.0.0.1:${port}/json/list`); return list.find((p) => p.type === 'page') ? list : null; }, 20000);
-    cdp = await connect((pages.find((p) => p.type === 'page') || pages[0]).webSocketDebuggerUrl);
-    await cdp.send('Page.enable'); await cdp.send('Runtime.enable'); await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1360, height: 920, deviceScaleFactor: 1, mobile: false });
-    await waitFor(async () => (await evalExpr(cdp, "document.readyState === 'complete' && !!window.__nethackPromptTest")), 10000);
     await start(cdp);
     const loaded = await waitFor(async () => { const s = await state(cdp); if (/bridge_test_scenario_failed/.test(`${s.seenShim}\n${s.shim}`)) throw new Error(s.shim); return /bridge_test_scenario_loaded/.test(`${s.seenShim}\n${s.shim}`) ? s : null; }, 10000);
     assert('scenario loaded event visible', /bridge_test_scenario_loaded/.test(`${loaded.seenShim}\n${loaded.shim}`), loaded.shim.slice(-1000));
@@ -238,9 +244,25 @@ async function main() {
     assert('real inventory-to-container drag records the direct transfer transaction and keeps authoritative panes stable for the player', afterPutIn.transferTransactions?.transfers?.some((tx) => tx.direction === 'inventory-to-container' && tx.result?.publicEvidence?.containerContents) && afterPutIn.container?.active, JSON.stringify({ transfers: afterPutIn.transferTransactions, container: afterPutIn.container }));
     const afterPutInProblemText = `${afterPutIn.messages?.join('\n') || ''}\n${afterPutIn.body || ''}\n${afterPutIn.shim || ''}`;
     assert('real inventory-to-container evidence has no NetHack/internal JS disorder text', !/Program in disorder|Please report these messages|TypeError|ReferenceError|Unhandled|bridge_test_scenario_failed/i.test(afterPutInProblemText), afterPutInProblemText.slice(-2000));
-    const summary = [`# Scenario loader real Electron smoke`, '', 'PASS', '', `Scenario: ${scenarioId}`, `Loaded event: yes`, `Context screenshot: ${contextShot}`, `Container panel screenshot: ${panelShot}`, `Initial container panel state: ${path.join(outDir, '02-scenario-container-panel-state.json')}`, `No read-only chip screenshot: ${noReadOnlyChipShot}`, `After container-to-inventory drag screenshot: ${takeOutDragShot}`, `After container-to-inventory drag state: ${path.join(outDir, '04-after-container-to-inventory-drag-state.json')}`, `Container-to-inventory no-extended samples: ${path.join(outDir, '04c-after-container-to-inventory-no-extended-modal-samples.json')} (${takeOutNoExtendedSamples.cdpSamples.length} CDP samples, ${takeOutNoExtendedSamples.domSamples.length} DOM/frame samples)`, `Delayed container-to-inventory evidence state: ${path.join(outDir, '04b-after-container-to-inventory-delayed-evidence-state.json')}`, `After inventory-to-container drag screenshot: ${putInDragShot}`, `After inventory-to-container drag state: ${path.join(outDir, '05-after-inventory-to-container-drag-state.json')}`, `Inventory-to-container no-extended samples: ${path.join(outDir, '05c-after-inventory-to-container-no-extended-modal-samples.json')} (${putInNoExtendedSamples.cdpSamples.length} CDP samples, ${putInNoExtendedSamples.domSamples.length} DOM/frame samples)`, `Inventory-to-container transaction state: ${path.join(outDir, '05b-after-inventory-to-container-delayed-evidence-state.json')}`, '', 'Verified scenario public facts:', `- contextActions: open-container shown as ${expectedOpenLabel}`, `- clicking ${expectedOpenLabel} sends direct container.snapshot, not #loot or o./door-open`, `- no no-door message after clicking ${expectedOpenLabel}`, '- stale unlock continuation state is cleared after the container panel opens', '- context strip does not show Read the menu or Read-only NetHack menu diagnostics after the contextual Open path', '- deterministic visible letters: container dagger is `a`, food ration is `b`, carried tin opener is `f`, carried scroll is `g`', '- dragging the visible container dagger row into Your inventory uses authoritative direct transfer with no #loot/menu-key fallback and keeps the panes stable with the dagger in inventory', '- no Extended command modal appears during or after the sampled container-to-inventory transfer window', '- direct container-to-inventory completes through authoritative core/public container evidence', '- dragging the same inventory row back to Container inventory uses direct transfer with no #loot/menu-key fallback and keeps panes stable', '- no Extended command modal appears during or after the sampled inventory-to-container transfer window', '- direct inventory-to-container records the transfer transaction and keeps authoritative panes stable', '- synthetic renderer/Electron coverage verifies internal ownership suppression without permitting legacy menu fallback in this scenario', '- containerRows: food ration, dagger', '- inventoryRows: tin opener, scroll of identify', '- inventory is hermetic: no starter spear/shield/oil lamp rows', '', 'Verified absence of stale/fallback/contradictory panel copy:', '- Loading your inventory', '- Inventory selector', '- Name unavailable', '- menu cancelled/closed or menu canceled/closed', '', `Sent input prefix: ${JSON.stringify(panel.sent.slice(0, 16))}`, '', 'Visible transfer panel text:', '```', panel.container.text, '```', ''].join('\n');
+    const summary = [`# Scenario loader real Electron smoke`, '', 'Scenario assertions recorded', '', `Scenario: ${scenarioId}`, `Loaded event: yes`, `Context screenshot: ${contextShot}`, `Container panel screenshot: ${panelShot}`, `Initial container panel state: ${path.join(outDir, '02-scenario-container-panel-state.json')}`, `No read-only chip screenshot: ${noReadOnlyChipShot}`, `After container-to-inventory drag screenshot: ${takeOutDragShot}`, `After container-to-inventory drag state: ${path.join(outDir, '04-after-container-to-inventory-drag-state.json')}`, `Container-to-inventory no-extended samples: ${path.join(outDir, '04c-after-container-to-inventory-no-extended-modal-samples.json')} (${takeOutNoExtendedSamples.cdpSamples.length} CDP samples, ${takeOutNoExtendedSamples.domSamples.length} DOM/frame samples)`, `Delayed container-to-inventory evidence state: ${path.join(outDir, '04b-after-container-to-inventory-delayed-evidence-state.json')}`, `After inventory-to-container drag screenshot: ${putInDragShot}`, `After inventory-to-container drag state: ${path.join(outDir, '05-after-inventory-to-container-drag-state.json')}`, `Inventory-to-container no-extended samples: ${path.join(outDir, '05c-after-inventory-to-container-no-extended-modal-samples.json')} (${putInNoExtendedSamples.cdpSamples.length} CDP samples, ${putInNoExtendedSamples.domSamples.length} DOM/frame samples)`, `Inventory-to-container transaction state: ${path.join(outDir, '05b-after-inventory-to-container-delayed-evidence-state.json')}`, '', 'Verified scenario public facts:', `- contextActions: open-container shown as ${expectedOpenLabel}`, `- clicking ${expectedOpenLabel} sends direct container.snapshot, not #loot or o./door-open`, `- no no-door message after clicking ${expectedOpenLabel}`, '- stale unlock continuation state is cleared after the container panel opens', '- context strip does not show Read the menu or Read-only NetHack menu diagnostics after the contextual Open path', '- deterministic visible letters: container dagger is `a`, food ration is `b`, carried tin opener is `f`, carried scroll is `g`', '- dragging the visible container dagger row into Your inventory uses authoritative direct transfer with no #loot/menu-key fallback and keeps the panes stable with the dagger in inventory', '- no Extended command modal appears during or after the sampled container-to-inventory transfer window', '- direct container-to-inventory completes through authoritative core/public container evidence', '- dragging the same inventory row back to Container inventory uses direct transfer with no #loot/menu-key fallback and keeps panes stable', '- no Extended command modal appears during or after the sampled inventory-to-container transfer window', '- direct inventory-to-container records the transfer transaction and keeps authoritative panes stable', '- synthetic renderer/Electron coverage verifies internal ownership suppression without permitting legacy menu fallback in this scenario', '- containerRows: food ration, dagger', '- inventoryRows: tin opener, scroll of identify', '- inventory is hermetic: no starter spear/shield/oil lamp rows', '', 'Verified absence of stale/fallback/contradictory panel copy:', '- Loading your inventory', '- Inventory selector', '- Name unavailable', '- menu cancelled/closed or menu canceled/closed', '', `Sent input prefix: ${JSON.stringify(panel.sent.slice(0, 16))}`, '', 'Visible transfer panel text:', '```', panel.container.text, '```', ''].join('\n');
     fs.writeFileSync(path.join(outDir, 'real-scenario-container-summary.md'), summary);
     console.log(summary);
-  } finally { cleanup(); }
+  } catch (error) {
+    scenarioError = error;
+  } finally {
+    await page.close().catch((error) => { if (!scenarioError) scenarioError = error; });
+  }
+  qc.recordAssertions([{ id: 'scenario-completed', status: scenarioError ? 'failed' : 'passed', details: scenarioError ? String(scenarioError.message || scenarioError) : '' }]);
+  qc.recordLog({ id: 'electron-stdout', path: page.logs.stdout, classification: 'electron-stdout' });
+  qc.recordLog({ id: 'electron-stderr', path: page.logs.stderr, classification: 'electron-stderr' });
+  const validation = Harness.screenshotQc.validateManifest(qc.manifestFile, { expectedRunIdentity: page.outputIdentity, requireApproval: false });
+  if (!validation.ok) throw new Error(`Evidence Approval capture failed: ${validation.errors.join('; ')}`);
+  console.log(`real-scenario-container-mcp-test: CAPTURED ${page.outputIdentity} ${qc.manifestFile}`);
+  if (scenarioError) throw scenarioError;
 }
-main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+const reviewIndex = process.argv.indexOf('--review');
+if (reviewIndex !== -1) {
+  Promise.resolve().then(() => reviewRun(process.argv[reviewIndex + 1], process.argv[reviewIndex + 2])).catch((error) => { console.error(error.stack || error); process.exit(1); });
+} else {
+  main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+}

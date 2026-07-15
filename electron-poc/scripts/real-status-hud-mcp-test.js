@@ -1,71 +1,195 @@
 #!/usr/bin/env node
 const fs = require('node:fs');
 const path = require('node:path');
-const { spawn } = require('node:child_process');
-const electronBin = require('electron');
+const Harness = require('./lib/electron-test-harness');
+const EvidenceApproval = require('./lib/evidence-approval');
+
+
 
 const root = path.resolve(__dirname, '..');
-const outDir = path.join(root, 'test-output', 'real-status-hud');
-const port = Number(process.env.NH_STATUS_HUD_CDP_PORT || 9652);
+const scriptName = path.basename(__filename, '.js');
+function reviewRun(outputDir, reviewFile) { const manifestFile = path.join(path.resolve(outputDir), 'evidence-approval.json'); const approval = EvidenceApproval.openEvidenceApproval({ manifestFile }); EvidenceApproval.applyEvidenceReview(approval, path.resolve(reviewFile)); const validation = Harness.screenshotQc.validateManifest(manifestFile, { expectedRunIdentity: approval.runIdentity, requireApproval: true }); if (!validation.ok) throw new Error(`Evidence Approval failed: ${validation.errors.join('; ')}`); EvidenceApproval.writeEvidenceReport(manifestFile); console.log(`${scriptName}: APPROVED ${approval.runIdentity} ${manifestFile}`); }
+function createEvidence(page) { return Harness.screenshotQc.createScreenshotQc({ rootDir: page.outputDir, runIdentity: page.outputIdentity, manifestFile: path.join(page.outputDir, 'evidence-approval.json') }); }
+async function finishEvidence(page, qc, scenarioError) { await page.close().catch(() => {}); qc.recordAssertions([{ id: 'scenario-contract', status: scenarioError ? 'failed' : 'passed', details: scenarioError?.message || '' }]); qc.recordLog({ id: 'electron-stdout', path: page.logs.stdout, classification: 'electron-stdout' }); qc.recordLog({ id: 'electron-stderr', path: page.logs.stderr, classification: 'electron-stderr' }); const validation = Harness.screenshotQc.validateManifest(qc.manifestFile, { expectedRunIdentity: page.outputIdentity, requireApproval: false }); if (!validation.ok) throw new Error(`Evidence Approval capture failed: ${validation.errors.join('; ')}`); EvidenceApproval.writeEvidenceReport(qc.manifestFile); console.log(`${scriptName}: CAPTURED ${page.outputIdentity} ${qc.manifestFile}`); if (scenarioError) throw scenarioError; }
+let outDir, evidencePage, evidenceQc, scenarioError
+
 const scenarioId = 'status/full-hud';
 const fullStatusOptions = '!tutorial,!autopickup,time,showscore,showexp,showvers,weaponstatus,armorstatus,terrainstatus,disclose:+i +a +v +g +c +o';
-function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
-async function json(url) { const res = await fetch(url); if (!res.ok) throw new Error(`${res.status} ${url}`); return res.json(); }
-async function waitFor(fn, timeoutMs = 20000, stepMs = 150) { const start = Date.now(); let last; while (Date.now() - start < timeoutMs) { try { const value = await fn(); if (value) return value; } catch (error) { last = error; } await delay(stepMs); } throw last || new Error('timed out'); }
-async function connect(wsUrl) { const ws = new WebSocket(wsUrl); await new Promise((resolve, reject) => { ws.addEventListener('open', resolve, { once: true }); ws.addEventListener('error', reject, { once: true }); }); let id = 0; const pending = new Map(); ws.addEventListener('message', (event) => { const msg = JSON.parse(event.data); if (msg.id && pending.has(msg.id)) { const p = pending.get(msg.id); pending.delete(msg.id); msg.error ? p.reject(new Error(JSON.stringify(msg.error))) : p.resolve(msg.result); } }); return { send(method, params = {}) { const callId = ++id; ws.send(JSON.stringify({ id: callId, method, params })); return new Promise((resolve, reject) => pending.set(callId, { resolve, reject })); }, close() { ws.close(); } }; }
+
+
+
+
 async function evalExpr(cdp, expression) { const res = await cdp.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression }); if (res.exceptionDetails) throw new Error(JSON.stringify(res.exceptionDetails)); return res.result.value; }
-async function shot(cdp, name) { const res = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }); const p = path.join(outDir, name); fs.writeFileSync(p, Buffer.from(res.data, 'base64')); return p; }
+async function shot(cdp, name) { return evidencePage.screenshotEvidence(evidenceQc, path.basename(name, path.extname(name)), { classification: 'synthetic-fixture', viewport: { width: 1440, height: 930, devicePixelRatio: 2 }, state: path.basename(name, path.extname(name)) }); }
 async function click(cdp, selector) { const box = await evalExpr(cdp, `(() => { const el = document.querySelector(${JSON.stringify(selector)}); el?.scrollIntoView?.({block:'center', inline:'center'}); const r = el?.getBoundingClientRect(); return r ? {x:r.left+r.width/2,y:r.top+r.height/2} : null; })()`); if (!box) throw new Error(`missing selector ${selector}`); await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: box.x, y: box.y, button: 'left', clickCount: 1 }); await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: box.x, y: box.y, button: 'left', clickCount: 1 }); }
 function assert(name, ok, detail = '') { if (!ok) throw new Error(`${name}${detail ? `: ${detail}` : ''}`); }
 async function state(cdp) { return evalExpr(cdp, `(() => ({ running: window.__nethackAutomation?.state?.().runningState?.running || false, seenShim: document.getElementById('shim-output')?.dataset?.seen || '', shim: document.getElementById('shim-output')?.innerText || '', body: document.body.innerText }))()`); }
 async function start(cdp) {
   const result = await evalExpr(cdp, `(() => window.__nethackAutomation.startReplay({ playerSpec: '-uStatusVal-Val-Hum-Fem-Law', seed: '626262', nethackOptions: ${JSON.stringify(fullStatusOptions)} }))()`);
   if (!result?.ok) throw new Error(`startReplay failed: ${JSON.stringify(result)}`);
-  await waitFor(async () => (await state(cdp)).running, 20000);
+  await Harness.waitFor(async () => (await state(cdp)).running, 20000);
   await evalExpr(cdp, `(() => { document.getElementById('intro-dialog')?.close?.('continue'); document.getElementById('document-dialog')?.close?.('close'); document.getElementById('game-grid')?.focus?.(); })()`);
 }
-async function hud(cdp) { return evalExpr(cdp, `(() => window.__nethackPromptTest?.statusHud?.() || { text: document.getElementById('stats-panel')?.innerText || '', groups: [] })()`); }
+async function hud(cdp) {
+  return evalExpr(cdp, `(() => {
+    const mount = document.getElementById('stats-panel');
+    return {
+      density: mount?.dataset?.hudDensity || '',
+      text: mount?.innerText || '',
+      groups: Array.from(mount?.querySelectorAll('.status-group') || []).map((group) => ({
+        label: group.querySelector('.status-group-label')?.textContent || '',
+        role: group.dataset.statusRole || '',
+        text: group.innerText,
+        fields: Array.from(group.querySelectorAll('.stat-chip')).filter((chip) => chip.getClientRects().length && getComputedStyle(chip).display !== 'none').map((chip) => {
+          const style = getComputedStyle(chip);
+          return {
+            field: chip.dataset.statusField || '',
+            label: chip.querySelector('span')?.textContent || '',
+            value: chip.querySelector('strong')?.textContent || '',
+            role: chip.dataset.statusRole || '',
+            className: chip.className || '',
+            animationName: style.animationName,
+            borderWidth: style.borderWidth,
+            boxShadow: style.boxShadow,
+          };
+        }),
+      })),
+    };
+  })()`);
+}
+async function character(cdp) {
+  return evalExpr(cdp, `(() => {
+    const dialog = document.getElementById('ux-character-sheet-dialog');
+    return {
+      open: Boolean(dialog?.open),
+      title: dialog?.querySelector('#ux-character-sheet-title')?.textContent || '',
+      text: dialog?.innerText || '',
+      groups: Array.from(dialog?.querySelectorAll('.ux-character-sheet-section') || []).map((section) => ({
+        id: section.dataset.group || '',
+        label: section.querySelector('h3')?.textContent || '',
+        rows: Array.from(section.querySelectorAll('dt')).map((term) => {
+          const value = term.nextElementSibling;
+          return { label: term.textContent || '', value: value?.textContent || '', severity: value?.dataset?.severity || '' };
+        }),
+      })),
+    };
+  })()`);
+}
+function fields(snapshot) { return snapshot.groups.flatMap((group) => group.fields); }
+function rows(snapshot) { return snapshot.groups.flatMap((group) => group.rows); }
+function byLabel(items, label) { return items.find((item) => item.label === label); }
+function assertLabels(name, items, required, forbidden = []) {
+  const labels = items.map((item) => item.label);
+  const missing = required.filter((label) => !labels.includes(label));
+  const unexpected = forbidden.filter((label) => labels.includes(label));
+  assert(name, !missing.length && !unexpected.length, JSON.stringify({ missing, unexpected, labels }));
+}
 async function sendWait(cdp) { return evalExpr(cdp, `(() => { window.__nethackAutomation?.sendKeycode?.(46); return true; })()`); }
 
-async function main() {
-  fs.rmSync(outDir, { recursive: true, force: true }); fs.mkdirSync(outDir, { recursive: true });
-  const child = spawn(electronBin, ['.'], { cwd: root, env: { ...process.env, AI_ORG_ELECTRON_CDP_PORT: String(port), NH_ELECTRON_WINDOW_WIDTH: '1440', NH_ELECTRON_WINDOW_HEIGHT: '930', NH_ELECTRON_TEST_FIXTURES: '1', NH_TEST_SCENARIO_ID: scenarioId, NETHACK_SEED: '626262' }, stdio: ['ignore', 'pipe', 'pipe'] });
-  let logs = ''; child.stdout.on('data', (d) => { logs += d; process.stdout.write(d); }); child.stderr.on('data', (d) => { logs += d; process.stderr.write(d); });
-  let cdp; const cleanup = () => { try { cdp?.close(); } catch {} if (!child.killed) child.kill('SIGTERM'); fs.writeFileSync(path.join(outDir, 'electron.log'), logs); };
-  process.on('exit', cleanup);
-  try {
-    const pages = await waitFor(async () => { const list = await json(`http://127.0.0.1:${port}/json/list`); return list.find((p) => p.type === 'page') ? list : null; }, 20000);
-    cdp = await connect((pages.find((p) => p.type === 'page') || pages[0]).webSocketDebuggerUrl);
-    await cdp.send('Page.enable'); await cdp.send('Runtime.enable'); await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 930, deviceScaleFactor: 2, mobile: false });
-    await waitFor(async () => (await evalExpr(cdp, "document.readyState === 'complete' && !!window.__nethackPromptTest")), 10000);
-    await start(cdp);
-    const firstHud = await waitFor(async () => {
-      const snapshot = await hud(cdp);
-      const labels = snapshot.groups.flatMap((group) => group.fields.map((field) => field.label));
-      return ['Str', 'Dex', 'Con', 'Int', 'Wis', 'Cha', 'HP', 'Pw', 'AC', 'XL', 'Dlvl', 'Gold', 'Time', 'XP', 'Carry', 'Wield', 'Armor', 'Version'].every((label) => labels.includes(label)) ? snapshot : null;
-    }, 20000).catch(async (error) => { fs.writeFileSync(path.join(outDir, 'status-timeout-debug.json'), JSON.stringify(await hud(cdp).catch(() => ({})), null, 2)); await shot(cdp, 'debug-status-timeout.png').catch(() => undefined); throw error; });
-    const firstFields = firstHud.groups.flatMap((group) => group.fields);
-    const field = (label) => firstFields.find((item) => item.label === label)?.value || '';
-    assert('all six attributes are visible', ['Str', 'Dex', 'Con', 'Int', 'Wis', 'Cha'].every((label) => field(label)), JSON.stringify(firstHud));
-    assert('identity/title is visible when emitted', /Val|Electron|Valkyrie|Stripling/i.test(field('Name / role')), JSON.stringify(firstHud));
-    assert('vital paired values are visible', /\d+\s*\/\s*\d+/.test(field('HP')) && /\d+\s*\/\s*\d+/.test(field('Pw')), JSON.stringify(firstHud));
-    assert('dungeon, gold, AC, XL, time, XP, carry, and version are visible', field('Dlvl') && field('Gold') && field('AC') && field('XL') && field('Time') && field('XP') && field('Carry') && field('Version'), JSON.stringify(firstHud));
-    assert('weapon and armor status are visible', field('Wield') && field('Armor'), JSON.stringify(firstHud));
-    const screenshot = await shot(cdp, '01-full-status-hud.png');
-    const timeBefore = field('Time');
-    await sendWait(cdp);
-    await delay(500);
-    const afterHud = await hud(cdp);
-    const afterFields = afterHud.groups.flatMap((group) => group.fields);
-    const timeAfter = afterFields.find((item) => item.label === 'Time')?.value || '';
-    const liveUpdateObserved = Boolean(timeBefore && timeAfter && timeBefore !== timeAfter) || afterHud.text !== firstHud.text;
-    assert('status HUD remains rendered after a live command update', /Str\s+\S+[\s\S]*Dex\s+\S+[\s\S]*HP\s+\d+\s*\//.test(afterHud.text), JSON.stringify(afterHud));
-    assert('real wait command advances the visible Time field', Boolean(timeBefore && timeAfter && timeBefore !== timeAfter), JSON.stringify({ timeBefore, timeAfter, afterHud }));
-    const updatedScreenshot = await shot(cdp, '02-status-hud-after-wait.png');
-    fs.writeFileSync(path.join(outDir, 'status-hud-debug.json'), JSON.stringify({ firstHud, afterHud, timeBefore, timeAfter, liveUpdateObserved }, null, 2));
-    const summary = [`# Full top status HUD real Electron smoke`, '', 'PASS', '', `Initial screenshot: ${screenshot}`, `After wait screenshot: ${updatedScreenshot}`, '', 'Command: node scripts/real-status-hud-mcp-test.js', '', 'Verified in the real Electron/game path:', '- top status HUD shows Str, Dex, Con, Int, Wis, Cha', '- top status HUD shows name/role/title when emitted', '- top status HUD shows HP/max HP, Pw/max Pw, AC, XL, dungeon level, and gold', '- status HUD remains rendered after sending a real wait command', `- live turn/time value changed: ${liveUpdateObserved ? 'yes' : 'no'}`, '', 'HUD evidence:', '```json', JSON.stringify({ firstHud, afterHud, timeBefore, timeAfter, liveUpdateObserved, scenarioId, fullStatusOptions }, null, 2), '```', ''].join('\n');
-    fs.writeFileSync(path.join(outDir, 'real-status-hud-summary.md'), summary);
-    console.log(summary);
-  } finally { cleanup(); }
+async function main() { if (process.argv[2] === '--review') return reviewRun(process.argv[3], process.argv[4]); scenarioError = null; ; ;
+const page = await Harness.createElectronBrowserDriver({ root, width: 1440, height: 930, env: { NH_ELECTRON_TEST_FIXTURES: '1', NH_TEST_SCENARIO_ID: scenarioId, NETHACK_SEED: '626262' } });
+const cdp = (outDir = page.outputDir, evidencePage = page, evidenceQc = createEvidence(page), page.cdp) 
+;
+try { ;
+await cdp.send('Page.enable'); await cdp.send('Runtime.enable'); await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 930, deviceScaleFactor: 2, mobile: false });
+await Harness.waitFor(async () => (await evalExpr(cdp, "document.readyState === 'complete' && !!window.__nethackPromptTest")), 10000);
+await evalExpr(cdp, "window.NetHackUxRuntime.runtime.domain('shell').setDensity('compact', { persist: false })");
+await start(cdp);
+const compactRequired = ['Hero', 'Align', 'Str', 'Dex', 'Con', 'Int', 'Wis', 'Cha', 'HP', 'Pw', 'AC', 'XL', 'XP', 'Dlvl', 'Gold', 'Time'];
+const compactForbidden = ['Score', 'Wield', 'Armor', 'Version'];
+const firstHud = await Harness.waitFor(async () => {
+  const snapshot = await hud(cdp);
+  const labels = fields(snapshot).map((item) => item.label);
+  return snapshot.density === 'compact' && compactRequired.every((label) => labels.includes(label)) ? snapshot : null;
+}, 20000).catch(async (error) => { fs.writeFileSync(path.join(outDir, 'status-timeout-debug.json'), JSON.stringify(await hud(cdp).catch(() => ({})), null, 2)); await shot(cdp, 'debug-status-timeout.png').catch(() => undefined); throw error; });
+const firstFields = fields(firstHud);
+assert('persistent HUD uses Auto density', firstHud.density === 'compact', JSON.stringify(firstHud));
+assertLabels('wide Auto HUD exposes every responsive gameplay stat without on-demand facts', firstFields, compactRequired, compactForbidden);
+assert('compact identity is visible', Boolean(byLabel(firstFields, 'Hero')?.value), JSON.stringify(firstHud));
+assert('compact paired vitals are visible', /^\d+\s+\/\s+\d+$/.test(byLabel(firstFields, 'HP')?.value || '') && /^\d+\s+\/\s+\d+$/.test(byLabel(firstFields, 'Pw')?.value || ''), JSON.stringify(firstHud));
+assert('wide Auto HUD exposes attributes, defenses, progression, and dungeon facts', ['Str', 'Dex', 'Con', 'Int', 'Wis', 'Cha', 'AC', 'XL', 'XP', 'Dlvl', 'Gold', 'Time'].every((label) => byLabel(firstFields, label)?.value), JSON.stringify(firstHud));
+const compactScreenshot = await shot(cdp, '01-auto-status-hud.png');
+const carryAttention = byLabel(firstFields, 'Carry');
+assert('urgent Carry status has static and animated attention treatment', carryAttention?.role === 'urgent'
+  && carryAttention.className.includes('ux-status-urgent')
+  && carryAttention.animationName === 'ux-status-attention-pulse'
+  && carryAttention.borderWidth === '2px'
+  && carryAttention.boxShadow !== 'none', JSON.stringify(carryAttention));
+const reducedMotionAttention = await evalExpr(cdp, `(() => {
+  const previous = document.body.dataset.uxMotion || '';
+  document.body.dataset.uxMotion = 'reduced';
+  const chip = Array.from(document.querySelectorAll('#stats-panel .ux-status-urgent')).find((entry) => entry.querySelector('span')?.textContent === 'Carry');
+  const style = chip ? getComputedStyle(chip) : null;
+  const result = style ? { animationName: style.animationName, borderWidth: style.borderWidth, boxShadow: style.boxShadow } : null;
+  if (previous) document.body.dataset.uxMotion = previous; else delete document.body.dataset.uxMotion;
+  return result;
+})()`);
+assert('reduced-motion mode keeps static urgency while disabling pulse', reducedMotionAttention?.animationName === 'none'
+  && reducedMotionAttention.borderWidth === '2px'
+  && reducedMotionAttention.boxShadow !== 'none', JSON.stringify(reducedMotionAttention));
+
+await click(cdp, '#ux-character-button');
+const characterSheet = await Harness.waitFor(async () => {
+  const snapshot = await character(cdp);
+  const labels = rows(snapshot).map((item) => item.label);
+  return snapshot.open && ['Name / role', 'Str', 'Dex', 'Con', 'Int', 'Wis', 'Cha'].every((label) => labels.includes(label)) ? snapshot : null;
+}, 5000);
+const characterRows = rows(characterSheet);
+const characterRequired = ['Name / role', 'Align', 'Str', 'Dex', 'Con', 'Int', 'Wis', 'Cha', 'HP', 'Pw', 'AC', 'XL', 'XP', 'Dlvl', 'Gold', 'Time', 'Carry', 'On', 'Wield', 'Armor', 'Version'];
+assertLabels('Character surface retains emitted identity, attributes, vitals, dungeon, state, gear, and system facts', characterRows, characterRequired);
+assert('Character identity matches the compact HUD', byLabel(characterRows, 'Name / role')?.value === byLabel(firstFields, 'Hero')?.value, JSON.stringify({ characterSheet, firstHud }));
+assert('Character paired vitals match the compact HUD', byLabel(characterRows, 'HP')?.value === byLabel(firstFields, 'HP')?.value && byLabel(characterRows, 'Pw')?.value === byLabel(firstFields, 'Pw')?.value, JSON.stringify({ characterSheet, firstHud }));
+const detailStateRows = characterSheet.groups.find((group) => group.id === 'state')?.rows || [];
+for (const label of ['Hunger', 'Carry']) {
+  const detail = byLabel(detailStateRows, label);
+  if (detail) assert(`compact HUD retains emitted ${label}`, byLabel(firstFields, label)?.value === detail.value, JSON.stringify({ detail, firstHud }));
 }
+const urgentDetailRows = detailStateRows.filter((item) => !['Hunger', 'Carry', 'On'].includes(item.label) && ['warning', 'danger'].includes(item.severity));
+for (const detail of urgentDetailRows) {
+  const compact = byLabel(firstFields, detail.label);
+  assert(`compact HUD retains urgent ${detail.label}`, compact?.value === detail.value && compact?.role === 'urgent', JSON.stringify({ detail, firstHud }));
+}
+const characterScreenshot = await shot(cdp, '02-character-detail.png');
+await evalExpr(cdp, "document.getElementById('ux-character-sheet-dialog')?.close?.('close'); true");
+
+await click(cdp, '#ux-hud-density-button');
+const detailedHud = await Harness.waitFor(async () => {
+  const snapshot = await hud(cdp);
+  return snapshot.density === 'detailed' && byLabel(fields(snapshot), 'Time')?.value ? snapshot : null;
+}, 5000);
+const detailedFields = fields(detailedHud);
+assertLabels('Full HUD retains every responsive gameplay stat', detailedFields, compactRequired, compactForbidden);
+const timeBefore = byLabel(detailedFields, 'Time')?.value || '';
+await sendWait(cdp);
+const afterHud = await Harness.waitFor(async () => {
+  const snapshot = await hud(cdp);
+  const time = byLabel(fields(snapshot), 'Time')?.value || '';
+  return snapshot.density === 'detailed' && time && time !== timeBefore ? snapshot : null;
+}, 5000);
+const timeAfter = byLabel(fields(afterHud), 'Time')?.value || '';
+assertLabels('Full HUD remains rendered after a live command update', fields(afterHud), compactRequired, compactForbidden);
+assert('real wait command advances the visible Time field', Boolean(timeBefore && timeAfter && timeBefore !== timeAfter), JSON.stringify({ timeBefore, timeAfter, afterHud }));
+const updatedScreenshot = await shot(cdp, '03-detailed-status-hud-after-wait.png');
+await evalExpr(cdp, `(() => {
+  window.NetHackUxStatusPresentation.renderStatusPresentation(document.getElementById('stats-panel'), new Map([
+    [0, 'StatusVal the Stripling'],
+    [17, 'Hungry'],
+    [22, 'mask 2'],
+  ]), { documentRoot: document, density: 'compact', adaptive: true });
+  return true;
+})()`);
+const warningHud = await hud(cdp);
+for (const label of ['Hunger', 'Senses']) {
+  const warning = byLabel(fields(warningHud), label);
+  assert(`${label} warning receives the urgent attention treatment`, warning?.role === 'urgent'
+    && warning.className.includes('warning')
+    && warning.animationName === 'ux-status-attention-pulse'
+    && warning.borderWidth === '2px'
+    && warning.boxShadow !== 'none', JSON.stringify(warning));
+}
+const warningScreenshot = await shot(cdp, '04-hungry-blind-attention.png');
+fs.writeFileSync(path.join(outDir, 'status-hud-debug.json'), JSON.stringify({ firstHud, characterSheet, detailedHud, afterHud, warningHud, timeBefore, timeAfter, screenshots: { compactScreenshot, characterScreenshot, updatedScreenshot, warningScreenshot } }, null, 2));
+
+;
+; } catch (error) { scenarioError = error; } finally { await finishEvidence(page, evidenceQc, scenarioError); } }
 main().catch((error) => { console.error(error.stack || error); process.exit(1); });

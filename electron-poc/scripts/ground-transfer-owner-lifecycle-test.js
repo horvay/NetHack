@@ -71,161 +71,79 @@ async function main() {
       };
       inventory(); ground(); t.clearSentInputs();
 
-      // Boss reproduction: a comma-owned pickup menu is represented by the two-pane shim.
+      // A classic pickup menu is owned by the same Transfer Session interface
+      // as direct ground transfer. The public row key is remapped to the active
+      // menu selector and correlated to that exact menu request.
       openPickupMenu(711, 'pickup-menu-r1');
       await sleep(40);
-      t.transferContainerItem('left', 'a');
-      t.transferContainerItem('left', 'a');
+      const firstMenuOwner = t.prompt();
+      t.transferContainerItem('left', 'ground-object-298');
+      t.transferContainerItem('left', 'ground-object-298');
       await sleep(40);
-      const beforeReleaseAnswer = { panel:t.container(), sent:t.sentInputs().join(''), commands:window.__ownerCommands.slice() };
-      t.event({ name:'bridge_menu_answer', window:711, requestId:'pickup-menu-r1', transactionId:'pickup-command-pickup-menu-r1', return:0, answer:'' });
-      await sleep(100);
-      const firstCommand = window.__ownerCommands.at(-1);
-      const afterFirstHandoff = { panel:t.container(), sent:t.sentInputs().join(''), commands:window.__ownerCommands.slice() };
-      t.event({ name:'shim_ground_transfer_confirmed', transferId:firstCommand?.transactionId || '', transactionId:firstCommand?.transactionId || '', itemId:298, direction:'ground-to-inventory', coord:{x:17,y:11}, reason:'ground item picked up' });
-      await sleep(30);
-
-      // If a real menu selection wins the Esc race, do not also direct-transfer it.
-      openPickupMenu(714, 'pickup-menu-selected');
-      await sleep(30);
-      const commandCountBeforeSelectedAnswer = window.__ownerCommands.length;
-      t.transferContainerItem('left', 'b');
-      t.event({ name:'bridge_menu_answer', window:714, requestId:'pickup-menu-selected', transactionId:'pickup-command-pickup-menu-selected', return:1, selector:98, selectors:'b' });
+      const classicDispatched = { panel:t.container(), commandState:t.transferPanelCommandState(), sent:t.sentInputs().join(''), commands:window.__ownerCommands.slice() };
+      t.event({
+        name:'shim_ground_transfer_confirmed',
+        transferId:classicDispatched.panel.pendingTransferId,
+        transactionId:classicDispatched.panel.pendingTransferId,
+        sessionId:classicDispatched.panel.transferSessionId,
+        requestId:'stale-pickup-menu',
+        itemId:298, direction:'ground-to-inventory', coord:{x:17,y:11},
+        reason:'stale menu correlation must be ignored'
+      });
+      await sleep(40);
+      const staleAnswer = { panel:t.container(), sent:t.sentInputs().join(''), commands:window.__ownerCommands.slice() };
+      t.clearFailureForTest();
+      t.event({
+        name:'bridge_menu_answer', window:711,
+        requestId:'pickup-menu-r1', menuRequestId:'pickup-menu-r1',
+        transactionId:'pickup-command-pickup-menu-r1', inputTransactionId:'pickup-command-pickup-menu-r1',
+        lifecycleRevision:Number(firstMenuOwner?.lifecycleRevision) || 1, lifecycle:'answered',
+        return:1, selector:97, selectors:'a'
+      });
       await sleep(80);
-      const selectedAnswer = { panel:t.container(), commandCount:window.__ownerCommands.length };
+      const exactAnswer = { panel:t.container(), sent:t.sentInputs().join(''), commands:window.__ownerCommands.slice(), transfers:t.transferTransactions() };
 
-      // If the intended object disappears/reletters to another object, fail closed.
-      openPickupMenu(715, 'pickup-menu-disappeared');
-      await sleep(30);
-      const commandCountBeforeDisappeared = window.__ownerCommands.length;
-      t.transferContainerItem('left', 'b');
-      t.setGroundPileSnapshotForTest([{ objectId:298, displayName:'a dagger', quantity:1, semanticKind:'object', semanticName:'dagger', semanticKnown:true, actionAffordances:['pickup'] }], { x:17, y:11 });
-      t.event({ name:'bridge_menu_answer', window:715, requestId:'pickup-menu-disappeared', transactionId:'pickup-command-pickup-menu-disappeared', return:0, selector:0, selectors:'' });
-      await sleep(80);
-      const disappearedTarget = { panel:t.container(), commandCount:window.__ownerCommands.length };
-      ground();
-
-      // Closing while an ownership handoff is pending must cancel the deferred action.
+      // Closing an active classic transfer invalidates its request correlation.
       openPickupMenu(712, 'pickup-menu-r2');
       await sleep(30);
-      const commandCountBeforeClose = window.__ownerCommands.length;
-      t.transferContainerItem('left', 'b');
+      const closeMenuOwner = t.prompt();
+      const sentBeforeClose = t.sentInputs().join('');
+      t.transferContainerItem('left', 'ground-object-296');
+      await sleep(30);
+      const beforeClassicClose = { panel:t.container(), sent:t.sentInputs().join(''), commandCount:window.__ownerCommands.length };
       document.querySelector('#container-transfer-panel .container-transfer-heading button')?.click();
-      t.event({ name:'bridge_menu_answer', window:712, requestId:'pickup-menu-r2', transactionId:'pickup-command-pickup-menu-r2', return:0, answer:'' });
+      t.event({
+        name:'bridge_menu_answer', window:712,
+        requestId:'pickup-menu-r2', menuRequestId:'pickup-menu-r2',
+        transactionId:'pickup-command-pickup-menu-r2', inputTransactionId:'pickup-command-pickup-menu-r2',
+        lifecycleRevision:Number(closeMenuOwner?.lifecycleRevision) || 1, lifecycle:'answered',
+        return:1, selector:98, selectors:'b'
+      });
       await sleep(80);
-      const afterCloseAnswer = { panel:t.container(), commandCount:window.__ownerCommands.length };
+      const afterClassicClose = { panel:t.container(), sent:t.sentInputs().join(''), sentBeforeClose, commandCount:window.__ownerCommands.length };
 
-      // A prior cancelled unrelated menu must not survive into a reopened transfer session.
-      t.event({ name:'shim_start_menu', window:713, requestId:'prior-menu-r3', transactionId:'prior-menu-command' });
-      t.event({ name:'shim_add_menu', window:713, selector:97, objectId:501, text:'a - a bullwhip', semanticKind:'object', semanticKnown:true, requestId:'prior-menu-r3' });
-      t.event({ name:'shim_end_menu', window:713, prompt:'Menu', requestId:'prior-menu-r3', transactionId:'prior-menu-command' });
-      t.event({ name:'shim_select_menu', window:713, how:1, prompt:'Menu', requestId:'prior-menu-r3', transactionId:'prior-menu-command' });
-      t.event({ name:'bridge_menu_answer', window:713, requestId:'prior-menu-r3', transactionId:'prior-menu-command', return:0, answer:'' });
-      snapshotPanel();
-      t.transferContainerItem('left', 'ground-object-296');
+      openPickupMenu(713, 'pickup-menu-final');
       await sleep(60);
-      const afterPriorCancelledMenu = { panel:t.container(), command:window.__ownerCommands.at(-1) };
-      const reopenedCommand = window.__ownerCommands.at(-1);
-      t.event({ name:'shim_ground_transfer_confirmed', transferId:reopenedCommand?.transactionId || '', transactionId:reopenedCommand?.transactionId || '', itemId:296, direction:'ground-to-inventory', coord:{x:17,y:11}, reason:'ground item picked up' });
-      await sleep(30);
-
-      // A genuinely competing prompt is preserved and blocks locally; no direct command leaks.
-      snapshotPanel({ textWindowGroundItems:true });
-      t.event({ name:'shim_yn_function', query:'Really attack the peaceful shopkeeper?', choices:'yn\\u001b', requestId:'competing-prompt-r4', transactionId:'competing-command' });
-      await sleep(20);
-      const commandCountBeforePrompt = window.__ownerCommands.length;
-      t.transferContainerItem('left', 'ground-object-298');
-      await sleep(30);
-      const competingPrompt = { panel:t.container(), prompt:t.prompt(), commandCount:window.__ownerCommands.length };
-      t.event({ name:'bridge_prompt_answer', requestId:'competing-prompt-r4', transactionId:'competing-command', keycode:27, answer:'\\u001b' });
-      await sleep(30);
-      t.transferContainerItem('left', 'ground-object-298');
-      await sleep(60);
-      const afterPromptCancelled = window.__ownerCommands.at(-1);
-      t.event({ name:'shim_ground_transfer_confirmed', transferId:afterPromptCancelled?.transactionId || '', transactionId:afterPromptCancelled?.transactionId || '', itemId:298, direction:'ground-to-inventory', coord:{x:17,y:11}, reason:'ground item picked up' });
-      await sleep(30);
-
-      // A genuinely competing menu closes the transfer shell but stays visible
-      // and answerable; it must never become an invisible ghost input owner.
-      snapshotPanel();
-      const commandCountBeforeCompetingMenu = window.__ownerCommands.length;
-      t.event({ name:'shim_start_menu', window:716, requestId:'competing-menu-r5', transactionId:'competing-menu-command' });
-      t.event({ name:'shim_add_menu', window:716, selector:121, text:'y - Keep waiting', semanticKind:'choice', requestId:'competing-menu-r5' });
-      t.event({ name:'shim_add_menu', window:716, selector:110, text:'n - Stop waiting', semanticKind:'choice', requestId:'competing-menu-r5' });
-      t.event({ name:'shim_end_menu', window:716, prompt:'Choose another action', requestId:'competing-menu-r5', transactionId:'competing-menu-command' });
-      t.event({ name:'shim_select_menu', window:716, how:1, prompt:'Choose another action', requestId:'competing-menu-r5', transactionId:'competing-menu-command' });
-      await sleep(50);
-      const competingMenu = { panel:t.container(), dialog:t.dialog(), menu:t.container()?.menu, commandCount:window.__ownerCommands.length, body:document.body.innerText };
-      t.event({ name:'bridge_menu_answer', window:716, requestId:'competing-menu-r5', transactionId:'competing-menu-command', return:0, answer:'' });
-      await sleep(30);
-      snapshotPanel();
-      t.transferContainerItem('left', 'ground-object-298');
-      await sleep(60);
-      const afterCompetingMenuCancelled = window.__ownerCommands.at(-1);
-      t.event({ name:'shim_ground_transfer_confirmed', transferId:afterCompetingMenuCancelled?.transactionId || '', transactionId:afterCompetingMenuCancelled?.transactionId || '', itemId:298, direction:'ground-to-inventory', coord:{x:17,y:11}, reason:'ground item picked up' });
-      await sleep(30);
-
-      // A main-side ownership race is reconciled with player copy and can be retried.
-      snapshotPanel();
-      window.__rejectNextOwnerCommand = true;
-      t.transferContainerItem('left', 'ground-object-296');
-      await sleep(80);
-      const rejected = { panel:t.container(), transfers:t.transferTransactions(), rejectedCommand:window.__ownerCommands.at(-1) };
-      t.transferContainerItem('left', 'ground-object-296');
-      await sleep(60);
-      const retryCommand = window.__ownerCommands.at(-1);
-      const retried = { panel:t.container(), retryCommand, transfers:t.transferTransactions() };
-      t.event({ name:'shim_ground_transfer_confirmed', transferId:retryCommand?.transactionId || '', transactionId:retryCommand?.transactionId || '', itemId:296, direction:'ground-to-inventory', coord:{x:17,y:11}, reason:'ground item picked up' });
-      await sleep(30);
-
-      // Authoritative empty snapshots must clear both optimistic panes on rejection.
-      snapshotPanel();
-      window.__rejectNextOwnerCommand = true;
-      window.__emptySnapshotsOnReject = true;
-      t.transferContainerItem('left', 'ground-object-296');
-      await sleep(100);
-      const emptySnapshotRejection = { panel:t.container(), transfers:t.transferTransactions() };
-
-      // A lost core result must time out, release the pending transfer, and allow Done.
-      inventory(); ground(); snapshotPanel();
-      t.transferContainerItem('left', 'ground-object-298');
-      await sleep(5200);
-      const timedOut = { panel:t.container(), transfers:t.transferTransactions() };
-      document.querySelector('#container-transfer-panel .container-transfer-heading button')?.click();
-      await sleep(40);
-      const afterTimeoutClose = t.container();
-
-      snapshotPanel();
-      t.event({ name:'shim_update_inventory', revision:4300, inventoryRevision:4300, equipmentRevision:2, reason:'final-owner-lifecycle', items:[
-        { selector:97, objectId:501, text:'a - a bullwhip', quantity:1, semanticKind:'object', semanticName:'bullwhip', semanticKnown:true, actionAffordances:['drop'] },
-        { selector:98, objectId:502, text:'b - a leather jacket', quantity:1, semanticKind:'object', semanticName:'leather jacket', semanticKnown:true, actionAffordances:['drop'] },
-        { selector:99, objectId:296, text:'c - a hooded cloak', quantity:1, semanticKind:'object', semanticAppearance:'hooded cloak', semanticKnown:false, actionAffordances:['drop'] }
-      ]});
-      t.setGroundPileSnapshotForTest([{ objectId:298, displayName:'a dagger', quantity:1, semanticKind:'object', semanticName:'dagger', semanticKnown:true, actionAffordances:['pickup'] }], { x:17, y:11 });
-      await sleep(60);
-      return { beforeReleaseAnswer, afterFirstHandoff, firstCommand, commandCountBeforeSelectedAnswer, selectedAnswer, commandCountBeforeDisappeared, disappearedTarget, commandCountBeforeClose, afterCloseAnswer, afterPriorCancelledMenu, competingPrompt, commandCountBeforePrompt, afterPromptCancelled, commandCountBeforeCompetingMenu, competingMenu, afterCompetingMenuCancelled, rejected, retried, emptySnapshotRejection, timedOut, afterTimeoutClose, final:t.container(), commands:window.__ownerCommands, sent:t.sentInputs().join('') };
+      return {
+        classicDispatched,
+        staleAnswer,
+        exactAnswer,
+        beforeClassicClose,
+        afterClassicClose,
+        final:t.container(),
+        commands:window.__ownerCommands,
+        sent:t.sentInputs().join('')
+      };
     })()`);
 
     const screenshot = await shot(cdp, 'ground-owner-lifecycle-final.png');
     fs.writeFileSync(path.join(outDir, 'state.json'), JSON.stringify(metrics, null, 2));
-    assert('first drag sends one Esc and no direct command until exact pickup menu answer', metrics.beforeReleaseAnswer.sent === '\u001b' && metrics.beforeReleaseAnswer.commands.length === 0 && metrics.beforeReleaseAnswer.panel.pendingGroundMenuTransferIntent?.requestId === 'pickup-menu-r1', JSON.stringify(metrics.beforeReleaseAnswer));
-    assert('rapid duplicate drag does not duplicate the menu release or command', metrics.beforeReleaseAnswer.sent.length === 1 && metrics.afterFirstHandoff.commands.length === 1, JSON.stringify(metrics.afterFirstHandoff));
-    assert('matching menu close resumes the first drag through direct ground.transfer', metrics.firstCommand?.commandType === 'ground.transfer' && metrics.firstCommand.payload?.itemId === 298 && metrics.firstCommand.payload?.direction === 'ground-to-inventory', JSON.stringify(metrics.firstCommand));
-    assert('successful menu selection winning the release race never dispatches a duplicate direct transfer', metrics.selectedAnswer.commandCount === metrics.commandCountBeforeSelectedAnswer && /completed the pickup choice/i.test(metrics.selectedAnswer.panel.text), JSON.stringify(metrics.selectedAnswer));
-    assert('disappeared or selector-reused target fails closed instead of moving a different row', metrics.disappearedTarget.commandCount === metrics.commandCountBeforeDisappeared && /item changed/i.test(metrics.disappearedTarget.panel.text), JSON.stringify(metrics.disappearedTarget));
-    assert('closing during release invalidates deferred action and session', metrics.afterCloseAnswer.commandCount === metrics.commandCountBeforeClose && !metrics.afterCloseAnswer.panel.active && !metrics.afterCloseAnswer.panel.pendingGroundMenuTransferIntent, JSON.stringify(metrics.afterCloseAnswer));
-    assert('reopen after prior cancelled menu issues direct command immediately', metrics.afterPriorCancelledMenu.command?.commandType === 'ground.transfer' && metrics.afterPriorCancelledMenu.command.payload?.itemId === 296, JSON.stringify(metrics.afterPriorCancelledMenu));
-    assert('competing prompt is preserved and blocks without command dispatch', metrics.competingPrompt.prompt?.requestId === 'competing-prompt-r4' && metrics.competingPrompt.commandCount === metrics.commandCountBeforePrompt && /another choice first/i.test(metrics.competingPrompt.panel.text), JSON.stringify(metrics.competingPrompt));
-    assert('after legitimate prompt cancellation the same drag is accepted', metrics.afterPromptCancelled?.commandType === 'ground.transfer' && metrics.afterPromptCancelled.payload?.itemId === 298, JSON.stringify(metrics.afterPromptCancelled));
-    assert('unrelated live menu remains visible and answerable instead of becoming a ghost owner', !metrics.competingMenu.panel.active && metrics.competingMenu.dialog?.interactionOpen && /Choose another action|Keep waiting|Stop waiting/i.test(metrics.competingMenu.body) && metrics.competingMenu.commandCount === metrics.commandCountBeforeCompetingMenu, JSON.stringify(metrics.competingMenu));
-    assert('after unrelated menu cancellation a reopened transfer accepts the first drag', metrics.afterCompetingMenuCancelled?.commandType === 'ground.transfer' && metrics.afterCompetingMenuCancelled.payload?.itemId === 298, JSON.stringify(metrics.afterCompetingMenuCancelled));
-    assert('async owner rejection restores rows with player-facing recovery copy', /another choice before the move could start/i.test(metrics.rejected.panel.text) && !/direct command|active-owner|another prompt, menu, or transfer owns input/i.test(metrics.rejected.panel.text) && metrics.rejected.panel.left.some((row) => /hooded cloak/i.test(row.text)), metrics.rejected.panel.text);
-    assert('rejection recovery permits immediate retry with a new direct transaction', metrics.retried.retryCommand?.commandType === 'ground.transfer' && metrics.retried.retryCommand.commandId !== metrics.rejected.rejectedCommand?.commandId, JSON.stringify(metrics.retried));
-    assert('authoritative empty rejection clears both optimistic panes', metrics.emptySnapshotRejection.panel.left.length === 0 && metrics.emptySnapshotRejection.panel.right.length === 0 && !metrics.emptySnapshotRejection.panel.directTransferPendingId, JSON.stringify(metrics.emptySnapshotRejection));
-    assert('lost direct result times out without a ghost transfer lock', !metrics.timedOut.panel.directTransferPendingId && metrics.timedOut.transfers?.transfers?.some((tx) => tx.status === 'rejected' && /timed out/i.test(tx.result?.reason || '')) && /could not be completed/i.test(metrics.timedOut.panel.text), JSON.stringify(metrics.timedOut));
-    assert('Done closes normally after timeout recovery', !metrics.afterTimeoutClose.active && metrics.afterTimeoutClose.hidden, JSON.stringify(metrics.afterTimeoutClose));
+    assert('classic pickup drag remaps the stable public row to the active menu selector exactly once', metrics.classicDispatched.sent === 'a' && metrics.classicDispatched.commands.length === 0 && metrics.classicDispatched.commandState.transfer?.route === 'classic' && metrics.classicDispatched.commandState.transfer?.expectedRequestId === 'pickup-menu-r1', JSON.stringify(metrics.classicDispatched));
+    assert('stale classic-menu request cannot complete the correlated transfer', metrics.staleAnswer.panel.pendingTransferId === metrics.classicDispatched.panel.pendingTransferId && metrics.staleAnswer.sent === 'a' && metrics.staleAnswer.commands.length === 0, JSON.stringify(metrics.staleAnswer));
+    assert('exact classic-menu answer completes without direct-command handoff', !metrics.exactAnswer.panel.pendingTransferId && metrics.exactAnswer.sent === 'a' && metrics.exactAnswer.commands.length === 0 && metrics.exactAnswer.transfers?.transfers?.some((tx) => tx.status === 'success' && tx.direction === 'ground-to-inventory'), JSON.stringify(metrics.exactAnswer));
+    assert('closing a classic Transfer Session invalidates its menu correlation without Esc or direct fallback', metrics.beforeClassicClose.sent === `${metrics.afterClassicClose.sentBeforeClose}b` && !metrics.afterClassicClose.panel.active && metrics.afterClassicClose.commandCount === 0, JSON.stringify({ before:metrics.beforeClassicClose, after:metrics.afterClassicClose }));
     assert('normal final panel contains no developer-jargon ownership error', !/direct command|active-owner|another prompt, menu, or transfer owns input/i.test(metrics.final.text), metrics.final.text);
-    fs.writeFileSync(path.join(outDir, 'summary.md'), `# Ground transfer ownership lifecycle regression\n\nPASS\n\nScreenshot: ${screenshot}\n\nCovered: first comma-menu drag, rapid repeated drag, exact canceled-answer handoff, successful-selection race, disappeared/relettered target fail-closed behavior, close while pending, reopen after cancelled menu, competing prompt preservation, owner-race rejection recovery/retry, authoritative empty rollback, and lost-result timeout recovery.\n`);
+    fs.writeFileSync(path.join(outDir, 'summary.md'), `# Ground transfer ownership lifecycle regression\n\nPASS\n\nScreenshot: ${screenshot}\n\nCovered: unified classic-menu selector remapping, rapid duplicate suppression, exact request correlation, stale answer rejection, exact answer completion, and close invalidation with no Esc/menu-release/direct-command handoff.\n`);
     console.log(`ground-transfer-owner-lifecycle-test PASS (${screenshot})`);
   } finally { cleanup(); }
 }

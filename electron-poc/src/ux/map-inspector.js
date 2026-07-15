@@ -517,12 +517,6 @@
       onDiagnostic: (entry) => root.dispatchEvent?.(new root.CustomEvent('nethack:ux-diagnostic', { detail: Object.freeze({ component: 'map', ...entry }) })),
     });
     runtime.registerDomain('map', controller);
-    const provider = {
-      version,
-      actionsForCell: (request) => controller.model()?.selectedCell && request ? [] : [],
-      controller,
-    };
-    runtime.registerProvider('context-actions', 'map', provider);
     controller.attach();
     return controller;
   }

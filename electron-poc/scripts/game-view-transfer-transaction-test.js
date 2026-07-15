@@ -22,7 +22,7 @@ let result = view.process(event('transfer.session.opened', {
   loadedSides: { left: true, right: true },
 }));
 assert(effectOf(result, 'transfer-session-opened'), 'game-view-state should reduce transfer.session.opened');
-assert.equal(view.state.transferTransactions.activeSessionId, 'shared-ground-session');
+assert.equal(view.snapshot().transferTransactions.activeSessionId, 'shared-ground-session');
 assert.equal(view.snapshot().transferTransactions.sessionsById.get('shared-ground-session').evidenceIdentity.coord.x, 10);
 
 result = view.process(event('transfer.begun', {
@@ -38,7 +38,7 @@ result = view.process(event('transfer.begun', {
   beforePanes: { left: [row('a', 'a - a food ration'), row('b', 'b - a scroll labeled READ ME')], right: [row('c', 'c - a +0 dagger')] },
 }));
 assert.equal(effectOf(result, 'transfer-transaction-started').transfer.status, 'pending');
-assert.equal(view.state.transferTransactions.activeTransferId, 'take-scroll');
+assert.equal(view.snapshot().transferTransactions.activeTransferId, 'take-scroll');
 
 result = view.process(event('transfer.confirmed', { transferId: 'take-scroll', kind: 'bridge_menu_answer', requestId: 'req-ground', accepted: true }));
 assert.equal(effectOf(result, 'transfer-transaction-confirmed').transfer.confirmations[0].requestId, 'req-ground');
@@ -53,7 +53,7 @@ result = view.process(event('transfer.session.updated', {
   feedback: 'ground pickup refreshed',
 }));
 assert.equal(effectOf(result, 'transfer-session-updated').session.panes.right.length, 2);
-let paneMove = GameViewState.transferPanelOptimisticMoveState(view.state, {
+let paneMove = GameViewState.transferPanelOptimisticMoveState(view.snapshot(), {
   kind: 'ground-pickup',
   sessionId: 'shared-ground-session',
   transferId: 'take-scroll',
@@ -79,7 +79,7 @@ result = view.process(event('transfer.completed', {
 let completed = effectOf(result, 'transfer-transaction-completed');
 assert.equal(completed.transfer.result.publicEvidence.groundPile, false, 'renderer pane delta alone is not public ground evidence');
 assert.equal(completed.transfer.result.delta.changed, true, 'renderer pane delta remains available during migration');
-assert.equal(view.state.transferTransactions.activeTransferId, undefined);
+assert.equal(view.snapshot().transferTransactions.activeTransferId, undefined);
 
 let invalidEvidence = envelope('transfer.ground-pile-evidence.attached', { transferId: 'take-scroll', sessionId: 'shared-ground-session', coord: { x: 10, y: 12 } });
 let checkedInvalid = UiProtocol.validateEventEnvelope(invalidEvidence);
@@ -166,7 +166,7 @@ assert.equal(effectOf(result, 'transfer-transaction-rejected').reason, 'confirma
 
 result = view.process(event('transfer.rejected', { transferId: 'put-scroll', sessionId: 'container-session', reason: 'expected prompt request id does not match active prompt', requestId: 'stale-req', expectedRequestId: 'req-container' }));
 assert.equal(effectOf(result, 'transfer-transaction-followup-rejected').transfer.status, 'rejected', 'stale transfer follow-up rejection is reduced in shared state');
-assert.equal(view.state.transferTransactions.sessionsById.get('container-session').status, 'active', 'stale transfer rejection does not close session');
+assert.equal(view.snapshot().transferTransactions.sessionsById.get('container-session').status, 'active', 'stale transfer rejection does not close session');
 
 let invalidChoreography = envelope('transfer.choreography.updated', { sessionId: 'container-session', pendingSelection: { action: 'out', selector: 'a', sourceSide: 'left', trapped: true } });
 let checkedInvalidChoreography = UiProtocol.validateEventEnvelope(invalidChoreography);
@@ -200,7 +200,7 @@ result = view.process(event('transfer.choreography.updated', {
 let choreographyEffect = effectOf(result, 'transfer-choreography-updated');
 assert.equal(choreographyEffect.choreography.pendingSelection.selector, 'b', 'shared reducer records pending container item selection for an active transfer');
 assert.equal(choreographyEffect.choreography.autoLoadingSide, 'right', 'shared reducer records auto-loading side intent');
-let choreographyState = GameViewState.transferPanelChoreographyState(view.state, { kind: 'container', sessionId: 'container-session', container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 42 } });
+let choreographyState = GameViewState.transferPanelChoreographyState(view.snapshot(), { kind: 'container', sessionId: 'container-session', container: { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 42 } });
 assert.equal(choreographyState.source, 'shared-session-choreography', 'shared choreography helper exposes reducer-owned transfer choreography');
 assert.equal(choreographyState.pendingSelection.transferId, 'put-scroll-delayed');
 assert.equal(choreographyState.refreshIntent.kind, 'container-pending-item-menu-selection');
@@ -292,7 +292,7 @@ autoView.process(event('transfer.session.opened', { sessionId: 'auto-ground-sess
 result = autoView.process(event('transfer.begun', { transferId: 'auto-take-scroll', sessionId: 'auto-ground-session', groundCoord: { x: 4, y: 5 }, direction: 'ground-to-inventory', sourceSide: 'left', targetSide: 'right', selector: 'b', itemName: 'scroll labeled READ ME', beforePanes: { left: [row('a', 'a - a food ration'), row('b', 'b - a scroll labeled READ ME')], right: [] } }));
 assert(effectOf(result, 'transfer-pending-ground-pile-evidence-recorded'), 'transfer begin records shared pending ground evidence');
 assert.equal(autoView.snapshot().pendingTransferEvidence.ground.beforePile.items.length, 2, 'pending ground evidence sidecar exposes before pile');
-let commandState = GameViewState.transferPanelCommandState(autoView.state, { kind: 'ground-pickup', sessionId: 'auto-ground-session', groundCoord: { x: 4, y: 5 } });
+let commandState = GameViewState.transferPanelCommandState(autoView.snapshot(), { kind: 'ground-pickup', sessionId: 'auto-ground-session', groundCoord: { x: 4, y: 5 } });
 assert.equal(commandState.transferId, 'auto-take-scroll', 'shared command helper resolves the active ground transfer without renderer-local pending id');
 assert.equal(commandState.pendingEvidenceKind, 'ground-pile', 'shared command helper exposes the matching ground pending evidence sidecar');
 autoView.process(event('transfer.completed', { transferId: 'auto-take-scroll', status: 'success', afterPanes: { left: [row('a', 'a - a food ration')], right: [row('b', 'b - a scroll labeled READ ME')] } }));
@@ -309,10 +309,10 @@ assert.equal(effectOf(result, 'transfer-transaction-rejected').reason, 'ground p
 result = autoView.process(event('ground.pile.snapshot', { revision: 3, coord: { x: 7, y: 7 }, items: [publicAppearanceItem('a dagger'), publicAppearanceItem('an amulet')] }));
 autoView.process(event('transfer.session.opened', { sessionId: 'auto-stale-ground-session', kind: 'ground-pickup', groundCoord: { x: 7, y: 7 }, leftRows: [row('a', 'a - a dagger'), row('b', 'b - an amulet')], rightRows: [], loadedSides: { left: true, right: true } }));
 autoView.process(event('transfer.begun', { transferId: 'auto-take-amulet', sessionId: 'auto-stale-ground-session', groundCoord: { x: 7, y: 7 }, direction: 'ground-to-inventory', sourceSide: 'left', targetSide: 'right', selector: 'b', itemName: 'amulet', beforePanes: { left: [row('a', 'a - a dagger'), row('b', 'b - an amulet')], right: [] } }));
-const beforeStaleRevision = autoView.state.transferTransactions.revision;
+const beforeStaleRevision = autoView.snapshot().transferTransactions.revision;
 result = autoView.process(event('ground.pile.snapshot', { revision: 2, coord: { x: 7, y: 7 }, items: [publicAppearanceItem('an amulet')] }));
 assert(effectOf(result, 'ground-pile-snapshot-rejected')?.stale, 'stale ordinary ground snapshot is rejected before evidence matching');
-assert.equal(autoView.state.transferTransactions.revision, beforeStaleRevision, 'stale ordinary ground evidence does not mutate transfer state');
+assert.equal(autoView.snapshot().transferTransactions.revision, beforeStaleRevision, 'stale ordinary ground evidence does not mutate transfer state');
 result = autoView.process(event('ground.pile.snapshot', { revision: 1, coord: { x: 9, y: 9 }, items: [publicAppearanceItem('an amulet')] }));
 assert.equal(effectOf(result, 'transfer-pending-ground-pile-evidence-ignored')?.reason, 'ordinary ground pile snapshot coordinate did not match pending transfer evidence', 'unrelated ground evidence is ignored with reducer diagnostics');
 assert.equal(autoView.snapshot().pendingTransferEvidence.ground.transferId, 'auto-take-amulet', 'unrelated ground evidence keeps pending queue intact');
@@ -328,15 +328,15 @@ const completedCommandView = GameViewState.createGameViewState();
 completedCommandView.process(event('transfer.session.opened', { sessionId: 'completed-command-session', kind: 'ground-pickup', groundCoord: { x: 2, y: 2 }, leftRows: [row('a', 'a - a rock')], rightRows: [], loadedSides: { left: true, right: true } }));
 completedCommandView.process(event('transfer.begun', { transferId: 'completed-rock', sessionId: 'completed-command-session', groundCoord: { x: 2, y: 2 }, direction: 'ground-to-inventory', sourceSide: 'left', targetSide: 'right', selector: 'a', itemName: 'rock', beforePanes: { left: [row('a', 'a - a rock')], right: [] } }));
 completedCommandView.process(event('transfer.completed', { transferId: 'completed-rock', status: 'success', afterPanes: { left: [], right: [row('a', 'a - a rock')] } }));
-commandState = GameViewState.transferPanelCommandState(completedCommandView.state, { kind: 'ground-pickup', sessionId: 'completed-command-session', groundCoord: { x: 2, y: 2 } });
+commandState = GameViewState.transferPanelCommandState(completedCommandView.snapshot(), { kind: 'ground-pickup', sessionId: 'completed-command-session', groundCoord: { x: 2, y: 2 } });
 assert.equal(commandState.transfer, null, 'shared command helper does not return completed transfers as active command targets');
 completedCommandView.process(event('transfer.begun', { transferId: 'newer-rock', sessionId: 'completed-command-session', groundCoord: { x: 2, y: 2 }, direction: 'inventory-to-ground', sourceSide: 'right', targetSide: 'left', selector: 'a', itemName: 'rock', beforePanes: { left: [], right: [row('a', 'a - a rock')] } }));
-commandState = GameViewState.transferPanelCommandState(completedCommandView.state, { kind: 'ground-pickup', sessionId: 'completed-command-session', groundCoord: { x: 2, y: 2 }, transferId: 'completed-rock', strictTransferId: true });
+commandState = GameViewState.transferPanelCommandState(completedCommandView.snapshot(), { kind: 'ground-pickup', sessionId: 'completed-command-session', groundCoord: { x: 2, y: 2 }, transferId: 'completed-rock', strictTransferId: true });
 assert.equal(commandState.transferId, 'completed-rock', 'strict command lookup preserves explicit stale transfer id for rejection diagnostics');
 assert.equal(commandState.transfer, null, 'strict command lookup does not substitute a newer active transfer for a stale explicit id');
-commandState = GameViewState.transferPanelCommandState(completedCommandView.state, { kind: 'ground-pickup', sessionId: 'completed-command-session', groundCoord: { x: 2, y: 2 }, transferId: 'completed-rock' });
+commandState = GameViewState.transferPanelCommandState(completedCommandView.snapshot(), { kind: 'ground-pickup', sessionId: 'completed-command-session', groundCoord: { x: 2, y: 2 }, transferId: 'completed-rock' });
 assert.equal(commandState.transferId, 'newer-rock', 'non-strict panel command lookup still follows shared active transfer over stale renderer-local id');
-paneMove = GameViewState.transferPanelOptimisticMoveState(completedCommandView.state, { kind: 'ground-pickup', sessionId: 'completed-command-session', groundCoord: { x: 2, y: 2 }, sourceSide: 'right', selector: 'a', fallbackPanes: { left: [], right: [row('a', 'a - a rock')] } });
+paneMove = GameViewState.transferPanelOptimisticMoveState(completedCommandView.snapshot(), { kind: 'ground-pickup', sessionId: 'completed-command-session', groundCoord: { x: 2, y: 2 }, sourceSide: 'right', selector: 'a', fallbackPanes: { left: [], right: [row('a', 'a - a rock')] } });
 assert.equal(paneMove.ok, true, 'shared optimistic pane helper can construct the next ground drop pane patch');
 assert.equal(paneMove.source, 'shared-session-panes', 'helper records the authoritative shared pane source when a session is present');
 assert.equal(paneMove.refreshPlan.reopenPending, false, 'ground inventory-to-ground helper returns drop refresh choreography without reopen');
@@ -366,7 +366,7 @@ autoContainerView.process(event('transfer.session.opened', { sessionId: 'auto-co
 result = autoContainerView.process(event('transfer.begun', { transferId: 'auto-put-dagger', sessionId: 'auto-container-session', container, direction: 'inventory-to-container', sourceSide: 'right', targetSide: 'left', selector: 'b', itemName: 'dagger', beforePanes: { left: [row('a', 'a - a food ration')], right: [row('b', 'b - a dagger')] } }));
 assert(effectOf(result, 'transfer-pending-container-contents-evidence-recorded'), 'transfer begin records shared pending container evidence');
 assert.equal(autoContainerView.snapshot().pendingTransferEvidence.container.beforeSnapshot.items.length, 1, 'pending container evidence sidecar exposes before snapshot');
-commandState = GameViewState.transferPanelCommandState(autoContainerView.state, { kind: 'container', sessionId: 'auto-container-session', container });
+commandState = GameViewState.transferPanelCommandState(autoContainerView.snapshot(), { kind: 'container', sessionId: 'auto-container-session', container });
 assert.equal(commandState.transferId, 'auto-put-dagger', 'shared command helper resolves the active container transfer without renderer-local pending id');
 assert.equal(commandState.pendingEvidenceKind, 'container-contents', 'shared command helper exposes the matching container pending evidence sidecar');
 autoContainerView.process(event('transfer.completed', { transferId: 'auto-put-dagger', status: 'success', afterPanes: { left: [row('a', 'a - a food ration'), row('b', 'b - a dagger')], right: [] } }));
@@ -377,7 +377,7 @@ assert.equal(attached.transfer.result.publicEvidence.containerContents, true);
 assert.match(attached.transfer.result.containerContentsDelta.added[0].displayName, /dagger/);
 assert.equal(autoContainerView.snapshot().pendingTransferEvidence.container, null, 'automatic container attach clears shared pending evidence');
 assert.equal(autoContainerView.snapshot().transferTransactions.lastCompleted.result.publicEvidence.containerContents, true, 'snapshot sidecar exposes automatically attached transfer evidence');
-paneMove = GameViewState.transferPanelOptimisticMoveState(autoContainerView.state, { kind: 'container', sessionId: 'auto-container-session', container, sourceSide: 'left', selector: 'a', itemName: 'food ration', fallbackPanes: { left: [row('a', 'stale fallback ration')], right: [] } });
+paneMove = GameViewState.transferPanelOptimisticMoveState(autoContainerView.snapshot(), { kind: 'container', sessionId: 'auto-container-session', container, sourceSide: 'left', selector: 'a', itemName: 'food ration', fallbackPanes: { left: [row('a', 'stale fallback ration')], right: [] } });
 assert.equal(paneMove.ok, true, 'shared optimistic pane helper builds container pane patches');
 assert.equal(paneMove.direction, 'container-to-inventory');
 assert.equal(paneMove.refreshPlan.keepOpenThroughRefresh, true, 'container helper carries refresh/reopen choreography as shared output');

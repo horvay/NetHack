@@ -43,14 +43,14 @@ async function setupSingleSelect(cdp, count = 3) {
     t.reset(); t.setRunning(true); t.setCursor(12, 12);
     t.event({name:'shim_start_menu', window:501});
     const rows = [
-      ['a', 'a - a robe (being worn)'],
-      ['b', 'b - a pair of walking shoes (being worn)'],
-      ['h', 'h - a pair of leather gloves (being worn)'],
-      ['k', 'k - an iron skull cap (being worn)'],
-      ['m', 'm - a small shield (being worn)'],
-      ['z', 'z - a cloak (being worn)'],
+      ['a', 'a - a robe (being worn)', 'robe'],
+      ['b', 'b - a pair of walking shoes (being worn)', 'walking shoes'],
+      ['h', 'h - a pair of leather gloves (being worn)', 'leather gloves'],
+      ['k', 'k - an iron skull cap (being worn)', 'iron skull cap'],
+      ['m', 'm - a small shield (being worn)', 'small shield'],
+      ['z', 'z - a cloak (being worn)', 'cloak'],
     ].slice(0, ${count});
-    for (const [key, text] of rows) t.event({name:'shim_add_menu', window:501, selector:key.charCodeAt(0), text, glyphChar:91, semanticKind:'object'});
+    for (const [key, text, semanticName] of rows) t.event({name:'shim_add_menu', window:501, selector:key.charCodeAt(0), text, glyphChar:91, semanticKind:'object', semanticName, semanticKnown:true});
     t.event({name:'shim_end_menu', window:501, prompt:'What do you want to take off?'});
     t.event({name:'shim_select_menu', window:501, how:1});
     return t.dialog();
@@ -61,8 +61,8 @@ async function setupMultiSelect(cdp) {
     const t = window.__nethackPromptTest;
     t.reset(); t.setRunning(true); t.setCursor(12, 12);
     t.event({name:'shim_start_menu', window:502});
-    t.event({name:'shim_add_menu', window:502, selector:104, text:'h - a food ration', glyphChar:37, semanticKind:'object'});
-    t.event({name:'shim_add_menu', window:502, selector:106, text:'j - an apple', glyphChar:37, semanticKind:'object'});
+    t.event({name:'shim_add_menu', window:502, selector:104, text:'h - a food ration', glyphChar:37, semanticKind:'object', semanticName:'food ration', semanticKnown:true});
+    t.event({name:'shim_add_menu', window:502, selector:106, text:'j - an apple', glyphChar:37, semanticKind:'object', semanticName:'apple', semanticKnown:true});
     t.event({name:'shim_end_menu', window:502, prompt:'Which inventory items should be marked?'});
     t.event({name:'shim_select_menu', window:502, how:2});
     return t.dialog();

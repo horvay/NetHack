@@ -1,53 +1,33 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { spawn } = require('node:child_process');
-const electronBin = require('electron');
+const Harness = require('./lib/electron-test-harness');
+const EvidenceApproval = require('./lib/evidence-approval');
+
+
 
 const root = path.resolve(__dirname, '..');
-const outDir = process.env.NH_REAL_RECORD_REPLAY_OUT_DIR || path.join(root, 'test-output', 'real-record-replay-e2e');
-const port = Number(process.env.NH_REAL_RECORD_REPLAY_CDP_PORT || 9501);
+const scriptName = path.basename(__filename, '.js');
+function reviewRun(outputDir, reviewFile) { const manifestFile = path.join(path.resolve(outputDir), 'evidence-approval.json'); const approval = EvidenceApproval.openEvidenceApproval({ manifestFile }); EvidenceApproval.applyEvidenceReview(approval, path.resolve(reviewFile)); const validation = Harness.screenshotQc.validateManifest(manifestFile, { expectedRunIdentity: approval.runIdentity, requireApproval: true }); if (!validation.ok) throw new Error(`Evidence Approval failed: ${validation.errors.join('; ')}`); EvidenceApproval.writeEvidenceReport(manifestFile); console.log(`${scriptName}: APPROVED ${approval.runIdentity} ${manifestFile}`); }
+function createEvidence(page) { return Harness.screenshotQc.createScreenshotQc({ rootDir: page.outputDir, runIdentity: page.outputIdentity, manifestFile: path.join(page.outputDir, 'evidence-approval.json') }); }
+async function finishEvidence(page, qc, scenarioError) { await page.close().catch(() => {}); qc.recordAssertions([{ id: 'scenario-contract', status: scenarioError ? 'failed' : 'passed', details: scenarioError?.message || '' }]); qc.recordLog({ id: 'electron-stdout', path: page.logs.stdout, classification: 'electron-stdout' }); qc.recordLog({ id: 'electron-stderr', path: page.logs.stderr, classification: 'electron-stderr' }); const validation = Harness.screenshotQc.validateManifest(qc.manifestFile, { expectedRunIdentity: page.outputIdentity, requireApproval: false }); if (!validation.ok) throw new Error(`Evidence Approval capture failed: ${validation.errors.join('; ')}`); EvidenceApproval.writeEvidenceReport(qc.manifestFile); console.log(`${scriptName}: CAPTURED ${page.outputIdentity} ${qc.manifestFile}`); if (scenarioError) throw scenarioError; }
+let outDir, evidencePage, evidenceQc
+
 const width = Number(process.env.NH_REAL_RECORD_REPLAY_WIDTH || 1360);
 const height = Number(process.env.NH_REAL_RECORD_REPLAY_HEIGHT || 920);
 const sourcePlayground = path.resolve(root, '..', 'playground');
-const isolatedPlayground = path.join(outDir, 'isolated-playground');
+let isolatedPlayground;
 
 function prepareIsolatedPlayground() {
-  fs.rmSync(outDir, { recursive: true, force: true });
+  ;
   fs.mkdirSync(path.join(isolatedPlayground, 'save'), { recursive: true });
   for (const name of ['nhdat', 'sysconf', 'symbols', 'license']) fs.copyFileSync(path.join(sourcePlayground, name), path.join(isolatedPlayground, name));
   for (const name of ['perm', 'record', 'logfile', 'xlogfile', 'livelog', 'paniclog']) fs.writeFileSync(path.join(isolatedPlayground, name), '');
 }
 
-function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
-async function json(url) { const res = await fetch(url); if (!res.ok) throw new Error(`${res.status} ${url}`); return res.json(); }
-async function waitFor(fn, timeoutMs = 20000, stepMs = 150) {
-  const start = Date.now(); let last;
-  while (Date.now() - start < timeoutMs) {
-    try { const value = await fn(); if (value) return value; } catch (error) { last = error; }
-    await delay(stepMs);
-  }
-  throw last || new Error('timed out waiting');
-}
-async function connect(wsUrl) {
-  const ws = new WebSocket(wsUrl);
-  await new Promise((resolve, reject) => { ws.addEventListener('open', resolve, { once: true }); ws.addEventListener('error', reject, { once: true }); });
-  let id = 0; const pending = new Map();
-  ws.addEventListener('message', (event) => {
-    const msg = JSON.parse(event.data);
-    if (msg.id && pending.has(msg.id)) {
-      const item = pending.get(msg.id); pending.delete(msg.id);
-      msg.error ? item.reject(new Error(JSON.stringify(msg.error))) : item.resolve(msg.result);
-    }
-  });
-  return {
-    send(method, params = {}) {
-      const callId = ++id;
-      ws.send(JSON.stringify({ id: callId, method, params }));
-      return new Promise((resolve, reject) => pending.set(callId, { resolve, reject }));
-    },
-    close() { ws.close(); },
-  };
-}
+
+
+
+
 async function evalExpr(cdp, expression) {
   const res = await cdp.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression });
   if (res.exceptionDetails) throw new Error(JSON.stringify(res.exceptionDetails));
@@ -55,11 +35,11 @@ async function evalExpr(cdp, expression) {
 }
 async function shot(cdp, name) {
   const id = path.basename(name, path.extname(name));
-  const res = await cdp.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression: `window.netHackPOC.captureTestScreenshot(${JSON.stringify(id)})` });
-  if (res.exceptionDetails || !res.result.value?.ok || res.result.value.method !== 'BrowserWindow.webContents.capturePage') throw new Error(`native screenshot failed: ${JSON.stringify(res.exceptionDetails || res.result.value)}`);
-  const file = path.join(outDir, name);
-  fs.copyFileSync(res.result.value.path, file);
-  return file;
+  return evidencePage.nativeScreenshotEvidence(evidenceQc, id, {
+    classification: 'synthetic-fixture',
+    viewport: { width, height, devicePixelRatio: 1 },
+    state: id,
+  });
 }
 async function clickCenter(cdp, selector) {
   const box = await evalExpr(cdp, `(() => { const el = document.querySelector(${JSON.stringify(selector)}); el?.scrollIntoView?.({block:'center', inline:'center'}); const r = el?.getBoundingClientRect(); return r ? {x:r.left+r.width/2,y:r.top+r.height/2,w:r.width,h:r.height,text:el.innerText} : null; })()`);
@@ -81,7 +61,7 @@ async function doubleClickBox(cdp, box) {
   for (const clickCount of [1, 2]) {
     await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: box.x, y: box.y, button: 'left', clickCount });
     await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: box.x, y: box.y, button: 'left', clickCount });
-    await delay(80);
+    await Harness.delay(80);
   }
 }
 async function press(cdp, key, code, text) {
@@ -142,36 +122,36 @@ async function run(cmd, args, options = {}) {
 }
 
 async function main() {
+  if (process.argv[2] === '--review') return reviewRun(process.argv[3], process.argv[4]);
+  isolatedPlayground = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'nh-record-replay-'));
   prepareIsolatedPlayground();
-  const child = spawn(electronBin, ['.'], { cwd: root, env: { ...process.env, AI_ORG_ELECTRON_CDP_PORT: String(port), NH_ELECTRON_WINDOW_WIDTH: String(width), NH_ELECTRON_WINDOW_HEIGHT: String(height), NH_ELECTRON_TEST_FIXTURES: '1', NH_TEST_PLAYGROUND: isolatedPlayground, NETHACKDIR: isolatedPlayground, NH_DIAGNOSTIC_LOG_DIR: path.join(outDir, 'diagnostics'), NH_TEST_CAPTURE_DIR: path.join(outDir, 'native-captures') }, stdio: ['ignore', 'pipe', 'pipe'] });
-  let cdp; const stdout = []; const stderr = [];
-  child.stdout.on('data', (data) => stdout.push(String(data)));
-  child.stderr.on('data', (data) => stderr.push(String(data)));
-  const cleanup = () => { try { cdp?.close(); } catch {} if (!child.killed) child.kill('SIGTERM'); };
-  async function stopElectron() {
-    try { cdp?.close(); } catch {}
-    try { if (!child.killed) child.kill('SIGTERM'); } catch {}
-    await delay(300);
-  }
-  process.on('exit', cleanup);
-  const results = { outDir, isolatedPlayground, port, screenshots: {} };
+  const page = await Harness.createElectronBrowserDriver({
+    root,
+    width,
+    height,
+    env: {
+      NH_ELECTRON_TEST_FIXTURES: '1',
+      NH_TEST_PLAYGROUND: isolatedPlayground,
+      NETHACKDIR: isolatedPlayground,
+    },
+  });
+  outDir = page.outputDir;
+  evidencePage = page;
+  evidenceQc = createEvidence(page);
+  const cdp = page.cdp;
+  const results = { runIdentity: page.outputIdentity, outDir, isolatedPlayground, screenshots: {} };
+  let scenarioError;
   try {
-    const pages = await waitFor(async () => {
-      const list = await json(`http://127.0.0.1:${port}/json/list`);
-      return list.find((page) => page.type === 'page') ? list : null;
-    }, 20000);
-    cdp = await connect((pages.find((page) => page.type === 'page') || pages[0]).webSocketDebuggerUrl);
-    await cdp.send('Page.enable'); await cdp.send('Runtime.enable');
-    await waitFor(async () => (await evalExpr(cdp, "document.readyState === 'complete' && !!window.__nethackAutomation")), 10000);
+    await page.waitForRendererReady({ timeoutMs: 10000, promptTest: true, automation: true });
     await cdp.send('Emulation.clearDeviceMetricsOverride');
     const captureProfile = await evalExpr(cdp, `window.netHackPOC.setTestCaptureProfile(${JSON.stringify({ width, height, zoomPercent: 100 })})`);
     assert('native recording capture profile applied', captureProfile?.ok && captureProfile.contentSize?.[0] === width && captureProfile.contentSize?.[1] === height, JSON.stringify(captureProfile));
-    await waitFor(async () => (await evalExpr(cdp, `innerWidth === ${width} && innerHeight === ${height}`)), 5000);
+    await Harness.waitFor(async () => (await evalExpr(cdp, `innerWidth === ${width} && innerHeight === ${height}`)), 5000);
 
     const initialDialogs = await evalExpr(cdp, "Array.from(document.querySelectorAll('dialog[open]')).map((dialog) => dialog.id)");
     if (initialDialogs.includes('startup-choice-dialog')) await clickCenter(cdp, '#startup-new-game');
     else await clickCenter(cdp, '#start-shim');
-    await waitFor(async () => (await evalExpr(cdp, "document.getElementById('character-dialog')?.open")), 5000);
+    await Harness.waitFor(async () => (await evalExpr(cdp, "document.getElementById('character-dialog')?.open")), 5000);
     await evalExpr(cdp, `(() => {
       document.getElementById('player-name').value = 'ReplayE2E';
       document.getElementById('player-role').value = 'Val';
@@ -182,17 +162,17 @@ async function main() {
       document.getElementById('record-inputs').checked = true;
     })()`);
     await clickCenter(cdp, '#confirm-character');
-    results.recordingStarted = await waitFor(async () => {
+    results.recordingStarted = await Harness.waitFor(async () => {
       const next = await state(cdp);
       results.lastRecordingStartPoll = next;
       return next.running && next.seed && /bridge_seed/.test(next.seen) ? next : null;
     }, 20000);
     if (results.recordingStarted.dialogs.includes('intro-dialog')) await clickCenter(cdp, '#intro-continue');
-    await waitFor(async () => {
+    await Harness.waitFor(async () => {
       const next = await state(cdp);
       return !next.dialogs.length && !next.activePromptQuestion ? next : null;
     }, 5000);
-    results.gameReady = await waitFor(async () => {
+    results.gameReady = await Harness.waitFor(async () => {
       const next = await state(cdp);
       return next.running && /shim_print_glyph|shim_status_update|shim_curs|shim_putstr/.test(next.seen) ? next : null;
     }, 20000);
@@ -218,12 +198,12 @@ async function main() {
     };
     const beforeRejected = await state(cdp);
     results.rejectedSend = await evalExpr(cdp, `window.__nethackPromptTest.recordAndSendNativeUiCommandForTest(${JSON.stringify(rejectedCommand)}, 'real-record-replay-native-reject')`);
-    results.afterRejected = await waitFor(async () => {
+    results.afterRejected = await Harness.waitFor(async () => {
       const next = await state(cdp);
       results.lastRejectPoll = next;
       return next.sentUiProtocolAcks.some((ack) => ack.eventType === 'command.rejected' && ack.payload?.commandId === 'cmd-native-reject-replay-e2e') ? next : null;
     }, 5000);
-    await delay(250);
+    await Harness.delay(250);
     results.afterRejectedSettled = await state(cdp);
     assert('rejected native command did not record replay input bytes', results.afterRejectedSettled.inputs === beforeRejected.inputs, JSON.stringify({ before: beforeRejected.inputs, after: results.afterRejectedSettled.inputs, payloads: results.afterRejectedSettled.sentPayloads }));
     assert('rejected native command sent no bridge input payload', results.afterRejectedSettled.sentPayloads.length === beforeRejected.sentPayloads.length, JSON.stringify({ before: beforeRejected.sentPayloads, after: results.afterRejectedSettled.sentPayloads }));
@@ -232,7 +212,7 @@ async function main() {
     // The rejected-command probe is development evidence inside result.json.
     // Reset its player notice before any accepted recording/replay screenshot.
     await evalExpr(cdp, `window.__nethackPromptTest.clearFailureForTest(); document.getElementById('game-grid')?.focus()`);
-    await waitFor(async () => !/command metadata did not match|revision changed before action execution/i.test((await state(cdp)).body), 5000);
+    await Harness.waitFor(async () => !/command metadata did not match|revision changed before action execution/i.test((await state(cdp)).body), 5000);
 
     await evalExpr(cdp, `document.getElementById('game-grid')?.focus()`);
     const beforeSemantic = await state(cdp);
@@ -241,11 +221,11 @@ async function main() {
 
     results.semanticActionSend = await evalExpr(cdp, `window.__nethackPromptTest.sendSemanticActionForTest('x', { id: 'slot.swapMainAlternate', label: 'Swap with alternate weapon' }, { actionId: 'slot.swapMainAlternate', label: 'Swap with alternate weapon' }, { source: 'equipment-paper-doll', target: { slotId: 'mainHand' }, payload: { promptPolicy: 'no-followup' } })`);
     results.screenshots.semanticActionTarget = await shot(cdp, '03-semantic-action-sent.png');
-    results.afterSemanticAccepted = await waitFor(async () => {
+    results.afterSemanticAccepted = await Harness.waitFor(async () => {
       const next = await state(cdp);
       return next.sentUiProtocolAcks.some((ack) => ack.eventType === 'command.accepted' && ack.payload?.executionSource === 'bridge-ui-command' && ack.payload?.commandId !== 'cmd-native-reject-replay-e2e') && next.inputs > beforeSemantic.inputs ? next : null;
     }, 10000);
-    await delay(1200);
+    await Harness.delay(1200);
     const afterSemantic = await state(cdp);
     results.afterSemantic = afterSemantic;
     results.screenshots.afterSemantic = await shot(cdp, '04-after-semantic-action-accepted.png');
@@ -261,7 +241,7 @@ async function main() {
     results.clearedStaleMenuForCheckpoint = await evalExpr(cdp, `window.__nethackPromptTest.forceCloseCurrentMenuForTest()`);
 
     results.recordCheckpointResult = await evalExpr(cdp, `window.__nethackAutomation.recordCheckpoint('after-semantic-v2-action')`);
-    results.afterCheckpoint = await waitFor(async () => {
+    results.afterCheckpoint = await Harness.waitFor(async () => {
       const next = await state(cdp);
       return next.checkpoints >= 1 ? next : null;
     }, 5000);
@@ -269,7 +249,7 @@ async function main() {
 
     console.log('[e2e] saving recording');
     results.saveRecordingResult = await evalExpr(cdp, `window.__nethackAutomation.saveRecording('manual')`);
-    const savedState = await waitFor(async () => {
+    const savedState = await Harness.waitFor(async () => {
       const next = await state(cdp);
       return next.savePath ? next : null;
     }, 5000);
@@ -281,8 +261,8 @@ async function main() {
     assert('saved recording preserves accepted and rejected ack evidence', results.savedRecording.events.some((event) => event.type === 'ui-protocol-ack' && event.event?.eventType === 'command.accepted' && event.event?.payload?.executionSource === 'bridge-ui-command') && results.savedRecording.events.some((event) => event.type === 'ui-protocol-ack' && event.event?.eventType === 'command.rejected' && event.event?.payload?.commandId === 'cmd-native-reject-replay-e2e'), JSON.stringify(results.savedRecording.events.filter((event) => event.type === 'ui-protocol-ack')));
     assert('rejected native command did not create replay input event', !results.savedRecording.events.some((event) => event.type === 'input' && /cmd-native-reject-replay-e2e/.test(JSON.stringify(event))), JSON.stringify(results.savedRecording.events.filter((event) => event.type === 'input')));
     console.log(`[e2e] saved ${results.recordingPath}`);
-    await stopElectron();
-    await delay(500);
+    await page.close();
+    await Harness.delay(500);
 
     const replayOut = path.join(outDir, 'replay-artifacts');
     fs.rmSync(replayOut, { recursive: true, force: true });
@@ -304,27 +284,17 @@ async function main() {
     assert('visual replay has no direction/cmdassist artifact after semantic action', !/direction prompt|Invalid direction key|cmdassist/i.test(JSON.stringify(summary.state || {})), JSON.stringify(summary.state || {}).slice(0, 1200));
     assert('visual replay wrote checkpoint sidecar', summary.sidecars.length >= 1 && summary.sidecars.every((file) => fs.existsSync(file)), JSON.stringify(summary.sidecars));
 
-    fs.writeFileSync(path.join(outDir, 'electron-stdout.log'), stdout.join(''));
-    fs.writeFileSync(path.join(outDir, 'electron-stderr.log'), stderr.join(''));
     fs.writeFileSync(path.join(outDir, 'result.json'), JSON.stringify(results, null, 2));
-    process.removeListener('exit', cleanup);
-    await delay(500);
-    fs.rmSync(isolatedPlayground, { recursive: true, force: true });
-    console.log(`real record/replay E2E test OK: ${outDir}`);
   } catch (error) {
+    scenarioError = error;
     results.error = error.stack || String(error);
-    results.stdout = stdout.join('');
-    results.stderr = stderr.join('');
+    fs.writeFileSync(path.join(outDir, 'result.json'), JSON.stringify(results, null, 2));
+  } finally {
     try {
-      fs.writeFileSync(path.join(outDir, 'electron-stdout.log'), results.stdout);
-      fs.writeFileSync(path.join(outDir, 'electron-stderr.log'), results.stderr);
-      fs.writeFileSync(path.join(outDir, 'result.json'), JSON.stringify(results, null, 2));
-    } catch {}
-    cleanup();
-    await delay(500);
-    fs.rmSync(isolatedPlayground, { recursive: true, force: true });
-    console.error(error.stack || error);
-    process.exit(1);
+      await finishEvidence(page, evidenceQc, scenarioError);
+    } finally {
+      fs.rmSync(isolatedPlayground, { recursive: true, force: true });
+    }
   }
 }
 

@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "diagnostic": {
+    "runId": "2026-07-14T01-05-35-315Z-c8c1e6f5",
+    "runDir": "/home/horvay/.config/nethack-electron-poc/diagnostic-runs/2026-07-14T01-05-35-315Z-c8c1e6f5",
+    "seed": {
+      "requested": "902902",
+      "chosen": "902902",
+      "source": "user",
+      "effective": "902902",
+      "effectiveSource": "NH_ELECTRON_CHOSEN_SEED",
+      "enforced": true,
+      "mismatch": false
+    }
+  }
+}

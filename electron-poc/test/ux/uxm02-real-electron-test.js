@@ -171,6 +171,8 @@ async function runShellViewport(viewport, index, qc, summary) {
   summary.runs[runId] = run;
   try {
     await page.cdp.send('Emulation.setDeviceMetricsOverride', { width: viewport.width, height: viewport.height, deviceScaleFactor: 1, mobile: false });
+    await page.waitForCheckedValue("Boolean(window.NetHackUxRuntime?.runtime?.domain?.('shell')?.state?.().connected)", 10000);
+    await page.evalCheckedValue("window.NetHackUxRuntime.runtime.domain('shell').setDensity('compact', { persist: false }); true");
     await startScenario(page, 'status/condition-trap', `UXM02${index}`, viewport);
     await page.pressKey('ArrowRight');
     await waitFor(async () => (await shellState(page)).openDialogs.includes('interaction-dialog'), 5000);

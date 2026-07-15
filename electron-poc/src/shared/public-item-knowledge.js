@@ -35,11 +35,17 @@
   function genericLabel(item = {}) {
     return stripSelector(item.displayName || item.display || item.text || item.itemName || item.targetText || item.name, item);
   }
+  const bareAppearanceClassPattern = /^(?:(?:a|an|the|some)\s+)?(?:amulets?|armor|armour|books?|corpses?|food|gems?|items?|objects?|potions?|rings?|scrolls?|spellbooks?|stones?|tools?|wands?|weapons?)$/i;
+  function appearancePreferredLabel(generic, appearance) {
+    if (!appearance) return generic;
+    if (!generic || bareAppearanceClassPattern.test(generic)) return appearance;
+    return generic;
+  }
   function publicLabel(item = {}, options = {}) {
     const neutral = cleanString(options.neutral) || 'item';
     const appearance = explicitAppearance(item);
     if (identityIsPublic(item)) return genericLabel(item) || cleanString(item.semanticName) || appearance || neutral;
-    if (item.known?.appearance === true) return genericLabel(item) || appearance || neutral;
+    if (item.known?.appearance === true) return appearancePreferredLabel(genericLabel(item), appearance) || neutral;
     return appearance || neutral;
   }
   function comparisonToken(value) {

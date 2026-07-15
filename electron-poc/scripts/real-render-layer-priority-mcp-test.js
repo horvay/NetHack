@@ -1,23 +1,35 @@
 #!/usr/bin/env node
 const fs = require('node:fs');
 const path = require('node:path');
-const { spawn } = require('node:child_process');
-const electronBin = require('electron');
+const Harness = require('./lib/electron-test-harness');
+const EvidenceApproval = require('./lib/evidence-approval');
 
 const root = path.resolve(__dirname, '..');
-const outDir = path.join(root, 'test-output', 'real-render-layer-priority');
+const width = 1360;
+const height = 920;
+const { delay, waitFor } = Harness;
 const scenarioId = 'render/layer-priority';
-const port = Number(process.env.NH_RENDER_LAYER_CDP_PORT || 9644);
-function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
-async function json(url) { const res = await fetch(url); if (!res.ok) throw new Error(`${res.status} ${url}`); return res.json(); }
-async function waitFor(fn, timeoutMs = 20000, stepMs = 150) { const start = Date.now(); let last; while (Date.now() - start < timeoutMs) { try { const value = await fn(); if (value) return value; } catch (error) { last = error; } await delay(stepMs); } throw last || new Error('timed out'); }
-async function connect(wsUrl) { const ws = new WebSocket(wsUrl); await new Promise((resolve, reject) => { ws.addEventListener('open', resolve, { once: true }); ws.addEventListener('error', reject, { once: true }); }); let id = 0; const pending = new Map(); ws.addEventListener('message', (event) => { const msg = JSON.parse(event.data); if (msg.id && pending.has(msg.id)) { const p = pending.get(msg.id); pending.delete(msg.id); msg.error ? p.reject(new Error(JSON.stringify(msg.error))) : p.resolve(msg.result); } }); return { send(method, params = {}) { const callId = ++id; ws.send(JSON.stringify({ id: callId, method, params })); return new Promise((resolve, reject) => pending.set(callId, { resolve, reject })); }, close() { ws.close(); } }; }
-async function evalExpr(cdp, expression) { const res = await cdp.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression }); if (res.exceptionDetails) throw new Error(JSON.stringify(res.exceptionDetails)); return res.result.value; }
-async function shot(cdp, name) { const res = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }); const p = path.join(outDir, name); fs.writeFileSync(p, Buffer.from(res.data, 'base64')); return p; }
+async function evalExpr(cdp, expression) { return cdp.evalCheckedValue(expression, { awaitPromise: true }); }
+async function shot(cdp, name) {
+  const capture = await cdp.screenshotEvidence(cdp.qc, path.basename(name, path.extname(name)), { classification: 'synthetic-fixture', viewport: { width, height, zoomPercent: 100 }, state: name, viewSafeFormat: 'BMP', viewSafeScale: 0.25 });
+  return capture.raw.path;
+}
 async function click(cdp, selector) { const box = await evalExpr(cdp, `(() => { const el = document.querySelector(${JSON.stringify(selector)}); el?.scrollIntoView?.({block:'center', inline:'center'}); const r = el?.getBoundingClientRect(); return r ? {x:r.left+r.width/2,y:r.top+r.height/2} : null; })()`); if (!box) throw new Error(`missing selector ${selector}`); await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: box.x, y: box.y, button: 'left', clickCount: 1 }); await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: box.x, y: box.y, button: 'left', clickCount: 1 }); }
-function assert(name, ok, detail = '') { if (!ok) throw new Error(`${name}${detail ? `: ${detail}` : ''}`); }
+let assertionOutcomes = null;
+function assert(name, ok, detail = '') {
+  const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const outcome = { id, status: ok ? 'passed' : 'failed', details: ok ? '' : detail };
+  const existing = assertionOutcomes?.find((entry) => entry.id === id);
+  if (existing) Object.assign(existing, outcome); else assertionOutcomes?.push(outcome);
+  if (!ok) throw new Error(`${name}${detail ? `: ${detail}` : ''}`);
+}
 async function state(cdp) { return evalExpr(cdp, `(() => ({ running: window.__nethackAutomation?.state?.().runningState?.running || false, seenShim: document.getElementById('shim-output')?.dataset?.seen || '', shim: document.getElementById('shim-output')?.innerText || '', body: document.body.innerText }))()`); }
-async function start(cdp) { if (await evalExpr(cdp, `Boolean(document.getElementById('startup-choice-dialog')?.open)`)) await click(cdp, '#startup-new-game'); else await click(cdp, '#start-shim'); await waitFor(async () => evalExpr(cdp, `Boolean(document.getElementById('character-dialog')?.open)`), 7000); await evalExpr(cdp, `(() => { const input = document.getElementById('player-name'); if (input && !input.value) { input.value = 'LayerTester'; input.dispatchEvent(new Event('input', { bubbles: true })); } })()`); await click(cdp, '#confirm-character'); await waitFor(async () => (await state(cdp)).running, 20000); await evalExpr(cdp, `(() => { document.getElementById('intro-dialog')?.close?.('continue'); document.getElementById('document-dialog')?.close?.('close'); document.getElementById('game-grid')?.focus?.(); })()`); }
+async function start(cdp) {
+  await cdp.startDefaultGame({ timeoutMs: 25000, playerName: 'LayerTester' });
+  await cdp.dismissIntroDialogs();
+    await delay(500);
+    await cdp.dismissIntroDialogs();
+}
 async function mapMetrics(cdp) { return evalExpr(cdp, `(() => {
   const summarize = (el) => {
     const layers = Array.from(el.querySelectorAll('.tile-layer')).map((layer) => ({ role: layer.className.match(/tile-layer-([a-z-]+)/)?.[1] || '', tileId: layer.dataset.tileId || '', label: layer.dataset.label || '', zIndex: getComputedStyle(layer).zIndex, backgroundImage: layer.style.backgroundImage || '', text: layer.textContent || '' }));
@@ -52,17 +64,36 @@ async function showProofPanel(cdp, metrics) { return evalExpr(cdp, `((data) => {
   return true;
 })(${JSON.stringify(metrics)})`); }
 
+function reviewRun(outputDir, reviewFile) {
+  const manifestFile = path.join(path.resolve(outputDir), 'evidence-approval.json');
+  const approval = EvidenceApproval.openEvidenceApproval({ manifestFile });
+  EvidenceApproval.applyEvidenceReview(approval, path.resolve(reviewFile));
+  const validation = Harness.screenshotQc.validateManifest(manifestFile, { expectedRunIdentity: approval.runIdentity, requireApproval: true });
+  if (!validation.ok) throw new Error(`Evidence Approval failed: ${validation.errors.join('; ')}`);
+  EvidenceApproval.writeEvidenceReport(manifestFile);
+  console.log(`real-render-layer-priority-mcp-test: APPROVED ${approval.runIdentity} ${manifestFile}`);
+}
+function recordJsonSidecars(qc, outDir) {
+  for (const name of fs.readdirSync(outDir)) {
+    if (!name.endsWith('.json') || name === 'evidence-approval.json') continue;
+    const file = path.join(outDir, name);
+    if (!fs.statSync(file).isFile()) continue;
+    qc.recordLog({ id: `sidecar-${name.replace(/[^a-z0-9._-]+/gi, '-')}`, path: file, classification: 'scenario-state' });
+  }
+}
+
 async function main() {
-  fs.rmSync(outDir, { recursive: true, force: true }); fs.mkdirSync(outDir, { recursive: true });
-  const child = spawn(electronBin, ['.'], { cwd: root, env: { ...process.env, AI_ORG_ELECTRON_CDP_PORT: String(port), NH_ELECTRON_WINDOW_WIDTH: '1360', NH_ELECTRON_WINDOW_HEIGHT: '920', NH_ELECTRON_TEST_FIXTURES: '1', NH_TEST_SCENARIO_ID: scenarioId, NETHACK_SEED: '515151', NETHACKOPTIONS: '!tutorial,!autopickup' }, stdio: ['ignore', 'pipe', 'pipe'] });
-  let logs = ''; child.stdout.on('data', (d) => { logs += d; process.stdout.write(d); }); child.stderr.on('data', (d) => { logs += d; process.stderr.write(d); });
-  let cdp; const cleanup = () => { try { cdp?.close(); } catch {} if (!child.killed) child.kill('SIGTERM'); fs.writeFileSync(path.join(outDir, 'electron.log'), logs); };
-  process.on('exit', cleanup);
+  const page = await Harness.createElectronBrowserDriver({
+    root, width, height,
+    env: { NH_ELECTRON_TEST_FIXTURES: '1', NH_TEST_SCENARIO_ID: scenarioId, NETHACK_SEED: '515151', NETHACKOPTIONS: '!tutorial,!autopickup' },
+  });
+  const outDir = page.outputDir;
+  const qc = Harness.screenshotQc.createScreenshotQc({ rootDir: outDir, runIdentity: page.outputIdentity, manifestFile: path.join(outDir, 'evidence-approval.json') });
+  const cdp = Object.freeze({ ...page, qc });
+  const outcomes = [];
+  if (typeof assertionOutcomes !== 'undefined') assertionOutcomes = outcomes;
+  let scenarioError = null;
   try {
-    const pages = await waitFor(async () => { const list = await json(`http://127.0.0.1:${port}/json/list`); return list.find((p) => p.type === 'page') ? list : null; }, 20000);
-    cdp = await connect((pages.find((p) => p.type === 'page') || pages[0]).webSocketDebuggerUrl);
-    await cdp.send('Page.enable'); await cdp.send('Runtime.enable'); await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1360, height: 920, deviceScaleFactor: 2, mobile: false });
-    await waitFor(async () => (await evalExpr(cdp, "document.readyState === 'complete' && !!window.__nethackPromptTest")), 10000);
     await start(cdp);
     const loaded = await waitFor(async () => { const s = await state(cdp); if (/bridge_test_scenario_failed/.test(`${s.seenShim}\n${s.shim}`)) throw new Error(s.shim); return /bridge_test_scenario_loaded/.test(`${s.seenShim}\n${s.shim}`) ? s : null; }, 10000);
     assert('scenario loaded event visible', /bridge_test_scenario_loaded/.test(`${loaded.seenShim}\n${loaded.shim}`), loaded.shim.slice(-1000));
@@ -84,9 +115,25 @@ async function main() {
     await showProofPanel(cdp, metrics);
     const proofScreenshot = await shot(cdp, '02-layer-priority-proof-panel.png');
     fs.writeFileSync(path.join(outDir, 'layer-priority-debug.json'), JSON.stringify({ ...metrics, heroTip, monsterTip }, null, 2));
-    const summary = [`# Render layer priority real Electron smoke`, '', 'PASS', '', `Scenario: ${scenarioId}`, `Map screenshot: ${screenshot}`, `Zoomed proof panel screenshot: ${proofScreenshot}`, '', 'Command: npm run test:real-render-layer-priority-mcp', '', 'Verified in the real Electron/game path:', '- apple object on floor renders as object over terrain', '- player/hero on large box renders layer order terrain < object < actor', '- jackal on chest renders layer order terrain < object < actor', '- adjacent normal floor has no object/actor overlay', '- hero and monster hover tooltips retain the underlying object names', '', 'Layer evidence:', '```json', JSON.stringify({ hero: metrics.hero, westObject: metrics.westObject, eastMonster: metrics.eastMonster, northFloor: metrics.northFloor, heroTip, monsterTip }, null, 2), '```', ''].join('\n');
-    fs.writeFileSync(path.join(outDir, 'real-render-layer-priority-summary.md'), summary);
-    console.log(summary);
-  } finally { cleanup(); }
+  } catch (error) {
+    scenarioError = error;
+  } finally {
+    await page.close().catch((error) => { if (!scenarioError) scenarioError = error; });
+  }
+  outcomes.push({ id: 'scenario-completed', status: scenarioError ? 'failed' : 'passed', details: scenarioError ? String(scenarioError.message || scenarioError) : '' });
+  qc.recordAssertions(outcomes);
+  recordJsonSidecars(qc, outDir);
+  qc.recordLog({ id: 'electron-stdout', path: page.logs.stdout, classification: 'electron-stdout' });
+  qc.recordLog({ id: 'electron-stderr', path: page.logs.stderr, classification: 'electron-stderr' });
+  const validation = Harness.screenshotQc.validateManifest(qc.manifestFile, { expectedRunIdentity: page.outputIdentity, requireApproval: false });
+  if (!validation.ok) throw new Error(`Evidence Approval capture failed: ${validation.errors.join('; ')}`);
+  console.log(`real-render-layer-priority-mcp-test: CAPTURED ${page.outputIdentity} ${qc.manifestFile}`);
+  if (scenarioError) throw scenarioError;
 }
-main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+
+const reviewIndex = process.argv.indexOf('--review');
+if (reviewIndex !== -1) {
+  Promise.resolve().then(() => reviewRun(process.argv[reviewIndex + 1], process.argv[reviewIndex + 2])).catch((error) => { console.error(error.stack || error); process.exit(1); });
+} else {
+  main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+}

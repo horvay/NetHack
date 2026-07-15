@@ -1,18 +1,18 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { spawn } = require('node:child_process');
-const electronBin = require('electron');
+const Harness = require('./lib/electron-test-harness');
+const EvidenceApproval = require('./lib/evidence-approval');
 
 const root = path.resolve(__dirname, '..');
-const outDir = path.join(root, 'test-output', 'real-monster-sense-tip');
+const width = 1360;
+const height = 920;
+const { delay, waitFor } = Harness;
 const scenarioId = 'fountain/monster-sense-tip';
-const port = Number(process.env.NH_MONSTER_SENSE_TIP_CDP_PORT || 9684);
-function delay(ms) { return new Promise((r) => setTimeout(r, ms)); }
-async function json(url) { const res = await fetch(url); if (!res.ok) throw new Error(`${res.status} ${url}`); return res.json(); }
-async function waitFor(fn, timeoutMs = 20000, stepMs = 150) { const start = Date.now(); let last; while (Date.now() - start < timeoutMs) { try { const v = await fn(); if (v) return v; } catch (e) { last = e; } await delay(stepMs); } throw last || new Error('timed out'); }
-async function connect(wsUrl) { const ws = new WebSocket(wsUrl); await new Promise((resolve, reject) => { ws.addEventListener('open', resolve, { once: true }); ws.addEventListener('error', reject, { once: true }); }); let id = 0; const pending = new Map(); ws.addEventListener('message', (event) => { const msg = JSON.parse(event.data); if (msg.id && pending.has(msg.id)) { const p = pending.get(msg.id); pending.delete(msg.id); msg.error ? p.reject(new Error(JSON.stringify(msg.error))) : p.resolve(msg.result); } }); return { send(method, params = {}) { const callId = ++id; ws.send(JSON.stringify({ id: callId, method, params })); return new Promise((resolve, reject) => pending.set(callId, { resolve, reject })); }, close() { ws.close(); } }; }
-async function evalExpr(cdp, expression) { const res = await cdp.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression }); if (res.exceptionDetails) throw new Error(JSON.stringify(res.exceptionDetails)); return res.result.value; }
-async function shot(cdp, name) { const res = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }); const p = path.join(outDir, name); fs.writeFileSync(p, Buffer.from(res.data, 'base64')); return p; }
+async function evalExpr(cdp, expression) { return cdp.evalCheckedValue(expression, { awaitPromise: true }); }
+async function shot(cdp, name) {
+  const capture = await cdp.screenshotEvidence(cdp.qc, path.basename(name, path.extname(name)), { classification: 'synthetic-fixture', viewport: { width, height, zoomPercent: 100 }, state: name, viewSafeFormat: 'BMP', viewSafeScale: 0.25 });
+  return capture.raw.path;
+}
 async function click(cdp, selector) { const box = await evalExpr(cdp, `(() => { const el = document.querySelector(${JSON.stringify(selector)}); el?.scrollIntoView?.({block:'center', inline:'center'}); const r = el?.getBoundingClientRect(); return r ? {x:r.left+r.width/2,y:r.top+r.height/2} : null; })()`); if (!box) throw new Error(`missing selector ${selector}`); await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: box.x, y: box.y, button: 'left', clickCount: 1 }); await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: box.x, y: box.y, button: 'left', clickCount: 1 }); }
 async function send(cdp, ch) { await evalExpr(cdp, `window.__nethackAutomation.sendKeycode(${JSON.stringify(ch.charCodeAt(0))})`); }
 async function state(cdp) { return evalExpr(cdp, `(() => ({
@@ -25,25 +25,56 @@ async function state(cdp) { return evalExpr(cdp, `(() => ({
   monsterCells: Array.from(document.querySelectorAll('.tile-cell')).filter((cell) => /monster|jackal/i.test([cell.dataset.semanticKind || '', cell.dataset.semanticName || '', cell.getAttribute('aria-label') || '', cell.textContent || ''].join(' '))).map((cell) => ({ x: cell.dataset.mapX, y: cell.dataset.mapY, kind: cell.dataset.semanticKind || '', name: cell.dataset.semanticName || '', label: cell.getAttribute('aria-label') || '', text: cell.textContent || '' })),
   body: document.body.innerText
 }))()`); }
-async function start(cdp) { await click(cdp, '#start-shim'); await delay(250); await click(cdp, '#confirm-character'); await waitFor(async () => (await state(cdp)).running, 20000); await evalExpr(cdp, `(() => { document.getElementById('intro-dialog')?.close?.('continue'); document.getElementById('document-dialog')?.close?.('close'); document.getElementById('game-grid')?.focus?.(); })()`); }
-function assert(name, ok, detail = '') { if (!ok) throw new Error(`${name}${detail ? `: ${detail}` : ''}`); }
+async function start(cdp) {
+  await cdp.startDefaultGame({ timeoutMs: 25000, playerName: 'BatchBProof' });
+  await cdp.dismissIntroDialogs();
+    await delay(500);
+    await cdp.dismissIntroDialogs();
+}
+let assertionOutcomes = null;
+function assert(name, ok, detail = '') {
+  const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const outcome = { id, status: ok ? 'passed' : 'failed', details: ok ? '' : detail };
+  const existing = assertionOutcomes?.find((entry) => entry.id === id);
+  if (existing) Object.assign(existing, outcome); else assertionOutcomes?.push(outcome);
+  if (!ok) throw new Error(`${name}${detail ? `: ${detail}` : ''}`);
+}
+
+function reviewRun(outputDir, reviewFile) {
+  const manifestFile = path.join(path.resolve(outputDir), 'evidence-approval.json');
+  const approval = EvidenceApproval.openEvidenceApproval({ manifestFile });
+  EvidenceApproval.applyEvidenceReview(approval, path.resolve(reviewFile));
+  const validation = Harness.screenshotQc.validateManifest(manifestFile, { expectedRunIdentity: approval.runIdentity, requireApproval: true });
+  if (!validation.ok) throw new Error(`Evidence Approval failed: ${validation.errors.join('; ')}`);
+  EvidenceApproval.writeEvidenceReport(manifestFile);
+  console.log(`real-monster-sense-tip-mcp-test: APPROVED ${approval.runIdentity} ${manifestFile}`);
+}
+function recordJsonSidecars(qc, outDir) {
+  for (const name of fs.readdirSync(outDir)) {
+    if (!name.endsWith('.json') || name === 'evidence-approval.json') continue;
+    const file = path.join(outDir, name);
+    if (!fs.statSync(file).isFile()) continue;
+    qc.recordLog({ id: `sidecar-${name.replace(/[^a-z0-9._-]+/gi, '-')}`, path: file, classification: 'scenario-state' });
+  }
+}
 
 async function main() {
-  fs.rmSync(outDir, { recursive: true, force: true }); fs.mkdirSync(outDir, { recursive: true });
-  const child = spawn(electronBin, ['.'], { cwd: root, env: { ...process.env, AI_ORG_ELECTRON_CDP_PORT: String(port), NH_ELECTRON_WINDOW_WIDTH: '1360', NH_ELECTRON_WINDOW_HEIGHT: '920', NH_ELECTRON_TEST_FIXTURES: '1', NH_TEST_SCENARIO_ID: scenarioId, NETHACK_SEED: '424242', NETHACKOPTIONS: '!tutorial,!autopickup' }, stdio: ['ignore', 'pipe', 'pipe'] });
-  let logs = ''; child.stdout.on('data', (d) => { logs += d; process.stdout.write(d); }); child.stderr.on('data', (d) => { logs += d; process.stderr.write(d); });
-  let cdp; const cleanup = () => { try { cdp?.close(); } catch {} if (!child.killed) child.kill('SIGTERM'); fs.writeFileSync(path.join(outDir, 'electron.log'), logs); };
-  process.on('exit', cleanup);
+  const page = await Harness.createElectronBrowserDriver({
+    root, width, height,
+    env: { NH_ELECTRON_TEST_FIXTURES: '1', NH_TEST_SCENARIO_ID: scenarioId, NETHACK_SEED: '424242', NETHACKOPTIONS: '!tutorial,!autopickup' },
+  });
+  const outDir = page.outputDir;
+  const qc = Harness.screenshotQc.createScreenshotQc({ rootDir: outDir, runIdentity: page.outputIdentity, manifestFile: path.join(outDir, 'evidence-approval.json') });
+  const cdp = Object.freeze({ ...page, qc });
+  const outcomes = [];
+  if (typeof assertionOutcomes !== 'undefined') assertionOutcomes = outcomes;
+  let scenarioError = null;
   try {
-    const pages = await waitFor(async () => { const list = await json(`http://127.0.0.1:${port}/json/list`); return list.find((p) => p.type === 'page') ? list : null; }, 20000);
-    cdp = await connect((pages.find((p) => p.type === 'page') || pages[0]).webSocketDebuggerUrl);
-    await cdp.send('Page.enable'); await cdp.send('Runtime.enable'); await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1360, height: 920, deviceScaleFactor: 1, mobile: false });
-    await waitFor(async () => (await evalExpr(cdp, "document.readyState === 'complete' && !!window.__nethackPromptTest")), 10000);
     await start(cdp);
     const loaded = await waitFor(async () => { const s = await state(cdp); if (/bridge_test_scenario_failed/.test(`${s.seenShim}\n${s.shim}`)) throw new Error(s.shim); return /bridge_test_scenario_loaded/.test(`${s.seenShim}\n${s.shim}`) ? s : null; }, 10000);
     assert('scenario loaded event visible', /bridge_test_scenario_loaded/.test(`${loaded.seenShim}\n${loaded.shim}`), loaded.shim.slice(-1000));
     const startShot = await shot(cdp, '01-fountain-scenario-start.png');
-
+    
     await send(cdp, 'q');
     await waitFor(async () => /Drink from the fountain/i.test(`${(await state(cdp)).dialog?.prompt || ''}\n${(await state(cdp)).body}`), 10000).catch(async (error) => {
       const debug = await state(cdp).catch(() => ({}));
@@ -56,7 +87,7 @@ async function main() {
     assert('drink command opens the real fountain prompt', /Drink from the fountain/i.test(`${afterQ.dialog?.prompt || ''}\n${afterQ.body}`), JSON.stringify(afterQ.dialog));
     const beforeSense = afterQ;
     await click(cdp, '#interaction-options .choice-button[data-key="y"]');
-
+    
     const sensed = await waitFor(async () => {
       const s = await state(cdp);
       if (s.dialog?.interactionOpen && /Tip|Spellbook/i.test(s.dialog.title || '')) throw new Error(`unexpected monster-sense modal: ${JSON.stringify(s.dialog)}`);
@@ -80,10 +111,25 @@ async function main() {
     fs.writeFileSync(path.join(outDir, 'debug-after-dismiss.json'), JSON.stringify(afterDismiss, null, 2));
     const afterDismissShot = await shot(cdp, '03-after-any-key-normal-gameplay.png');
     assert('space dismisses fountain farlook browse and leaves ordinary no-modal gameplay', !afterDismiss.dialog?.interactionOpen && /Done\.|water tastes like nothing/i.test(afterDismiss.body) && !/monster-sense map browse active/i.test(afterDismiss.status || ''), JSON.stringify(afterDismiss.dialog));
-
-    const summary = [`# Real fountain monster-sense no-modal Electron smoke`, '', 'PASS', '', `Scenario: ${scenarioId}`, `Start screenshot: ${startShot}`, `No-modal farlook screenshot: ${senseShot}`, `After keypress screenshot: ${afterDismissShot}`, `Sensed state JSON: ${path.join(outDir, 'debug-sensed-farlook.json')}`, `After-dismiss state JSON: ${path.join(outDir, 'debug-after-dismiss.json')}`, '', 'Steps:', '1. Started real Electron with fixture scenario: hero standing on a fountain, scenario eventResults forcing the next drink-fountain result to monster-detection, and hostile monsters to reveal.', '2. Sent the real player quaff command `q`.', '3. Answered `y` to NetHack’s real `Drink from the fountain?` prompt.', '4. Verified NetHack message “You sense the presence of monsters.”, revealed monster map cells, and farlook browse instructions in the message log.', '5. Verified no Tip, Spellbook, or other interaction modal opened for the fountain monster-sense result.', '6. Sent Space and verified farlook browse ended, no modal remained, and no monster-sense browse status remained.', '', 'Assertions:', '- message log includes “You sense the presence of monsters.” from the fountain drink path', '- map contains monster cells after the forced fountain monster-detection result', '- farlook browse instruction is message-log text only', '- no Tip/Spellbook/action modal appears after the effect', '- Space returns to ordinary gameplay without an interaction dialog or browse status', ''].join('\n');
-    fs.writeFileSync(path.join(outDir, 'summary.md'), summary);
-    console.log(summary);
-  } finally { cleanup(); }
+  } catch (error) {
+    scenarioError = error;
+  } finally {
+    await page.close().catch((error) => { if (!scenarioError) scenarioError = error; });
+  }
+  outcomes.push({ id: 'scenario-completed', status: scenarioError ? 'failed' : 'passed', details: scenarioError ? String(scenarioError.message || scenarioError) : '' });
+  qc.recordAssertions(outcomes);
+  recordJsonSidecars(qc, outDir);
+  qc.recordLog({ id: 'electron-stdout', path: page.logs.stdout, classification: 'electron-stdout' });
+  qc.recordLog({ id: 'electron-stderr', path: page.logs.stderr, classification: 'electron-stderr' });
+  const validation = Harness.screenshotQc.validateManifest(qc.manifestFile, { expectedRunIdentity: page.outputIdentity, requireApproval: false });
+  if (!validation.ok) throw new Error(`Evidence Approval capture failed: ${validation.errors.join('; ')}`);
+  console.log(`real-monster-sense-tip-mcp-test: CAPTURED ${page.outputIdentity} ${qc.manifestFile}`);
+  if (scenarioError) throw scenarioError;
 }
-main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+
+const reviewIndex = process.argv.indexOf('--review');
+if (reviewIndex !== -1) {
+  Promise.resolve().then(() => reviewRun(process.argv[reviewIndex + 1], process.argv[reviewIndex + 2])).catch((error) => { console.error(error.stack || error); process.exit(1); });
+} else {
+  main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+}

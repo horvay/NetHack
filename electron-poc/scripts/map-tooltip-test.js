@@ -13,41 +13,41 @@ async function main() {
   await Harness.withElectronPage({ root, port, width, height }, async (page) => {
     await page.waitForValue("document.readyState === 'complete' && !!window.__nethackTooltipTest", 10000);
     await page.run(`window.__nethackTooltipTest.setCells([
-        { x: 2, y: 2, ch: '.', semanticKind: 'terrain', semanticName: 'room' },
-        { x: 1, y: 2, ch: '|', semanticKind: 'terrain', semanticName: 'stone wall' },
-        { x: 3, y: 2, ch: 'f', semanticKind: 'monster', semanticName: 'kitten', glyph: 798 },
-        { x: 4, y: 2, ch: '%', semanticKind: 'object', semanticName: 'food ration' },
-        { x: 5, y: 2, ch: '%', semanticKind: 'corpse', semanticName: 'kitten', glyph: 900 },
-        { x: 6, y: 2, ch: '.', semanticKind: 'engraving', semanticName: 'engraving in a room' },
-        { x: 7, y: 2, ch: '?', semanticKind: 'object', semanticName: 'scroll of food detection' },
-        { x: 8, y: 2, ch: '?', semanticKind: 'object', semanticName: 'scroll labeled ZLORFIK', semanticKnown: false },
+        { x: 2, y: 2, ch: '.', semanticKind: 'terrain', semanticName: 'room', semanticKnown: true },
+        { x: 1, y: 2, ch: '|', semanticKind: 'terrain', semanticName: 'stone wall', semanticKnown: true },
+        { x: 3, y: 2, ch: 'f', semanticKind: 'monster', semanticName: 'kitten', semanticKnown: true, glyph: 798 },
+        { x: 4, y: 2, ch: '%', semanticKind: 'object', semanticName: 'food ration', semanticKnown: true },
+        { x: 5, y: 2, ch: '%', semanticKind: 'corpse', semanticName: 'kitten', semanticKnown: true, glyph: 900 },
+        { x: 6, y: 2, ch: '.', semanticKind: 'engraving', semanticName: 'engraving in a room', semanticKnown: true },
+        { x: 7, y: 2, ch: '?', semanticKind: 'object', semanticName: 'scroll of food detection', semanticKnown: true },
+        { x: 8, y: 2, ch: '?', semanticKind: 'object', semanticKnown: false, semanticAppearance: 'scroll labeled ZLORFIK' },
         { x: 10, y: 2, ch: '?', semanticKind: 'object', semanticName: 'destroy armor', semanticKnown: false, semanticAppearance: 'scroll labeled READ ME', glyph: 3772 },
-        { x: 11, y: 2, ch: '\`', semanticKind: 'engraving', semanticName: 'engraving in a room', glyph: 3994, cmapIndex: 21 },
-        { x: 9, y: 2, ch: '\`', semanticKind: 'statue', semanticName: 'goblin', glyph: 903 },
+        { x: 11, y: 2, ch: '\`', semanticKind: 'engraving', semanticName: 'engraving in a room', semanticKnown: true, glyph: 3994, cmapIndex: 21 },
+        { x: 9, y: 2, ch: '\`', semanticKind: 'statue', semanticName: 'goblin', semanticKnown: true, glyph: 903 },
         { x: 12, y: 4, ch: '-', semanticKind: 'terrain', semanticName: 'horizontal wall' },
-        { x: 13, y: 4, ch: '+', semanticKind: 'door', semanticName: 'horizontal closed door', glyph: 3989 },
+        { x: 13, y: 4, ch: '+', semanticKind: 'door', semanticName: 'horizontal closed door', featureDescription: 'closed door', glyph: 3989 },
         { x: 14, y: 4, ch: '-', semanticKind: 'terrain', semanticName: 'horizontal wall' },
         { x: 17, y: 3, ch: '|', semanticKind: 'terrain', semanticName: 'vertical wall' },
-        { x: 17, y: 4, ch: '+', semanticKind: 'door', semanticName: 'vertical closed door', glyph: 3988 },
+        { x: 17, y: 4, ch: '+', semanticKind: 'door', semanticName: 'vertical closed door', featureDescription: 'closed door', glyph: 3988 },
         { x: 17, y: 5, ch: '|', semanticKind: 'terrain', semanticName: 'vertical wall' },
         { x: 20, y: 4, ch: '-', semanticKind: 'terrain', semanticName: 'horizontal wall' },
-        { x: 21, y: 4, ch: '|', semanticKind: 'door', semanticName: 'horizontal open door', glyph: 3987 },
+        { x: 21, y: 4, ch: '|', semanticKind: 'door', semanticName: 'horizontal open door', featureDescription: 'open door', glyph: 3987 },
         { x: 22, y: 4, ch: '-', semanticKind: 'terrain', semanticName: 'horizontal wall' },
         { x: 25, y: 3, ch: '|', semanticKind: 'terrain', semanticName: 'vertical wall' },
-        { x: 25, y: 4, ch: '-', semanticKind: 'door', semanticName: 'vertical open door', glyph: 3986 },
+        { x: 25, y: 4, ch: '-', semanticKind: 'door', semanticName: 'vertical open door', featureDescription: 'open door', glyph: 3986 },
         { x: 25, y: 5, ch: '|', semanticKind: 'terrain', semanticName: 'vertical wall' },
         { x: 28, y: 3, ch: '|', semanticKind: 'terrain', semanticName: 'vertical wall' },
-        { x: 28, y: 4, ch: '.', semanticKind: 'terrain', semanticName: 'no door', glyph: 3985 },
+        { x: 28, y: 4, ch: '.', semanticKind: 'terrain', semanticName: 'no door', featureDescription: 'doorway', glyph: 3985 },
         { x: 28, y: 5, ch: '|', semanticKind: 'terrain', semanticName: 'vertical wall' },
         { x: 34, y: 4, ch: '-', semanticKind: 'terrain', semanticName: 'horizontal wall' },
-        { x: 35, y: 4, ch: '.', semanticKind: 'terrain', semanticName: 'no door', glyph: 3985 },
+        { x: 35, y: 4, ch: '.', semanticKind: 'terrain', semanticName: 'no door', featureDescription: 'doorway', glyph: 3985 },
         { x: 36, y: 4, ch: '-', semanticKind: 'terrain', semanticName: 'horizontal wall' },
-        { x: 30, y: 4, ch: '%', semanticKind: 'corpse', semanticName: 'cave dweller', glyph: 901 },
-        { x: 32, y: 4, ch: '$', semanticKind: 'object', semanticName: 'gold piece', glyph: 3886 },
+        { x: 30, y: 4, ch: '%', semanticKind: 'corpse', semanticName: 'cave dweller', semanticKnown: true, glyph: 901 },
+        { x: 32, y: 4, ch: '$', semanticKind: 'object', semanticName: 'gold piece', semanticKnown: true, glyph: 3886 },
         { x: 38, y: 4, ch: '!', semanticKind: 'object', semanticName: 'gain level', semanticKnown: false, semanticAppearance: 'ruby', glyph: 3755 },
-        { x: 39, y: 4, ch: '@', semanticKind: 'monster', semanticName: 'werejackal', glyph: 262 },
-        { x: 40, y: 4, ch: 'h', semanticKind: 'monster', semanticName: 'dwarf', glyph: 44 },
-        { x: 78, y: 20, ch: '>', semanticKind: 'stairs', semanticName: 'down staircase' }
+        { x: 39, y: 4, ch: '@', semanticKind: 'monster', semanticName: 'werejackal', semanticKnown: true, glyph: 262 },
+        { x: 40, y: 4, ch: 'h', semanticKind: 'monster', semanticName: 'dwarf', semanticKnown: true, glyph: 44 },
+        { x: 78, y: 20, ch: '>', semanticKind: 'stairs', semanticName: 'down staircase', semanticKnown: true }
       ]);`);
     const beforeScreenshot = path.join(outDir, 'map-tooltip-before-hidden.png');
     await page.screenshot(beforeScreenshot);
@@ -55,49 +55,51 @@ async function main() {
     const floorHoverScreenshot = path.join(outDir, 'map-tooltip-floor-hover-no-tooltip.png');
     await page.screenshot(floorHoverScreenshot);
     const metrics = await page.evalValue(`(() => {
+      window.__nethackTooltipTest.setCells([
+        { x: 2, y: 2, ch: '.', semanticKind: 'terrain', semanticName: 'room', semanticKnown: true },
+        { x: 1, y: 2, ch: '|', semanticKind: 'terrain', semanticName: 'stone wall', semanticKnown: true },
+        { x: 3, y: 2, ch: 'f', semanticKind: 'monster', semanticName: 'kitten', semanticKnown: true, glyph: 798 },
+        { x: 4, y: 2, ch: '%', semanticKind: 'object', semanticName: 'food ration', semanticKnown: true },
+        { x: 5, y: 2, ch: '%', semanticKind: 'corpse', semanticName: 'kitten', semanticKnown: true, glyph: 900 },
+        { x: 6, y: 2, ch: '.', semanticKind: 'engraving', semanticName: 'engraving in a room', semanticKnown: true },
+        { x: 7, y: 2, ch: '?', semanticKind: 'object', semanticName: 'scroll of food detection', semanticKnown: true },
+        { x: 8, y: 2, ch: '?', semanticKind: 'object', semanticKnown: false, semanticAppearance: 'scroll labeled ZLORFIK' },
+        { x: 10, y: 2, ch: '?', semanticKind: 'object', semanticName: 'destroy armor', semanticKnown: false, semanticAppearance: 'scroll labeled READ ME', glyph: 3772 },
+        { x: 11, y: 2, ch: '\`', semanticKind: 'engraving', semanticName: 'engraving in a room', semanticKnown: true, glyph: 3994, cmapIndex: 21, engravingText: 'Elbereth' },
+        { x: 9, y: 2, ch: '\`', semanticKind: 'statue', semanticName: 'goblin', semanticKnown: true, glyph: 903 },
+        { x: 12, y: 4, ch: '-', semanticKind: 'terrain', semanticName: 'horizontal wall' },
+        { x: 13, y: 4, ch: '+', semanticKind: 'door', semanticName: 'horizontal closed door', featureDescription: 'closed door', glyph: 3989 },
+        { x: 14, y: 4, ch: '-', semanticKind: 'terrain', semanticName: 'horizontal wall' },
+        { x: 17, y: 3, ch: '|', semanticKind: 'terrain', semanticName: 'vertical wall' },
+        { x: 17, y: 4, ch: '+', semanticKind: 'door', semanticName: 'vertical closed door', featureDescription: 'closed door', glyph: 3988 },
+        { x: 17, y: 5, ch: '|', semanticKind: 'terrain', semanticName: 'vertical wall' },
+        { x: 20, y: 4, ch: '-', semanticKind: 'terrain', semanticName: 'horizontal wall' },
+        { x: 21, y: 4, ch: '|', semanticKind: 'door', semanticName: 'horizontal open door', featureDescription: 'open door', glyph: 3987 },
+        { x: 22, y: 4, ch: '-', semanticKind: 'terrain', semanticName: 'horizontal wall' },
+        { x: 25, y: 3, ch: '|', semanticKind: 'terrain', semanticName: 'vertical wall' },
+        { x: 25, y: 4, ch: '-', semanticKind: 'door', semanticName: 'vertical open door', featureDescription: 'open door', glyph: 3986 },
+        { x: 25, y: 5, ch: '|', semanticKind: 'terrain', semanticName: 'vertical wall' },
+        { x: 28, y: 3, ch: '|', semanticKind: 'terrain', semanticName: 'vertical wall' },
+        { x: 28, y: 4, ch: '.', semanticKind: 'terrain', semanticName: 'no door', featureDescription: 'doorway', glyph: 3985 },
+        { x: 28, y: 5, ch: '|', semanticKind: 'terrain', semanticName: 'vertical wall' },
+        { x: 34, y: 4, ch: '-', semanticKind: 'terrain', semanticName: 'horizontal wall' },
+        { x: 35, y: 4, ch: '.', semanticKind: 'terrain', semanticName: 'no door', featureDescription: 'doorway', glyph: 3985 },
+        { x: 36, y: 4, ch: '-', semanticKind: 'terrain', semanticName: 'horizontal wall' },
+        { x: 30, y: 4, ch: '%', semanticKind: 'corpse', semanticName: 'cave dweller', semanticKnown: true, glyph: 901 },
+        { x: 32, y: 4, ch: '$', semanticKind: 'object', semanticName: 'gold piece', semanticKnown: true, glyph: 3886 },
+        { x: 38, y: 4, ch: '!', semanticKind: 'object', semanticName: 'gain level', semanticKnown: false, semanticAppearance: 'ruby', glyph: 3755 },
+        { x: 39, y: 4, ch: '@', semanticKind: 'monster', semanticName: 'werejackal', semanticKnown: true, glyph: 262 },
+        { x: 40, y: 4, ch: 'h', semanticKind: 'monster', semanticName: 'dwarf', semanticKnown: true, glyph: 44 },
+        { x: 41, y: 4, ch: '@', semanticKind: 'hero', semanticName: 'hero', semanticKnown: true, glyph: 725, backgroundGlyph: 3992, backgroundSemanticKind: 'floor', backgroundSemanticName: 'floor of a room', backgroundSemanticKnown: true, objectLayerGlyph: 3672, objectLayerChar: '(', objectLayerSemanticKind: 'object', objectLayerSemanticName: 'large box', objectLayerSemanticKnown: true },
+        { x: 42, y: 4, ch: '_', semanticKind: 'fixture', semanticName: 'altar', semanticKnown: true, featureDescription: 'altar to Tyr (lawful)' },
+        { x: 43, y: 4, ch: '@', semanticKind: 'hero', semanticName: 'hero', semanticKnown: true, glyph: 725, backgroundGlyph: 4011, backgroundSemanticKind: 'fixture', backgroundSemanticName: 'altar', backgroundSemanticKnown: true, featureDescription: 'altar to Tyr (lawful)' },
+        { x: 78, y: 20, ch: '>', semanticKind: 'stairs', semanticName: 'down staircase', semanticKnown: true }
+      ]);
       window.__nethackPromptTest.setGroundPileSnapshotForTest([
         { objectId: 4101, displayName: 'large box', semanticKind: 'object', semanticName: 'large box', semanticKnown: true, glyphChar: 40, location: { kind: 'ground' } },
         { objectId: 4102, displayName: 'food ration', semanticKind: 'object', semanticName: 'food ration', semanticKnown: true, glyphChar: 37, location: { kind: 'ground' } },
         { objectId: 4103, displayName: 'ruby potion', semanticKind: 'object', semanticName: 'gain level', semanticAppearance: 'ruby', semanticKnown: false, glyphChar: 33, location: { kind: 'ground' } }
       ], { x: 41, y: 4 });
-      window.__nethackTooltipTest.setCells([
-        { x: 2, y: 2, ch: '.', semanticKind: 'terrain', semanticName: 'room' },
-        { x: 1, y: 2, ch: '|', semanticKind: 'terrain', semanticName: 'stone wall' },
-        { x: 3, y: 2, ch: 'f', semanticKind: 'monster', semanticName: 'kitten', glyph: 798 },
-        { x: 4, y: 2, ch: '%', semanticKind: 'object', semanticName: 'food ration' },
-        { x: 5, y: 2, ch: '%', semanticKind: 'corpse', semanticName: 'kitten', glyph: 900 },
-        { x: 6, y: 2, ch: '.', semanticKind: 'engraving', semanticName: 'engraving in a room' },
-        { x: 7, y: 2, ch: '?', semanticKind: 'object', semanticName: 'scroll of food detection' },
-        { x: 8, y: 2, ch: '?', semanticKind: 'object', semanticName: 'scroll labeled ZLORFIK', semanticKnown: false },
-        { x: 10, y: 2, ch: '?', semanticKind: 'object', semanticName: 'destroy armor', semanticKnown: false, semanticAppearance: 'scroll labeled READ ME', glyph: 3772 },
-        { x: 11, y: 2, ch: '\`', semanticKind: 'engraving', semanticName: 'engraving in a room', glyph: 3994, cmapIndex: 21 },
-        { x: 9, y: 2, ch: '\`', semanticKind: 'statue', semanticName: 'goblin', glyph: 903 },
-        { x: 12, y: 4, ch: '-', semanticKind: 'terrain', semanticName: 'horizontal wall' },
-        { x: 13, y: 4, ch: '+', semanticKind: 'door', semanticName: 'horizontal closed door', glyph: 3989 },
-        { x: 14, y: 4, ch: '-', semanticKind: 'terrain', semanticName: 'horizontal wall' },
-        { x: 17, y: 3, ch: '|', semanticKind: 'terrain', semanticName: 'vertical wall' },
-        { x: 17, y: 4, ch: '+', semanticKind: 'door', semanticName: 'vertical closed door', glyph: 3988 },
-        { x: 17, y: 5, ch: '|', semanticKind: 'terrain', semanticName: 'vertical wall' },
-        { x: 20, y: 4, ch: '-', semanticKind: 'terrain', semanticName: 'horizontal wall' },
-        { x: 21, y: 4, ch: '|', semanticKind: 'door', semanticName: 'horizontal open door', glyph: 3987 },
-        { x: 22, y: 4, ch: '-', semanticKind: 'terrain', semanticName: 'horizontal wall' },
-        { x: 25, y: 3, ch: '|', semanticKind: 'terrain', semanticName: 'vertical wall' },
-        { x: 25, y: 4, ch: '-', semanticKind: 'door', semanticName: 'vertical open door', glyph: 3986 },
-        { x: 25, y: 5, ch: '|', semanticKind: 'terrain', semanticName: 'vertical wall' },
-        { x: 28, y: 3, ch: '|', semanticKind: 'terrain', semanticName: 'vertical wall' },
-        { x: 28, y: 4, ch: '.', semanticKind: 'terrain', semanticName: 'no door', glyph: 3985 },
-        { x: 28, y: 5, ch: '|', semanticKind: 'terrain', semanticName: 'vertical wall' },
-        { x: 34, y: 4, ch: '-', semanticKind: 'terrain', semanticName: 'horizontal wall' },
-        { x: 35, y: 4, ch: '.', semanticKind: 'terrain', semanticName: 'no door', glyph: 3985 },
-        { x: 36, y: 4, ch: '-', semanticKind: 'terrain', semanticName: 'horizontal wall' },
-        { x: 30, y: 4, ch: '%', semanticKind: 'corpse', semanticName: 'cave dweller', glyph: 901 },
-        { x: 32, y: 4, ch: '$', semanticKind: 'object', semanticName: 'gold piece', glyph: 3886 },
-        { x: 38, y: 4, ch: '!', semanticKind: 'object', semanticName: 'gain level', semanticKnown: false, semanticAppearance: 'ruby', glyph: 3755 },
-        { x: 39, y: 4, ch: '@', semanticKind: 'monster', semanticName: 'werejackal', glyph: 262 },
-        { x: 40, y: 4, ch: 'h', semanticKind: 'monster', semanticName: 'dwarf', glyph: 44 },
-        { x: 41, y: 4, ch: '@', semanticKind: 'hero', semanticName: 'hero', glyph: 725, backgroundGlyph: 3992, backgroundSemanticKind: 'floor', backgroundSemanticName: 'floor of a room', objectLayerGlyph: 3672, objectLayerChar: '(', objectLayerSemanticKind: 'object', objectLayerSemanticName: 'large box' },
-        { x: 78, y: 20, ch: '>', semanticKind: 'stairs', semanticName: 'down staircase' }
-      ]);
       const cellAt = (x, y) => {
         const el = document.querySelector('.tile-cell[data-map-x="' + x + '"][data-map-y="' + y + '"]');
         return el ? { className: el.className || '', tileId: el.dataset.tileId || '', semanticKind: el.dataset.semanticKind || '', aria: el.getAttribute('aria-label') || '', backgroundImage: el.style.backgroundImage || '' } : null;
@@ -125,6 +127,8 @@ async function main() {
       const werejackal = window.__nethackTooltipTest.showFor(39, 4);
       const dwarf = window.__nethackTooltipTest.showFor(40, 4);
       const stackedSquare = window.__nethackTooltipTest.showFor(41, 4);
+      const altar = window.__nethackTooltipTest.showFor(42, 4);
+      const heroOnAltar = window.__nethackTooltipTest.showFor(43, 4);
       const edge = window.__nethackTooltipTest.showFor(78, 20);
       const withinViewport = (m) => !m.hidden && m.rect.left >= 0 && m.rect.top >= 0 && m.rect.right <= m.viewport.width && m.rect.bottom <= m.viewport.height;
       const cssDoorIcon = (m, orientation) => !m.hidden && /terrain-door/.test(m.iconClass || '') && /has-tooltip-tile/.test(m.iconClass || '') === false && !m.iconImage && (orientation ? new RegExp('terrain-door-open-' + orientation + '|door-in-' + orientation + '-wall').test(m.iconClass || '') : true);
@@ -153,6 +157,8 @@ async function main() {
         werejackal,
         dwarf,
         stackedSquare,
+        altar,
+        heroOnAltar,
         doorCells: { hClosed: cellAt(13, 4), vClosed: cellAt(17, 4), hOpen: cellAt(21, 4), vOpen: cellAt(25, 4), vDoorway: cellAt(28, 4), hDoorway: cellAt(35, 4), caveDwellerCorpse: cellAt(30, 4), goldPiece: cellAt(32, 4), rubyPotion: cellAt(38, 4), werejackal: cellAt(39, 4), dwarf: cellAt(40, 4), readMeScroll: cellAt(10, 2), runtimeEngraving: cellAt(11, 2) },
         edge,
         assertions: {
@@ -168,18 +174,21 @@ async function main() {
           runtimeEngravingGlyph3994UsesEngravingNotBoulder: !runtimeEngraving.hidden && runtimeEngraving.assetId === 'engraving' && /Engraving In A Room/i.test(runtimeEngraving.text) && /engraving\.png/.test(runtimeEngraving.iconImage || '') && /engraving in a room/i.test(cellAt(11, 2)?.aria || '') && !/boulder/i.test(String(runtimeEngraving.text || '') + ' ' + String(cellAt(11, 2)?.aria || '') + ' ' + String(runtimeEngraving.iconImage || '')),
           statueTooltipNamesCreatureAndStatue: !statue.hidden && /Goblin Statue/i.test(statue.title) && !/^Goblin$/i.test(statue.title),
           statueTooltipUsesGreyTextAndStoneIcon: /map-tooltip-statue/.test(statue.tooltipClass || '') && /statue-overlay/.test(statue.iconClass || '') && /rgb\\(200, 205, 212\\)/.test(statue.titleColor || ''),
-          horizontalClosedDoorTooltipUsesSameCssTerrain: /Horizontal Closed Door/i.test(hClosedDoor.text) && hClosedDoor.assetId === 'closed-door' && cssDoorIcon(hClosedDoor, 'horizontal') && /terrain-door.*door-in-horizontal-wall/.test(cellAt(13, 4)?.className || ''),
-          verticalClosedDoorTooltipUsesSameCssTerrain: /Vertical Closed Door/i.test(vClosedDoor.text) && vClosedDoor.assetId === 'closed-door' && cssDoorIcon(vClosedDoor, 'vertical') && /terrain-door.*door-in-vertical-wall/.test(cellAt(17, 4)?.className || ''),
-          horizontalOpenDoorTooltipUsesSameCssTerrain: /Horizontal Open Door/i.test(hOpenDoor.text) && hOpenDoor.assetId === 'open-horizontal-door' && cssDoorIcon(hOpenDoor, 'horizontal') && /terrain-door-open-horizontal/.test(cellAt(21, 4)?.className || ''),
-          verticalOpenDoorTooltipUsesSameCssTerrain: /Vertical Open Door/i.test(vOpenDoor.text) && vOpenDoor.assetId === 'open-vertical-door' && cssDoorIcon(vOpenDoor, 'vertical') && /terrain-door-open-vertical/.test(cellAt(25, 4)?.className || ''),
-          verticalDoorwayTooltipReadsAsEmptyGap: /Empty Doorway/i.test(vDoorway.text) && vDoorway.assetId === 'no-door-doorway' && cssDoorwayIcon(vDoorway, 'vertical') && /terrain-doorway/.test(cellAt(28, 4)?.className || '') && !/terrain-door-open/.test(cellAt(28, 4)?.className || ''),
-          horizontalDoorwayTooltipReadsAsEmptyGap: /Empty Doorway/i.test(hDoorway.text) && hDoorway.assetId === 'no-door-doorway' && cssDoorwayIcon(hDoorway, 'horizontal') && /terrain-doorway/.test(cellAt(35, 4)?.className || '') && !/terrain-door-open/.test(cellAt(35, 4)?.className || ''),
+          horizontalClosedDoorTooltipUsesSameCssTerrain: hClosedDoor.title === 'Closed Door' && hClosedDoor.assetId === 'closed-door' && cssDoorIcon(hClosedDoor, 'horizontal') && /terrain-door.*door-in-horizontal-wall/.test(cellAt(13, 4)?.className || ''),
+          verticalClosedDoorTooltipUsesSameCssTerrain: vClosedDoor.title === 'Closed Door' && vClosedDoor.assetId === 'closed-door' && cssDoorIcon(vClosedDoor, 'vertical') && /terrain-door.*door-in-vertical-wall/.test(cellAt(17, 4)?.className || ''),
+          horizontalOpenDoorTooltipUsesSameCssTerrain: hOpenDoor.title === 'Open Door' && hOpenDoor.assetId === 'open-horizontal-door' && cssDoorIcon(hOpenDoor, 'horizontal') && /terrain-door-open-horizontal/.test(cellAt(21, 4)?.className || ''),
+          verticalOpenDoorTooltipUsesSameCssTerrain: vOpenDoor.title === 'Open Door' && vOpenDoor.assetId === 'open-vertical-door' && cssDoorIcon(vOpenDoor, 'vertical') && /terrain-door-open-vertical/.test(cellAt(25, 4)?.className || ''),
+          verticalDoorwayTooltipReadsAsEmptyGap: vDoorway.title === 'Doorway' && vDoorway.assetId === 'no-door-doorway' && cssDoorwayIcon(vDoorway, 'vertical') && /terrain-doorway/.test(cellAt(28, 4)?.className || '') && !/terrain-door-open/.test(cellAt(28, 4)?.className || ''),
+          horizontalDoorwayTooltipReadsAsEmptyGap: hDoorway.title === 'Doorway' && hDoorway.assetId === 'no-door-doorway' && cssDoorwayIcon(hDoorway, 'horizontal') && /terrain-doorway/.test(cellAt(35, 4)?.className || '') && !/terrain-door-open/.test(cellAt(35, 4)?.className || ''),
           caveDwellerCorpseUsesCorpseArtNotFoodRation: /Cave Dweller Corpse/i.test(caveDwellerCorpse.text) && caveDwellerCorpse.assetId === 'corpse' && /corpse\\.png/.test(caveDwellerCorpse.iconImage || '') && !/food-ration\\.png/.test(caveDwellerCorpse.iconImage || '') && cellAt(30, 4)?.tileId === 'corpse',
           goldPieceUsesGoldAssetNotFoodRation: /Gold Piece/i.test(goldPiece.text) && goldPiece.assetId === 'gold-piece' && /gold-piece\\.png/.test(goldPiece.iconImage || '') && !/food-ration\\.png/.test(goldPiece.iconImage || '') && cellAt(32, 4)?.tileId === 'gold-piece',
           rubyPotionUsesPotionClassNotRubyGem: /Ruby Potion/i.test(rubyPotion.text) && rubyPotion.assetId === 'potion-class-icon' && /potion-class-icon\.png/.test(rubyPotion.iconImage || '') && !/ruby\.png|gain-level|healing/.test(String(rubyPotion.assetId || '') + ' ' + String(rubyPotion.iconImage || '')) && cellAt(38, 4)?.tileId === 'potion-class-icon',
           werejackalAtSignUsesMonsterSemanticArtNotHeroAvatar: !werejackal.hidden && werejackal.title === 'Werejackal' && werejackal.assetId === 'werejackal' && /Monster/.test(werejackal.description || '') && /werejackal\.png/.test(werejackal.iconImage || '') && cellAt(39, 4)?.tileId === 'werejackal' && cellAt(39, 4)?.semanticKind === 'monster' && !/Hero|Player combo avatars|human-valkyrie/.test(String(werejackal.text || '') + ' ' + String(werejackal.description || '') + ' ' + String(werejackal.iconImage || '')),
           dwarfGlyph44UsesDwarfMonsterArtAndLabel: !dwarf.hidden && dwarf.title === 'Dwarf' && dwarf.assetId === 'dwarf' && /Monster/.test(dwarf.description || '') && /dwarf\.png/.test(dwarf.iconImage || '') && cellAt(40, 4)?.tileId === 'dwarf' && cellAt(40, 4)?.semanticKind === 'monster' && !/Hobbit|Hero|Player combo avatars|human-valkyrie/.test(String(dwarf.text || '') + ' ' + String(dwarf.description || '') + ' ' + String(dwarf.iconImage || '')),
-          stackedSquareListsActorEveryPublicItemAndTerrain: !stackedSquare.hidden && stackedSquare.contents[0]?.kind === 'Hero' && stackedSquare.contents.slice(1).map((entry) => entry.label + ':' + entry.kind).join('|') === 'Large Box:Object|Food Ration:Item|Ruby Potion:Item|Floor Of A Room:Floor' && (stackedSquare.text.match(/Large Box/g) || []).length === 1,
+          stackedSquareShowsTargetOnceAndEveryOtherPublicFact: !stackedSquare.hidden && stackedSquare.title === 'Archeologist' && stackedSquare.contents.map((entry) => entry.label + ':' + entry.kind).join('|') === 'Large Box:Object|Food Ration:Item|Ruby Potion:Item|Floor Of A Room:Floor' && (stackedSquare.text.match(/Archeologist/g) || []).length === 1 && (stackedSquare.text.match(/Large Box/g) || []).length === 1,
+          featureTooltipUsesCompleteNativeLookDescription: altar.title === 'Altar To Tyr (Lawful)' && /Dungeon feature/.test(altar.description || ''),
+          layeredTooltipKeepsCompleteNativeTerrainDescription: heroOnAltar.contents.some((entry) => entry.label === 'Altar To Tyr (Lawful)' && entry.kind === 'Dungeon feature') && (heroOnAltar.text.match(/Archeologist/g) || []).length === 1,
+          rememberedEngravingTextAppearsInTooltip: /Inscription: “Elbereth”/.test(runtimeEngraving.description || ''),
           specialFeatureWithinViewport: /Down Staircase/i.test(edge.text) && withinViewport(edge),
         },
       };
@@ -191,7 +200,7 @@ async function main() {
     const statueScreenshot = path.join(outDir, 'map-tooltip-statue-after.png');
     await page.screenshot(statueScreenshot);
     const doorScreenshots = {};
-    for (const [name, x, y] of [['horizontalClosed', 13, 4], ['verticalClosed', 17, 4], ['horizontalOpen', 21, 4], ['verticalOpen', 25, 4], ['verticalDoorway', 28, 4], ['horizontalDoorway', 35, 4], ['caveDwellerCorpse', 30, 4], ['goldPiece', 32, 4], ['rubyPotion', 38, 4], ['werejackalAtSignMonster', 39, 4], ['dwarfGlyph44Monster', 40, 4], ['stackedSquare', 41, 4], ['readMeScroll', 10, 2], ['runtimeEngraving', 11, 2]]) {
+    for (const [name, x, y] of [['horizontalClosed', 13, 4], ['verticalClosed', 17, 4], ['horizontalOpen', 21, 4], ['verticalOpen', 25, 4], ['verticalDoorway', 28, 4], ['horizontalDoorway', 35, 4], ['caveDwellerCorpse', 30, 4], ['goldPiece', 32, 4], ['rubyPotion', 38, 4], ['werejackalAtSignMonster', 39, 4], ['dwarfGlyph44Monster', 40, 4], ['stackedSquare', 41, 4], ['altarNativeLook', 42, 4], ['heroOnAltarNativeLook', 43, 4], ['readMeScroll', 10, 2], ['runtimeEngraving', 11, 2]]) {
       await page.run(`window.__nethackTooltipTest.showFor(${x}, ${y});`);
       const doorPath = path.join(outDir, `map-tooltip-${name}.png`);
       await page.screenshot(doorPath);

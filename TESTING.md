@@ -1,32 +1,27 @@
 # NetHack testing instructions
 
-## Screenshot QA is mandatory
+## Canonical terminal proof
 
-Always capture screenshots as part of testing for player-facing Electron/gameplay UI changes. Automated assertions are not enough by themselves.
+There is one acceptance path for the completed Electron architecture:
 
-Before passing or accepting a test run, personally open and inspect every screenshot the test captured. Look at the screenshots with a skeptical player mindset and explicitly call out anything that looks wrong, confusing, placeholder-like, developer-facing, stale, or out of the ordinary. Never pass a test without looking at its screenshots and checking them for problems.
+```sh
+cd electron-poc
+NH_EVIDENCE_REVIEWER=/absolute/path/to/external-reviewer npm run test:final-proof
+```
 
-Examples of unacceptable user-facing UI include raw fallback labels such as “Inventory selector j”, unexplained selector letters where item names should appear, intro/startup dialogue reappearing during gameplay, stale filters hiding rows, loading states that never resolve, controls that do not match the current prompt, wrong art/assets, half-rendered panels, or stale menus/prompts. If a screenshot contains anything a normal player should not see, treat it as a blocker and fix or report it; do not accept it because automated assertions passed.
+`NH_EVIDENCE_REVIEWER` is required. It must resolve to an executable regular file outside this repository. The proof runner passes it the immutable `evidence-approval.json` path plus a JSON review request containing the manifest hash, Verification Run identity, run-content hash, every raw-capture path, and every raw SHA-256. The reviewer must personally open every raw capture and return one JSON review object with explicit inspection notes and an approval or rejection for each exact hash. A repository script, default approval, filename, or approval-like prose is not a reviewer.
 
-For prompt/menu work, screenshots must prove the visible UI shows the actual player-meaningful choices: item names, action labels, contextual no-item choices, and clear confirm/cancel paths. Tests should assert against these user-facing labels where possible.
+The command is authoritative because it performs all of the following as one fail-closed gate:
 
-## Real-game MCP validation rule
+1. Runs the focused Verification Run, Evidence Approval, screenshot adapter, Game View, prompt/menu, command-planning, Transfer Session, ground-owner, and item/equipment contracts.
+2. Rebuilds the fixture-enabled native shim.
+3. Exercises a small representative set through the real production Electron/native interfaces: locked-container rejection → unlock → open, direct container Select all, direct and classic ground pickup, canonical item naming and Inventory & equipment ownership, direct equipment changes, and a terrain/context action.
+4. Gives every captured scenario a unique Verification Run identity and output root under `electron-poc/test-output/verification-runs/<run-identity>/`.
+5. Records assertions, stdout/stderr logs, raw screenshots, losslessly derived review copies, exact hashes, capture provenance, and derivative transform provenance in the run's sole `evidence-approval.json`.
+6. Stops at **CAPTURED** until the external review has covered every exact raw hash. **CAPTURED is not APPROVED.**
+7. Rejects missing or changed artifacts, failed assertions, reused identities/roots, reviewer mutation, mismatched review hashes/content, incomplete review notes, non-approved decisions, and leftover playground locks.
+8. Applies the external review through `EvidenceApproval`, validates the immutable decision bindings, writes `evidence-approval.md`, and reports `FINAL VERIFICATION PROOF APPROVED` only when every run is valid and approved.
 
-For any player-facing Electron/gameplay UI change, including every Pyra GUI change, use MCP/real Electron gameplay automation to control the game and try the new feature end-to-end before claiming it works. Renderer-only injections, mocked `shim_add_menu` events, synthetic fixtures, unit tests, or DOM-only tests are useful but are not sufficient by themselves.
+The raw screenshot is the approval subject. Review-safe derivatives are convenience copies only; their provenance must bind them to the raw SHA-256 and reproduce the declared Pillow transform. Never overwrite a capture in place. A changed raw screenshot, derivative, assertion, run identity, or decision invalidates approval.
 
-Required evidence for these changes:
-
-1. Launch the real Electron app/game path.
-2. Use MCP/CDP/visible app automation to perform the actual player action, such as pressing `i`, clicking a visible button, picking up items, quaffing, equipping, or opening a prompt.
-3. Capture real gameplay screenshots of the result.
-4. Open and inspect those screenshots manually before passing the test.
-5. Assert on the visible player-facing UI in the real path, not just internal state.
-6. If the real path differs from the synthetic test path, treat that as a blocker and fix the real path.
-
-Do not mark a player-facing feature complete until this real-game MCP validation is documented in `employee-result.md` with screenshot paths, screenshot inspection notes, and the exact manual steps a player can use.
-
-## Scenario runbook rule
-
-The scenario files under `electron-poc/test/scenario-plans/` are manual AI-agent runbooks. They are not automation targets and should not be treated as a backlog of tests to automate. Use the referenced JSON scenarios by manually launching them with `NH_TEST_SCENARIO_ID` and following the markdown runbook steps when an agent needs to test that gameplay/UI behavior.
-
-Do not add automation just because a scenario runbook exists. Keep the markdown runbooks focused on the JSON scenario, the manual launch command, post-load actions, expected visible facts, and pass/fail criteria for an AI agent to run manually as needed.
+Individual real scripts and scenario runbooks remain useful for diagnosis, but their capture-phase output is not acceptance evidence by itself. Do not claim terminal proof from an individual command, an old output directory, a synthetic-only test, or a `CAPTURED` manifest. Run the canonical command and record its exact run identities, manifests, reports, hashes, and inspection notes in `employee-result.md`.

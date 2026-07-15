@@ -21,7 +21,7 @@ function snapshotEvent(sessionId, revision, items, sequence = revision + 10, con
 const view = GameViewState.createGameViewState();
 let result = view.process(sessionEvent('container.session.opened', 'loot-session-1'));
 assert(effectOf(result, 'container-session-opened'), 'container session open should be reduced by shared game-view-state');
-assert.equal(view.state.containerContents.sessionsById.get('loot-session-1').status, 'active');
+assert.equal(view.snapshot().containerContents.sessionsById.get('loot-session-1').status, 'active');
 
 result = view.process(snapshotEvent('loot-session-1', 1, [
   { selector: 'a', text: 'a - an uncursed scroll labeled ELBIB YLOH', glyphChar: 63, semanticKind: 'object', semanticName: 'scroll of genocide', semanticAppearance: 'scroll labeled ELBIB YLOH', semanticKnown: false },
@@ -38,10 +38,19 @@ assert.equal(accepted.snapshot.items[1].semanticName, 'food ration', 'known publ
 assert.equal(accepted.delta.changed, true);
 assert.equal(accepted.delta.added.length, 2);
 
+const cursedContainerPotion = Container.normalizePublicContainerItem({
+  objectId: 7001, displayName: 'bubbly potion', text: 'a cursed bubbly potion', quantity: 1,
+  semanticKind: 'object', semanticKnown: false, semanticAppearance: 'bubbly potion',
+  publicClass: 'potion', knownFields: { beatitude: 'cursed' }, ownership: { state: 'owned' },
+});
+assert.equal(cursedContainerPotion.displayName, 'cursed bubbly potion', 'container item keeps the same known beatitude visible as direct look');
+assert.equal(cursedContainerPotion.semanticName, undefined, 'container beatitude visibility does not reveal hidden potion identity');
+assert.deepEqual(cursedContainerPotion.knownFields, { beatitude: 'cursed' }, 'container item preserves structured known facts');
+
 result = view.process(snapshotEvent('loot-session-1', 0, [{ text: 'a - a stale rock' }], 12));
 let rejected = effectOf(result, 'container-contents-snapshot-rejected');
 assert(rejected?.stale, 'lower-revision container snapshot should be rejected with stale evidence');
-assert.equal(Container.containerContentsAt(view.state.containerContents, 'loot-session-1').items.length, 2, 'stale lower revision must not update state');
+assert.equal(Container.containerContentsAt(view.snapshot().containerContents, 'loot-session-1').items.length, 2, 'stale lower revision must not update state');
 
 result = view.process(snapshotEvent('loot-session-1', 1, [
   { selector: 'a', text: 'a - an uncursed scroll labeled ELBIB YLOH', glyphChar: 63, semanticKind: 'object', semanticName: 'scroll of genocide', semanticAppearance: 'scroll labeled ELBIB YLOH', semanticKnown: false },
@@ -53,21 +62,36 @@ assert.equal(accepted.delta.changed, false, 'same-revision identical duplicate s
 result = view.process(snapshotEvent('loot-session-1', 1, [{ text: 'a - same revision but different gem' }], 121));
 rejected = effectOf(result, 'container-contents-snapshot-rejected');
 assert(/conflicting container contents snapshot revision 1/.test(rejected?.reason || ''), 'same-revision conflicting payload should be rejected, not mutate state');
-assert.equal(Container.containerContentsAt(view.state.containerContents, 'loot-session-1').items.length, 2);
+assert.equal(Container.containerContentsAt(view.snapshot().containerContents, 'loot-session-1').items.length, 2);
 
 result = view.process(snapshotEvent('loot-session-1', 2, [{ text: 'a - wrong-box item' }], 122, { publicId: 'wrong-box', displayName: 'wrong box', semanticKnown: false, known: { identity: false, appearance: true } }));
 rejected = effectOf(result, 'container-contents-snapshot-rejected');
 assert(/container identity does not match session/.test(rejected?.reason || ''), 'snapshot container identity must match the active session identity');
-assert.equal(Container.containerContentsAt(view.state.containerContents, 'loot-session-1').items.length, 2);
+assert.equal(Container.containerContentsAt(view.snapshot().containerContents, 'loot-session-1').items.length, 2);
 
 result = view.process(rawSessionEvent('container.session.opened', 'object-id-session', { publicId: 'object-id-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 100 }, 123));
-assert.equal(view.state.containerContents.sessionsById.get('object-id-session').container.objectId, 100, 'public container objectId should survive protocol normalization into session identity');
+assert.equal(view.snapshot().containerContents.sessionsById.get('object-id-session').container.objectId, 100, 'public container objectId should survive protocol normalization into session identity');
 result = view.process(snapshotEvent('object-id-session', 1, [{ text: 'a - a food ration' }], 124, { publicId: 'object-id-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 200 }));
 rejected = effectOf(result, 'container-contents-snapshot-rejected');
 assert(/container identity does not match session/.test(rejected?.reason || ''), 'same publicId but different public objectId must be rejected');
 result = view.process(snapshotEvent('object-id-session', 1, [{ text: 'a - a food ration' }], 125, { publicId: 'object-id-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true }, objectId: 100 }));
 accepted = effectOf(result, 'container-contents-snapshot');
 assert.equal(accepted.snapshot.container.objectId, 100, 'public container objectId should survive into accepted snapshot identity');
+result = view.process(sessionEvent('container.session.opened', 'gem-container-session', { publicId: 'gem-box', displayName: 'large box', semanticKnown: true, semanticName: 'large box', known: { identity: true, appearance: true } }, 126));
+assert(effectOf(result, 'container-session-opened'), 'gem container session opens');
+result = view.process(snapshotEvent('gem-container-session', 1, [
+  { objectId: 7101, displayName: 'a yellow gem', semanticKnown: false, semanticName: 'citrine', semanticAppearance: 'yellow gem', publicClass: 'gem' },
+  { objectId: 7102, displayName: 'a chrysoberyl stone', semanticKnown: true, semanticName: 'chrysoberyl', publicClass: 'gem' },
+], 127, { publicId: 'gem-box', displayName: 'large box', semanticKnown: true, semanticName: 'large box', known: { identity: true, appearance: true } }));
+const acceptedGemContainer = effectOf(result, 'container-contents-snapshot');
+assert(acceptedGemContainer, 'canonical gem container snapshot is accepted');
+assert.equal(acceptedGemContainer.snapshot.items[0].displayName, 'yellow gem', 'container adapter preserves complete unidentified gem appearance');
+assert.equal(acceptedGemContainer.snapshot.items[0].semanticAppearance, 'yellow gem', 'container adapter never reduces a gem appearance to its color adjective');
+assert.equal(acceptedGemContainer.snapshot.items[0].semanticName, undefined, 'container adapter drops hidden gem identity');
+assert.doesNotMatch(JSON.stringify(acceptedGemContainer.snapshot.items[0]), /citrine/i, 'container adapter does not leak the unidentified gem type');
+assert.equal(acceptedGemContainer.snapshot.items[1].displayName, 'a chrysoberyl stone', 'container adapter preserves identified gem full NetHack name');
+assert.equal(acceptedGemContainer.snapshot.items[1].semanticName, 'chrysoberyl', 'container adapter preserves identified gem semantic name');
+
 
 const forbidden = snapshotEvent('loot-session-1', 2, [{ text: 'a - a scroll' }], 13);
 forbidden.payload.items[0].trapped = true;
@@ -92,12 +116,12 @@ assert(effectOf(result, 'container-session-closed'), 'container session close sh
 result = view.process(snapshotEvent('loot-session-1', 3, [{ text: 'a - a post-close gem' }], 16));
 rejected = effectOf(result, 'container-contents-snapshot-rejected');
 assert(/not active/i.test(rejected?.reason || ''), 'snapshot from a closed session must be rejected');
-assert.equal(Container.containerContentsAt(view.state.containerContents, 'loot-session-1').revision, 2, 'closed-session snapshot must not update active state');
+assert.equal(Container.containerContentsAt(view.snapshot().containerContents, 'loot-session-1').revision, 2, 'closed-session snapshot must not update active state');
 
 result = view.process(sessionEvent('container.session.opened', 'loot-session-2', { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true } }, 17));
-assert.equal(view.state.containerContents.sessionsById.get('loot-session-2').status, 'active');
+assert.equal(view.snapshot().containerContents.sessionsById.get('loot-session-2').status, 'active');
 result = view.process(sessionEvent('container.session.opened', 'loot-session-3', { publicId: 'large-box', displayName: 'large box', semanticKnown: false, known: { identity: false, appearance: true } }, 18));
-assert.equal(view.state.containerContents.sessionsById.get('loot-session-2').status, 'replaced', 'new same-container session replaces prior session');
+assert.equal(view.snapshot().containerContents.sessionsById.get('loot-session-2').status, 'replaced', 'new same-container session replaces prior session');
 result = view.process(snapshotEvent('loot-session-2', 1, [{ text: 'a - stale replaced-session row' }], 19));
 rejected = effectOf(result, 'container-contents-snapshot-rejected');
 assert(/not active|replaced/i.test(rejected?.reason || ''), 'snapshot from replaced session must be rejected');
@@ -125,7 +149,7 @@ transfers = Transfer.beginTransfer(transfers, {
   selector: 'a',
   itemName: 'a food ration',
 }).state;
-const before = Container.containerContentsAt(view.state.containerContents, 'loot-session-3');
+const before = Container.containerContentsAt(view.snapshot().containerContents, 'loot-session-3');
 result = view.process(snapshotEvent('loot-session-3', 2, [], 21));
 accepted = effectOf(result, 'container-contents-snapshot');
 const containerContentsDelta = accepted.delta || Container.containerContentsDelta(before, accepted.snapshot);

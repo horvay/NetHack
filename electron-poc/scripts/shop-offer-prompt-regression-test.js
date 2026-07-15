@@ -2,7 +2,6 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
 const electronBin = require('electron');
-const PromptRules = require('../src/shared/prompt-rules');
 const InteractionModel = require('../src/shared/interaction-model');
 
 const root = path.resolve(__dirname, '..');
@@ -75,16 +74,15 @@ function runSharedModelAssertions() {
     { selector: 110, text: 'n - 3 food rations' },
     { selector: 113, text: 'q - a blue gem' },
   ];
-  assert(PromptRules.isFixedChoicePrompt(prompt.query, prompt.choices), 'prompt-rules did not classify ynaq shop offer as fixed choice');
-  assert(!PromptRules.isInventoryActionPrompt(prompt.query, prompt.choices), 'prompt-rules misclassified ynaq shop offer as inventory action');
-  assert(!InteractionModel.isInventoryActionPrompt(prompt.query, prompt.choices), 'interaction-model misclassified ynaq shop offer as inventory action');
-  const built = InteractionModel.buildPromptInteraction(prompt, cachedInventory);
-  assert(built.title === 'Shopkeeper offer', `interaction-model title was ${built.title}`);
-  assert(!built.inventoryRows.length, 'interaction-model produced inventory rows for shop offer');
-  assert(built.query === 'Adjama offers 4 gold pieces for your green gem.', `interaction-model did not clean redundant shop prompt: ${built.query}`);
-  assert(built.options.some((option) => /Accept offer/.test(option.label)), 'interaction-model missing Accept offer option');
+  assert(InteractionModel.isFixedChoicePrompt(prompt.query, prompt.choices), 'interaction planner did not classify ynaq shop offer as fixed choice');
+  assert(!InteractionModel.isInventoryActionPrompt(prompt.query, prompt.choices), 'interaction planner misclassified ynaq shop offer as inventory action');
+  const built = InteractionModel.planInteraction({ gameView: { activePrompt: prompt }, inventoryChoices: cachedInventory }).prompt;
+  assert(built.title === 'Shopkeeper offer', `interaction planner title was ${built.title}`);
+  assert(!built.inventoryRows.length, 'interaction planner produced inventory rows for shop offer');
+  assert(built.prompt === 'Adjama offers 4 gold pieces for your green gem.', `interaction planner did not clean redundant shop prompt: ${built.prompt}`);
+  assert(built.options.some((option) => /Accept offer/.test(option.label)), 'interaction planner missing Accept offer option');
   const inventoryPrompt = { query: 'What do you want to drop? [ynaq]', choices: 'ynaq' };
-  assert(!PromptRules.isFixedChoicePrompt(inventoryPrompt.query, inventoryPrompt.choices), 'explicit inventory selector question should not be fixed-choice solely because letters are ynaq');
+  assert(!InteractionModel.isFixedChoicePrompt(inventoryPrompt.query, inventoryPrompt.choices), 'explicit inventory selector question should not be fixed-choice solely because letters are ynaq');
 }
 
 async function main() {

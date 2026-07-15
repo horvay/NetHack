@@ -245,6 +245,17 @@
     hero.push(roleItem(makeItem('Hero', get(0), { field: 0, important: true, className: 'identity-title' }), 'persistent'));
     if (detailed) hero.push(roleItem(makeItem('Align', get(7), { field: 7 }), 'persistent'));
     groups.push(makeGroup('hero', 'Hero', hero));
+    if (detailed) {
+      const attributes = [];
+      for (const field of ATTRIBUTE_FIELDS) {
+        attributes.push(roleItem(makeItem(STATUS_FIELD_BY_INDEX[field].label, get(field), {
+          field,
+          important: true,
+          className: 'attribute',
+        }), 'persistent', `${STATUS_FIELD_BY_INDEX[field].label} is reported by NetHack.`));
+      }
+      groups.push(makeGroup('attributes', 'Attributes', attributes));
+    }
 
     const vitals = [];
     vitals.push(roleItem(makeItem('HP', pairStatusValue(get(18), get(19)), { field: 18, important: true, severity: hpSeverity(get(18), get(19)) }), 'persistent', 'Current and maximum HP reported by NetHack.'));

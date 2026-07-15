@@ -266,7 +266,7 @@
   function registerDiscoveryDomain(options = {}) {
     const runtime = options.runtime;
     const catalog = options.catalog || createCommandCatalog();
-    if (!runtime?.registerDomain || !runtime?.registerProvider) throw new TypeError('Discovery registration requires the UX runtime');
+    if (!runtime?.registerDomain) throw new TypeError('Discovery registration requires the UX runtime');
     const controller = Object.freeze({
       version: 'nethack-ux-discovery-controller/v1',
       catalog,
@@ -277,11 +277,6 @@
       hashActivation: hashActivation(),
     });
     runtime.registerDomain('discovery', controller);
-    runtime.registerProvider('catalog-entries', 'discovery', Object.freeze({
-      version,
-      entries: () => catalog.entries(),
-      search: (query, publicState) => catalog.search(query, publicState),
-    }));
     if (typeof options.onPublicState === 'function') runtime.subscribePublicState('discovery', options.onPublicState);
     return controller;
   }

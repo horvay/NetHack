@@ -3,8 +3,58 @@
   else root.NetHackGameViewState = factory(root.NetHackShimProtocol, root.NetHackInteractionModel, root.NetHackMenuMetadataAdapter, root.NetHackInventorySnapshotAdapter, root.NetHackEquipmentSnapshotAdapter, root.NetHackGroundPileSnapshotAdapter, root.NetHackContainerContentsSnapshotAdapter, root.NetHackUiProtocolV2, root.NetHackCommandTransactionModel, root.NetHackTransferTransactionModel);
 }(typeof globalThis !== 'undefined' ? globalThis : this, function factory(ShimProtocol, InteractionModel, MenuMetadataAdapter, InventorySnapshotAdapter, EquipmentSnapshotAdapter, GroundPileSnapshotAdapter, ContainerContentsSnapshotAdapter, UiProtocolV2, CommandTransactionModel, TransferTransactionModel) {
   const version = 'nethack-game-view-state/v1';
+  const immutableSnapshotBrand = Symbol.for('nethack.game-view-state.immutable-snapshot');
   const defaultWidth = 80;
   const defaultHeight = 21;
+  class FrozenMap extends Map {
+    constructor(entries = []) {
+      super();
+      for (const [key, value] of entries) Map.prototype.set.call(this, key, value);
+      Object.freeze(this);
+    }
+    set() { throw new TypeError('immutable Game View snapshot'); }
+    delete() { throw new TypeError('immutable Game View snapshot'); }
+    clear() { throw new TypeError('immutable Game View snapshot'); }
+  }
+  class FrozenSet extends Set {
+    constructor(values = []) {
+      super();
+      for (const value of values) Set.prototype.add.call(this, value);
+      Object.freeze(this);
+    }
+    add() { throw new TypeError('immutable Game View snapshot'); }
+    delete() { throw new TypeError('immutable Game View snapshot'); }
+    clear() { throw new TypeError('immutable Game View snapshot'); }
+  }
+  const trustedImmutableValues = new WeakSet();
+  function detachAndFreeze(value, seen = new WeakMap()) {
+    if (value == null || typeof value !== 'object') return value;
+    if (trustedImmutableValues.has(value)) return value;
+    if (seen.has(value)) return seen.get(value);
+    if (value instanceof Date) return Object.freeze(new Date(value.getTime()));
+    if (value instanceof Map) {
+      const entries = [];
+      const placeholder = new Map();
+      seen.set(value, placeholder);
+      for (const [key, entry] of value) entries.push([detachAndFreeze(key, seen), detachAndFreeze(entry, seen)]);
+      const detached = new FrozenMap(entries);
+      seen.set(value, detached);
+      return detached;
+    }
+    if (value instanceof Set) {
+      const values = [];
+      const placeholder = new Set();
+      seen.set(value, placeholder);
+      for (const entry of value) values.push(detachAndFreeze(entry, seen));
+      const detached = new FrozenSet(values);
+      seen.set(value, detached);
+      return detached;
+    }
+    const detached = Array.isArray(value) ? [] : {};
+    seen.set(value, detached);
+    for (const key of Reflect.ownKeys(value)) detached[key] = detachAndFreeze(value[key], seen);
+    return Object.freeze(detached);
+  }
   function makeEmptyMap(width = defaultWidth, height = defaultHeight) { return Array.from({ length: height }, () => Array.from({ length: width }, () => ({ ch: ' ', assetId: undefined, glyph: undefined }))); }
   function normalizeMapCoord(value, max) { const n = Number(value); return Number.isFinite(n) ? Math.max(0, Math.min(max - 1, n)) : 0; }
   function actorBackgroundCell(cell = {}) {
@@ -25,6 +75,8 @@
         backgroundSemanticName: cell.backgroundSemanticName,
         backgroundSemanticKnown: cell.backgroundSemanticKnown,
         backgroundActionAffordances: Array.isArray(cell.backgroundActionAffordances) ? cell.backgroundActionAffordances.slice() : [],
+        featureDescription: cell.featureDescription,
+        engravingText: cell.engravingText,
       };
     }
     return {
@@ -35,6 +87,8 @@
       semanticName: cell.backgroundSemanticName,
       semanticKnown: cell.backgroundSemanticKnown,
       actionAffordances: Array.isArray(cell.backgroundActionAffordances) ? cell.backgroundActionAffordances.slice() : [],
+      featureDescription: cell.featureDescription,
+      engravingText: cell.engravingText,
     };
   }
   function cloneMenu(menu) {
@@ -291,7 +345,62 @@
       lastWorldCommand: '',
       protocolSequence: 0,
     };
+    let publishedSnapshot = null;
+    let publishedMapCells = null;
+    let mapSnapshotReset = true;
+    const mapSnapshotDirtyRows = new Set();
+    const deferredMapDirtyCells = new Set();
+    function mapCellHasRenderableContent(cell = {}) {
+      if (String(cell.ch || ' ') !== ' ') return true;
+      return Reflect.ownKeys(cell).some((key) => key !== 'ch' && cell[key] != null);
+    }
+    function renderableMapCoords(cells = state.mapCells) {
+      const coords = [];
+      for (let y = 0; y < cells.length; y += 1) {
+        for (let x = 0; x < (cells[y] || []).length; x += 1) {
+          if (mapCellHasRenderableContent(cells[y][x])) coords.push({ x, y });
+        }
+      }
+      return coords;
+    }
+    function markMapSnapshotRowDirty(y) {
+      const row = Number(y);
+      if (Number.isInteger(row) && row >= 0 && row < height) mapSnapshotDirtyRows.add(row);
+    }
+    function resetMapSnapshot() {
+      mapSnapshotReset = true;
+      mapSnapshotDirtyRows.clear();
+    }
+    function noteDeferredMapDirty(x, y) {
+      deferredMapDirtyCells.add(`${normalizeMapCoord(x, width)},${normalizeMapCoord(y, height)}`);
+    }
+    function takeDeferredMapDirtyCells() {
+      const coords = Array.from(deferredMapDirtyCells, (key) => {
+        const [x, y] = key.split(',').map(Number);
+        return { x, y };
+      });
+      deferredMapDirtyCells.clear();
+      return coords;
+    }
+    function freezeMapRow(row = []) {
+      return Object.freeze(row.map((cell) => detachAndFreeze(cell)));
+    }
+    function snapshotMapCells() {
+      if (!publishedMapCells || mapSnapshotReset) {
+        publishedMapCells = Object.freeze(state.mapCells.map(freezeMapRow));
+        mapSnapshotReset = false;
+        mapSnapshotDirtyRows.clear();
+      } else if (mapSnapshotDirtyRows.size) {
+        const nextRows = publishedMapCells.slice();
+        for (const y of mapSnapshotDirtyRows) nextRows[y] = freezeMapRow(state.mapCells[y]);
+        publishedMapCells = Object.freeze(nextRows);
+        mapSnapshotDirtyRows.clear();
+      }
+      trustedImmutableValues.add(publishedMapCells);
+      return publishedMapCells;
+    }
     function effect(type, payload = {}) { return { type, ...payload }; }
+    function publication(event, effects) { return detachAndFreeze({ event, effects }); }
     function recordMilestone(type, data) { state.milestones.push({ type, data }); return effect('record-milestone', { milestone: { type, data } }); }
     function nextLifecycleRevision(event) {
       const explicit = explicitLifecycleRevision(event);
@@ -699,7 +808,7 @@
       if (!eventEnvelope) return null;
       const effects = [];
       const handled = new Set(['inventory.snapshot', 'equipment.snapshot', 'spell.rows', 'skill.rows', 'ground.pile.snapshot', 'container.session.opened', 'container.session.closed', 'container.contents.snapshot', 'command.accepted', 'command.rejected', 'command.completed', 'transaction.completed', 'transaction.interrupted', 'transfer.session.opened', 'transfer.session.updated', 'transfer.session.closed', 'transfer.choreography.updated', 'transfer.begun', 'transfer.confirmed', 'transfer.completed', 'transfer.rejected', 'transfer.ground-pile-evidence.attached', 'transfer.container-contents-evidence.attached']);
-      if (!handled.has(eventEnvelope.eventType)) return { event: eventEnvelope, state, effects: [effect('ui-protocol-event-ignored', { eventType: eventEnvelope.eventType })] };
+      if (!handled.has(eventEnvelope.eventType)) return publication(eventEnvelope, [effect('ui-protocol-event-ignored', { eventType: eventEnvelope.eventType })]);
       const checked = UiProtocolV2?.validateEventEnvelope ? UiProtocolV2.validateEventEnvelope(eventEnvelope) : { ok: true, errors: [] };
       if (!checked.ok) {
         const type = String(eventEnvelope.eventType || '');
@@ -724,7 +833,7 @@
           sequence: eventEnvelope.sequence,
           turn: eventEnvelope.turn,
         };
-        return { event: sanitizedEvent, state, effects: [effect(rejectedType, { errors: diagnosticErrors, event: sanitizedEvent })] };
+        return publication(sanitizedEvent, [effect(rejectedType, { errors: diagnosticErrors, event: sanitizedEvent })]);
       }
       function pushEffects(value) { if (Array.isArray(value)) effects.push(...value.filter(Boolean)); else if (value) effects.push(value); }
       if (eventEnvelope.eventType === 'inventory.snapshot') {
@@ -766,31 +875,13 @@
       } else {
         pushEffects(applyContainerSessionEvent(eventEnvelope));
       }
-      return { event: eventEnvelope, state, effects };
+      return publication(eventEnvelope, effects);
     }
     function transactionShouldAwaitVisibleDelta(tx, previousInventory, previousEquipment, nextInventory, nextEquipment) {
       if (!tx || tx.status !== 'pending' || !CommandTransactionModel?.publicStateDelta) return false;
       if (!/wear|take off|wield|swap|quiver|put on|remove accessory/i.test(String(tx.semanticAction || ''))) return false;
       const delta = CommandTransactionModel.publicStateDelta({ inventory: previousInventory, equipment: previousEquipment }, { inventory: nextInventory, equipment: nextEquipment });
       return !delta.changed;
-    }
-    function completeCommandFromPublicMenuRows(menu, sourceEvent, effects) {
-      if (!menu || !InteractionModel.shouldCacheInventoryChoices(menu) || !CommandTransactionModel?.completeFromSnapshots || !activeNonInventoryTransaction()) return;
-      const previousInventory = InventorySnapshotAdapter?.cloneInventoryState ? InventorySnapshotAdapter.cloneInventoryState(state.inventory) : state.inventory;
-      const previousEquipment = EquipmentSnapshotAdapter?.cloneEquipmentState ? EquipmentSnapshotAdapter.cloneEquipmentState(state.equipment) : state.equipment;
-      const rows = (menu.items || []).filter((item) => item.selector).map((item) => ({ selector: item.selector, text: item.text, objectId: item.objectId, quantity: item.quantity, glyph: item.glyph, glyphChar: item.glyphChar, itemflags: item.itemflags, wornMask: item.wornMask, semanticKind: item.semanticKind, semanticName: item.semanticName, semanticAppearance: item.semanticAppearance, semanticKnown: item.semanticKnown, known: item.known ? { ...item.known } : undefined, calledName: item.calledName, individualName: item.individualName, actionAffordances: item.actionAffordances }));
-      if (!rows.length || !InventorySnapshotAdapter?.adaptShimInventoryUpdateToSnapshot || !EquipmentSnapshotAdapter?.adaptShimInventoryUpdateToEquipmentSnapshot) return;
-      const synthetic = { name: 'shim_update_inventory', reason: -3, revision: (state.inventory?.revision || 0) + 1, inventoryRevision: (state.inventory?.revision || 0) + 1, equipmentRevision: Math.max((state.equipment?.revision || 0) + 1, (state.inventory?.revision || 0) + 1), transactionId: state.activeTransactionId, items: rows };
-      const inventorySnapshot = InventorySnapshotAdapter.adaptShimInventoryUpdateToSnapshot(synthetic);
-      const equipmentSnapshot = EquipmentSnapshotAdapter.adaptShimInventoryUpdateToEquipmentSnapshot(synthetic);
-      state.inventory = InventorySnapshotAdapter.applyInventorySnapshot(state.inventory, inventorySnapshot, { source: { layer: 'renderer-public-menu', reason: sourceEvent?.name }, event: synthetic });
-      state.equipment = EquipmentSnapshotAdapter.applyEquipmentSnapshot(state.equipment, equipmentSnapshot, { source: { layer: 'renderer-public-menu', reason: sourceEvent?.name }, event: synthetic });
-      effects.push(effect('inventory-snapshot', { inventory: InventorySnapshotAdapter.cloneInventoryState(state.inventory), event: synthetic }));
-      effects.push(effect('equipment-snapshot', { equipment: EquipmentSnapshotAdapter.cloneEquipmentState(state.equipment), event: synthetic }));
-      const completion = CommandTransactionModel.completeFromSnapshots(state.commandTransactions, synthetic, { previousInventory, previousEquipment, nextInventory: state.inventory, nextEquipment: state.equipment });
-      state.commandTransactions = completion.state;
-      if (completion.effect) effects.push(completion.effect);
-      if (completion.transaction?.status === 'completed' || completion.transaction?.status === 'failed') state.activeTransactionId = undefined;
     }
     function applyMenuSelectionState(menu, how) {
       if (!menu) return menu;
@@ -801,11 +892,51 @@
       menu.suppressPicker = InteractionModel.shouldSuppressPassiveGroundMenu(menu, menu.how);
       return menu;
     }
+    function appendMessageFact(text, options = {}) {
+      const normalized = String(text || '').trim();
+      if (!normalized || (options.logPrompt === false && isGenericDirectionText(normalized))) return false;
+      if (!options.allowConsecutiveDuplicate && state.messages[state.messages.length - 1] === normalized) return false;
+      state.messages.push(normalized);
+      if (state.messages.length > 240) state.messages.splice(0, state.messages.length - 240);
+      return true;
+    }
     function process(rawInput) {
+      publishedSnapshot = null;
       const publicEventResult = processUiProtocolEvent(rawInput);
       if (publicEventResult) return publicEventResult;
-      const appEvent = ShimProtocol.normalizeRawShimEvent(rawInput?.event || rawInput?.raw || rawInput);
-      if (!appEvent.valid) return Object.freeze([]);
+      const rendererEvent = rawInput?.event || rawInput?.raw || rawInput;
+      if (rendererEvent?.name === 'renderer_publish_message') {
+        const appended = appendMessageFact(rendererEvent.text, rendererEvent);
+        return publication({ valid: true, event: rendererEvent }, [effect(appended ? 'message-published' : 'message-suppressed', { text: String(rendererEvent.text || '').trim(), appended })]);
+      }
+      if (rendererEvent?.name === 'renderer_publish_menu') {
+        const hadAuthoritativeMenu = Boolean(state.currentMenu && !state.currentMenu.presentationOnly);
+        const menu = cloneMenu(rendererEvent.menu);
+        if (!menu) return publication({ valid: false, errors: ['renderer menu publication is required'] }, []);
+        menu.presentationOnly = !hadAuthoritativeMenu;
+        state.currentMenu = menu;
+        if (menu.window != null) state.menusByWindow.set(menu.window, menu);
+        return publication({ valid: true, event: rendererEvent }, [effect('menu-changed', { menu: cloneMenu(menu) }), effect('render-menu', { menu: cloneMenu(menu) })]);
+      }
+      if (rendererEvent?.name === 'renderer_publish_inventory_choices') {
+        state.cachedInventoryChoices = Array.isArray(rendererEvent.items) ? rendererEvent.items.map((item) => clonePlain(item)) : [];
+        return publication({ valid: true, event: rendererEvent }, [effect('inventory-choices-published')]);
+      }
+      if (rendererEvent?.name === 'renderer_dismiss_interaction') {
+        const expectedRequestId = String(rendererEvent.expectedRequestId || '').trim();
+        const currentRequestId = String(rendererEvent.clearPrompt === false ? state.currentMenu?.requestId : (state.activePrompt?.requestId || state.currentMenu?.requestId || '')).trim();
+        if (expectedRequestId && currentRequestId && expectedRequestId !== currentRequestId) {
+          return publication({ valid: true, event: rendererEvent }, [effect('interaction-dismiss-rejected', { reason: 'request id does not match active interaction', expectedRequestId, currentRequestId })]);
+        }
+        if (rendererEvent.clearPrompt !== false) state.activePrompt = null;
+        if (rendererEvent.clearMenu) {
+          if (state.currentMenu?.window != null) state.menusByWindow.delete(state.currentMenu.window);
+          state.currentMenu = null;
+        }
+        return publication({ valid: true, event: rendererEvent }, [effect('close-interaction')]);
+      }
+      const appEvent = ShimProtocol.normalizeRawShimEvent(rendererEvent);
+      if (!appEvent.valid) return publication(appEvent, []);
       const event = appEvent.event;
       const effects = [];
       if (event.name === 'shim_create_nhwindow') {
@@ -813,13 +944,16 @@
         if (event.windowType === 3) state.mapWindowId = event.return;
       } else if (event.name === 'shim_clear_nhwindow') {
         if (event.window === state.mapWindowId || event.return === state.mapWindowId) {
+          const dirtyCells = renderableMapCoords();
           state.mapCells = makeEmptyMap(width, height);
+          resetMapSnapshot();
+          deferredMapDirtyCells.clear();
           state.actorPositions.clear();
           state.mapClearPending = false;
           state.mapRefreshPendingDisplay = true;
           state.groundPiles = GroundPileSnapshotAdapter?.emptyGroundPileState ? GroundPileSnapshotAdapter.emptyGroundPileState() : { revision: 0, pilesByCoord: new Map(), lastSnapshotSource: null, lastSnapshotEvent: null };
           state.mapRevision += 1;
-          effects.push(effect('map-reset'));
+          effects.push(effect('map-reset', { dirtyCells }));
           effects.push(effect('ground-pile-snapshot', { groundPiles: cloneGroundPileState(), snapshot: null, event, delta: { changed: true, changedCount: 0, publicEvidence: false, reason: 'map cleared' } }));
           effects.push(effect('status', { text: 'loading dungeon map' }));
         }
@@ -848,12 +982,16 @@
               const previousCell = state.mapCells[previous.y]?.[previous.x];
               if (previousCell?.actorId === actorId) {
                 state.mapCells[previous.y][previous.x] = actorBackgroundCell(previousCell);
+                markMapSnapshotRowDirty(previous.y);
+                if (deferMapRenderUntilDisplay) noteDeferredMapDirty(previous.x, previous.y);
                 if (!deferMapRenderUntilDisplay) effects.push(effect('dirty-map-neighborhood', { x: previous.x, y: previous.y }));
               }
             }
             state.actorPositions.set(actorId, { x, y });
           }
-          state.mapCells[y][x] = { ch, actorId: actorId || undefined, assetId: event.assetId, glyph: event.glyph, ttychar: event.ttychar, color: event.color, tileidx: event.tileidx, glyphFlags: event.glyphFlags, backgroundGlyph: event.backgroundGlyph, backgroundChar: event.backgroundChar, backgroundSemanticKind: event.backgroundSemanticKind, backgroundSemanticName: event.backgroundSemanticName, backgroundSemanticKnown: event.backgroundSemanticKnown, objectLayerGlyph: event.objectLayerGlyph, objectLayerChar: event.objectLayerChar, objectLayerSemanticKind: event.objectLayerSemanticKind, objectLayerSemanticName: event.objectLayerSemanticName, objectLayerSemanticAppearance: event.objectLayerSemanticAppearance, objectLayerSemanticKnown: event.objectLayerSemanticKnown, cmapIndex: event.cmapIndex, semanticKind: event.semanticKind, semanticName: event.semanticName, semanticAppearance: event.semanticAppearance, semanticKnown: event.semanticKnown, actionAffordances: Array.isArray(event.actionAffordances) ? event.actionAffordances.slice() : [], backgroundActionAffordances: Array.isArray(event.backgroundActionAffordances) ? event.backgroundActionAffordances.slice() : [], objectLayerActionAffordances: Array.isArray(event.objectLayerActionAffordances) ? event.objectLayerActionAffordances.slice() : [] };
+          state.mapCells[y][x] = { ch, actorId: actorId || undefined, assetId: event.assetId, glyph: event.glyph, ttychar: event.ttychar, color: event.color, tileidx: event.tileidx, glyphFlags: event.glyphFlags, objectId: event.objectId, displayName: event.displayName, backgroundGlyph: event.backgroundGlyph, backgroundChar: event.backgroundChar, backgroundSemanticKind: event.backgroundSemanticKind, backgroundSemanticName: event.backgroundSemanticName, backgroundSemanticKnown: event.backgroundSemanticKnown, objectLayerGlyph: event.objectLayerGlyph, objectLayerChar: event.objectLayerChar, objectLayerObjectId: event.objectLayerObjectId, objectLayerDisplayName: event.objectLayerDisplayName, objectLayerSemanticKind: event.objectLayerSemanticKind, objectLayerSemanticName: event.objectLayerSemanticName, objectLayerSemanticAppearance: event.objectLayerSemanticAppearance, objectLayerSemanticKnown: event.objectLayerSemanticKnown, cmapIndex: event.cmapIndex, semanticKind: event.semanticKind, semanticName: event.semanticName, semanticAppearance: event.semanticAppearance, semanticKnown: event.semanticKnown, featureDescription: event.featureDescription, engravingText: event.engravingText, actionAffordances: Array.isArray(event.actionAffordances) ? event.actionAffordances.slice() : [], backgroundActionAffordances: Array.isArray(event.backgroundActionAffordances) ? event.backgroundActionAffordances.slice() : [], objectLayerActionAffordances: Array.isArray(event.objectLayerActionAffordances) ? event.objectLayerActionAffordances.slice() : [] };
+          markMapSnapshotRowDirty(y);
+          if (deferMapRenderUntilDisplay) noteDeferredMapDirty(x, y);
           state.mapRevision += 1;
           if (!event.groundPileSnapshotAuthoritative) {
             const publicGroundItem = publicGroundItemFromObjectLayer(event, { x, y });
@@ -891,8 +1029,8 @@
         if (state.cursor.window === state.mapWindowId) effects.push(effect('dirty-map-neighborhood', { x: state.cursor.x, y: state.cursor.y }));
         effects.push(effect('render-map'));
       } else if (event.name === 'shim_putstr' || event.name === 'shim_raw_print' || event.name === 'shim_raw_print_bold') {
-        state.messages.push(event.text || '');
-        effects.push(effect('message', { text: event.text || '' }));
+        const messageAppended = appendMessageFact(event.text, { allowConsecutiveDuplicate: event.allowConsecutiveDuplicate, logPrompt: event.logPrompt });
+        effects.push(effect('message', { text: event.text || '', appended: messageAppended }));
         if (/stairs|descend|Welcome|Rest in peace|You die|Dlvl/i.test(String(event.text || ''))) effects.push(recordMilestone('message', { text: event.text || '' }));
         const wtype = state.windowTypes.get(event.window);
         if (event.name === 'shim_putstr' && (wtype === 4 || wtype === 5)) {
@@ -902,7 +1040,7 @@
           effects.push(effect('text-window-line', { window: event.window, text: event.text || '' }));
         }
       } else if (event.name === 'shim_start_menu') {
-        if (eventIsStaleByRevision(event)) { effects.push(staleEffect('menu', event, 'stale lifecycle revision')); return { event: appEvent, state, effects }; }
+        if (eventIsStaleByRevision(event)) { effects.push(staleEffect('menu', event, 'stale lifecycle revision')); return publication(appEvent, effects); }
         const lifecycle = beginMenuLifecycle(event);
         noteCommandInteraction('menu', { ...event, transactionId: lifecycle.transactionId, requestId: lifecycle.requestId }, { lifecycle: 'building-menu' });
         const menu = assignMenuLifecycle({ prompt: '', items: [], window: event.window, menuId: event.menuId || lifecycle.menuId, menuRequestId: event.menuRequestId || lifecycle.requestId, requestId: event.requestId || lifecycle.requestId, transactionId: event.transactionId || lifecycle.transactionId, requestSource: event.requestSource, owner: event.owner, ownerExplicit: Boolean(event.owner), menuPurpose: event.menuPurpose, menuPurposeExplicit: Boolean(event.menuPurpose), lifecycle: event.lifecycle, lifecycleExplicit: Boolean(event.lifecycle), selectionMode: event.selectionMode, selectionModeExplicit: Boolean(event.selectionMode) }, lifecycle);
@@ -911,9 +1049,9 @@
         state.menusByWindow.set(event.window, menu); state.currentMenu = menu;
         effects.push(effect('menu-changed', { menu: cloneMenu(menu) }));
       } else if (event.name === 'shim_add_menu') {
-        if (eventIsStaleByRevision(event)) { effects.push(staleEffect('menu', event, 'stale lifecycle revision')); return { event: appEvent, state, effects }; }
+        if (eventIsStaleByRevision(event)) { effects.push(staleEffect('menu', event, 'stale lifecycle revision')); return publication(appEvent, effects); }
         const lifecycle = ensureMenuLifecycle(event);
-        if (lifecycle.stale) { effects.push(staleEffect('menu', event, 'request id does not match active menu window')); return { event: appEvent, state, effects }; }
+        if (lifecycle.stale) { effects.push(staleEffect('menu', event, 'request id does not match active menu window')); return publication(appEvent, effects); }
         const menu = assignMenuLifecycle(state.menusByWindow.get(event.window) || { prompt: '', items: [], window: event.window }, lifecycle);
         menu.window = event.window;
         menu.items.push({ selector: event.selector, text: event.text || '', objectId: event.objectId, attr: event.attr, color: event.color, itemflags: event.itemflags, glyph: event.glyph, glyphChar: event.glyphChar, glyphColor: event.glyphColor, tileidx: event.tileidx, cmapIndex: event.cmapIndex, semanticKind: event.semanticKind, semanticName: event.semanticName, semanticAppearance: event.semanticAppearance, semanticKnown: event.semanticKnown, known: event.known ? { ...event.known } : undefined, calledName: event.calledName, individualName: event.individualName, actionAffordances: Array.isArray(event.actionAffordances) ? event.actionAffordances.slice() : [] });
@@ -932,9 +1070,9 @@
         if (InteractionModel.shouldCacheInventoryChoices(menu)) state.cachedInventoryChoices = menu.items.filter((item) => item.selector);
         effects.push(effect('menu-changed', { menu: cloneMenu(menu) }));
       } else if (event.name === 'shim_end_menu') {
-        if (eventIsStaleByRevision(event)) { effects.push(staleEffect('menu', event, 'stale lifecycle revision')); return { event: appEvent, state, effects }; }
+        if (eventIsStaleByRevision(event)) { effects.push(staleEffect('menu', event, 'stale lifecycle revision')); return publication(appEvent, effects); }
         const lifecycle = ensureMenuLifecycle(event);
-        if (lifecycle.stale) { effects.push(staleEffect('menu', event, 'request id does not match active menu window')); return { event: appEvent, state, effects }; }
+        if (lifecycle.stale) { effects.push(staleEffect('menu', event, 'request id does not match active menu window')); return publication(appEvent, effects); }
         const menu = assignMenuLifecycle(state.menusByWindow.get(event.window) || { prompt: '', items: [], window: event.window }, lifecycle);
         menu.window = event.window;
         menu.prompt = event.prompt || menu.prompt || 'Menu';
@@ -952,13 +1090,12 @@
         const magicRows = attachCompatibilityMagicRows(menu);
         state.menusByWindow.set(event.window, menu); state.currentMenu = menu;
         if (InteractionModel.shouldCacheInventoryChoices(menu)) state.cachedInventoryChoices = menu.items.filter((item) => item.selector);
-        completeCommandFromPublicMenuRows(menu, event, effects);
         if (magicRows) effects.push(effect('magic-rows-changed', { kind: magicRows.kind, snapshot: cloneMagicRows(magicRows), compatibilityFallback: magicRows.classificationConfidence === 'fallback' }));
         effects.push(effect('menu-changed', { menu: cloneMenu(menu) }));
       } else if (event.name === 'shim_select_menu') {
-        if (eventIsStaleByRevision(event)) { effects.push(staleEffect('menu', event, 'stale lifecycle revision')); return { event: appEvent, state, effects }; }
+        if (eventIsStaleByRevision(event)) { effects.push(staleEffect('menu', event, 'stale lifecycle revision')); return publication(appEvent, effects); }
         const lifecycle = ensureMenuLifecycle(event);
-        if (lifecycle.stale) { effects.push(staleEffect('menu', event, 'request id does not match active menu window')); return { event: appEvent, state, effects }; }
+        if (lifecycle.stale) { effects.push(staleEffect('menu', event, 'request id does not match active menu window')); return publication(appEvent, effects); }
         const how = Number(event.how || 0);
         state.pendingMenuSelections.set(event.window, how);
         const menu = assignMenuLifecycle(state.menusByWindow.get(event.window) || state.currentMenu, lifecycle);
@@ -969,7 +1106,6 @@
           state.menusByWindow.set(event.window, menu); state.currentMenu = menu;
           if (InteractionModel.shouldCacheInventoryChoices(menu)) state.cachedInventoryChoices = menu.items.filter((item) => item.selector);
         }
-        completeCommandFromPublicMenuRows(menu, event, effects);
         if (menu && !menu.items.length) {
           state.activePrompt = { kind: how ? 'menu selection' : 'read-only menu', query: how ? 'Waiting for NetHack menu rows…' : 'Waiting for NetHack menu text…', promptId: menu.menuId || lifecycle.requestId, requestId: lifecycle.requestId, transactionId: lifecycle.transactionId, promptType: how ? 'menuSelection' : 'readOnlyMenu', promptPurpose: how ? 'prompt.menuSelection' : 'prompt.readOnlyMenu', requestSource: menu.requestSource, owner: menu.owner, lifecycle: how ? 'selecting' : 'ready', lifecycleRevision: lifecycle.lifecycleRevision };
           effects.push(effect('render-prompt'), effect('status', { text: 'menu awaiting NetHack rows' }));
@@ -987,13 +1123,16 @@
         if (event.window === state.mapWindowId || state.windowTypes.get(event.window) === 3) {
           const completedDeferredMapRefresh = state.mapRefreshPendingDisplay || state.mapClearPending;
           if (state.mapClearPending) {
+            const dirtyCells = renderableMapCoords();
             state.mapCells = makeEmptyMap(width, height);
+            resetMapSnapshot();
+            deferredMapDirtyCells.clear();
             state.actorPositions.clear();
             state.mapClearPending = false;
-            effects.push(effect('map-reset'));
+            effects.push(effect('map-reset', { dirtyCells }));
           }
           state.mapRefreshPendingDisplay = false;
-          effects.push(effect('flush-map'));
+          effects.push(effect('flush-map', { dirtyCells: takeDeferredMapDirtyCells() }));
           if (completedDeferredMapRefresh) effects.push(effect('status', { text: 'dungeon map ready' }));
         }
         const wtype = state.windowTypes.get(event.window);
@@ -1017,12 +1156,12 @@
           || String(activeMenuForAnswer.transactionId || '') === transferAnswerTransactionId
           || (transferExpectedRequestId && activeMenuRequestId && transferExpectedRequestId === activeMenuRequestId)
         ));
-        if (state.currentMenu?.requestId && event.window != null && !currentForWindow) { rejectCommandFollowup(event, 'answer window does not match active menu', effects); effects.push(staleEffect('menu-answer', event, 'answer window does not match active menu')); return { event: appEvent, state, effects }; }
-        if (activeMenuForAnswer?.requestId && !requestId && !transferAnswerOwnsMenu) { rejectCommandFollowup(event, 'missing request id for active menu', effects); effects.push(staleEffect('menu-answer', event, 'missing request id for active menu')); return { event: appEvent, state, effects }; }
-        if (requestId && activeMenuForAnswer?.requestId && requestId !== activeMenuForAnswer.requestId) { rejectCommandFollowup(event, 'request id does not match active menu', effects); effects.push(staleEffect('menu-answer', event, 'request id does not match active menu')); return { event: appEvent, state, effects }; }
+        if (state.currentMenu?.requestId && event.window != null && !currentForWindow) { rejectCommandFollowup(event, 'answer window does not match active menu', effects); effects.push(staleEffect('menu-answer', event, 'answer window does not match active menu')); return publication(appEvent, effects); }
+        if (activeMenuForAnswer?.requestId && !requestId && !transferAnswerOwnsMenu) { rejectCommandFollowup(event, 'missing request id for active menu', effects); effects.push(staleEffect('menu-answer', event, 'missing request id for active menu')); return publication(appEvent, effects); }
+        if (requestId && activeMenuForAnswer?.requestId && requestId !== activeMenuForAnswer.requestId) { rejectCommandFollowup(event, 'request id does not match active menu', effects); effects.push(staleEffect('menu-answer', event, 'request id does not match active menu')); return publication(appEvent, effects); }
         const closingReadOnlyMenu = state.currentMenu && !Number(state.currentMenu.how || 0);
         const answeringCurrentMenu = state.currentMenu && (event.window == null || state.currentMenu.window === event.window);
-        if (!event.return && activeNonInventoryTransaction() && activeMenuForAnswer?.awaitingSelection && CommandTransactionModel?.failTransaction) {
+        if (!event.return && !closingReadOnlyMenu && activeNonInventoryTransaction() && activeMenuForAnswer?.awaitingSelection && CommandTransactionModel?.failTransaction) {
           const failed = CommandTransactionModel.failTransaction(state.commandTransactions, { ...event, transactionId: activeMenuForAnswer.transactionId || state.activeTransactionId, name: 'bridge_menu_answer.cancelled' }, 'cancelled by player');
           state.commandTransactions = failed.state;
           if (failed.effect) effects.push(failed.effect);
@@ -1041,45 +1180,42 @@
         if (event.autoAnswered) {
           effects.push(effect('status', { text: event.autoAnswerReason === 'queued-ring-finger' ? 'ring finger auto-selected' : 'prompt auto-answered' }));
         } else {
-          if (eventIsStaleByRevision(event)) { effects.push(staleEffect('prompt', event, 'stale lifecycle revision')); return { event: appEvent, state, effects }; }
+          if (eventIsStaleByRevision(event)) { effects.push(staleEffect('prompt', event, 'stale lifecycle revision')); return publication(appEvent, effects); }
           const lifecycle = promptLifecycleContext(event);
           noteCommandInteraction('prompt', { ...event, transactionId: lifecycle.transactionId, requestId: lifecycle.requestId }, { lifecycle: 'awaiting-question' });
           state.activePrompt = applyPromptMetadata({ kind: 'question', query: event.query, choices: event.choices, lifecycleRevision: lifecycle.lifecycleRevision }, event, lifecycle);
           effects.push(effect('render-prompt'), effect('message', { text: event.query }));
         }
       } else if (event.name === 'shim_getlin') {
-        if (eventIsStaleByRevision(event)) { effects.push(staleEffect('prompt', event, 'stale lifecycle revision')); return { event: appEvent, state, effects }; }
+        if (eventIsStaleByRevision(event)) { effects.push(staleEffect('prompt', event, 'stale lifecycle revision')); return publication(appEvent, effects); }
         const lifecycle = promptLifecycleContext(event);
         noteCommandInteraction('prompt', { ...event, transactionId: lifecycle.transactionId, requestId: lifecycle.requestId }, { lifecycle: 'awaiting-line-input' });
         state.activePrompt = applyPromptMetadata({ kind: 'line input', query: event.query, choices: event.choices || '', lifecycleRevision: lifecycle.lifecycleRevision }, event, lifecycle);
         effects.push(effect('render-prompt'), effect('message', { text: event.query }));
       } else if (event.name === 'bridge_direction_prompt') {
         const query = event.query || 'Choose a direction.';
-        const recentPromptText = state.messages.slice(-3).some(isGenericDirectionText);
-        if (recentPromptText || !/direction or map target/i.test(query)) {
-          if (eventIsStaleByRevision(event)) { effects.push(staleEffect('prompt', event, 'stale lifecycle revision')); return { event: appEvent, state, effects }; }
-          const lifecycle = promptLifecycleContext(event);
-          noteCommandInteraction('prompt', { ...event, transactionId: lifecycle.transactionId, requestId: lifecycle.requestId }, { lifecycle: 'awaiting-direction' });
-          state.activePrompt = applyPromptMetadata({ kind: 'question', query, choices: event.choices || 'ykulnjbh.<>', lifecycleRevision: lifecycle.lifecycleRevision }, event, lifecycle);
-          effects.push(effect('render-prompt'), effect('message', { text: state.activePrompt.query, logPrompt: false }));
-        }
+        if (eventIsStaleByRevision(event)) { effects.push(staleEffect('prompt', event, 'stale lifecycle revision')); return publication(appEvent, effects); }
+        const lifecycle = promptLifecycleContext(event);
+        noteCommandInteraction('prompt', { ...event, transactionId: lifecycle.transactionId, requestId: lifecycle.requestId }, { lifecycle: 'awaiting-direction' });
+        state.activePrompt = applyPromptMetadata({ kind: 'question', query, choices: event.choices || 'ykulnjbh.<>', lifecycleRevision: lifecycle.lifecycleRevision }, event, lifecycle);
+        effects.push(effect('render-prompt'), effect('message', { text: state.activePrompt.query, logPrompt: false }));
       } else if (event.name === 'bridge_extcmd_catalog') {
-        if (eventIsStaleByRevision(event)) { effects.push(staleEffect('prompt', event, 'stale lifecycle revision')); return { event: appEvent, state, effects }; }
+        if (eventIsStaleByRevision(event)) { effects.push(staleEffect('prompt', event, 'stale lifecycle revision')); return publication(appEvent, effects); }
         const lifecycle = promptLifecycleContext(event);
         noteCommandInteraction('prompt', { ...event, transactionId: lifecycle.transactionId, requestId: lifecycle.requestId }, { lifecycle: 'awaiting-extended-command' });
         state.extCommandCatalog = Array.isArray(event.commands) ? event.commands : [];
         state.activePrompt = applyPromptMetadata({ kind: 'extended command', query: 'Choose an extended command or type to filter/submit.', lifecycleRevision: lifecycle.lifecycleRevision }, event, lifecycle);
         effects.push(effect('render-prompt'));
       } else if (event.name === 'shim_get_ext_cmd') {
-        if (eventIsStaleByRevision(event)) { effects.push(staleEffect('prompt', event, 'stale lifecycle revision')); return { event: appEvent, state, effects }; }
+        if (eventIsStaleByRevision(event)) { effects.push(staleEffect('prompt', event, 'stale lifecycle revision')); return publication(appEvent, effects); }
         const lifecycle = promptLifecycleContext(event);
         noteCommandInteraction('prompt', { ...event, transactionId: lifecycle.transactionId, requestId: lifecycle.requestId }, { lifecycle: 'awaiting-extended-command' });
         state.activePrompt = applyPromptMetadata({ kind: 'extended command', query: 'Type an extended command name, then Enter. Esc cancels.', lifecycleRevision: lifecycle.lifecycleRevision }, event, lifecycle);
         effects.push(effect('render-prompt'));
       } else if (event.name === 'bridge_prompt_answer' || event.name === 'bridge_line_answer' || event.name === 'bridge_extcmd_answer' || event.name === 'bridge_direction_answer') {
         const requestId = explicitRequestId(event);
-        if (state.activePrompt?.requestId && !requestId) { rejectCommandFollowup(event, 'missing request id for active prompt', effects); effects.push(staleEffect('prompt-answer', event, 'missing request id for active prompt')); return { event: appEvent, state, effects }; }
-        if (requestId && state.activePrompt?.requestId && requestId !== state.activePrompt.requestId) { rejectCommandFollowup(event, 'request id does not match active prompt', effects); effects.push(staleEffect('prompt-answer', event, 'request id does not match active prompt')); return { event: appEvent, state, effects }; }
+        if (state.activePrompt?.requestId && !requestId) { rejectCommandFollowup(event, 'missing request id for active prompt', effects); effects.push(staleEffect('prompt-answer', event, 'missing request id for active prompt')); return publication(appEvent, effects); }
+        if (requestId && state.activePrompt?.requestId && requestId !== state.activePrompt.requestId) { rejectCommandFollowup(event, 'request id does not match active prompt', effects); effects.push(staleEffect('prompt-answer', event, 'request id does not match active prompt')); return publication(appEvent, effects); }
         const cancelled = Number(event.keycode) === 27 || String(event.value || '') === '\u001b' || (event.name === 'bridge_line_answer' && activeNonInventoryTransaction() && String(event.value || '') === '');
         if (cancelled && activeNonInventoryTransaction() && CommandTransactionModel?.failTransaction) {
           const failed = CommandTransactionModel.failTransaction(state.commandTransactions, { ...event, transactionId: state.activePrompt.transactionId || state.activeTransactionId, name: `${event.name}.cancelled` }, 'cancelled by player');
@@ -1208,10 +1344,15 @@
           if (failed.transaction?.status === 'failed') state.activeTransactionId = undefined;
         }
       }
-      return { event: appEvent, state, effects };
+      return publication(appEvent, effects);
     }
-    function snapshot() { return { mapWidth: width, mapHeight: height, mapWindowId: state.mapWindowId, windowTypes: new Map(state.windowTypes), statusLabels: new Map(state.statusLabels), statusValues: new Map(state.statusValues), mapCells: state.mapCells, mapRevision: state.mapRevision, cursor: { ...state.cursor }, menusByWindow: new Map(state.menusByWindow), textWindowsByWindow: new Map(state.textWindowsByWindow), currentMenu: cloneMenu(state.currentMenu), activePrompt: state.activePrompt ? { ...state.activePrompt } : null, extCommandCatalog: state.extCommandCatalog.slice(), cachedInventoryChoices: state.cachedInventoryChoices.slice(), inventory: InventorySnapshotAdapter?.cloneInventoryState ? InventorySnapshotAdapter.cloneInventoryState(state.inventory) : state.inventory, equipment: EquipmentSnapshotAdapter?.cloneEquipmentState ? EquipmentSnapshotAdapter.cloneEquipmentState(state.equipment) : state.equipment, spellRows: cloneMagicRows(state.spellRows), skillRows: cloneMagicRows(state.skillRows), groundPiles: cloneGroundPileState(), containerContents: cloneContainerContentsState(), messages: state.messages.slice(), milestones: state.milestones.slice(), pendingMenuSelections: new Map(state.pendingMenuSelections), menuLifecyclesByWindow: new Map(state.menuLifecyclesByWindow), activeInteractionRevision: state.activeInteractionRevision, interactionLifecycleRevision: state.interactionLifecycleRevision, activeTransactionId: state.activeTransactionId, commandTransactions: cloneCommandTransactionState(), commandProtocolAcks: state.commandProtocolAcks.map(clonePlainPublic), lastCommandProtocolAck: clonePlainPublic(state.lastCommandProtocolAck), lastCommandProtocolRejection: clonePlainPublic(state.lastCommandProtocolRejection), transferTransactions: cloneTransferTransactionState(), pendingTransferEvidence: clonePendingTransferEvidenceState(), commandTransactionAliases: new Map(state.commandTransactionAliases), lastWorldCommand: state.lastWorldCommand, protocolSequence: state.protocolSequence }; }
-    return Object.freeze({ version, state, process, snapshot });
+    function snapshot() {
+      if (publishedSnapshot) return publishedSnapshot;
+      const detached = detachAndFreeze({ mapWidth: width, mapHeight: height, mapWindowId: state.mapWindowId, windowTypes: state.windowTypes, statusLabels: state.statusLabels, statusValues: state.statusValues, mapCells: snapshotMapCells(), mapRevision: state.mapRevision, cursor: state.cursor, menusByWindow: state.menusByWindow, textWindowsByWindow: state.textWindowsByWindow, currentMenu: state.currentMenu, activePrompt: state.activePrompt, extCommandCatalog: state.extCommandCatalog, cachedInventoryChoices: state.cachedInventoryChoices, inventory: state.inventory, equipment: state.equipment, spellRows: state.spellRows, skillRows: state.skillRows, groundPiles: state.groundPiles, containerContents: state.containerContents, messages: state.messages, documentWindow: state.documentWindow, milestones: state.milestones, pendingMenuSelections: state.pendingMenuSelections, menuLifecyclesByWindow: state.menuLifecyclesByWindow, activeInteractionRevision: state.activeInteractionRevision, interactionLifecycleRevision: state.interactionLifecycleRevision, activeTransactionId: state.activeTransactionId, commandTransactions: state.commandTransactions, commandProtocolAcks: state.commandProtocolAcks, lastCommandProtocolAck: state.lastCommandProtocolAck, lastCommandProtocolRejection: state.lastCommandProtocolRejection, transferTransactions: state.transferTransactions, pendingTransferEvidence: state.pendingTransferEvidence, commandTransactionAliases: state.commandTransactionAliases, lastWorldCommand: state.lastWorldCommand, protocolSequence: state.protocolSequence });
+      publishedSnapshot = Object.freeze({ [immutableSnapshotBrand]: true, ...detached });
+      return publishedSnapshot;
+    }
+    return Object.freeze({ version, process, snapshot });
   }
   return Object.freeze({ version, makeEmptyMap, normalizeMapCoord, transferPanelCommandState, transferPanelChoreographyState, transferPanelOptimisticMoveState, createGameViewState });
 }));

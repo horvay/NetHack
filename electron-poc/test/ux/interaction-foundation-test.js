@@ -287,6 +287,89 @@ const saveCancelled = CommandTransaction.failTransaction(saveCancelledNoted.stat
 assert.equal(saveCancelled.transaction.result.status, 'failure');
 assert.equal(saveCancelled.transaction.interactions.some((entry) => entry.key === '\u001b'), true, 'cancelled Save remains cancellation, not success');
 
+const planner = Interaction.createInteractionPlanner();
+const directionInput = {
+  gameView: {
+    interactionLifecycleRevision: 1,
+    activePrompt: { kind: 'question', query: 'In what direction?', choices: 'hjklyubn.', requestId: 'direction-1', lifecycleRevision: 1 },
+    currentMenu: null,
+    cursor: { x: 0, y: 0 },
+    mapCells: [[{}]],
+    mapWidth: 1,
+    mapHeight: 1,
+  },
+  running: true,
+  playable: true,
+};
+const directionDecision = planner.decide(directionInput);
+assert.equal(directionDecision.owner.kind, 'prompt', 'a native direction prompt owns input ahead of gameplay context');
+assert.equal(directionDecision.prompt.classification, 'direction');
+assert.equal(directionDecision.prompt.title, 'Choose direction');
+assert.equal(directionDecision.transition, 'opened');
+assert.equal(Object.isFrozen(directionDecision), true, 'planner publications are immutable');
+assert.equal(Object.isFrozen(directionDecision.prompt), true, 'nested prompt plans are immutable');
+assert.strictEqual(planner.decide(directionInput), directionDecision, 'one immutable planner decision is reused for an unchanged interaction');
+assert.equal(planner.decide(directionInput).decisionSequence, 1, 'unchanged consumers cannot create parallel decisions for one interaction');
+
+const overlappingPrompt = planner.decide({
+  ...directionInput,
+  gameView: {
+    ...directionInput.gameView,
+    interactionLifecycleRevision: 2,
+    activePrompt: { kind: 'question', query: 'Really open it?', choices: 'yn', requestId: 'prompt-2', lifecycleRevision: 2 },
+    currentMenu: { awaitingSelection: true, how: 1, prompt: 'Pick one', requestId: 'menu-2', lifecycleRevision: 2, items: [{ selector: 97, text: 'a - option', objectId: 71, semanticKind: 'object' }] },
+  },
+  contextualPrompt: { kind: 'locked-door' },
+});
+assert.equal(overlappingPrompt.owner.kind, 'prompt', 'an explicit NetHack follow-up prompt outranks menu and contextual owners');
+assert.equal(overlappingPrompt.transition, 'replaced');
+
+const equipmentDecision = planner.decide({
+  ...directionInput,
+  gameView: {
+    ...directionInput.gameView,
+    interactionLifecycleRevision: 3,
+    activePrompt: { kind: 'menu selection', requestId: 'equipment-menu', lifecycleRevision: 3 },
+    currentMenu: { awaitingSelection: true, how: 1, prompt: 'Take off what?', requestId: 'equipment-menu', lifecycleRevision: 3, items: [{ selector: 97, text: 'a - a robe (being worn)', objectId: 72, menuRole: 'equipment' }] },
+  },
+  equipment: { id: 'equipment-owner', ownsMenu: true },
+  transfer: { id: 'transfer-owner', ownsMenu: true },
+  contextualPrompt: { kind: 'locked-door' },
+});
+assert.equal(equipmentDecision.owner.kind, 'equipment', 'equipment ownership outranks transfer, native menu, and context owners');
+
+const transferDecision = planner.decide({
+  ...directionInput,
+  gameView: {
+    ...directionInput.gameView,
+    interactionLifecycleRevision: 4,
+    activePrompt: { kind: 'menu selection', requestId: 'transfer-menu', lifecycleRevision: 4 },
+    currentMenu: { awaitingSelection: true, how: 2, prompt: 'Take out what?', requestId: 'transfer-menu', lifecycleRevision: 4, items: [{ selector: 97, text: 'a - a potion', objectId: 73, quantity: 2 }] },
+  },
+  transfer: { id: 'transfer-owner', ownsMenu: true },
+  contextualPrompt: { kind: 'locked-door' },
+});
+assert.equal(transferDecision.owner.kind, 'transfer', 'transfer ownership outranks a native menu and contextual owner');
+assert.equal(transferDecision.menu.options[0].objectId, 73, 'native menu object identity survives planning');
+assert.equal(transferDecision.menu.options[0].quantity, 2, 'native menu quantity metadata survives planning');
+
+const contextDecision = planner.decide({
+  ...directionInput,
+  gameView: { ...directionInput.gameView, interactionLifecycleRevision: 5, activePrompt: null, currentMenu: null },
+  contextualPrompt: { kind: 'locked-door', message: 'This door is locked.', direction: 'l', directionLabel: 'east', tools: [{ selector: 'a', label: 'lock pick' }] },
+});
+assert.equal(contextDecision.owner.kind, 'context-dialog', 'context dialog owns input only after prompt, equipment, transfer, and menu owners are absent');
+assert.equal(contextDecision.contextDialog.title, 'Locked door actions');
+assert(contextDecision.contextDialog.options.some((option) => option.id === 'unlock:a' && /lock pick/.test(option.label)), 'locked-door option planning stays inside the interaction planner');
+
+const closedDecision = planner.decide({
+  ...directionInput,
+  gameView: { ...directionInput.gameView, interactionLifecycleRevision: 6, activePrompt: null, currentMenu: null },
+  contextualPrompt: null,
+});
+assert.equal(closedDecision.owner.kind, 'gameplay');
+assert.equal(closedDecision.transition, 'closed', 'planner publishes the close lifecycle transition once the last interaction owner leaves');
+
 assert.equal(Interaction.dialogFamilyForPrompt({ kind: 'line input' }), 'form');
 assert.equal(Interaction.dialogFamilyForPrompt({ kind: 'extended command' }), 'command');
 assert.equal(Interaction.dialogFamilyForPrompt({ kind: 'question', query: 'Really quit?', choices: 'yn' }), 'confirmation');
@@ -309,6 +392,22 @@ assert.equal(Object.prototype.hasOwnProperty.call(cloneIngress({ name: 'bridge_l
 assert.equal(cloneIngress({ name: 'bridge_line_answer', value: '', requestId: 'line-owner' }).value, '', 'production normalization and preload clone preserve explicit empty line cancellation');
 assert.equal(Object.prototype.hasOwnProperty.call(cloneIngress({ name: 'bridge_menu_answer', requestId: 'menu-owner' }), 'return'), false, 'production normalization and preload clone preserve a missing menu response');
 assert.equal(cloneIngress({ name: 'bridge_menu_answer', return: 0, requestId: 'menu-owner' }).return, 0, 'production normalization and preload clone preserve explicit menu cancellation');
+const selectedMenuAnswer = cloneIngress({
+  name: 'bridge_menu_answer',
+  window: 5,
+  return: 1,
+  selector: 97,
+  selectors: 'a',
+  requestId: 'spell-menu-r3',
+  menuRequestId: 'spell-menu-r3',
+  transactionId: 'cast-command',
+  inputTransactionId: 'spell-selection-command',
+  inputMatchesMenuTransaction: false,
+  lifecycleRevision: 3,
+});
+assert.equal(selectedMenuAnswer.name, 'bridge_menu_answer', 'a native menu selection remains a menu answer when the selection key has its own bridge transaction');
+assert.equal(selectedMenuAnswer.transactionId, 'cast-command', 'menu answer retains the transaction that opened the menu');
+assert.equal(selectedMenuAnswer.inputTransactionId, 'spell-selection-command', 'menu answer separately retains the transaction that supplied the selector');
 assert.deepEqual(cloneIngress({ name: 'bridge_extcmd_answer', return: -1, value: '', requestId: 'ext-owner' }), { name: 'bridge_extcmd_answer', return: -1, value: '', requestId: 'ext-owner' }, 'production normalization preserves exact extcmd cancellation fields without inventing command');
 
 const html = fs.readFileSync(path.join(root, 'src/renderer.html'), 'utf8');

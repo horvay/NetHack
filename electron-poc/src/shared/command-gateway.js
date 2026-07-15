@@ -30,8 +30,10 @@
   function isNonNegativeInteger(value) { return Number.isInteger(value) && Number.isFinite(value) && value >= 0; }
   function directArray(values) { return Object.freeze(values.slice()); }
   const directCommandSpecs = Object.freeze({
-    'ground.transfer': Object.freeze({ bridgeType: 'ground-transfer', implementedRoute: true, requiredPayload: directArray(['transferId', 'direction', 'coord', 'itemId', 'count']), allowedPayload: directArray(['transferId', 'direction', 'coord', 'itemId', 'count']), objectIdFields: directArray(['itemId']), coordFields: directArray(['coord']), countFields: directArray(['count']), enumFields: Object.freeze({ direction: directArray(['ground-to-inventory', 'inventory-to-ground']) }), revisionKeys: directArray(['ground', 'inventory']), changesSnapshots: directArray(['ground', 'inventory', 'status']) }),
+    'ground.transfer': Object.freeze({ bridgeType: 'ground-transfer', implementedRoute: true, requireExpectedRevision: false, requiredPayload: directArray(['transferId', 'direction', 'coord', 'itemId', 'count']), allowedPayload: directArray(['transferId', 'direction', 'coord', 'itemId', 'count']), objectIdFields: directArray(['itemId']), coordFields: directArray(['coord']), countFields: directArray(['count']), enumFields: Object.freeze({ direction: directArray(['ground-to-inventory', 'inventory-to-ground']) }), revisionKeys: directArray(['ground', 'inventory']), changesSnapshots: directArray(['ground', 'inventory', 'status']) }),
     'equipment.change': Object.freeze({ bridgeType: 'equipment-change', implementedRoute: true, requiredPayload: directArray(['action']), allowedPayload: directArray(['action', 'itemId', 'slotId', 'hand']), objectIdFields: directArray(['itemId']), enumFields: Object.freeze({ action: directArray(['takeOff', 'removeAccessory', 'wieldMain', 'quiver', 'clearQuiver', 'putOnRing']), hand: directArray(['left', 'right']), slotId: directArray(['mainHand', 'offHand', 'quiver', 'armor.body', 'armor.cloak', 'armor.shirt', 'armor.helm', 'armor.gloves', 'armor.boots', 'armor.shield', 'amulet', 'ring.left', 'ring.right', 'eyes']) }), revisionKeys: directArray(['inventory', 'equipment']), changesSnapshots: directArray(['inventory', 'equipment', 'status']) }),
+    'container.transfer': Object.freeze({ bridgeType: 'container-transfer', implementedRoute: true, requireExpectedRevision: false, zeroRevisionIsUnknown: true, requiredPayload: directArray(['direction', 'transferId', 'sessionId', 'containerId', 'itemId']), allowedPayload: directArray(['direction', 'transferId', 'sessionId', 'containerId', 'itemId', 'item']), objectIdFields: directArray(['containerId', 'itemId']), enumFields: Object.freeze({ direction: directArray(['container-to-inventory', 'inventory-to-container']) }), allowActiveOwnerKinds: directArray(['transfer']), revisionKeys: directArray(['container']), changesSnapshots: directArray(['container', 'inventory', 'status']) }),
+    'container.snapshot': Object.freeze({ bridgeType: 'container-snapshot', implementedRoute: true, requireExpectedRevision: false, requiredPayload: directArray(['sessionId', 'containerId']), allowedPayload: directArray(['sessionId', 'containerId']), objectIdFields: directArray(['containerId']), allowActiveOwnerKinds: directArray(['transfer']), revisionKeys: directArray([]), changesSnapshots: directArray(['container']) }),
     'container.force': Object.freeze({ bridgeType: 'container-force', implementedRoute: false, requiredPayload: directArray(['containerId', 'coord', 'confirmDestructive']), allowedPayload: directArray(['containerId', 'coord', 'toolOrWeaponId', 'confirmDestructive']), objectIdFields: directArray(['containerId', 'toolOrWeaponId']), coordFields: directArray(['coord']), booleanFields: directArray(['confirmDestructive']), revisionKeys: directArray(['ground', 'inventory']), changesSnapshots: directArray(['ground', 'container', 'map', 'status']) }),
     'container.tip': Object.freeze({ bridgeType: 'container-tip', implementedRoute: false, requiredPayload: directArray(['containerId', 'coord', 'confirmDestructive']), allowedPayload: directArray(['containerId', 'coord', 'confirmDestructive']), objectIdFields: directArray(['containerId']), coordFields: directArray(['coord']), booleanFields: directArray(['confirmDestructive']), revisionKeys: directArray(['ground', 'inventory']), changesSnapshots: directArray(['ground', 'container', 'status']) }),
     'container.untrap': Object.freeze({ bridgeType: 'container-untrap', implementedRoute: false, requiredPayload: directArray(['containerId', 'coord']), allowedPayload: directArray(['containerId', 'coord']), objectIdFields: directArray(['containerId']), coordFields: directArray(['coord']), revisionKeys: directArray(['ground', 'inventory']), changesSnapshots: directArray(['ground', 'container', 'status']) }),
@@ -40,6 +42,14 @@
     'terrain.action': Object.freeze({ bridgeType: 'terrain-action', implementedRoute: true, requiredPayload: directArray(['action', 'coord', 'terrain']), allowedPayload: directArray(['action', 'coord', 'terrain', 'itemId']), objectIdFields: directArray(['itemId']), coordFields: directArray(['coord']), enumFields: Object.freeze({ action: directArray(['stairsDown', 'stairsUp', 'ladderUp', 'drink', 'dip']), terrain: directArray(['stairs.down', 'stairs.up', 'ladder.up', 'fountain']) }), revisionKeys: directArray(['map', 'inventory']), changesSnapshots: directArray(['map', 'status', 'ground', 'inventory']) }),
     'altar.action': Object.freeze({ bridgeType: 'altar-action', implementedRoute: false, requiredPayload: directArray(['action', 'coord']), allowedPayload: directArray(['action', 'coord', 'itemId', 'confirmDestructive']), objectIdFields: directArray(['itemId']), coordFields: directArray(['coord']), booleanFields: directArray(['confirmDestructive']), enumFields: Object.freeze({ action: directArray(['offer', 'dropIdentify']) }), revisionKeys: directArray(['map', 'inventory', 'ground']), changesSnapshots: directArray(['inventory', 'ground', 'map', 'status']) }),
     'target.answer': Object.freeze({ bridgeType: 'target-answer', implementedRoute: false, requiredPayload: directArray(['targetRequestId', 'coord']), allowedPayload: directArray(['targetRequestId', 'coord']), coordFields: directArray(['coord']), requestIdField: 'targetRequestId', allowActiveOwnerKinds: directArray(['target', 'prompt']), revisionKeys: directArray(['map']), changesSnapshots: directArray([]) }),
+  });
+  const commandPlanningSpecs = Object.freeze({
+    'action.execute': Object.freeze({ family: 'action', bridgeType: 'ui-command', implementedRoute: true }),
+    'command.cancel': Object.freeze({ family: 'lifecycle', bridgeType: null, implementedRoute: false }),
+    'prompt.answer': Object.freeze({ family: 'owned-input', bridgeType: null, implementedRoute: false }),
+    'menu.select': Object.freeze({ family: 'owned-input', bridgeType: null, implementedRoute: false }),
+    'replay.control': Object.freeze({ family: 'replay', bridgeType: null, implementedRoute: false }),
+    ...directCommandSpecs,
   });
   const safeActionRoutes = Object.freeze({
     'item.quaff': { pattern: /^q.$/, selectorIndex: 1, revisions: ['inventory'] },
@@ -56,7 +66,7 @@
     'item.offer': { pattern: /^O.$/, selectorIndex: 1, revisions: ['inventory'] },
     'item.pay': { pattern: /^p.$/, selectorIndex: 1, revisions: ['inventory'] },
     'item.invoke': { pattern: /^V.$/, selectorIndex: 1, revisions: ['inventory'] },
-    'item.rub': { pattern: /^#rub\n$/, selectorIndex: -1, revisions: ['inventory'], targetLocation: 'inventory', promptPolicy: 'netHack-owned-followup', requireSelectorTarget: true },
+    'item.rub': { pattern: /^#rub\n.$/, selectorIndex: 5, revisions: ['inventory'], targetLocation: 'inventory', promptPolicy: 'netHack-owned-followup', requireSelectorTarget: true },
     'item.wear': { pattern: /^W.$/, selectorIndex: 1, revisions: ['inventory', 'equipment'] },
     'item.takeOff': { pattern: /^T.$/, selectorIndex: 1, revisions: ['inventory', 'equipment'] },
     'item.remove.accessory': { pattern: /^R.$/, selectorIndex: 1, revisions: ['inventory', 'equipment'] },
@@ -327,46 +337,23 @@
     return rows.some((row) => expectedNames.includes(cleanGroundRowDisplayName(row)));
   }
 
-  function validateContainerTransferCommand(command = {}, context = {}) {
-    if (!command || typeof command !== 'object') return rejection({ supported: false, reason: 'container.transfer command must be an object', errors: ['command must be an object'], blockerToken: 'blocked.input.malformedCommand' }, context);
-    const validator = context.uiProtocol?.validateCommandEnvelope || UiProtocolV2.validateCommandEnvelope;
-    if (typeof validator !== 'function') return rejection({ supported: true, reason: 'public command protocol validator is unavailable', errors: ['validator unavailable'], blockerToken: 'blocked.input.malformedCommand' }, context);
-    const envelopeCheck = validator(command);
-    if (!envelopeCheck.ok) return rejection({ supported: true, reason: envelopeCheck.errors.join('; '), errors: envelopeCheck.errors.slice(), blockerToken: 'blocked.input.malformedCommand' }, context);
-    if (command.protocol !== v2Protocol || command.commandType !== 'container.transfer') return rejection({ supported: false, reason: 'not a v2 container.transfer command', errors: ['unsupported command envelope'], blockerToken: 'blocked.input.unsupportedRoute' }, context);
-    const payload = command.payload && typeof command.payload === 'object' ? command.payload : {};
-    if (!command.commandId) return rejection({ supported: true, reason: 'container.transfer requires commandId', blockerToken: 'blocked.input.malformedCommand' }, context);
-    if (!payload || typeof payload !== 'object') return rejection({ supported: true, reason: 'container.transfer requires payload object', blockerToken: 'blocked.input.malformedCommand' }, context);
-    const direction = String(payload.direction || command.direction || '');
-    if (direction !== 'container-to-inventory' && direction !== 'inventory-to-container') return rejection({ supported: true, reason: 'unsupported container.transfer direction', blockerToken: 'blocked.input.unsupportedRoute' }, context);
-    if (!payload.transferId || !payload.sessionId) return rejection({ supported: true, reason: 'container.transfer requires transferId and sessionId', blockerToken: 'blocked.input.malformedCommand' }, context);
-    const containerId = payload.containerId;
-    const itemId = payload.itemId;
-    if (typeof containerId !== 'number' || typeof itemId !== 'number' || !Number.isInteger(containerId) || containerId <= 0 || !Number.isInteger(itemId) || itemId <= 0) return rejection({ supported: true, reason: 'container.transfer requires numeric public payload.containerId and payload.itemId', blockerToken: 'blocked.input.malformedTarget' }, context);
-    const ownerKind = String(context.activeInputOwner?.kind || '').toLowerCase();
-    if (ownerKind && !ownerKind.includes('transfer')) return rejection({ supported: true, kind: 'active-owner', reason: 'another prompt or menu owns input; container transfer is blocked' }, context);
-    const expected = command.expectedRevision && typeof command.expectedRevision === 'object' ? command.expectedRevision : {};
-    const actualContainerRevision = Number(context.containerRevision || 0);
-    if (expected.container != null && actualContainerRevision > 0 && Number(expected.container) !== actualContainerRevision) return rejection({ supported: true, reason: 'container revision changed before direct transfer', expectedRevision: expected.container, actualRevision: actualContainerRevision, blockerToken: 'blocked.input.staleRevision' }, context);
-    return { ok: true, supported: true, commandId: command.commandId, transactionId: command.transactionId || command.commandId, command, containerId, itemId, direction };
+  function contextWithCommandGroundEvidence(command = {}, context = {}) {
+    const actionId = actionIdFromCommand(command);
+    const payload = isPlainObject(command.payload) ? command.payload : {};
+    const target = firstTargetObject(payload.target || command.targets);
+    const targetDisplayName = String(target.displayName || payload.targetText || '').trim();
+    if (!actionId.startsWith('ground.')
+      || payload.publicGroundEvidence !== 'visible-current-square-container'
+      || target.location?.kind !== 'ground'
+      || !targetDisplayName
+      || !Array.isArray(context.groundItems)) return context;
+    const commandEvidence = targetDisplayName
+      .split(/\s*,\s*/)
+      .filter(Boolean)
+      .map((displayName) => ({ displayName, location: { kind: 'ground' }, source: 'command-public-ground-target' }));
+    return { ...context, groundItems: [...context.groundItems, ...commandEvidence] };
   }
 
-  function validateContainerSnapshotCommand(command = {}, context = {}) {
-    if (!command || typeof command !== 'object') return rejection({ supported: false, reason: 'container.snapshot command must be an object', errors: ['command must be an object'], blockerToken: 'blocked.input.malformedCommand' }, context);
-    const validator = context.uiProtocol?.validateCommandEnvelope || UiProtocolV2.validateCommandEnvelope;
-    if (typeof validator !== 'function') return rejection({ supported: true, reason: 'public command protocol validator is unavailable', errors: ['validator unavailable'], blockerToken: 'blocked.input.malformedCommand' }, context);
-    const envelopeCheck = validator(command);
-    if (!envelopeCheck.ok) return rejection({ supported: true, reason: envelopeCheck.errors.join('; '), errors: envelopeCheck.errors.slice(), blockerToken: 'blocked.input.malformedCommand' }, context);
-    if (command.protocol !== v2Protocol || command.commandType !== 'container.snapshot') return rejection({ supported: false, reason: 'not a v2 container.snapshot command', errors: ['unsupported command envelope'], blockerToken: 'blocked.input.unsupportedRoute' }, context);
-    const payload = command.payload && typeof command.payload === 'object' ? command.payload : {};
-    if (!command.commandId) return rejection({ supported: true, reason: 'container.snapshot requires commandId', blockerToken: 'blocked.input.malformedCommand' }, context);
-    if (!payload.sessionId) return rejection({ supported: true, reason: 'container.snapshot requires payload.sessionId', blockerToken: 'blocked.input.malformedCommand' }, context);
-    const containerId = payload.containerId;
-    if (typeof containerId !== 'number' || !Number.isInteger(containerId) || containerId <= 0) return rejection({ supported: true, reason: 'container.snapshot requires numeric public payload.containerId', blockerToken: 'blocked.input.malformedTarget' }, context);
-    const ownerKind = String(context.activeInputOwner?.kind || '').toLowerCase();
-    if (ownerKind && !ownerKind.includes('transfer')) return rejection({ supported: true, kind: 'active-owner', reason: 'another prompt or menu owns input; container snapshot is blocked' }, context);
-    return { ok: true, supported: true, commandId: command.commandId, transactionId: command.transactionId || command.commandId, command, containerId };
-  }
 
   const forbiddenDirectPublicKeys = Object.freeze(['locked', 'trapped', 'broken', 'contents', 'buc', 'cursed', 'blessed', 'charges', 'otyp', 'spe', 'trueName', 'baseType', 'objectType', 'objectPointer', 'chainPointer', 'monsterId', 'monsterInternalId']);
 
@@ -430,7 +417,11 @@
     const validator = context.uiProtocol?.validateCommandEnvelope || UiProtocolV2.validateCommandEnvelope;
     if (typeof validator !== 'function') return rejection({ supported: true, reason: 'public command protocol validator is unavailable', errors: ['validator unavailable'], blockerToken: 'blocked.input.malformedCommand' }, context);
     const envelopeCheck = validator(command);
-    if (!envelopeCheck.ok) return rejection({ supported: true, reason: envelopeCheck.errors.join('; '), errors: envelopeCheck.errors.slice(), blockerToken: 'blocked.input.malformedCommand' }, context);
+    if (!envelopeCheck.ok) {
+      const reason = envelopeCheck.errors.join('; ');
+      const malformedTarget = /(?:payload|targets?)(?:\.[A-Za-z]+)*\.(?:objectId|itemId|containerId|toolId|toolOrWeaponId|coord|x|y)|positive public (?:objectId|id)|coordinate/i.test(reason);
+      return rejection({ supported: true, reason, errors: envelopeCheck.errors.slice(), blockerToken: malformedTarget ? 'blocked.input.malformedTarget' : 'blocked.input.malformedCommand' }, context);
+    }
     if (command.protocol !== v2Protocol) return rejection({ supported: false, reason: 'not a v2 direct command', errors: ['unsupported protocol'], blockerToken: 'blocked.input.unsupportedRoute' }, context);
     const spec = directCommandValidationSpec(command.commandType);
     if (!spec) return rejection({ supported: false, reason: `command type ${command.commandType || '(missing)'} is not a registered direct command`, errors: ['unsupported direct command type'], blockerToken: 'blocked.input.unsupportedRoute' }, context);
@@ -451,14 +442,20 @@
       const forbidden = collectForbiddenPublicKeys(payload);
       for (const path of forbidden) errors.push(`${path}: hidden/private NetHack state is forbidden in public direct-command evidence`);
     }
-    if (errors.length) return rejection({ supported: true, reason: errors.join('; '), errors, blockerToken: /objectId|coord|target|payload\.(?:itemId|containerId|tool)/.test(errors.join(' ')) ? 'blocked.input.malformedTarget' : 'blocked.input.malformedCommand' }, context);
+    if (errors.length) {
+      const reason = errors.join('; ');
+      const blockerToken = command.commandType === 'container.transfer' && errors.some((error) => error.startsWith('payload.direction:'))
+        ? 'blocked.input.unsupportedRoute'
+        : (/objectId|coord|target|payload\.(?:itemId|containerId|tool)/.test(reason) ? 'blocked.input.malformedTarget' : 'blocked.input.malformedCommand');
+      return rejection({ supported: true, reason, errors, blockerToken }, context);
+    }
     const expected = command.expectedRevision && typeof command.expectedRevision === 'object' ? command.expectedRevision : {};
     for (const key of spec.revisionKeys || []) {
       const actual = contextRevisionValue(context, key);
-      if (context.requireExpectedRevisionForKnownSnapshots === true && actual != null && expected[key] == null) {
+      if (spec.requireExpectedRevision !== false && context.requireExpectedRevisionForKnownSnapshots === true && actual != null && expected[key] == null) {
         return rejection({ supported: true, reason: `${key} expected revision is required before direct ${command.commandType}`, actualRevision: actual, blockerToken: 'blocked.input.staleRevision' }, context);
       }
-      if (expected[key] != null && actual != null && expected[key] !== actual) {
+      if (expected[key] != null && actual != null && !(spec.zeroRevisionIsUnknown === true && actual === 0) && expected[key] !== actual) {
         return rejection({ supported: true, reason: `${key} revision changed before direct ${command.commandType}`, expectedRevision: expected[key], actualRevision: actual, blockerToken: 'blocked.input.staleRevision' }, context);
       }
     }
@@ -513,6 +510,7 @@
     const envelopeCheck = validator(command);
     if (!envelopeCheck.ok) return rejection({ supported: true, reason: envelopeCheck.errors.join('; '), errors: envelopeCheck.errors.slice(), blockerToken: 'blocked.input.malformedCommand' }, context);
     if (command.protocol !== v2Protocol || command.commandType !== 'action.execute') return rejection({ supported: false, reason: 'not a v2 action.execute command', errors: ['unsupported command envelope'], blockerToken: 'blocked.input.unsupportedRoute' }, context);
+    context = contextWithCommandGroundEvidence(command, context);
     const actionId = actionIdFromCommand(command);
     const rule = safeActionRoutes[actionId];
     if (!rule) return rejection({ supported: false, reason: `action ${actionId || '(missing)'} is not in the limited v2 execution allowlist`, actionId, blockerToken: 'blocked.public.tryInNetHack' }, context);
@@ -568,13 +566,75 @@
     return { ok: true, supported: true, actionId, commandId: command.commandId, transactionId: command.transactionId || command.commandId, keys, keyInputs, command };
   }
 
+  function validateRegisteredCommandEnvelope(command = {}, context = {}) {
+    if (!command || typeof command !== 'object') return rejection({ supported: false, reason: 'public command must be an object', errors: ['command must be an object'], blockerToken: 'blocked.input.malformedCommand' }, context);
+    const validator = context.uiProtocol?.validateCommandEnvelope || UiProtocolV2.validateCommandEnvelope;
+    if (typeof validator !== 'function') return rejection({ supported: true, reason: 'public command protocol validator is unavailable', errors: ['validator unavailable'], blockerToken: 'blocked.input.malformedCommand' }, context);
+    const envelopeCheck = validator(command);
+    if (!envelopeCheck.ok) return rejection({ supported: true, reason: envelopeCheck.errors.join('; '), errors: envelopeCheck.errors.slice(), blockerToken: 'blocked.input.malformedCommand' }, context);
+    return {
+      ok: true,
+      supported: true,
+      commandId: command.commandId,
+      transactionId: command.transactionId || command.commandId,
+      commandType: command.commandType,
+      command,
+    };
+  }
+
+  function planCommand(command = {}, context = {}) {
+    const commandType = String(command?.commandType || '');
+    const routeSpec = commandPlanningSpecs[commandType];
+    let candidate;
+    if (commandType === 'action.execute') candidate = validateActionExecuteCommand(command, context);
+    else if (directCommandSpecs[commandType]) candidate = validateDirectCommandEnvelope(command, context);
+    else candidate = validateRegisteredCommandEnvelope(command, context);
+    if (!candidate.ok) return { ...candidate, commandType: commandType || undefined, planningAuthority: 'CommandGateway' };
+    if (!routeSpec) {
+      return rejection({
+        supported: false,
+        commandType,
+        commandId: command.commandId,
+        transactionId: command.transactionId || command.commandId,
+        implementationState: 'unknown',
+        reason: `command type ${commandType || '(missing)'} has no registered bridge route`,
+        blockerToken: 'blocked.input.unsupportedRoute',
+        planningAuthority: 'CommandGateway',
+      }, context);
+    }
+    if (routeSpec.implementedRoute !== true) {
+      return rejection({
+        supported: true,
+        commandType,
+        commandId: candidate.commandId,
+        transactionId: candidate.transactionId,
+        bridgeType: routeSpec.bridgeType || undefined,
+        implementationState: 'registered-unimplemented',
+        reason: `${commandType} bridge route is registered but not implemented`,
+        blockerToken: 'blocked.input.unsupportedRoute',
+        planningAuthority: 'CommandGateway',
+      }, context);
+    }
+    const bridgeType = routeSpec.bridgeType;
+    return {
+      ...candidate,
+      commandType,
+      bridgeType,
+      implementationState: 'implemented',
+      planningAuthority: 'CommandGateway',
+      bridgePayload: Object.freeze({ type: bridgeType, command: candidate.command }),
+    };
+  }
+
   return Object.freeze({
-    version: 'nethack-command-gateway/v1',
+    version: 'nethack-command-gateway/v2',
     supportedPlayableKey,
     normalizeShimKey,
     shouldSuppressDuplicateKey,
     normalizeTextInput,
     createActionExecuteCommand,
+    planCommand,
+    commandPlanningSpecs,
     validateActionExecuteCommand,
     inventoryTargetStillMatches,
     validateDirectCommandEnvelope,
@@ -586,8 +646,6 @@
     validateUnknownPayloadFields,
     directCommandValidationSpec,
     directCommandSpecs,
-    validateContainerTransferCommand,
-    validateContainerSnapshotCommand,
     safeActionExecuteActionIds: Object.freeze(Object.keys(safeActionRoutes).sort()),
   });
 }));

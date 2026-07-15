@@ -39,6 +39,11 @@ async function main() {
     const firstItem = firstSnapshot.items[0];
     const secondItem = firstSnapshot.items[1];
     assert('container contents items have public objectIds', firstItem.objectId && secondItem.objectId && firstItem.objectId !== secondItem.objectId, JSON.stringify(firstSnapshot));
+    const appearancePotion = firstSnapshot.items.find((item) => /potion/i.test(item.semanticAppearance || item.displayName || ''));
+    assert('direct container snapshot observes items and publishes the same complete appearance used by inventory', appearancePotion?.semanticKnown === false
+      && /potion/i.test(appearancePotion.semanticAppearance || '')
+      && String(appearancePotion.displayName || '').toLowerCase().includes(String(appearancePotion.semanticAppearance).toLowerCase())
+      && !/^(?:a |an )?potion$/i.test(String(appearancePotion.displayName || '').trim()), JSON.stringify(firstSnapshot));
     function transfer(item, n, snapshot, direction = 'container-to-inventory') {
       const tx = `fixture-direct-container-transfer-${n}`;
       write({ type: 'container-transfer', command: { protocol: 'nethack-electron-ui/v2', commandId: tx, commandType: 'container.transfer', transactionId: tx, expectedRevision: { container: snapshot.revision }, payload: { direction, transferId: tx, sessionId: snapshot.sessionId, containerId: container.objectId, itemId: item.objectId, item: { objectId: item.objectId, displayName: item.displayName, location: { kind: direction === 'inventory-to-container' ? 'inventory' : 'container' } } } } });

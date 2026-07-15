@@ -1,8 +1,10 @@
 const assert = require('node:assert/strict');
 const Runtime = require('../../src/ux/runtime');
+const AppShell = require('../../src/ux/app-shell');
 const Settings = require('../../src/ux/settings-store');
 const Mounts = require('../../src/ux/app-mounts');
 const WindowPolicy = require('../../src/main/window-policy');
+const GameViewState = require('../../src/shared/game-view-state');
 
 function memoryStorage(initial = {}, options = {}) {
   const values = new Map(Object.entries(initial));
@@ -31,8 +33,10 @@ assert(diagnostics.some((entry) => entry.type === 'domain.registration-rejected'
 assert.throws(() => runtime.registerDomain('not-planned', {}), /Unknown UX domain/);
 assert(diagnostics.some((entry) => entry.type === 'domain.registration-rejected' && entry.detail.reason === 'unknown-domain'));
 
+let discoveryDeliveries = 0;
 let delivered;
 runtime.subscribePublicState('discovery', (snapshot, meta) => {
+  discoveryDeliveries += 1;
   delivered = { snapshot, meta };
   assert.equal(Object.isFrozen(snapshot), true);
   assert.equal(Object.isFrozen(snapshot.nested), true);
@@ -45,12 +49,47 @@ assert.equal(delivered.snapshot.nested.value, 1);
 assert.equal(delivered.snapshot.values[0][1].known, true);
 assert.equal(Object.isFrozen(delivered.snapshot.values), true);
 assert.equal(delivered.meta.reason, 'test');
+let shellDeliveries = 0;
+runtime.subscribePublicState('shell', () => { shellDeliveries += 1; });
+const shellBaseline = shellDeliveries;
+const discoveryBaseline = discoveryDeliveries;
+runtime.publishPublicState({ nested: { value: 2 } }, { reason: 'shell-only', domains: ['shell'] });
+assert.equal(shellDeliveries, shellBaseline + 1, 'domain-scoped publication reaches the requested owner');
+assert.equal(discoveryDeliveries, discoveryBaseline, 'domain-scoped publication skips unrelated owners');
+const gameSnapshot = GameViewState.createGameViewState({ mapWidth: 6, mapHeight: 4 }).snapshot();
+runtime.publishPublicState({ game: gameSnapshot }, { reason: 'discovery-only', domains: ['discovery'] });
+assert.strictEqual(delivered.snapshot.game, gameSnapshot, 'the runtime reuses branded immutable game snapshots instead of recursively copying them');
+assert.equal(shellDeliveries, shellBaseline + 1, 'a discovery publication does not rerender the shell owner');
 
-runtime.registerProvider('shell-regions', 'shell', { regions: ['map'] });
-assert.equal(runtime.providers('shell-regions')[0].ownerId, 'shell');
-assert.throws(() => runtime.registerProvider('shell-regions', 'shell', {}), /already registered/);
 assert.equal(runtime.service('notice'), undefined, 'notice service remains absent until UXM-01');
 assert.throws(() => runtime.installService('notice', 'shell', {}), /interaction domain/);
+
+const previousUxRuntime = global.NetHackUxRuntime;
+const previousDocument = global.document;
+let domReadyListener;
+const shellRuntime = Runtime.createRuntime();
+try {
+  global.NetHackUxRuntime = { runtime: shellRuntime };
+  global.document = {
+    readyState: 'loading',
+    addEventListener(type, listener) {
+      if (type === 'DOMContentLoaded') domReadyListener = listener;
+    },
+  };
+  const installedShell = AppShell.installBrowserShell();
+  const shellDomain = shellRuntime.domain('shell');
+  assert.equal(shellDomain.version, AppShell.version);
+  assert.equal(typeof shellDomain.state, 'function');
+  assert.equal(shellDomain.state().connected, false);
+  assert.equal(typeof domReadyListener, 'function');
+  assert.equal(AppShell.installBrowserShell(), shellDomain, 'shell installation is idempotent through domain ownership');
+  assert.equal(installedShell.version, shellDomain.version);
+} finally {
+  if (previousUxRuntime === undefined) delete global.NetHackUxRuntime;
+  else global.NetHackUxRuntime = previousUxRuntime;
+  if (previousDocument === undefined) delete global.document;
+  else global.document = previousDocument;
+}
 
 const v1 = memoryStorage({
   [Settings.legacyStorageKey]: JSON.stringify({ contextualMenus: false, autoLootGold: true, ignoredFutureValue: 'ignored' }),

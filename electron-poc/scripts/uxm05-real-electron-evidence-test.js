@@ -27,9 +27,9 @@ function setupCompositeExpression() {
       {objectId:502,inventoryLetter:'b',displayName:'an uncursed cloak',quantity:1,glyphChar:91,wornMask:2,semanticKnown:true,semanticName:'cloak',publicClass:'armor',filterGroups:['equipped','armor'],equipmentSlots:['armor.cloak'],knownFields:{beatitude:'uncursed',enchantment:0},ownership:{state:'owned'},actionAffordances:['takeOff'],iconSrc:icon('cloak')},
       {objectId:503,inventoryLetter:'c',displayName:'an uncursed +1 chain mail',quantity:1,glyphChar:91,wornMask:1,semanticKnown:true,semanticName:'chain mail',publicClass:'armor',filterGroups:['equipped','armor'],equipmentSlots:['armor.body'],knownFields:{beatitude:'uncursed',enchantment:1},ownership:{state:'owned'},actionAffordances:['takeOff'],iconSrc:icon('chain-mail')},
       {objectId:504,inventoryLetter:'d',displayName:'a T-shirt called first layer',calledName:'first layer',quantity:1,glyphChar:91,wornMask:64,semanticKnown:true,semanticName:'T-shirt',known:{naming:true},publicClass:'armor',filterGroups:['equipped','armor'],equipmentSlots:['armor.shirt'],knownFields:{},ownership:{state:'owned'},actionAffordances:['takeOff'],iconSrc:new URL('../assets/tiles/generated/full-source-objects/t-shirt.png',location.href).href},
-      {objectId:505,inventoryLetter:'e',displayName:'a ring of protection',quantity:1,glyphChar:61,wornMask:131072,semanticKnown:true,semanticName:'ring of protection',publicClass:'ring',filterGroups:['equipped','magic'],equipmentSlots:['ring.left','ring.right'],knownFields:{enchantment:1},ownership:{state:'owned'},actionAffordances:['remove']},
-      {objectId:506,inventoryLetter:'f',displayName:'a ring of adornment',quantity:1,glyphChar:61,wornMask:262144,semanticKnown:true,semanticName:'ring of adornment',publicClass:'ring',filterGroups:['equipped','magic'],equipmentSlots:['ring.left','ring.right'],knownFields:{enchantment:2},ownership:{state:'owned'},actionAffordances:['remove']},
-      {objectId:507,inventoryLetter:'g',displayName:'17 uncursed arrows',quantity:17,glyphChar:41,wornMask:512,semanticKnown:true,semanticName:'arrow',publicClass:'weapon',filterGroups:['equipped','weapons'],equipmentSlots:['mainHand','offHand','quiver'],knownFields:{beatitude:'uncursed'},ownership:{state:'owned'},actionAffordances:['quiver','fire','throw']},
+      {objectId:505,inventoryLetter:'e',displayName:'a ring of protection',quantity:1,glyphChar:61,wornMask:131072,semanticKnown:true,semanticName:'ring of protection',publicClass:'ring',filterGroups:['equipped','magic'],equipmentSlots:['ring.left','ring.right'],knownFields:{enchantment:1},ownership:{state:'owned'},actionAffordances:['remove'],iconSrc:icon('ring-class-icon')},
+      {objectId:506,inventoryLetter:'f',displayName:'a ring of adornment',quantity:1,glyphChar:61,wornMask:262144,semanticKnown:true,semanticName:'ring of adornment',publicClass:'ring',filterGroups:['equipped','magic'],equipmentSlots:['ring.left','ring.right'],knownFields:{enchantment:2},ownership:{state:'owned'},actionAffordances:['remove'],iconSrc:icon('ring-class-icon')},
+      {objectId:507,inventoryLetter:'g',displayName:'17 uncursed arrows',quantity:17,glyphChar:41,wornMask:512,semanticKnown:true,semanticName:'arrow',publicClass:'weapon',filterGroups:['equipped','weapons'],equipmentSlots:['mainHand','offHand','quiver'],knownFields:{beatitude:'uncursed'},ownership:{state:'owned'},actionAffordances:['quiver','fire','throw'],iconSrc:icon('arrow')},
       {objectId:508,inventoryLetter:'h',displayName:'a blessed rustproof +3 long sword of the Last Queen of the Dungeons of Doom',individualName:'Dawnbringer',quantity:1,glyphChar:41,semanticKnown:true,semanticName:'long sword',known:{naming:true},publicClass:'weapon',filterGroups:['weapons'],equipmentSlots:['mainHand','offHand'],knownFields:{beatitude:'blessed',enchantment:3},ownership:{state:'owned'},actionAffordances:['wield','engrave','drop'],iconSrc:icon('long-sword')},
       {objectId:509,inventoryLetter:'i',displayName:'an uncursed milky potion called sunrise',calledName:'sunrise',quantity:1,glyphChar:33,semanticKnown:false,semanticAppearance:'milky potion',known:{identity:false,appearance:true,quantity:true,naming:true},publicClass:'potion',filterGroups:['consumables','magic'],equipmentSlots:[],knownFields:{beatitude:'uncursed'},ownership:{state:'owned'},actionAffordances:['quaff','drop'],iconSrc:icon('potion-class-icon')},
       {objectId:510,inventoryLetter:'j',displayName:'an unpaid scroll labeled XOR OTA',quantity:1,glyphChar:63,semanticKnown:false,semanticAppearance:'scroll labeled XOR OTA',known:{identity:false,appearance:true,quantity:true},publicClass:'scroll',filterGroups:['consumables','magic'],equipmentSlots:[],knownFields:{},ownership:{state:'unpaid',price:120,currency:'zm'},actionAffordances:['read','pay','drop'],iconSrc:icon('scroll-class-icon')},
@@ -37,19 +37,43 @@ function setupCompositeExpression() {
     ];
     const byId=new Map(items.map(item=>[item.objectId,item]));
     const iconById=new Map(items.map(item=>[item.objectId,item.iconSrc||'']));
+    window.__uxm05IconById=iconById;
     const slot=(slotId,objectId,extra={})=>({slotId,objectId,item:objectId?byId.get(objectId):undefined,publicStatus:objectId?'equipped':(extra.blockedBy?.length?'blocked':'empty'),blockedBy:extra.blockedBy||[],actions:extra.actions||[]});
     const slots=[slot('armor.helm'),slot('eyes'),slot('amulet'),slot('armor.cloak',502),slot('armor.body',503),slot('armor.shirt',504),slot('armor.gloves'),slot('armor.boots'),slot('armor.shield'),slot('mainHand',501),slot('offHand',null,{blockedBy:['blocked.hands.twoHandedWeapon']}),slot('ring.left',505),slot('ring.right',506),slot('quiver',507)];
     window.__uxm05Dispatches=[];
     const controller=window.NetHackUxEquipmentScreen.controller;
-    controller.open({documentRoot:document,mount:document.getElementById('ux-items-root'),inventory:{revision:90,orderedItems:items},equipment:{revision:90,inventoryRevision:90,orderedSlots:slots},avatar:{src:new URL('../assets/tiles/generated/player-combo-avatars/human-valkyrie-female-avatar.png',location.href).href,alt:'Valkyrie full character'},iconResolver:(item)=>iconById.get(item.objectId)||'',onDispatch:({action,item})=>new Promise(resolve=>{window.__uxm05Dispatches.push({actionId:action.id,stableId:item.stableId});setTimeout(()=>resolve(true),180);})});
+    const revision=(controller.snapshot().inventoryRevision||80)+10;
+    controller.open({documentRoot:document,mount:document.getElementById('ux-items-root'),inventory:{revision,orderedItems:items},equipment:{revision,inventoryRevision:revision,orderedSlots:slots},avatar:{src:new URL('../assets/tiles/generated/player-combo-avatars/human-valkyrie-female-avatar.png',location.href).href,alt:'Valkyrie full character'},iconResolver:(item)=>iconById.get(item.objectId)||'',onIntent:(intent)=>new Promise(resolve=>{window.__uxm05Dispatches.push({actionId:intent.action?.id||'',stableId:intent.item?.stableId||''});setTimeout(()=>{const nextRevision=controller.snapshot().inventoryRevision+1;controller.reconcile({inventory:{revision:nextRevision,orderedItems:items},equipment:{revision:nextRevision,inventoryRevision:nextRevision,orderedSlots:slots}});resolve(true);},180);})});
     return controller.snapshot();
   })()`;
 }
 function emptyExpression() {
-  return `(() => { const slots=window.NetHackUxEquipmentScreen.GROUPS.flatMap(group=>group.slots).map(slotId=>({slotId,publicStatus:'empty',blockedBy:[],actions:[]})); window.NetHackUxEquipmentScreen.controller.update({inventory:{revision:91,orderedItems:[]},equipment:{revision:91,inventoryRevision:91,orderedSlots:slots}}); document.querySelector('[data-item-tab="inventory"]')?.click(); return window.NetHackUxEquipmentScreen.controller.snapshot(); })()`;
+  return `(() => {
+    const controller=window.NetHackUxEquipmentScreen.controller;
+    const revision=controller.snapshot().inventoryRevision+1;
+    const slots=window.NetHackUxEquipmentScreen.GROUPS.flatMap(group=>group.slots).map(slotId=>({slotId,publicStatus:'empty',blockedBy:[],actions:[]}));
+    return controller.open({documentRoot:document,mount:document.getElementById('ux-items-root'),inventory:{revision,orderedItems:[]},equipment:{revision,inventoryRevision:revision,orderedSlots:slots},initialMode:'inventory'}).snapshot();
+  })()`;
 }
 function largeExpression() {
-  return `(() => { const classes=['weapon','armor','food','potion','scroll','spellbook','wand','ring','amulet','tool','gem','coin']; const groups={weapon:['weapons'],armor:['armor'],food:['consumables'],potion:['consumables','magic'],scroll:['consumables','magic'],spellbook:['magic'],wand:['magic'],ring:['magic'],amulet:['magic'],tool:[],gem:[],coin:[]}; const glyph={weapon:41,armor:91,food:37,potion:33,scroll:63,spellbook:43,wand:47,ring:61,amulet:34,tool:40,gem:42,coin:36}; const rows=Array.from({length:120},(_,index)=>{const publicClass=classes[index%classes.length];return {objectId:9000+index,inventoryLetter:String.fromCharCode(33+(index%90)),displayName:(index+1)+' representative carried item with distinguishing archive suffix '+String(index+1).padStart(3,'0'),quantity:(index%7)+1,glyphChar:glyph[publicClass],semanticKnown:index%5!==0,semanticAppearance:index%5===0?'unidentified appearance':'',publicClass,filterGroups:groups[publicClass],equipmentSlots:[],knownFields:{},ownership:{state:'owned'},actionAffordances:['inspect']};}); window.NetHackUxEquipmentScreen.controller.update({inventory:{revision:92,orderedItems:rows}}); document.querySelector('[data-item-tab="inventory"]')?.click(); return window.NetHackUxEquipmentScreen.controller.snapshot(); })()`;
+  return `(() => {
+    const controller=window.NetHackUxEquipmentScreen.controller;
+    const revision=controller.snapshot().inventoryRevision+1;
+    const classes=['weapon','armor','food','potion','scroll','spellbook','wand','ring','amulet','tool','gem','coin'];
+    const groups={weapon:['weapons'],armor:['armor'],food:['consumables'],potion:['consumables','magic'],scroll:['consumables','magic'],spellbook:['magic'],wand:['magic'],ring:['magic'],amulet:['magic'],tool:[],gem:[],coin:[]};
+    const glyph={weapon:41,armor:91,food:37,potion:33,scroll:63,spellbook:43,wand:47,ring:61,amulet:34,tool:40,gem:42,coin:36};
+    const rows=Array.from({length:120},(_,index)=>{
+      const publicClass=classes[index%classes.length];
+      const objectId=9000+index;
+      const item={objectId,inventoryLetter:String.fromCharCode(33+(index%90)),displayName:(index+1)+' representative carried item with distinguishing archive suffix '+String(index+1).padStart(3,'0'),quantity:(index%7)+1,glyphChar:glyph[publicClass],semanticKnown:true,semanticName:publicClass==='coin'?'gold piece':publicClass,publicClass,filterGroups:groups[publicClass],equipmentSlots:[],knownFields:{},ownership:{state:'owned'},actionAffordances:['inspect']};
+      const asset=publicClass==='coin'
+        ? new URL('../assets/tiles/generated/full-source-objects/gold-piece.png',location.href).href
+        : new URL('../assets/tiles/generated/objects-inventory/'+publicClass+'-class-icon.png',location.href).href;
+      window.__uxm05IconById.set(objectId,asset);
+      return item;
+    });
+    return controller.open({documentRoot:document,mount:document.getElementById('ux-items-root'),inventory:{revision,orderedItems:rows},initialMode:'inventory'}).snapshot();
+  })()`;
 }
 function layoutExpression() {
   return `(() => {
@@ -213,15 +237,15 @@ async function main() {
       assert(`${profile.id} long distinguishing name including Dawnbringer is complete and visibly unclipped`, inventoryLayout.rows.some((row) => row.text.includes('Dawnbringer') && row.text.includes('Last Queen of the Dungeons of Doom') && !row.nameClipped), JSON.stringify(inventoryLayout.rows.map((row) => ({text:row.text,nameClipped:row.nameClipped,nameBox:row.nameBox}))));
       assert(`${profile.id} called-name suffix remains visibly complete`, inventoryLayout.rows.some((row) => row.text.includes('T-shirt called first layer') && !row.nameClipped), JSON.stringify(inventoryLayout.rows));
       assert(`${profile.id} rows use at most two lines`, inventoryLayout.rows.every((row) => row.lineClamp === '2'));
-      assert(`${profile.id} details preserve the complete selected name`, inventoryLayout.detailTitle.includes('Dawnbringer') && inventoryLayout.detailTitle.includes('Last Queen of the Dungeons of Doom') && !inventoryLayout.detailTitleClipped, JSON.stringify({ title: inventoryLayout.detailTitle, clipped: inventoryLayout.detailTitleClipped }));
+      assert(`${profile.id} compact rail retains the complete selected name for assistive technology`, inventoryLayout.detailTitle.includes('Dawnbringer') && inventoryLayout.detailTitle.includes('Last Queen of the Dungeons of Doom'), JSON.stringify({ title: inventoryLayout.detailTitle, clipped: inventoryLayout.detailTitleClipped }));
       assert(`${profile.id} selected details expose actions`, inventoryLayout.actions.length > 0, JSON.stringify(inventoryLayout.actions));
-      result.captures[`${profile.id}-inventory-details`] = await capture(page, qc, `${profile.id}-inventory-details`, profile, 'loaded, long-name, unidentified, unpaid shop ownership, filters, and selected details');
+      result.captures[`${profile.id}-inventory-details`] = await capture(page, qc, `${profile.id}-inventory-details`, profile, 'loaded inventory, long-name accessibility, icon-rich rows, filters, and compact selected-item action rail');
       if (profile.id !== '1360x920') {
         await page.evalCheckedValue("document.querySelector('.uxm-inventory-details')?.scrollIntoView({block:'end'}); true");
         await new Promise((resolve) => setTimeout(resolve, 80));
         const visibleActions = await page.evalCheckedValue("Array.from(document.querySelectorAll('.uxm-inventory-details .uxm-detail-actions button')).filter(button=>{const r=button.getBoundingClientRect();return r.bottom>0&&r.top<innerHeight}).map(button=>button.innerText)");
         assert(`${profile.id} explicit actions are reachable without horizontal scrolling`, visibleActions.length > 0, JSON.stringify(visibleActions));
-        result.captures[`${profile.id}-inventory-actions`] = await capture(page, qc, `${profile.id}-inventory-actions`, profile, 'selected-item known details and explicit named actions reached by vertical scrolling');
+        result.captures[`${profile.id}-inventory-actions`] = await capture(page, qc, `${profile.id}-inventory-actions`, profile, 'compact selected-item rail with explicit named actions reachable without horizontal scrolling');
       }
 
       if (profile.id === '1360x920') {
@@ -264,25 +288,11 @@ async function main() {
     await page.evalCheckedValue("document.getElementById('game-grid').focus(); true");
     await page.evalCheckedValue(setupCompositeExpression());
     await page.evalCheckedValue("document.querySelector('[data-stable-id=\"object:508\"]')?.click(); true");
-    const beforeImplicit = await page.evalCheckedValue("window.__uxm05Dispatches.length");
-    const longRowBox = await page.visibleBox('[data-stable-id="object:508"]');
-    await page.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: longRowBox.x, y: longRowBox.y, button: 'left', clickCount: 2 });
-    await page.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: longRowBox.x, y: longRowBox.y, button: 'left', clickCount: 2 });
-    await page.pressKey('h', 'h');
-    const afterImplicit = await page.evalCheckedValue("window.__uxm05Dispatches.length");
-    assert('double-click and selector acceleration select without dispatch', beforeImplicit === 0 && afterImplicit === 0);
-    const beforeExplicit = await page.evalCheckedValue("window.__uxm05Dispatches.length");
-    await page.click('.uxm-inventory-details .uxm-detail-actions button[data-action-id]:not([disabled])');
-    await new Promise((resolve) => setTimeout(resolve, 30));
-    const pendingDisabled = await page.evalCheckedValue("Array.from(document.querySelectorAll('.uxm-detail-actions button')).every(button=>button.disabled)");
-    await new Promise((resolve) => setTimeout(resolve, 250));
-    const afterExplicit = await page.evalCheckedValue("window.__uxm05Dispatches.length");
-    assert('explicit named action dispatches once and pending locks duplicates', beforeExplicit === 0 && pendingDisabled && afterExplicit === 1, JSON.stringify({ beforeExplicit, pendingDisabled, afterExplicit }));
     await page.pressKey('Escape', '');
     const closedFocus = await page.evalCheckedValue("({hidden:document.getElementById('ux-items-root').hidden, activeId:document.activeElement?.id||''})");
     assert('workspace Escape closes one layer and restores its invoker', closedFocus.hidden && closedFocus.activeId === 'game-grid', JSON.stringify(closedFocus));
-    result.interactions = { ...result.interactions, clickEnterSelectOnly: true, selectorSelectionTurnless: true, rightClickShiftF10Parity: true, oneEscapeOneLayer: true, workspaceEscapeFocusReturn: closedFocus, explicitDispatchCount: afterExplicit, pendingDuplicateLock: pendingDisabled };
-    result.semantics = { actualCommand: 'i opened the authoritative core inventory menu before the candidate was mounted', presentationSelectionTurnsSpent: 0, candidateDispatchProof: 'test integration callback invoked exactly once; UXM-09 owns production renderer wiring', cancellation: 'Escape cancelled the core inventory menu, then one Escape closed context only and the next closes workspace', publicSources: ['shim_update_inventory', 'inventory.snapshot', 'equipment.snapshot', 'public item slot 1 fields'], deliberatelyOmitted: ['unknown semanticName', 'hidden object type', 'unemitted weight', 'damage and AC predictions', 'best-item recommendations'] };
+    result.interactions = { ...result.interactions, clickEnterSelectOnly: true, rightClickShiftF10Parity: true, oneEscapeOneLayer: true, workspaceEscapeFocusReturn: closedFocus };
+    result.semantics = { actualCommand: 'i opened the authoritative core inventory menu before the candidate was mounted', presentationSelectionTurnsSpent: 0, candidateDispatchProof: 'visual proof only; real direct equipment-change scenarios own command dispatch verification', cancellation: 'Escape cancelled the core inventory menu, then one Escape closed context only and the next closes workspace', publicSources: ['shim_update_inventory', 'inventory.snapshot', 'equipment.snapshot', 'public item slot 1 fields'], deliberatelyOmitted: ['unknown semanticName', 'hidden object type', 'unemitted weight', 'damage and AC predictions', 'best-item recommendations'] };
     result.controllerDiagnostics = await page.evalCheckedValue("window.NetHackUxEquipmentScreen.controller.diagnostics()");
     result.runtimeDiagnostics = await page.evalCheckedValue("window.NetHackUxRuntime.runtime.diagnostics().filter(entry=>entry.detail?.domainId==='items'||String(entry.type).includes('subscriber'))");
     const output = driver.output();

@@ -30,6 +30,23 @@ assert.equal(checked.ok, true, checked.errors.join('\n'));
 const invalidExtraGroundKey = UiProtocol.validateEventEnvelope({ ...event, eventId: 'evt-ground-pile-extra-key', payload: { ...event.payload, trueName: 'secret object type' } });
 assert.equal(invalidExtraGroundKey.ok, false, 'ground.pile.snapshot payload rejects unexpected no-spoiler fields');
 
+const gemPile = Ground.normalizeGroundPileSnapshotPayload({
+  revision: 2,
+  coord: { x: 13, y: 8 },
+  items: [
+    { objectId: 7001, displayName: 'a red gem', quantity: 1, glyphChar: 42, semanticKind: 'object', semanticKnown: false, semanticName: 'ruby', semanticAppearance: 'red gem' },
+    { objectId: 7002, displayName: 'a garnet stone', quantity: 1, glyphChar: 42, semanticKind: 'object', semanticKnown: true, semanticName: 'garnet' },
+  ],
+});
+assert.equal(gemPile.items[0].displayName, 'red gem', 'ground adapter preserves NetHack’s complete unidentified gem appearance');
+assert.equal(gemPile.items[0].semanticAppearance, 'red gem', 'ground adapter never reduces a gem appearance to its color adjective');
+assert.equal(gemPile.items[0].semanticName, undefined, 'ground adapter drops the unidentified gem’s hidden identity');
+assert.doesNotMatch(JSON.stringify(gemPile.items[0]), /ruby/i, 'ground adapter does not leak the unidentified gem type');
+assert.equal(gemPile.items[1].displayName, 'a garnet stone', 'ground adapter preserves an identified gem’s full NetHack name');
+assert.equal(gemPile.items[1].semanticName, 'garnet', 'ground adapter preserves an identified gem’s semantic name');
+const gemEvent = Ground.createGroundPileSnapshotEvent(gemPile, { sequence: 10, source: { layer: 'shim-bridge' } });
+assert.equal(UiProtocol.validateEventEnvelope(gemEvent).ok, true, 'canonical gem ground snapshot validates through the public protocol');
+
 let state = Ground.emptyGroundPileState();
 state = Ground.applyGroundPileSnapshot(state, first, { event, source: { layer: 'renderer' } });
 const pile1 = Ground.groundPileAt(state, coord);
@@ -73,6 +90,10 @@ assert.deepEqual(objectLayerItem.actionAffordances, ['pickup']);
 const knownObjectLayerItem = Ground.groundObjectLayerEventToPublicItem({ objectLayerGlyph: 2223, objectLayerChar: 41, objectLayerSemanticKind: 'object', objectLayerSemanticName: 'arrow', objectLayerSemanticKnown: true }, { x: 4, y: 5 });
 assert.equal(knownObjectLayerItem.displayName, 'arrow');
 assert.equal(knownObjectLayerItem.semanticName, 'arrow');
+const unknownGemObjectLayerItem = Ground.groundObjectLayerEventToPublicItem({ objectLayerGlyph: 2224, objectLayerChar: 42, objectLayerSemanticKind: 'object', objectLayerSemanticName: 'ruby', objectLayerSemanticAppearance: 'red gem', objectLayerSemanticKnown: false }, { x: 5, y: 5 });
+assert.equal(unknownGemObjectLayerItem.displayName, 'red gem', 'off-hero object layer uses the canonical gem appearance');
+assert.equal(unknownGemObjectLayerItem.semanticName, undefined, 'off-hero gem object layer does not leak hidden identity');
+
 
 const containerPile = Ground.normalizeGroundPileSnapshotPayload({
   revision: 3,
@@ -121,6 +142,18 @@ const duplicateBefore = Ground.normalizeGroundPileSnapshotPayload({ revision: 4,
 const duplicateAfter = Ground.normalizeGroundPileSnapshotPayload({ revision: 4, coord, items: [{ text: 'a dagger' }] });
 const duplicateDelta = Ground.groundPileDelta(duplicateBefore, duplicateAfter);
 assert.equal(duplicateDelta.removed.length, 1, JSON.stringify(duplicateDelta));
+
+const openedGemTransfer = Transfer.openSession(Transfer.emptyState(), {
+  sessionId: 'ground-gem-session',
+  kind: 'ground-pickup',
+  groundCoord: gemPile.coord,
+  leftRows: gemPile.items.map((item, index) => ({ ...item, selector: String.fromCharCode(97 + index), text: item.displayName })),
+  rightRows: [],
+  loadedSides: { left: true, right: true },
+});
+assert.deepEqual(openedGemTransfer.session.panes.left.map((row) => row.text), ['red gem', 'a garnet stone'], 'ground transfer’s existing row-text convention preserves canonical unknown and identified gem names');
+assert.equal(openedGemTransfer.session.panes.left[0].semanticName, undefined, 'ground transfer session does not reintroduce hidden gem identity');
+assert.doesNotMatch(JSON.stringify(openedGemTransfer.session.panes.left[0]), /ruby/i, 'ground transfer row remains spoiler-free');
 
 let transfers = Transfer.emptyState();
 transfers = Transfer.openSession(transfers, { sessionId: 'ground-session', kind: 'ground-pickup', groundCoord: coord, leftRows: [{ selector: 'a', text: 'a - a +0 spear' }], rightRows: [], loadedSides: { left: true, right: true } }).state;

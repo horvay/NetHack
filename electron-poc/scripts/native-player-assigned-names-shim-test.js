@@ -58,7 +58,7 @@ run().then(({ events, stdout, stderr }) => {
   assert.equal(called.known.naming, true, 'C boundary emits narrow explicit naming knowledge');
   assert.equal(called.known.identity, undefined, 'C emitter does not manufacture identity authorization');
   assert.equal(called.known.appearance, undefined, 'C emitter does not blanket-authorize generic display text as appearance');
-  assert.match(called.text, /milky(?: potion)? called sunrise/i, `C inventory text contains the real exact called suffix: ${JSON.stringify(called)}`);
+  assert.match(called.text, /\bpotion called sunrise\b/i, `C inventory text uses NetHack look naming while preserving the called suffix: ${JSON.stringify(called)}`);
   assert.equal(called.semanticName, undefined, 'C unknown called potion omits hidden generic identity');
   assert.equal(named.individualName, 'Dawnbringer', 'C boundary emits exact individual object name');
   assert.equal(named.known.naming, true, 'C boundary emits naming knowledge for the named sword');
@@ -69,7 +69,7 @@ run().then(({ events, stdout, stderr }) => {
   assert.equal(calledMenu.objectId, called.objectId, 'classic menu resolves authoritative called object metadata');
   assert.equal(calledMenu.semanticAppearance, 'milky potion', 'classic menu emits complete public appearance');
   assert.equal(calledMenu.known.naming, true, 'classic menu carries explicit called-name knowledge');
-  assert.match(calledMenu.text, /milky potion called sunrise/i, 'classic menu carries real called suffix text');
+  assert.match(calledMenu.text, /\bpotion called sunrise\b/i, 'classic menu uses NetHack look naming and preserves the called suffix');
   assert.equal(namedMenu.objectId, named.objectId, 'classic menu resolves authoritative named object metadata');
   assert.equal(namedMenu.individualName, 'Dawnbringer', 'classic menu carries exact individual name');
   assert.equal(namedMenu.known.naming, true, 'classic menu carries explicit individual naming knowledge');

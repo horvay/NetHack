@@ -5,6 +5,14 @@ const root = path.resolve(__dirname, '..');
 const js = fs.readFileSync(path.join(root, 'src', 'renderer.js'), 'utf8');
 const html = fs.readFileSync(path.join(root, 'src', 'renderer.html'), 'utf8');
 const bridge = fs.readFileSync(path.join(root, 'shim-bridge', 'nh-shim-bridge.c'), 'utf8');
+const InteractionModel = require(path.join(root, 'src', 'shared', 'interaction-model'));
+const plannedTitles = [
+  InteractionModel.planInteraction({ gameView: { activePrompt: { kind: 'question', query: 'In what direction?', choices: 'hjklyubn.' } } }).prompt.title,
+  InteractionModel.planInteraction({ gameView: { activePrompt: { kind: 'question', query: 'Really continue?', choices: 'yn' } } }).prompt.title,
+  InteractionModel.planInteraction({ gameView: { activePrompt: { kind: 'question', query: 'What do you want to wield?', choices: 'ab?*' } } }).prompt.title,
+  InteractionModel.planInteraction({ gameView: { activePrompt: { kind: 'line input', query: 'What do you want to name?' } } }).prompt.title,
+];
+
 
 const checks = [
   ['down-stairs quick action sends only >, not a control key', /data-command-key=">"/.test(html) && !/Down stairs[^\n]+data-command-code/.test(html)],
@@ -14,8 +22,8 @@ const checks = [
   ['bridge never turns stdin EOF into ESC or Ctrl-D input', /Do not synthesize ESC on EOF/.test(bridge) && /bridge_stdin_closed/.test(bridge) && !/push_key\(27\)[\s\S]*bridge_stdin_closed/.test(bridge)],
   ['bridge logs input queue depth for stale-key diagnosis', /queuedBefore/.test(bridge) && /queuedAfter/.test(bridge)],
   ['bridge bounds menu selector echo buffer to avoid shim state corruption', /selected_len \+ 1 < \(int\) sizeof selected_keys/.test(bridge)],
-  ['prompt titles are player-facing, not generic Answer NetHack prompt chrome', !/Answer NetHack prompt/.test(js + html) && /function questionDialogTitle/.test(js) && /function lineInputDialogTitle/.test(js) && /function menuDialogTitle/.test(js)],
-  ['common prompt title mappings are present', /Choose direction/.test(js) && /Confirm/.test(js) && /Name item/.test(js) && /Choose item/.test(js) && /Question/.test(js)],
+  ['prompt titles are player-facing, not generic Answer NetHack prompt chrome', !/Answer NetHack prompt/.test(js + html) && plannedTitles.every((title) => title && title !== 'Question')],
+  ['common prompt title mappings are planned', ['Choose direction', 'Confirm', 'Choose item', 'Name item'].every((title) => plannedTitles.includes(title))],
 ];
 
 const failed = checks.filter(([, ok]) => !ok);

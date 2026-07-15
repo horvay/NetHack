@@ -1,53 +1,18 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { spawn } = require('node:child_process');
-const electronBin = require('electron');
+const Harness = require('./lib/electron-test-harness');
+const EvidenceApproval = require('./lib/evidence-approval');
 
 const root = path.resolve(__dirname, '..');
+const width = 1360;
+const height = 920;
+const { delay, waitFor } = Harness;
 const scenarioId = 'object/gray-stone-public-rub-candidates';
-const outDir = path.resolve(root, process.env.NH_GRAY_STONE_RUB_OUT_DIR || path.join('test-output', 'real-scenario-gray-stone-public-rub'));
-const port = Number(process.env.AI_ORG_ELECTRON_CDP_PORT || 9648);
 
-function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
-async function json(url) { const res = await fetch(url); if (!res.ok) throw new Error(`${res.status} ${url}`); return res.json(); }
-async function waitFor(fn, timeoutMs = 20000, stepMs = 150) {
-  const start = Date.now(); let last;
-  while (Date.now() - start < timeoutMs) {
-    try { const value = await fn(); if (value) return value; } catch (error) { last = error; }
-    await delay(stepMs);
-  }
-  throw last || new Error('timed out waiting');
-}
-async function connect(wsUrl) {
-  const ws = new WebSocket(wsUrl);
-  await new Promise((resolve, reject) => { ws.addEventListener('open', resolve, { once: true }); ws.addEventListener('error', reject, { once: true }); });
-  let id = 0; const pending = new Map();
-  ws.addEventListener('message', (event) => {
-    const msg = JSON.parse(event.data);
-    if (msg.id && pending.has(msg.id)) {
-      const callbacks = pending.get(msg.id); pending.delete(msg.id);
-      msg.error ? callbacks.reject(new Error(JSON.stringify(msg.error))) : callbacks.resolve(msg.result);
-    }
-  });
-  return {
-    send(method, params = {}) {
-      const callId = ++id;
-      ws.send(JSON.stringify({ id: callId, method, params }));
-      return new Promise((resolve, reject) => pending.set(callId, { resolve, reject }));
-    },
-    close() { ws.close(); },
-  };
-}
-async function evalExpr(cdp, expression) {
-  const res = await cdp.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression });
-  if (res.exceptionDetails) throw new Error(JSON.stringify(res.exceptionDetails));
-  return res.result.value;
-}
+async function evalExpr(cdp, expression) { return cdp.evalCheckedValue(expression, { awaitPromise: true }); }
 async function shot(cdp, name) {
-  const res = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
-  const file = path.join(outDir, name);
-  fs.writeFileSync(file, Buffer.from(res.data, 'base64'));
-  return file;
+  const capture = await cdp.screenshotEvidence(cdp.qc, path.basename(name, path.extname(name)), { classification: 'synthetic-fixture', viewport: { width, height, zoomPercent: 100 }, state: name, viewSafeFormat: 'BMP', viewSafeScale: 0.25 });
+  return capture.raw.path;
 }
 async function click(cdp, selector) {
   const box = await evalExpr(cdp, `(() => { const el = document.querySelector(${JSON.stringify(selector)}); el?.scrollIntoView?.({block:'center', inline:'center'}); const r = el?.getBoundingClientRect(); return r ? {x:r.left+r.width/2,y:r.top+r.height/2,text:el.innerText} : null; })()`);
@@ -70,7 +35,14 @@ async function rightClickFirstGrayStone(cdp) {
   await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: box.x, y: box.y, button: 'right', clickCount: 1 });
   return box;
 }
-function assert(name, ok, detail = '') { if (!ok) throw new Error(`${name}${detail ? `: ${detail}` : ''}`); }
+let assertionOutcomes = null;
+function assert(name, ok, detail = '') {
+  const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const outcome = { id, status: ok ? 'passed' : 'failed', details: ok ? '' : detail };
+  const existing = assertionOutcomes?.find((entry) => entry.id === id);
+  if (existing) Object.assign(existing, outcome); else assertionOutcomes?.push(outcome);
+  if (!ok) throw new Error(`${name}${detail ? `: ${detail}` : ''}`);
+}
 async function state(cdp) {
   return evalExpr(cdp, `(() => ({
     dialog: window.__nethackPromptTest?.dialog?.() || {},
@@ -88,11 +60,10 @@ async function state(cdp) {
   }))()`);
 }
 async function start(cdp) {
-  await click(cdp, '#start-shim');
-  await delay(250);
-  await click(cdp, '#confirm-character');
-  await waitFor(async () => (await state(cdp)).running, 20000);
-  await evalExpr(cdp, `(() => { document.getElementById('intro-dialog')?.close?.('continue'); document.getElementById('document-dialog')?.close?.('close'); document.getElementById('game-grid')?.focus?.(); window.__nethackPromptTest?.clearSentInputs?.(); })()`);
+  await cdp.startDefaultGame({ timeoutMs: 25000, playerName: 'BatchBProof' });
+  await cdp.dismissIntroDialogs();
+    await delay(500);
+    await cdp.dismissIntroDialogs();
 }
 function assertNoHiddenIdentityFields(command) {
   const serialized = JSON.stringify(command || {});
@@ -101,52 +72,53 @@ function assertNoHiddenIdentityFields(command) {
   }
 }
 
+function reviewRun(outputDir, reviewFile) {
+  const manifestFile = path.join(path.resolve(outputDir), 'evidence-approval.json');
+  const approval = EvidenceApproval.openEvidenceApproval({ manifestFile });
+  EvidenceApproval.applyEvidenceReview(approval, path.resolve(reviewFile));
+  const validation = Harness.screenshotQc.validateManifest(manifestFile, { expectedRunIdentity: approval.runIdentity, requireApproval: true });
+  if (!validation.ok) throw new Error(`Evidence Approval failed: ${validation.errors.join('; ')}`);
+  EvidenceApproval.writeEvidenceReport(manifestFile);
+  console.log(`real-scenario-gray-stone-public-rub-mcp-test: APPROVED ${approval.runIdentity} ${manifestFile}`);
+}
+function recordJsonSidecars(qc, outDir) {
+  for (const name of fs.readdirSync(outDir)) {
+    if (!name.endsWith('.json') || name === 'evidence-approval.json') continue;
+    const file = path.join(outDir, name);
+    if (!fs.statSync(file).isFile()) continue;
+    qc.recordLog({ id: `sidecar-${name.replace(/[^a-z0-9._-]+/gi, '-')}`, path: file, classification: 'scenario-state' });
+  }
+}
+
 async function main() {
-  fs.rmSync(outDir, { recursive: true, force: true });
-  fs.mkdirSync(outDir, { recursive: true });
-  const child = spawn(electronBin, ['.'], {
-    cwd: root,
-    env: {
-      ...process.env,
-      AI_ORG_ELECTRON_CDP_PORT: String(port),
-      NH_ELECTRON_WINDOW_WIDTH: '1360',
-      NH_ELECTRON_WINDOW_HEIGHT: '920',
-      NH_ELECTRON_TEST_FIXTURES: '1',
-      NH_SHIM_RESET_LOCKS: '1',
-      NH_TEST_SCENARIO_ID: scenarioId,
-      NETHACK_SEED: '424242',
-      NETHACKOPTIONS: '!tutorial,!autopickup',
-    },
-    stdio: ['ignore', 'pipe', 'pipe'],
+  const page = await Harness.createElectronBrowserDriver({
+    root, width, height,
+    env: { NH_ELECTRON_TEST_FIXTURES: '1', NH_TEST_SCENARIO_ID: scenarioId, NETHACK_SEED: '424242', NETHACKOPTIONS: '!tutorial,!autopickup' },
   });
-  const stdout = []; const stderr = [];
-  child.stdout.on('data', (d) => { stdout.push(String(d)); process.stdout.write(d); });
-  child.stderr.on('data', (d) => { stderr.push(String(d)); process.stderr.write(d); });
-  let cdp;
-  const cleanup = () => { try { cdp?.close(); } catch {} if (!child.killed) child.kill('SIGTERM'); };
+  const outDir = page.outputDir;
+  const qc = Harness.screenshotQc.createScreenshotQc({ rootDir: outDir, runIdentity: page.outputIdentity, manifestFile: path.join(outDir, 'evidence-approval.json') });
+  const cdp = Object.freeze({ ...page, qc });
+  const outcomes = [];
+  if (typeof assertionOutcomes !== 'undefined') assertionOutcomes = outcomes;
+  let scenarioError = null;
   try {
-    const pages = await waitFor(async () => { const list = await json(`http://127.0.0.1:${port}/json/list`); return list.find((page) => page.type === 'page') ? list : null; }, 20000);
-    cdp = await connect((pages.find((page) => page.type === 'page') || pages[0]).webSocketDebuggerUrl);
-    await cdp.send('Page.enable'); await cdp.send('Runtime.enable');
-    await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1360, height: 920, deviceScaleFactor: 1, mobile: false });
-    await waitFor(async () => (await evalExpr(cdp, "document.readyState === 'complete' && !!window.__nethackPromptTest")), 10000);
     await start(cdp);
     await waitFor(async () => { const s = await state(cdp); if (/bridge_test_scenario_failed/.test(`${s.seenShim}\n${s.shim}`)) throw new Error(s.shim); return /bridge_test_scenario_loaded/.test(`${s.seenShim}\n${s.shim}`) ? s : null; }, 10000);
-
+    
     await press(cdp, 'i', 'KeyI', 'i');
     const inventoryReady = await waitFor(async () => { const s = await state(cdp); return s.grayRows.length === 4 ? s : null; }, 10000);
     assert('all gray rows are public text only', inventoryReady.grayRows.every((row) => /\ba gray stone\b/i.test(row.text) && !/flint|touchstone|luckstone|loadstone|quiver pouch/i.test(row.text)), JSON.stringify(inventoryReady.grayRows));
     assert('gray rows use one public/appearance tile id', new Set(inventoryReady.grayRows.map((row) => row.tileId)).size === 1, JSON.stringify(inventoryReady.grayRows));
     assert('gray rows do not use identity tile ids', !/flint|touchstone|luckstone|loadstone/i.test(JSON.stringify(inventoryReady.grayRows)), JSON.stringify(inventoryReady.grayRows));
     const inventoryShot = await shot(cdp, '01-public-gray-stone-inventory.png');
-
+    
     const grayRow = await rightClickFirstGrayStone(cdp);
     await waitFor(async () => /^Rub$/im.test((await state(cdp)).contextMenu), 5000);
     const context = await state(cdp);
     assert('public gray stone exposes Rub', /^Rub$/im.test(context.contextMenu), context.contextMenu);
     assert('context menu omits hidden gray-stone identities', !/flint|touchstone|luckstone|loadstone/i.test(context.contextMenu), context.contextMenu);
     const contextShot = await shot(cdp, '02-public-gray-stone-context-rub.png');
-
+    
     await evalExpr(cdp, `window.__nethackPromptTest.clearSentInputs();`);
     await click(cdp, '.inventory-context-menu [data-action-id="item.rub"]');
     const afterRub = await waitFor(async () => {
@@ -162,16 +134,28 @@ async function main() {
     assert('item.rub route command is exactly #rub\\n', rubCommand.payload?.route?.command === '#rub\n', JSON.stringify(rubCommand));
     assert('NetHack-owned rub prompt wrapper is visible', /What do you want to rub/i.test(`${afterRub.dialog.prompt}\n${afterRub.body}`), JSON.stringify(afterRub.dialog));
     assertNoHiddenIdentityFields(rubCommand);
-
+    
     const sidecar = { scenarioId, grayRows: inventoryReady.grayRows, grayRow, contextMenu: context.contextMenu, afterRub: { sent: afterRub.sent, dialog: afterRub.dialog, command: rubCommand, bridgeAccepted: Boolean(acceptedBridgeEvent), bridgeUiEvents: afterRub.bridgeUiEvents || [] }, screenshots: { inventoryShot, contextShot, promptShot } };
     fs.writeFileSync(path.join(outDir, 'gray-stone-public-rub-state.json'), JSON.stringify(sidecar, null, 2));
-    fs.writeFileSync(path.join(outDir, 'real-scenario-gray-stone-public-rub-summary.md'), ['# Real gray-stone public #rub MCP proof', '', 'PASS', '', `Scenario: ${scenarioId}`, '', 'Evidence:', `- Inventory rows: ${inventoryShot}`, `- Public gray stone context with Rub: ${contextShot}`, `- NetHack-owned #rub prompt after click: ${promptShot}`, `- State sidecar: ${path.join(outDir, 'gray-stone-public-rub-state.json')}`, '', 'Verified public boundary: four hidden FLINT/TOUCHSTONE/LUCKSTONE/LOADSTONE fixtures render as indistinguishable public `gray stone` rows, share one public appearance tile id, expose `Rub`, route to `item.rub` / `#rub`, and omit hidden true identity/BUC/charges fields.', ''].join('\n'));
-    console.log('real-scenario-gray-stone-public-rub-mcp-test PASS');
+  } catch (error) {
+    scenarioError = error;
   } finally {
-    fs.writeFileSync(path.join(outDir, 'electron-stdout.log'), stdout.join(''));
-    fs.writeFileSync(path.join(outDir, 'electron-stderr.log'), stderr.join(''));
-    cleanup();
+    await page.close().catch((error) => { if (!scenarioError) scenarioError = error; });
   }
+  outcomes.push({ id: 'scenario-completed', status: scenarioError ? 'failed' : 'passed', details: scenarioError ? String(scenarioError.message || scenarioError) : '' });
+  qc.recordAssertions(outcomes);
+  recordJsonSidecars(qc, outDir);
+  qc.recordLog({ id: 'electron-stdout', path: page.logs.stdout, classification: 'electron-stdout' });
+  qc.recordLog({ id: 'electron-stderr', path: page.logs.stderr, classification: 'electron-stderr' });
+  const validation = Harness.screenshotQc.validateManifest(qc.manifestFile, { expectedRunIdentity: page.outputIdentity, requireApproval: false });
+  if (!validation.ok) throw new Error(`Evidence Approval capture failed: ${validation.errors.join('; ')}`);
+  console.log(`real-scenario-gray-stone-public-rub-mcp-test: CAPTURED ${page.outputIdentity} ${qc.manifestFile}`);
+  if (scenarioError) throw scenarioError;
 }
 
-main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+const reviewIndex = process.argv.indexOf('--review');
+if (reviewIndex !== -1) {
+  Promise.resolve().then(() => reviewRun(process.argv[reviewIndex + 1], process.argv[reviewIndex + 2])).catch((error) => { console.error(error.stack || error); process.exit(1); });
+} else {
+  main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+}

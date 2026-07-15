@@ -65,9 +65,9 @@ async function main() {
     })()`);
     assert('stale active menu path sends no selector or legacy text after direct migration', result.sent === '', JSON.stringify(result));
     assert('stale active menu path keeps panel active and reconciles from visible state without moving the row', result.container.active && result.container.left.some((row) => /scroll of identify/i.test(row.text)) && !result.container.right.some((row) => /scroll of identify/i.test(row.text)), JSON.stringify(result.container));
-    assert('transfer transaction is rejected instead of falling back to menu choreography', result.transfers.transfers.some((tx) => tx.direction === 'container-to-inventory' && tx.status === 'rejected' && /Direct container transfer needs stable public container and item IDs/.test(tx.result?.reason || '')), JSON.stringify(result.transfers));
+    assert('stale renderer-only selector creates no transfer transaction or menu fallback', result.transfers.transfers.length === 0 && !result.transfers.activeTransferId, JSON.stringify(result.transfers));
     assert('no fallback or equipment overlay leaked into remap view', !/Inventory selector|Name unavailable|Equipment\s*\/\s*Inventory|Hero equipment/i.test(result.body || ''), result.body.slice(0, 1200));
-    fs.writeFileSync(path.join(outDir, 'summary.md'), [`# Container active selector stale-menu regression`, '', 'PASS', '', 'Verified: a stale optimistic row with an active NetHack menu no longer sends a selector or legacy command text; the panel stays visible and reports a direct-route rejection.', '', `Sent input: ${JSON.stringify(result.sent)}`, '', 'Visible panel:', '```', result.container.text, '```', ''].join('\n'));
+    fs.writeFileSync(path.join(outDir, 'summary.md'), [`# Container active selector stale-menu regression`, '', 'PASS', '', 'Verified: a stale renderer-only selector with an active NetHack menu sends no selector, command text, or transfer transaction; the panel stays visible on immutable Game View menu rows.', '', `Sent input: ${JSON.stringify(result.sent)}`, '', 'Visible panel:', '```', result.container.text, '```', ''].join('\n'));
     console.log('container-active-selector-remap-test PASS');
   } finally { cleanup(); }
 }

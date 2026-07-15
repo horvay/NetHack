@@ -193,7 +193,7 @@ for (const [label, command, inventoryItems, expectedOk] of ownedGatewayMatrix) {
 {
   const command = make({
     action: { id: 'item.rub', label: 'Rub' },
-    route: { actionId: 'item.rub', command: '#rub\n' },
+    route: { actionId: 'item.rub', command: '#rub\nl' },
     target: { selector: 'l', inventoryLetter: 'l', displayName: 'an oil lamp', location: { kind: 'inventory' } },
     payload: { promptPolicy: 'netHack-owned-followup' },
     item: { selector: 'l', text: 'l - an oil lamp', actionAffordances: ['rub'] },
@@ -202,26 +202,26 @@ for (const [label, command, inventoryItems, expectedOk] of ownedGatewayMatrix) {
   const checked = UiProtocolV2.validateCommandEnvelope(command);
   assert.equal(checked.ok, true, checked.errors.join('; '));
   const plan = CommandGateway.validateActionExecuteCommand(command, { uiProtocol: UiProtocolV2, inventoryRevision: 8 });
-  assert.equal(plan.ok, true, plan.reason || 'item #rub route should be allowed with explicit public inventory target and prompt policy');
-  assert.equal(plan.keys, '#rub\n');
+  assert.equal(plan.ok, true, plan.reason || 'selected-item #rub route should be allowed with an exact public inventory target and prompt policy');
+  assert.equal(plan.keys, '#rub\nl');
 }
 
 {
   const command = make({
     action: { id: 'item.rub', label: 'Rub' },
-    route: { actionId: 'item.rub', command: '#rub\nl' },
+    route: { actionId: 'item.rub', command: '#rub\n' },
     target: { selector: 'l', inventoryLetter: 'l', displayName: 'an oil lamp', location: { kind: 'inventory' } },
     payload: { promptPolicy: 'netHack-owned-followup' },
     item: { selector: 'l', text: 'l - an oil lamp', actionAffordances: ['rub'] },
     expectedRevision: { inventory: 8 },
   });
   const plan = CommandGateway.validateActionExecuteCommand(command, { uiProtocol: UiProtocolV2, inventoryRevision: 8 });
-  assert.equal(plan.ok, false, 'item.rub must not bundle an item selector or any follow-up answer after #rub');
+  assert.equal(plan.ok, false, 'item.rub must include the selected inventory item after #rub');
   assert.match(plan.reason, /route shape/i);
 }
 
 {
-  const command = make({ action: { id: 'item.rub', label: 'Rub' }, route: { actionId: 'item.rub', command: '#rub\n' }, item: { selector: 'l', text: 'l - an oil lamp', actionAffordances: ['rub'] }, expectedRevision: { inventory: 8 } });
+  const command = make({ action: { id: 'item.rub', label: 'Rub' }, route: { actionId: 'item.rub', command: '#rub\nl' }, item: { selector: 'l', text: 'l - an oil lamp', actionAffordances: ['rub'] }, expectedRevision: { inventory: 8 } });
   const plan = CommandGateway.validateActionExecuteCommand(command, { uiProtocol: UiProtocolV2, inventoryRevision: 8 });
   assert.equal(plan.ok, false, 'item.rub must not execute without an explicit public inventory target and prompt policy');
   assert.equal(plan.supported, true);
@@ -432,6 +432,72 @@ for (const [label, command, inventoryItems, expectedOk] of ownedGatewayMatrix) {
   const deferredLadderDown = CommandGateway.validateDirectCommandEnvelope({ ...terrain, commandId: 'cmd-terrain-ladder-down', payload: { action: 'ladderDown', terrain: 'ladder.down', coord: { x: 12, y: 8 } } }, { uiProtocol: UiProtocolV2, mapRevision: 4, inventoryRevision: 8 });
   assert.equal(deferredLadderDown.ok, false, 'ladderDown terrain.action is deferred until real scenario proof exists');
   assert.match(deferredLadderDown.reason, /payload\.action|one of/i);
+}
+
+{
+  const protocol = UiProtocolV2.protocol;
+  const direct = (commandType, payload, expectedRevision = undefined) => ({
+    protocol,
+    commandId: `cmd-plan-${commandType}`,
+    commandType,
+    transactionId: `txn-plan-${commandType}`,
+    ...(expectedRevision ? { expectedRevision } : {}),
+    payload,
+  });
+  const cases = [
+    ['action.execute', make(), {}, true, 'ui-command'],
+    ['command.cancel', direct('command.cancel', { commandId: 'cmd-existing', reason: 'player cancelled' }), {}, false],
+    ['prompt.answer', { ...direct('prompt.answer', { promptId: 'prompt-1', answer: 'y' }), promptId: 'prompt-1' }, {}, false],
+    ['menu.select', { ...direct('menu.select', { menuId: 'menu-1', selectors: ['a'] }), menuId: 'menu-1' }, {}, false],
+    ['ground.transfer', direct('ground.transfer', { transferId: 'transfer-ground-1', direction: 'ground-to-inventory', coord: { x: 12, y: 8 }, itemId: 41, count: 'all' }), {}, true, 'ground-transfer'],
+    ['equipment.change', direct('equipment.change', { action: 'clearQuiver', slotId: 'quiver' }, { inventory: 7, equipment: 3 }), {}, true, 'equipment-change'],
+    ['terrain.action', direct('terrain.action', { action: 'stairsDown', terrain: 'stairs.down', coord: { x: 12, y: 8 } }, { map: 4, inventory: 7 }), {}, true, 'terrain-action'],
+    ['container.transfer', direct('container.transfer', { direction: 'container-to-inventory', transferId: 'transfer-container-1', sessionId: 'session-container-1', containerId: 51, itemId: 52 }), { activeInputOwner: { kind: 'transfer', requestId: 'session-container-1' } }, true, 'container-transfer'],
+    ['container.snapshot', direct('container.snapshot', { sessionId: 'session-container-1', containerId: 51 }), { activeInputOwner: { kind: 'transfer', requestId: 'session-container-1' } }, true, 'container-snapshot'],
+    ['replay.control', direct('replay.control', { mode: 'preserve-only' }), {}, false],
+    ['container.force', direct('container.force', { containerId: 51, coord: { x: 12, y: 8 }, confirmDestructive: true }, { ground: 12, inventory: 7 }), {}, false],
+    ['container.tip', direct('container.tip', { containerId: 51, coord: { x: 12, y: 8 }, confirmDestructive: true }, { ground: 12, inventory: 7 }), {}, false],
+    ['container.untrap', direct('container.untrap', { containerId: 51, coord: { x: 12, y: 8 } }, { ground: 12, inventory: 7 }), {}, false],
+    ['container.unlock', direct('container.unlock', { containerId: 51, coord: { x: 12, y: 8 }, toolId: 53, intent: 'unlock' }, { ground: 12, inventory: 7 }), {}, false],
+    ['item.use', direct('item.use', { action: 'rub', itemId: 41, count: 'all', followupPolicy: 'visible-netHack-owned' }, { inventory: 7 }), {}, false],
+    ['altar.action', direct('altar.action', { action: 'offer', coord: { x: 12, y: 8 }, itemId: 41 }, { map: 4, inventory: 7, ground: 12 }), {}, false],
+    ['target.answer', direct('target.answer', { targetRequestId: 'target-1', coord: { x: 12, y: 8 } }, { map: 4 }), { activeInputOwner: { kind: 'target', requestId: 'target-1' } }, false],
+  ];
+  assert.deepEqual(Object.keys(CommandGateway.commandPlanningSpecs).sort(), UiProtocolV2.commandTypes.slice().sort(), 'CommandGateway planning registry covers every public v2 command type exactly');
+  const baseContext = {
+    uiProtocol: UiProtocolV2,
+    inventoryRevision: 7,
+    equipmentRevision: 3,
+    groundRevision: 12,
+    containerRevision: 9,
+    mapRevision: 4,
+    requireExpectedRevisionForKnownSnapshots: true,
+  };
+  for (const [commandType, command, context, implemented, bridgeType] of cases) {
+    const plan = CommandGateway.planCommand(command, { ...baseContext, ...context });
+    assert.equal(plan.planningAuthority, 'CommandGateway', `${commandType} crosses the one public planning interface`);
+    assert.equal(plan.commandType, commandType, `${commandType} retains its public command family`);
+    if (implemented) {
+      assert.equal(plan.ok, true, `${commandType} plans an implemented bridge route: ${plan.reason || ''}`);
+      assert.equal(plan.bridgeType, bridgeType, `${commandType} owns its route in CommandGateway`);
+      assert.deepEqual(plan.bridgePayload, { type: bridgeType, command }, `${commandType} yields one complete planned bridge write`);
+    } else {
+      assert.equal(plan.ok, false, `${commandType} is rejected until its registered route is implemented`);
+      assert.equal(plan.implementationState, 'registered-unimplemented', commandType);
+      assert.equal(plan.blockerToken, 'blocked.input.unsupportedRoute', commandType);
+      assert.equal(plan.bridgePayload, undefined, `${commandType} rejection cannot be written`);
+    }
+  }
+
+  const malformed = CommandGateway.planCommand({ protocol, commandType: 'container.snapshot', commandId: 'cmd-malformed-container', payload: { sessionId: 'session-1', containerId: 0 } }, baseContext);
+  assert.equal(malformed.ok, false, 'malformed container commands reject through the same planner');
+  assert.equal(malformed.blockerToken, 'blocked.input.malformedTarget');
+  assert.equal(malformed.bridgePayload, undefined);
+
+  const stale = CommandGateway.planCommand(direct('terrain.action', { action: 'stairsDown', terrain: 'stairs.down', coord: { x: 12, y: 8 } }, { map: 3, inventory: 7 }), baseContext);
+  assert.equal(stale.ok, false, 'stale direct commands reject through the same planner');
+  assert.equal(stale.blockerToken, 'blocked.input.staleRevision');
+  assert.equal(stale.bridgePayload, undefined);
 }
 
 console.log('command-gateway-action-execute-test PASS');

@@ -186,65 +186,61 @@ typedef struct bridge_gui_action_metadata {
     int command_length;
 } bridge_gui_action_metadata;
 
-typedef struct bridge_ground_transfer_request {
-    int active;
+typedef enum bridge_direct_command_family {
+    BRIDGE_DIRECT_COMMAND_NONE = 0,
+    BRIDGE_DIRECT_COMMAND_GROUND_TRANSFER,
+    BRIDGE_DIRECT_COMMAND_CONTAINER_TRANSFER,
+    BRIDGE_DIRECT_COMMAND_CONTAINER_SNAPSHOT,
+    BRIDGE_DIRECT_COMMAND_EQUIPMENT_CHANGE,
+    BRIDGE_DIRECT_COMMAND_TERRAIN_ACTION
+} bridge_direct_command_family;
+
+typedef struct bridge_direct_command_arbitration {
+    bridge_direct_command_family active_family;
     int queued;
+    char command_id[128];
+    char transaction_id[128];
+} bridge_direct_command_arbitration;
+
+typedef struct bridge_ground_transfer_request {
     unsigned int item_id;
     int x;
     int y;
     char direction[64];
-    char command_id[128];
-    char transaction_id[128];
     char transfer_id[128];
 } bridge_ground_transfer_request;
 
 typedef struct bridge_container_transfer_request {
-    int pending;
-    int active;
-    int queued;
     unsigned int container_id;
     unsigned int item_id;
     char direction[64];
-    char command_id[128];
-    char transaction_id[128];
     char transfer_id[128];
     char session_id[128];
 } bridge_container_transfer_request;
 
 typedef struct bridge_container_snapshot_request {
-    int active;
-    int queued;
     unsigned int container_id;
-    char command_id[128];
-    char transaction_id[128];
     char session_id[128];
 } bridge_container_snapshot_request;
 
 typedef struct bridge_equipment_change_request {
-    int active;
-    int queued;
     unsigned int item_id;
     char action[32];
     char slot_id[32];
     char hand[16];
-    char command_id[128];
-    char transaction_id[128];
 } bridge_equipment_change_request;
 
 typedef struct bridge_terrain_action_request {
-    int active;
-    int queued;
     char action[32];
     unsigned int x;
     unsigned int y;
     char terrain[32];
     unsigned int item_id;
-    char command_id[128];
-    char transaction_id[128];
 } bridge_terrain_action_request;
 
+static bridge_direct_command_arbitration direct_command_arbitration;
+static pthread_mutex_t direct_command_mu = PTHREAD_MUTEX_INITIALIZER;
 static bridge_ground_transfer_request active_ground_transfer;
-static bridge_container_transfer_request pending_container_transfer;
 static bridge_container_transfer_request active_container_transfer;
 static bridge_container_snapshot_request active_container_snapshot;
 static bridge_equipment_change_request active_equipment_change;
@@ -266,7 +262,7 @@ static void handle_container_transfer_line(const char *line);
 static void handle_container_snapshot_line(const char *line);
 static void handle_equipment_change_line(const char *line);
 static void handle_terrain_action_line(const char *line);
-static void maybe_queue_pending_container_transfer(void);
+static void queue_active_direct_command(void);
 static void maybe_emit_ground_transfer_result(void);
 static void maybe_emit_container_transfer_result(void);
 static void maybe_emit_container_snapshot_result(void);
@@ -446,6 +442,99 @@ static int pending_queue_length(void) {
     queued = (pending_tail - pending_head + 1024) % 1024;
     pthread_mutex_unlock(&in_mu);
     return queued;
+}
+
+static const char *direct_command_family_label(bridge_direct_command_family family) {
+    switch (family) {
+    case BRIDGE_DIRECT_COMMAND_GROUND_TRANSFER: return "ground transfer";
+    case BRIDGE_DIRECT_COMMAND_CONTAINER_TRANSFER: return "container transfer";
+    case BRIDGE_DIRECT_COMMAND_CONTAINER_SNAPSHOT: return "container snapshot";
+    case BRIDGE_DIRECT_COMMAND_EQUIPMENT_CHANGE: return "equipment change";
+    case BRIDGE_DIRECT_COMMAND_TERRAIN_ACTION: return "terrain action";
+    case BRIDGE_DIRECT_COMMAND_NONE: break;
+    }
+    return "direct command";
+}
+
+static int direct_command_is_active(bridge_direct_command_family family) {
+    return family != BRIDGE_DIRECT_COMMAND_NONE
+        && direct_command_arbitration.active_family == family;
+}
+
+static int direct_command_is_idle(void) {
+    int idle;
+    pthread_mutex_lock(&direct_command_mu);
+    idle = direct_command_arbitration.active_family == BRIDGE_DIRECT_COMMAND_NONE;
+    pthread_mutex_unlock(&direct_command_mu);
+    return idle;
+}
+
+static int begin_direct_command(bridge_direct_command_family family,
+                                const char *command_id,
+                                const char *transaction_id,
+                                char *reason,
+                                size_t reasonsz) {
+    pthread_mutex_lock(&direct_command_mu);
+    if (direct_command_arbitration.active_family != BRIDGE_DIRECT_COMMAND_NONE) {
+        snprintf(reason, reasonsz, "%s", "another direct command is active");
+        pthread_mutex_unlock(&direct_command_mu);
+        return 0;
+    }
+    if (active_prompt_or_menu_owns_input()) {
+        active_prompt_or_menu_reason(reason, reasonsz);
+        pthread_mutex_unlock(&direct_command_mu);
+        return 0;
+    }
+    if (pending_queue_length() > 0) {
+        snprintf(reason, reasonsz, "pending native command blocks %s",
+                 direct_command_family_label(family));
+        pthread_mutex_unlock(&direct_command_mu);
+        return 0;
+    }
+    memset(&direct_command_arbitration, 0, sizeof direct_command_arbitration);
+    direct_command_arbitration.active_family = family;
+    snprintf(direct_command_arbitration.command_id,
+             sizeof direct_command_arbitration.command_id, "%s", command_id);
+    snprintf(direct_command_arbitration.transaction_id,
+             sizeof direct_command_arbitration.transaction_id, "%s",
+             transaction_id && *transaction_id ? transaction_id : command_id);
+    pthread_mutex_unlock(&direct_command_mu);
+    return 1;
+}
+
+static int mark_direct_command_queued(bridge_direct_command_family family) {
+    pthread_mutex_lock(&direct_command_mu);
+    if (!direct_command_is_active(family) || direct_command_arbitration.queued) {
+        pthread_mutex_unlock(&direct_command_mu);
+        return 0;
+    }
+    direct_command_arbitration.queued = 1;
+    pthread_mutex_unlock(&direct_command_mu);
+    return 1;
+}
+
+static void finish_direct_command(bridge_direct_command_family family) {
+    switch (family) {
+    case BRIDGE_DIRECT_COMMAND_GROUND_TRANSFER:
+        memset(&active_ground_transfer, 0, sizeof active_ground_transfer);
+        break;
+    case BRIDGE_DIRECT_COMMAND_CONTAINER_TRANSFER:
+        memset(&active_container_transfer, 0, sizeof active_container_transfer);
+        break;
+    case BRIDGE_DIRECT_COMMAND_CONTAINER_SNAPSHOT:
+        memset(&active_container_snapshot, 0, sizeof active_container_snapshot);
+        break;
+    case BRIDGE_DIRECT_COMMAND_EQUIPMENT_CHANGE:
+        memset(&active_equipment_change, 0, sizeof active_equipment_change);
+        break;
+    case BRIDGE_DIRECT_COMMAND_TERRAIN_ACTION:
+        memset(&active_terrain_action, 0, sizeof active_terrain_action);
+        break;
+    case BRIDGE_DIRECT_COMMAND_NONE:
+        return;
+    }
+    if (direct_command_is_active(family))
+        memset(&direct_command_arbitration, 0, sizeof direct_command_arbitration);
 }
 
 static int is_safe_playable_key(int ch) {
@@ -803,6 +892,54 @@ static void emit_event_end(void) {
     pthread_mutex_unlock(&out_mu);
 }
 
+static const char *direct_command_family_event_stem(
+    bridge_direct_command_family family) {
+    switch (family) {
+    case BRIDGE_DIRECT_COMMAND_GROUND_TRANSFER: return "ground_transfer";
+    case BRIDGE_DIRECT_COMMAND_CONTAINER_TRANSFER: return "container_transfer";
+    case BRIDGE_DIRECT_COMMAND_CONTAINER_SNAPSHOT: return "container_snapshot";
+    case BRIDGE_DIRECT_COMMAND_EQUIPMENT_CHANGE: return "equipment_change";
+    case BRIDGE_DIRECT_COMMAND_TERRAIN_ACTION: return "terrain_action";
+    case BRIDGE_DIRECT_COMMAND_NONE: break;
+    }
+    return "direct_command";
+}
+
+static void emit_direct_command_lifecycle_start(
+    bridge_direct_command_family family,
+    const char *lifecycle,
+    const char *command_id,
+    const char *transaction_id) {
+    char event_name[96];
+    snprintf(event_name, sizeof event_name, "shim_%s_%s",
+             direct_command_family_event_stem(family), lifecycle);
+    emit_event_start(event_name);
+    if (command_id && *command_id) {
+        fputs(",\"commandId\":\"", stdout);
+        json_escape(stdout, command_id);
+        fputs("\"", stdout);
+    }
+    if (transaction_id && *transaction_id) {
+        fputs(",\"transactionId\":\"", stdout);
+        json_escape(stdout, transaction_id);
+        fputs("\"", stdout);
+    }
+}
+
+static void emit_active_direct_command_lifecycle_start(
+    bridge_direct_command_family family,
+    const char *lifecycle,
+    const char *native_transaction_id) {
+    emit_direct_command_lifecycle_start(
+        family, lifecycle,
+        direct_command_is_active(family)
+            ? direct_command_arbitration.command_id : "",
+        direct_command_is_active(family)
+            ? direct_command_arbitration.transaction_id
+            : (native_transaction_id && *native_transaction_id
+                   ? native_transaction_id : ""));
+}
+
 static void emit_authoritative_magic_rows(const char *kind, int window) {
     bridge_menu_lifecycle *ctx = find_menu_lifecycle(window);
     int is_spell = !strcmp(kind, "spell");
@@ -1073,7 +1210,7 @@ static const bridge_ui_command_rule ui_command_rules[] = {
     { "ground.tipContainer", "#tip\n", NULL, -1, 0, "ground", "netHack-owned-followup" },
     { "ground.forceContainer", "#force\n", NULL, -1, 0, "ground", "netHack-owned-followup" },
     { "ground.untrapContainer", "#untrap\n", NULL, -1, 0, "ground", "netHack-owned-followup" },
-    { "item.rub", "#rub\n", NULL, -1, 0, "inventory", "netHack-owned-followup" },
+    { "item.rub", NULL, "#rub\n", 5, 0, "inventory", "netHack-owned-followup" },
 };
 
 static const bridge_ui_command_rule *find_ui_command_rule(const char *action_id) {
@@ -1107,17 +1244,21 @@ static int ui_command_matches_rule(const bridge_ui_command_rule *rule, const cha
         return 1;
     }
     if (rule->command_prefix) {
-        if (!len || command[0] != rule->command_prefix[0]) {
+        size_t prefix_len = strlen(rule->command_prefix);
+        if (len < prefix_len || strncmp(command, rule->command_prefix, prefix_len)) {
             snprintf(reason, reasonsz, "%s", "route command prefix does not match allowlist");
             return 0;
         }
         if (rule->allow_ring_hand) {
-            if (!(len == 2 || (len == 3 && (command[2] == 'l' || command[2] == 'r')))) {
+            if (!(len == prefix_len + 1
+                  || (len == prefix_len + 2
+                      && (command[prefix_len + 1] == 'l'
+                          || command[prefix_len + 1] == 'r')))) {
                 snprintf(reason, reasonsz, "%s", "ring route command must be selector plus optional public hand");
                 return 0;
             }
-        } else if (len != 2) {
-            snprintf(reason, reasonsz, "%s", "selector route command must be exactly command key plus selector");
+        } else if (len != prefix_len + 1) {
+            snprintf(reason, reasonsz, "%s", "selector route command must be exactly command prefix plus selector");
             return 0;
         }
         if (rule->selector_index >= 0) {
@@ -1155,9 +1296,9 @@ static void emit_ui_command_accepted(const char *command_id, const char *transac
 }
 
 static void emit_ground_transfer_rejected_dir(const char *command_id, const char *transaction_id, const char *transfer_id, const char *direction, const char *reason) {
-    emit_event_start("shim_ground_transfer_rejected");
-    if (command_id && *command_id) { fputs(",\"commandId\":\"", stdout); json_escape(stdout, command_id); fputs("\"", stdout); }
-    if (transaction_id && *transaction_id) { fputs(",\"transactionId\":\"", stdout); json_escape(stdout, transaction_id); fputs("\"", stdout); }
+    emit_direct_command_lifecycle_start(
+        BRIDGE_DIRECT_COMMAND_GROUND_TRANSFER, "rejected",
+        command_id, transaction_id);
     if (transfer_id && *transfer_id) { fputs(",\"transferId\":\"", stdout); json_escape(stdout, transfer_id); fputs("\"", stdout); }
     fputs(",\"direction\":\"", stdout); json_escape(stdout, direction && *direction ? direction : "ground-to-inventory");
     fputs("\",\"reason\":\"", stdout);
@@ -1208,23 +1349,23 @@ static void handle_ground_transfer_line(const char *line) {
     if (!transfer_id[0]) { emit_ground_transfer_rejected_dir(command_id, transaction_id, transfer_id, direction, "ground.transfer requires payload.transferId"); return; }
     if (strcmp(count, "all")) { emit_ground_transfer_rejected_dir(command_id, transaction_id, transfer_id, direction, "ground.transfer first slice requires count all"); return; }
     if (!item_id || !isok((int)x, (int)y)) { emit_ground_transfer_rejected_dir(command_id, transaction_id, transfer_id, direction, "ground.transfer requires public itemId and valid coord"); return; }
-    if (active_ground_transfer.active || pending_container_transfer.pending || active_container_transfer.active || active_container_snapshot.active || active_equipment_change.active || active_terrain_action.active) { emit_ground_transfer_rejected_dir(command_id, transaction_id, transfer_id, direction, "another direct command is active"); return; }
-    if (first_active_menu_lifecycle() || (active_prompt_request_id[0] && strcmp(active_prompt_purpose, "prompt.command"))) { active_prompt_or_menu_reason(reason, sizeof reason); emit_ground_transfer_rejected_dir(command_id, transaction_id, transfer_id, direction, reason); return; }
-    if (pending_queue_length() > 0) { emit_ground_transfer_rejected_dir(command_id, transaction_id, transfer_id, direction, "pending native command blocks ground transfer"); return; }
+    if (!begin_direct_command(BRIDGE_DIRECT_COMMAND_GROUND_TRANSFER,
+                              command_id, transaction_id,
+                              reason, sizeof reason)) {
+        emit_ground_transfer_rejected_dir(command_id, transaction_id,
+                                          transfer_id, direction, reason);
+        return;
+    }
     memset(&active_ground_transfer, 0, sizeof active_ground_transfer);
-    active_ground_transfer.active = 1;
     active_ground_transfer.item_id = item_id;
     active_ground_transfer.x = (int)x;
     active_ground_transfer.y = (int)y;
     snprintf(active_ground_transfer.direction, sizeof active_ground_transfer.direction, "%s", direction);
-    snprintf(active_ground_transfer.command_id, sizeof active_ground_transfer.command_id, "%s", command_id);
-    snprintf(active_ground_transfer.transaction_id, sizeof active_ground_transfer.transaction_id, "%s", transaction_id[0] ? transaction_id : command_id);
     snprintf(active_ground_transfer.transfer_id, sizeof active_ground_transfer.transfer_id, "%s", transfer_id[0] ? transfer_id : (transaction_id[0] ? transaction_id : command_id));
     snprintf(active_transaction_id, sizeof active_transaction_id, "%s", active_ground_transfer.transfer_id);
     ground_transfer_set_request(active_ground_transfer.item_id, active_ground_transfer.direction, active_ground_transfer.x, active_ground_transfer.y, active_transaction_id);
-    emit_event_start("shim_ground_transfer_accepted");
-    fputs(",\"commandId\":\"", stdout); json_escape(stdout, active_ground_transfer.command_id); fputs("\"", stdout);
-    fputs(",\"transactionId\":\"", stdout); json_escape(stdout, active_ground_transfer.transaction_id); fputs("\"", stdout);
+    emit_active_direct_command_lifecycle_start(
+        BRIDGE_DIRECT_COMMAND_GROUND_TRANSFER, "accepted", NULL);
     fputs(",\"transferId\":\"", stdout); json_escape(stdout, active_ground_transfer.transfer_id); fputs("\"", stdout);
     fprintf(stdout, ",\"itemId\":%u,\"direction\":\"", item_id); json_escape(stdout, direction); fputs("\"", stdout);
     fprintf(stdout, ",\"coord\":{\"x\":%u,\"y\":%u}", x, y);
@@ -1240,9 +1381,9 @@ static void handle_ground_transfer_line(const char *line) {
 }
 
 static void emit_container_transfer_rejected_dir(const char *command_id, const char *transaction_id, const char *transfer_id, const char *direction, const char *reason) {
-    emit_event_start("shim_container_transfer_rejected");
-    if (command_id && *command_id) { fputs(",\"commandId\":\"", stdout); json_escape(stdout, command_id); fputs("\"", stdout); }
-    if (transaction_id && *transaction_id) { fputs(",\"transactionId\":\"", stdout); json_escape(stdout, transaction_id); fputs("\"", stdout); }
+    emit_direct_command_lifecycle_start(
+        BRIDGE_DIRECT_COMMAND_CONTAINER_TRANSFER, "rejected",
+        command_id, transaction_id);
     if (transfer_id && *transfer_id) { fputs(",\"transferId\":\"", stdout); json_escape(stdout, transfer_id); fputs("\"", stdout); }
     fputs(",\"direction\":\"", stdout); json_escape(stdout, direction && *direction ? direction : "container-to-inventory");
     fputs("\",\"reason\":\"", stdout);
@@ -1257,9 +1398,9 @@ static void emit_container_transfer_rejected(const char *command_id, const char 
 
 static void emit_container_snapshot_rejected(const char *command_id, const char *transaction_id, const char *session_id, const char *reason) {
     const char *safe_reason = reason && *reason ? reason : "container snapshot rejected";
-    emit_event_start("shim_container_snapshot_rejected");
-    if (command_id && *command_id) { fputs(",\"commandId\":\"", stdout); json_escape(stdout, command_id); fputs("\"", stdout); }
-    if (transaction_id && *transaction_id) { fputs(",\"transactionId\":\"", stdout); json_escape(stdout, transaction_id); fputs("\"", stdout); }
+    emit_direct_command_lifecycle_start(
+        BRIDGE_DIRECT_COMMAND_CONTAINER_SNAPSHOT, "rejected",
+        command_id, transaction_id);
     if (session_id && *session_id) { fputs(",\"sessionId\":\"", stdout); json_escape(stdout, session_id); fputs("\"", stdout); }
     emit_container_failure_fields(safe_reason);
     fputs(",\"reason\":\"", stdout); json_escape(stdout, safe_reason); fputs("\"", stdout);
@@ -1301,23 +1442,23 @@ static void handle_container_transfer_line(const char *line) {
     if (!transfer_id[0]) { emit_container_transfer_rejected_dir(command_id, transaction_id, transfer_id, direction, "container.transfer requires payload.transferId"); return; }
     if (!session_id[0]) { emit_container_transfer_rejected_dir(command_id, transaction_id, transfer_id, direction, "container.transfer requires payload.sessionId"); return; }
     if (!container_id || !item_id) { emit_container_transfer_rejected_dir(command_id, transaction_id, transfer_id, direction, "container.transfer requires public containerId and itemId"); return; }
-    if (active_ground_transfer.active || pending_container_transfer.pending || active_container_transfer.active || active_terrain_action.active) { emit_container_transfer_rejected_dir(command_id, transaction_id, transfer_id, direction, "another direct transfer is active"); return; }
-    if (first_active_menu_lifecycle() || (active_prompt_request_id[0] && strcmp(active_prompt_purpose, "prompt.command"))) { active_prompt_or_menu_reason(reason, sizeof reason); emit_container_transfer_rejected_dir(command_id, transaction_id, transfer_id, direction, reason); return; }
-    if (pending_queue_length() > 0) { emit_container_transfer_rejected_dir(command_id, transaction_id, transfer_id, direction, "pending native command blocks container transfer"); return; }
+    if (!begin_direct_command(BRIDGE_DIRECT_COMMAND_CONTAINER_TRANSFER,
+                              command_id, transaction_id,
+                              reason, sizeof reason)) {
+        emit_container_transfer_rejected_dir(command_id, transaction_id,
+                                             transfer_id, direction, reason);
+        return;
+    }
     memset(&active_container_transfer, 0, sizeof active_container_transfer);
-    active_container_transfer.active = 1;
     active_container_transfer.container_id = container_id;
     active_container_transfer.item_id = item_id;
     snprintf(active_container_transfer.direction, sizeof active_container_transfer.direction, "%s", direction);
-    snprintf(active_container_transfer.command_id, sizeof active_container_transfer.command_id, "%s", command_id);
-    snprintf(active_container_transfer.transaction_id, sizeof active_container_transfer.transaction_id, "%s", transaction_id[0] ? transaction_id : command_id);
     snprintf(active_container_transfer.transfer_id, sizeof active_container_transfer.transfer_id, "%s", transfer_id[0] ? transfer_id : (transaction_id[0] ? transaction_id : command_id));
     snprintf(active_container_transfer.session_id, sizeof active_container_transfer.session_id, "%s", session_id);
     snprintf(active_transaction_id, sizeof active_transaction_id, "%s", active_container_transfer.transfer_id);
     container_transfer_set_request(active_container_transfer.container_id, active_container_transfer.item_id, active_container_transfer.direction, active_transaction_id);
-    emit_event_start("shim_container_transfer_accepted");
-    fputs(",\"commandId\":\"", stdout); json_escape(stdout, active_container_transfer.command_id); fputs("\"", stdout);
-    fputs(",\"transactionId\":\"", stdout); json_escape(stdout, active_container_transfer.transaction_id); fputs("\"", stdout);
+    emit_active_direct_command_lifecycle_start(
+        BRIDGE_DIRECT_COMMAND_CONTAINER_TRANSFER, "accepted", NULL);
     fputs(",\"transferId\":\"", stdout); json_escape(stdout, active_container_transfer.transfer_id); fputs("\"", stdout);
     fprintf(stdout, ",\"containerId\":%u,\"itemId\":%u,\"direction\":\"", container_id, item_id); json_escape(stdout, direction); fputs("\"", stdout);
     emit_event_end();
@@ -1340,6 +1481,23 @@ static void handle_container_snapshot_line(const char *line) {
     char reason[192] = "";
     if (!json_line_is_single_object(line)) { emit_container_snapshot_rejected("", "", "", "container-snapshot wrapper must be one well-formed JSON object"); return; }
     if (!wrapper || json_direct_object_field(wrapper, "command", &command_obj, reason, sizeof reason) != 1) { emit_container_snapshot_rejected("", "", "", reason[0] ? reason : "container-snapshot wrapper requires nested command object"); return; }
+    static const char *critical[] = {
+        "protocol", "commandType", "commandId", "containerId", "sessionId"
+    };
+    for (size_t i = 0; i < sizeof(critical) / sizeof(critical[0]); ++i) {
+        if (json_direct_field_count(wrapper, critical[i]) > 0) {
+            snprintf(reason, sizeof reason,
+                     "wrapper-level %s cannot satisfy nested command validation",
+                     critical[i]);
+            emit_container_snapshot_rejected("", "", "", reason);
+            return;
+        }
+        if (json_direct_field_count(command_obj, critical[i]) > 1) {
+            snprintf(reason, sizeof reason, "duplicate %s field", critical[i]);
+            emit_container_snapshot_rejected("", "", "", reason);
+            return;
+        }
+    }
     if (json_direct_string_field(command_obj, "protocol", protocol, sizeof protocol, reason, sizeof reason) < 0
         || json_direct_string_field(command_obj, "commandType", command_type, sizeof command_type, reason, sizeof reason) < 0
         || json_direct_string_field(command_obj, "commandId", command_id, sizeof command_id, reason, sizeof reason) < 0
@@ -1348,23 +1506,39 @@ static void handle_container_snapshot_line(const char *line) {
     if (json_direct_string_field(payload_obj, "sessionId", session_id, sizeof session_id, reason, sizeof reason) < 0) { emit_container_snapshot_rejected(command_id, transaction_id, session_id, reason); return; }
     unsigned int container_id = 0U;
     if (json_direct_uint_field(payload_obj, "containerId", &container_id, reason, sizeof reason) < 0) { emit_container_snapshot_rejected(command_id, transaction_id, session_id, reason); return; }
+    if (json_direct_field_count(payload_obj, "protocol")
+        || json_direct_field_count(payload_obj, "commandType")
+        || json_direct_field_count(payload_obj, "commandId")) {
+        emit_container_snapshot_rejected(
+            command_id, transaction_id, session_id,
+            "protocol, commandType, and commandId must be command envelope fields only");
+        return;
+    }
+    if (json_direct_field_count(command_obj, "containerId")
+        || json_direct_field_count(command_obj, "sessionId")) {
+        emit_container_snapshot_rejected(
+            command_id, transaction_id, session_id,
+            "containerId and sessionId must be payload fields only");
+        return;
+    }
     if (strcmp(protocol, "nethack-electron-ui/v2")) { emit_container_snapshot_rejected(command_id, transaction_id, session_id, "protocol must be nethack-electron-ui/v2"); return; }
     if (strcmp(command_type, "container.snapshot")) { emit_container_snapshot_rejected(command_id, transaction_id, session_id, "commandType must be container.snapshot"); return; }
     if (!command_id[0] || !session_id[0] || !container_id) { emit_container_snapshot_rejected(command_id, transaction_id, session_id, "container.snapshot requires commandId, sessionId, and public containerId"); return; }
-    if (active_ground_transfer.active || active_container_snapshot.active || active_container_transfer.active || pending_container_transfer.pending || active_terrain_action.active) { emit_container_snapshot_rejected(command_id, transaction_id, session_id, "another direct command is active"); return; }
-    if (first_active_menu_lifecycle() || (active_prompt_request_id[0] && strcmp(active_prompt_purpose, "prompt.command"))) { active_prompt_or_menu_reason(reason, sizeof reason); emit_container_snapshot_rejected(command_id, transaction_id, session_id, reason); return; }
-    if (pending_queue_length() > 0) { emit_container_snapshot_rejected(command_id, transaction_id, session_id, "pending native command blocks container snapshot"); return; }
+    if (!begin_direct_command(BRIDGE_DIRECT_COMMAND_CONTAINER_SNAPSHOT,
+                              command_id, transaction_id,
+                              reason, sizeof reason)) {
+        emit_container_snapshot_rejected(command_id, transaction_id,
+                                         session_id, reason);
+        return;
+    }
     memset(&active_container_snapshot, 0, sizeof active_container_snapshot);
-    active_container_snapshot.active = 1;
     active_container_snapshot.container_id = container_id;
-    snprintf(active_container_snapshot.command_id, sizeof active_container_snapshot.command_id, "%s", command_id);
-    snprintf(active_container_snapshot.transaction_id, sizeof active_container_snapshot.transaction_id, "%s", transaction_id[0] ? transaction_id : command_id);
     snprintf(active_container_snapshot.session_id, sizeof active_container_snapshot.session_id, "%s", session_id);
-    snprintf(active_transaction_id, sizeof active_transaction_id, "%s", active_container_snapshot.transaction_id);
+    snprintf(active_transaction_id, sizeof active_transaction_id, "%s",
+             direct_command_arbitration.transaction_id);
     container_snapshot_set_request(active_container_snapshot.container_id, active_transaction_id);
-    emit_event_start("shim_container_snapshot_accepted");
-    fputs(",\"commandId\":\"", stdout); json_escape(stdout, active_container_snapshot.command_id); fputs("\"", stdout);
-    fputs(",\"transactionId\":\"", stdout); json_escape(stdout, active_container_snapshot.transaction_id); fputs("\"", stdout);
+    emit_active_direct_command_lifecycle_start(
+        BRIDGE_DIRECT_COMMAND_CONTAINER_SNAPSHOT, "accepted", NULL);
     fputs(",\"sessionId\":\"", stdout); json_escape(stdout, active_container_snapshot.session_id); fputs("\"", stdout);
     fprintf(stdout, ",\"containerId\":%u", container_id);
     emit_event_end();
@@ -1379,9 +1553,9 @@ static void handle_container_snapshot_line(const char *line) {
 }
 
 static void emit_terrain_action_rejected(const char *command_id, const char *transaction_id, const char *action, const char *terrain, unsigned int item_id, unsigned int x, unsigned int y, const char *reason) {
-    emit_event_start("shim_terrain_action_rejected");
-    if (command_id && *command_id) { fputs(",\"commandId\":\"", stdout); json_escape(stdout, command_id); fputs("\"", stdout); }
-    if (transaction_id && *transaction_id) { fputs(",\"transactionId\":\"", stdout); json_escape(stdout, transaction_id); fputs("\"", stdout); }
+    emit_direct_command_lifecycle_start(
+        BRIDGE_DIRECT_COMMAND_TERRAIN_ACTION, "rejected",
+        command_id, transaction_id);
     fputs(",\"action\":\"", stdout); json_escape(stdout, action ? action : ""); fputs("\"", stdout);
     fputs(",\"terrain\":\"", stdout); json_escape(stdout, terrain ? terrain : ""); fputs("\"", stdout);
     fprintf(stdout, ",\"coord\":{\"x\":%u,\"y\":%u},\"itemId\":%u", x, y, item_id);
@@ -1440,23 +1614,24 @@ static void handle_terrain_action_line(const char *line) {
     if (!terrain_action_is_compatible(action, terrain)) { emit_terrain_action_rejected(command_id, transaction_id, action, terrain, item_id, x, y, "terrain.action action and terrain are not compatible"); return; }
     if (!strcmp(action, "dip") && !item_id) { emit_terrain_action_rejected(command_id, transaction_id, action, terrain, item_id, x, y, "terrain.action dip requires public itemId"); return; }
     if (expected_inventory && inventory_revision && expected_inventory != inventory_revision) { emit_terrain_action_rejected(command_id, transaction_id, action, terrain, item_id, x, y, "inventory revision changed before direct terrain action"); return; }
-    if (active_ground_transfer.active || pending_container_transfer.pending || active_container_transfer.active || active_container_snapshot.active || active_equipment_change.active || active_terrain_action.active) { emit_terrain_action_rejected(command_id, transaction_id, action, terrain, item_id, x, y, "another direct command is active"); return; }
-    if (first_active_menu_lifecycle() || (active_prompt_request_id[0] && strcmp(active_prompt_purpose, "prompt.command"))) { active_prompt_or_menu_reason(reason, sizeof reason); emit_terrain_action_rejected(command_id, transaction_id, action, terrain, item_id, x, y, reason); return; }
-    if (pending_queue_length() > 0) { emit_terrain_action_rejected(command_id, transaction_id, action, terrain, item_id, x, y, "pending native command blocks terrain action"); return; }
+    if (!begin_direct_command(BRIDGE_DIRECT_COMMAND_TERRAIN_ACTION,
+                              command_id, transaction_id,
+                              reason, sizeof reason)) {
+        emit_terrain_action_rejected(command_id, transaction_id, action,
+                                     terrain, item_id, x, y, reason);
+        return;
+    }
     memset(&active_terrain_action, 0, sizeof active_terrain_action);
-    active_terrain_action.active = 1;
     snprintf(active_terrain_action.action, sizeof active_terrain_action.action, "%s", action);
     snprintf(active_terrain_action.terrain, sizeof active_terrain_action.terrain, "%s", terrain);
     active_terrain_action.x = x;
     active_terrain_action.y = y;
     active_terrain_action.item_id = item_id;
-    snprintf(active_terrain_action.command_id, sizeof active_terrain_action.command_id, "%s", command_id);
-    snprintf(active_terrain_action.transaction_id, sizeof active_terrain_action.transaction_id, "%s", transaction_id[0] ? transaction_id : command_id);
-    snprintf(active_transaction_id, sizeof active_transaction_id, "%s", active_terrain_action.transaction_id);
+    snprintf(active_transaction_id, sizeof active_transaction_id, "%s",
+             direct_command_arbitration.transaction_id);
     terrain_action_set_request(action, (coordxy) x, (coordxy) y, terrain, item_id, active_transaction_id);
-    emit_event_start("shim_terrain_action_accepted");
-    fputs(",\"commandId\":\"", stdout); json_escape(stdout, active_terrain_action.command_id); fputs("\"", stdout);
-    fputs(",\"transactionId\":\"", stdout); json_escape(stdout, active_terrain_action.transaction_id); fputs("\"", stdout);
+    emit_active_direct_command_lifecycle_start(
+        BRIDGE_DIRECT_COMMAND_TERRAIN_ACTION, "accepted", NULL);
     fputs(",\"action\":\"", stdout); json_escape(stdout, action); fputs("\"", stdout);
     fputs(",\"terrain\":\"", stdout); json_escape(stdout, terrain); fputs("\"", stdout);
     fprintf(stdout, ",\"coord\":{\"x\":%u,\"y\":%u},\"itemId\":%u", x, y, item_id);
@@ -1481,21 +1656,27 @@ static void maybe_emit_terrain_action_result(void) {
     char transaction_id[128] = "";
     char reason[192] = "";
     terrain_action_take_result(&success, action, sizeof action, &x, &y, terrain, sizeof terrain, &item_id, transaction_id, sizeof transaction_id, reason, sizeof reason);
-    emit_event_start(success ? "shim_terrain_action_confirmed" : "shim_terrain_action_rejected");
-    if (active_terrain_action.command_id[0]) { fputs(",\"commandId\":\"", stdout); json_escape(stdout, active_terrain_action.command_id); fputs("\"", stdout); }
-    fputs(",\"transactionId\":\"", stdout); json_escape(stdout, transaction_id[0] ? transaction_id : active_terrain_action.transaction_id); fputs("\"", stdout);
-    fputs(",\"action\":\"", stdout); json_escape(stdout, action[0] ? action : active_terrain_action.action); fputs("\"", stdout);
-    fputs(",\"terrain\":\"", stdout); json_escape(stdout, terrain[0] ? terrain : active_terrain_action.terrain); fputs("\"", stdout);
+    pthread_mutex_lock(&direct_command_mu);
+    bridge_terrain_action_request completed = active_terrain_action;
+    bridge_direct_command_arbitration completed_command =
+        direct_command_arbitration;
+    finish_direct_command(BRIDGE_DIRECT_COMMAND_TERRAIN_ACTION);
+    emit_direct_command_lifecycle_start(
+        BRIDGE_DIRECT_COMMAND_TERRAIN_ACTION,
+        success ? "confirmed" : "rejected",
+        completed_command.command_id, completed_command.transaction_id);
+    fputs(",\"action\":\"", stdout); json_escape(stdout, action[0] ? action : completed.action); fputs("\"", stdout);
+    fputs(",\"terrain\":\"", stdout); json_escape(stdout, terrain[0] ? terrain : completed.terrain); fputs("\"", stdout);
     fprintf(stdout, ",\"coord\":{\"x\":%d,\"y\":%d},\"itemId\":%u", (int)x, (int)y, item_id);
     fputs(",\"reason\":\"", stdout); json_escape(stdout, reason); fputs("\"", stdout);
     emit_event_end();
-    memset(&active_terrain_action, 0, sizeof active_terrain_action);
+    pthread_mutex_unlock(&direct_command_mu);
 }
 
 static void emit_equipment_change_rejected(const char *command_id, const char *transaction_id, const char *action, unsigned int item_id, const char *slot_id, const char *hand, const char *reason) {
-    emit_event_start("shim_equipment_change_rejected");
-    fputs(",\"commandId\":\"", stdout); json_escape(stdout, command_id ? command_id : ""); fputs("\"", stdout);
-    fputs(",\"transactionId\":\"", stdout); json_escape(stdout, transaction_id ? transaction_id : ""); fputs("\"", stdout);
+    emit_direct_command_lifecycle_start(
+        BRIDGE_DIRECT_COMMAND_EQUIPMENT_CHANGE, "rejected",
+        command_id, transaction_id);
     fputs(",\"action\":\"", stdout); json_escape(stdout, action ? action : ""); fputs("\"", stdout);
     fprintf(stdout, ",\"itemId\":%u", item_id);
     fputs(",\"slotId\":\"", stdout); json_escape(stdout, slot_id ? slot_id : ""); fputs("\"", stdout);
@@ -1549,23 +1730,23 @@ static void handle_equipment_change_line(const char *line) {
     if (!strcmp(action, "putOnRing") && ((!strcmp(hand, "left") && strcmp(slot_id, "ring.left")) || (!strcmp(hand, "right") && strcmp(slot_id, "ring.right")))) { emit_equipment_change_rejected(command_id, transaction_id, action, item_id, slot_id, hand, "ring slot and hand disagree"); return; }
     if (expected_inventory && inventory_revision && expected_inventory != inventory_revision) { emit_equipment_change_rejected(command_id, transaction_id, action, item_id, slot_id, hand, "inventory revision changed before direct equipment change"); return; }
     if (expected_equipment && equipment_revision && expected_equipment != equipment_revision) { emit_equipment_change_rejected(command_id, transaction_id, action, item_id, slot_id, hand, "equipment revision changed before direct equipment change"); return; }
-    if (active_equipment_change.active) { emit_equipment_change_rejected(command_id, transaction_id, action, item_id, slot_id, hand, "another direct equipment change is active"); return; }
-    if (active_ground_transfer.active || active_container_transfer.active || active_container_snapshot.active || pending_container_transfer.pending || active_terrain_action.active) { emit_equipment_change_rejected(command_id, transaction_id, action, item_id, slot_id, hand, "another direct command is active"); return; }
-    if (first_active_menu_lifecycle() || (active_prompt_request_id[0] && strcmp(active_prompt_purpose, "prompt.command"))) { active_prompt_or_menu_reason(reason, sizeof reason); emit_equipment_change_rejected(command_id, transaction_id, action, item_id, slot_id, hand, reason); return; }
-    if (pending_queue_length() > 0) { emit_equipment_change_rejected(command_id, transaction_id, action, item_id, slot_id, hand, "pending native command blocks equipment change"); return; }
+    if (!begin_direct_command(BRIDGE_DIRECT_COMMAND_EQUIPMENT_CHANGE,
+                              command_id, transaction_id,
+                              reason, sizeof reason)) {
+        emit_equipment_change_rejected(command_id, transaction_id, action,
+                                       item_id, slot_id, hand, reason);
+        return;
+    }
     memset(&active_equipment_change, 0, sizeof active_equipment_change);
-    active_equipment_change.active = 1;
     active_equipment_change.item_id = item_id;
     snprintf(active_equipment_change.action, sizeof active_equipment_change.action, "%s", action);
     snprintf(active_equipment_change.slot_id, sizeof active_equipment_change.slot_id, "%s", slot_id);
     snprintf(active_equipment_change.hand, sizeof active_equipment_change.hand, "%s", hand);
-    snprintf(active_equipment_change.command_id, sizeof active_equipment_change.command_id, "%s", command_id);
-    snprintf(active_equipment_change.transaction_id, sizeof active_equipment_change.transaction_id, "%s", transaction_id[0] ? transaction_id : command_id);
-    snprintf(active_transaction_id, sizeof active_transaction_id, "%s", active_equipment_change.transaction_id);
+    snprintf(active_transaction_id, sizeof active_transaction_id, "%s",
+             direct_command_arbitration.transaction_id);
     equipment_change_set_request(active_equipment_change.item_id, active_equipment_change.action, active_equipment_change.slot_id, active_equipment_change.hand, active_transaction_id);
-    emit_event_start("shim_equipment_change_accepted");
-    fputs(",\"commandId\":\"", stdout); json_escape(stdout, active_equipment_change.command_id); fputs("\"", stdout);
-    fputs(",\"transactionId\":\"", stdout); json_escape(stdout, active_equipment_change.transaction_id); fputs("\"", stdout);
+    emit_active_direct_command_lifecycle_start(
+        BRIDGE_DIRECT_COMMAND_EQUIPMENT_CHANGE, "accepted", NULL);
     fputs(",\"action\":\"", stdout); json_escape(stdout, active_equipment_change.action); fputs("\"", stdout);
     fprintf(stdout, ",\"itemId\":%u", item_id);
     fputs(",\"slotId\":\"", stdout); json_escape(stdout, active_equipment_change.slot_id); fputs("\"", stdout);
@@ -1581,23 +1762,6 @@ static void handle_equipment_change_line(const char *line) {
     push_key_with_metadata(0, &key_meta);
 }
 
-static void maybe_queue_pending_container_transfer(void) {
-    if (!pending_container_transfer.pending || active_container_transfer.active) return;
-    if (active_prompt_or_menu_owns_input() || pending_queue_length() > 0) return;
-    active_container_transfer = pending_container_transfer;
-    active_container_transfer.pending = 0;
-    active_container_transfer.active = 1;
-    memset(&pending_container_transfer, 0, sizeof pending_container_transfer);
-    snprintf(active_transaction_id, sizeof active_transaction_id, "%s", active_container_transfer.transfer_id[0] ? active_container_transfer.transfer_id : active_container_transfer.transaction_id);
-    container_transfer_set_request(active_container_transfer.container_id, active_container_transfer.item_id, active_container_transfer.direction, active_transaction_id);
-    cmdq_add_ec(CQ_CANNED, doshimcontainertransfer);
-    emit_event_start("shim_container_transfer_queued");
-    fputs(",\"commandId\":\"", stdout); json_escape(stdout, active_container_transfer.command_id); fputs("\"", stdout);
-    fputs(",\"transactionId\":\"", stdout); json_escape(stdout, active_transaction_id); fputs("\"", stdout);
-    fputs(",\"transferId\":\"", stdout); json_escape(stdout, active_container_transfer.transfer_id); fputs("\"", stdout);
-    fprintf(stdout, ",\"containerId\":%u,\"itemId\":%u,\"direction\":\"", active_container_transfer.container_id, active_container_transfer.item_id); json_escape(stdout, active_container_transfer.direction); fputs("\"", stdout);
-    emit_event_end();
-}
 
 static void maybe_emit_ground_transfer_result(void) {
     if (!ground_transfer_result_available()) return;
@@ -1610,15 +1774,21 @@ static void maybe_emit_ground_transfer_result(void) {
     ground_transfer_take_result(&success, &item_id, &x, &y, direction, sizeof direction, transaction_id, sizeof transaction_id, reason, sizeof reason);
     emit_live_inventory_event(-31);
     if (isok(x, y)) emit_ground_pile_snapshot_event(WIN_MAP, x, y);
-    emit_event_start(success ? "shim_ground_transfer_confirmed" : "shim_ground_transfer_rejected");
-    if (active_ground_transfer.command_id[0]) { fputs(",\"commandId\":\"", stdout); json_escape(stdout, active_ground_transfer.command_id); fputs("\"", stdout); }
-    fputs(",\"transactionId\":\"", stdout); json_escape(stdout, transaction_id[0] ? transaction_id : active_ground_transfer.transaction_id); fputs("\"", stdout);
-    fputs(",\"transferId\":\"", stdout); json_escape(stdout, active_ground_transfer.transfer_id[0] ? active_ground_transfer.transfer_id : transaction_id); fputs("\"", stdout);
-    fprintf(stdout, ",\"itemId\":%u,\"direction\":\"", item_id); json_escape(stdout, direction[0] ? direction : active_ground_transfer.direction); fputs("\"", stdout);
+    pthread_mutex_lock(&direct_command_mu);
+    bridge_ground_transfer_request completed = active_ground_transfer;
+    bridge_direct_command_arbitration completed_command =
+        direct_command_arbitration;
+    finish_direct_command(BRIDGE_DIRECT_COMMAND_GROUND_TRANSFER);
+    emit_direct_command_lifecycle_start(
+        BRIDGE_DIRECT_COMMAND_GROUND_TRANSFER,
+        success ? "confirmed" : "rejected",
+        completed_command.command_id, completed_command.transaction_id);
+    fputs(",\"transferId\":\"", stdout); json_escape(stdout, completed.transfer_id[0] ? completed.transfer_id : transaction_id); fputs("\"", stdout);
+    fprintf(stdout, ",\"itemId\":%u,\"direction\":\"", item_id); json_escape(stdout, direction[0] ? direction : completed.direction); fputs("\"", stdout);
     fprintf(stdout, ",\"coord\":{\"x\":%d,\"y\":%d}", x, y);
     fputs(",\"reason\":\"", stdout); json_escape(stdout, reason); fputs("\"", stdout);
     emit_event_end();
-    memset(&active_ground_transfer, 0, sizeof active_ground_transfer);
+    pthread_mutex_unlock(&direct_command_mu);
 }
 
 static void maybe_emit_container_transfer_result(void) {
@@ -1631,14 +1801,20 @@ static void maybe_emit_container_transfer_result(void) {
     container_transfer_take_result(&success, &container_id, &item_id, direction, sizeof direction, transaction_id, sizeof transaction_id, reason, sizeof reason);
     struct obj *container = floor_container_by_public_id(container_id);
     if (container) emit_container_contents_snapshot_for(container, active_container_transfer.session_id, transaction_id);
-    emit_event_start(success ? "shim_container_transfer_confirmed" : "shim_container_transfer_rejected");
-    if (active_container_transfer.command_id[0]) { fputs(",\"commandId\":\"", stdout); json_escape(stdout, active_container_transfer.command_id); fputs("\"", stdout); }
-    fputs(",\"transactionId\":\"", stdout); json_escape(stdout, transaction_id[0] ? transaction_id : active_container_transfer.transaction_id); fputs("\"", stdout);
-    fputs(",\"transferId\":\"", stdout); json_escape(stdout, active_container_transfer.transfer_id[0] ? active_container_transfer.transfer_id : transaction_id); fputs("\"", stdout);
-    fprintf(stdout, ",\"containerId\":%u,\"itemId\":%u,\"direction\":\"", container_id, item_id); json_escape(stdout, direction[0] ? direction : active_container_transfer.direction); fputs("\"", stdout);
+    pthread_mutex_lock(&direct_command_mu);
+    bridge_container_transfer_request completed = active_container_transfer;
+    bridge_direct_command_arbitration completed_command =
+        direct_command_arbitration;
+    finish_direct_command(BRIDGE_DIRECT_COMMAND_CONTAINER_TRANSFER);
+    emit_direct_command_lifecycle_start(
+        BRIDGE_DIRECT_COMMAND_CONTAINER_TRANSFER,
+        success ? "confirmed" : "rejected",
+        completed_command.command_id, completed_command.transaction_id);
+    fputs(",\"transferId\":\"", stdout); json_escape(stdout, completed.transfer_id[0] ? completed.transfer_id : transaction_id); fputs("\"", stdout);
+    fprintf(stdout, ",\"containerId\":%u,\"itemId\":%u,\"direction\":\"", container_id, item_id); json_escape(stdout, direction[0] ? direction : completed.direction); fputs("\"", stdout);
     fputs(",\"reason\":\"", stdout); json_escape(stdout, reason); fputs("\"", stdout);
     emit_event_end();
-    memset(&active_container_transfer, 0, sizeof active_container_transfer);
+    pthread_mutex_unlock(&direct_command_mu);
 }
 
 static void maybe_emit_container_snapshot_result(void) {
@@ -1650,16 +1826,22 @@ static void maybe_emit_container_snapshot_result(void) {
     container_snapshot_take_result(&success, &container_id, transaction_id, sizeof transaction_id, reason, sizeof reason);
     struct obj *container = floor_container_by_public_id(container_id);
     if (success && container) emit_container_contents_snapshot_for(container, active_container_snapshot.session_id, transaction_id);
-    emit_event_start(success ? "shim_container_snapshot_confirmed" : "shim_container_snapshot_rejected");
-    if (active_container_snapshot.command_id[0]) { fputs(",\"commandId\":\"", stdout); json_escape(stdout, active_container_snapshot.command_id); fputs("\"", stdout); }
-    fputs(",\"transactionId\":\"", stdout); json_escape(stdout, transaction_id[0] ? transaction_id : active_container_snapshot.transaction_id); fputs("\"", stdout);
-    if (active_container_snapshot.session_id[0]) { fputs(",\"sessionId\":\"", stdout); json_escape(stdout, active_container_snapshot.session_id); fputs("\"", stdout); }
+    pthread_mutex_lock(&direct_command_mu);
+    bridge_container_snapshot_request completed = active_container_snapshot;
+    bridge_direct_command_arbitration completed_command =
+        direct_command_arbitration;
+    finish_direct_command(BRIDGE_DIRECT_COMMAND_CONTAINER_SNAPSHOT);
+    emit_direct_command_lifecycle_start(
+        BRIDGE_DIRECT_COMMAND_CONTAINER_SNAPSHOT,
+        success ? "confirmed" : "rejected",
+        completed_command.command_id, completed_command.transaction_id);
+    if (completed.session_id[0]) { fputs(",\"sessionId\":\"", stdout); json_escape(stdout, completed.session_id); fputs("\"", stdout); }
     fprintf(stdout, ",\"containerId\":%u", container_id);
     if (!success) emit_container_failure_fields(reason);
     else fputs(",\"status\":\"ok\"", stdout);
     fputs(",\"reason\":\"", stdout); json_escape(stdout, reason); fputs("\"", stdout);
     emit_event_end();
-    memset(&active_container_snapshot, 0, sizeof active_container_snapshot);
+    pthread_mutex_unlock(&direct_command_mu);
 }
 
 static void maybe_emit_equipment_change_result(void) {
@@ -1672,16 +1854,22 @@ static void maybe_emit_equipment_change_result(void) {
     char transaction_id[128] = "";
     char reason[192] = "";
     equipment_change_take_result(&success, &item_id, action, sizeof action, slot_id, sizeof slot_id, hand, sizeof hand, transaction_id, sizeof transaction_id, reason, sizeof reason);
-    emit_event_start(success ? "shim_equipment_change_confirmed" : "shim_equipment_change_rejected");
-    if (active_equipment_change.command_id[0]) { fputs(",\"commandId\":\"", stdout); json_escape(stdout, active_equipment_change.command_id); fputs("\"", stdout); }
-    fputs(",\"transactionId\":\"", stdout); json_escape(stdout, transaction_id[0] ? transaction_id : active_equipment_change.transaction_id); fputs("\"", stdout);
-    fputs(",\"action\":\"", stdout); json_escape(stdout, action[0] ? action : active_equipment_change.action); fputs("\"", stdout);
-    fprintf(stdout, ",\"itemId\":%u", item_id ? item_id : active_equipment_change.item_id);
-    fputs(",\"slotId\":\"", stdout); json_escape(stdout, slot_id[0] ? slot_id : active_equipment_change.slot_id); fputs("\"", stdout);
-    fputs(",\"hand\":\"", stdout); json_escape(stdout, hand[0] ? hand : active_equipment_change.hand); fputs("\"", stdout);
+    pthread_mutex_lock(&direct_command_mu);
+    bridge_equipment_change_request completed = active_equipment_change;
+    bridge_direct_command_arbitration completed_command =
+        direct_command_arbitration;
+    finish_direct_command(BRIDGE_DIRECT_COMMAND_EQUIPMENT_CHANGE);
+    emit_direct_command_lifecycle_start(
+        BRIDGE_DIRECT_COMMAND_EQUIPMENT_CHANGE,
+        success ? "confirmed" : "rejected",
+        completed_command.command_id, completed_command.transaction_id);
+    fputs(",\"action\":\"", stdout); json_escape(stdout, action[0] ? action : completed.action); fputs("\"", stdout);
+    fprintf(stdout, ",\"itemId\":%u", item_id ? item_id : completed.item_id);
+    fputs(",\"slotId\":\"", stdout); json_escape(stdout, slot_id[0] ? slot_id : completed.slot_id); fputs("\"", stdout);
+    fputs(",\"hand\":\"", stdout); json_escape(stdout, hand[0] ? hand : completed.hand); fputs("\"", stdout);
     fputs(",\"reason\":\"", stdout); json_escape(stdout, reason); fputs("\"", stdout);
     emit_event_end();
-    memset(&active_equipment_change, 0, sizeof active_equipment_change);
+    pthread_mutex_unlock(&direct_command_mu);
 }
 
 static void handle_ui_command_line(const char *line) {
@@ -2152,52 +2340,105 @@ static void emit_action_affordances_for_glyph(int glyph) {
     emit_action_affordances_for_glyph_at(glyph, -1, -1);
 }
 
+static int glyph_exposes_public_location(int glyph, int background_glyph) {
+    if (background_glyph != NO_GLYPH
+        && !glyph_is_unexplored(background_glyph)
+        && !glyph_is_nothing(background_glyph))
+        return 1;
+    return glyph_is_cmap(glyph)
+        && !glyph_is_unexplored(glyph)
+        && !glyph_is_nothing(glyph);
+}
+
+static void emit_public_look_fields_at(int glyph, int background_glyph,
+                                       int x, int y) {
+    char feature_buf[BUFSZ];
+    const char *feature;
+    struct engr *ep;
+
+    if (!isok(x, y)
+        || !glyph_exposes_public_location(glyph, background_glyph))
+        return;
+    feature = dfeature_at((coordxy) x, (coordxy) y, feature_buf);
+    if (feature && *feature) {
+        fputs(",\"featureDescription\":\"", stdout);
+        json_escape(stdout, feature);
+        fputc('\"', stdout);
+    }
+    ep = engr_at((coordxy) x, (coordxy) y);
+    if (ep && ep->eread && ep->engr_txt[remembered_text][0]) {
+        fputs(",\"engravingText\":\"", stdout);
+        json_escape(stdout, ep->engr_txt[remembered_text]);
+        fputc('\"', stdout);
+    }
+}
+
 static const char *glyph_semantic_appearance(int glyph) {
     static char buf[BUFSZ];
-    if (glyph_is_object(glyph)) {
-        int obj = glyph_to_obj(glyph);
-        if (obj >= 0 && obj < NUM_OBJECTS && !objects[obj].oc_name_known && OBJ_DESCR(objects[obj])) {
-            if (objects[obj].oc_class == SCROLL_CLASS) {
-                Sprintf(buf, "scroll labeled %s", OBJ_DESCR(objects[obj]));
-                return buf;
-            }
-            return OBJ_DESCR(objects[obj]);
-        }
-    }
-    return NULL;
+    struct obj bareobj;
+    int otyp;
+
+    if (!glyph_is_object(glyph))
+        return NULL;
+    otyp = glyph_to_obj(glyph);
+    if (otyp < 0 || otyp >= NUM_OBJECTS || objects[otyp].oc_name_known
+        || !OBJ_DESCR(objects[otyp]))
+        return NULL;
+    bareobj = cg.zeroobj;
+    bareobj.otyp = otyp;
+    bareobj.oclass = objects[otyp].oc_class;
+    bareobj.dknown = 1;
+    bareobj.quan = 1L;
+    bareobj.corpsenm = NON_PM;
+    Snprintf(buf, sizeof buf, "%s", simpleonames(&bareobj));
+    return buf;
 }
 
 static const char *object_semantic_appearance(const struct obj *otmp, int glyph) {
     static char buf[BUFSZ];
-    const char *description;
-    if (!otmp || otmp->otyp < 0 || otmp->otyp >= NUM_OBJECTS
-        || objects[otmp->otyp].oc_name_known)
-        return NULL;
-    description = OBJ_DESCR(objects[otmp->otyp]);
-    if (!description || !*description)
+
+    if (!otmp)
         return glyph_semantic_appearance(glyph);
-    switch (otmp->oclass) {
-    case POTION_CLASS: Sprintf(buf, "%s potion", description); return buf;
-    case RING_CLASS: Sprintf(buf, "%s ring", description); return buf;
-    case WAND_CLASS: Sprintf(buf, "%s wand", description); return buf;
-    case SPBOOK_CLASS: Sprintf(buf, "%s spellbook", description); return buf;
-    case AMULET_CLASS: Sprintf(buf, "%s amulet", description); return buf;
-    default: return glyph_semantic_appearance(glyph);
-    }
+    if (otmp->otyp < 0 || otmp->otyp >= NUM_OBJECTS
+        || objects[otmp->otyp].oc_name_known || !OBJ_DESCR(objects[otmp->otyp]))
+        return NULL;
+    Snprintf(buf, sizeof buf, "%s", simpleonames((struct obj *) otmp));
+    return buf;
 }
 
 static void public_object_display_name(char *buf, size_t bufsz,
                                        struct obj *otmp, int glyph) {
-    const char *appearance = object_semantic_appearance(otmp, glyph);
-    const char *called = otmp ? objects[otmp->otyp].oc_uname : NULL;
     const char *display;
-    if (!buf || !bufsz) return;
-    if (otmp && otmp->quan == 1L && appearance && called && *called) {
-        Snprintf(buf, bufsz, "%s called %s", an(appearance), called);
+
+    if (!buf || !bufsz)
         return;
-    }
-    display = otmp ? doname(otmp) : NULL;
+    display = otmp ? distant_name(otmp, otmp->dknown ? doname_with_price
+                                                     : doname_vague_quan)
+                   : glyph_semantic_appearance(glyph);
     Snprintf(buf, bufsz, "%s", display ? display : "item");
+}
+
+static struct obj *public_ground_object_for_glyph_at(int glyph, int x, int y) {
+    struct obj *otmp;
+    int otyp;
+    if (!isok(x, y) || !glyph_is_object(glyph))
+        return NULL;
+    otyp = glyph_to_obj(glyph);
+    for (otmp = svl.level.objects[x][y]; otmp; otmp = otmp->nexthere)
+        if (otmp->dknown && otmp->otyp == otyp)
+            return otmp;
+    return NULL;
+}
+
+static void emit_public_ground_object_reference_at(int glyph, int x, int y) {
+    struct obj *otmp = public_ground_object_for_glyph_at(glyph, x, y);
+    char display[BUFSZ];
+    if (!otmp)
+        return;
+    public_object_display_name(display, sizeof display, otmp, glyph);
+    fprintf(stdout, ",\"objectId\":%u,\"displayName\":\"", otmp->o_id);
+    json_escape(stdout, display);
+    fputc('\"', stdout);
 }
 
 static int glyph_semantic_known(int glyph) {
@@ -2298,8 +2539,15 @@ static void emit_object_layer_fields_at(int top_glyph, int x, int y) {
     int object_layer_known = glyph_semantic_known(glyph);
     fputs(object_layer_known ? "true" : "false", stdout);
     if (object_layer_known) { fputs(",\"objectLayerSemanticName\":\"", stdout); json_escape(stdout, glyph_semantic_name(glyph)); fputs("\"", stdout); }
-    appearance = glyph_semantic_appearance(glyph);
+    appearance = object_semantic_appearance(otmp, glyph);
     if (appearance) { fputs(",\"objectLayerSemanticAppearance\":\"", stdout); json_escape(stdout, appearance); fputs("\"", stdout); }
+    {
+        char display[BUFSZ];
+        public_object_display_name(display, sizeof display, otmp, glyph);
+        fprintf(stdout, ",\"objectLayerObjectId\":%u,\"objectLayerDisplayName\":\"", otmp->o_id);
+        json_escape(stdout, display);
+        fputc('\"', stdout);
+    }
     fputs(",\"objectLayerActionAffordances\":", stdout);
     emit_action_affordances_array_at(glyph, x, y);
 }
@@ -2721,6 +2969,7 @@ static void emit_print_glyph_fields(int win, int x, int y, const glyph_info *gi,
     if (semantic_known) { fputs(",\"semanticName\":\"", stdout); json_escape(stdout, hero_cell ? "hero" : glyph_semantic_name(glyph)); fputs("\"", stdout); }
     const char *appearance = hero_cell ? NULL : glyph_semantic_appearance(glyph);
     if (appearance) { fputs(",\"semanticAppearance\":\"", stdout); json_escape(stdout, appearance); fputs("\"", stdout); }
+    emit_public_ground_object_reference_at(glyph, x, y);
     if (hero_cell) fputs(",\"actionAffordances\":[]", stdout);
     else emit_action_affordances_for_glyph_at(glyph, x, y);
     if (hero_cell) {
@@ -2740,6 +2989,7 @@ static void emit_print_glyph_fields(int win, int x, int y, const glyph_info *gi,
         fputs(",\"backgroundActionAffordances\":", stdout);
         emit_action_affordances_array_at(background_glyph, x, y);
     }
+    emit_public_look_fields_at(glyph, background_glyph, x, y);
     fputs(",\"char\":\"", stdout);
     if (ttychar > 0 && ttychar < 128 && isprint((unsigned char) ttychar)) { buf[0] = (char) ttychar; }
     else { buf[0] = ' '; }
@@ -2754,21 +3004,25 @@ static int extcmd_select_by_name(const char *needle) {
         int internal = (extcmdlist[i].flags & INTERNALCMD) != 0;
         if (extcmdlist[i].flags & CMD_NOT_AVAILABLE) continue;
         if (internal) {
-            if (active_ground_transfer.active
+            if (direct_command_is_active(BRIDGE_DIRECT_COMMAND_GROUND_TRANSFER)
                 && !strcmp(needle, "shimgroundtransfer")
                 && !strcmp(extcmdlist[i].ef_txt, "shimgroundtransfer"))
                 return i;
-            if (active_container_transfer.active
+            if (direct_command_is_active(BRIDGE_DIRECT_COMMAND_CONTAINER_TRANSFER)
                 && !strcmp(needle, "shimcontainertransfer")
                 && !strcmp(extcmdlist[i].ef_txt, "shimcontainertransfer"))
                 return i;
-            if (active_container_snapshot.active
+            if (direct_command_is_active(BRIDGE_DIRECT_COMMAND_CONTAINER_SNAPSHOT)
                 && !strcmp(needle, "shimcontainersnapshot")
                 && !strcmp(extcmdlist[i].ef_txt, "shimcontainersnapshot"))
                 return i;
-            if (active_equipment_change.active
+            if (direct_command_is_active(BRIDGE_DIRECT_COMMAND_EQUIPMENT_CHANGE)
                 && !strcmp(needle, "shimequipmentchange")
                 && !strcmp(extcmdlist[i].ef_txt, "shimequipmentchange"))
+                return i;
+            if (direct_command_is_active(BRIDGE_DIRECT_COMMAND_TERRAIN_ACTION)
+                && !strcmp(needle, "shimterrainaction")
+                && !strcmp(extcmdlist[i].ef_txt, "shimterrainaction"))
                 return i;
             continue;
         }
@@ -2812,13 +3066,17 @@ static void emit_live_inventory_array(void) {
         char namebuf[BUFSZ];
         int glyph = obj_to_glyph(otmp, rn2_on_display_rng);
         int redact_identity_surface = should_redact_public_object_identity_surface(otmp);
-        if (redact_identity_surface)
-            snprintf(namebuf, sizeof namebuf, "%c - %sgray stone", selector, otmp->quan == 1L ? "a " : "");
-        else {
-            char public_name[BUFSZ];
-            public_object_display_name(public_name, sizeof public_name, otmp, glyph);
-            snprintf(namebuf, sizeof namebuf, "%c - %s", selector, public_name);
+        struct obj public_copy;
+        struct obj *name_obj = otmp;
+        char public_name[BUFSZ];
+        if (redact_identity_surface) {
+            public_copy = *otmp;
+            public_copy.owornmask = 0L;
+            public_copy.where = OBJ_FREE;
+            name_obj = &public_copy;
         }
+        public_object_display_name(public_name, sizeof public_name, name_obj, glyph);
+        snprintf(namebuf, sizeof namebuf, "%c - %s", selector, public_name);
         int glyph_char = ((int) otmp->oclass >= 0 && (int) otmp->oclass < MAXOCLASSES) ? def_oc_syms[(int) otmp->oclass].sym : 0;
         if (emitted++) fputc(',', stdout);
         fprintf(stdout, "{\"selector\":%d,\"objectId\":%u,\"text\":\"", (int) selector, otmp->o_id);
@@ -2854,60 +3112,83 @@ static void emit_live_inventory_event(int reason) {
     emit_event_end();
 }
 
-static void queue_active_direct_container_command_from_input(void) {
-    if (active_ground_transfer.active && !active_ground_transfer.queued) {
-        active_ground_transfer.queued = 1;
+static void queue_active_direct_command(void) {
+    bridge_direct_command_family family =
+        direct_command_arbitration.active_family;
+    if (!mark_direct_command_queued(family)) return;
+
+    switch (family) {
+    case BRIDGE_DIRECT_COMMAND_GROUND_TRANSFER:
         cmdq_add_ec(CQ_CANNED, doshimgroundtransfer);
-        emit_event_start("shim_ground_transfer_queued");
-        fputs(",\"commandId\":\"", stdout); json_escape(stdout, active_ground_transfer.command_id); fputs("\"", stdout);
-        fputs(",\"transactionId\":\"", stdout); json_escape(stdout, active_transaction_id); fputs("\"", stdout);
-        fputs(",\"transferId\":\"", stdout); json_escape(stdout, active_ground_transfer.transfer_id); fputs("\"", stdout);
-        fprintf(stdout, ",\"itemId\":%u,\"direction\":\"", active_ground_transfer.item_id); json_escape(stdout, active_ground_transfer.direction); fputs("\"", stdout);
-        fprintf(stdout, ",\"coord\":{\"x\":%d,\"y\":%d}", active_ground_transfer.x, active_ground_transfer.y);
+        emit_active_direct_command_lifecycle_start(
+            family, "queued", NULL);
+        fputs(",\"transferId\":\"", stdout);
+        json_escape(stdout, active_ground_transfer.transfer_id);
+        fputs("\"", stdout);
+        fprintf(stdout, ",\"itemId\":%u,\"direction\":\"",
+                active_ground_transfer.item_id);
+        json_escape(stdout, active_ground_transfer.direction);
+        fputs("\"", stdout);
+        fprintf(stdout, ",\"coord\":{\"x\":%d,\"y\":%d}",
+                active_ground_transfer.x, active_ground_transfer.y);
         emit_event_end();
-    }
-    if (active_terrain_action.active && !active_terrain_action.queued) {
-        active_terrain_action.queued = 1;
-        cmdq_add_ec(CQ_CANNED, doshimterrainaction);
-        emit_event_start("shim_terrain_action_queued");
-        fputs(",\"commandId\":\"", stdout); json_escape(stdout, active_terrain_action.command_id); fputs("\"", stdout);
-        fputs(",\"transactionId\":\"", stdout); json_escape(stdout, active_transaction_id); fputs("\"", stdout);
-        fputs(",\"action\":\"", stdout); json_escape(stdout, active_terrain_action.action); fputs("\"", stdout);
-        fputs(",\"terrain\":\"", stdout); json_escape(stdout, active_terrain_action.terrain); fputs("\"", stdout);
-        fprintf(stdout, ",\"coord\":{\"x\":%u,\"y\":%u},\"itemId\":%u", active_terrain_action.x, active_terrain_action.y, active_terrain_action.item_id);
-        emit_event_end();
-    }
-    if (active_equipment_change.active && !active_equipment_change.queued) {
-        active_equipment_change.queued = 1;
-        cmdq_add_ec(CQ_CANNED, doshimequipmentchange);
-        emit_event_start("shim_equipment_change_queued");
-        fputs(",\"commandId\":\"", stdout); json_escape(stdout, active_equipment_change.command_id); fputs("\"", stdout);
-        fputs(",\"transactionId\":\"", stdout); json_escape(stdout, active_transaction_id); fputs("\"", stdout);
-        fputs(",\"action\":\"", stdout); json_escape(stdout, active_equipment_change.action); fputs("\"", stdout);
-        fprintf(stdout, ",\"itemId\":%u", active_equipment_change.item_id);
-        fputs(",\"slotId\":\"", stdout); json_escape(stdout, active_equipment_change.slot_id); fputs("\"", stdout);
-        fputs(",\"hand\":\"", stdout); json_escape(stdout, active_equipment_change.hand); fputs("\"", stdout);
-        emit_event_end();
-    }
-    if (active_container_transfer.active && !active_container_transfer.queued) {
-        active_container_transfer.queued = 1;
+        return;
+    case BRIDGE_DIRECT_COMMAND_CONTAINER_TRANSFER:
         cmdq_add_ec(CQ_CANNED, doshimcontainertransfer);
-        emit_event_start("shim_container_transfer_queued");
-        fputs(",\"commandId\":\"", stdout); json_escape(stdout, active_container_transfer.command_id); fputs("\"", stdout);
-        fputs(",\"transactionId\":\"", stdout); json_escape(stdout, active_transaction_id); fputs("\"", stdout);
-        fputs(",\"transferId\":\"", stdout); json_escape(stdout, active_container_transfer.transfer_id); fputs("\"", stdout);
-        fprintf(stdout, ",\"containerId\":%u,\"itemId\":%u,\"direction\":\"", active_container_transfer.container_id, active_container_transfer.item_id); json_escape(stdout, active_container_transfer.direction); fputs("\"", stdout);
+        emit_active_direct_command_lifecycle_start(
+            family, "queued", NULL);
+        fputs(",\"transferId\":\"", stdout);
+        json_escape(stdout, active_container_transfer.transfer_id);
+        fputs("\"", stdout);
+        fprintf(stdout, ",\"containerId\":%u,\"itemId\":%u,\"direction\":\"",
+                active_container_transfer.container_id,
+                active_container_transfer.item_id);
+        json_escape(stdout, active_container_transfer.direction);
+        fputs("\"", stdout);
         emit_event_end();
-    }
-    if (active_container_snapshot.active && !active_container_snapshot.queued) {
-        active_container_snapshot.queued = 1;
+        return;
+    case BRIDGE_DIRECT_COMMAND_CONTAINER_SNAPSHOT:
         cmdq_add_ec(CQ_CANNED, doshimcontainersnapshot);
-        emit_event_start("shim_container_snapshot_queued");
-        fputs(",\"commandId\":\"", stdout); json_escape(stdout, active_container_snapshot.command_id); fputs("\"", stdout);
-        fputs(",\"transactionId\":\"", stdout); json_escape(stdout, active_transaction_id); fputs("\"", stdout);
-        fputs(",\"sessionId\":\"", stdout); json_escape(stdout, active_container_snapshot.session_id); fputs("\"", stdout);
-        fprintf(stdout, ",\"containerId\":%u", active_container_snapshot.container_id);
+        emit_active_direct_command_lifecycle_start(
+            family, "queued", NULL);
+        fputs(",\"sessionId\":\"", stdout);
+        json_escape(stdout, active_container_snapshot.session_id);
+        fputs("\"", stdout);
+        fprintf(stdout, ",\"containerId\":%u",
+                active_container_snapshot.container_id);
         emit_event_end();
+        return;
+    case BRIDGE_DIRECT_COMMAND_EQUIPMENT_CHANGE:
+        cmdq_add_ec(CQ_CANNED, doshimequipmentchange);
+        emit_active_direct_command_lifecycle_start(
+            family, "queued", NULL);
+        fputs(",\"action\":\"", stdout);
+        json_escape(stdout, active_equipment_change.action);
+        fputs("\"", stdout);
+        fprintf(stdout, ",\"itemId\":%u", active_equipment_change.item_id);
+        fputs(",\"slotId\":\"", stdout);
+        json_escape(stdout, active_equipment_change.slot_id);
+        fputs("\",\"hand\":\"", stdout);
+        json_escape(stdout, active_equipment_change.hand);
+        fputs("\"", stdout);
+        emit_event_end();
+        return;
+    case BRIDGE_DIRECT_COMMAND_TERRAIN_ACTION:
+        cmdq_add_ec(CQ_CANNED, doshimterrainaction);
+        emit_active_direct_command_lifecycle_start(
+            family, "queued", NULL);
+        fputs(",\"action\":\"", stdout);
+        json_escape(stdout, active_terrain_action.action);
+        fputs("\",\"terrain\":\"", stdout);
+        json_escape(stdout, active_terrain_action.terrain);
+        fputs("\"", stdout);
+        fprintf(stdout, ",\"coord\":{\"x\":%u,\"y\":%u},\"itemId\":%u",
+                active_terrain_action.x, active_terrain_action.y,
+                active_terrain_action.item_id);
+        emit_event_end();
+        return;
+    case BRIDGE_DIRECT_COMMAND_NONE:
+        return;
     }
 }
 
@@ -2919,7 +3200,7 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
         emit_live_inventory_event(-1);
         int queue_before = 0, queue_after = 0;
         int ch = pop_key_blocking_with_status(&queue_before, &queue_after);
-        if (ch == 0) queue_active_direct_container_command_from_input();
+        if (ch == 0) queue_active_direct_command();
         *(int *)ret_ptr = ch;
         emit_event_start(name);
         fputs(",\"fmt\":\"", stdout); json_escape(stdout, fmt ? fmt : ""); fputs("\"", stdout);
@@ -2942,7 +3223,7 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
         emit_event_end();
         int queue_before = 0, queue_after = 0;
         int ch = pop_key_blocking_with_status(&queue_before, &queue_after);
-        if (ch == 0 && input_state == commandInp) queue_active_direct_container_command_from_input();
+        if (ch == 0 && input_state == commandInp) queue_active_direct_command();
         *(int *)ret_ptr = ch;
         emit_event_start(name);
         fputs(",\"fmt\":\"", stdout); json_escape(stdout, fmt ? fmt : ""); fputs("\"", stdout);
@@ -3044,9 +3325,8 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
         maybe_emit_container_snapshot_result();
         maybe_emit_equipment_change_result();
         maybe_emit_terrain_action_result();
-        maybe_queue_pending_container_transfer();
     }
-    if (!strcmp(name, "shim_get_nh_event") && !active_prompt_request_id[0] && !first_active_menu_lifecycle() && pending_queue_length() == 0 && !active_ground_transfer.active && !active_container_transfer.active && !active_container_snapshot.active && !active_equipment_change.active && !active_terrain_action.active) {
+    if (!strcmp(name, "shim_get_nh_event") && !active_prompt_request_id[0] && !first_active_menu_lifecycle() && pending_queue_length() == 0 && direct_command_is_idle()) {
         /* NetHack calls get_nh_event while the command loop is idle between
          * turns.  At that boundary any plain key transaction has finished;
          * keeping it would make the next normal command-loop nh_poskey look
@@ -3378,6 +3658,7 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
         if (semantic_known) { fputs(",\"semanticName\":\"", stdout); json_escape(stdout, glyph_semantic_name(glyph)); fputs("\"", stdout); }
         const char *appearance = glyph_semantic_appearance(glyph);
         if (appearance) { fputs(",\"semanticAppearance\":\"", stdout); json_escape(stdout, appearance); fputs("\"", stdout); }
+        emit_public_ground_object_reference_at(glyph, x, y);
         emit_action_affordances_for_glyph_at(glyph, x, y);
         emit_object_layer_fields_at(glyph, x, y);
         if (has_background_glyph) {
@@ -3389,6 +3670,7 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
             fputs(",\"backgroundActionAffordances\":", stdout);
             emit_action_affordances_array_at(background_glyph, x, y);
         }
+        emit_public_look_fields_at(glyph, background_glyph, x, y);
         fputs(",\"char\":\"", stdout);
         char buf[8] = {0};
         if (ttychar > 0 && ttychar < 128 && isprint((unsigned char) ttychar)) { buf[0] = (char) ttychar; }

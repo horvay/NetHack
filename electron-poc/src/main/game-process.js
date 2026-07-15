@@ -386,64 +386,82 @@ function createGameProcess({ repoRoot, nethackBin, shimBridgeBin, send, env = pr
   }
 
   function uiCommand(command) {
-    let executionContext = commandExecutionContext();
-    if (command?.commandType === 'container.transfer' || command?.commandType === 'container.snapshot') {
-      const commandType = command.commandType;
-      const plan = commandType === 'container.transfer'
-        ? CommandGateway.validateContainerTransferCommand(command, executionContext)
-        : CommandGateway.validateContainerSnapshotCommand(command, executionContext);
-      if (!plan.ok) {
-        diagnosticEvent({ layer: 'game-process', category: 'ui-command', type: 'command.rejected', transactionId: command?.transactionId || command?.commandId || '', payload: { reason: plan.reason || `${commandType} rejected`, blockerToken: plan.blockerToken || '', commandType, supported: Boolean(plan.supported), errors: plan.errors || [] } });
-        return { ok: false, reason: plan.reason || `${commandType} rejected`, blockerToken: plan.blockerToken || undefined, supported: Boolean(plan.supported), errors: plan.errors || [] };
-      }
-      const written = writeShimPayload({ type: commandType === 'container.transfer' ? 'container-transfer' : 'container-snapshot', command: plan.command });
-      diagnosticEvent({ layer: 'game-process', category: 'ui-command', type: written ? 'command.accepted' : 'command.rejected', transactionId: plan.transactionId || command?.transactionId || command?.commandId || '', payload: written ? { commandId: plan.commandId || command.commandId, commandType } : { commandId: plan.commandId || command.commandId, commandType, reason: 'no writable shim child' } });
-      return written ? { ok: true, commandId: plan.commandId || command.commandId, transactionId: plan.transactionId } : { ok: false, reason: 'no writable shim child', commandId: plan.commandId || command.commandId };
-    }
-    if (CommandGateway.directCommandValidationSpec(command?.commandType)) {
-      const commandType = command.commandType;
-      const directExecutionContext = commandType === 'ground.transfer' ? { ...executionContext, requireExpectedRevisionForKnownSnapshots: false } : executionContext;
-      const plan = CommandGateway.validateDirectCommandEnvelope(command, directExecutionContext);
-      if (!plan.ok) {
-        diagnosticEvent({ layer: 'game-process', category: 'ui-command', type: 'command.rejected', transactionId: command?.transactionId || command?.commandId || '', payload: { reason: plan.reason || `${commandType} rejected`, blockerToken: plan.blockerToken || '', commandType, supported: Boolean(plan.supported), errors: plan.errors || [], activeInputOwner: plan.activeInputOwner || executionContext.activeInputOwner || null } });
-        return { ok: false, reason: plan.reason || `${commandType} rejected`, blockerToken: plan.blockerToken || undefined, commandType, supported: Boolean(plan.supported), errors: plan.errors || [], ...(plan.activeInputOwner ? { activeInputOwner: plan.activeInputOwner } : {}) };
-      }
-      if (!plan.implementedRoute) {
-        const reason = `${commandType} direct bridge route is registered but not implemented yet; refusing generic key fallback`;
-        diagnosticEvent({ layer: 'game-process', category: 'ui-command', type: 'command.rejected', transactionId: plan.transactionId || command?.transactionId || command?.commandId || '', payload: { commandId: plan.commandId || command.commandId, commandType, reason, blockerToken: 'blocked.input.unsupportedRoute', bridgeType: plan.bridgeType, fallback: 'none' } });
-        return { ok: false, reason, blockerToken: 'blocked.input.unsupportedRoute', commandType, supported: true, bridgeType: plan.bridgeType };
-      }
-      const written = writeShimPayload({ type: plan.bridgeType, command: plan.command });
-      diagnosticEvent({ layer: 'game-process', category: 'ui-command', type: written ? 'command.accepted' : 'command.rejected', transactionId: plan.transactionId || command?.transactionId || command?.commandId || '', payload: written ? { commandId: plan.commandId || command.commandId, commandType, bridgeType: plan.bridgeType } : { commandId: plan.commandId || command.commandId, commandType, reason: 'no writable shim child', bridgeType: plan.bridgeType } });
-      return written ? { ok: true, commandId: plan.commandId || command.commandId, transactionId: plan.transactionId, commandType, bridgeType: plan.bridgeType } : { ok: false, reason: 'no writable shim child', commandId: plan.commandId || command.commandId, commandType, bridgeType: plan.bridgeType };
-    }
-    const actionId = String(command?.actionId || command?.payload?.actionId || command?.payload?.route?.actionId || '').trim();
-    const target = command?.payload?.target || command?.targets || {};
-    const targetDisplayName = String(target?.displayName || command?.payload?.targetText || '').trim();
-    if (/^ground\./.test(actionId) && command?.payload?.publicGroundEvidence === 'visible-current-square-container' && target?.location?.kind === 'ground' && targetDisplayName && Array.isArray(executionContext.groundItems)) {
-      const targetEvidence = targetDisplayName.split(/\s*,\s*/).filter(Boolean).map((displayName) => ({ displayName, location: { kind: 'ground' }, source: 'command-public-ground-target' }));
-      executionContext = { ...executionContext, groundItems: [...executionContext.groundItems, ...targetEvidence] };
-    }
-    const plan = CommandGateway.validateActionExecuteCommand(command, executionContext);
+    const executionContext = commandExecutionContext();
+    const plan = CommandGateway.planCommand(command, executionContext);
     if (!plan.ok) {
       diagnosticEvent({
         layer: 'game-process',
         category: 'ui-command',
         type: 'command.rejected',
-        transactionId: command?.transactionId || command?.commandId || '',
-        payload: { reason: plan.reason || 'ui command rejected', blockerToken: plan.blockerToken || '', actionId, supported: Boolean(plan.supported), errors: plan.errors || [], activeInputOwner: plan.activeInputOwner || executionContext.activeInputOwner || null, validationContext: { inventoryRevision: executionContext.inventoryRevision, equipmentRevision: executionContext.equipmentRevision, groundRevision: executionContext.groundRevision, groundItems: (executionContext.groundItems || []).map((item) => item?.displayName || item?.text || item?.name || item).slice(0, 8) } },
+        transactionId: plan.transactionId || command?.transactionId || command?.commandId || '',
+        payload: {
+          commandId: plan.commandId || command?.commandId || '',
+          commandType: plan.commandType || command?.commandType || '',
+          actionId: plan.actionId || '',
+          reason: plan.reason || 'ui command rejected',
+          blockerToken: plan.blockerToken || '',
+          supported: Boolean(plan.supported),
+          bridgeType: plan.bridgeType || '',
+          implementationState: plan.implementationState || '',
+          planningAuthority: plan.planningAuthority || 'CommandGateway',
+          errors: plan.errors || [],
+          activeInputOwner: plan.activeInputOwner || executionContext.activeInputOwner || null,
+        },
       });
-      return { ok: false, reason: plan.reason || 'ui command rejected', blockerToken: plan.blockerToken || undefined, actionId, supported: Boolean(plan.supported), errors: plan.errors || [], ...(plan.activeInputOwner ? { activeInputOwner: plan.activeInputOwner } : {}) };
+      return {
+        ok: false,
+        reason: plan.reason || 'ui command rejected',
+        blockerToken: plan.blockerToken || undefined,
+        commandId: plan.commandId || command?.commandId || undefined,
+        transactionId: plan.transactionId || command?.transactionId || undefined,
+        commandType: plan.commandType || command?.commandType || undefined,
+        actionId: plan.actionId || undefined,
+        bridgeType: plan.bridgeType || undefined,
+        implementationState: plan.implementationState || undefined,
+        supported: Boolean(plan.supported),
+        errors: plan.errors || [],
+        ...(plan.activeInputOwner ? { activeInputOwner: plan.activeInputOwner } : {}),
+      };
     }
-    const written = writeShimPayload({ type: 'ui-command', command: plan.command });
+    const written = writeShimPayload(plan.bridgePayload);
     diagnosticEvent({
       layer: 'game-process',
       category: 'ui-command',
       type: written ? 'command.accepted' : 'command.rejected',
       transactionId: plan.transactionId || command?.transactionId || command?.commandId || '',
-      payload: written ? { commandId: plan.commandId || command.commandId, actionId: plan.actionId, commandType: command.commandType } : { commandId: plan.commandId || command.commandId, actionId: plan.actionId, reason: 'no writable shim child' },
+      payload: written ? {
+        commandId: plan.commandId,
+        commandType: plan.commandType,
+        actionId: plan.actionId || '',
+        bridgeType: plan.bridgeType,
+        implementationState: plan.implementationState,
+        planningAuthority: plan.planningAuthority,
+      } : {
+        commandId: plan.commandId,
+        commandType: plan.commandType,
+        actionId: plan.actionId || '',
+        bridgeType: plan.bridgeType,
+        reason: 'no writable shim child',
+      },
     });
-    return written ? { ok: true, commandId: plan.commandId || command.commandId, actionId: plan.actionId, transactionId: plan.transactionId } : { ok: false, reason: 'no writable shim child', commandId: plan.commandId || command.commandId, actionId: plan.actionId };
+    return written ? {
+      ok: true,
+      commandId: plan.commandId,
+      transactionId: plan.transactionId,
+      commandType: plan.commandType,
+      actionId: plan.actionId || undefined,
+      bridgeType: plan.bridgeType,
+      implementationState: plan.implementationState,
+    } : {
+      ok: false,
+      reason: 'no writable shim child',
+      commandId: plan.commandId,
+      transactionId: plan.transactionId,
+      commandType: plan.commandType,
+      actionId: plan.actionId || undefined,
+      bridgeType: plan.bridgeType,
+      implementationState: plan.implementationState,
+    };
   }
 
   return Object.freeze({ status, stop, startGame, startShimBridge, input, shimKey, shimInput, uiCommand });

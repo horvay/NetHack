@@ -82,9 +82,9 @@ const view = GameView.createGameViewState();
 view.process({ name: 'shim_start_menu', window: 7, requestId: 'spell-menu-1', menuId: 'spell-menu-1', transactionId: 'spell-command-1', menuPurpose: 'spell.rows', owner: { kind: 'system', window: 7 }, lifecycleRevision: 1 });
 let result = view.process(spellEvent());
 assert(result.effects.some((effect) => effect.type === 'magic-rows-changed'));
-assert.equal(view.state.currentMenu.publicRows.classificationConfidence, 'typed');
-assert.equal(view.state.currentMenu.publicRows.authoritative, true);
-assert.equal(view.state.currentMenu.publicRows.rows[0].pwCost, 5);
+assert.equal(view.snapshot().currentMenu.publicRows.classificationConfidence, 'typed');
+assert.equal(view.snapshot().currentMenu.publicRows.authoritative, true);
+assert.equal(view.snapshot().currentMenu.publicRows.rows[0].pwCost, 5);
 result = view.process(spellEvent());
 assert.equal(result.effects[0].type, 'magic-rows-rejected');
 assert.match(result.effects[0].reason, /duplicate/);
@@ -98,7 +98,7 @@ result = view.process(skillEvent());
 assert.equal(result.effects[0].type, 'magic-rows-rejected');
 assert.match(result.effects[0].reason, /request does not own/);
 
-const acceptedSpellSnapshot = JSON.stringify(view.state.spellRows);
+const acceptedSpellSnapshot = JSON.stringify(view.snapshot().spellRows);
 result = view.process(spellEvent({
   eventId: 'evt-spell-invalid-atomic',
   sequence: 12,
@@ -106,28 +106,28 @@ result = view.process(spellEvent({
   payload: { revision: 2, rows: [{ name: 'force bolt', selector: 'a' }, { name: 'healing', selector: 'a' }] },
 }));
 assert.equal(result.effects[0].type, 'magic-rows-rejected');
-assert.equal(JSON.stringify(view.state.spellRows), acceptedSpellSnapshot, 'one invalid row rejects the entire collection without mutating the accepted snapshot');
+assert.equal(JSON.stringify(view.snapshot().spellRows), acceptedSpellSnapshot, 'one invalid row rejects the entire collection without mutating the accepted snapshot');
 
 const ownerless = GameView.createGameViewState();
 result = ownerless.process(spellEvent());
 assert.equal(result.effects[0].type, 'magic-rows-rejected');
 assert.match(result.effects[0].reason, /request does not own/);
-assert.equal(ownerless.state.spellRows, null, 'ownerless typed delivery cannot install a snapshot');
+assert.equal(ownerless.snapshot().spellRows, null, 'ownerless typed delivery cannot install a snapshot');
 
 const wrongKind = GameView.createGameViewState();
 wrongKind.process({ name: 'shim_start_menu', window: 9, requestId: 'spell-menu-1', menuId: 'spell-menu-1', transactionId: 'spell-command-1', menuPurpose: 'skill.rows', owner: { kind: 'system', window: 9 }, lifecycleRevision: 1 });
 result = wrongKind.process(spellEvent());
 assert.equal(result.effects[0].type, 'magic-rows-rejected');
 assert.match(result.effects[0].reason, /request does not own/);
-assert.equal(wrongKind.state.spellRows, null, 'matching request ID with the wrong menu purpose still fails closed');
+assert.equal(wrongKind.snapshot().spellRows, null, 'matching request ID with the wrong menu purpose still fails closed');
 
 const fallbackSpell = GameView.createGameViewState();
 fallbackSpell.process({ name: 'shim_start_menu', window: 8, requestId: 'fallback-spell-menu', menuId: 'fallback-spell-menu', menuPurpose: 'spell.rows', lifecycleRevision: 1 });
 fallbackSpell.process({ name: 'shim_add_menu', window: 8, selector: 97, text: 'force bolt             1   attack       12%      100%', requestId: 'fallback-spell-menu', menuId: 'fallback-spell-menu', menuPurpose: 'spell.rows', lifecycleRevision: 1 });
 fallbackSpell.process({ name: 'shim_end_menu', window: 8, prompt: 'Currently known spells', requestId: 'fallback-spell-menu', menuId: 'fallback-spell-menu', menuPurpose: 'spell.rows', lifecycleRevision: 1 });
-assert.deepEqual(fallbackSpell.state.currentMenu.publicRows.rows, [{ name: 'force bolt', selector: 'a', level: 1, failure: 12, status: '100%' }]);
-assert.equal(fallbackSpell.state.currentMenu.publicRows.classificationConfidence, 'fallback');
-assert.equal('pwCost' in fallbackSpell.state.currentMenu.publicRows.rows[0], false, 'fallback omits Pw that legacy text did not publish');
+assert.deepEqual(fallbackSpell.snapshot().currentMenu.publicRows.rows, [{ name: 'force bolt', selector: 'a', level: 1, failure: 12, status: '100%' }]);
+assert.equal(fallbackSpell.snapshot().currentMenu.publicRows.classificationConfidence, 'fallback');
+assert.equal('pwCost' in fallbackSpell.snapshot().currentMenu.publicRows.rows[0], false, 'fallback omits Pw that legacy text did not publish');
 const fallbackOnlySnapshot = fallbackSpell.snapshot().spellRows;
 
 fallbackSpell.process(spellEvent({
@@ -138,9 +138,9 @@ fallbackSpell.process(spellEvent({
   revision: { spell: 1 },
   payload: { menuId: 'fallback-spell-menu', revision: 1 },
 }));
-assert.equal(fallbackSpell.state.currentMenu.publicRows.classificationConfidence, 'typed', 'typed rows replace fallback for the owned request');
+assert.equal(fallbackSpell.snapshot().currentMenu.publicRows.classificationConfidence, 'typed', 'typed rows replace fallback for the owned request');
 fallbackSpell.process({ name: 'shim_end_menu', window: 8, prompt: 'Currently known spells', requestId: 'fallback-spell-menu', menuId: 'fallback-spell-menu', menuPurpose: 'spell.rows', lifecycleRevision: 1 });
-assert.equal(fallbackSpell.state.currentMenu.publicRows.classificationConfidence, 'typed', 'later legacy parsing never replaces owned typed rows');
+assert.equal(fallbackSpell.snapshot().currentMenu.publicRows.classificationConfidence, 'typed', 'later legacy parsing never replaces owned typed rows');
 
 const fallbackSkillRows = Shim.compatibilitySkillRowsFromMenu({ items: [
   { selector: 97, text: ' dagger [Basic]' },
@@ -154,10 +154,10 @@ assert.deepEqual(fallbackSkillRows, [
 assert.equal('nextRank' in fallbackSkillRows[0], false);
 assert.equal('nextCost' in fallbackSkillRows[0], false);
 
-const normalizedSpellSnapshot = Help.normalizeMagicRowsSnapshot(view.state.spellRows);
+const normalizedSpellSnapshot = Help.normalizeMagicRowsSnapshot(view.snapshot().spellRows);
 assert.equal(normalizedSpellSnapshot.source, 'typed');
 assert.equal(normalizedSpellSnapshot.rows[0].failure, '12%');
-assert.throws(() => Help.normalizeMagicRowsSnapshot({ ...view.state.spellRows, authoritative: false }), /authoritative provenance/);
+assert.throws(() => Help.normalizeMagicRowsSnapshot({ ...view.snapshot().spellRows, authoritative: false }), /authoritative provenance/);
 const normalizedFallback = Help.normalizeMagicRowsSnapshot(fallbackOnlySnapshot);
 assert.equal(normalizedFallback.source, 'fallback');
 assert.equal(normalizedFallback.rows[0].classificationConfidence, 'fallback');
@@ -187,4 +187,4 @@ assert(browserContext.NetHackUiProtocolV2.eventTypes.includes('spell.rows'));
 assert(browserContext.NetHackUiProtocolV2.eventTypes.includes('skill.rows'));
 assert.equal(Object.isFrozen(browserContext.NetHackUiProtocolV2), true);
 
-console.log(JSON.stringify({ ok: true, invalidCases: invalidCases.length, typedSpellRows: view.state.spellRows.rows.length, fallbackSpellRows: fallbackSpell.state.spellRows.rows.length }, null, 2));
+console.log(JSON.stringify({ ok: true, invalidCases: invalidCases.length, typedSpellRows: view.snapshot().spellRows.rows.length, fallbackSpellRows: fallbackSpell.snapshot().spellRows.rows.length }, null, 2));

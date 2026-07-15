@@ -1,0 +1,59 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "identity/canonical-gem-public-names",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current"
+  },
+  "level": {
+    "safeAreaAroundHero": 3,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [
+    {
+      "at": "east",
+      "object": {
+        "typeId": "RUBY",
+        "identityKnown": false,
+        "beatitudeKnown": false
+      }
+    },
+    {
+      "at": "hero",
+      "object": {
+        "typeId": "GARNET",
+        "identityKnown": true,
+        "beatitudeKnown": false
+      }
+    }
+  ],
+  "monsters": [],
+  "inventory": [
+    {
+      "typeId": "CITRINE",
+      "identityKnown": false,
+      "beatitudeKnown": false
+    },
+    {
+      "typeId": "CHRYSOBERYL",
+      "quantity": 2,
+      "identityKnown": true,
+      "beatitudeKnown": false
+    }
+  ],
+  "expectedPublicFacts": {
+    "groundRows": [
+      "red gem",
+      "garnet stone"
+    ],
+    "inventoryRows": [
+      "yellow gem",
+      "2 chrysoberyl stones"
+    ],
+    "messages": [
+      "canonical gem public names"
+    ]
+  }
+}

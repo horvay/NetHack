@@ -899,6 +899,7 @@ struct electron_test_object_spec {
     long quantity;
     boolean quantity_present;
     boolean identity_known_present, identity_known;
+    boolean appearance_known_present, appearance_known;
     boolean beatitude_known_present, beatitude_known;
     int beatitude;
     boolean charges_present;
@@ -1250,6 +1251,8 @@ electron_test_type_id_from_string(const char *type_id)
     if (!strcmp(type_id, "TRIPE_RATION")) return TRIPE_RATION;
     if (!strcmp(type_id, "APPLE")) return APPLE;
     if (!strcmp(type_id, "CORPSE")) return CORPSE;
+    if (!strcmp(type_id, "FIGURINE")) return FIGURINE;
+    if (!strcmp(type_id, "STATUE")) return STATUE;
     if (!strcmp(type_id, "DAGGER")) return DAGGER;
     if (!strcmp(type_id, "ORCISH_DAGGER")) return ORCISH_DAGGER;
     if (!strcmp(type_id, "KNIFE")) return KNIFE;
@@ -1278,6 +1281,7 @@ electron_test_type_id_from_string(const char *type_id)
     if (!strcmp(type_id, "STETHOSCOPE")) return STETHOSCOPE;
     if (!strcmp(type_id, "TOWEL")) return TOWEL;
     if (!strcmp(type_id, "SCR_IDENTIFY")) return SCR_IDENTIFY;
+    if (!strcmp(type_id, "SCR_FOOD_DETECTION")) return SCR_FOOD_DETECTION;
     if (!strcmp(type_id, "SCR_REMOVE_CURSE")) return SCR_REMOVE_CURSE;
     if (!strcmp(type_id, "SCR_ENCHANT_WEAPON")) return SCR_ENCHANT_WEAPON;
     if (!strcmp(type_id, "SPE_JUMPING")) return SPE_JUMPING;
@@ -1291,6 +1295,10 @@ electron_test_type_id_from_string(const char *type_id)
     if (!strcmp(type_id, "RIN_PROTECTION")) return RIN_PROTECTION;
     if (!strcmp(type_id, "RIN_ADORNMENT")) return RIN_ADORNMENT;
     if (!strcmp(type_id, "AMULET_OF_REFLECTION")) return AMULET_OF_REFLECTION;
+    if (!strcmp(type_id, "RUBY")) return RUBY;
+    if (!strcmp(type_id, "CITRINE")) return CITRINE;
+    if (!strcmp(type_id, "CHRYSOBERYL")) return CHRYSOBERYL;
+    if (!strcmp(type_id, "GARNET")) return GARNET;
     if (!strcmp(type_id, "FLINT")) return FLINT;
     if (!strcmp(type_id, "TOUCHSTONE")) return TOUCHSTONE;
     if (!strcmp(type_id, "LUCKSTONE")) return LUCKSTONE;
@@ -1324,6 +1332,7 @@ electron_test_monster_id_from_string(const char *monster_id)
     if (!strcmp(monster_id, "LITTLE_DOG")) return PM_LITTLE_DOG;
     if (!strcmp(monster_id, "DOG")) return PM_DOG;
     if (!strcmp(monster_id, "LARGE_DOG")) return PM_LARGE_DOG;
+    if (!strcmp(monster_id, "HORSE")) return PM_HORSE;
     if (!strcmp(monster_id, "MEDUSA")) return PM_MEDUSA;
     if (!strcmp(monster_id, "WIZARD_OF_YENDOR")) return PM_WIZARD_OF_YENDOR;
     if (!strcmp(monster_id, "NORN")) return PM_NORN;
@@ -1518,6 +1527,13 @@ electron_test_parse_object_spec(const char **pp,
                                    "identityKnown is not supported here");
             spec->identity_known_present = TRUE;
             spec->identity_known = electron_json_parse_bool(pp, scenario->id);
+        } else if (!strcmp(key, "appearanceKnown")) {
+            electron_json_require_unique(&seen, 0x80000U, scenario->id, key);
+            if (!allow_identity_fields)
+                electron_json_fail(scenario->id,
+                                   "appearanceKnown is not supported here");
+            spec->appearance_known_present = TRUE;
+            spec->appearance_known = electron_json_parse_bool(pp, scenario->id);
         } else if (!strcmp(key, "beatitudeKnown")) {
             electron_json_require_unique(&seen, 0x008U, scenario->id, key);
             if (!allow_identity_fields)
@@ -1680,8 +1696,11 @@ electron_test_parse_object_spec(const char **pp,
     }
     if (!(seen & 0x001U))
         electron_json_fail(scenario->id, "object spec is missing typeId");
-    if (spec->corpse_monster_present && spec->type_id != CORPSE)
-        electron_json_fail(scenario->id, "corpseMonsterTypeId requires CORPSE typeId");
+    if (spec->corpse_monster_present
+        && spec->type_id != CORPSE && spec->type_id != FIGURINE
+        && spec->type_id != STATUE)
+        electron_json_fail(scenario->id,
+                           "corpseMonsterTypeId requires CORPSE, FIGURINE, or STATUE typeId");
     if (spec->type_id == CORPSE && !spec->corpse_monster_present)
         electron_json_fail(scenario->id, "CORPSE object requires corpseMonsterTypeId");
     if (electron_test_is_container_type(spec->type_id)) {
@@ -1690,10 +1709,11 @@ electron_test_parse_object_spec(const char **pp,
         if (spec->quantity_present && spec->quantity != 1L)
             electron_json_fail(scenario->id,
                                "container quantity must be omitted or 1");
-        if (spec->identity_known_present || spec->beatitude_known_present
+        if (spec->identity_known_present || spec->appearance_known_present
+            || spec->beatitude_known_present
             || spec->beatitude != ELECTRON_TEST_BEATITUDE_UNSET)
             electron_json_fail(scenario->id,
-                               "identityKnown/beatitudeKnown/beatitude are not supported for containers");
+                               "identityKnown/appearanceKnown/beatitudeKnown/beatitude are not supported for containers");
         if (spec->equip_state != ELECTRON_TEST_EQUIP_NONE)
             electron_json_fail(scenario->id,
                                "containers cannot be equipped");
@@ -3405,6 +3425,8 @@ electron_test_apply_object_metadata(struct obj *obj,
         obj->known = spec->identity_known ? 1 : 0;
         obj->dknown = 1;
     }
+    if (spec->appearance_known_present)
+        obj->dknown = spec->appearance_known ? 1 : 0;
     if (spec->beatitude_known_present)
         obj->bknown = spec->beatitude_known ? 1 : 0;
     if (spec->beatitude != ELECTRON_TEST_BEATITUDE_UNSET) {
@@ -3449,7 +3471,7 @@ electron_test_make_object(const struct electron_test_scenario_v1 *scenario,
                       : mksobj(spec->type_id, TRUE, FALSE);
     if (!obj)
         electron_test_fixture_fail(scenario->id, "failed to create scenario object");
-    if (spec->type_id == CORPSE && spec->corpse_monster_present)
+    if (spec->corpse_monster_present)
         set_corpsenm(obj, spec->corpse_monster_id);
     electron_test_apply_object_metadata(obj, spec);
     if (electron_test_is_container_type(spec->type_id)) {

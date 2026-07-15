@@ -1,21 +1,21 @@
 #!/usr/bin/env node
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
 const Harness = require('./lib/electron-test-harness');
+const EvidenceApproval = require('./lib/evidence-approval');
 
 const root = path.resolve(__dirname, '..');
 const repoRoot = path.resolve(root, '..');
 const bridge = path.join(root, 'shim-bridge', 'nh-shim-bridge');
 const sourcePlayground = path.join(repoRoot, 'playground');
-const outDir = process.env.NH_REAL_LOADED_HERO_AVATAR_OUT_DIR || path.join(root, 'test-output', 'real-loaded-hero-avatar-regression');
-const playground = path.join(outDir, 'playground');
 const scenarioId = 'identity/archeologist-loaded-avatar';
 const playerName = `LoadedAvatar${Date.now().toString(36).slice(-5)}`;
-const port = Number(process.env.NH_REAL_LOADED_HERO_AVATAR_CDP_PORT || 9664);
 const width = Number(process.env.NH_REAL_LOADED_HERO_AVATAR_WIDTH || 1440);
 const height = Number(process.env.NH_REAL_LOADED_HERO_AVATAR_HEIGHT || 940);
+let playground = null;
 
 const { waitFor, delay } = Harness;
 
@@ -118,37 +118,63 @@ async function state(page) {
   })()`);
 }
 
+async function shot(cdp, name) {
+  const capture = await cdp.screenshotEvidence(cdp.qc, path.basename(name, path.extname(name)), { classification: 'synthetic-fixture', viewport: { width, height, zoomPercent: 100 }, state: name, viewSafeFormat: 'BMP', viewSafeScale: 0.25 });
+  return capture.raw.path;
+}
+
+function reviewRun(outputDir, reviewFile) {
+  const manifestFile = path.join(path.resolve(outputDir), 'evidence-approval.json');
+  const approval = EvidenceApproval.openEvidenceApproval({ manifestFile });
+  EvidenceApproval.applyEvidenceReview(approval, path.resolve(reviewFile));
+  const validation = Harness.screenshotQc.validateManifest(manifestFile, { expectedRunIdentity: approval.runIdentity, requireApproval: true });
+  if (!validation.ok) throw new Error(`Evidence Approval failed: ${validation.errors.join('; ')}`);
+  EvidenceApproval.writeEvidenceReport(manifestFile);
+  console.log(`real-loaded-hero-avatar-regression-mcp-test: APPROVED ${approval.runIdentity} ${manifestFile}`);
+}
+function recordJsonSidecars(qc, outDir) {
+  for (const name of fs.readdirSync(outDir)) {
+    if (!name.endsWith('.json') || name === 'evidence-approval.json') continue;
+    const file = path.join(outDir, name);
+    if (!fs.statSync(file).isFile()) continue;
+    qc.recordLog({ id: `sidecar-${name.replace(/[^a-z0-9._-]+/gi, '-')}`, path: file, classification: 'scenario-state' });
+  }
+}
+
 async function main() {
-  fs.rmSync(outDir, { recursive: true, force: true });
-  fs.mkdirSync(outDir, { recursive: true });
+  playground = fs.mkdtempSync(path.join(os.tmpdir(), 'nh-loaded-avatar-'));
   resetPlayground();
   const createdSave = await createScenarioSave();
   assert.ok(createdSave.saveFiles.length > 0, 'scenario setup created a save file');
-
   const page = await Harness.createElectronBrowserDriver({
-    root,
-    port,
-    width,
-    height,
+    root, width, height,
     env: { NH_ELECTRON_TEST_FIXTURES: '1', NH_TEST_PLAYGROUND: playground, NETHACKOPTIONS: '!tutorial,!autopickup,pettype:none,disclose:+i +a +v +g +c +o' },
   });
+  const outDir = page.outputDir;
+  const qc = Harness.screenshotQc.createScreenshotQc({ rootDir: outDir, runIdentity: page.outputIdentity, manifestFile: path.join(outDir, 'evidence-approval.json') });
+  const cdp = Object.freeze({ ...page, qc });
+  const setupStdout = path.join(outDir, 'save-setup-stdout.log');
+  const setupStderr = path.join(outDir, 'save-setup-stderr.log');
+  fs.writeFileSync(setupStdout, createdSave.stdout || '');
+  fs.writeFileSync(setupStderr, createdSave.stderr || '');
+  let scenarioError = null;
   try {
-    await page.waitForRendererReady({ timeoutMs: 10000, promptTest: true, automation: true, startButton: true });
+    await cdp.waitForRendererReady({ timeoutMs: 10000, promptTest: true, automation: true, startButton: true });
     const startup = await waitFor(async () => {
-      const s = await state(page);
+      const s = await state(cdp);
       return s.dialogs.includes('startup-choice-dialog') && s.recovery?.hasContinue ? s : null;
     }, 10000);
-    const startupShot = await page.screenshot(path.join(outDir, '01-loaded-save-startup-choice.png'));
-    await page.click('#startup-continue-game');
+    const startupShot = await shot(cdp, '01-loaded-save-startup-choice.png');
+    await cdp.click('#startup-continue-game');
     const restored = await waitFor(async () => {
-      const s = await state(page);
+      const s = await state(cdp);
       const log = s.messages.join('\n');
       return s.running && s.hero?.tileId && /Restoring save file|Welcome back|Velkommen back/i.test(log) ? s : null;
     }, 30000);
-    await page.evalCheckedValue(`(() => { document.getElementById('intro-dialog')?.close?.('test'); document.getElementById('document-dialog')?.close?.('test'); document.getElementById('game-grid')?.focus?.(); return true; })()`);
-    await hoverSelector(page, '.tile-cell[data-semantic-kind="hero"], .tile-cell[data-semantic-kind="player"]');
-    const hovered = await waitFor(async () => { const s = await state(page); return !s.tooltip.hidden ? s : null; }, 5000);
-    const hoverShot = await page.screenshot(path.join(outDir, '02-loaded-hero-hover-card.png'));
+    await cdp.evalCheckedValue(`(() => { document.getElementById('intro-dialog')?.close?.('test'); document.getElementById('document-dialog')?.close?.('test'); document.getElementById('game-grid')?.focus?.(); return true; })()`);
+    await hoverSelector(cdp, '.tile-cell[data-semantic-kind="hero"], .tile-cell[data-semantic-kind="player"]');
+    const hovered = await waitFor(async () => { const s = await state(cdp); return !s.tooltip.hidden ? s : null; }, 5000);
+    const hoverShot = await shot(cdp, '02-loaded-hero-hover-card.png');
 
     assert.ok(['hero', 'player'].includes(restored.hero.semanticKind), `continued hero semantic kind: ${JSON.stringify(restored.hero)}`);
     assert.equal(restored.hero.tileId, 'human-archeologist-male-avatar', `continued hero tile should use save-file combo identity, not stale neutral/full-source art: ${JSON.stringify(restored.hero)}`);
@@ -157,29 +183,37 @@ async function main() {
     assert.match(hovered.tooltip.text, /Archeologist|Hero/i, `hero hover tooltip text: ${JSON.stringify(hovered.tooltip)}`);
     assert.doesNotMatch(hovered.tooltip.text, /Werejackal/i, `hero hover tooltip text: ${JSON.stringify(hovered.tooltip)}`);
 
-    await page.pressKey('i', 'i');
+    await cdp.pressKey('i', 'i');
     const equipment = await waitFor(async () => {
-      const s = await state(page);
+      const s = await state(cdp);
       return /Equipment\s*\/\s*Inventory/i.test(s.interaction?.title || '') && s.avatar?.tileId ? s : null;
     }, 12000);
-    const equipmentShot = await page.screenshot(path.join(outDir, '03-loaded-hero-equipment-paper-doll.png'));
+    const equipmentShot = await shot(cdp, '03-loaded-hero-equipment-paper-doll.png');
     assert.equal(equipment.avatar.tileId, 'human-archeologist-male-avatar', `paper doll avatar: ${JSON.stringify(equipment.avatar)}`);
     assert.match(equipment.avatar.src, /player-combo-avatars\/human-archeologist-male-avatar\.png/i, `paper doll avatar src: ${JSON.stringify(equipment.avatar)}`);
     assert.doesNotMatch(`${equipment.avatar.tileId}\n${equipment.avatar.src}\n${equipment.avatar.aria}`, /full-source-monsters\/archeologist|werejackal|dwarf|\bmonster\b/i, `paper doll avatar must not use monster/full-source fallback: ${JSON.stringify(equipment.avatar)}`);
     assert.match(`${equipment.interaction?.panelControls?.text || ''}\n${equipment.body}`, /Hero equipment[\s\S]*pick-axe|Leather armor/i, 'loaded equipment screen shows deterministic scenario inventory');
     assert.doesNotMatch(`${equipment.body}\n${equipment.interaction?.panelControls?.text || ''}`, /Program in disorder|Please report these messages|Inventory selector|Name unavailable/i, 'no visible disorder/fallback labels in loaded equipment screen');
-
-    const result = { scenarioId, playerName, startup, restoredHero: restored.hero, hoveredTooltip: hovered.tooltip, equipmentAvatar: equipment.avatar, equipmentSlots: equipment.equipment?.slots || [], screenshots: { startup: startupShot, hover: hoverShot, equipment: equipmentShot }, createdSave };
-    fs.writeFileSync(path.join(outDir, 'real-loaded-hero-avatar-regression-result.json'), JSON.stringify(result, null, 2));
-    const md = ['# Real loaded-game hero avatar regression', '', 'PASS', '', `Scenario used to create save: ${scenarioId}`, `Player spec used for saved game: -u${playerName}-Arc-Hum-Mal-Law`, '', '## Screenshots', `- Startup continue choice: ${startupShot}`, `- Loaded hero hover-card: ${hoverShot}`, `- Loaded equipment paper doll: ${equipmentShot}`, '', '## Verified', '- saved-game continue path restored the scenario-backed Archeologist hero', '- loaded map hero cell is hero semantics and uses `human-archeologist-male-avatar` from save-file identity', '- hero hover card does not say Werejackal/Monster', '- equipment paper doll uses `player-combo-avatars/human-archeologist-male-avatar.png`, not stale neutral or full-source monster art', '', '```json', JSON.stringify({ restoredHero: result.restoredHero, hoveredTooltip: result.hoveredTooltip, equipmentAvatar: result.equipmentAvatar }, null, 2), '```', ''].join('\n');
-    fs.writeFileSync(path.join(outDir, 'real-loaded-hero-avatar-regression-summary.md'), md);
-    console.log(md);
+  } catch (error) {
+    scenarioError = error;
   } finally {
-    const output = page.output();
-    fs.writeFileSync(path.join(outDir, 'electron-stdout.log'), output.stdout);
-    fs.writeFileSync(path.join(outDir, 'electron-stderr.log'), output.stderr);
-    await page.close().catch(() => {});
+    await page.close().catch((error) => { if (!scenarioError) scenarioError = error; });
   }
+  qc.recordAssertions([{ id: 'scenario-completed', status: scenarioError ? 'failed' : 'passed', details: scenarioError ? String(scenarioError.message || scenarioError) : '' }]);
+  qc.recordLog({ id: 'save-setup-stdout', path: setupStdout, classification: 'save-setup-stdout' });
+  qc.recordLog({ id: 'save-setup-stderr', path: setupStderr, classification: 'save-setup-stderr' });
+  qc.recordLog({ id: 'electron-stdout', path: page.logs.stdout, classification: 'electron-stdout' });
+  qc.recordLog({ id: 'electron-stderr', path: page.logs.stderr, classification: 'electron-stderr' });
+  const validation = Harness.screenshotQc.validateManifest(qc.manifestFile, { expectedRunIdentity: page.outputIdentity, requireApproval: false });
+  if (!validation.ok) throw new Error(`Evidence Approval capture failed: ${validation.errors.join('; ')}`);
+  fs.rmSync(playground, { recursive: true, force: true });
+  console.log(`real-loaded-hero-avatar-regression-mcp-test: CAPTURED ${page.outputIdentity} ${qc.manifestFile}`);
+  if (scenarioError) throw scenarioError;
 }
 
-main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+const reviewIndex = process.argv.indexOf('--review');
+if (reviewIndex !== -1) {
+  Promise.resolve().then(() => reviewRun(process.argv[reviewIndex + 1], process.argv[reviewIndex + 2])).catch((error) => { console.error(error.stack || error); process.exit(1); });
+} else {
+  main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+}

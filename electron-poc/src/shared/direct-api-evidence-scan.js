@@ -204,88 +204,6 @@
     return `${lines.join('\n')}\n`;
   }
 
-  function isSafeRelativeEvidencePath(value) {
-    if (typeof value !== 'string' || !value || value.length > 240) return false;
-    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(value)) return false;
-    if (path && path.isAbsolute(value)) return false;
-    if (value.includes('\\') || value.includes('\0')) return false;
-    return !value.split('/').some((part) => part === '..' || part === '');
-  }
-
-  function validateEvidenceManifest(manifest, options = {}) {
-    const errors = [];
-    const rootObject = isPlainObject(manifest) && isPlainObject(manifest.directApiEvidence) ? manifest.directApiEvidence : null;
-    if (!rootObject) errors.push('directApiEvidence object is required');
-    const evidence = rootObject || {};
-    if (typeof evidence.task !== 'string' || !evidence.task) errors.push('directApiEvidence.task is required');
-    if (evidence.scenarioId != null && !/^[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*$/.test(String(evidence.scenarioId))) errors.push('directApiEvidence.scenarioId must be a safe scenario id');
-    if (!Array.isArray(evidence.screenshots)) errors.push('directApiEvidence.screenshots array is required');
-    else {
-      evidence.screenshots.forEach((shot, index) => {
-        const entry = typeof shot === 'string' ? { path: shot } : shot;
-        if (!isPlainObject(entry) || !isSafeRelativeEvidencePath(entry.path)) errors.push(`directApiEvidence.screenshots[${index}].path must be a safe relative path`);
-        if (options.requireScreenshotInspection !== false && isPlainObject(entry) && (!Array.isArray(entry.inspectionNotes) || entry.inspectionNotes.length === 0)) errors.push(`directApiEvidence.screenshots[${index}].inspectionNotes must document manual screenshot review`);
-      });
-    }
-    if (!isPlainObject(evidence.forbiddenTokenScan)) errors.push('directApiEvidence.forbiddenTokenScan object is required');
-    else {
-      if (typeof evidence.forbiddenTokenScan.passed !== 'boolean') errors.push('directApiEvidence.forbiddenTokenScan.passed boolean is required');
-      if (evidence.forbiddenTokenScan.summary != null && !isSafeRelativeEvidencePath(evidence.forbiddenTokenScan.summary)) errors.push('directApiEvidence.forbiddenTokenScan.summary must be a safe relative path');
-    }
-    if (!isPlainObject(evidence.publicBoundaryScan)) errors.push('directApiEvidence.publicBoundaryScan object is required');
-    else {
-      if (typeof evidence.publicBoundaryScan.passed !== 'boolean') errors.push('directApiEvidence.publicBoundaryScan.passed boolean is required');
-      if (evidence.publicBoundaryScan.summary != null && !isSafeRelativeEvidencePath(evidence.publicBoundaryScan.summary)) errors.push('directApiEvidence.publicBoundaryScan.summary must be a safe relative path');
-    }
-    if (!Array.isArray(evidence.reviewNotes) || evidence.reviewNotes.length === 0) errors.push('directApiEvidence.reviewNotes must contain screenshot/public-boundary review notes');
-    for (const field of ['stateSidecars', 'logs', 'contactSheets']) {
-      if (evidence[field] == null) continue;
-      if (!Array.isArray(evidence[field])) errors.push(`directApiEvidence.${field} must be an array of safe relative paths`);
-      else evidence[field].forEach((entry, index) => { if (!isSafeRelativeEvidencePath(typeof entry === 'string' ? entry : entry?.path)) errors.push(`directApiEvidence.${field}[${index}] must be a safe relative path`); });
-    }
-    return { ok: errors.length === 0, errors };
-  }
-
-  function createEvidenceManifest(input = {}) {
-    return {
-      directApiEvidence: {
-        task: input.task || '',
-        scenarioId: input.scenarioId || '',
-        generatedAt: input.generatedAt || new Date().toISOString(),
-        outputDir: input.outputDir || '.',
-        screenshots: input.screenshots || [],
-        stateSidecars: input.stateSidecars || [],
-        logs: input.logs || [],
-        contactSheets: input.contactSheets || [],
-        forbiddenTokenScan: input.forbiddenTokenScan || { passed: false, tokens: [] },
-        publicBoundaryScan: input.publicBoundaryScan || { passed: false, forbiddenFields: forbiddenPublicBoundaryFields },
-        reviewNotes: input.reviewNotes || [],
-      },
-    };
-  }
-
-  function renderManifestMarkdown(manifest) {
-    const evidence = manifest.directApiEvidence || {};
-    const lines = ['# Direct API evidence manifest', '', `Task: ${evidence.task || '(missing)'}`, `Scenario: ${evidence.scenarioId || '(not scenario-bound)'}`, `Generated: ${evidence.generatedAt || '(unknown)'}`, '', '## Screenshots'];
-    for (const shot of evidence.screenshots || []) {
-      const entry = typeof shot === 'string' ? { path: shot, inspectionNotes: [] } : shot;
-      lines.push(`- ${entry.path}`);
-      for (const note of entry.inspectionNotes || []) lines.push(`  - ${note}`);
-    }
-    lines.push('', '## Scans', `- Forbidden-token scan: ${evidence.forbiddenTokenScan?.passed === true ? 'PASS' : 'FAIL'}`, `- Public-boundary scan: ${evidence.publicBoundaryScan?.passed === true ? 'PASS' : 'FAIL'}`, '', '## Review notes');
-    for (const note of evidence.reviewNotes || []) lines.push(`- ${note}`);
-    return `${lines.join('\n')}\n`;
-  }
-
-  function writeEvidenceManifest(outputDir, manifest) {
-    if (!fs || !path) throw new Error('writeEvidenceManifest requires node fs/path');
-    fs.mkdirSync(outputDir, { recursive: true });
-    const manifestPath = path.join(outputDir, 'evidence-manifest.json');
-    const summaryPath = path.join(outputDir, 'evidence-manifest.md');
-    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
-    fs.writeFileSync(summaryPath, renderManifestMarkdown(manifest));
-    return { manifestPath, summaryPath };
-  }
 
   function scenarioIdsForTask(task) { return Array.from(taskScenarioCatalog[task] || []); }
 
@@ -336,10 +254,6 @@
     rulesForTask,
     scanPublicBoundaryRecords,
     scanPublicBoundaryOutputDir,
-    validateEvidenceManifest,
-    createEvidenceManifest,
-    renderManifestMarkdown,
-    writeEvidenceManifest,
     scenarioIdsForTask,
     validateScenarioCatalog,
     forbiddenPublicBoundaryFields,

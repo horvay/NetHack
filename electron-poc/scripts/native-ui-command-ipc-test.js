@@ -35,6 +35,24 @@ function makeGroundCommand(overrides = {}) {
   });
 }
 
+function makeDirectCommand(commandType, payload, expectedRevision = undefined) {
+  return {
+    protocol: 'nethack-electron-ui/v2',
+    commandId: `cmd-native-ipc-${commandType}`,
+    commandType,
+    transactionId: `txn-native-ipc-${commandType}`,
+    ...(expectedRevision ? { expectedRevision } : {}),
+    payload,
+  };
+}
+
+function bridgeWrites(stdinPath) {
+  return fs.readFileSync(stdinPath, 'utf8')
+    .split('\n')
+    .filter((line) => line.trim())
+    .map((line) => JSON.parse(line));
+}
+
 function assertRendererRegistersPendingCommandBeforeNativeInvoke() {
   const pendingIndex = rendererSource.indexOf('pendingNativeUiCommands.set(v2Plan.commandId');
   const invokeIndex = rendererSource.indexOf('dispatchUiCommand(v2Plan.command)');
@@ -152,6 +170,29 @@ async function runGameProcessHarness() {
     assert.equal(accepted.ok, true, accepted.reason || 'main should accept fresh command with matching revision');
     await wait(40);
     assert.match(fs.readFileSync(stdinPath, 'utf8'), /"type":"ui-command"/, 'main writes only accepted ui-command envelope to bridge stdin');
+
+    const acceptedFamilies = [
+      ['ground.transfer', makeDirectCommand('ground.transfer', { transferId: 'transfer-ground-ipc', direction: 'ground-to-inventory', coord: { x: 0, y: 0 }, itemId: 71, count: 'all' }), 'ground-transfer'],
+      ['equipment.change', makeDirectCommand('equipment.change', { action: 'clearQuiver', slotId: 'quiver' }, { inventory: 7, equipment: 7 }), 'equipment-change'],
+      ['container.transfer', makeDirectCommand('container.transfer', { direction: 'container-to-inventory', transferId: 'transfer-container-ipc', sessionId: 'session-container-ipc', containerId: 81, itemId: 82 }), 'container-transfer'],
+      ['container.snapshot', makeDirectCommand('container.snapshot', { sessionId: 'session-container-ipc', containerId: 81 }), 'container-snapshot'],
+    ];
+    for (const [commandType, command, bridgeType] of acceptedFamilies) {
+      fs.writeFileSync(stdinPath, '', 'utf8');
+      const result = game.uiCommand(command);
+      assert.equal(result.ok, true, `${commandType} is accepted through the shared main planning call: ${result.reason || ''}`);
+      assert.equal(result.bridgeType, bridgeType, `${commandType} forwards the planned route`);
+      await wait(20);
+      assert.deepEqual(bridgeWrites(stdinPath), [{ type: bridgeType, command }], `${commandType} acceptance performs exactly one planned bridge write`);
+    }
+
+    fs.writeFileSync(stdinPath, '', 'utf8');
+    const malformedContainer = makeDirectCommand('container.transfer', { direction: 'container-to-inventory', transferId: 'transfer-malformed-ipc', sessionId: 'session-container-ipc', containerId: 81, itemId: 0 });
+    const malformedContainerResult = game.uiCommand(malformedContainer);
+    assert.equal(malformedContainerResult.ok, false, 'malformed container route rejects through shared planning');
+    assert.equal(malformedContainerResult.blockerToken, 'blocked.input.malformedTarget');
+    await wait(20);
+    assert.deepEqual(bridgeWrites(stdinPath), [], 'malformed container rejection performs zero bridge writes');
 
     fs.writeFileSync(stdinPath, '', 'utf8');
     game.shimInput({ type: 'test-active-prompt' });

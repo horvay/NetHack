@@ -19,6 +19,11 @@ function assertGroundIncludes(text, expectedLabels, context = {}, selector = 110
   const labels = groundLabelsFor(text, selector, context);
   for (const label of expectedLabels) assert(labels.includes(label), `${text} missing ground action ${label}; labels: ${labels.join(' | ')}`);
 }
+{
+  const ids = idsFor('p - a thin spellbook');
+  assert(ids.includes('item.study'), 'spellbooks expose their read/study action');
+  assert(!ids.includes('item.read.scroll'), 'spellbooks do not also expose the scroll-specific read action');
+}
 
 {
   const ids = idsFor('n - 5 darts');
@@ -223,9 +228,9 @@ function assertGroundIncludes(text, expectedLabels, context = {}, selector = 110
   assert(!actions.itemActionAffordances(unsafeRub).some((entry) => entry.id === 'item.rub'), 'core rub token alone is not accepted as a safe semantic #rub route');
   const lampRub = actions.itemActionAffordances({ text: 'l - an oil lamp', selector: 108, actionAffordances: ['rub'] }).find((entry) => entry.id === 'item.rub');
   assert(lampRub, 'public lamp row exposes safe item.rub');
-  assert.equal(lampRub.execution.keys, '#rub\n', 'item.rub opens only NetHack #rub and does not append a selector');
+  assert.equal(lampRub.execution.keys, '#rub\nl', 'item.rub includes the selected visible inventory selector');
   const lampRoute = actions.routeInventoryAction({ text: 'l - an oil lamp', selector: 108, actionAffordances: ['rub'] }, lampRub);
-  assert.equal(lampRoute.command, '#rub\n');
+  assert.equal(lampRoute.command, '#rub\nl');
   assert.equal(lampRoute.promptPolicy, 'netHack-owned-followup');
   assert.equal(lampRoute.target.location.kind, 'inventory');
   assert.equal(lampRoute.target.selector, 'l');

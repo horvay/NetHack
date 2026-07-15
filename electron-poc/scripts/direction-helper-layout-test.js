@@ -12,8 +12,11 @@ const saveScreenshot = process.env.NH_DIRECTION_HELPER_SCREENSHOT !== '0';
 const { delay } = Harness;
 
 async function main() {
+  fs.rmSync(outDir, { recursive: true, force: true });
   fs.mkdirSync(outDir, { recursive: true });
-  await Harness.withElectronPage({ root, port, width, height }, async (page) => {
+  const page = await Harness.createElectronPageSession({ root, port, width, height, outputDir: outDir, teardownTimeoutMs: 5000 });
+  let scenarioError;
+  try {
     await page.waitForValue("document.readyState === 'complete' && !!window.__nethackPromptTest", 10000);
     await page.run(`(() => {
       window.__nethackPromptTest.reset();
@@ -57,9 +60,9 @@ async function main() {
         logReadable: document.getElementById('messages').clientHeight >= requiredMessageHeight,
         compactSquare: helperRect.width <= 144 && helperRect.height <= 160,
         properCompassOrder: cellKeys.join('') === 'ykuh.lbjn',
-        properCompassLabels: cellText.join('|') === '↖|↑|↗|←|RUN|→|↙|↓|↘',
+        properCompassLabels: cellText.join('|') === '↖|↑|↗|←|·|→|↙|↓|↘',
         onlyArrowGlyphs,
-        pass: helperWithinViewport && helperWithinLog && helperNotClipped && gridRect.width >= innerWidth - 40 && buttons.length === 9 && cellKeys.join('') === 'ykuh.lbjn' && cellText.join('|') === '↖|↑|↗|←|RUN|→|↙|↓|↘' && onlyArrowGlyphs && document.getElementById('messages').clientHeight >= requiredMessageHeight && helperRect.width <= 144 && helperRect.height <= 160 && !helper.querySelector('#direction-helper-copy') && !/Esc|Choose a direction or map target|Dungeon remains playable|North|South|East|West|NW|NE|SW|SE/i.test(helper.innerText) && !buttons.some((button) => button.id === 'direction-helper-cancel' || /\bEsc\b/i.test(button.innerText.trim())),
+        pass: helperWithinViewport && helperWithinLog && helperNotClipped && gridRect.width >= innerWidth - 40 && buttons.length === 8 && cellKeys.join('') === 'ykuh.lbjn' && cellText.join('|') === '↖|↑|↗|←|·|→|↙|↓|↘' && onlyArrowGlyphs && document.getElementById('messages').clientHeight >= requiredMessageHeight && helperRect.width <= 144 && helperRect.height <= 160 && !helper.querySelector('#direction-helper-copy') && !/Esc|Choose a direction or map target|Dungeon remains playable|North|South|East|West|NW|NE|SW|SE/i.test(helper.innerText) && !buttons.some((button) => button.id === 'direction-helper-cancel' || /\bEsc\b/i.test(button.innerText.trim())),
       };
     })()`);
     metrics.defaultCompass = await page.evalValue(`(() => {
@@ -93,13 +96,42 @@ async function main() {
       && metrics.defaultCompass.disarmed.pressed === 'false'
       && !metrics.defaultCompass.disarmed.selected;
     metrics.pass = metrics.pass && metrics.defaultCompassPass;
+    await page.evalCheckedValue(`(() => {
+      const t = window.__nethackPromptTest;
+      t.reset(); t.setRunning(true);
+      document.getElementById('startup-choice-dialog')?.close?.('focused-proof-setup');
+      t.event({ name: 'bridge_direction_prompt', query: 'Choose a direction or map target.', choices: 'ykulnjbh.<>' });
+      return true;
+    })()`);
+    await page.waitForCheckedValue("document.body.classList.contains('direction-helper-active') && !document.getElementById('direction-helper').hidden", 5000);
+    await delay(100);
+    metrics.visualState = await page.evalCheckedValue(`(() => {
+      const helper = document.getElementById('direction-helper');
+      const rect = helper.getBoundingClientRect();
+      return {
+        helperText:helper.innerText,
+        openDialogs:Array.from(document.querySelectorAll('dialog[open]')).map((dialog)=>dialog.id),
+        withinViewport:rect.left >= 0 && rect.top >= 0 && rect.right <= innerWidth && rect.bottom <= innerHeight,
+        notClipped:helper.scrollWidth <= helper.clientWidth + 1 && helper.scrollHeight <= helper.clientHeight + 1,
+        body:document.body.innerText,
+      };
+    })()`);
+    metrics.visualPass = metrics.visualState.withinViewport
+      && metrics.visualState.notClipped
+      && metrics.visualState.openDialogs.length === 0
+      && !/Choose your path|Choose a direction or map target|Unknown command|Esc/i.test(metrics.visualState.helperText);
+    metrics.pass = metrics.pass && metrics.visualPass;
+    if (saveScreenshot) await page.screenshot(path.join(outDir, 'after-direction-helper-compact-log.png'));
     fs.writeFileSync(path.join(outDir, 'direction-helper-layout-metrics.json'), JSON.stringify(metrics, null, 2));
-    if (saveScreenshot) {
-      await page.screenshot(path.join(outDir, 'after-direction-helper-compact-log.png'));
-    }
     console.log(JSON.stringify(metrics, null, 2));
     if (!metrics.pass) throw new Error('direction helper layout assertion failed');
-  });
+  } catch (error) {
+    scenarioError = error;
+  }
+  const teardown = await page.close(5000);
+  fs.writeFileSync(path.join(outDir, 'direction-helper-layout-teardown.json'), JSON.stringify(teardown, null, 2));
+  if (scenarioError) throw scenarioError;
+  if (!teardown.exited) throw new Error('direction helper Electron teardown exceeded its bounded owner timeout');
 }
 
-main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+main().catch((error) => { console.error(error.stack || error); process.exitCode = 1; });

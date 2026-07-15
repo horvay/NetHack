@@ -1,10 +1,13 @@
+'use strict';
+
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 const { spawnSync } = require('node:child_process');
+const EvidenceApproval = require('./evidence-approval');
 
-const version = 'nethack-screenshot-qc/v2';
+const version = EvidenceApproval.version;
 
 function sha256(file) {
   return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
@@ -77,155 +80,116 @@ function fileRecord(file) {
 
 function safeId(value) {
   const id = String(value || '').trim().replace(/[^A-Za-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '');
-  if (!id) throw new TypeError('Screenshot QC capture requires an id');
+  if (!id) throw new TypeError('Screenshot capture requires an id');
   return id;
 }
 
-function createScreenshotQc({ rootDir, manifestFile = path.join(rootDir, 'screenshot-qc.json') } = {}) {
+function createScreenshotQc({ rootDir, runIdentity = crypto.randomUUID(), manifestFile = path.join(rootDir, 'evidence-approval.json') } = {}) {
   if (!rootDir) throw new TypeError('Screenshot QC requires rootDir');
   fs.mkdirSync(path.join(rootDir, 'raw-captures'), { recursive: true });
   fs.mkdirSync(path.join(rootDir, 'view-safe'), { recursive: true });
-  const manifest = {
-    schema: version,
-    createdAt: new Date().toISOString(),
-    rootDir: path.resolve(rootDir),
-    manualInspectionCompleted: false,
-    files: [],
-  };
-
-  function save() {
-    manifest.updatedAt = new Date().toISOString();
-    manifest.manualInspectionCompleted = manifest.files.length > 0 && manifest.files.every((entry) => entry.manualInspection.status === 'accepted');
-    fs.writeFileSync(manifestFile, `${JSON.stringify(manifest, null, 2)}\n`);
-    return manifestFile;
-  }
+  const approval = EvidenceApproval.createEvidenceApproval({ rootDir, runIdentity, manifestFile });
 
   function rawPath(id) {
-    // Accepted raw evidence is lossless. In particular, do not interpose a JPEG
-    // transcode between Electron's capturePage() PNG and manual inspection.
     return path.join(rootDir, 'raw-captures', `${safeId(id)}.png`);
   }
 
   function recordCapture(id, source, options = {}) {
     const captureId = safeId(id);
+    if (approval.snapshot().captures.some((capture) => capture.id === captureId)) {
+      throw new Error(`Screenshot capture ${captureId} is immutable within Verification Run ${approval.runIdentity}`);
+    }
     if (!fs.existsSync(source)) throw new Error(`Missing raw screenshot: ${source}`);
     const canonicalRaw = rawPath(captureId);
-    if (path.resolve(source) !== path.resolve(canonicalRaw)) fs.copyFileSync(source, canonicalRaw);
-    source = canonicalRaw;
+    if (path.resolve(source) !== path.resolve(canonicalRaw)) {
+      fs.copyFileSync(source, canonicalRaw, fs.constants.COPYFILE_EXCL);
+    }
     const format = String(options.viewSafeFormat || 'BMP').toUpperCase();
     const extension = format === 'JPEG' ? 'jpg' : format.toLowerCase();
+    const scale = options.viewSafeScale == null ? 1 : Number(options.viewSafeScale);
     const derivativePath = path.join(rootDir, 'view-safe', `${captureId}.${extension}`);
-    createDerivative(source, derivativePath, { format, scale: options.viewSafeScale == null ? 1 : Number(options.viewSafeScale) });
-    const raw = fileRecord(source);
-    const derivative = fileRecord(derivativePath);
-    const entry = {
+    if (fs.existsSync(derivativePath)) throw new Error(`Screenshot derivative ${captureId} already exists and cannot be overwritten`);
+    createDerivative(canonicalRaw, derivativePath, { format, scale });
+    return approval.recordCapture({
       id: captureId,
-      capturedAt: new Date().toISOString(),
+      classification: options.classification || 'unclassified',
+      capturedAt: options.capturedAt,
       viewport: options.viewport || null,
       state: options.state || null,
-      captureMethod: options.captureMethod || 'Chrome DevTools Page.captureScreenshot',
-      captureSource: options.captureSource || null,
-      raw,
-      derivative,
-      relationship: Object.freeze({
-        sourceSha256: raw.sha256,
-        format,
-        scale: options.viewSafeScale == null ? 1 : Number(options.viewSafeScale),
-        transform: `Pillow RGB transcode to ${format}${options.viewSafeScale && Number(options.viewSafeScale) !== 1 ? ` at scale ${Number(options.viewSafeScale)}` : ' at source dimensions'}`,
-      }),
-      manualInspection: { status: 'pending', inspector: '', inspectedAt: '', notes: '' },
-    };
-    const prior = manifest.files.findIndex((candidate) => candidate.id === captureId);
-    if (prior >= 0) manifest.files.splice(prior, 1, entry);
-    else manifest.files.push(entry);
-    save();
-    return Object.freeze(JSON.parse(JSON.stringify(entry)));
+      provenance: {
+        adapter: options.captureAdapter || 'unknown',
+        mechanism: options.captureMethod || 'unspecified capture mechanism',
+        source: options.captureSource || null,
+      },
+      raw: fileRecord(canonicalRaw),
+      derivative: {
+        ...fileRecord(derivativePath),
+        provenance: {
+          transform: {
+            implementation: 'Pillow',
+            colorMode: 'RGB',
+            format,
+            scale,
+            resampling: scale === 1 ? 'none' : 'LANCZOS',
+          },
+        },
+      },
+    });
   }
 
-  function markInspected(id, { accepted, inspector, notes } = {}) {
-    const entry = manifest.files.find((candidate) => candidate.id === safeId(id));
-    if (!entry) throw new Error(`Unknown screenshot QC id: ${id}`);
-    if (!String(notes || '').trim()) throw new TypeError('Screenshot inspection notes are required');
-    entry.manualInspection = {
-      status: accepted ? 'accepted' : 'rejected',
-      inspector: String(inspector || 'Developer'),
-      inspectedAt: new Date().toISOString(),
-      notes: String(notes).trim(),
-    };
-    save();
-    return Object.freeze(JSON.parse(JSON.stringify(entry)));
-  }
-
-  function snapshot() {
-    return Object.freeze(JSON.parse(JSON.stringify(manifest)));
-  }
-
-  save();
-  return Object.freeze({ version, rootDir: path.resolve(rootDir), manifestFile: path.resolve(manifestFile), rawPath, recordCapture, markInspected, save, snapshot });
+  return Object.freeze({
+    version,
+    runIdentity: approval.runIdentity,
+    rootDir: approval.rootDir,
+    manifestFile: approval.manifestFile,
+    rawPath,
+    recordCapture,
+    recordAssertions: approval.recordAssertions,
+    recordLog: approval.recordLog,
+    inspectCapture: approval.inspectCapture,
+    decideCapture: approval.decideCapture,
+    snapshot: approval.snapshot,
+  });
 }
 
-function markManifestInspection(manifestFile, id, { accepted, inspector, notes } = {}) {
+function validateManifest(manifestFile, { requireApproval = false, expectedRunIdentity } = {}) {
   const manifest = JSON.parse(fs.readFileSync(manifestFile, 'utf8'));
-  const entry = (manifest.files || []).find((candidate) => candidate.id === safeId(id));
-  if (!entry) throw new Error(`Unknown screenshot QC id: ${id}`);
-  if (!String(notes || '').trim()) throw new TypeError('Screenshot inspection notes are required');
-  entry.manualInspection = {
-    status: accepted ? 'accepted' : 'rejected',
-    inspector: String(inspector || 'Developer'),
-    inspectedAt: new Date().toISOString(),
-    notes: String(notes).trim(),
-  };
-  manifest.updatedAt = new Date().toISOString();
-  manifest.manualInspectionCompleted = manifest.files.length > 0 && manifest.files.every((candidate) => candidate.manualInspection?.status === 'accepted');
-  fs.writeFileSync(manifestFile, `${JSON.stringify(manifest, null, 2)}\n`);
-  return Object.freeze(JSON.parse(JSON.stringify(entry)));
-}
-
-function validateManifest(manifestFile, { requireInspection = false } = {}) {
-  const manifest = JSON.parse(fs.readFileSync(manifestFile, 'utf8'));
-  const errors = [];
-  const rootDir = path.resolve(manifest.rootDir || path.dirname(manifestFile));
-  const ids = new Set();
-  if (manifest.schema !== version) errors.push(`unexpected schema ${manifest.schema || '(missing)'}`);
-  if (!Array.isArray(manifest.files) || !manifest.files.length) errors.push('manifest has no screenshot files');
-  for (const entry of manifest.files || []) {
-    if (!entry.id || ids.has(entry.id)) errors.push(`${entry.id || '(missing id)'} duplicate or missing capture id`);
-    ids.add(entry.id);
+  const approval = EvidenceApproval.validateEvidenceApproval(manifest, { requireApproval, expectedRunIdentity });
+  const errors = [...approval.errors];
+  for (const capture of manifest.captures || []) {
     for (const role of ['raw', 'derivative']) {
-      const record = entry[role];
-      const expectedRoot = path.join(rootDir, role === 'raw' ? 'raw-captures' : 'view-safe');
-      if (!record?.path || !fs.existsSync(record.path)) errors.push(`${entry.id} missing ${role} file`);
-      else {
-        const resolved = path.resolve(record.path);
-        if (path.dirname(resolved) !== expectedRoot) errors.push(`${entry.id} ${role} path is outside its canonical evidence directory`);
-        if (sha256(resolved) !== record.sha256) errors.push(`${entry.id} ${role} hash mismatch`);
-        const metadata = imageMetadata(resolved);
-        for (const key of ['width', 'height', 'format', 'mode', 'bytes']) if (metadata[key] !== record[key]) errors.push(`${entry.id} ${role} ${key} mismatch`);
-        if (role === 'raw' && metadata.format !== 'PNG') errors.push(`${entry.id} accepted raw capture must be lossless PNG`);
+      const record = capture[role];
+      if (!record?.path || !fs.existsSync(record.path)) continue;
+      const metadata = imageMetadata(record.path);
+      for (const key of ['width', 'height', 'format', 'mode', 'bytes']) {
+        if (metadata[key] !== record[key]) errors.push(`${capture.id} ${role} ${key} mismatch`);
       }
+      if (role === 'raw' && metadata.format !== 'PNG') errors.push(`${capture.id} raw capture must be lossless PNG`);
     }
-    if (entry.relationship?.sourceSha256 !== entry.raw?.sha256) errors.push(`${entry.id} source relationship mismatch`);
-    const transformFormat = String(entry.relationship?.format || '').toUpperCase();
-    const transformScale = Number(entry.relationship?.scale);
-    if (!transformFormat || !Number.isFinite(transformScale) || transformScale <= 0) errors.push(`${entry.id} derivative transform metadata is incomplete`);
-    else if (entry.raw?.path && entry.derivative?.path && fs.existsSync(entry.raw.path) && fs.existsSync(entry.derivative.path)) {
+    const transform = capture.derivative?.provenance?.transform;
+    if (capture.raw?.path && capture.derivative?.path && transform?.format && Number.isFinite(Number(transform.scale))) {
       const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nethack-screenshot-verify-'));
       const temp = path.join(tempDir, 'derivative');
       try {
-        createDerivative(entry.raw.path, temp, { format: transformFormat, scale: transformScale });
-        if (sha256(temp) !== entry.derivative.sha256) errors.push(`${entry.id} derivative is not reproducible from canonical raw evidence`);
-      } catch (error) { errors.push(`${entry.id} derivative verification failed: ${error.message}`); }
-      finally { fs.rmSync(tempDir, { recursive: true, force: true }); }
+        createDerivative(capture.raw.path, temp, { format: transform.format, scale: Number(transform.scale) });
+        if (sha256(temp) !== capture.derivative.sha256) errors.push(`${capture.id} derivative is not reproducible from canonical raw capture`);
+      } catch (error) {
+        errors.push(`${capture.id} derivative verification failed: ${error.message}`);
+      } finally {
+        fs.rmSync(tempDir, { recursive: true, force: true });
+      }
+    } else {
+      errors.push(`${capture.id} derivative transform provenance is incomplete`);
     }
-    if (entry.viewport?.width && entry.viewport?.height) {
-      const pixelRatio = Number(entry.viewport.devicePixelRatio || 1);
-      const expectedWidth = Math.round(Number(entry.viewport.width) * pixelRatio);
-      const expectedHeight = Math.round(Number(entry.viewport.height) * pixelRatio);
-      if (entry.raw?.width !== expectedWidth || entry.raw?.height !== expectedHeight) errors.push(`${entry.id} raw dimensions do not match declared viewport`);
+    if (capture.viewport?.width && capture.viewport?.height) {
+      const pixelRatio = Number(capture.viewport.devicePixelRatio || 1);
+      const expectedWidth = Math.round(Number(capture.viewport.width) * pixelRatio);
+      const expectedHeight = Math.round(Number(capture.viewport.height) * pixelRatio);
+      if (capture.raw?.width !== expectedWidth || capture.raw?.height !== expectedHeight) errors.push(`${capture.id} raw dimensions do not match declared viewport`);
     }
-    if (requireInspection && entry.manualInspection?.status !== 'accepted') errors.push(`${entry.id} manual inspection incomplete`);
   }
-  return Object.freeze({ ok: errors.length === 0, errors: Object.freeze(errors), fileCount: manifest.files?.length || 0, manualInspectionCompleted: Boolean(manifest.manualInspectionCompleted) });
+  const state = Object.freeze({ ...approval.state, manuallyApproved: approval.state.manuallyApproved && errors.length === 0 });
+  return Object.freeze({ ...approval, ok: errors.length === 0, errors: Object.freeze(errors), state });
 }
 
-module.exports = Object.freeze({ version, sha256, imageMetadata, paintedRegionStats, createDerivative, fileRecord, createScreenshotQc, markManifestInspection, validateManifest });
+module.exports = Object.freeze({ version, imageMetadata, paintedRegionStats, fileRecord, createScreenshotQc, validateManifest });

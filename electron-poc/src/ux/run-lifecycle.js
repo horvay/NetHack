@@ -218,14 +218,6 @@
     if (!runtime?.registerDomain || runtime.domain?.('run-lifecycle')) return runtime?.domain?.('run-lifecycle')?.controller || null;
     const controller = createRunLifecycleController({ runtime });
     const owner = runtime.registerDomain('run-lifecycle', Object.freeze({ version, controller }));
-    runtime.registerProvider('run-lifecycle-actions', 'run-lifecycle', Object.freeze({
-      version,
-      entries: actionDefinitions,
-      request: controller.request,
-      acceptAcknowledgement: controller.acceptAcknowledgement,
-      connectDispatch: controller.connectDispatch,
-      recoveryCandidatePresentation,
-    }));
     return owner.controller;
   }
 

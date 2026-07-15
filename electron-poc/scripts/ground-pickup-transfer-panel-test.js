@@ -34,8 +34,8 @@ async function main() {
       window.__groundTransferCommands = [];
       t.setUiCommandHandlerForTest((command) => { window.__groundTransferCommands.push(JSON.parse(JSON.stringify(command))); return { ok:true, commandId: command.commandId, transactionId: command.transactionId, commandType: command.commandType, bridgeType: 'ground-transfer' }; });
       t.event({name:'shim_update_inventory', revision:3100, inventoryRevision:3100, equipmentRevision:1, reason:'direct-ground-test', items:[
-        { selector:97, objectId:501, text:'a - a +0 spear', quantity:1, semanticKind:'object', semanticName:'spear', actionAffordances:['drop'] },
-        { selector:98, objectId:502, text:'b - a food ration', quantity:1, semanticKind:'object', semanticName:'food ration', actionAffordances:['eat','drop'] }
+        { selector:97, objectId:501, text:'a - a +0 spear', displayName:'a +0 spear', quantity:1, glyphChar:41, publicClass:'weapon', semanticKind:'object', semanticName:'spear', semanticKnown:true, knownFields:{enchantment:0}, actionAffordances:['drop'] },
+        { selector:98, objectId:502, text:'b - a food ration', displayName:'a food ration', quantity:1, glyphChar:37, publicClass:'food', semanticKind:'object', semanticName:'food ration', semanticKnown:true, actionAffordances:['eat','drop'] }
       ]});
       t.setGroundPileSnapshotForTest([
         { objectId:145, displayName:'a cream pie', quantity:1, semanticKind:'object', semanticName:'cream pie', actionAffordances:['pickup'] },
@@ -74,6 +74,10 @@ async function main() {
         dialogs:Array.from(document.querySelectorAll('dialog[open]')).map((dialog) => dialog.id),
         sent:t.sentInputs().join(''),
       };
+      t.setGroundPileSnapshotForTest([
+        { objectId:145, displayName:'a cream pie', quantity:1, glyphChar:37, objectClass:'%', publicClass:'food', semanticKind:'object', semanticName:'cream pie', semanticKnown:true, actionAffordances:['pickup'] },
+        { objectId:133, displayName:'a lichen corpse', quantity:1, glyphChar:37, objectClass:'%', publicClass:'food', semanticKind:'corpse', semanticName:'lichen', semanticKnown:true, actionAffordances:['pickup'] }
+      ], { x:12, y:8 });
       document.querySelector('#context-action-bar button[data-context-action-id="pickup"]')?.click();
       await sleep(80);
       const opened = t.container();
@@ -82,8 +86,8 @@ async function main() {
       await sleep(80);
       const afterPickupCommand = window.__groundTransferCommands.at(-1);
       t.event({name:'shim_update_inventory', revision:3101, inventoryRevision:3101, equipmentRevision:2, reason:'pre-direct-confirmation', items:[
-        { selector:97, objectId:501, text:'a - a +0 spear', quantity:1, semanticKind:'object', semanticName:'spear', actionAffordances:['drop'] },
-        { selector:98, objectId:502, text:'b - a food ration', quantity:1, semanticKind:'object', semanticName:'food ration', actionAffordances:['eat','drop'] }
+        { selector:97, objectId:501, text:'a - a +0 spear', displayName:'a +0 spear', quantity:1, glyphChar:41, publicClass:'weapon', semanticKind:'object', semanticName:'spear', semanticKnown:true, knownFields:{enchantment:0}, actionAffordances:['drop'] },
+        { selector:98, objectId:502, text:'b - a food ration', displayName:'a food ration', quantity:1, glyphChar:37, publicClass:'food', semanticKind:'object', semanticName:'food ration', semanticKnown:true, actionAffordances:['eat','drop'] }
       ]});
       await sleep(40);
       const beforeCoreConfirmation = { container:t.container(), transfers:t.transferTransactions() };
@@ -99,7 +103,48 @@ async function main() {
         { objectId:501, displayName:'a +0 spear', quantity:1, semanticKind:'object', semanticName:'spear', actionAffordances:['pickup'] }
       ], { x:12, y:8 });
       const afterDrop = t.container();
-      return { passive, firstExplicitOpen, cancelled, afterMovementRedraw, opened, sentAfterOpen, beforeCoreConfirmation, afterPickupCommand, afterDropCommand, afterPickup, afterDrop, sent: t.sentInputs().join(''), commands: window.__groundTransferCommands, transfers: t.transferTransactions(), ground: t.groundSnapshots(), body: document.body.innerText };
+      t.setGroundPileSnapshotForTest([
+        { objectId:701, displayName:'an uncursed +1 dagger', quantity:1, glyphChar:42 + 1, objectClass:')', publicClass:'weapon', semanticKind:'object', semanticName:'dagger', semanticKnown:true, knownFields:{beatitude:'uncursed', enchantment:1}, actionAffordances:['pickup'] },
+        { objectId:702, displayName:'red', quantity:1, glyphChar:42, objectClass:'*', publicClass:'gem', semanticKind:'object', semanticKnown:false, semanticAppearance:'red', known:{identity:false, appearance:true}, actionAffordances:['pickup'] }
+      ], { x:12, y:8 });
+      await sleep(80);
+      const richRows = () => Array.from(document.querySelectorAll('#container-transfer-panel [data-container-pane="left"] .container-item-row')).map((row) => ({
+        selector: row.dataset.selector,
+        shortcut: row.dataset.shortcut,
+        checked: row.getAttribute('aria-checked'),
+        text: row.innerText,
+        tileId: row.querySelector('.menu-tile')?.dataset.tileId || '',
+        badges: Array.from(row.querySelectorAll('.item-badge')).map((badge) => badge.textContent.trim()),
+      }));
+      const batchBefore = { rows:richRows(), text:document.getElementById('container-transfer-panel')?.innerText || '', takeAll:document.querySelector('[data-take-all-ground]')?.textContent || '', selectedAction:{ text:document.querySelector('[data-transfer-selected]')?.innerText || '', disabled:Boolean(document.querySelector('[data-transfer-selected]')?.disabled) } };
+      const panel = document.getElementById('container-transfer-panel');
+      panel.querySelector('[data-container-pane="left"] .container-item-row')?.focus();
+      panel.dispatchEvent(new KeyboardEvent('keydown', { key:'a', bubbles:true }));
+      await sleep(30);
+      panel.dispatchEvent(new KeyboardEvent('keydown', { key:'b', bubbles:true }));
+      await sleep(30);
+      const batchSelected = { rows:richRows(), action:{ text:document.querySelector('[data-transfer-selected]')?.innerText || '', disabled:Boolean(document.querySelector('[data-transfer-selected]')?.disabled) }, count:document.querySelector('.container-transfer-selected-count')?.textContent || '' };
+      const batchCommandStart = window.__groundTransferCommands.length;
+      panel.dispatchEvent(new KeyboardEvent('keydown', { key:'Enter', bubbles:true }));
+      await sleep(60);
+      const batchFirstCommand = window.__groundTransferCommands[batchCommandStart];
+      t.event({ name:'shim_ground_transfer_confirmed', transferId:batchFirstCommand?.transactionId || '', transactionId:batchFirstCommand?.transactionId || '', itemId:701, direction:'ground-to-inventory', coord:{x:12,y:8}, reason:'first selected item picked up' });
+      await sleep(80);
+      const batchSecondCommand = window.__groundTransferCommands[batchCommandStart + 1];
+      t.event({ name:'shim_ground_transfer_confirmed', transferId:batchSecondCommand?.transactionId || '', transactionId:batchSecondCommand?.transactionId || '', itemId:702, direction:'ground-to-inventory', coord:{x:12,y:8}, reason:'second selected item picked up' });
+      await sleep(80);
+      const batchAfter = t.container();
+      t.setGroundPileSnapshotForTest([
+        { objectId:703, displayName:'a dart', quantity:1, glyphChar:41, objectClass:')', publicClass:'weapon', semanticKind:'object', semanticName:'dart', semanticKnown:true, actionAffordances:['pickup'] },
+        { objectId:704, displayName:'a food ration', quantity:1, glyphChar:37, objectClass:'%', publicClass:'food', semanticKind:'object', semanticName:'food ration', semanticKnown:true, actionAffordances:['pickup'] }
+      ], { x:12, y:8 });
+      await sleep(60);
+      const takeAllCommandStart = window.__groundTransferCommands.length;
+      document.querySelector('[data-take-all-ground]')?.click();
+      await sleep(60);
+      const takeAllCommand = window.__groundTransferCommands[takeAllCommandStart];
+      const takeAllState = { rows:richRows(), container:t.container() };
+      return { passive, firstExplicitOpen, cancelled, afterMovementRedraw, opened, sentAfterOpen, beforeCoreConfirmation, afterPickupCommand, afterDropCommand, afterPickup, afterDrop, batchBefore, batchSelected, batchFirstCommand, batchSecondCommand, batchAfter, takeAllCommand, takeAllState, sent: t.sentInputs().join(''), commands: window.__groundTransferCommands, transfers: t.transferTransactions(), ground: t.groundSnapshots(), body: document.body.innerText };
     })()`);
     assert('passive multi-item ground report does not open pickup UI or send input', !metrics.passive.container.active && metrics.passive.dialogs.length === 0 && metrics.passive.sent === '', JSON.stringify(metrics.passive));
     assert('passive ground evidence keeps the visible Pickup action available', metrics.passive.actions?.buttons?.some((button) => button.id === 'pickup') && /use Pick up or comma/i.test(metrics.passive.status), JSON.stringify(metrics.passive));
@@ -113,6 +158,11 @@ async function main() {
     assert('inventory-to-ground emits direct ground.transfer only', metrics.afterDropCommand?.commandType === 'ground.transfer' && metrics.afterDropCommand.payload?.direction === 'inventory-to-ground' && metrics.afterDropCommand.payload?.itemId === 501 && metrics.afterDropCommand.payload?.count === 'all', JSON.stringify(metrics.afterDropCommand));
     assert('no hidden pickup/drop key choreography was sent', !/[,]|d[a-zA-Z]/.test(metrics.sent || ''), JSON.stringify(metrics.sent));
     assert('shared transfer model records direct successes', metrics.transfers?.transfers?.some((tx) => tx.direction === 'ground-to-inventory' && tx.status === 'success') && metrics.transfers?.transfers?.some((tx) => tx.direction === 'inventory-to-ground' && tx.status === 'success'), JSON.stringify(metrics.transfers));
+    assert('ground rows use inventory-grade art, class and known-state badges', metrics.batchBefore.rows.every((row) => row.tileId) && metrics.batchBefore.rows.some((row) => /dagger/i.test(row.text) && row.badges.includes('weapon') && row.badges.includes('uncursed') && row.badges.includes('+1')), JSON.stringify(metrics.batchBefore));
+    assert('unidentified appearance includes its public class noun', metrics.batchBefore.rows.some((row) => /red gem/i.test(row.text) && row.badges.includes('gem')) && !metrics.batchBefore.rows.some((row) => /^\s*(?:☐|☑)?\s*b\s*red\s*$/i.test(row.text)), JSON.stringify(metrics.batchBefore.rows));
+    assert('ground rows expose letter shortcuts, unmistakable checkbox state, and a visible completion action', metrics.batchBefore.rows.map((row) => row.shortcut).join('') === 'ab' && metrics.batchBefore.selectedAction.disabled && metrics.batchSelected.rows.every((row) => row.checked === 'true' && /☑|Selected/i.test(row.text)) && !metrics.batchSelected.action.disabled && /Take 2 selected\s*Enter/i.test(metrics.batchSelected.action.text) && metrics.batchSelected.count === '2 selected', JSON.stringify({ before:metrics.batchBefore, selected:metrics.batchSelected }));
+    assert('Enter submits every selected ground item through sequential direct transfers', metrics.batchFirstCommand?.payload?.itemId === 701 && metrics.batchSecondCommand?.payload?.itemId === 702 && metrics.batchAfter.text.includes('2 selected items moved'), JSON.stringify({ first:metrics.batchFirstCommand, second:metrics.batchSecondCommand, after:metrics.batchAfter }));
+    assert('Pick up all is visible and starts a complete ground selection batch', /^Pick up all \(2\)$/.test(metrics.batchBefore.takeAll) && metrics.takeAllCommand?.payload?.itemId === 703 && metrics.takeAllState.rows.every((row) => row.checked === 'true' || row.selector === 'ground-object-703'), JSON.stringify({ command:metrics.takeAllCommand, state:metrics.takeAllState }));
     fs.writeFileSync(path.join(outDir, 'summary.md'), `# Ground direct transfer panel test\n\nPASS\n\nCommands: ${JSON.stringify(metrics.commands, null, 2)}\n\nTransfers: ${JSON.stringify(metrics.transfers, null, 2)}\n\nGround: ${JSON.stringify(metrics.ground, null, 2)}\n`);
     console.log('ground-pickup-transfer-panel-test PASS');
   } finally { cleanup(); }

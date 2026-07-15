@@ -23,10 +23,17 @@
             "typeId": "FOOD_RATION"
           },
           {
-            "typeId": "DAGGER"
+            "typeId": "DAGGER",
+            "beatitude": "cursed",
+            "beatitudeKnown": true
           },
           {
             "typeId": "APPLE"
+          },
+          {
+            "typeId": "POT_HEALING",
+            "identityKnown": false,
+            "appearanceKnown": false
           }
         ]
       }
@@ -40,7 +47,8 @@
     {
       "typeId": "SCR_IDENTIFY",
       "beatitude": "uncursed",
-      "identityKnown": true
+      "identityKnown": true,
+      "beatitudeKnown": true
     }
   ],
   "expectedPublicFacts": {
@@ -49,18 +57,19 @@
     ],
     "containerRows": [
       "food ration",
-      "dagger",
-      "apple"
+      "cursed dagger",
+      "apple",
+      "potion"
     ],
     "inventoryRows": [
       "tin opener",
-      "scroll of identify"
+      "uncursed scroll of identify"
     ],
     "mapAffordances": [
       "container"
     ],
     "messages": [
-      "unlocked large box containing 3 items"
+      "unlocked large box containing 4 items"
     ]
   }
 }

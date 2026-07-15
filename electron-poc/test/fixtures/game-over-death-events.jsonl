@@ -8,6 +8,7 @@
 {"name":"shim_status_update","field":16,"value":"123"}
 {"name":"shim_status_update","field":20,"value":"Dlvl:1"}
 {"name":"shim_status_update","field":13,"value":"1"}
+{"name":"shim_putstr","window":1,"text":"You identify an uncursed potion of healing."}
 {"name":"shim_putstr","window":1,"text":"You were killed by a jackal."}
 {"name":"shim_yn_function","query":"Do you want your possessions identified?","choices":"ynq"}
 {"name":"bridge_prompt_answer","keycode":121}

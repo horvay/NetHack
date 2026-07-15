@@ -153,7 +153,17 @@ for (const source of ['ux/runtime.js', 'ux/app-mounts.js', 'ux/dialog-shell.js',
 }
 assert.equal(Object.isFrozen(context.NetHackUxRunLifecycle), true);
 assert.equal(Object.isFrozen(context.NetHackUxFinalChronicle), true);
-assert.equal(context.NetHackUxRuntime.runtime.providers('run-lifecycle-actions').length, 1, 'browser module registers the predeclared lifecycle provider once');
+const browserLifecycleDomain = context.NetHackUxRuntime.runtime.domain('run-lifecycle');
+const browserLifecycle = browserLifecycleDomain.controller;
+assert.equal(browserLifecycle.actions().length, 2, 'browser module registers the lifecycle controller through domain ownership');
+let browserRunDispatch;
+browserLifecycle.connectDispatch((action, requestContext) => {
+  browserRunDispatch = { action, requestContext };
+  return { accepted: true };
+});
+const browserRunRequest = browserLifecycle.request('run.quit', { transactionId: 'browser:quit' });
+assert.equal(browserRunRequest.accepted, true);
+assert.equal(browserRunDispatch.action.internalRoute, '#quit');
 assert.equal(context.NetHackUxFinalChronicle.defaultView, null, 'browser-global contract remains safe without a document');
 
 const mergeStore = FinalChronicle.createFinalChronicleStore();

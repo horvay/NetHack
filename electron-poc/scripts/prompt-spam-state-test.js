@@ -70,19 +70,21 @@ async function main() {
     await waitFor(async () => (await cdp.send('Runtime.evaluate', { returnByValue: true, expression: "document.readyState === 'complete' && !!window.__nethackPromptTest" })).result.value, 10000);
     const evalResult = await cdp.send('Runtime.evaluate', { returnByValue: true, expression: `(() => {
       window.__nethackPromptTest.reset();
+      window.__nethackPromptTest.setRunning(true);
       window.__nethackPromptTest.event({ name: 'shim_putstr', text: 'You hit the goblin.' });
       window.__nethackPromptTest.event({ name: 'bridge_direction_prompt', query: 'Choose a direction or map target.', choices: 'ykulnjbh.<>' });
       const active = { messages: window.__nethackPromptTest.messages(), helper: window.__nethackPromptTest.helper(), prompt: window.__nethackPromptTest.prompt() };
-      window.__nethackPromptTest.event({ name: 'bridge_direction_answer', return: 1 });
+      window.__nethackPromptTest.event({ name: 'bridge_direction_answer', return: 1, requestId: active.prompt?.requestId, transactionId: active.prompt?.transactionId, lifecycleRevision: active.prompt?.lifecycleRevision });
       window.__nethackPromptTest.event({ name: 'shim_putstr', text: 'You hit the goblin.' });
       window.__nethackPromptTest.event({ name: 'shim_putstr', text: 'You hit the goblin.' });
       window.__nethackPromptTest.event({ name: 'bridge_direction_prompt', query: 'Choose a direction or map target.', choices: 'ykulnjbh.<>' });
       window.__nethackPromptTest.event({ name: 'bridge_direction_prompt', query: 'Choose a direction or map target.', choices: 'ykulnjbh.<>' });
-      window.__nethackPromptTest.event({ name: 'bridge_direction_answer', return: 0 });
+      const finalPromptOwner = window.__nethackPromptTest.prompt();
+      window.__nethackPromptTest.event({ name: 'bridge_direction_answer', return: 0, requestId: finalPromptOwner?.requestId, transactionId: finalPromptOwner?.transactionId, lifecycleRevision: finalPromptOwner?.lifecycleRevision });
       const finalState = { messages: window.__nethackPromptTest.messages(), helper: window.__nethackPromptTest.helper(), prompt: window.__nethackPromptTest.prompt() };
       const promptSpamCount = finalState.messages.filter((m) => /Choose a direction or map target/i.test(m)).length;
       return { active, finalState, promptSpamCount, assertions: {
-        promptVisibleOnlyWhileActive: Boolean(active.helper.bodyActive && !active.helper.hidden && active.prompt && !finalState.helper.bodyActive && finalState.helper.hidden && finalState.prompt === null),
+        promptVisibleOnlyWhileActive: Boolean(active.helper.bodyActive && !active.helper.hidden && active.helper.title === 'Direction' && active.prompt && finalState.helper.bodyActive && !finalState.helper.hidden && finalState.helper.title === 'Move' && finalState.prompt === null),
         noDirectionPromptMessagesLogged: promptSpamCount === 0,
         noConsecutiveDuplicateNormalMessages: (finalState.messages.join('\\n').match(/You hit the goblin\\./g) || []).length === 1,
       } };

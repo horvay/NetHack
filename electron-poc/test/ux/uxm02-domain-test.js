@@ -32,7 +32,7 @@ assert(compact.urgent.every((item) => item.explanation && !/duration \d/i.test(i
 const detailLabels = compact.detail.flatMap((group) => group.items.map((item) => item.label));
 for (const label of ['Str', 'Dex', 'Wield', 'Armor', 'Version', 'Score', 'Time']) assert(detailLabels.includes(label), `${label} remains available in Character`);
 const detailedLabels = StatusHud.buildStatusPresentation(values, { density: 'detailed' }).persistent.flatMap((group) => group.items.map((item) => item.label));
-for (const label of ['Align', 'XP', 'Time']) assert(detailedLabels.includes(label), `${label} appears in Detailed HUD`);
+for (const label of ['Align', 'Str', 'Dex', 'Con', 'Int', 'Wis', 'Cha', 'XP', 'Time']) assert(detailedLabels.includes(label), `${label} appears in Full HUD`);
 assert.equal(StatusHud.pairStatusValue('5', ''), '5');
 assert.equal(StatusHud.pairStatusValue('', ''), '');
 assert(!StatusHud.pairStatusValue('5', '').includes('?'), 'unknown maximum is omitted, not guessed');

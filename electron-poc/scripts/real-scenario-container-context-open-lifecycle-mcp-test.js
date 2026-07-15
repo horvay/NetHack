@@ -1,18 +1,24 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { spawn } = require('node:child_process');
-const electronBin = require('electron');
+const Harness = require('./lib/electron-test-harness');
+const EvidenceApproval = require('./lib/evidence-approval');
 
 const root = path.resolve(__dirname, '..');
-const outDir = process.env.NH_SCENARIO_CONTAINER_CONTEXT_OPEN_OUT_DIR || path.join(root, 'test-output', 'real-scenario-container-context-open-lifecycle');
+const width = 1360;
+const height = 920;
+const { delay, waitFor } = Harness;
+async function evalExpr(cdp, expression) { return cdp.evalCheckedValue(expression, { awaitPromise: true }); }
 const scenarioId = process.env.NH_SCENARIO_CONTAINER_CONTEXT_OPEN_ID || 'container/locked-chest-unlock-open-context-on-hero';
-const port = Number(process.env.NH_SCENARIO_CONTAINER_CONTEXT_OPEN_CDP_PORT || 9639);
-function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
-async function json(url) { const res = await fetch(url); if (!res.ok) throw new Error(`${res.status} ${url}`); return res.json(); }
-async function waitFor(fn, timeoutMs = 20000, stepMs = 100) { const start = Date.now(); let last; while (Date.now() - start < timeoutMs) { try { const value = await fn(); if (value) return value; } catch (error) { last = error; } await delay(stepMs); } throw last || new Error('timed out'); }
-async function connect(wsUrl) { const ws = new WebSocket(wsUrl); await new Promise((resolve, reject) => { ws.addEventListener('open', resolve, { once: true }); ws.addEventListener('error', reject, { once: true }); }); let id = 0; const pending = new Map(); ws.addEventListener('message', (event) => { const msg = JSON.parse(event.data); if (msg.id && pending.has(msg.id)) { const p = pending.get(msg.id); pending.delete(msg.id); msg.error ? p.reject(new Error(JSON.stringify(msg.error))) : p.resolve(msg.result); } }); return { send(method, params = {}) { const callId = ++id; ws.send(JSON.stringify({ id: callId, method, params })); return new Promise((resolve, reject) => pending.set(callId, { resolve, reject })); }, close() { ws.close(); } }; }
-async function evalExpr(cdp, expression) { const res = await cdp.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression }); if (res.exceptionDetails) throw new Error(JSON.stringify(res.exceptionDetails)); return res.result.value; }
-async function shot(cdp, name) { const res = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }); const p = path.join(outDir, name); fs.writeFileSync(p, Buffer.from(res.data, 'base64')); return p; }
+async function shot(cdp, name) { const capture = await cdp.screenshotEvidence(cdp.qc, path.basename(name, path.extname(name)), { classification: 'actual-player', viewport: { width, height, zoomPercent: 100 }, state: name, viewSafeFormat: 'BMP', viewSafeScale: 0.25 }); return capture.raw.path; }
+function reviewRun(outputDir, reviewFile) {
+  const manifestFile = path.join(path.resolve(outputDir), 'evidence-approval.json');
+  const approval = EvidenceApproval.openEvidenceApproval({ manifestFile });
+  EvidenceApproval.applyEvidenceReview(approval, path.resolve(reviewFile));
+  const validation = Harness.screenshotQc.validateManifest(manifestFile, { expectedRunIdentity: approval.runIdentity, requireApproval: true });
+  if (!validation.ok) throw new Error(`Evidence Approval failed: ${validation.errors.join('; ')}`);
+  EvidenceApproval.writeEvidenceReport(manifestFile);
+  console.log(`real-scenario-container-context-open-lifecycle-mcp-test: APPROVED ${approval.runIdentity} ${manifestFile}`);
+}
 async function click(cdp, selector) { const box = await evalExpr(cdp, `(() => { const el = document.querySelector(${JSON.stringify(selector)}); el?.scrollIntoView?.({block:'center', inline:'center'}); const r = el?.getBoundingClientRect(); return r ? {x:r.left+r.width/2,y:r.top+r.height/2} : null; })()`); if (!box) throw new Error(`missing selector ${selector}`); await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: box.x, y: box.y, button: 'left', clickCount: 1 }); await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: box.x, y: box.y, button: 'left', clickCount: 1 }); }
 async function doubleClick(cdp, selector) { const box = await evalExpr(cdp, `(() => { const el = document.querySelector(${JSON.stringify(selector)}); el?.scrollIntoView?.({block:'center', inline:'center'}); const r = el?.getBoundingClientRect(); return r ? {x:r.left+r.width/2,y:r.top+r.height/2} : null; })()`); if (!box) throw new Error(`missing selector ${selector}`); await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: box.x, y: box.y, button: 'left', clickCount: 1 }); await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: box.x, y: box.y, button: 'left', clickCount: 1 }); await delay(60); await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: box.x, y: box.y, button: 'left', clickCount: 2 }); await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: box.x, y: box.y, button: 'left', clickCount: 2 }); }
 async function drag(cdp, fromSelector, toSelector) {
@@ -99,15 +105,15 @@ function assertCleanContainerOwner(label, s, { requireRightPane = true } = {}) {
   assert(`${label}: top prompt/menu chrome is hidden for container ownership`, s.promptPanel?.hidden && s.menuPanel?.hidden && !/Choose from the menu|menu awaiting item selection|Transfer:|Inventory:/i.test(`${s.promptPanel?.text || ''}\n${s.menuPanel?.text || ''}\n${s.status || ''}`), JSON.stringify({ promptPanel: s.promptPanel, menuPanel: s.menuPanel, status: s.status }));
 }
 async function main() {
-  fs.rmSync(outDir, { recursive: true, force: true }); fs.mkdirSync(outDir, { recursive: true });
-  const child = spawn(electronBin, ['.'], { cwd: root, env: { ...process.env, AI_ORG_ELECTRON_CDP_PORT: String(port), NH_ELECTRON_WINDOW_WIDTH: '1360', NH_ELECTRON_WINDOW_HEIGHT: '920', NH_ELECTRON_TEST_FIXTURES: '1', NH_SHIM_RESET_LOCKS: '1', NH_TEST_SCENARIO_ID: scenarioId, NETHACK_SEED: '424242', NETHACKOPTIONS: '!tutorial,!autopickup,pettype:none' }, stdio: ['ignore', 'pipe', 'pipe'] });
-  let cdp; const cleanup = () => { try { cdp?.close(); } catch {} if (!child.killed) child.kill('SIGTERM'); };
-  process.on('exit', cleanup); child.stdout.on('data', (d) => process.stdout.write(d)); child.stderr.on('data', (d) => process.stderr.write(d));
+  const page = await Harness.createElectronBrowserDriver({
+    root, width, height,
+    env: { NH_ELECTRON_TEST_FIXTURES: '1', NH_SHIM_RESET_LOCKS: '1', NH_TEST_SCENARIO_ID: scenarioId, NETHACK_SEED: '424242', NETHACKOPTIONS: '!tutorial,!autopickup,pettype:none' },
+  });
+  const outDir = page.outputDir;
+  const qc = Harness.screenshotQc.createScreenshotQc({ rootDir: outDir, runIdentity: page.outputIdentity, manifestFile: path.join(outDir, 'evidence-approval.json') });
+  const cdp = Object.freeze({ ...page, qc });
+  let scenarioError = null;
   try {
-    const pages = await waitFor(async () => { const list = await json(`http://127.0.0.1:${port}/json/list`); return list.find((p) => p.type === 'page') ? list : null; }, 20000);
-    cdp = await connect((pages.find((p) => p.type === 'page') || pages[0]).webSocketDebuggerUrl);
-    await cdp.send('Page.enable'); await cdp.send('Runtime.enable'); await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1360, height: 920, deviceScaleFactor: 1, mobile: false });
-    await waitFor(async () => (await evalExpr(cdp, "document.readyState === 'complete' && !!window.__nethackPromptTest")), 10000);
     await start(cdp);
     const loaded = await waitFor(async () => { const s = await state(cdp); if (/bridge_test_scenario_failed/.test(`${s.seenShim}\n${s.shim}`)) throw new Error(s.shim); return /bridge_test_scenario_loaded/.test(`${s.seenShim}\n${s.shim}`) ? s : null; }, 10000);
     assert('scenario loaded event visible', /bridge_test_scenario_loaded/.test(`${loaded.seenShim}\n${loaded.shim}`), loaded.shim.slice(-1000));
@@ -218,9 +224,25 @@ async function main() {
     assert('successful transfers do not surface a rejected-action banner', !/NetHack did not accept that action|Review the current state and try again/i.test(emptyAfterOneSecond.body || ''), (emptyAfterOneSecond.body || '').slice(0, 1400));
     const transferProblemText = `${emptyAfterOneSecond.messages?.join('\n') || ''}\n${emptyAfterOneSecond.body || ''}\n${emptyAfterOneSecond.shim || ''}`;
     assert('real transfer lifecycle evidence has no NetHack/internal JS disorder text', !/Program in disorder|Please report these messages|TypeError|ReferenceError|Unhandled|bridge_test_scenario_failed/i.test(transferProblemText), transferProblemText.slice(-2000));
-    const summary = [`# Real context-open container lifecycle regression`, '', 'PASS', '', `Scenario: ${scenarioId}`, `Invocation env: NH_ELECTRON_TEST_FIXTURES=1 NH_TEST_SCENARIO_ID=${scenarioId}`, '', 'Evidence:', `- Context actions: ${contextShot}`, `- Unlock prompt: ${unlockShot}`, `- Immediate after open: ${immediateShot}`, `- Immediate state: ${path.join(outDir, '02-immediate-after-open-state.json')}`, `- After wrong-menu timing window: ${timingShot}`, `- Timing-window state: ${path.join(outDir, '03-after-wrong-menu-timing-window-state.json')}`, `- After one full second: ${oneSecondShot}`, `- One-second state: ${path.join(outDir, '04-after-one-second-state.json')}`, `- Before transfer: ${beforeTransferShot}`, `- Before transfer state: ${path.join(outDir, '05-before-transfer-state.json')}`, `- During/after first drag transfer: ${firstTransferShot}`, `- During/after first transfer state: ${path.join(outDir, '06-during-after-first-transfer-state.json')}`, `- First transfer one-second screenshot: ${firstOneSecondShot}`, `- First transfer one-second samples: ${path.join(outDir, '07-first-transfer-one-second-samples.json')} (${firstTransferSamples.length} samples)`, `- Empty-container final screenshot: ${emptyFinalShot}`, `- Empty-container final state: ${path.join(outDir, '08-empty-container-final-state.json')}`, `- Empty-container final stability samples: ${path.join(outDir, '08-empty-container-final-stability-samples.json')} (${emptyFinalStabilitySamples.length} samples)`, `- Empty-container after one second: ${emptyAfterOneSecondShot}`, `- Empty-container one-second samples: ${path.join(outDir, '09-empty-container-one-second-samples.json')} (${emptySamples.length} samples)`, '', 'Verified:', '- player stands on a locked chest with a skeleton key, unlocks from the context Open chest path, then the GUI continues into the real chest transfer panel', '- the container panel remains active immediately, after the regression timing window, and after more than one second from both the Open click and the fully loaded panel', '- no extended-command menu, promptless object menu, category menu, read-only menu, or normal Equipment / Inventory overlay takes over', '- delayed normal inventory probe key `i` is not sent after the live inventory update has already populated the right pane', '- after waiting at least one second with the chest open, real drag/drop moves a chest item into inventory without repeated Loading your inventory / Loading container contents placeholders', '- moving the remaining item out leaves a stable empty-container panel with the carried items visible and no permanent loading state after another one-second wait', '', `Open sent input stream: ${JSON.stringify(afterOneSecond.sent)}`, `First transfer sent input stream: ${JSON.stringify(afterFirstTransfer.sent)}`, `Empty final sent input stream: ${JSON.stringify(emptyAfterOneSecond.sent)}`, '', 'Final visible container panel:', '```', emptyAfterOneSecond.container.text, '```', ''].join('\n');
+    const summary = [`# Real context-open container lifecycle regression`, '', 'Scenario assertions recorded', '', `Scenario: ${scenarioId}`, `Invocation env: NH_ELECTRON_TEST_FIXTURES=1 NH_TEST_SCENARIO_ID=${scenarioId}`, '', 'Evidence:', `- Context actions: ${contextShot}`, `- Unlock prompt: ${unlockShot}`, `- Immediate after open: ${immediateShot}`, `- Immediate state: ${path.join(outDir, '02-immediate-after-open-state.json')}`, `- After wrong-menu timing window: ${timingShot}`, `- Timing-window state: ${path.join(outDir, '03-after-wrong-menu-timing-window-state.json')}`, `- After one full second: ${oneSecondShot}`, `- One-second state: ${path.join(outDir, '04-after-one-second-state.json')}`, `- Before transfer: ${beforeTransferShot}`, `- Before transfer state: ${path.join(outDir, '05-before-transfer-state.json')}`, `- During/after first drag transfer: ${firstTransferShot}`, `- During/after first transfer state: ${path.join(outDir, '06-during-after-first-transfer-state.json')}`, `- First transfer one-second screenshot: ${firstOneSecondShot}`, `- First transfer one-second samples: ${path.join(outDir, '07-first-transfer-one-second-samples.json')} (${firstTransferSamples.length} samples)`, `- Empty-container final screenshot: ${emptyFinalShot}`, `- Empty-container final state: ${path.join(outDir, '08-empty-container-final-state.json')}`, `- Empty-container final stability samples: ${path.join(outDir, '08-empty-container-final-stability-samples.json')} (${emptyFinalStabilitySamples.length} samples)`, `- Empty-container after one second: ${emptyAfterOneSecondShot}`, `- Empty-container one-second samples: ${path.join(outDir, '09-empty-container-one-second-samples.json')} (${emptySamples.length} samples)`, '', 'Verified:', '- player stands on a locked chest with a skeleton key, unlocks from the context Open chest path, then the GUI continues into the real chest transfer panel', '- the container panel remains active immediately, after the regression timing window, and after more than one second from both the Open click and the fully loaded panel', '- no extended-command menu, promptless object menu, category menu, read-only menu, or normal Equipment / Inventory overlay takes over', '- delayed normal inventory probe key `i` is not sent after the live inventory update has already populated the right pane', '- after waiting at least one second with the chest open, real drag/drop moves a chest item into inventory without repeated Loading your inventory / Loading container contents placeholders', '- moving the remaining item out leaves a stable empty-container panel with the carried items visible and no permanent loading state after another one-second wait', '', `Open sent input stream: ${JSON.stringify(afterOneSecond.sent)}`, `First transfer sent input stream: ${JSON.stringify(afterFirstTransfer.sent)}`, `Empty final sent input stream: ${JSON.stringify(emptyAfterOneSecond.sent)}`, '', 'Final visible container panel:', '```', emptyAfterOneSecond.container.text, '```', ''].join('\n');
     fs.writeFileSync(path.join(outDir, 'summary.md'), summary);
     console.log(summary);
-  } finally { cleanup(); }
+  } catch (error) {
+    scenarioError = error;
+  } finally {
+    await page.close().catch((error) => { if (!scenarioError) scenarioError = error; });
+  }
+  qc.recordAssertions([{ id: 'scenario-completed', status: scenarioError ? 'failed' : 'passed', details: scenarioError ? String(scenarioError.message || scenarioError) : '' }]);
+  qc.recordLog({ id: 'electron-stdout', path: page.logs.stdout, classification: 'electron-stdout' });
+  qc.recordLog({ id: 'electron-stderr', path: page.logs.stderr, classification: 'electron-stderr' });
+  const validation = Harness.screenshotQc.validateManifest(qc.manifestFile, { expectedRunIdentity: page.outputIdentity, requireApproval: false });
+  if (!validation.ok) throw new Error(`Evidence Approval capture failed: ${validation.errors.join('; ')}`);
+  console.log(`real-scenario-container-context-open-lifecycle-mcp-test: CAPTURED ${page.outputIdentity} ${qc.manifestFile}`);
+  if (scenarioError) throw scenarioError;
 }
-main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+const reviewIndex = process.argv.indexOf('--review');
+if (reviewIndex !== -1) {
+  Promise.resolve().then(() => reviewRun(process.argv[reviewIndex + 1], process.argv[reviewIndex + 2])).catch((error) => { console.error(error.stack || error); process.exit(1); });
+} else {
+  main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+}

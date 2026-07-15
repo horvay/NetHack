@@ -24,6 +24,28 @@
         { "selector": 99, "objectId": 1003, "text": "c - a milky potion", "quantity": 1, "glyph": 700, "glyphChar": 33, "semanticKind": "object", "semanticName": "potion of gain level", "semanticAppearance": "milky potion", "semanticKnown": false, "actionAffordances": ["quaff"] }
       ]
     },
-    "expected": { "revision": 8, "letters": ["c"], "displayName": "milky potion", "forbiddenSemanticName": "potion of gain level" }
+    "expected": { "revision": 8, "letters": ["c"], "displayName": "milky potion", "semanticAppearance": "milky potion", "forbiddenSemanticName": "potion of gain level" }
+  },
+  "unidentifiedGemAppearance": {
+    "event": {
+      "name": "shim_update_inventory",
+      "reason": 0,
+      "revision": 9,
+      "items": [
+        { "selector": 100, "objectId": 1004, "text": "d - a yellow gem", "quantity": 1, "glyphChar": 42, "semanticKind": "object", "semanticName": "citrine", "semanticAppearance": "yellow gem", "semanticKnown": false }
+      ]
+    },
+    "expected": { "revision": 9, "letters": ["d"], "displayName": "yellow gem", "semanticAppearance": "yellow gem", "forbiddenSemanticName": "citrine" }
+  },
+  "identifiedGem": {
+    "event": {
+      "name": "shim_update_inventory",
+      "reason": 0,
+      "revision": 10,
+      "items": [
+        { "selector": 101, "objectId": 1005, "text": "e - a chrysoberyl stone", "quantity": 1, "glyphChar": 42, "semanticKind": "object", "semanticName": "chrysoberyl", "semanticKnown": true }
+      ]
+    },
+    "expected": { "revision": 10, "letters": ["e"], "displayName": "a chrysoberyl stone", "semanticName": "chrysoberyl" }
   }
 }

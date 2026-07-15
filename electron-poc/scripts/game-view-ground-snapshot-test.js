@@ -32,13 +32,13 @@ assert.equal(mapGroundEffect.snapshot.items[0].displayName, 'scroll labeled ELBI
 assert.equal(mapGroundEffect.snapshot.items[0].semanticName, undefined, 'off-hero object-layer facts must redact hidden identity');
 assert.equal(mapGroundEffect.snapshot.items[0].known.identity, false);
 assert.deepEqual(mapGroundEffect.snapshot.items[0].actionAffordances, ['pickup']);
-assert.equal(Ground.groundPileAt(view.state.groundPiles, { x: 20, y: 7 }).items[0].displayName, 'scroll labeled ELBIB YLOH');
+assert.equal(Ground.groundPileAt(view.snapshot().groundPiles, { x: 20, y: 7 }).items[0].displayName, 'scroll labeled ELBIB YLOH');
 
 result = view.process({ name: 'shim_print_glyph', window: 1, x: 20, y: 7, char: '.', glyph: 3992, semanticKind: 'floor' });
 const clearEffect = effectOf(result, 'ground-pile-snapshot');
 assert(clearEffect, 'a visible reprint without object-layer metadata clears stale public object-layer facts');
 assert.equal(clearEffect.snapshot.items.length, 0);
-assert.equal(Ground.groundPileAt(view.state.groundPiles, { x: 20, y: 7 }).items.length, 0);
+assert.equal(Ground.groundPileAt(view.snapshot().groundPiles, { x: 20, y: 7 }).items.length, 0);
 
 const rendererFirst = Ground.createGroundPileSnapshotEvent({ revision: 1, coord: { x: 21, y: 7 }, items: [{ text: 'a renderer-observed rock', semanticKnown: false, known: { identity: false, appearance: true } }] }, { sequence: 11, source: { layer: 'renderer' } });
 result = view.process(rendererFirst);
@@ -70,7 +70,7 @@ result = view.process({
 });
 const delayedAuthoritative = effectOf(result, 'ground-pile-snapshot-rejected');
 assert(delayedAuthoritative?.stale && delayedAuthoritative?.authoritative, 'a delayed native snapshot cannot be promoted over newer renderer/public state');
-assert.equal(Ground.groundPileAt(view.state.groundPiles, { x: 21, y: 7 }).items[0].displayName, 'a later renderer-observed rock');
+assert.equal(Ground.groundPileAt(view.snapshot().groundPiles, { x: 21, y: 7 }).items[0].displayName, 'a later renderer-observed rock');
 result = view.process({
   name: 'shim_ground_pile_snapshot', window: 1, revision: 2, coord: { x: 21, y: 7 }, source: 'level.objects', authoritative: true,
   items: [{ objectId: 90211, displayName: 'a newer native rock', semanticKind: 'object', semanticKnown: true, semanticName: 'rock' }],
@@ -83,7 +83,7 @@ assert.equal(newerAuthoritative.snapshot.items[0].objectId, 90211);
 
 result = view.process({ name: 'shim_clear_nhwindow', window: 1 });
 assert(effectOf(result, 'ground-pile-snapshot'), 'map clear should publish cleared ground-pile state');
-assert.equal(Ground.groundPileAt(view.state.groundPiles, { x: 21, y: 7 }), null, 'map clear/level redraw scopes away stale coordinate-only ground piles');
+assert.equal(Ground.groundPileAt(view.snapshot().groundPiles, { x: 21, y: 7 }), null, 'map clear/level redraw scopes away stale coordinate-only ground piles');
 
 result = view.process({
   name: 'shim_print_glyph',
@@ -129,7 +129,7 @@ const staleEvent = Ground.createGroundPileSnapshotEvent({ revision: 0, coord: { 
 result = view.process(staleEvent);
 const staleEffect = effectOf(result, 'ground-pile-snapshot-rejected');
 assert(staleEffect?.stale, 'lower-revision public ground evidence is rejected by shared reducer');
-assert.equal(Ground.groundPileAt(view.state.groundPiles, { x: 20, y: 7 }).items.length, 3);
+assert.equal(Ground.groundPileAt(view.snapshot().groundPiles, { x: 20, y: 7 }).items.length, 3);
 
 const publicEvent = Ground.createGroundPileSnapshotEvent({
   revision: 5,

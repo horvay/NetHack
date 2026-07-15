@@ -141,7 +141,7 @@
     }
     if (hasHint('eat') || hasFoodTag(text)) actions.push(action('item.eat', /\btin\b/i.test(text) ? 'Open tin / eat' : 'Eat', 'primary', command('e'), { dangerLevel: /corpse|egg|glob/i.test(text) ? 'caution' : 'safe' }));
     if (hasHint('quaff') || hasPotionTag(text)) actions.push(action('item.quaff', 'Quaff', 'primary', command('q'), { dangerLevel: 'caution' }));
-    if ((hasHint('read') && !hasHint('study')) || hasScrollTag(text)) actions.push(action('item.read.scroll', 'Read', 'primary', command('r'), { dangerLevel: 'caution' }));
+    if ((hasHint('read') && !hasHint('study') && !hasSpellbookTag(text)) || hasScrollTag(text)) actions.push(action('item.read.scroll', 'Read', 'primary', command('r'), { dangerLevel: 'caution' }));
     if (hasHint('study') || hasSpellbookTag(text)) actions.push(action('item.study', /book of the dead/i.test(text) ? 'Examine tome' : 'Study / read book', 'primary', command('r'), { dangerLevel: 'caution' }));
     if (hasReadableClothingTag(text) && !hasScrollTag(text) && !hasSpellbookTag(text)) actions.push(action('item.read.inscription', 'Read inscription / pattern', 'primary', command('r')));
     if (hasHint('zap') || hasWandTag(text)) actions.push(action('item.zap', 'Zap at target…', 'primary', command('z'), { promptPlan: ['target'] }));
@@ -155,7 +155,7 @@
     if (!equipped && !hasVenomTag(text) && (hasHint('throw') || !publicActionTokens(item).size)) actions.push(action('item.throw', /\b(?:arrow|crossbow bolt)\b/i.test(text) ? 'Shoot / throw…' : 'Throw…', 'combat', command('t'), { promptPlan: [isStack(text) ? 'quantity' : '', 'target'].filter(Boolean) }));
     if ((equipped && /\bin quiver\b/i.test(text)) || hasHint('fire')) actions.push(action('item.fire', 'Fire / shoot readied item…', 'combat', 'f', { promptPlan: ['target'] }));
     if (hasHint('engrave') || hasWandTag(text) || hasToolTag(text) || hasWeaponTag(text) || hasGemStoneTag(text) || hasRingTag(text)) actions.push(action('item.engraveWith', /\btowel\b/i.test(text) ? 'Wipe engraving with towel' : /\bmagic marker\b/i.test(text) ? 'Scribble with marker' : 'Engrave / write with…', 'location', command('E'), { promptPlan: ['text'] }));
-    if (hasRubCandidateTag(text)) actions.push(action('item.rub', 'Rub', 'location', '#rub\n', { promptPlan: ['netHack-owned-rub-item-prompt'], route: 'semanticExtendedCommand', dangerLevel: /\b(?:luckstone|loadstone|touchstone|gray stone|grey stone)\b/i.test(text) ? 'caution' : 'safe' }));
+    if (hasRubCandidateTag(text)) actions.push(action('item.rub', 'Rub', 'location', command('#rub\n'), { promptPlan: ['netHack-owned-rub-followup'], route: 'semanticExtendedCommand', dangerLevel: /\b(?:luckstone|loadstone|touchstone|gray stone|grey stone)\b/i.test(text) ? 'caution' : 'safe' }));
     /* #tip and potion dipping are extended/prompt-led flows; do not expose
      * selector-prefixed T/a shortcuts here because those collide with take-off
      * and apply semantics in ordinary NetHack prompts. */
@@ -422,11 +422,11 @@
     if (!keys) return { ok: false, actionId, reason: 'That action does not have a safe NetHack command route yet.' };
     if (actionId === 'item.rub') {
       const key = itemKey(item);
-      if (!key || !hasRubCandidateTag(itemText(item))) return { ok: false, actionId, reason: 'Only visible lamp, lantern, or stone inventory rows can open the safe #rub prompt.' };
+      if (!key || !hasRubCandidateTag(itemText(item))) return { ok: false, actionId, reason: 'Only visible lamp, lantern, or stone inventory rows can use the safe selected-item #rub route.' };
       return {
         ok: true,
         actionId,
-        command: '#rub\n',
+        command: `#rub\n${key}`,
         label: affordance.label || 'Rub',
         promptPolicy: 'netHack-owned-followup',
         target: {
@@ -436,7 +436,7 @@
           displayName: cleanName(itemText(item) || 'item'),
           location: { kind: 'inventory' },
         },
-        message: `Rub: NetHack will ask which visible inventory item to rub; no target was auto-selected for ${cleanName(itemText(item) || 'item')}.`,
+        message: `Rub ${cleanName(itemText(item) || 'item')}; NetHack retains any subsequent prompt.`,
       };
     }
     return { ok: true, actionId, command: keys, label: affordance.label || actionId, message: `${String(affordance.label || 'Action').replace(/…/g, '')}: ${cleanName(itemText(item) || 'item')}.` };

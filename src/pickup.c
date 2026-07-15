@@ -3216,7 +3216,7 @@ doshimgroundtransfer(void)
 int
 doshimcontainersnapshot(void)
 {
-    struct obj *container = (struct obj *) 0;
+    struct obj *container = (struct obj *) 0, *content;
     char reason[BUFSZ];
     boolean learned;
 
@@ -3234,6 +3234,12 @@ doshimcontainersnapshot(void)
     }
     learned = !container->cknown;
     container->cknown = 1;
+    for (content = container->cobj; content; content = content->nobj) {
+        if (!Blind)
+            observe_object(content);
+        if (Role_if(PM_CLERIC))
+            content->bknown = 1;
+    }
     update_inventory();
     newsym(u.ux, u.uy);
     container_snapshot_finish(TRUE, learned ? "container contents observed"

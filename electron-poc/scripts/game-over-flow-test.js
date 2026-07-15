@@ -6,6 +6,7 @@ const assert = require('node:assert/strict');
 const root = path.resolve(__dirname, '..');
 const evidenceDir = process.env.RUN_EVIDENCE_DIR || path.join(root, 'test', 'game-over');
 const screenshotPath = path.join(evidenceDir, 'game-over-modal.png');
+const logScreenshotPath = path.join(evidenceDir, 'game-over-log.png');
 const metricsPath = path.join(evidenceDir, 'game-over-flow-metrics.json');
 const port = Number(process.env.CDP_PORT || 9444);
 const fixturePath = path.join(root, 'test', 'fixtures', 'game-over-death-events.jsonl');
@@ -107,6 +108,7 @@ async function connect(wsUrl) {
       stoneCause: document.getElementById('game-over-stone-cause').textContent,
       summary: document.getElementById('game-over-summary').textContent,
       sections: document.getElementById('game-over-sections').textContent,
+      logScrolls: Array.from(document.querySelectorAll('#game-over-sections .game-over-log')).map((node) => ({ text: node.textContent, scrollHeight: node.scrollHeight, clientHeight: node.clientHeight, overflowY: getComputedStyle(node).overflowY })),
       interactionOpen: document.getElementById('interaction-dialog').open,
       promptPanelHidden: document.getElementById('prompt-panel').hidden,
       actionTexts: Array.from(document.querySelectorAll('#game-over-dialog .game-over-actions button')).map((button) => button.textContent.trim()),
@@ -114,7 +116,11 @@ async function connect(wsUrl) {
     }))()` })).result.value;
     const shot = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
     fs.writeFileSync(screenshotPath, Buffer.from(shot.data, 'base64'));
-    fs.writeFileSync(metricsPath, `${JSON.stringify({ screenshotPath, metrics }, null, 2)}\n`);
+    await cdp.send('Runtime.evaluate', { expression: `document.querySelector('#game-over-sections .game-over-log')?.scrollIntoView({ block: 'center' })` });
+    await delay(100);
+    const logShot = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+    fs.writeFileSync(logScreenshotPath, Buffer.from(logShot.data, 'base64'));
+    fs.writeFileSync(metricsPath, `${JSON.stringify({ screenshotPath, logScreenshotPath, metrics }, null, 2)}\n`);
     assert.equal(metrics.modalOpen, true, 'game-over modal appears');
     assert.match(metrics.cause, /Killed by a jackal/i, 'death reason displayed in text panel');
     assert.match(metrics.stoneCause, /Killed by a jackal/i, 'death reason displayed on gravestone');
@@ -122,12 +128,15 @@ async function connect(wsUrl) {
     assert.match(metrics.summary, /Dungeon\s*Dlvl:1/i, 'dungeon stats displayed');
     assert.match(metrics.sections, /Goodbye Electron/i, 'raw final stats displayed');
     assert.match(metrics.sections, /Vanquished creatures/i, 'menu statistics displayed');
+    assert.match(metrics.sections, /Game log[\s\S]*You were killed by a jackal/i, 'scrollable message log is shown beneath final disclosure sections');
+    assert.match(metrics.sections, /Game log[\s\S]*uncursed potion of healing/i, 'game log retains earlier item-identification messages');
+    assert(metrics.logScrolls.length === 1 && /auto|scroll/.test(metrics.logScrolls[0].overflowY), `game log has its own vertical scroll region: ${JSON.stringify(metrics.logScrolls)}`);
     assert.equal(metrics.interactionOpen, false, 'yes/no prompt modal not exposed');
     assert.deepEqual(metrics.actionTexts, ['New game', 'Exit'], 'only New game and Exit actions');
     assert.equal(metrics.focused, 'game-over-new', 'New game receives focus');
     const newGameResult = (await cdp.send('Runtime.evaluate', { returnByValue: true, expression: `(() => { document.getElementById('game-over-new').click(); return { gameOverOpen: document.getElementById('game-over-dialog').open, characterOpen: document.getElementById('character-dialog').open }; })()` })).result.value;
     assert.deepEqual(newGameResult, { gameOverOpen: false, characterOpen: true }, 'New game opens character modal');
-    console.log(JSON.stringify({ ok: true, screenshotPath, metricsPath }, null, 2));
+    console.log(JSON.stringify({ ok: true, screenshotPath, logScreenshotPath, metricsPath }, null, 2));
     cdp.close();
   } finally {
     child.kill('SIGTERM');

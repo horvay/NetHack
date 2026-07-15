@@ -86,7 +86,7 @@
   });
   const publicClassEquipmentSlots = Object.freeze({
     weapon: new Set(['mainHand', 'offHand', 'quiver']), armor: new Set(Array.from(equipmentSlotIds).filter((slot) => slot.startsWith('armor.'))), ring: new Set(['ring.left', 'ring.right']), amulet: new Set(['amulet']), tool: new Set(['mainHand', 'offHand', 'eyes']),
-    food: new Set(), potion: new Set(), scroll: new Set(), spellbook: new Set(), wand: new Set(), gem: new Set(), coin: new Set(), other: new Set(),
+    food: new Set(), potion: new Set(), scroll: new Set(), spellbook: new Set(), wand: new Set(), gem: new Set(['quiver']), coin: new Set(), other: new Set(),
   });
   const transferDirections = new Set(['ground-to-inventory', 'inventory-to-ground', 'container-to-inventory', 'inventory-to-container']);
   const transferSessionKinds = new Set(['ground-pickup', 'container']);
@@ -929,9 +929,11 @@
       case 'command.accepted':
       case 'command.rejected':
       case 'command.completed':
-        validateAllowedKeys(payload, path, new Set(['commandId', 'transactionId', 'commandType', 'actionId', 'status', 'reason', 'blockerToken', 'supported', 'executionSource', 'replayBehavior', 'result']), errors);
+        validateAllowedKeys(payload, path, new Set(['commandId', 'transactionId', 'transferId', 'sessionId', 'commandType', 'actionId', 'status', 'reason', 'blockerToken', 'supported', 'executionSource', 'replayBehavior', 'result']), errors);
         if (!isString(payload.commandId)) add(errors, `${path}.commandId`, 'is required');
         if (payload.transactionId != null && !isString(payload.transactionId)) add(errors, `${path}.transactionId`, 'must be a non-empty string when present');
+        if (payload.transferId != null && !isString(payload.transferId)) add(errors, `${path}.transferId`, 'must be a non-empty string when present');
+        if (payload.sessionId != null && !isString(payload.sessionId)) add(errors, `${path}.sessionId`, 'must be a non-empty string when present');
         if (payload.commandType != null && typeof payload.commandType !== 'string') add(errors, `${path}.commandType`, 'must be a string when present');
         if (payload.actionId != null && typeof payload.actionId !== 'string') add(errors, `${path}.actionId`, 'must be a string when present');
         if (!isString(payload.status)) add(errors, `${path}.status`, 'is required');
@@ -1272,10 +1274,12 @@
     return 'blocked.input.malformedCommand';
   }
 
-  function createCommandAckEvent({ sequence, eventId, eventType = 'command.accepted', turn = 0, source, command, commandId, transactionId, actionId, commandType, status, reason, blockerToken, supported, executionSource, replayBehavior, result } = {}) {
+  function createCommandAckEvent({ sequence, eventId, eventType = 'command.accepted', turn = 0, source, command, commandId, transactionId, transferId, sessionId, actionId, commandType, status, reason, blockerToken, supported, executionSource, replayBehavior, result } = {}) {
     const payload = {
       commandId: String(commandId || command?.commandId || '').trim(),
       transactionId: String(transactionId || command?.transactionId || '').trim() || undefined,
+      transferId,
+      sessionId,
       commandType: String(commandType || command?.commandType || '').trim() || undefined,
       actionId: String(actionId || command?.actionId || command?.payload?.actionId || '').trim() || undefined,
       status: String(status || eventType.replace(/^command\./, '')).trim(),

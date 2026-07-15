@@ -106,7 +106,7 @@
   }
   function normalizeCell(cell) {
     if (typeof cell === 'string') return { ch: cell || ' ', assetId: undefined, glyph: undefined, ttychar: undefined, color: undefined, tileidx: undefined };
-    return { ch: cell?.ch || ' ', assetId: cell?.assetId, glyph: cell?.glyph, ttychar: cell?.ttychar, color: cell?.color, tileidx: cell?.tileidx, glyphFlags: cell?.glyphFlags, backgroundGlyph: cell?.backgroundGlyph, backgroundSemanticKind: cell?.backgroundSemanticKind, backgroundSemanticName: cell?.backgroundSemanticName, objectLayerGlyph: cell?.objectLayerGlyph, objectLayerChar: cell?.objectLayerChar, objectLayerSemanticKind: cell?.objectLayerSemanticKind, objectLayerSemanticName: cell?.objectLayerSemanticName, objectLayerSemanticAppearance: cell?.objectLayerSemanticAppearance, objectLayerSemanticKnown: cell?.objectLayerSemanticKnown, semanticKind: cell?.semanticKind, semanticName: cell?.semanticName, semanticAppearance: cell?.semanticAppearance, semanticKnown: cell?.semanticKnown, cmapIndex: cell?.cmapIndex, actionAffordances: Array.isArray(cell?.actionAffordances) ? cell.actionAffordances.slice() : [], backgroundActionAffordances: Array.isArray(cell?.backgroundActionAffordances) ? cell.backgroundActionAffordances.slice() : [], objectLayerActionAffordances: Array.isArray(cell?.objectLayerActionAffordances) ? cell.objectLayerActionAffordances.slice() : [] };
+    return { ch: cell?.ch || ' ', assetId: cell?.assetId, glyph: cell?.glyph, ttychar: cell?.ttychar, color: cell?.color, tileidx: cell?.tileidx, glyphFlags: cell?.glyphFlags, objectId: cell?.objectId, displayName: cell?.displayName, backgroundGlyph: cell?.backgroundGlyph, backgroundSemanticKind: cell?.backgroundSemanticKind, backgroundSemanticName: cell?.backgroundSemanticName, objectLayerGlyph: cell?.objectLayerGlyph, objectLayerChar: cell?.objectLayerChar, objectLayerObjectId: cell?.objectLayerObjectId, objectLayerDisplayName: cell?.objectLayerDisplayName, objectLayerSemanticKind: cell?.objectLayerSemanticKind, objectLayerSemanticName: cell?.objectLayerSemanticName, objectLayerSemanticAppearance: cell?.objectLayerSemanticAppearance, objectLayerSemanticKnown: cell?.objectLayerSemanticKnown, semanticKind: cell?.semanticKind, semanticName: cell?.semanticName, semanticAppearance: cell?.semanticAppearance, semanticKnown: cell?.semanticKnown, featureDescription: cell?.featureDescription, engravingText: cell?.engravingText, cmapIndex: cell?.cmapIndex, actionAffordances: Array.isArray(cell?.actionAffordances) ? cell.actionAffordances.slice() : [], backgroundActionAffordances: Array.isArray(cell?.backgroundActionAffordances) ? cell.backgroundActionAffordances.slice() : [], objectLayerActionAffordances: Array.isArray(cell?.objectLayerActionAffordances) ? cell.objectLayerActionAffordances.slice() : [] };
   }
   function normalizeManifest(manifest) {
     const assets = Array.isArray(manifest?.assets) ? manifest.assets.filter((asset) => asset && typeof asset.id === 'string' && typeof asset.installedPath === 'string') : [];
@@ -203,6 +203,8 @@
   }
   function publicDisplayNameForCell(cell) {
     const normalized = normalizeCell(cell);
+    const exactDisplayName = String(normalized.displayName || '').trim();
+    if (exactDisplayName) return exactDisplayName;
     if (normalized.semanticKnown === false) {
       const appearance = String(normalized.semanticAppearance || '').trim();
       if (appearance) {

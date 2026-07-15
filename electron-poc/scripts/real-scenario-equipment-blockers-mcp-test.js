@@ -1,41 +1,16 @@
 const fs = require('node:fs');
-const net = require('node:net');
 const os = require('node:os');
 const path = require('node:path');
-const { spawn } = require('node:child_process');
-const electronBin = require('electron');
+const Harness = require('./lib/electron-test-harness');
+const EvidenceApproval = require('./lib/evidence-approval');
 
 const root = path.resolve(__dirname, '..');
 const repo = path.resolve(root, '..');
-const outDir = process.env.NH_EQUIPMENT_BLOCKERS_OUT_DIR || path.join(root, 'test-output', 'workstream-c-equipment-blockers');
-const basePort = Number(process.env.NH_EQUIPMENT_BLOCKERS_CDP_PORT || 0);
 const width = Number(process.env.NH_ELECTRON_WINDOW_WIDTH || 1360);
 const height = Number(process.env.NH_ELECTRON_WINDOW_HEIGHT || 920);
-function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
-async function json(url) { const res = await fetch(url); if (!res.ok) throw new Error(`${res.status} ${url}`); return res.json(); }
-async function waitFor(fn, timeoutMs = 20000, stepMs = 150) { const start = Date.now(); let last; while (Date.now() - start < timeoutMs) { try { const value = await fn(); if (value) return value; } catch (error) { last = error; } await delay(stepMs); } throw last || new Error('timed out'); }
-async function freePort(preferred = 0) {
-  async function tryListen(port) {
-    return new Promise((resolve) => {
-      const server = net.createServer();
-      server.once('error', () => resolve(null));
-      server.listen(port, '127.0.0.1', () => {
-        const chosen = server.address().port;
-        server.close(() => resolve(chosen));
-      });
-    });
-  }
-  if (preferred) {
-    const chosen = await tryListen(preferred);
-    if (chosen) return chosen;
-  }
-  const fallback = await tryListen(0);
-  if (!fallback) throw new Error('unable to allocate CDP port');
-  return fallback;
-}
-async function connect(wsUrl) { const ws = new WebSocket(wsUrl); await new Promise((resolve, reject) => { ws.addEventListener('open', resolve, { once: true }); ws.addEventListener('error', reject, { once: true }); }); let id = 0; const pending = new Map(); ws.addEventListener('message', (event) => { const msg = JSON.parse(event.data); if (msg.id && pending.has(msg.id)) { const p = pending.get(msg.id); pending.delete(msg.id); msg.error ? p.reject(new Error(JSON.stringify(msg.error))) : p.resolve(msg.result); } }); return { send(method, params = {}) { const callId = ++id; ws.send(JSON.stringify({ id: callId, method, params })); return new Promise((resolve, reject) => pending.set(callId, { resolve, reject })); }, close() { ws.close(); } }; }
-async function evalExpr(cdp, expression) { const res = await cdp.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression }); if (res.exceptionDetails) throw new Error(JSON.stringify(res.exceptionDetails)); return res.result.value; }
-async function shot(cdp, name) { const res = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }); const p = path.join(outDir, name); fs.writeFileSync(p, Buffer.from(res.data, 'base64')); return p; }
+const { delay, waitFor } = Harness;
+async function evalExpr(cdp, expression) { return cdp.evalCheckedValue(expression, { awaitPromise: true }); }
+async function shot(cdp, name) { const capture = await cdp.screenshotEvidence(cdp.qc, path.basename(name, path.extname(name)), { classification: 'actual-player', viewport: { width, height, zoomPercent: 100 }, state: name, viewSafeFormat: 'BMP', viewSafeScale: 0.25 }); return capture.raw.path; }
 function sanitizePublicEvidenceValue(value) {
   if (typeof value === 'string') {
     if (/\(weapon in (?:hand|hands|left hand|right hand)\)/i.test(value)) {
@@ -58,8 +33,8 @@ function publicStateSnapshot(snapshot) {
   };
   return copy;
 }
-function writeStateSidecar(name, snapshot) {
-  const p = path.join(outDir, name);
+function writeStateSidecar(cdp, name, snapshot) {
+  const p = path.join(cdp.outputDir, name);
   fs.writeFileSync(p, JSON.stringify(publicStateSnapshot(snapshot), null, 2));
   return p;
 }
@@ -82,7 +57,16 @@ async function state(cdp) { return evalExpr(cdp, `(() => ({
   feedback: document.getElementById('interaction-feedback')?.textContent || '',
   body: document.body.innerText
 }))()`); }
-async function start(cdp) { await click(cdp, '#start-shim'); await delay(250); await click(cdp, '#confirm-character'); await waitFor(async () => (await state(cdp)).running, 20000); await evalExpr(cdp, `(() => { document.getElementById('intro-dialog')?.close?.('continue'); document.getElementById('document-dialog')?.close?.('close'); document.getElementById('game-grid')?.focus?.(); })()`); }
+function reviewRun(outputDir, reviewFile) {
+  const manifestFile = path.join(path.resolve(outputDir), 'evidence-approval.json');
+  const approval = EvidenceApproval.openEvidenceApproval({ manifestFile });
+  EvidenceApproval.applyEvidenceReview(approval, path.resolve(reviewFile));
+  const validation = Harness.screenshotQc.validateManifest(manifestFile, { expectedRunIdentity: approval.runIdentity, requireApproval: true });
+  if (!validation.ok) throw new Error(`Evidence Approval failed: ${validation.errors.join('; ')}`);
+  EvidenceApproval.writeEvidenceReport(manifestFile);
+  console.log(`real-scenario-equipment-blockers-mcp-test: APPROVED ${approval.runIdentity} ${manifestFile}`);
+}
+
 async function rightClickRow(cdp, pattern) { const box = await evalExpr(cdp, `(() => { const re = new RegExp(${JSON.stringify(pattern)}, 'i'); const el = Array.from(document.querySelectorAll('#interaction-options .rpg-inventory-row')).find((row) => re.test(row.innerText || '')); el?.scrollIntoView?.({block:'center', inline:'center'}); const r = el?.getBoundingClientRect(); return r ? {x:r.left+r.width/2,y:r.top+r.height/2,text:el.innerText} : null; })()`); if (!box) throw new Error(`missing row ${pattern}`); await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: box.x, y: box.y, button: 'right', clickCount: 1 }); await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: box.x, y: box.y, button: 'right', clickCount: 1 }); return box; }
 
 const scenarios = [
@@ -148,38 +132,36 @@ function makeIsolatedPlayground() {
 }
 
 async function runScenario(entry, index) {
-  const port = await freePort(basePort ? basePort + index : 0);
   const playground = makeIsolatedPlayground();
-  const child = spawn(electronBin, ['.'], { cwd: root, env: { ...process.env, AI_ORG_ELECTRON_CDP_PORT: String(port), NH_ELECTRON_WINDOW_WIDTH: String(width), NH_ELECTRON_WINDOW_HEIGHT: String(height), NH_ELECTRON_TEST_FIXTURES: '1', NH_TEST_SCENARIO_ID: entry.id, NH_TEST_PLAYGROUND: playground, NETHACKDIR: playground, NETHACK_SEED: String(737373 + index), NETHACKOPTIONS: '!tutorial,!autopickup' }, stdio: ['ignore', 'pipe', 'pipe'] });
-  let logs = '';
-  child.stdout.on('data', (d) => { logs += d; process.stdout.write(d); });
-  child.stderr.on('data', (d) => { logs += d; process.stderr.write(d); });
-  let cdp;
-  let closed = false;
-  child.once('close', () => { closed = true; });
-  const cleanup = async () => {
-    try { cdp?.close(); } catch {}
-    if (!child.killed && !closed) child.kill('SIGTERM');
-    if (!closed) await Promise.race([
-      new Promise((resolve) => child.once('close', resolve)),
-      delay(2500),
-    ]);
-    fs.writeFileSync(path.join(outDir, `${String(index + 1).padStart(2, '0')}-${entry.prefix}-electron.log`), logs);
-    fs.rmSync(playground, { recursive: true, force: true });
-  };
+  const page = await Harness.createElectronBrowserDriver({
+    root,
+    width,
+    height,
+    env: {
+      NH_ELECTRON_TEST_FIXTURES: '1',
+      NH_TEST_SCENARIO_ID: entry.id,
+      NH_TEST_PLAYGROUND: playground,
+      NETHACKDIR: playground,
+      NETHACK_SEED: String(737373 + index),
+      NETHACKOPTIONS: '!tutorial,!autopickup',
+    },
+  });
+  const qc = Harness.screenshotQc.createScreenshotQc({ rootDir: page.outputDir, runIdentity: page.outputIdentity, manifestFile: path.join(page.outputDir, 'evidence-approval.json') });
+  const cdp = Object.freeze({ ...page, qc });
+  let scenarioError = null;
+  let result;
   try {
-    const pages = await waitFor(async () => { const list = await json(`http://127.0.0.1:${port}/json/list`); return list.find((p) => p.type === 'page') ? list : null; }, 25000);
-    cdp = await connect((pages.find((p) => p.type === 'page') || pages[0]).webSocketDebuggerUrl);
-    await cdp.send('Page.enable'); await cdp.send('Runtime.enable'); await cdp.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
-    await waitFor(async () => (await evalExpr(cdp, "document.readyState === 'complete' && !!window.__nethackPromptTest")), 10000);
-    await start(cdp);
+    await page.waitForRendererReady({ timeoutMs: 10000, promptTest: true });
+    await page.startDefaultGame({ timeoutMs: 15000, playerName: `Blocker${index}` });
+    await waitFor(async () => (await state(cdp)).running, 20000);
+    await page.dismissIntroDialogs();
     await waitFor(async () => { const s = await state(cdp); if (/bridge_test_scenario_failed/.test(`${s.seenShim}\n${s.shim}`)) throw new Error(s.shim); return /bridge_test_scenario_loaded/.test(`${s.seenShim}\n${s.shim}`) ? s : null; }, 10000);
     await evalExpr(cdp, "document.getElementById('game-grid')?.focus?.(); window.__nethackPromptTest?.clearSentInputs?.();");
     await press(cdp, 'i', 'KeyI', 'i');
     const opened = await waitFor(async () => { const s = await state(cdp); return /Equipment\s*\/\s*Inventory/i.test(s.dialog?.title || '') && (s.rows || []).length ? s : null; }, 10000);
     const ordinal = String(index + 1).padStart(2, '0');
     const screenShot = await shot(cdp, `${ordinal}-${entry.prefix}-paper-doll.png`);
-    const paperDollState = writeStateSidecar(`${ordinal}-${entry.prefix}-paper-doll-state.json`, opened);
+    const paperDollState = writeStateSidecar(cdp, `${ordinal}-${entry.prefix}-paper-doll-state.json`, opened);
     let withMenu = opened;
     let menuShot = '';
     let contextMenuState = '';
@@ -188,41 +170,41 @@ async function runScenario(entry, index) {
       await delay(300);
       withMenu = await state(cdp);
       menuShot = await shot(cdp, `${ordinal}-${entry.prefix}-context-menu.png`);
-      contextMenuState = writeStateSidecar(`${ordinal}-${entry.prefix}-context-menu-state.json`, withMenu);
+      contextMenuState = writeStateSidecar(cdp, `${ordinal}-${entry.prefix}-context-menu-state.json`, withMenu);
     }
     const verified = entry.verify(opened, withMenu);
     const blockerSurface = `${opened.slots.map((slot) => slot.text).join('\n')}\n${withMenu.contextMenu}\n${withMenu.feedback}`;
     assert(`${entry.prefix}: no hidden/internal labels leak in blocker surfaces`, !/\bwelded\b|\botyp\b|trueName|Inventory selector/i.test(blockerSurface), blockerSurface);
     const runtimeSurface = `${opened.body}\n${opened.shim}\n${withMenu.body}\n${withMenu.shim}`;
     assert(`${entry.prefix}: no NetHack/runtime disorder text in real evidence`, !/Program in disorder|Please report these messages|bridge_test_scenario_failed|TypeError|ReferenceError|Unhandled/i.test(runtimeSurface), runtimeSurface.slice(-4000));
-    return { scenarioId: entry.id, prefix: entry.prefix, port, screenshots: { paperDoll: screenShot, contextMenu: menuShot }, stateSidecars: { paperDoll: paperDollState, contextMenu: contextMenuState }, opened: publicStateSnapshot(opened), withMenu: publicStateSnapshot(withMenu), verified };
+    result = { scenarioId: entry.id, prefix: entry.prefix, screenshots: { paperDoll: screenShot, contextMenu: menuShot }, stateSidecars: { paperDoll: paperDollState, contextMenu: contextMenuState }, opened: publicStateSnapshot(opened), withMenu: publicStateSnapshot(withMenu), verified };
+  } catch (error) {
+    scenarioError = error;
   } finally {
-    await cleanup();
+    await page.close().catch((error) => { if (!scenarioError) scenarioError = error; });
+    fs.rmSync(playground, { recursive: true, force: true });
   }
+  qc.recordAssertions([{ id: 'scenario-completed', status: scenarioError ? 'failed' : 'passed', details: scenarioError ? String(scenarioError.message || scenarioError) : '' }]);
+  qc.recordLog({ id: 'electron-stdout', path: page.logs.stdout, classification: 'electron-stdout' });
+  qc.recordLog({ id: 'electron-stderr', path: page.logs.stderr, classification: 'electron-stderr' });
+  const validation = Harness.screenshotQc.validateManifest(qc.manifestFile, { expectedRunIdentity: page.outputIdentity, requireApproval: false });
+  if (!validation.ok) throw new Error(`Evidence Approval capture failed: ${validation.errors.join('; ')}`);
+  console.log(`real-scenario-equipment-blockers-mcp-test: CAPTURED ${page.outputIdentity} ${qc.manifestFile}`);
+  if (scenarioError) throw scenarioError;
+  return result;
 }
 
 async function main() {
-  fs.rmSync(outDir, { recursive: true, force: true }); fs.mkdirSync(outDir, { recursive: true });
   const requested = String(process.env.NH_EQUIPMENT_BLOCKERS_SCENARIOS || '').split(',').map((item) => item.trim()).filter(Boolean);
   const selectedScenarios = requested.length ? scenarios.filter((entry) => requested.includes(entry.id) || requested.includes(entry.prefix)) : scenarios;
   assert('requested equipment blocker scenarios matched', selectedScenarios.length > 0, requested.join(','));
   const results = [];
   for (let index = 0; index < selectedScenarios.length; index += 1) results.push(await runScenario(selectedScenarios[index], index));
-  const summary = ['# Workstream C equipment blocker real scenarios', '', 'PASS', '', ...results.flatMap((result) => [
-    `## ${result.scenarioId}`,
-    '',
-    `Paper doll screenshot: ${result.screenshots.paperDoll}`,
-    `Paper doll state sidecar: ${result.stateSidecars.paperDoll}`,
-    `Context menu screenshot: ${result.screenshots.contextMenu}`,
-    `Context menu state sidecar: ${result.stateSidecars.contextMenu}`,
-    '',
-    'Verified:',
-    ...result.verified.map((line) => `- ${line}`),
-    '- blocker surfaces omit hidden curse/welded/internal identity facts',
-    '',
-  ])].join('\n');
-  fs.writeFileSync(path.join(outDir, 'equipment-blockers-summary.md'), summary);
-  fs.writeFileSync(path.join(outDir, 'equipment-blockers-state.json'), JSON.stringify({ ok: true, results }, null, 2));
-  console.log(summary);
+  console.log(JSON.stringify({ results }, null, 2));
 }
-main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+const reviewIndex = process.argv.indexOf('--review');
+if (reviewIndex !== -1) {
+  Promise.resolve().then(() => reviewRun(process.argv[reviewIndex + 1], process.argv[reviewIndex + 2])).catch((error) => { console.error(error.stack || error); process.exit(1); });
+} else {
+  main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+}

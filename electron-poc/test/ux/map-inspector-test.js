@@ -1,6 +1,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const vm = require('node:vm');
 const Map = require('../../src/ux/map-inspector');
 const Target = require('../../src/ux/target-presentation');
 const Context = require('../../src/ux/context-action-presentation');
@@ -45,6 +46,10 @@ assert.equal(Object.hasOwn(playerTooltip, 'coordinates'), false);
 const diagnosticTooltip = MapPresentation.diagnosticTooltipInfoForCell({ ch: ')', glyph: 3484, semanticKind: 'object', semanticName: 'orcish dagger', semanticKnown: false, semanticAppearance: 'crude dagger' }, 23, 13, {});
 assert.match(diagnosticTooltip.diagnosticDescription, /glyph 3484.*map 23,13/);
 assert.deepEqual(diagnosticTooltip.coordinates, { x: 23, y: 13 });
+const exactFigurineTooltip = MapPresentation.tooltipInfoForCell({ ch: '(', glyph: 1, objectId: 73, displayName: 'a figurine of a horse', semanticKind: 'object', semanticName: 'figurine', semanticKnown: true }, 24, 13, {});
+assert.equal(exactFigurineTooltip.title, 'Figurine of a horse', 'tooltip uses the authoritative object-instance name rather than the glyph type');
+const layeredFigurineTooltip = MapPresentation.tooltipInfoForCell({ ch: '@', semanticKind: 'hero', semanticName: 'hero', objectLayerGlyph: 1, objectLayerObjectId: 73, objectLayerDisplayName: 'a figurine of a horse', objectLayerSemanticKind: 'object', objectLayerSemanticName: 'figurine', objectLayerSemanticKnown: true }, 24, 13, {});
+assert.equal(layeredFigurineTooltip.contents.some((entry) => entry.label === 'Figurine of a horse'), true, 'object beneath an actor keeps its authoritative object-instance name');
 
 let state = Map.initialInspectionState({ x: 10, y: 10 });
 state = Map.reduceInspectionState(state, { type: 'click-select', cell: { x: 11, y: 10 } });
@@ -60,6 +65,28 @@ assert.equal(state.dispatchRequest.actionId, 'creature.chat', 'only an explicit 
 state = Map.reduceInspectionState(state, { type: 'exit' });
 assert.equal(state.active, false);
 assert.equal(state.dispatchRequest, null);
+
+const browserContext = {
+  console,
+  document: { getElementById: () => null },
+  setTimeout(callback) { callback(); return 1; },
+};
+browserContext.window = browserContext;
+browserContext.self = browserContext;
+vm.createContext(browserContext);
+for (const source of ['runtime.js', 'map-inspector.js']) {
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../../src/ux', source), 'utf8'), browserContext, { filename: source });
+}
+const mapDomain = browserContext.NetHackUxRuntime.runtime.domain('map');
+assert.equal(typeof mapDomain.select, 'function', 'browser module registers the map controller as the domain interface');
+mapDomain.setActionProvider({
+  actionsForCell({ coord }) {
+    return [{ id: 'map.look', label: `Look at ${coord.x},${coord.y}` }];
+  },
+});
+const domainModel = mapDomain.select({ x: 7, y: 4 });
+assert.equal(domainModel.publicActions[0].id, 'map.look');
+assert.equal(domainModel.publicActions[0].label, 'Look at 7,4');
 
 for (const testCase of fixture.valid) {
   const metadata = Target.normalizeTargetMetadata(testCase.metadata);

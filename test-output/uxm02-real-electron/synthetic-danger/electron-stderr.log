@@ -1,0 +1,3 @@
+
+DevTools listening on ws://127.0.0.1:19902/devtools/browser/85fdec04-aa17-46b5-bea1-1ce69f6eb875
+[1388304:0713/210547.526263:ERROR:media/gpu/vaapi/vaapi_wrapper.cc:1658] vaInitialize failed: unknown libva error

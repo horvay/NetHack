@@ -237,10 +237,11 @@ assert.equal(character.snapshot().submissionError, 'start rejected');
 
 const runtime = Runtime.createRuntime();
 const registered = Catalog.registerDiscoveryDomain({ runtime, catalog });
-assert.equal(runtime.domain('discovery').version, registered.version);
-assert.equal(runtime.domain('discovery').catalog, catalog);
-assert.equal(runtime.providers('catalog-entries').length, 1);
-assert.equal(runtime.providers('catalog-entries')[0].provider.entries().length, entries.length);
+const discoveryDomain = runtime.domain('discovery');
+assert.equal(discoveryDomain.version, registered.version);
+assert.equal(discoveryDomain.catalog, catalog);
+assert.equal(discoveryDomain.catalog.entries().length, entries.length);
+assert.equal(discoveryDomain.catalog.search('speak', { canChat: true })[0].command.id, 'context.chat');
 assert.throws(() => Catalog.registerDiscoveryDomain({ runtime, catalog }), /already has an owner/);
 
 const uxSources = ['command-catalog.js', 'command-palette.js', 'help-center.js', 'onboarding.js', 'character-creation.js'];

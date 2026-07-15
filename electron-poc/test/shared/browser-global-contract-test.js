@@ -12,7 +12,7 @@ const expectedContracts = Object.freeze({
   './shared/public-item-knowledge.js': { global: 'NetHackPublicItemKnowledge', props: ['version', 'identityIsPublic', 'publicLabel'] },
   './shared/public-blockers.js': { global: 'NetHackPublicBlockers', props: ['version', 'publicEquipmentBlockerLabel', 'isPublicEquipmentBlockerToken'] },
   './shared/ui-protocol-v2.js': { global: 'NetHackUiProtocolV2', props: ['version', 'protocol', 'normalizeEventEnvelope'] },
-  './shared/command-gateway.js': { global: 'NetHackCommandGateway', props: ['version', 'supportedPlayableKey', 'normalizeShimKey'] },
+  './shared/command-gateway.js': { global: 'NetHackCommandGateway', props: ['version', 'supportedPlayableKey', 'normalizeShimKey', 'planCommand'] },
   './shared/message-log.js': { global: 'NetHackMessageLog', props: ['version', 'createMessageLog'] },
   './shared/prompt-rules.js': { global: 'NetHackPromptRules', props: ['version', 'selectorSet', 'isDirectionPrompt'] },
   './shared/tile-assets.js': { global: 'NetHackTileAssets', props: ['version', 'normalizeManifest', 'mappedAssetIdForCell'] },

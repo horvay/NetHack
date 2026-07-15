@@ -1,21 +1,25 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { spawn } = require('node:child_process');
-const electronBin = require('electron');
+const Harness = require('./lib/electron-test-harness');
+const EvidenceApproval = require('./lib/evidence-approval');
 
 const root = path.resolve(__dirname, '..');
-const outDir = process.env.NH_CONTEXT_ACTION_BAR_OUT_DIR || path.join(root, 'test-output', 'real-context-action-bar');
-const port = Number(process.env.NH_CONTEXT_ACTION_BAR_CDP_PORT || 9592);
-const width = 1360;
-const height = 920;
+const width = Number(process.env.NH_ELECTRON_WINDOW_WIDTH || 1360);
+const height = Number(process.env.NH_ELECTRON_WINDOW_HEIGHT || 920);
+const { delay, waitFor } = Harness;
+async function evalExpr(cdp, expression) { return cdp.evalCheckedValue(expression, { awaitPromise: true }); }
 const directionLabels = new Map([['y', 'northwest'], ['k', 'north'], ['u', 'northeast'], ['h', 'west'], ['l', 'east'], ['b', 'southwest'], ['j', 'south'], ['n', 'southeast']]);
 const directionDeltas = new Map([['y', [-1, -1]], ['k', [0, -1]], ['u', [1, -1]], ['h', [-1, 0]], ['l', [1, 0]], ['b', [-1, 1]], ['j', [0, 1]], ['n', [1, 1]]]);
-function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
-async function json(url) { const res = await fetch(url); if (!res.ok) throw new Error(`${res.status} ${url}`); return res.json(); }
-async function waitFor(fn, timeoutMs = 20000, stepMs = 150) { const start = Date.now(); let last; while (Date.now() - start < timeoutMs) { try { const v = await fn(); if (v) return v; } catch (e) { last = e; } await delay(stepMs); } throw last || new Error('timed out waiting'); }
-async function connect(wsUrl) { const ws = new WebSocket(wsUrl); await new Promise((resolve, reject) => { ws.addEventListener('open', resolve, { once: true }); ws.addEventListener('error', reject, { once: true }); }); let id = 0; const pending = new Map(); ws.addEventListener('message', (event) => { const msg = JSON.parse(event.data); if (msg.id && pending.has(msg.id)) { const p = pending.get(msg.id); pending.delete(msg.id); msg.error ? p.reject(new Error(JSON.stringify(msg.error))) : p.resolve(msg.result); } }); return { send(method, params = {}) { const callId = ++id; ws.send(JSON.stringify({ id: callId, method, params })); return new Promise((resolve, reject) => pending.set(callId, { resolve, reject })); }, close() { ws.close(); } }; }
-async function evalExpr(cdp, expression) { const res = await cdp.send('Runtime.evaluate', { returnByValue: true, expression }); if (res.exceptionDetails) throw new Error(JSON.stringify(res.exceptionDetails)); return res.result.value; }
-async function shot(cdp, name) { const res = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }); const p = path.join(outDir, name); fs.writeFileSync(p, Buffer.from(res.data, 'base64')); return p; }
+async function shot(cdp, name) { const capture = await cdp.screenshotEvidence(cdp.qc, path.basename(name, path.extname(name)), { classification: 'actual-player', viewport: { width, height, zoomPercent: 100 }, state: name, viewSafeFormat: 'BMP', viewSafeScale: 0.25 }); return capture.raw.path; }
+function reviewRun(outputDir, reviewFile) {
+  const manifestFile = path.join(path.resolve(outputDir), 'evidence-approval.json');
+  const approval = EvidenceApproval.openEvidenceApproval({ manifestFile });
+  EvidenceApproval.applyEvidenceReview(approval, path.resolve(reviewFile));
+  const validation = Harness.screenshotQc.validateManifest(manifestFile, { expectedRunIdentity: approval.runIdentity, requireApproval: true });
+  if (!validation.ok) throw new Error(`Evidence Approval failed: ${validation.errors.join('; ')}`);
+  EvidenceApproval.writeEvidenceReport(manifestFile);
+  console.log(`real-context-action-bar-mcp-test: APPROVED ${approval.runIdentity} ${manifestFile}`);
+}
 async function clickCenter(cdp, selector) { const box = await evalExpr(cdp, `(() => { const el = document.querySelector(${JSON.stringify(selector)}); el?.scrollIntoView?.({block:'center', inline:'center'}); const r = el?.getBoundingClientRect(); return r ? {x:r.left+r.width/2,y:r.top+r.height/2} : null; })()`); if (!box) throw new Error(`missing selector ${selector}`); await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: box.x, y: box.y, button: 'left', clickCount: 1 }); await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: box.x, y: box.y, button: 'left', clickCount: 1 }); }
 async function press(cdp, key) { await evalExpr(cdp, "document.getElementById('game-grid').focus()"); await cdp.send('Input.dispatchKeyEvent', { type: 'keyDown', key, text: key, windowsVirtualKeyCode: key.toUpperCase().charCodeAt(0), nativeVirtualKeyCode: key.toUpperCase().charCodeAt(0) }); await cdp.send('Input.dispatchKeyEvent', { type: 'keyUp', key, windowsVirtualKeyCode: key.toUpperCase().charCodeAt(0), nativeVirtualKeyCode: key.toUpperCase().charCodeAt(0) }); }
 async function state(cdp) { return evalExpr(cdp, `(() => ({
@@ -91,18 +95,13 @@ async function moveAlongPath(cdp, pathText) {
 }
 
 async function main() {
-  fs.mkdirSync(outDir, { recursive: true });
-  const child = spawn(electronBin, ['.'], { cwd: root, env: { ...process.env, AI_ORG_ELECTRON_CDP_PORT: String(port), NH_ELECTRON_WINDOW_WIDTH: String(width), NH_ELECTRON_WINDOW_HEIGHT: String(height), NH_SHIM_TEST_CONTAINER_CONTEXT_SCENE: '1', NH_SHIM_TEST_LOCKED_DOOR_SCENE: '1' }, stdio: ['ignore', 'pipe', 'pipe'] });
-  let cdp; const stdout = []; const stderr = [];
-  child.stdout.on('data', d => stdout.push(String(d))); child.stderr.on('data', d => stderr.push(String(d)));
-  const cleanup = () => { try { cdp?.close(); } catch {} if (!child.killed) child.kill('SIGTERM'); };
-  process.on('exit', cleanup);
+  const page = await Harness.createElectronBrowserDriver({ root, width, height, env: { NH_SHIM_TEST_CONTAINER_CONTEXT_SCENE: '1', NH_SHIM_TEST_LOCKED_DOOR_SCENE: '1' } });
+  const outDir = page.outputDir;
+  const qc = Harness.screenshotQc.createScreenshotQc({ rootDir: outDir, runIdentity: page.outputIdentity, manifestFile: path.join(outDir, 'evidence-approval.json') });
+  const cdp = Object.freeze({ ...page, qc });
   const results = { outDir, screenshots: {}, checks: {} };
+  let scenarioError = null;
   try {
-    const pages = await waitFor(async () => { const list = await json(`http://127.0.0.1:${port}/json/list`); return list.find(p => p.type === 'page') ? list : null; }, 20000);
-    cdp = await connect((pages.find(p => p.type === 'page') || pages[0]).webSocketDebuggerUrl);
-    await cdp.send('Page.enable'); await cdp.send('Runtime.enable'); await cdp.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
-    await waitFor(async () => (await evalExpr(cdp, "document.readyState === 'complete' && !!window.__nethackPromptTest")), 10000);
     results.started = await waitForStarted(cdp);
     results.realOnTileContainerContext = await waitFor(async () => { const s = await state(cdp); return s.actions?.buttons?.some((button) => button.id === 'open-container' && button.text === 'Open box') ? s : null; }, 7000);
     results.screenshots.realOnTileContainerContext = await shot(cdp, '01-real-on-tile-container-open-action.png');
@@ -225,15 +224,27 @@ async function main() {
       noRawDirectionPromptLeakAfterDoorClick: !/Choose a direction/i.test(afterOpenText),
     };
     fs.writeFileSync(path.join(outDir, 'real-context-action-bar-debug.json'), JSON.stringify(results, null, 2));
-    const md = [`# Real contextual action bar MCP/CDP validation`, '', `Output: ${outDir}`, '', '- Container note: live NetHack was launched with `NH_SHIM_TEST_CONTAINER_CONTEXT_SCENE=1`, which places a real locked/trapped large box on the hero square before `docrt()`. The Open and Force screenshots come from live `shim_print_glyph` events, not renderer cell injection.', '- Locked-door note: live NetHack was also launched with `NH_SHIM_TEST_LOCKED_DOOR_SCENE=1` so the bridge can expose `door.locked` affordances from real level state when visible.', results.realDoorUnavailable ? `Door note: ${results.realDoorUnavailable}` : 'Door note: live reachable closed door found and clicked.', '', '## Checks', ...Object.entries(results.checks).map(([k,v]) => `- ${v ? 'PASS' : 'FAIL'} ${k}`), '', '## Real on-tile container target', `- Buttons: ${results.realOnTileContainerContext.actions?.text || ''}`, `- Cursor cell: ${JSON.stringify(results.realOnTileContainerContext.cursorCell)}`, `- Live Force sent: ${JSON.stringify(results.afterLiveForceContainer.sent)}`, `- Live Force prompt: ${results.afterLiveForceContainer.interaction?.prompt || '(no prompt captured)'}`, '', '## Door target', `- Path to door-adjacent square: ${results.doorPlan.path || '(already adjacent)'}`, `- Button: ${expectedLabel} (${expectedId})`, `- Sent: ${results.afterOpenDoor.sent}`, `- Recent messages: ${results.afterOpenDoor.messages.join(' / ')}`, '', '## Chest location-sensitive target', `- Adjacent chest buttons: ${results.adjacentChestContext.actions?.text || ''}`, `- Standing-on-chest buttons: ${results.standingChestContext.actions?.text || ''}`, `- Force container sent: ${JSON.stringify(results.afterForceContainer.sent)}`, `- Open container sent: ${results.afterOpenContainer.sent}`, `- After unlock sent: ${results.afterContainerUnlockSuccess.sent}`, `- After unlock inventory: ${results.afterContainerUnlockInventory.container?.text || ''}`, '', '## Ground food/corpse target', `- Food buttons: ${results.itemContext.actions?.text || ''}`, `- Eat sent: ${results.afterFixtureEatFood.sent}`, `- Corpse buttons: ${results.corpseContext.actions?.text || ''}`, '', '## Stairs target', `- Down-stairs buttons: ${results.stairsContext.actions?.text || ''}`, `- Down-stairs sent: ${results.afterStairsContextClick.sent}`, `- Up-stairs buttons: ${results.upStairsContext.actions?.text || ''}`, `- Up-ladder buttons: ${results.upLadderContext.actions?.text || ''}`, '', '## Screenshots', ...Object.entries(results.screenshots).map(([k,v]) => `- ${k}: ${v}`), ''].join('\n');
+    const md = [`# Real contextual action bar MCP/CDP validation`, '', `Output: ${outDir}`, '', '- Container note: live NetHack was launched with `NH_SHIM_TEST_CONTAINER_CONTEXT_SCENE=1`, which places a real locked/trapped large box on the hero square before `docrt()`. The Open and Force screenshots come from live `shim_print_glyph` events, not renderer cell injection.', '- Locked-door note: live NetHack was also launched with `NH_SHIM_TEST_LOCKED_DOOR_SCENE=1` so the bridge can expose `door.locked` affordances from real level state when visible.', results.realDoorUnavailable ? `Door note: ${results.realDoorUnavailable}` : 'Door note: live reachable closed door found and clicked.', '', '## Checks', ...Object.entries(results.checks).map(([k,v]) => `- ${v ? 'passed' : 'failed'} ${k}`), '', '## Real on-tile container target', `- Buttons: ${results.realOnTileContainerContext.actions?.text || ''}`, `- Cursor cell: ${JSON.stringify(results.realOnTileContainerContext.cursorCell)}`, `- Live Force sent: ${JSON.stringify(results.afterLiveForceContainer.sent)}`, `- Live Force prompt: ${results.afterLiveForceContainer.interaction?.prompt || '(no prompt captured)'}`, '', '## Door target', `- Path to door-adjacent square: ${results.doorPlan.path || '(already adjacent)'}`, `- Button: ${expectedLabel} (${expectedId})`, `- Sent: ${results.afterOpenDoor.sent}`, `- Recent messages: ${results.afterOpenDoor.messages.join(' / ')}`, '', '## Chest location-sensitive target', `- Adjacent chest buttons: ${results.adjacentChestContext.actions?.text || ''}`, `- Standing-on-chest buttons: ${results.standingChestContext.actions?.text || ''}`, `- Force container sent: ${JSON.stringify(results.afterForceContainer.sent)}`, `- Open container sent: ${results.afterOpenContainer.sent}`, `- After unlock sent: ${results.afterContainerUnlockSuccess.sent}`, `- After unlock inventory: ${results.afterContainerUnlockInventory.container?.text || ''}`, '', '## Ground food/corpse target', `- Food buttons: ${results.itemContext.actions?.text || ''}`, `- Eat sent: ${results.afterFixtureEatFood.sent}`, `- Corpse buttons: ${results.corpseContext.actions?.text || ''}`, '', '## Stairs target', `- Down-stairs buttons: ${results.stairsContext.actions?.text || ''}`, `- Down-stairs sent: ${results.afterStairsContextClick.sent}`, `- Up-stairs buttons: ${results.upStairsContext.actions?.text || ''}`, `- Up-ladder buttons: ${results.upLadderContext.actions?.text || ''}`, '', '## Screenshots', ...Object.entries(results.screenshots).map(([k,v]) => `- ${k}: ${v}`), ''].join('\n');
     fs.writeFileSync(path.join(outDir, 'real-context-action-bar-summary.md'), md);
     console.log(md);
     const failed = Object.entries(results.checks).filter(([, ok]) => !ok).map(([name]) => name);
     if (failed.length) throw new Error(`Real context action bar validation failed: ${failed.join(', ')}`);
+  } catch (error) {
+    scenarioError = error;
   } finally {
-    fs.writeFileSync(path.join(outDir, 'electron-stdout.log'), stdout.join(''));
-    fs.writeFileSync(path.join(outDir, 'electron-stderr.log'), stderr.join(''));
-    cleanup();
+    await page.close().catch((error) => { if (!scenarioError) scenarioError = error; });
   }
+  qc.recordAssertions([{ id: 'scenario-completed', status: scenarioError ? 'failed' : 'passed', details: scenarioError ? String(scenarioError.message || scenarioError) : '' }]);
+  qc.recordLog({ id: 'electron-stdout', path: page.logs.stdout, classification: 'electron-stdout' });
+  qc.recordLog({ id: 'electron-stderr', path: page.logs.stderr, classification: 'electron-stderr' });
+  const validation = Harness.screenshotQc.validateManifest(qc.manifestFile, { expectedRunIdentity: page.outputIdentity, requireApproval: false });
+  if (!validation.ok) throw new Error(`Evidence Approval capture failed: ${validation.errors.join('; ')}`);
+  console.log(`real-context-action-bar-mcp-test: CAPTURED ${page.outputIdentity} ${qc.manifestFile}`);
+  if (scenarioError) throw scenarioError;
 }
-main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+const reviewIndex = process.argv.indexOf('--review');
+if (reviewIndex !== -1) {
+  Promise.resolve().then(() => reviewRun(process.argv[reviewIndex + 1], process.argv[reviewIndex + 2])).catch((error) => { console.error(error.stack || error); process.exit(1); });
+} else {
+  main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+}

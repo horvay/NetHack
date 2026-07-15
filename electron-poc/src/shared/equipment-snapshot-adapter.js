@@ -65,7 +65,8 @@
       : item.publicClass === 'armor' ? new Set(Array.from(slotById.keys()).filter((id) => id.startsWith('armor.')))
         : item.publicClass === 'ring' ? new Set(['ring.left', 'ring.right'])
           : item.publicClass === 'amulet' ? new Set(['amulet'])
-            : item.publicClass === 'tool' ? new Set(['mainHand', 'offHand', 'eyes']) : new Set();
+            : item.publicClass === 'gem' ? new Set(['quiver'])
+              : item.publicClass === 'tool' ? new Set(['mainHand', 'offHand', 'eyes']) : new Set();
     return allowed.has(slotId) && (!Array.isArray(item.equipmentSlots) || item.equipmentSlots.length === 0 || item.equipmentSlots.includes(slotId));
   }
 

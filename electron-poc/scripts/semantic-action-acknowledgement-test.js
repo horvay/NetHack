@@ -33,8 +33,8 @@ assert.deepEqual(
   const view = GameViewState.createGameViewState({ mapWidth: 80, mapHeight: 21 });
   const result = view.process(rejectedAck);
   assert(result.effects.some((effect) => effect.type === 'command-protocol-ack-recorded'), 'shared state records command rejection ack evidence');
-  assert.equal(view.state.lastCommandProtocolRejection.commandId, 'cmd-stale-drop');
-  assert.equal(view.state.lastCommandProtocolRejection.blockerToken, 'blocked.input.staleRevision');
+  assert.equal(view.snapshot().lastCommandProtocolRejection.commandId, 'cmd-stale-drop');
+  assert.equal(view.snapshot().lastCommandProtocolRejection.blockerToken, 'blocked.input.staleRevision');
   const snapshot = view.snapshot();
   assert.equal(snapshot.lastCommandProtocolAck.commandId, 'cmd-stale-drop', 'snapshot exposes latest command acknowledgement evidence');
   assert.equal(snapshot.lastCommandProtocolRejection.commandId, 'cmd-stale-drop', 'snapshot exposes latest command rejection evidence');
@@ -52,7 +52,7 @@ assert.deepEqual(
   const readAction = guiAction('item.read.scroll', 'Read', 'j', 'j - a scroll labeled KIRJE', []);
   let result = process(view, { name: 'bridge_command', keycode: 'r'.charCodeAt(0), transactionId: 'txn-read-scroll', guiAction: readAction });
   assert(result.effects.some((effect) => effect.type === 'command-transaction-started'), 'semantic GUI command starts a transaction');
-  let tx = view.state.commandTransactions.byId.get('txn-read-scroll');
+  let tx = view.snapshot().commandTransactions.byId.get('txn-read-scroll');
   assert.equal(tx.semanticAction, 'read');
   assert.equal(tx.semanticActionId, 'item.read.scroll');
   assert.equal(tx.guiAction.target.selector, 'j');
@@ -61,7 +61,7 @@ assert.deepEqual(
   process(view, { name: 'shim_yn_function', query: 'What do you want to read? [j]', choices: 'j', requestId: 'req-read-item', transactionId: 'txn-read-scroll' });
   result = process(view, { name: 'bridge_command', keycode: 'j'.charCodeAt(0), transactionId: 'txn-read-selector', guiAction: { ...readAction, commandPosition: 2 } });
   assert(result.effects.some((effect) => effect.type === 'command-input-routed-to-active-interaction'), 'selector key is acknowledged as active semantic follow-up');
-  tx = view.state.commandTransactions.byId.get('txn-read-scroll');
+  tx = view.snapshot().commandTransactions.byId.get('txn-read-scroll');
   const answer = tx.interactions.find((entry) => entry.kind === 'answer-key');
   assert.equal(answer.followupOwnership.actionId, 'item.read.scroll');
   assert.equal(answer.followupOwnership.targetSelector, 'j');
@@ -69,7 +69,7 @@ assert.deepEqual(
 
   const rejected = process(view, { name: 'bridge_prompt_answer', keycode: 'j'.charCodeAt(0), requestId: 'stale-read-req', transactionId: 'txn-read-scroll' });
   assert(rejected.effects.some((effect) => effect.type === 'command-transaction-followup-rejected'), 'stale semantic follow-up answer is rejected on the transaction');
-  assert.equal(view.state.activePrompt.requestId, 'req-read-item', 'stale follow-up rejection does not close active prompt');
+  assert.equal(view.snapshot().activePrompt.requestId, 'req-read-item', 'stale follow-up rejection does not close active prompt');
 
   process(view, { name: 'bridge_prompt_answer', keycode: 'j'.charCodeAt(0), requestId: 'req-read-item', transactionId: 'txn-read-scroll' });
   const completed = process(view, inv([item('j', 'a scroll labeled KIRJE', 0, 333)], { transactionId: 'txn-read-scroll', inventoryRevision: 2, equipmentRevision: 2 }));
@@ -87,12 +87,12 @@ assert.deepEqual(
   process(view, { name: 'bridge_command', keycode: 'P'.charCodeAt(0), transactionId: 'txn-puton-ring', guiAction: ringAction });
   process(view, { name: 'shim_yn_function', query: 'What do you want to put on? [d]', choices: 'd', requestId: 'req-puton-item', transactionId: 'txn-puton-ring' });
   process(view, { name: 'bridge_command', keycode: 'd'.charCodeAt(0), transactionId: 'txn-puton-selector', guiAction: { ...ringAction, commandPosition: 2 } });
-  let tx = view.state.commandTransactions.byId.get('txn-puton-ring');
+  let tx = view.snapshot().commandTransactions.byId.get('txn-puton-ring');
   assert.equal(tx.interactions.find((entry) => entry.kind === 'answer-key').followupOwnership.matchesTargetSelector, true, 'put-on selector belongs to GUI ring action');
   process(view, { name: 'bridge_prompt_answer', keycode: 'd'.charCodeAt(0), requestId: 'req-puton-item', transactionId: 'txn-puton-ring' });
   process(view, { name: 'shim_yn_function', query: 'Right or left ring-finger? [rl]', choices: 'rl', requestId: 'req-puton-hand', transactionId: 'txn-puton-ring' });
   process(view, { name: 'bridge_command', keycode: 'r'.charCodeAt(0), transactionId: 'txn-puton-hand-r', guiAction: { ...ringAction, targetSelector: 'r', commandPosition: 3, commandLength: 3 } });
-  tx = view.state.commandTransactions.byId.get('txn-puton-ring');
+  tx = view.snapshot().commandTransactions.byId.get('txn-puton-ring');
   assert(tx.interactions.some((entry) => entry.kind === 'prompt' && /ring-finger/i.test(entry.query || '')), 'ring hand follow-up prompt is owned by the semantic transaction');
   assert(tx.interactions.some((entry) => entry.kind === 'answer-key' && entry.key === 'r'), 'ring hand answer is recorded as follow-up');
   process(view, { name: 'bridge_prompt_answer', keycode: 'r'.charCodeAt(0), requestId: 'req-puton-hand', transactionId: 'txn-puton-ring' });
@@ -133,7 +133,7 @@ assert.deepEqual(
   const rejected = process(view, { name: 'bridge_semantic_followup_rejected', keycode: 'd'.charCodeAt(0), reason: 'expected prompt request id does not match active prompt', transactionId: 'txn-stale-followup', guiAction: { ...ringAction, expectedRequestId: 'req-stale-ring' } });
   assert(rejected.effects.some((effect) => effect.type === 'command-transaction-followup-rejected'), 'bridge-level stale semantic follow-up rejection is recorded');
   assert(rejected.effects.some((effect) => effect.type === 'command-transaction-completed' && effect.result.status === 'failure'), 'active semantic action fails instead of consuming a stale follow-up key');
-  assert.equal(view.state.activePrompt.requestId, 'req-current-ring', 'stale semantic follow-up rejection does not close the current prompt');
+  assert.equal(view.snapshot().activePrompt.requestId, 'req-current-ring', 'stale semantic follow-up rejection does not close the current prompt');
 }
 
 {
@@ -142,7 +142,7 @@ assert.deepEqual(
   process(view, { name: 'bridge_command', keycode: 't'.charCodeAt(0), transactionId: 'txn-throw-dagger', guiAction: throwAction });
   const queuedSelector = process(view, { name: 'bridge_command', keycode: 'b'.charCodeAt(0), transactionId: 'txn-throw-selector', guiAction: { ...throwAction, commandPosition: 2 } });
   assert(queuedSelector.effects.some((effect) => effect.type === 'command-input-routed-to-active-semantic-sequence'), 'queued direct selector cannot start a stale raw-key transaction before NetHack opens the prompt');
-  assert.equal(view.state.commandTransactions.byId.has('txn-throw-selector'), false, 'queued selector aliases to semantic throw parent instead of becoming key b/fire-like transaction');
+  assert.equal(view.snapshot().commandTransactions.byId.has('txn-throw-selector'), false, 'queued selector aliases to semantic throw parent instead of becoming key b/fire-like transaction');
 }
 
 {

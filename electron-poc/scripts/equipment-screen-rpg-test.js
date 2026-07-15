@@ -1,578 +1,509 @@
 const fs = require('node:fs');
 const path = require('node:path');
+const { pathToFileURL } = require('node:url');
 const { spawn } = require('node:child_process');
 const electronBin = require('electron');
 
 const root = path.resolve(__dirname, '..');
+const manifest = JSON.parse(fs.readFileSync(path.join(root, 'assets', 'tiles', 'manifest.json'), 'utf8'));
+const assetsById = new Map((manifest.assets || []).map((asset) => [asset.id, asset]));
+function assetUrl(assetId) {
+  const asset = assetsById.get(assetId);
+  if (!asset?.installedPath) throw new Error(`Missing fixture tile asset ${assetId}`);
+  return pathToFileURL(path.resolve(root, '..', asset.installedPath)).href;
+}
+const fixtureAssetUrls = Object.freeze(Object.fromEntries([
+  'spear', 'potion-class-icon', 'helmet', 'arrow', 'leather-armor', 'food-ration', 'pick-axe', 'corpse',
+  'long-sword', 'scroll-class-icon', 'wand-class-icon', 'ring-class-icon', 'gem-class-icon', 'chrysoberyl',
+  'towel', 'spellbook-class-icon', 'human-valkyrie-female-avatar',
+].map((assetId) => [assetId, assetUrl(assetId)])));
 const outDir = process.env.NH_EQUIPMENT_SCREEN_OUT_DIR || path.join(root, 'test-output', 'equipment-screen-rpg');
 const port = Number(process.env.NH_EQUIPMENT_SCREEN_CDP_PORT || 9491);
-const width = Number(process.env.NH_EQUIPMENT_SCREEN_WIDTH || 1360);
-const height = Number(process.env.NH_EQUIPMENT_SCREEN_HEIGHT || 920);
+const width = Number(process.env.NH_EQUIPMENT_SCREEN_WIDTH || 1440);
+const height = Number(process.env.NH_EQUIPMENT_SCREEN_HEIGHT || 1080);
 function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
-async function json(url) { const res = await fetch(url); if (!res.ok) throw new Error(`${res.status} ${url}`); return res.json(); }
-async function waitFor(fn, timeoutMs = 15000, stepMs = 150) { const start = Date.now(); let last; while (Date.now() - start < timeoutMs) { try { const value = await fn(); if (value) return value; } catch (error) { last = error; } await delay(stepMs); } throw last || new Error('timed out waiting'); }
+async function json(url) { const response = await fetch(url); if (!response.ok) throw new Error(`${response.status} ${url}`); return response.json(); }
+async function waitFor(fn, timeoutMs = 15000, stepMs = 100) {
+  const started = Date.now(); let lastError;
+  while (Date.now() - started < timeoutMs) {
+    try { const value = await fn(); if (value) return value; } catch (error) { lastError = error; }
+    await delay(stepMs);
+  }
+  throw lastError || new Error('timed out waiting');
+}
 async function connect(wsUrl) {
-  const ws = new WebSocket(wsUrl); await new Promise((resolve, reject) => { ws.addEventListener('open', resolve, { once: true }); ws.addEventListener('error', reject, { once: true }); });
+  const ws = new WebSocket(wsUrl);
+  await new Promise((resolve, reject) => { ws.addEventListener('open', resolve, { once: true }); ws.addEventListener('error', reject, { once: true }); });
   let id = 0; const pending = new Map();
-  ws.addEventListener('message', (event) => { const msg = JSON.parse(event.data); if (msg.id && pending.has(msg.id)) { const p = pending.get(msg.id); pending.delete(msg.id); msg.error ? p.reject(new Error(JSON.stringify(msg.error))) : p.resolve(msg.result); } });
-  return { send(method, params = {}) { const callId = ++id; ws.send(JSON.stringify({ id: callId, method, params })); return new Promise((resolve, reject) => pending.set(callId, { resolve, reject })); }, close() { ws.close(); } };
+  ws.addEventListener('message', (event) => {
+    const message = JSON.parse(event.data);
+    if (!message.id || !pending.has(message.id)) return;
+    const promise = pending.get(message.id); pending.delete(message.id);
+    if (message.error) promise.reject(new Error(JSON.stringify(message.error))); else promise.resolve(message.result);
+  });
+  return {
+    send(method, params = {}) { const callId = ++id; ws.send(JSON.stringify({ id: callId, method, params })); return new Promise((resolve, reject) => pending.set(callId, { resolve, reject })); },
+    close() { ws.close(); },
+  };
 }
-async function evalExpr(cdp, expression) { const res = await cdp.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression }); if (res.exceptionDetails) throw new Error(JSON.stringify(res.exceptionDetails)); return res.result.value; }
-async function shot(cdp, name) {
-  await cdp.send('Runtime.evaluate', { awaitPromise: true, expression: "new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(resolve,60))))" });
-  const res = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
-  const p = path.join(outDir, name); fs.writeFileSync(p, Buffer.from(res.data, 'base64')); return p;
+async function evaluate(cdp, expression) {
+  const result = await cdp.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression });
+  if (result.exceptionDetails) throw new Error(JSON.stringify(result.exceptionDetails));
+  return result.result.value;
 }
-async function press(cdp, key, code, text) {
-  const vk = key.length === 1 ? key.toUpperCase().charCodeAt(0) : 0;
-  const params = { key, code: code || key, windowsVirtualKeyCode: vk, nativeVirtualKeyCode: vk };
-  if (text !== undefined) params.text = text;
+async function screenshot(cdp, name) {
+  await evaluate(cdp, 'new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(resolve, 60))))');
+  const result = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+  const file = path.join(outDir, name); fs.writeFileSync(file, Buffer.from(result.data, 'base64')); return file;
+}
+async function press(cdp, key, code = key) {
+  const virtualKey = key.length === 1 ? key.toUpperCase().charCodeAt(0) : ({ Escape: 27, Enter: 13, ' ': 32 }[key] || 0);
+  const params = { key, code, windowsVirtualKeyCode: virtualKey, nativeVirtualKeyCode: virtualKey };
   await cdp.send('Input.dispatchKeyEvent', { type: 'keyDown', ...params });
   await cdp.send('Input.dispatchKeyEvent', { type: 'keyUp', ...params });
 }
-async function clickCenter(cdp, selector) {
-  const box = await evalExpr(cdp, `(() => { const el = document.querySelector(${JSON.stringify(selector)}); el?.scrollIntoView?.({block:'center', inline:'center'}); const r = el?.getBoundingClientRect(); return r ? {x:r.left+r.width/2,y:r.top+r.height/2,w:r.width,h:r.height} : null; })()`);
-  if (!box) throw new Error(`missing selector ${selector}`);
-  await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: box.x, y: box.y, button: 'left', clickCount: 1 });
-  await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: box.x, y: box.y, button: 'left', clickCount: 1 });
+function assert(name, condition, detail = '') { if (!condition) throw new Error(`${name}${detail ? `: ${detail}` : ''}`); }
+async function setViewport(cdp, viewportWidth, viewportHeight) {
+  await cdp.send('Emulation.setDeviceMetricsOverride', { width: viewportWidth, height: viewportHeight, deviceScaleFactor: 1, mobile: false });
+  await evaluate(cdp, 'new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))');
 }
-function assert(name, ok, detail = '') { if (!ok) throw new Error(`${name}${detail ? `: ${detail}` : ''}`); }
-async function pageState(cdp) { return evalExpr(cdp, `(() => ({
-  status: document.getElementById('status')?.textContent || '',
-  seen: document.getElementById('shim-output')?.dataset?.seen || '',
-  running: window.__nethackAutomation?.state?.().runningState?.running || false,
-  sent: window.__nethackPromptTest?.sentInputs?.().join('') || '',
-  dialog: window.__nethackPromptTest?.dialog?.() || {},
-  body: document.body.innerText,
-  buttonLabel: document.getElementById('inventory-equipment-button')?.textContent?.trim() || '',
-  buttonTitle: document.getElementById('inventory-equipment-button')?.title || ''
-}))()`); }
-async function startShim(cdp) {
-  await clickCenter(cdp, '#start-shim'); await delay(200); await clickCenter(cdp, '#confirm-character');
-  await waitFor(async () => { const s = await pageState(cdp); return s.running && /shim_glyph|shim_status_update|shim_curs|shim_putstr/.test(s.seen) ? s : null; }, 20000);
-  await waitFor(async () => {
-    await evalExpr(cdp, `(() => { document.getElementById('intro-dialog')?.close?.('continue'); document.getElementById('document-dialog')?.close?.('close'); document.getElementById('character-dialog')?.close?.('cancel'); document.getElementById('game-grid').focus(); window.__nethackPromptTest.clearSentInputs(); })()`);
-    const openDialogs = await evalExpr(cdp, `Array.from(document.querySelectorAll('dialog[open]')).map((d) => d.id).join(',')`);
-    return openDialogs ? null : true;
-  }, 5000);
-}
-async function waitForEquipmentDialog(cdp, timeoutMs = 10000) {
-  return waitFor(async () => { const s = await pageState(cdp); return s.dialog?.interactionOpen && /Equipment \/ Inventory/i.test(s.dialog.title || '') ? s : null; }, timeoutMs);
+async function layoutMetrics(cdp) {
+  return evaluate(cdp, `(() => {
+    const root = document.getElementById('ux-items-root');
+    const pane = root.querySelector('.uxm-inventory-pane');
+    const list = root.querySelector('.uxm-inventory-list-wrap');
+    const rail = root.querySelector('.uxm-selection-rail');
+    const rect = (node) => { const box = node?.getBoundingClientRect(); return box ? { left: box.left, top: box.top, right: box.right, bottom: box.bottom, width: box.width, height: box.height } : null; };
+    const paneBox = rect(pane); const listBox = rect(list); const railBox = rect(rail);
+    const rows = Array.from(root.querySelectorAll('.uxm-item-row')).map((row) => ({ box: rect(row), text: row.innerText, icon: row.querySelector('.uxm-item-icon')?.dataset.iconSource || '', image: (() => { const image = row.querySelector('.uxm-item-icon img'); return image ? { src: image.currentSrc || image.src, naturalWidth: image.naturalWidth, naturalHeight: image.naturalHeight, box: rect(image) } : null; })() }));
+    const visibleRows = rows.filter((row) => row.box && listBox && row.box.top >= listBox.top - 0.5 && row.box.bottom <= listBox.bottom + 0.5);
+    const visibleControls = Array.from(rail?.querySelectorAll(':scope > .uxm-selection-actions > button, :scope > .uxm-selection-actions > details > summary') || []).map((node) => ({ text: node.innerText, box: rect(node) }));
+    return {
+      viewport: { width: innerWidth, height: innerHeight },
+      workspace: rect(root.querySelector('.uxm-items-workspace')),
+      pane: paneBox, list: listBox, rail: railBox,
+      rowCount: rows.length, visibleRowCount: visibleRows.length,
+      resolvedIconCount: rows.filter((row) => row.icon === 'resolved' && row.image?.naturalWidth > 0 && row.image?.naturalHeight > 0).length,
+      iconBoxes: rows.map((row) => row.image?.box).filter(Boolean),
+      listShare: paneBox && listBox ? listBox.height / paneBox.height : 0,
+      railShare: paneBox && railBox ? railBox.height / paneBox.height : 1,
+      listScrollHeight: list?.scrollHeight || 0,
+      listClientHeight: list?.clientHeight || 0,
+      listAndRailSeparated: Boolean(listBox && railBox && listBox.bottom <= railBox.top + 0.5),
+      visibleControls,
+      controlsContained: visibleControls.every((control) => control.box && paneBox && control.box.left >= paneBox.left && control.box.right <= paneBox.right && control.box.top >= paneBox.top && control.box.bottom <= paneBox.bottom),
+      rootHorizontalOverflow: root.scrollWidth > root.clientWidth,
+      documentHorizontalOverflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+      rawFallbackLabels: /Inventory selector|Name unavailable|Loading your inventory|semantic IDs|undefined|null/i.test(root.innerText),
+      iconInputs: window.__itemOwnerFixture.iconInputs,
+      activeText: document.activeElement?.innerText || '',
+    };
+  })()`);
 }
 
 async function main() {
-  fs.rmSync(outDir, { recursive: true, force: true });
-  fs.mkdirSync(outDir, { recursive: true });
+  fs.rmSync(outDir, { recursive: true, force: true }); fs.mkdirSync(outDir, { recursive: true });
   const child = spawn(electronBin, ['.'], { cwd: root, env: { ...process.env, AI_ORG_ELECTRON_CDP_PORT: String(port), NH_ELECTRON_WINDOW_WIDTH: String(width), NH_ELECTRON_WINDOW_HEIGHT: String(height) }, stdio: ['ignore', 'pipe', 'pipe'] });
-  let cdp; const cleanup = () => { try { cdp?.close(); } catch {} if (!child.killed) child.kill('SIGTERM'); };
-  process.on('exit', cleanup); child.stdout.on('data', (d) => process.stdout.write(d)); child.stderr.on('data', (d) => process.stderr.write(d));
+  let cdp;
+  const cleanup = () => { try { cdp?.close(); } catch {} if (!child.killed) child.kill('SIGTERM'); };
+  process.on('exit', cleanup); child.stdout.on('data', (data) => process.stdout.write(data)); child.stderr.on('data', (data) => process.stderr.write(data));
   try {
-    const pages = await waitFor(async () => { const list = await json(`http://127.0.0.1:${port}/json/list`); return list.find((p) => p.type === 'page') ? list : null; }, 20000);
-    cdp = await connect((pages.find((p) => p.type === 'page') || pages[0]).webSocketDebuggerUrl);
-    await cdp.send('Page.enable'); await cdp.send('Runtime.enable'); await cdp.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
-    await waitFor(async () => (await cdp.send('Runtime.evaluate', { returnByValue: true, expression: "document.readyState === 'complete' && !!window.__nethackPromptTest && !!window.__nethackAutomation" })).result.value, 10000);
+    const pages = await waitFor(async () => { const list = await json(`http://127.0.0.1:${port}/json/list`); return list.find((page) => page.type === 'page') ? list : null; }, 20000);
+    cdp = await connect((pages.find((page) => page.type === 'page') || pages[0]).webSocketDebuggerUrl);
+    await cdp.send('Page.enable'); await cdp.send('Runtime.enable');
+    await cdp.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
+    await waitFor(async () => evaluate(cdp, "document.readyState === 'complete' && !!window.NetHackUxEquipmentScreen?.controller && !!window.__nethackPromptTest"), 10000);
 
-    const affordance = await waitFor(async () => {
-      const state = await pageState(cdp);
-      return /^(?:Inventory|Inventory\s*\/\s*Equipment\s*\(i\))$/i.test(state.buttonLabel || '') ? state : null;
-    }, 5000);
-    const buttonScreenshot = await shot(cdp, '00-main-ui-inventory-equipment-button.png');
-    assert('visible inventory/equipment button label', /^(?:Inventory|Inventory\s*\/\s*Equipment\s*\(i\))$/i.test(affordance.buttonLabel), affordance.buttonLabel);
-    assert('button title explains shortcut', /(?:RPG hero equipment|Inventory and Equipment).*\bi\b/i.test(affordance.buttonTitle), affordance.buttonTitle);
-
-    const routeMetrics = await evalExpr(cdp, `(() => {
-      const t = window.__nethackPromptTest;
-      t.reset(); t.setRunning(true);
-      document.getElementById('inventory-equipment-button').click();
-      const buttonSent = t.sentInputs().join('');
-      t.reset(); t.setRunning(true); document.getElementById('game-grid').focus();
-      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'i', bubbles: true, cancelable: true }));
-      const keyboardSent = t.sentInputs().join('');
-      return { buttonSent, keyboardSent };
-    })()`);
-    assert('visible button routes same inventory command', routeMetrics.buttonSent === 'i', JSON.stringify(routeMetrics));
-    assert('keyboard i routes inventory command', routeMetrics.keyboardSent === 'i', JSON.stringify(routeMetrics));
-    const promptlessMetrics = await evalExpr(cdp, `(() => {
-      const t = window.__nethackPromptTest;
-      t.reset(); t.setRunning(true);
-      document.getElementById('inventory-equipment-button').click();
-      const buttonSentBeforeRows = t.sentInputs().join('');
-      t.event({name:'shim_start_menu', window:89});
-      [
-        [97, 'a - a +1 spear (weapon in right hand)', 41, 'spear'],
-        [98, 'b - a +0 dagger (alternate weapon; not wielded)', 41, 'dagger'],
-        [99, 'c - an uncursed +3 small shield (being worn)', 91, 'small shield'],
-        [100, 'd - an uncursed food ration', 37, 'food ration']
-      ].forEach(([selector, text, glyphChar, semanticName]) => t.event({name:'shim_add_menu', window:89, selector, text, glyphChar, semanticKind:'object', semanticName, semanticKnown:true}));
-      t.event({name:'shim_end_menu', window:89, prompt:'Menu'});
-      const dialog = t.dialog();
-      return { buttonSentBeforeRows, dialog, paper: document.querySelector('.rpg-equipment-screen')?.innerText || '', rows: Array.from(document.querySelectorAll('#interaction-options .rpg-inventory-row')).map((el) => el.innerText).join(String.fromCharCode(10)), body: document.body.innerText };
-    })()`);
-    const promptlessScreenshot = await shot(cdp, '01-button-promptless-menu-rpg-equipment-screen.png');
-    assert('button sends inventory before promptless NetHack rows arrive', promptlessMetrics.buttonSentBeforeRows === 'i', promptlessMetrics.buttonSentBeforeRows);
-    assert('promptless real NetHack inventory menu opens RPG equipment screen', promptlessMetrics.dialog.interactionOpen && /Equipment \/ Inventory/i.test(promptlessMetrics.dialog.title), promptlessMetrics.dialog.title);
-    assert('promptless inventory has hero equipment and real item names', /Hero equipment/i.test(promptlessMetrics.paper) && /spear|small shield/i.test(`${promptlessMetrics.paper}\n${promptlessMetrics.rows}`), `${promptlessMetrics.paper}\n${promptlessMetrics.rows}`);
-    assert('promptless screen avoids generic Menu chooser', !/Menu\nChoose visible item rows/i.test(promptlessMetrics.body), promptlessMetrics.body);
-
-    const rememberedGroundMetrics = await evalExpr(cdp, `(() => {
-      const t = window.__nethackPromptTest;
-      t.reset(); t.setRunning(true); document.getElementById('game-grid').focus();
-      t.event({name:'shim_create_nhwindow', return:88, windowType:4});
-      t.event({name:'shim_putstr', window:88, text:'Things that are here:'});
-      t.event({name:'shim_putstr', window:88, text:'a scroll labeled READ ME'});
-      t.event({name:'shim_putstr', window:88, text:'a food ration'});
-      t.event({name:'shim_display_nhwindow', window:88});
-      const groundPanelBeforeInventory = t.container();
-      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'i', bubbles: true, cancelable: true }));
-      const keyboardSent = t.sentInputs().join('');
-      t.event({name:'shim_start_menu', window:188});
-      [
-        [97, 'a - a scroll labeled READ ME', 63, 'scroll labeled READ ME'],
-        [98, 'b - an uncursed food ration', 37, 'food ration']
-      ].forEach(([selector, text, glyphChar, semanticName]) => t.event({name:'shim_add_menu', window:188, selector, text, glyphChar, semanticKind:'object', semanticName, semanticKnown:true}));
-      t.event({name:'shim_end_menu', window:188, prompt:'Menu'});
-      const dialog = t.dialog();
-      return { keyboardSent, groundPanelBeforeInventory, dialog, paper: document.querySelector('.rpg-equipment-screen')?.innerText || '', rows: Array.from(document.querySelectorAll('#interaction-options .rpg-inventory-row')).map((el) => el.innerText).join(String.fromCharCode(10)), body: document.body.innerText };
-    })()`);
-    assert('keyboard i opens rich equipment screen even when inventory rows match remembered ground stack', rememberedGroundMetrics.keyboardSent === 'i' && !rememberedGroundMetrics.groundPanelBeforeInventory.active && rememberedGroundMetrics.dialog.interactionOpen && /Equipment \/ Inventory/i.test(rememberedGroundMetrics.dialog.title) && /Hero equipment/i.test(rememberedGroundMetrics.paper) && /scroll labeled READ ME|food ration/i.test(rememberedGroundMetrics.rows), JSON.stringify(rememberedGroundMetrics));
-    assert('remembered ground stack does not regress i into the basic Menu picker', !/Menu\nChoose visible item rows/i.test(rememberedGroundMetrics.body), rememberedGroundMetrics.body);
-
-    const explicitInventoryPurposeMetrics = await evalExpr(cdp, `(() => {
-      const t = window.__nethackPromptTest;
-      t.reset(); t.setRunning(true);
-      t.event({name:'shim_start_menu', window:189, menuPurpose:'inventory.displayInventory', owner:{kind:'inventory', window:189}, lifecycle:'opened'});
-      [
-        [36, '$ - 9 gold pieces', 36, 'gold piece'],
-        [97, 'a - a +2 bullwhip (weapon in right hand)', 41, 'bullwhip'],
-        [98, 'b - an uncursed +0 leather jacket (being worn)', 91, 'leather jacket'],
-        [99, 'c - an uncursed +0 fedora (being worn)', 91, 'fedora', 'object'],
-        [106, 'a lichen corpse', 37, 'lichen', 'corpse']
-      ].forEach(([selector, text, glyphChar, semanticName, semanticKind = 'object']) => t.event({name:'shim_add_menu', window:189, selector, text, glyphChar, semanticKind, semanticName, semanticKnown:true, menuPurpose:'inventory.displayInventory', owner:{kind:'inventory', window:189}, lifecycle:'opened'}));
-      t.event({name:'shim_end_menu', window:189, prompt:'Menu', menuPurpose:'inventory.displayInventory', owner:{kind:'inventory', window:189}, lifecycle:'ready'});
-      t.event({name:'shim_select_menu', window:189, how:1, menuPurpose:'inventory.displayInventory', owner:{kind:'inventory', window:189}, lifecycle:'selecting'});
-      const rich = { dialog: t.dialog(), paper: document.querySelector('.rpg-equipment-screen')?.innerText || '', rows: Array.from(document.querySelectorAll('#interaction-options .rpg-inventory-row')).map((el) => el.innerText).join(String.fromCharCode(10)), body: document.body.innerText };
-      t.reset(); t.setRunning(true);
-      t.event({name:'shim_yn_function', query:'What do you want to use or apply? [a or ?*]', choices:'a?*\\u001b'});
-      t.event({name:'shim_start_menu', window:190, menuPurpose:'inventory.displayInventory', owner:{kind:'inventory', window:190}, lifecycle:'opened'});
-      t.event({name:'shim_add_menu', window:190, selector:97, text:'a - a +2 bullwhip (weapon in right hand)', glyphChar:41, semanticKind:'object', semanticName:'bullwhip', semanticKnown:true, menuPurpose:'inventory.displayInventory', owner:{kind:'inventory', window:190}, lifecycle:'opened'});
-      t.event({name:'shim_end_menu', window:190, prompt:'Menu', menuPurpose:'inventory.displayInventory', owner:{kind:'inventory', window:190}, lifecycle:'ready'});
-      t.event({name:'shim_select_menu', window:190, how:1, menuPurpose:'inventory.displayInventory', owner:{kind:'inventory', window:190}, lifecycle:'selecting'});
-      const actionPicker = { dialog: t.dialog(), paper: document.querySelector('.rpg-equipment-screen')?.innerText || '', body: document.body.innerText };
-      return { rich, actionPicker };
-    })()`);
-    const explicitPurposeScreenshot = await shot(cdp, '02-action-prompt-inventory-picker-remains-inventory-only.png');
-    assert('explicit inventory.displayInventory menu opens RPG equipment screen even without fresh local request marker', explicitInventoryPurposeMetrics.rich.dialog.interactionOpen && /Equipment \/ Inventory/i.test(explicitInventoryPurposeMetrics.rich.dialog.title) && /Hero equipment/i.test(explicitInventoryPurposeMetrics.rich.paper) && /bullwhip|leather jacket|fedora|lichen corpse/i.test(`${explicitInventoryPurposeMetrics.rich.paper}\n${explicitInventoryPurposeMetrics.rich.rows}`) && !/Menu\nChoose visible item rows/i.test(explicitInventoryPurposeMetrics.rich.body), JSON.stringify(explicitInventoryPurposeMetrics.rich));
-    assert('inventory action picker remains legitimate inventory-only state while an item prompt owns the menu', explicitInventoryPurposeMetrics.actionPicker.dialog.interactionOpen && !/Equipment \/ Inventory/i.test(explicitInventoryPurposeMetrics.actionPicker.dialog.title || '') && !/Hero equipment/i.test(explicitInventoryPurposeMetrics.actionPicker.paper), JSON.stringify(explicitInventoryPurposeMetrics.actionPicker));
-
-    const metrics = await evalExpr(cdp, `(async () => {
-      const t = window.__nethackPromptTest;
-      const acceptedCoreCommands = [];
-      t.reset(); t.setRunning(true); t.setUiCommandHandlerForTest((command) => { acceptedCoreCommands.push(JSON.parse(JSON.stringify(command))); return { ok: true }; });
-      t.event({name:'shim_start_menu', window:90});
-      [
-        [97, 'a - a blessed +1 long sword (weapon in hand)', 41, 'long sword'],
-        [98, 'b - an uncursed dagger (alternate weapon; not wielded)', 41, 'dagger'],
-        [99, 'c - an uncursed ring mail (being worn)', 91, 'ring mail'],
-        [100, 'd - an uncursed cloak of protection (being worn)', 91, 'cloak'],
-        [101, 'e - an uncursed pair of leather gloves (being worn)', 91, 'gloves'],
-        [102, 'f - an uncursed pair of iron shoes (being worn)', 91, 'boots'],
-        [103, 'g - an uncursed small shield (being worn)', 91, 'shield'],
-        [104, 'h - a ring of protection (on left hand)', 61, 'ring'],
-        [105, 'i - a ring of adornment (on right hand)', 61, 'ring'],
-        [106, 'j - an amulet of reflection (being worn)', 34, 'amulet'],
-        [107, 'k - a blindfold (being worn)', 40, 'blindfold'],
-        [108, 'l - 12 arrows (in quiver)', 41, 'arrows'],
-        [109, 'm - a +0 helmet', 91, 'helmet'],
-        [110, 'n - 5 darts', 41, 'darts'],
-        [111, 'o - a quarterstaff', 41, 'quarterstaff'],
-        [112, 'p - an uncursed splint mail', 91, 'splint mail'],
-        [113, 'q - a Hawaiian shirt', 91, 'Hawaiian shirt'],
-        [114, 'r - a T-shirt (being worn)', 91, 'T-shirt'],
-        [121, 'y - a large box', 40, 'large box']
-      ].forEach(([selector, text, glyphChar, semanticName]) => t.event({name:'shim_add_menu', window:90, selector, objectId: selector + 1000, text, glyphChar, semanticKind:'object', semanticName, semanticKnown:true}));
-      t.event({name:'shim_end_menu', window:90, prompt:'Inventory:'});
-      const dialog = t.dialog();
-      const paper = document.querySelector('.rpg-equipment-screen')?.innerText || '';
-      const slots = Array.from(document.querySelectorAll('.paper-doll-slots .equipment-slot')).map((el) => ({ slot: el.dataset.slot, text: el.innerText, equipped: el.classList.contains('equipped') }));
-      const rows = Array.from(document.querySelectorAll('#interaction-options .rpg-inventory-row')).map((el) => ({ key: el.dataset.key, text: el.innerText, label: el.getAttribute('aria-label'), badges: Array.from(el.querySelectorAll('.menu-badges span')).map((badge) => badge.textContent.trim()).filter(Boolean) }));
-      const avatar = document.querySelector('.paper-doll-stage .player-avatar-display');
-      const avatarImage = avatar?.querySelector('.player-avatar-image');
-      const avatarImageStyle = avatarImage ? getComputedStyle(avatarImage) : null;
-      const avatarImageBox = avatarImage?.getBoundingClientRect();
-      const stageBox = document.querySelector('.paper-doll-stage')?.getBoundingClientRect();
-      const avatarBox = avatar?.getBoundingClientRect();
-      const toStageBox = (r) => ({ left: Math.round(r.left - stageBox.left), top: Math.round(r.top - stageBox.top), width: Math.round(r.width), height: Math.round(r.height), right: Math.round(r.right - stageBox.left), bottom: Math.round(r.bottom - stageBox.top) });
-      const slotBoxes = Object.fromEntries(Array.from(document.querySelectorAll('.paper-doll-slots .equipment-slot')).map((el) => [el.dataset.slot, toStageBox(el.getBoundingClientRect())]));
-      const avatarStageBox = avatarBox ? toStageBox(avatarBox) : null;
-      const stageSize = stageBox ? { width: Math.round(stageBox.width), height: Math.round(stageBox.height) } : null;
-      const clickRow = (key) => document.querySelector('#interaction-options .rpg-inventory-row[data-key="' + key + '"]')?.click();
-      const doubleClickRow = (key) => document.querySelector('#interaction-options .rpg-inventory-row[data-key="' + key + '"]')?.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true, detail: 2 }));
-      t.clearSentInputs(); clickRow('m'); const singleClickHelmetSent = t.sentInputs().join(''); const singleClickHelmetTitle = document.getElementById('interaction-title').textContent; const singleClickHelmetOpen = document.getElementById('interaction-dialog').open; const singleClickContextOpen = Boolean(document.querySelector('.inventory-context-menu'));
-      t.clearSentInputs(); doubleClickRow('m'); await new Promise((resolve) => setTimeout(resolve, 120)); const wearHelmetBeforeCloseSent = t.sentInputs().join(''); const wearHelmetBeforeCloseCommands = t.sentUiProtocolCommands(); t.forceCloseCurrentMenuForTest(); await new Promise((resolve) => setTimeout(resolve, 600)); const wearHelmetSent = t.sentInputs().join(''); const wearHelmetCommands = t.sentUiProtocolCommands();
-      t.event({name:'bridge_menu_answer', return:0});
-      const wearHelmetAfterCloseSignal = { open: document.getElementById('interaction-dialog').open, title: document.getElementById('interaction-title').textContent, paper: document.querySelector('.rpg-equipment-screen')?.innerText || '', feedback: document.getElementById('interaction-feedback').textContent };
-      const refreshedInventoryRows = [
-        [97, 'a - a blessed +1 long sword (weapon in hand)', 41, 'long sword'],
-        [98, 'b - an uncursed dagger (alternate weapon; not wielded)', 41, 'dagger'],
-        [99, 'c - an uncursed ring mail (being worn)', 91, 'ring mail'],
-        [100, 'd - an uncursed cloak of protection (being worn)', 91, 'cloak'],
-        [101, 'e - an uncursed pair of leather gloves (being worn)', 91, 'gloves'],
-        [102, 'f - an uncursed pair of iron shoes (being worn)', 91, 'boots'],
-        [103, 'g - an uncursed small shield (being worn)', 91, 'shield'],
-        [104, 'h - a ring of protection (on left hand)', 61, 'ring'],
-        [105, 'i - a ring of adornment (on right hand)', 61, 'ring'],
-        [106, 'j - an amulet of reflection (being worn)', 34, 'amulet'],
-        [107, 'k - a blindfold (being worn)', 40, 'blindfold'],
-        [108, 'l - 12 arrows (in quiver)', 41, 'arrows'],
-        [109, 'm - a +0 helmet (being worn)', 91, 'helmet'],
-        [110, 'n - 5 darts', 41, 'darts'],
-        [111, 'o - a quarterstaff', 41, 'quarterstaff'],
-        [112, 'p - an uncursed splint mail', 91, 'splint mail'],
-        [113, 'q - a Hawaiian shirt', 91, 'Hawaiian shirt'],
-        [114, 'r - a T-shirt (being worn)', 91, 'T-shirt'],
-        [121, 'y - a large box', 40, 'large box']
-      ];
-      t.event({name:'shim_start_menu', window:190});
-      refreshedInventoryRows.forEach(([selector, text, glyphChar, semanticName]) => t.event({name:'shim_add_menu', window:190, selector, objectId: selector + 1000, text, glyphChar, semanticKind:'object', semanticName, semanticKnown:true}));
-      t.event({name:'shim_end_menu', window:190, prompt:'Inventory:'});
-      t.setAuthoritativeInventoryForTest(refreshedInventoryRows.map(([selector, text, glyphChar, semanticName]) => ({ selector, objectId: selector + 1000, text, glyphChar, semanticKind: 'object', semanticName, semanticKnown: true })), 2);
-      const wearHelmetAfterRefresh = { open: document.getElementById('interaction-dialog').open, title: document.getElementById('interaction-title').textContent, helmetSlot: document.querySelector('.paper-doll-slots .equipment-slot[data-slot="helmet"]')?.innerText || '', helmetRow: document.querySelector('#interaction-options .rpg-inventory-row[data-key="m"]')?.innerText || '' };
-      t.event({name:'bridge_menu_answer', return:0});
-      const wearHelmetAfterLateCloseSignal = { open: document.getElementById('interaction-dialog').open, title: document.getElementById('interaction-title').textContent, paper: document.querySelector('.rpg-equipment-screen')?.innerText || '', helmetSlot: document.querySelector('.paper-doll-slots .equipment-slot[data-slot="helmet"]')?.innerText || '', helmetRow: document.querySelector('#interaction-options .rpg-inventory-row[data-key="m"]')?.innerText || '' };
-      await new Promise((resolve) => setTimeout(resolve, 320));
-      t.clearSentInputs(); doubleClickRow('p'); t.forceCloseCurrentMenuForTest(); await new Promise((resolve) => setTimeout(resolve, 170)); const swapArmorSent = t.sentInputs().join(''); const swapArmorFeedback = document.getElementById('interaction-feedback').textContent; const swapArmorRow = document.querySelector('#interaction-options .rpg-inventory-row[data-key="p"]')?.innerText || ''; const swapArmorAria = document.querySelector('#interaction-options .rpg-inventory-row[data-key="p"]')?.getAttribute('aria-label') || '';
-      await new Promise((resolve) => setTimeout(resolve, 320));
-      t.clearSentInputs(); doubleClickRow('q'); t.forceCloseCurrentMenuForTest(); await new Promise((resolve) => setTimeout(resolve, 170)); const layeredShirtSwapSent = t.sentInputs().join(''); const layeredShirtFeedback = document.getElementById('interaction-feedback').textContent; const layeredShirtRow = document.querySelector('#interaction-options .rpg-inventory-row[data-key="q"]')?.innerText || '';
-      await new Promise((resolve) => setTimeout(resolve, 700));
-      t.clearSentInputs(); doubleClickRow('h'); t.forceCloseCurrentMenuForTest(); await new Promise((resolve) => setTimeout(resolve, 220)); const removeRingSent = t.sentInputs().join(''); const removeRingCommands = t.sentUiProtocolCommands();
-      t.clearSentInputs(); document.querySelector('.paper-doll-slots .equipment-slot[data-slot="armor-suit"] button[data-command-key="T"]')?.click(); t.forceCloseCurrentMenuForTest(); await new Promise((resolve) => setTimeout(resolve, 170)); const takeOffArmorSent = t.sentInputs().join(''); const takeOffArmorCommands = t.sentUiProtocolCommands(); const takeOffArmorTitle = document.getElementById('interaction-title').textContent; const takeOffArmorPrompt = document.getElementById('interaction-prompt').textContent;
-      t.clearSentInputs(); document.querySelector('.paper-doll-slots .equipment-slot[data-slot="quiver"] button[data-command-key="Q"]')?.click(); t.forceCloseCurrentMenuForTest(); await new Promise((resolve) => setTimeout(resolve, 170)); const quiverSent = t.sentInputs().join(''); const quiverCommands = t.sentUiProtocolCommands();
-      t.clearSentInputs(); document.querySelector('.paper-doll-slots .equipment-slot[data-slot="offhand"] button[data-action-id="slot.swapMainAlternate"]')?.click(); t.forceCloseCurrentMenuForTest(); await new Promise((resolve) => setTimeout(resolve, 170)); const swapSent = t.sentInputs().join(''); const swapCommands = t.sentUiProtocolCommands(); const swapFeedback = document.getElementById('interaction-feedback').textContent;
-      t.setInventorySnapshotFeatureFlags({ useSnapshotForOverview: false });
-      t.event({name:'shim_start_menu', window:91});
-      [
-        [97, 'a - a blessed +1 long sword (alternate weapon; not wielded)', 41, 'long sword'],
-        [98, 'b - an uncursed dagger (weapon in hand)', 41, 'dagger'],
-        [99, 'c - an uncursed ring mail (being worn)', 91, 'ring mail'],
-        [100, 'd - an uncursed cloak of protection (being worn)', 91, 'cloak'],
-        [101, 'e - an uncursed pair of leather gloves (being worn)', 91, 'gloves'],
-        [102, 'f - an uncursed pair of iron shoes (being worn)', 91, 'boots'],
-        [103, 'g - an uncursed small shield (being worn)', 91, 'shield'],
-        [104, 'h - a ring of protection (on left hand)', 61, 'ring'],
-        [105, 'i - a ring of adornment (on right hand)', 61, 'ring'],
-        [106, 'j - an amulet of reflection (being worn)', 34, 'amulet'],
-        [107, 'k - a blindfold (being worn)', 40, 'blindfold'],
-        [108, 'l - 12 arrows (in quiver)', 41, 'arrows'],
-        [109, 'm - a +0 helmet', 91, 'helmet'],
-        [110, 'n - 5 darts', 41, 'darts'],
-        [111, 'o - a quarterstaff', 41, 'quarterstaff'],
-        [112, 'p - an uncursed splint mail', 91, 'splint mail'],
-        [113, 'q - a Hawaiian shirt', 91, 'Hawaiian shirt'],
-        [114, 'r - a T-shirt (being worn)', 91, 'T-shirt'],
-        [121, 'y - a large box', 40, 'large box']
-      ].forEach(([selector, text, glyphChar, semanticName]) => t.event({name:'shim_add_menu', window:91, selector, objectId: selector + 1000, text, glyphChar, semanticKind:'object', semanticName, semanticKnown:true}));
-      t.event({name:'shim_end_menu', window:91, prompt:'Inventory:'});
-      const swappedSlotText = Array.from(document.querySelectorAll('.paper-doll-slots .equipment-slot')).map((el) => ({ slot: el.dataset.slot, text: el.innerText }));
-      const dispatchDrop = async (rowKey, slotId, clickAfterDrop = false) => {
-        t.clearSentInputs();
-        const row = document.querySelector('#interaction-options .rpg-inventory-row[data-key="' + rowKey + '"]');
-        const slot = document.querySelector('.paper-doll-slots .equipment-slot[data-slot="' + slotId + '"]');
-        const dt = new DataTransfer();
-        row.dispatchEvent(new DragEvent('dragstart', { bubbles: true, cancelable: true, dataTransfer: dt }));
-        slot.dispatchEvent(new DragEvent('dragover', { bubbles: true, cancelable: true, dataTransfer: dt }));
-        slot.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dt }));
-        row.dispatchEvent(new DragEvent('dragend', { bubbles: true, cancelable: true, dataTransfer: dt }));
-        t.forceCloseCurrentMenuForTest();
-        await new Promise((resolve) => setTimeout(resolve, 170));
-        if (clickAfterDrop) row.click();
-        return { sent: t.sentInputs().join(''), commands: t.sentUiProtocolCommands(), feedback: document.getElementById('interaction-feedback').textContent, title: document.getElementById('interaction-title').textContent, open: document.getElementById('interaction-dialog').open, body: document.body.innerText };
-      };
-      const dragHelmet = await dispatchDrop('m', 'helmet');
-      const dragStaffMainHand = await dispatchDrop('o', 'main-hand', true);
-      const dragDartsMainHand = await dispatchDrop('n', 'main-hand', true);
-      const dragDartsQuiver = await dispatchDrop('n', 'quiver', true);
-      const dragInvalidFoodToHelmet = await dispatchDrop('m', 'shield');
-      t.clearSentInputs();
-      const dartsRow = document.querySelector('#interaction-options .rpg-inventory-row[data-key="n"]');
-      dartsRow.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 880, clientY: 340 }));
-      const contextMenuText = document.querySelector('.inventory-context-menu')?.innerText || '';
-      const contextActionIds = Array.from(document.querySelectorAll('.inventory-context-menu [data-action-id]')).map((el) => el.dataset.actionId);
-      t.event({ name: 'shim_start_menu', window: 92 });
-      t.event({ name: 'shim_add_menu', window: 92, selector: 121, objectId: 1121, text: 'y - a large box', glyphChar: 40, semanticKind: 'object', semanticName: 'large box', semanticKnown: true });
-      t.event({ name: 'shim_end_menu', window: 92, prompt: 'Inventory:' });
-      t.clearSentInputs();
-      const largeBoxRow = document.querySelector('#interaction-options .rpg-inventory-row[data-key="y"]');
-      largeBoxRow?.scrollIntoView?.({ block: 'center' });
-      largeBoxRow?.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 900, clientY: 720 }));
-      const largeBoxContextMenuText = document.querySelector('.inventory-context-menu')?.innerText || '';
-      const largeBoxContextHeader = document.querySelector('.inventory-context-header')?.innerText || '';
-      document.querySelector('.inventory-context-menu [data-action-id="item.lootOrApply"]')?.click();
-      t.forceCloseCurrentMenuForTest();
-      await new Promise((resolve) => setTimeout(resolve, 170));
-      const largeBoxApplySent = t.sentInputs().join('');
-      const largeBoxApplyCommands = t.sentUiProtocolCommands();
-      const largeBoxAcceptedCoreCommands = acceptedCoreCommands.filter((command) => command.actionId === 'item.lootOrApply');
-      const largeBoxCurrentInventoryRevision = t.inventory().snapshotRevision;
-      const largeBoxApplyFeedback = document.getElementById('interaction-feedback').textContent;
-      const offhandContextMenuText = (() => {
-        closeInventoryContextMenu?.();
-        t.setEquipmentSnapshotFeatureFlags({ useSnapshotForPaperDoll: false });
-        t.event({ name: 'shim_start_menu', window: 199 });
-        t.event({ name: 'shim_add_menu', window: 199, selector: 97, objectId: 1097, text: 'a - a blessed +1 long sword (weapon in hand)', glyphChar: 41, semanticKind: 'object', semanticName: 'long sword', semanticKnown: true });
-        t.event({ name: 'shim_add_menu', window: 199, selector: 98, objectId: 1098, text: 'b - an uncursed dagger (alternate weapon; not wielded)', glyphChar: 41, semanticKind: 'object', semanticName: 'dagger', semanticKnown: true });
-        t.event({ name: 'shim_end_menu', window: 199, prompt: 'Inventory:' });
-        const offhandSlot = document.querySelector('.paper-doll-slots .equipment-slot[data-slot="offhand"]');
-        if (offhandSlot) offhandSlot.dataset.testActionInvoker = 'true';
-        offhandSlot?.focus?.({ preventScroll: true });
-        offhandSlot?.dispatchEvent(new KeyboardEvent('keydown', { key: 'F10', shiftKey: true, bubbles: true, cancelable: true }));
-        return document.querySelector('.equipment-slot-context-menu')?.innerText || '';
-      })();
-      const rawGenericContextLeak = /Do what with the darts\?|Inventory selector|Item selector n|Throw one of these|semantic IDs|compatibility commands|\b(?:item|slot)\.[A-Za-z]/i.test(contextMenuText + String.fromCharCode(10) + offhandContextMenuText);
-      return { dialog, paper, slots, rows, swappedSlotText, hasPlayerAvatar: Boolean(avatar), playerAvatarTileId: avatar?.dataset.tileId || '', playerAvatarSource: avatar?.dataset.avatarSource || '', playerAvatarSrc: avatar?.dataset.avatarSrc || avatarImage?.getAttribute('src') || '', avatarImageStyle: avatarImage ? { objectFit: avatarImage.style.objectFit || avatarImageStyle?.getPropertyValue('object-fit') || '', objectPosition: avatarImage.style.objectPosition || avatarImageStyle?.getPropertyValue('object-position') || '', width: Math.round(avatarImageBox?.width || 0), height: Math.round(avatarImageBox?.height || 0), naturalWidth: avatarImage?.naturalWidth || 0, naturalHeight: avatarImage?.naturalHeight || 0 } : null, stageSize, avatarStageBox, slotBoxes, singleClickHelmetSent, singleClickHelmetTitle, singleClickHelmetOpen, singleClickContextOpen, wearHelmetBeforeCloseSent, wearHelmetBeforeCloseCommands, wearHelmetSent, wearHelmetCommands, wearHelmetAfterCloseSignal, wearHelmetAfterRefresh, wearHelmetAfterLateCloseSignal, swapArmorSent, swapArmorFeedback, swapArmorRow, swapArmorAria, layeredShirtSwapSent, layeredShirtFeedback, layeredShirtRow, removeRingSent, removeRingCommands, takeOffArmorSent, takeOffArmorCommands, takeOffArmorTitle, takeOffArmorPrompt, quiverSent, quiverCommands, swapSent, swapCommands, swapFeedback, dragHelmet, dragStaffMainHand, dragDartsMainHand, dragDartsQuiver, contextMenuText, contextActionIds, largeBoxContextMenuText, largeBoxContextHeader, largeBoxApplySent, largeBoxApplyCommands, largeBoxAcceptedCoreCommands, largeBoxCurrentInventoryRevision, largeBoxApplyFeedback, offhandContextMenuText, rawGenericContextLeak, dragInvalidFoodToHelmet, body: document.body.innerText };
-    })()`);
-    await evalExpr(cdp, `(async () => { const menu = document.querySelector('.equipment-slot-context-menu'); menu?.scrollIntoView?.({ block: 'start', inline: 'nearest' }); const dialog = document.getElementById('interaction-dialog'); if (dialog) dialog.scrollTop += 12; await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))); return true; })()`);
-    const screenshot = await shot(cdp, '03-action-open-rich-rpg-equipment-screen.png');
-    const actionGeometry = await evalExpr(cdp, `(async () => {
-      const rect = (element) => { const r = element?.getBoundingClientRect?.(); return r ? { left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width, height: r.height } : null; };
-      const overlaps = (a, b) => Boolean(a && b && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top);
-      const menu = document.querySelector('.equipment-slot-context-menu');
-      const stage = document.querySelector('.paper-doll-stage');
-      const avatar = document.querySelector('.paper-doll-stage .player-avatar-display');
-      const cards = Array.from(document.querySelectorAll('.paper-doll-slots .equipment-slot'));
-      const dialog = document.getElementById('interaction-dialog');
-      const actions = Array.from(menu?.querySelectorAll('[role="menuitem"]') || []);
-      const visibleBounds = () => { const d = rect(dialog); return { left: Math.max(0, d?.left || 0) + 1, top: Math.max(0, d?.top || 0) + 1, right: Math.min(innerWidth, d?.right || innerWidth) - 1, bottom: Math.min(innerHeight, d?.bottom || innerHeight) - 1 }; };
-      const isReachable = (box, bounds) => Boolean(box && box.left >= bounds.left - 1 && box.right <= bounds.right + 1 && box.top >= bounds.top - 1 && box.bottom <= bounds.bottom + 1);
-      const settle = () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      const first = actions[0];
-      first?.focus?.({ preventScroll: true }); first?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' }); await settle();
-      const firstBox = rect(first); const firstBounds = visibleBounds(); const firstFocused = document.activeElement === first;
-      const last = actions[actions.length - 1];
-      last?.focus?.({ preventScroll: true }); last?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' }); await settle();
-      const lastBox = rect(last); const lastBounds = visibleBounds(); const lastFocused = document.activeElement === last;
-      const menuBox = rect(menu); const stageBox = rect(stage); const avatarBox = rect(avatar); const cardBoxes = cards.map((card) => ({ slot: card.dataset.slot, ...rect(card) }));
-      return {
-        compact: matchMedia('(max-width: 960px)').matches,
-        presentation: menu?.dataset.presentation || 'floating-menu',
-        actionCount: actions.length,
-        menuBox, stageBox, avatarBox, cardBoxes,
-        menuOverlapsStage: overlaps(menuBox, stageBox),
-        menuOverlapsAvatar: overlaps(menuBox, avatarBox),
-        menuOverlapsCards: cardBoxes.filter((box) => overlaps(menuBox, box)).map((box) => box.slot),
-        stageBeforeMenu: Boolean(stageBox && menuBox && stageBox.bottom <= menuBox.top + 1),
-        firstReachable: isReachable(firstBox, firstBounds), lastReachable: isReachable(lastBox, lastBounds),
-        firstFocused, lastFocused, firstBox, lastBox, firstBounds, lastBounds,
-        noHorizontalOverflow: Boolean(menu && dialog && menu.scrollWidth <= menu.clientWidth + 1 && dialog.scrollWidth <= dialog.clientWidth + 1 && document.documentElement.scrollWidth <= innerWidth + 1),
-        allActionsSingleViewportWidth: actions.every((action) => { const box = rect(action); return box && box.left >= 0 && box.right <= innerWidth; }),
-      };
-    })()`);
-    await press(cdp, 'Escape', 'Escape');
-    const actionCloseState = await evalExpr(cdp, `(async () => {
-      const heading = document.querySelector('.paper-doll-heading');
-      heading?.scrollIntoView?.({ block: 'start', inline: 'nearest' });
-      const dialog = document.getElementById('interaction-dialog');
-      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      const box = (selector) => { const r = document.querySelector(selector)?.getBoundingClientRect?.(); return r ? { left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width, height: r.height } : null; };
-      const avatar = box('.paper-doll-stage .player-avatar-display');
-      const stage = box('.paper-doll-stage');
-      const firstSlot = Array.from(document.querySelectorAll('.paper-doll-slots .equipment-slot')).map((element) => element.getBoundingClientRect()).sort((a, b) => a.top - b.top)[0];
-      const activeSlot = document.activeElement?.closest?.('.equipment-slot')?.dataset.slot || '';
-      const exactInvokerRestored = document.activeElement?.dataset?.testActionInvoker === 'true';
-      const headingBox = box('.paper-doll-heading');
-      const footerAction = box('.dialog-actions button:not([hidden])');
-      const overlaps = (a, b) => Boolean(a && b && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top);
-      return {
-        menuClosed: !document.querySelector('.equipment-slot-context-menu'),
-        dialogOpen: Boolean(document.getElementById('interaction-dialog')?.open),
-        activeSlot,
-        exactInvokerRestored,
-        avatar,
-        stage,
-        firstSlotTop: firstSlot?.top || 0,
-        headingVisible: Boolean(headingBox && headingBox.top >= 0 && headingBox.bottom <= innerHeight),
-        completeHeroVisible: Boolean(avatar && avatar.top >= 0 && avatar.bottom <= innerHeight && !overlaps(avatar, footerAction)),
-        heroBeforeSlots: Boolean(avatar && firstSlot && avatar.bottom <= firstSlot.top + 1),
-        noHorizontalOverflow: document.getElementById('interaction-dialog').scrollWidth <= document.getElementById('interaction-dialog').clientWidth + 1,
-      };
-    })()`);
-    const actionClosedTopScreenshot = await shot(cdp, '03-action-closed-top-of-equipment-screen.png');
-    assert('Shift+F10 opens a populated slot action panel', actionGeometry.actionCount > 0 && actionGeometry.menuBox, JSON.stringify(actionGeometry));
-    assert('slot action first and last actions are focusable and vertically reachable', actionGeometry.actionCount > 1 && actionGeometry.firstFocused && actionGeometry.lastFocused && actionGeometry.firstReachable && actionGeometry.lastReachable, JSON.stringify(actionGeometry));
-    assert('Escape closes only the slot action panel, restores the exact Shift+F10 invoker, and keeps the equipment dialog open', actionCloseState.menuClosed && actionCloseState.dialogOpen && actionCloseState.activeSlot === 'offhand' && actionCloseState.exactInvokerRestored, JSON.stringify(actionCloseState));
-    assert('slot action panel overlaps neither avatar, equipment cards, nor paper-doll stage', !actionGeometry.menuOverlapsAvatar && !actionGeometry.menuOverlapsStage && actionGeometry.menuOverlapsCards.length === 0, JSON.stringify(actionGeometry));
-    if (actionGeometry.compact) {
-      assert('compact slot actions use an in-flow drawer after the complete hero stage', actionGeometry.presentation === 'in-flow-drawer' && actionGeometry.stageBeforeMenu, JSON.stringify(actionGeometry));
-      assert('compact slot action drawer overlaps neither avatar, cards, nor stage', !actionGeometry.menuOverlapsAvatar && !actionGeometry.menuOverlapsStage && actionGeometry.menuOverlapsCards.length === 0, JSON.stringify(actionGeometry));
-      assert('compact slot action drawer and every action avoid horizontal overflow', actionGeometry.noHorizontalOverflow && actionGeometry.allActionsSingleViewportWidth, JSON.stringify(actionGeometry));
-      assert('action-closed compact top state shows its heading and complete uncropped hero before the slot list without horizontal overflow', actionCloseState.headingVisible && actionCloseState.completeHeroVisible && actionCloseState.heroBeforeSlots && actionCloseState.noHorizontalOverflow, JSON.stringify(actionCloseState));
-    }
-    const snapshotVisibleMetrics = await evalExpr(cdp, `(() => {
-      const t = window.__nethackPromptTest;
-      t.setInventorySnapshotFeatureFlags({ useSnapshotForOverview: true });
-      t.setEquipmentSnapshotFeatureFlags({ useSnapshotForPaperDoll: true });
-      t.reset(); t.setRunning(true);
-      t.event({ name: 'shim_update_inventory', reason: -1, revision: 21, inventoryRevision: 21, equipmentRevision: 8, items: [
-        { selector: 97, objectId: 3101, text: 'a - a +0 spear (weapon in hand)', quantity: 1, glyphChar: 41, wornMask: 256, semanticKind: 'object', semanticName: 'spear', semanticKnown: true },
-        { selector: 98, objectId: 3102, text: 'b - a +0 ring mail (being worn)', quantity: 1, glyphChar: 91, wornMask: 1, semanticKind: 'object', semanticName: 'ring mail', semanticKnown: true },
-        { selector: 99, objectId: 3103, text: 'c - a pearl ring (on left hand)', quantity: 1, glyphChar: 61, wornMask: 131072, semanticKind: 'object', semanticAppearance: 'pearl ring', semanticKnown: false, semanticName: 'ring of levitation' }
+    const opened = await evaluate(cdp, `(async () => {
+      for (const dialog of document.querySelectorAll('dialog[open]')) dialog.close('test');
+      const freeze = (value) => { if (value && typeof value === 'object' && !Object.isFrozen(value)) { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
+      const icons = freeze(${JSON.stringify(fixtureAssetUrls)});
+      const item = (objectId, inventoryLetter, displayName, assetId, extra = {}) => freeze({
+        objectId, inventoryLetter, text: inventoryLetter + ' - ' + displayName, displayName, quantity: 1,
+        semanticKind: 'object', semanticKnown: true, known: { identity: true, appearance: true },
+        ownership: { state: 'owned' }, iconSrc: icons[assetId], ...extra,
+      });
+      const spear = item(501, 'a', '1 spear', 'spear', { selector: 97, glyphChar: 41, semanticName: 'spear', publicClass: 'weapon', filterGroups: ['equipped', 'weapons'], equipmentSlots: ['mainHand'], equippedState: 'wielded', wornMask: 256, actionAffordances: ['wielded', 'quiver', 'engrave'] });
+      const potion = item(502, 'b', 'ruby potion', 'potion-class-icon', { glyphChar: 33, semanticName: undefined, semanticAppearance: 'ruby potion', semanticKnown: false, known: { identity: false, appearance: true }, knownFields: { beatitude: 'cursed' }, publicClass: 'potion', filterGroups: ['consumables', 'magic'], actionAffordances: ['quaff', 'drop', 'dip'] });
+      const helmet = item(503, 'c', 'uncursed +0 helmet', 'helmet', { selector: 99, glyphChar: 91, semanticName: 'helmet', publicClass: 'armor', filterGroups: ['armor'], equipmentSlots: ['armor.helm'], actionAffordances: ['wear', 'drop'] });
+      const items = freeze([
+        spear,
+        potion,
+        helmet,
+        item(504, 'd', '12 uncursed arrows', 'arrow', { quantity: 12, glyphChar: 41, semanticName: 'arrow', publicClass: 'weapon', filterGroups: ['weapons'], equipmentSlots: ['mainHand', 'offHand', 'quiver'], actionAffordances: ['quiver', 'throw', 'drop'] }),
+        item(505, 'e', 'leather armor', 'leather-armor', { glyphChar: 91, semanticName: 'leather armor', publicClass: 'armor', filterGroups: ['armor'], equipmentSlots: ['armor.body'], actionAffordances: ['wear', 'drop'] }),
+        item(506, 'f', 'food ration', 'food-ration', { glyphChar: 37, semanticName: 'food ration', publicClass: 'food', filterGroups: ['consumables'], actionAffordances: ['eat', 'drop'] }),
+        item(507, 'g', 'pick-axe', 'pick-axe', { glyphChar: 40, semanticName: 'pick-axe', publicClass: 'tool', actionAffordances: ['apply', 'wield', 'drop'] }),
+        item(508, 'h', 'lizard corpse', 'corpse', { glyphChar: 37, semanticName: 'lizard corpse', publicClass: 'food', filterGroups: ['consumables'], actionAffordances: ['eat', 'drop'] }),
+        item(509, 'i', 'blessed +2 long sword named Dawnbringer', 'long-sword', { glyphChar: 41, semanticName: 'long sword', publicClass: 'weapon', filterGroups: ['weapons'], equipmentSlots: ['mainHand', 'offHand'], actionAffordances: ['wield', 'engrave', 'drop'] }),
+        item(510, 'j', 'scroll labeled TEMOV', 'scroll-class-icon', { glyphChar: 63, semanticKnown: false, known: { identity: false, appearance: true }, semanticAppearance: 'scroll labeled TEMOV', publicClass: 'scroll', filterGroups: ['consumables', 'magic'], actionAffordances: ['read', 'drop'] }),
+        item(511, 'k', 'wand of digging', 'wand-class-icon', { glyphChar: 47, semanticName: 'wand of digging', publicClass: 'wand', filterGroups: ['magic'], knownFields: { charges: 3 }, actionAffordances: ['zap', 'engrave', 'drop'] }),
+        item(512, 'l', 'ring of protection', 'ring-class-icon', { glyphChar: 61, semanticName: 'ring of protection', publicClass: 'ring', filterGroups: ['magic'], equipmentSlots: ['ring.left', 'ring.right'], actionAffordances: ['putOn', 'drop'] }),
+        item(513, 'm', 'yellow gem', 'gem-class-icon', { glyphChar: 42, semanticKnown: false, known: { identity: false, appearance: true }, semanticAppearance: 'yellow gem', publicClass: 'gem', actionAffordances: ['throw', 'drop'] }),
+        item(514, 'n', '2 chrysoberyl stones', 'chrysoberyl', { quantity: 2, glyphChar: 42, semanticName: 'chrysoberyl', publicClass: 'gem', actionAffordances: ['throw', 'drop'] }),
+        item(515, 'o', 'towel', 'towel', { glyphChar: 40, semanticName: 'towel', publicClass: 'tool', actionAffordances: ['apply', 'drop'] }),
+        item(516, 'p', 'thin spellbook', 'spellbook-class-icon', { glyphChar: 43, semanticKnown: false, known: { identity: false, appearance: true }, semanticAppearance: 'thin spellbook', publicClass: 'spellbook', filterGroups: ['magic'], actionAffordances: ['read', 'drop'] }),
+      ]);
+      const inventory = freeze({ revision: 10, orderedItems: items });
+      const equipment = freeze({ revision: 10, inventoryRevision: 10, orderedSlots: [
+        freeze({ slotId: 'mainHand', objectId: 501, publicStatus: 'occupied', item: spear }),
+        freeze({ slotId: 'armor.helm', objectId: null, publicStatus: 'empty', blockedBy: [] }),
+        freeze({ slotId: 'ring.left', objectId: null, publicStatus: 'empty', blockedBy: [] }),
+        freeze({ slotId: 'ring.right', objectId: null, publicStatus: 'empty', blockedBy: [] }),
+        freeze({ slotId: 'quiver', objectId: null, publicStatus: 'empty', blockedBy: [] }),
       ] });
-      const equipmentDefault = t.equipment();
-      const equipmentSnapshot = t.equipmentSnapshot();
-      t.event({ name: 'shim_start_menu', window: 222 });
-      t.event({ name: 'shim_add_menu', window: 222, selector: 97, text: 'a - stale menu spear label', glyphChar: 41, semanticKind: 'object', semanticName: 'stale spear label', semanticKnown: true });
-      t.event({ name: 'shim_add_menu', window: 222, selector: 98, text: 'b - stale menu armor label', glyphChar: 91, semanticKind: 'object', semanticName: 'stale armor label', semanticKnown: true });
-      t.event({ name: 'shim_add_menu', window: 222, selector: 99, text: 'c - stale menu ring label', glyphChar: 61, semanticKind: 'object', semanticAppearance: 'stale ring appearance', semanticKnown: false, semanticName: 'ring of levitation' });
-      t.event({ name: 'shim_end_menu', window: 222, prompt: 'Inventory:' });
-      const defaultInventory = t.inventory();
-      const defaultRows = Array.from(document.querySelectorAll('#interaction-options .rpg-inventory-row')).map((row) => row.innerText);
-      const defaultPaper = document.querySelector('.rpg-equipment-screen')?.innerText || '';
-      const disabledInventoryFlags = t.setInventorySnapshotFeatureFlags({ useSnapshotForOverview: false });
-      const fallbackRows = Array.from(document.querySelectorAll('#interaction-options .rpg-inventory-row')).map((row) => row.innerText);
-      t.setInventorySnapshotFeatureFlags({ useSnapshotForOverview: true });
-      const disabledEquipmentFlags = t.setEquipmentSnapshotFeatureFlags({ useSnapshotForPaperDoll: false });
-      const equipmentFallback = t.equipment();
-      const reenabledEquipmentFlags = t.setEquipmentSnapshotFeatureFlags({ useSnapshotForPaperDoll: true });
-      const equipmentReenabled = t.equipment();
-      return { equipmentDefault, equipmentSnapshot, defaultInventory, defaultRows, defaultPaper, disabledInventoryFlags, fallbackRows, disabledEquipmentFlags, equipmentFallback, reenabledEquipmentFlags, equipmentReenabled };
+      const statusValues = freeze([
+        freeze([0, 'Brynhild the Stripling']), freeze([1, '18/01']), freeze([2, '12']), freeze([3, '16']),
+        freeze([4, '8']), freeze([5, '10']), freeze([6, '9']), freeze([7, 'Lawful']),
+        freeze([10, '125']), freeze([11, '4']), freeze([12, '7']), freeze([13, '5']), freeze([14, '3']),
+        freeze([16, '214']), freeze([18, '24']), freeze([19, '24']), freeze([20, 'The Dungeons of Doom:4']), freeze([21, '820']),
+      ]);
+      const messages = freeze([
+        'Welcome to NetHack.',
+        'Be careful! New moon tonight.',
+        'You see here a spear.',
+        'You pick up the spear.',
+        'You are carrying too much to run.',
+        'Your movements are slowed slightly because of your load.',
+        'You finish putting on the helmet.',
+        'Your pack feels organized.',
+        'You feel ready for the dungeon.',
+        'Inventory updated.',
+      ]);
+      window.__itemOwnerFixture = { freeze, spear, potion, helmet, inventory, equipment, statusValues, messages, intents: [], iconInputs: [] };
+      const owner = window.NetHackUxEquipmentScreen.controller;
+      owner.close({ reason: 'test-reset', cancelNative: false });
+      const invoker = document.getElementById('inventory-equipment-button'); invoker.focus();
+      owner.open({
+        documentRoot: document, inventory, equipment, statusValues, messages, invoker, initialMode: 'equipment',
+        avatar: { src: icons['human-valkyrie-female-avatar'], alt: 'Human Valkyrie' },
+        iconResolver(rawItem) { window.__itemOwnerFixture.iconInputs.push({ objectId: rawItem.objectId, semanticName: rawItem.semanticName || '', semanticAppearance: rawItem.semanticAppearance || '', glyphChar: rawItem.glyphChar || 0 }); return rawItem.iconSrc ? { src: rawItem.iconSrc } : null; },
+        onIntent(intent) { window.__itemOwnerFixture.intents.push(intent); return true; },
+      });
+      await Promise.all(Array.from(document.querySelectorAll('.uxm-item-icon img')).map((image) => image.decode?.().catch(() => {})));
+      return { snapshot: owner.snapshot(), frozen: Object.isFrozen(inventory) && Object.isFrozen(inventory.orderedItems) && Object.isFrozen(potion), activeTag: document.activeElement?.tagName || '', activeText: document.activeElement?.textContent?.trim() || '', activeInside: document.getElementById('ux-items-root').contains(document.activeElement) };
     })()`);
-    await evalExpr(cdp, `(() => { document.querySelector('.paper-doll-heading')?.scrollIntoView?.({ block: 'start', inline: 'nearest' }); return true; })()`);
-    const snapshotFlagScreenshot = await shot(cdp, '04-snapshot-backed-visible-inventory-equipment.png');
-    const noAlternateMetrics = await evalExpr(cdp, `(() => {
-      const t = window.__nethackPromptTest;
-      t.reset(); t.setRunning(true); document.getElementById('game-grid')?.focus?.();
-      t.event({ name: 'shim_update_equipment', revision: 41, inventoryRevision: 41, slots: [
-        { slotId: 'mainHand', objectId: 4101, item: { selector: 102, objectId: 4101, text: 'f - a blessed +1 long sword (weapon in right hand)', glyphChar: 41, semanticKind: 'object', semanticName: 'long sword', semanticKnown: true } },
-        { slotId: 'offHand', objectId: 4101, item: { selector: 102, objectId: 4101, text: 'f - a blessed +1 long sword (weapon in right hand)', glyphChar: 41, semanticKind: 'object', semanticName: 'long sword', semanticKnown: true } },
-        { slotId: 'armor.body', objectId: 4102, item: { selector: 103, objectId: 4102, text: 'g - an uncursed leather armor (being worn)', glyphChar: 91, semanticKind: 'object', semanticName: 'leather armor', semanticKnown: true } },
-        { slotId: 'armor.shirt', objectId: 4103, item: { selector: 104, objectId: 4103, text: 'h - a T-shirt (being worn)', glyphChar: 91, semanticKind: 'object', semanticName: 'T-shirt', semanticKnown: true } }
-      ] });
-      t.event({ name: 'shim_start_menu', window: 241 });
-      [
-        [102, 'f - a blessed +1 long sword (weapon in right hand)', 41, 'long sword'],
-        [103, 'g - an uncursed leather armor (being worn)', 91, 'leather armor'],
-        [104, 'h - a T-shirt (being worn)', 91, 'T-shirt']
-      ].forEach(([selector, text, glyphChar, semanticName]) => t.event({ name: 'shim_add_menu', window: 241, selector, objectId: selector + 4000, text, glyphChar, semanticKind: 'object', semanticName, semanticKnown: true }));
-      t.event({ name: 'shim_end_menu', window: 241, prompt: 'Inventory:' });
-      const offhandSlot = document.querySelector('.paper-doll-slots .equipment-slot[data-slot="offhand"]');
-      const mainSlot = document.querySelector('.paper-doll-slots .equipment-slot[data-slot="main-hand"]');
-      const armorCards = Array.from(document.querySelectorAll('.paper-doll-slots .equipment-slot')).filter((el) => ['armor-suit', 'shirt'].includes(el.dataset.slot)).map((el) => ({ slot: el.dataset.slot, text: el.innerText, equipped: el.classList.contains('equipped') }));
-      const offhandButtonLabels = Array.from(offhandSlot?.querySelectorAll('button') || []).map((button) => button.textContent.trim());
-      closeInventoryContextMenu?.(); offhandSlot?.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 520, clientY: 360 }));
-      const offhandContextMenuText = document.querySelector('.equipment-slot-context-menu')?.innerText || '';
-      return { paper: document.querySelector('.rpg-equipment-screen')?.innerText || '', mainText: mainSlot?.innerText || '', offhandText: offhandSlot?.innerText || '', offhandEquipped: offhandSlot?.classList.contains('equipped') || false, offhandButtonLabels, offhandContextMenuText, armorCards };
-    })()`);
-    await evalExpr(cdp, `(() => { document.querySelector('.paper-doll-slots .equipment-slot[data-slot="offhand"]')?.scrollIntoView?.({ block: 'center', inline: 'nearest' }); return true; })()`);
-    const noAlternateScreenshot = await shot(cdp, '05-no-alternate-offhand-empty-equipment-screen.png');
-    const shirtAfterTakeoffMetrics = await evalExpr(cdp, `(() => new Promise((resolve) => {
-      const t = window.__nethackPromptTest;
-      t.clearSentInputs?.();
-      document.querySelector('.paper-doll-slots .equipment-slot[data-slot="armor-suit"] button[data-command-key="T"]')?.click();
-      t.forceCloseCurrentMenuForTest();
-      window.setTimeout(() => {
-        const sent = t.sentInputs().join('');
-        const commands = t.sentUiProtocolCommands();
-        t.event({ name: 'shim_update_inventory', revision: 42, inventoryRevision: 42, equipmentRevision: 42, items: [
-          { selector: 102, objectId: 4101, text: 'f - a blessed +1 long sword (weapon in right hand)', glyphChar: 41, wornMask: 256, semanticKind: 'object', semanticName: 'long sword', semanticKnown: true },
-          { selector: 103, objectId: 4102, text: 'g - an uncursed leather armor', glyphChar: 91, wornMask: 0, semanticKind: 'object', semanticName: 'leather armor', semanticKnown: true },
-          { selector: 104, objectId: 4103, text: 'h - a T-shirt (being worn)', glyphChar: 91, wornMask: 64, semanticKind: 'object', semanticName: 'T-shirt', semanticKnown: true }
-        ] });
-        t.event({ name: 'shim_update_equipment', revision: 42, inventoryRevision: 42, slots: [
-          { slotId: 'mainHand', objectId: 4101, item: { selector: 102, objectId: 4101, text: 'f - a blessed +1 long sword (weapon in right hand)', glyphChar: 41, semanticKind: 'object', semanticName: 'long sword', semanticKnown: true } },
-          { slotId: 'offHand', objectId: 4101, item: { selector: 102, objectId: 4101, text: 'f - a blessed +1 long sword (weapon in right hand)', glyphChar: 41, semanticKind: 'object', semanticName: 'long sword', semanticKnown: true } },
-          { slotId: 'armor.body' },
-          { slotId: 'armor.shirt', objectId: 4103, item: { selector: 104, objectId: 4103, text: 'h - a T-shirt (being worn)', glyphChar: 91, semanticKind: 'object', semanticName: 'T-shirt', semanticKnown: true } }
-        ] });
-        t.event({ name: 'shim_start_menu', window: 242 });
-        [
-          [102, 'f - a blessed +1 long sword (weapon in right hand)', 41, 'long sword'],
-          [103, 'g - an uncursed leather armor', 91, 'leather armor'],
-          [104, 'h - a T-shirt (being worn)', 91, 'T-shirt']
-        ].forEach(([selector, text, glyphChar, semanticName]) => t.event({ name: 'shim_add_menu', window: 242, selector, objectId: selector + 4000, text, glyphChar, semanticKind: 'object', semanticName, semanticKnown: true }));
-        t.event({ name: 'shim_end_menu', window: 242, prompt: 'Inventory:' });
-        const armorCards = Array.from(document.querySelectorAll('.paper-doll-slots .equipment-slot')).filter((el) => ['armor-suit', 'shirt'].includes(el.dataset.slot)).map((el) => ({ slot: el.dataset.slot, text: el.innerText, equipped: el.classList.contains('equipped'), box: (() => { const r = el.getBoundingClientRect(); return { left: Math.round(r.left), top: Math.round(r.top), right: Math.round(r.right), bottom: Math.round(r.bottom) }; })() }));
-        const offhandSlot = document.querySelector('.paper-doll-slots .equipment-slot[data-slot="offhand"]');
-        resolve({ sent, commands, paper: document.querySelector('.rpg-equipment-screen')?.innerText || '', armorCards, offhandText: offhandSlot?.innerText || '', offhandEquipped: offhandSlot?.classList.contains('equipped') || false, offhandButtons: Array.from(offhandSlot?.querySelectorAll('button') || []).map((button) => button.textContent.trim()) });
-      }, 170);
+    assert('owner opens from immutable snapshots', opened.snapshot.open && opened.frozen, JSON.stringify(opened));
+    assert('owner moves focus inside workspace', opened.activeTag === 'BUTTON' && opened.activeInside, JSON.stringify(opened));
+
+    const initialDom = await evaluate(cdp, `(() => ({
+      ownerCount: document.querySelectorAll('[data-ux-owner="items"]').length,
+      legacyEquipmentShell: Boolean(document.getElementById('equipment-slots')),
+      legacyDialogWriter: Boolean(document.querySelector('#interaction-dialog .rpg-equipment-screen')),
+      rowSelectors: Array.from(document.querySelectorAll('#ux-items-root .uxm-item-row')).map((row) => row.dataset.selector),
+      body: document.getElementById('ux-items-root').innerText,
+      stats: Array.from(document.querySelectorAll('#ux-items-root .uxm-items-status .ux-status-chip')).filter((chip) => chip.getClientRects().length && getComputedStyle(chip).display !== 'none').map((chip) => ({ field: chip.dataset.statusField, label: chip.querySelector('span')?.textContent || '', value: chip.querySelector('strong')?.textContent || '' })),
+      overflow: window.NetHackUxEquipmentScreen.controller.snapshot().horizontalOverflow,
+      log: (() => { const viewport = document.querySelector('#ux-items-root .uxm-recent-log-scroll'); return { lines: Array.from(viewport?.querySelectorAll('li') || [], (line) => line.textContent), scrollable: Boolean(viewport && viewport.scrollHeight > viewport.clientHeight), atBottom: Boolean(viewport && viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight <= 1) }; })(),
     }))()`);
-    await evalExpr(cdp, `(() => { document.querySelector('.paper-doll-slots .equipment-slot[data-slot="armor-suit"]')?.scrollIntoView?.({ block: 'center', inline: 'nearest' }); return true; })()`);
-    const shirtAfterTakeoffScreenshot = await shot(cdp, '06-shirt-visible-after-body-takeoff-equipment-screen.png');
-    const slotText = metrics.slots.map((s) => `${s.slot}: ${s.text}`).join('\n');
-    const rowText = metrics.rows.map((r) => r.text).join('\n');
-    assert('RPG equipment dialog opens', metrics.dialog.interactionOpen && /Equipment \/ Inventory/i.test(metrics.dialog.title), metrics.dialog.title);
-    assert('enlarged player avatar tile visible instead of mannequin', /Hero equipment/i.test(metrics.paper) && metrics.hasPlayerAvatar && /(?:hero-avatar|avatar)$/i.test(metrics.playerAvatarTileId) && /avatar\.png/i.test(metrics.playerAvatarSrc), JSON.stringify({ paper: metrics.paper, tile: metrics.playerAvatarTileId, src: metrics.playerAvatarSrc }));
-    assert('player avatar image preserves full-body aspect with object-fit contain instead of CSS background stretching', metrics.avatarImageStyle?.objectFit === 'contain' && /center bottom/i.test(metrics.avatarImageStyle?.objectPosition || '') && metrics.avatarImageStyle.width >= 220 && metrics.avatarImageStyle.height >= 200, JSON.stringify({ avatar: metrics.avatarStageBox, source: metrics.playerAvatarSource, image: metrics.avatarImageStyle }));
-    ['main-hand','offhand','quiver','armor-suit','cloak','helmet','gloves','boots','shield','amulet','left-ring','right-ring','eyes'].forEach((slot) => assert(`slot ${slot} visible`, metrics.slots.some((s) => s.slot === slot), slotText));
-    ['long sword','ring mail','cloak of protection','leather gloves','iron shoes','small shield','ring of protection','ring of adornment','amulet of reflection','blindfold','12 arrows'].forEach((name) => assert(`equipped ${name} visible`, new RegExp(name, 'i').test(slotText), slotText));
-    ['dagger','helmet','darts','quarterstaff','splint mail','Hawaiian shirt','T-shirt','large box','long sword','ring mail'].forEach((name) => assert(`inventory row ${name} visible`, new RegExp(name, 'i').test(rowText), rowText));
-    assert('inventory item cards show cleaned item names, not raw leading selector text', !/^\s*[a-z]\s+-\s+/mi.test(rowText), rowText);
-    assert('inventory overview rows do not show vague CHOOSE badges', !metrics.rows.some((row) => row.badges.some((badge) => /^CHOOSE$/i.test(badge))) && !/\bCHOOSE\b/.test(rowText), JSON.stringify(metrics.rows));
-    assert('single-clicking inventory row is a no-op with no modal/context popup', metrics.singleClickHelmetSent === '' && metrics.singleClickHelmetOpen && /Equipment \/ Inventory/i.test(metrics.singleClickHelmetTitle || '') && !metrics.singleClickContextOpen, JSON.stringify({ sent: metrics.singleClickHelmetSent, title: metrics.singleClickHelmetTitle, open: metrics.singleClickHelmetOpen, context: metrics.singleClickContextOpen }));
-    const wearHelmetNativeCommand = (metrics.wearHelmetCommands || []).find((command) => command.actionId === 'item.wear' && command.payload?.route?.command === 'Wm');
-    assert('double-clicking unequipped armor row waits for backing inventory menu close before selector/native command', metrics.wearHelmetBeforeCloseSent === '\u001b' && !(metrics.wearHelmetBeforeCloseCommands || []).some((command) => command.actionId === 'item.wear'), JSON.stringify({ before: metrics.wearHelmetBeforeCloseSent, beforeCommands: metrics.wearHelmetBeforeCloseCommands, after: metrics.wearHelmetSent, afterCommands: metrics.wearHelmetCommands }));
-    assert('double-clicking unequipped armor row uses native uiCommand Wear route after the backing menu closes', metrics.wearHelmetSent === '\u001bi' && wearHelmetNativeCommand && wearHelmetNativeCommand.commandType === 'action.execute' && wearHelmetNativeCommand.payload?.promptPolicy === 'no-followup', JSON.stringify({ sent: metrics.wearHelmetSent, commands: metrics.wearHelmetCommands }));
-    assert('equipment screen stays open when NetHack reports the backing inventory menu closed after an equipment action', metrics.wearHelmetAfterCloseSignal?.open && /Equipment \/ Inventory/i.test(metrics.wearHelmetAfterCloseSignal.title || '') && /Hero equipment/i.test(metrics.wearHelmetAfterCloseSignal.paper || ''), JSON.stringify(metrics.wearHelmetAfterCloseSignal));
-    assert('equipment screen live-refreshes newly equipped item into the matching slot and updates the inventory row helper text', metrics.wearHelmetAfterRefresh?.open && /Equipment \/ Inventory/i.test(metrics.wearHelmetAfterRefresh.title || '') && /helmet/i.test(metrics.wearHelmetAfterRefresh.helmetSlot || '') && /being worn/i.test(metrics.wearHelmetAfterRefresh.helmetRow || ''), JSON.stringify(metrics.wearHelmetAfterRefresh));
-    assert('equipment screen ignores late close signals after live refresh from an equipment action', metrics.wearHelmetAfterLateCloseSignal?.open && /Equipment \/ Inventory/i.test(metrics.wearHelmetAfterLateCloseSignal.title || '') && /Hero equipment/i.test(metrics.wearHelmetAfterLateCloseSignal.paper || '') && /helmet/i.test(metrics.wearHelmetAfterLateCloseSignal.helmetSlot || '') && /being worn/i.test(metrics.wearHelmetAfterLateCloseSignal.helmetRow || ''), JSON.stringify(metrics.wearHelmetAfterLateCloseSignal));
-    assert('double-clicking replacement armor under a cloak routes outer cloak off, suit off, then wear in one smooth sequence', /^\u001bTdTcWpi?$/.test(metrics.swapArmorSent) && /cloak of protection.*ring mail.*splint mail/i.test(metrics.swapArmorFeedback) && /Change armor/i.test(metrics.swapArmorRow) && /removes 2 armor layers first/i.test(metrics.swapArmorAria), JSON.stringify({ sent: metrics.swapArmorSent, feedback: metrics.swapArmorFeedback, row: metrics.swapArmorRow, aria: metrics.swapArmorAria }));
-    assert('double-clicking replacement shirt under suit and cloak routes all outer layers before shirt replacement', /^(?:\u001b)?TdTcTrWqi?$/.test(metrics.layeredShirtSwapSent) && /cloak of protection.*ring mail.*T-shirt.*Hawaiian shirt/i.test(metrics.layeredShirtFeedback) && /Change armor/i.test(metrics.layeredShirtRow), JSON.stringify({ sent: metrics.layeredShirtSwapSent, feedback: metrics.layeredShirtFeedback, row: metrics.layeredShirtRow }));
-    const removeRingNativeCommand = (metrics.removeRingCommands || []).find((command) => command.commandType === 'equipment.change' && command.payload?.action === 'removeAccessory' && Number.isInteger(command.payload?.itemId));
-    assert('double-clicking equipped ring row uses direct equipment.change Remove route without selector choreography', /^\u001b?i?$/.test(metrics.removeRingSent) && !/R[a-zA-Z]/.test(metrics.removeRingSent) && removeRingNativeCommand, JSON.stringify({ sent: metrics.removeRingSent, commands: metrics.removeRingCommands }));
-    const takeOffArmorNativeCommand = (metrics.takeOffArmorCommands || []).find((command) => command.commandType === 'equipment.change' && command.payload?.action === 'takeOff' && command.payload?.slotId === 'armor.body' && Number.isInteger(command.payload?.itemId));
-    const quiverNativeCommand = (metrics.quiverCommands || []).find((command) => command.commandType === 'equipment.change' && command.payload?.action === 'clearQuiver' && command.payload?.slotId === 'quiver');
-    const swapNativeCommand = (metrics.swapCommands || []).find((command) => command.actionId === 'slot.swapMainAlternate' && command.payload?.route?.command === 'x');
-    assert('hero equipment armor slot routes direct equipment.change take-off after canceling the backing menu without opening item-action modal', /^\u001b?i?$/.test(metrics.takeOffArmorSent) && !/T[a-zA-Z]/.test(metrics.takeOffArmorSent) && takeOffArmorNativeCommand && /Equipment \/ Inventory/i.test(metrics.takeOffArmorTitle || '') && !/Take off.*Choose item|Do what with/i.test(`${metrics.takeOffArmorTitle}\n${metrics.takeOffArmorPrompt}`), JSON.stringify({ sent: metrics.takeOffArmorSent, title: metrics.takeOffArmorTitle, prompt: metrics.takeOffArmorPrompt, commands: metrics.takeOffArmorCommands }));
-    assert('hero equipment quiver slot routes direct equipment.change clearQuiver without selector choreography', /^\u001b?i?$/.test(metrics.quiverSent) && !/Q[a-zA-Z]/.test(metrics.quiverSent) && quiverNativeCommand, JSON.stringify({ sent: metrics.quiverSent, commands: metrics.quiverCommands }));
-    assert('hero equipment alternate slot routes first-class semantic swap command after canceling the backing inventory menu', ((/^i?$/.test(metrics.swapSent) && swapNativeCommand) || /^(?:\u001b)?xi?$/.test(metrics.swapSent)) && /Swap main hand with alternate weapon/i.test(metrics.swapFeedback), JSON.stringify({ sent: metrics.swapSent, feedback: metrics.swapFeedback, commands: metrics.swapCommands }));
-    assert('hero equipment swap button uses semantic action label', /Swap with alternate weapon/i.test(slotText), slotText);
-    assert('right-click alternate slot exposes first-class swap action with player-facing hint', /Swap with alternate weapon[\s\S]*Swap your main-hand and alternate weapons/i.test(metrics.offhandContextMenuText), metrics.offhandContextMenuText);
-    assert('post-swap equipment refresh shows labels swapped', metrics.swappedSlotText.some((s) => s.slot === 'main-hand' && /dagger/i.test(s.text)) && metrics.swappedSlotText.some((s) => s.slot === 'offhand' && /long sword/i.test(s.text)), JSON.stringify(metrics.swappedSlotText));
-    assert('duplicate main-hand snapshot does not create a fake alternate/offhand item or swap/take-off controls', /long sword/i.test(noAlternateMetrics.mainText) && /No alternate\/offhand metadata known/i.test(noAlternateMetrics.offhandText) && !noAlternateMetrics.offhandEquipped && !/long sword|Swap with alternate weapon|Take off/i.test(noAlternateMetrics.offhandText) && noAlternateMetrics.offhandButtonLabels.length === 0 && !/Swap with alternate weapon|Take off/i.test(noAlternateMetrics.offhandContextMenuText), JSON.stringify(noAlternateMetrics));
-    assert('body armor and shirt have a single visible body card with no overlapping duplicate armor-body cards', noAlternateMetrics.armorCards.length === 1 && noAlternateMetrics.armorCards[0].slot === 'armor-suit' && /leather armor/i.test(noAlternateMetrics.armorCards[0].text) && !/T-shirt/.test(noAlternateMetrics.armorCards[0].text), JSON.stringify(noAlternateMetrics.armorCards));
-    const shirtTakeoffNativeCommand = (shirtAfterTakeoffMetrics.commands || []).find((command) => command.commandType === 'equipment.change' && command.payload?.action === 'takeOff' && command.payload?.slotId === 'armor.body' && Number.isInteger(command.payload?.itemId));
-    assert('taking off body armor while a shirt remains routes direct equipment.change take-off and reveals exactly one shirt-backed body card', /^\u001b?i?$/.test(shirtAfterTakeoffMetrics.sent) && !/T[a-zA-Z]/.test(shirtAfterTakeoffMetrics.sent) && shirtTakeoffNativeCommand && shirtAfterTakeoffMetrics.armorCards.length === 1 && shirtAfterTakeoffMetrics.armorCards[0].slot === 'armor-suit' && /T-shirt/i.test(shirtAfterTakeoffMetrics.armorCards[0].text) && !/leather armor/i.test(shirtAfterTakeoffMetrics.armorCards[0].text) && /No alternate\/offhand metadata known/i.test(shirtAfterTakeoffMetrics.offhandText) && !shirtAfterTakeoffMetrics.offhandEquipped && shirtAfterTakeoffMetrics.offhandButtons.length === 0, JSON.stringify(shirtAfterTakeoffMetrics));
-    const dragHelmetNativeCommand = (metrics.dragHelmet.commands || []).find((command) => command.actionId === 'item.wear' && command.payload?.route?.command === 'Wm');
-    const dragDartsMainHandNativeCommand = (metrics.dragDartsMainHand.commands || []).find((command) => command.commandType === 'equipment.change' && command.payload?.action === 'wieldMain' && Number.isInteger(command.payload?.itemId));
-    const dragDartsQuiverNativeCommand = (metrics.dragDartsQuiver.commands || []).find((command) => command.commandType === 'equipment.change' && command.payload?.action === 'quiver' && command.payload?.slotId === 'quiver' && Number.isInteger(command.payload?.itemId));
-    assert('drag helmet to helmet slot routes native wear command plus selector', (((/^i?$/.test(metrics.dragHelmet.sent) || /^\u001b$/.test(metrics.dragHelmet.sent)) && dragHelmetNativeCommand) || /^(?:\u001b)?Wmi?$/.test(metrics.dragHelmet.sent)) && /Wear|Helmet|no writable shim child/i.test(metrics.dragHelmet.feedback), JSON.stringify(metrics.dragHelmet));
-    assert('drag staff to main-hand stays in native/safe equipment routing without opening item actions', /^i?$/.test(metrics.dragStaffMainHand.sent) && /shield is equipped|no writable shim child/i.test(metrics.dragStaffMainHand.feedback) && /Equipment \/ Inventory/i.test(metrics.dragStaffMainHand.title) && metrics.dragStaffMainHand.open && !/Do what with|Choose an action for this item|Throw one of these|Wield this stack as your weapon/i.test(metrics.dragStaffMainHand.body), JSON.stringify(metrics.dragStaffMainHand));
-    assert('drag darts to main-hand routes direct equipment.change wield command without row-click fallthrough', (/^\u001b?i?$/.test(metrics.dragDartsMainHand.sent) || /^\u001b$/.test(metrics.dragDartsMainHand.sent)) && !/w[a-zA-Z]/.test(metrics.dragDartsMainHand.sent) && dragDartsMainHandNativeCommand && /Wield|main hand|no writable shim child/i.test(metrics.dragDartsMainHand.feedback) && /Equipment \/ Inventory/i.test(metrics.dragDartsMainHand.title) && metrics.dragDartsMainHand.open, JSON.stringify(metrics.dragDartsMainHand));
-    assert('drag darts to quiver routes direct equipment.change quiver command without row-click fallthrough', (/^\u001b?i?$/.test(metrics.dragDartsQuiver.sent) || /^\u001b$/.test(metrics.dragDartsQuiver.sent)) && !/Q[a-zA-Z]/.test(metrics.dragDartsQuiver.sent) && dragDartsQuiverNativeCommand && /quiver|Ready|no writable shim child/i.test(metrics.dragDartsQuiver.feedback), JSON.stringify(metrics.dragDartsQuiver));
-    assert('right-click darts context menu shows modern semantic actions', /Wield in main hand/i.test(metrics.contextMenuText) && /Ready in quiver/i.test(metrics.contextMenuText) && /Throw/i.test(metrics.contextMenuText) && /Drop/i.test(metrics.contextMenuText), metrics.contextMenuText);
-    assert('right-click darts context menu keeps semantic action ids in DOM only', ['item.wield.mainHand','item.quiver','item.throw','item.drop'].every((id) => metrics.contextActionIds.includes(id)), JSON.stringify(metrics.contextActionIds));
-    assert('right-click lower/scrolled container row opens context menu for exact large box row', /large box/i.test(metrics.largeBoxContextHeader) && /Open \/ loot \/ apply/i.test(metrics.largeBoxContextMenuText), JSON.stringify({ header: metrics.largeBoxContextHeader, menu: metrics.largeBoxContextMenuText }));
-    const largeBoxCommands = (metrics.largeBoxApplyCommands || []).filter((command) => command.actionId === 'item.lootOrApply');
-    const largeBoxNativeCommand = largeBoxCommands.find((command) => command.payload?.route?.command === 'ay');
-    assert('right-click lower/scrolled container action selects exact large-box object and dispatches once into the existing core route at the current inventory revision', metrics.largeBoxApplySent === '\u001b'
-      && largeBoxCommands.length === 1 && metrics.largeBoxAcceptedCoreCommands?.length === 1
-      && largeBoxNativeCommand?.payload?.item?.objectId === 1121
-      && largeBoxNativeCommand.payload.item.inventoryLetter === 'y'
-      && largeBoxNativeCommand.expectedRevision?.inventory === metrics.largeBoxCurrentInventoryRevision
-      && metrics.largeBoxAcceptedCoreCommands[0].commandId === largeBoxNativeCommand.commandId
-      && /large box/i.test(metrics.largeBoxContextHeader) && !/darts/i.test(metrics.largeBoxContextHeader),
-    JSON.stringify({ sent: metrics.largeBoxApplySent, feedback: metrics.largeBoxApplyFeedback, commands: metrics.largeBoxApplyCommands, accepted: metrics.largeBoxAcceptedCoreCommands, revision: metrics.largeBoxCurrentInventoryRevision }));
-    assert('right-click context menus have no raw/generic/developer-facing leakage', !metrics.rawGenericContextLeak, `${metrics.contextMenuText}\n${metrics.offhandContextMenuText}`);
-    assert('equipment-slot drops never open generic item-action menu', !/Do what with the darts\?|Do what with.*staff|Choose an action for this item|Throw one of these|Wield this stack as your weapon/i.test(`${metrics.dragStaffMainHand.body}\n${metrics.dragDartsMainHand.body}\n${metrics.dragDartsQuiver.body}`), JSON.stringify({ staff: metrics.dragStaffMainHand, main: metrics.dragDartsMainHand, quiver: metrics.dragDartsQuiver }));
-    assert('invalid drag is rejected without sending unsafe input', metrics.dragInvalidFoodToHelmet.sent === '' && /does not match|Only/i.test(metrics.dragInvalidFoodToHelmet.feedback), JSON.stringify(metrics.dragInvalidFoodToHelmet));
-    assert('slots are spatially arranged around the enlarged player avatar, not a plain list', metrics.slotBoxes.helmet?.top < metrics.slotBoxes['armor-suit']?.top && metrics.slotBoxes['main-hand']?.left > metrics.slotBoxes.shield?.left, JSON.stringify(metrics.slotBoxes));
-    const slotEntries = Object.entries(metrics.slotBoxes);
-    const overlaps = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
-    const slotLayoutProblems = slotEntries.filter(([, box]) => box.left < 8 || box.top < -1 || box.right > metrics.stageSize.width - 8 || box.bottom > metrics.stageSize.height - 1).map(([slot, box]) => ({ slot, box }));
-    const slotOverlapProblems = slotEntries.flatMap(([slot, box], index) => slotEntries.slice(index + 1).filter(([, otherBox]) => overlaps(box, otherBox)).map(([otherSlot]) => [slot, otherSlot]));
-    const avatarOverlapProblems = slotEntries.filter(([, box]) => overlaps(box, metrics.avatarStageBox)).map(([slot]) => slot);
-    assert('equipment cards stay wholly inside the paper-doll stage', slotLayoutProblems.length === 0, JSON.stringify({ stage: metrics.stageSize, slotLayoutProblems, boxes: metrics.slotBoxes }));
-    assert('equipment cards do not overlap one another while the enlarged portrait intentionally extends beneath them', slotOverlapProblems.length === 0 && metrics.avatarStageBox.width >= metrics.stageSize.width * 0.7 && metrics.avatarStageBox.height >= metrics.stageSize.height * 0.9 && avatarOverlapProblems.length >= 4, JSON.stringify({ stage: metrics.stageSize, avatar: metrics.avatarStageBox, slotOverlapProblems, avatarOverlapProblems, boxes: metrics.slotBoxes }));
-    assert('snapshot-backed inventory overview is enabled by default and uses public snapshot rows instead of stale compatibility menu text', snapshotVisibleMetrics.defaultInventory.featureFlags.useSnapshotForOverview === true && snapshotVisibleMetrics.defaultInventory.snapshotRevision === 21 && /spear/i.test(snapshotVisibleMetrics.defaultRows.join('\n')) && /ring mail/i.test(snapshotVisibleMetrics.defaultRows.join('\n')) && /pearl ring/i.test(snapshotVisibleMetrics.defaultRows.join('\n')) && !/stale menu|levitation/i.test(snapshotVisibleMetrics.defaultRows.join('\n')), JSON.stringify(snapshotVisibleMetrics));
-    assert('inventory overview still has guarded compatibility fallback when the snapshot flag is disabled', snapshotVisibleMetrics.disabledInventoryFlags.useSnapshotForOverview === false && /stale menu spear label/i.test(snapshotVisibleMetrics.fallbackRows.join('\n')), JSON.stringify(snapshotVisibleMetrics));
-    assert('snapshot-backed equipment paper doll is enabled by default and renders public worn-mask slots without leaking hidden ring identity', snapshotVisibleMetrics.equipmentSnapshot.featureFlags.useSnapshotForPaperDoll === true && snapshotVisibleMetrics.equipmentSnapshot.revision === 8 && /spear/i.test(snapshotVisibleMetrics.equipmentDefault.text) && /ring mail/i.test(snapshotVisibleMetrics.equipmentDefault.text) && /pearl ring/i.test(snapshotVisibleMetrics.equipmentDefault.text) && !/levitation/i.test(snapshotVisibleMetrics.equipmentDefault.text), JSON.stringify(snapshotVisibleMetrics));
-    assert('equipment paper doll can still fall back to compatibility routing behind the feature flag', snapshotVisibleMetrics.disabledEquipmentFlags.useSnapshotForPaperDoll === false && snapshotVisibleMetrics.reenabledEquipmentFlags.useSnapshotForPaperDoll === true && /spear/i.test(snapshotVisibleMetrics.equipmentReenabled.text), JSON.stringify(snapshotVisibleMetrics));
-    assert('no raw inventory selector labels or intro text', !/Inventory selector|Welcome to NetHack|Shall I pick/i.test(`${metrics.body} ${rowText}`));
-    const summary = { ok: true, screenshots: { button: buttonScreenshot, promptlessButton: promptlessScreenshot, actionOpen: screenshot, actionClosedTop: actionClosedTopScreenshot, snapshotFlag: snapshotFlagScreenshot, noAlternate: noAlternateScreenshot, shirtAfterTakeoff: shirtAfterTakeoffScreenshot }, routeMetrics, promptlessMetrics, actionGeometry, actionCloseState, snapshotVisibleMetrics, noAlternateMetrics, shirtAfterTakeoffMetrics, metrics };
-    fs.writeFileSync(path.join(outDir, 'equipment-screen-rpg-summary.json'), JSON.stringify(summary, null, 2));
-    console.log(`equipment screen RPG test passed: ${screenshot}`);
-  } catch (error) {
-    fs.writeFileSync(path.join(outDir, 'equipment-screen-rpg-failure.log'), error.stack || String(error));
-    throw error;
+    const layout1440 = await layoutMetrics(cdp);
+    const firstShot = await screenshot(cdp, '01-many-items-1440x1080.png');
+    assert('single item DOM owner', initialDom.ownerCount === 1 && !initialDom.legacyEquipmentShell && !initialDom.legacyDialogWriter, JSON.stringify(initialDom));
+    assert('numeric selector and inventoryLetter are both routed', initialDom.rowSelectors.includes('a') && initialDom.rowSelectors.includes('b') && initialDom.rowSelectors.includes('c'), JSON.stringify(initialDom.rowSelectors));
+    assert('equipment distinctions and empty slots render', /Main hand[\s\S]*spear/i.test(initialDom.body) && /Helmet[\s\S]*Empty/i.test(initialDom.body), initialDom.body);
+    assert('1440x1080 inventory dominates the right column and shows at least ten rows', layout1440.listShare >= 0.62 && layout1440.visibleRowCount >= 10 && layout1440.listClientHeight >= 480, JSON.stringify(layout1440));
+    assert('1440x1080 compact action rail remains shallow and separate', layout1440.railShare <= 0.18 && layout1440.listAndRailSeparated && layout1440.controlsContained, JSON.stringify(layout1440));
+    assert('all many-item rows use decoded resolved art at 28–36 CSS pixels', layout1440.resolvedIconCount === layout1440.rowCount && layout1440.iconBoxes.every((box) => box.width >= 28 && box.width <= 36 && box.height >= 28 && box.height <= 36), JSON.stringify(layout1440));
+    assert('canonical icon provider receives raw public semantic metadata', new Set(layout1440.iconInputs.map((entry) => entry.objectId)).size === layout1440.rowCount && layout1440.iconInputs.some((entry) => entry.semanticName === 'spear' && entry.glyphChar === 41) && layout1440.iconInputs.some((entry) => entry.semanticAppearance === 'yellow gem'), JSON.stringify(layout1440.iconInputs));
+    assert('1440x1080 workspace has no horizontal overflow or raw labels', !layout1440.rootHorizontalOverflow && !layout1440.documentHorizontalOverflow && !layout1440.rawFallbackLabels && initialDom.overflow === false, JSON.stringify(layout1440));
+    assert('wide inventory header exposes live attributes and defenses', ['Str', 'Dex', 'Con', 'Int', 'Wis', 'Cha', 'HP', 'Pw', 'AC', 'XL'].every((label) => initialDom.stats.some((stat) => stat.label === label && stat.value)), JSON.stringify(initialDom.stats));
+    assert('inventory rail shows the latest eight canonical messages in a scrollable newest-last log', initialDom.log.lines.length === 8
+      && initialDom.log.lines[0] === 'You see here a spear.'
+      && initialDom.log.lines.at(-1) === 'Inventory updated.'
+      && initialDom.log.scrollable
+      && initialDom.log.atBottom, JSON.stringify(initialDom.log));
+    const liveLog = await evaluate(cdp, `(() => {
+      const fixture = window.__itemOwnerFixture;
+      const viewport = document.querySelector('#ux-items-root .uxm-recent-log-scroll');
+      viewport.scrollTop = 0;
+      const firstMessages = fixture.freeze([...fixture.messages, 'You finish taking off the helmet.']);
+      window.NetHackUxEquipmentScreen.controller.reconcile({ messages: firstMessages });
+      const preserved = document.querySelector('#ux-items-root .uxm-recent-log-scroll');
+      const preservedTop = preserved.scrollTop;
+      preserved.scrollTop = preserved.scrollHeight;
+      const secondMessages = fixture.freeze([...firstMessages, 'You feel less protected.']);
+      window.NetHackUxEquipmentScreen.controller.reconcile({ messages: secondMessages });
+      const updated = document.querySelector('#ux-items-root .uxm-recent-log-scroll');
+      return {
+        preservedTop,
+        lines: Array.from(updated.querySelectorAll('li'), (line) => line.textContent),
+        atBottom: updated.scrollHeight - updated.scrollTop - updated.clientHeight <= 1,
+      };
+    })()`);
+    assert('live inventory messages preserve manual review position and follow new output from the bottom', liveLog.preservedTop === 0
+      && liveLog.lines.length === 8
+      && liveLog.lines.at(-1) === 'You feel less protected.'
+      && liveLog.atBottom, JSON.stringify(liveLog));
+    const liveStatus = await evaluate(cdp, `(() => {
+      const fixture = window.__itemOwnerFixture;
+      const statusValues = fixture.freeze(fixture.statusValues.map(([field, value]) => fixture.freeze([field, field === 1 ? '19' : (field === 14 ? '1' : value)])));
+      window.NetHackUxEquipmentScreen.controller.reconcile({ statusValues });
+      return Array.from(document.querySelectorAll('#ux-items-root .uxm-items-status .ux-status-chip')).filter((chip) => chip.getClientRects().length && getComputedStyle(chip).display !== 'none').map((chip) => ({ label: chip.querySelector('span')?.textContent || '', value: chip.querySelector('strong')?.textContent || '' }));
+    })()`);
+    assert('inventory header rerenders live equipment-sensitive status values', liveStatus.some((stat) => stat.label === 'Str' && stat.value === '19') && liveStatus.some((stat) => stat.label === 'AC' && stat.value === '1'), JSON.stringify(liveStatus));
+    const spellbookPrimary = await evaluate(cdp, `(() => {
+      const row = document.querySelector('#ux-items-root .uxm-item-row[data-selector="p"]');
+      row?.click();
+      row?.scrollIntoView({ block: 'nearest' });
+      const button = document.querySelector('#ux-items-root .uxm-selection-actions > button[data-action-id]');
+      return { selected: document.querySelector('.uxm-selection-rail .uxm-detail-title')?.textContent || '', actionId: button?.dataset.actionId || '', label: button?.textContent?.trim() || '' };
+    })()`);
+    const spellbookShot = await screenshot(cdp, '01b-spellbook-read-primary-1440x1080.png');
+    assert('spellbook reading is the visible primary action', /spellbook/i.test(spellbookPrimary.selected) && spellbookPrimary.actionId === 'item.study' && /study|read/i.test(spellbookPrimary.label), JSON.stringify(spellbookPrimary));
+
+
+    await setViewport(cdp, 1280, 900);
+    const layout1280 = await layoutMetrics(cdp);
+    const compactShot = await screenshot(cdp, '02-many-items-1280x900.png');
+    assert('1280x900 inventory remains the majority-height working area with at least ten visible rows beneath the live stat ribbon', layout1280.listShare >= 0.62 && layout1280.visibleRowCount >= 10 && layout1280.listClientHeight >= 480, JSON.stringify(layout1280));
+    assert('1280x900 action rail stays shallow, readable, and overflow-free', layout1280.railShare <= 0.2 && layout1280.listAndRailSeparated && layout1280.controlsContained && !layout1280.rootHorizontalOverflow && !layout1280.documentHorizontalOverflow, JSON.stringify(layout1280));
+    await evaluate(cdp, `(() => { const summary = document.querySelector('.uxm-action-disclosure > summary'); summary?.focus(); return document.activeElement === summary; })()`);
+    await press(cdp, ' ', 'Space'); await delay(40);
+    const disclosureKeyboard = await evaluate(cdp, `(() => { const details = document.querySelector('.uxm-action-disclosure'); return { open: Boolean(details?.open), activeIsSummary: document.activeElement === details?.querySelector('summary'), panelVisible: Boolean(details?.querySelector('.uxm-rail-more-panel')?.getBoundingClientRect().height) }; })()`);
+    assert('More actions disclosure opens from keyboard and preserves focus', disclosureKeyboard.open && disclosureKeyboard.activeIsSummary && disclosureKeyboard.panelVisible, JSON.stringify(disclosureKeyboard));
+    await press(cdp, ' ', 'Space'); await delay(40);
+
+
+    const overviewRace = await evaluate(cdp, `(() => {
+      const owner = window.NetHackUxEquipmentScreen.controller; const fixture = window.__itemOwnerFixture;
+      const overview = fixture.freeze({
+        requestId: 'inventory-overview-race', menuRequestId: 'inventory-overview-race',
+        transactionId: 'inventory-overview-transaction', window: 91, menuId: 'inventory-overview-menu',
+        lifecycleRevision: 4, menuPurpose: 'inventory.displayInventory', purpose: 'inventory.displayInventory',
+        owner: fixture.freeze({ kind: 'inventory', window: 91 }), awaitingSelection: true, prompt: 'Inventory', items: fixture.inventory.orderedItems,
+      });
+      owner.close({ reason: 'overview-race-reset', cancelNative: false });
+      fixture.intents.length = 0;
+      owner.open({
+        documentRoot: document, inventory: fixture.inventory, equipment: fixture.equipment,
+        interaction: fixture.freeze({ menu: overview, prompt: null }),
+        iconResolver(rawItem) { return rawItem.iconSrc ? { src: rawItem.iconSrc } : null; },
+        onIntent(intent) { fixture.intents.push(intent); return true; },
+      });
+      document.querySelector('#ux-items-root .uxm-item-row[data-selector="b"]')?.click();
+      const primaryActionId = document.querySelector('#ux-items-root .uxm-selection-actions > button[data-action-id]')?.dataset.actionId || '';
+      const accepted = owner.request({ kind: 'item-action', stableId: 'object:502', actionId: 'item.quaff', inventoryRevision: 10 });
+      const queued = owner.snapshot();
+      const beforeCloseIntents = fixture.intents.map((intent) => ({ type: intent.type, command: intent.command || '', actionId: intent.action?.id || '' }));
+      owner.reconcile({ interaction: fixture.freeze({ menu: null, prompt: null }) });
+      const dispatched = owner.snapshot();
+      const afterCloseIntents = fixture.intents.map((intent) => ({ type: intent.type, command: intent.command || '', actionId: intent.action?.id || '' }));
+      const actionIntent = fixture.intents.find((intent) => intent.type === 'execute-item-action');
+      if (actionIntent) owner.settle({ intentId: actionIntent.intentId, status: 'completed' });
+      const completed = owner.snapshot();
+      owner.close({ reason: 'overview-race-complete', cancelNative: false });
+      owner.open({
+        documentRoot: document, inventory: fixture.inventory, equipment: fixture.equipment,
+        iconResolver(rawItem) { return rawItem.iconSrc ? { src: rawItem.iconSrc } : null; },
+        onIntent(intent) { fixture.intents.push(intent); return true; },
+      });
+      return { primaryActionId, accepted, queued, beforeCloseIntents, dispatched, afterCloseIntents, completed };
+    })()`);
+    assert('Quaff is the first potion action', overviewRace.primaryActionId === 'item.quaff', JSON.stringify(overviewRace));
+    assert('potion action queues behind its exact native inventory overview instead of being rejected', overviewRace.accepted && overviewRace.queued.pendingPhase === 'waiting-overview-close' && overviewRace.beforeCloseIntents.length === 1 && overviewRace.beforeCloseIntents[0].type === 'cancel-native-overview', JSON.stringify(overviewRace));
+    assert('queued potion action dispatches exactly after the owned overview closes', overviewRace.dispatched.pendingPhase === 'dispatching' && overviewRace.afterCloseIntents.length === 2 && overviewRace.afterCloseIntents[1].type === 'execute-item-action' && overviewRace.afterCloseIntents[1].command === 'qb', JSON.stringify(overviewRace));
+    assert('completed quaff closes the inventory workspace', overviewRace.completed.open === false, JSON.stringify(overviewRace.completed));
+    const actionMetrics = await evaluate(cdp, `(() => {
+      const owner = window.NetHackUxEquipmentScreen.controller;
+      document.querySelector('#ux-items-root .uxm-item-row[data-selector="b"]')?.click();
+      const labels = Array.from(document.querySelectorAll('#ux-items-root .uxm-detail-actions button[data-action-id]')).map((button) => ({ text: button.textContent.trim(), disabled: button.disabled }));
+      const staleAccepted = owner.request({ kind: 'item-action', stableId: 'object:502', actionId: 'item.quaff', inventoryRevision: 9 });
+      const stale = owner.snapshot();
+      const staleStatus = { role: document.querySelector('.uxm-item-feedback')?.getAttribute('role') || '', live: document.querySelector('.uxm-item-feedback')?.getAttribute('aria-live') || '', text: document.querySelector('.uxm-item-feedback')?.textContent || '' };
+      const validAccepted = owner.request({ kind: 'item-action', stableId: 'object:502', actionId: 'item.quaff', inventoryRevision: 10 });
+      const planned = owner.snapshot();
+      const pendingStatus = { role: document.querySelector('.uxm-item-feedback')?.getAttribute('role') || '', live: document.querySelector('.uxm-item-feedback')?.getAttribute('aria-live') || '', text: document.querySelector('.uxm-item-feedback')?.textContent || '' };
+      return { labels, staleAccepted, stale, staleStatus, validAccepted, planned, pendingStatus, firstIntent: window.__itemOwnerFixture.intents.at(-1) };
+    })()`);
+    assert('action availability preserves quaff and drop labels', actionMetrics.labels.some((entry) => /Quaff/i.test(entry.text) && !entry.disabled) && actionMetrics.labels.some((entry) => /Drop/i.test(entry.text) && !entry.disabled), JSON.stringify(actionMetrics.labels));
+    assert('stale snapshot request rejects without dispatch', actionMetrics.staleAccepted === false && /Inventory changed/i.test(actionMetrics.stale.feedback), JSON.stringify(actionMetrics));
+    assert('valid action plans through owner', actionMetrics.validAccepted === true && actionMetrics.planned.pendingActionId === 'item.quaff' && actionMetrics.firstIntent.command === 'qb', JSON.stringify(actionMetrics));
+    assert('error and loading feedback are exposed as polite live status', actionMetrics.staleStatus.role === 'status' && actionMetrics.staleStatus.live === 'polite' && /Inventory changed/i.test(actionMetrics.staleStatus.text) && actionMetrics.pendingStatus.role === 'status' && /Quaff/i.test(actionMetrics.pendingStatus.text), JSON.stringify(actionMetrics));
+
+    const followup = await evaluate(cdp, `(() => {
+      const owner = window.NetHackUxEquipmentScreen.controller; const fixture = window.__itemOwnerFixture;
+      const menu = fixture.freeze({ requestId: 'request-followup-1', menuRequestId: 'request-followup-1', transactionId: fixture.intents.at(-1).transactionId, window: 77, menuId: 'menu-77', lifecycleRevision: 12, menuPurpose: 'inventory.itemAction', purpose: 'inventory.itemAction', owner: fixture.freeze({ kind: 'inventory', window: 77 }), awaitingSelection: true, prompt: 'What do you want to drink?', items: [fixture.potion] });
+      owner.reconcile({ inventory: fixture.inventory, equipment: fixture.equipment, interaction: fixture.freeze({ menu, prompt: null }) });
+      const before = owner.snapshot();
+      document.querySelector('#ux-items-root .uxm-native-followup button')?.click();
+      const intent = fixture.intents.at(-1);
+      return { before, after: owner.snapshot(), intent, modalText: document.querySelector('#ux-items-root .uxm-native-followup')?.innerText || '' };
+    })()`);
+    const secondShot = await screenshot(cdp, '03-native-followup-owned-modal.png');
+    assert('native follow-up reopens inside item owner', followup.before.pendingPhase === 'awaiting-followup' && /What do you want to drink/i.test(followup.modalText), JSON.stringify(followup));
+    assert('native selection carries exact request correlation', followup.intent.type === 'select-native-followup' && followup.intent.selector === 'b' && followup.intent.correlation.requestId === 'request-followup-1' && followup.intent.correlation.transactionId === actionMetrics.firstIntent.transactionId && followup.intent.correlation.window === 77 && followup.intent.correlation.menuId === 'menu-77' && followup.intent.correlation.lifecycleRevision === 12, JSON.stringify(followup.intent));
+    assert('native selection enters loading phase', followup.after.pendingPhase === 'followup-dispatching', JSON.stringify(followup.after));
+
+    const rejectionAndCompletion = await evaluate(cdp, `(() => {
+      const owner = window.NetHackUxEquipmentScreen.controller; const fixture = window.__itemOwnerFixture;
+      const followupIntent = fixture.intents.at(-1);
+      owner.settle({ intentId: followupIntent.intentId, status: 'rejected', reason: 'native request no longer active' });
+      const rejected = owner.snapshot();
+      owner.request({ kind: 'item-action', stableId: 'object:503', actionId: 'item.wear', inventoryRevision: 10 });
+      const plannedIntent = fixture.intents.at(-1);
+      owner.settle({ intentId: plannedIntent.intentId, accepted: true });
+      const inventory11 = fixture.freeze({ revision: 11, orderedItems: fixture.inventory.orderedItems });
+      const equipment11 = fixture.freeze({ revision: 11, inventoryRevision: 11, orderedSlots: fixture.equipment.orderedSlots });
+      owner.reconcile({ inventory: inventory11, equipment: equipment11, interaction: null });
+      const completed = owner.snapshot();
+      const conflict = fixture.freeze({ revision: 11, orderedItems: [fixture.spear, fixture.freeze({ ...fixture.potion, displayName: 'conflicting same revision' }), fixture.helmet] });
+      const outcome = owner.reconcile({ inventory: conflict, equipment: equipment11 });
+      return { rejected, completed, outcome, diagnostics: owner.diagnostics().slice(-8) };
+    })()`);
+    assert('transport rejection is owned and visible', rejectionAndCompletion.rejected.pendingActionId === '' && /no longer active/i.test(rejectionAndCompletion.rejected.feedback), JSON.stringify(rejectionAndCompletion.rejected));
+    assert('new authoritative revision completes pending action', rejectionAndCompletion.completed.pendingActionId === '' && rejectionAndCompletion.completed.inventoryRevision === 11 && /complete/i.test(rejectionAndCompletion.completed.feedback), JSON.stringify(rejectionAndCompletion.completed));
+    assert('conflicting immutable revision is rejected', rejectionAndCompletion.outcome.inventoryAccepted === false && rejectionAndCompletion.diagnostics.some((entry) => entry.type === 'snapshot.inventory.rejected' && entry.detail.code === 'conflicting-revision'), JSON.stringify(rejectionAndCompletion));
+
+    await press(cdp, 'Escape', 'Escape'); await delay(80);
+    const closed = await evaluate(cdp, `(() => ({ snapshot: window.NetHackUxEquipmentScreen.controller.snapshot(), activeId: document.activeElement?.id || '', mountText: document.getElementById('ux-items-root')?.textContent || '' }))()`);
+    assert('Escape closes owner and restores invoker focus', !closed.snapshot.open && closed.activeId === 'inventory-equipment-button' && closed.mountText === '', JSON.stringify(closed));
+
+    const applyCompletion = await evaluate(cdp, `(() => {
+      const owner = window.NetHackUxEquipmentScreen.controller; const fixture = window.__itemOwnerFixture;
+      owner.open({
+        documentRoot: document,
+        inventory: fixture.freeze({ revision: 11, orderedItems: fixture.inventory.orderedItems }),
+        equipment: fixture.freeze({ revision: 11, inventoryRevision: 11, orderedSlots: fixture.equipment.orderedSlots }),
+        invoker: document.getElementById('inventory-equipment-button'),
+        onIntent(intent) { fixture.intents.push(intent); return true; },
+      });
+      const accepted = owner.request({ kind: 'item-action', stableId: 'object:507', actionId: 'item.apply', inventoryRevision: 11 });
+      const intent = fixture.intents.at(-1);
+      owner.settle({ intentId: intent.intentId, status: 'completed' });
+      return { accepted, intent, snapshot: owner.snapshot(), mountText: document.getElementById('ux-items-root')?.textContent || '' };
+    })()`);
+    const applyClosedShot = await screenshot(cdp, '04-apply-complete-closed-workspace.png');
+    assert('completed apply closes the inventory workspace', applyCompletion.accepted && applyCompletion.intent.command === 'ag' && applyCompletion.snapshot.open === false && applyCompletion.mountText === '', JSON.stringify(applyCompletion));
+
+
+    const effectFollowupClosure = await evaluate(cdp, `(() => {
+      const owner = window.NetHackUxEquipmentScreen.controller; const fixture = window.__itemOwnerFixture;
+      owner.open({
+        documentRoot: document,
+        inventory: fixture.freeze({ revision: 11, orderedItems: fixture.inventory.orderedItems }),
+        equipment: fixture.freeze({ revision: 11, inventoryRevision: 11, orderedSlots: fixture.equipment.orderedSlots }),
+        invoker: document.getElementById('inventory-equipment-button'),
+        onIntent(intent) { fixture.intents.push(intent); return true; },
+      });
+      const beforeIntentCount = fixture.intents.length;
+      owner.request({ kind: 'item-action', stableId: 'object:502', actionId: 'item.quaff', inventoryRevision: 11 });
+      const intent = fixture.intents.at(-1);
+      const itemPrompt = fixture.freeze({
+        requestId: 'quaff-item-prompt',
+        transactionId: intent.transactionId,
+        window: 1,
+        lifecycleRevision: 20,
+        kind: 'question',
+        promptPurpose: 'prompt.question',
+        query: 'What do you want to drink? [b or ?*]',
+        choices: 'b',
+      });
+      owner.reconcile({ interaction: fixture.freeze({ menu: null, prompt: itemPrompt }) });
+      const itemSelection = owner.snapshot();
+      const effectPrompt = fixture.freeze({
+        requestId: 'monster-detection-cursor',
+        transactionId: intent.transactionId,
+        window: 1,
+        lifecycleRevision: 21,
+        kind: 'position',
+        promptPurpose: 'prompt.position',
+        query: 'Move cursor to monster of interest:',
+        choices: '',
+      });
+      owner.reconcile({ interaction: fixture.freeze({ menu: null, prompt: effectPrompt }) });
+      return {
+        itemSelection,
+        afterEffectPrompt: owner.snapshot(),
+        emittedAfterEffectPrompt: fixture.intents.slice(beforeIntentCount).map((entry) => entry.type),
+        mountText: document.getElementById('ux-items-root')?.textContent || '',
+      };
+    })()`);
+    assert('post-quaff effect prompt closes inventory without cancelling NetHack interaction', effectFollowupClosure.itemSelection.pendingPhase === 'awaiting-followup' && effectFollowupClosure.afterEffectPrompt.open === false && effectFollowupClosure.mountText === '' && !effectFollowupClosure.emittedAfterEffectPrompt.includes('cancel-native-interaction'), JSON.stringify(effectFollowupClosure));
+    const readEffectClosure = await evaluate(cdp, `(() => {
+      const owner = window.NetHackUxEquipmentScreen.controller; const fixture = window.__itemOwnerFixture;
+      owner.open({
+        documentRoot: document,
+        inventory: fixture.freeze({ revision: 11, orderedItems: fixture.inventory.orderedItems }),
+        equipment: fixture.freeze({ revision: 11, inventoryRevision: 11, orderedSlots: fixture.equipment.orderedSlots }),
+        invoker: document.getElementById('inventory-equipment-button'),
+        onIntent(intent) { fixture.intents.push(intent); return true; },
+      });
+      const beforeIntentCount = fixture.intents.length;
+      owner.request({ kind: 'item-action', stableId: 'object:510', actionId: 'item.read.scroll', inventoryRevision: 11 });
+      const intent = fixture.intents.at(-1);
+      const itemPrompt = fixture.freeze({
+        requestId: 'read-item-prompt',
+        transactionId: intent.transactionId,
+        window: 1,
+        lifecycleRevision: 30,
+        kind: 'question',
+        promptPurpose: 'prompt.question',
+        query: 'What do you want to read? [j or ?*]',
+        choices: 'j',
+      });
+      owner.reconcile({ interaction: fixture.freeze({ menu: null, prompt: itemPrompt }) });
+      const itemSelection = owner.snapshot();
+      const effectMenu = fixture.freeze({
+        requestId: 'food-detection-farlook-tip',
+        menuRequestId: 'food-detection-farlook-tip',
+        transactionId: intent.transactionId,
+        window: 7,
+        menuId: 'food-detection-tip',
+        lifecycleRevision: 31,
+        menuPurpose: 'menu.generic',
+        owner: fixture.freeze({ kind: 'system', window: 7 }),
+        awaitingSelection: true,
+        prompt: 'Tip: Farlooking or selecting a map location',
+        items: [],
+      });
+      owner.reconcile({ interaction: fixture.freeze({ menu: effectMenu, prompt: null }) });
+      return {
+        itemSelection,
+        afterEffectMenu: owner.snapshot(),
+        emittedAfterEffectMenu: fixture.intents.slice(beforeIntentCount).map((entry) => entry.type),
+        mountText: document.getElementById('ux-items-root')?.textContent || '',
+      };
+    })()`);
+    assert('post-read detection menu closes inventory without cancelling NetHack interaction', readEffectClosure.itemSelection.pendingPhase === 'awaiting-followup' && readEffectClosure.afterEffectMenu.open === false && readEffectClosure.mountText === '' && !readEffectClosure.emittedAfterEffectMenu.includes('cancel-native-interaction'), JSON.stringify(readEffectClosure));
+    const transfer = await evaluate(cdp, `(() => {
+      const owner = window.NetHackUxEquipmentScreen.controller; const fixture = window.__itemOwnerFixture; const invoker = document.getElementById('inventory-equipment-button');
+      owner.open({ documentRoot: document, inventory: fixture.freeze({ revision: 11, orderedItems: fixture.inventory.orderedItems }), equipment: fixture.freeze({ revision: 11, inventoryRevision: 11, orderedSlots: fixture.equipment.orderedSlots }), invoker, onIntent(intent) { fixture.intents.push(intent); return true; } });
+      owner.reconcile({ transferOwner: fixture.freeze({ id: 'transfer-session-1', active: true }) });
+      return { snapshot: owner.snapshot(), ownerDom: document.querySelectorAll('[data-ux-owner="items"]:not([hidden])').length };
+    })()`);
+    const thirdShot = await screenshot(cdp, '05-transfer-precedence-closed-workspace.png');
+    assert('Transfer Session precedence closes item owner', !transfer.snapshot.open && transfer.ownerDom === 0, JSON.stringify(transfer));
+
+    const emptyState = await evaluate(cdp, `(() => {
+      const owner = window.NetHackUxEquipmentScreen.controller; const fixture = window.__itemOwnerFixture;
+      owner.reconcile({ transferOwner: { active: false } });
+      const slots = window.NetHackUxEquipmentScreen.GROUPS.flatMap((group) => group.slots).map((slotId) => fixture.freeze({ slotId, objectId: null, publicStatus: 'empty', blockedBy: [] }));
+      owner.open({
+        documentRoot: document,
+        mount: document.getElementById('ux-items-root'),
+        inventory: fixture.freeze({ revision: 12, orderedItems: [] }),
+        equipment: fixture.freeze({ revision: 12, inventoryRevision: 12, orderedSlots: slots }),
+        initialMode: 'inventory',
+        invoker: document.getElementById('inventory-equipment-button'),
+      });
+      return {
+        text: document.querySelector('.uxm-item-empty')?.textContent || '',
+        rowCount: document.querySelectorAll('.uxm-item-row').length,
+        selectedRailText: document.querySelector('.uxm-selection-rail')?.innerText || '',
+        horizontalOverflow: owner.snapshot().horizontalOverflow,
+      };
+    })()`);
+    const emptyShot = await screenshot(cdp, '06-empty-inventory-1280x900.png');
+    assert('empty inventory gives useful guidance without stale selection or overflow', emptyState.rowCount === 0 && /Pick up an item/i.test(emptyState.text) && /Choose an inventory row/i.test(emptyState.selectedRailText) && !emptyState.horizontalOverflow, JSON.stringify(emptyState));
+
+    console.log(JSON.stringify({
+      ok: true,
+      screenshots: [firstShot, spellbookShot, compactShot, secondShot, applyClosedShot, thirdShot, emptyShot],
+      layout: { baseline1360x920: { listHeight: 178, railHeight: 201, unusedWorkspaceHeight: 286, source: 'pre-change screenshot pixel inspection' }, after1440x1080: layout1440, after1280x900: layout1280 },
+      contracts: ['immutable revisions', 'raw canonical icon resolver input', 'resolved icon rows', 'responsive live stat ribbon', 'scrollable live recent log', '10+ visible rows at both requested viewports', 'shallow action rail', 'spellbook read primary action', 'keyboard More actions disclosure', 'numeric selector or inventoryLetter', 'action availability', 'stale rejection', 'exact native follow-up correlation', 'quaff/apply completion closes inventory', 'loading/error/empty states', 'focus/close', 'single DOM owner', 'Transfer Session precedence'],
+    }, null, 2));
+
   } finally { cleanup(); }
 }
 
-main().catch((error) => { console.error(error); process.exit(1); });
+main().catch((error) => { console.error(error.stack || error); process.exitCode = 1; });

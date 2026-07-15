@@ -9,7 +9,8 @@ const TileAssets = require('../src/shared/tile-assets');
 const root = path.resolve(__dirname, '..');
 const fixture = process.argv[2] || path.join(root, 'test/fixtures/accepted-view-events.jsonl');
 const tileMap = JSON.parse(fs.readFileSync(path.join(root, 'assets/tiles/tile-map.json'), 'utf8'));
-const tileAssetsById = new Map();
+const tileManifest = TileAssets.normalizeManifest(JSON.parse(fs.readFileSync(path.join(root, 'assets/tiles/manifest.json'), 'utf8')));
+const tileAssetsById = TileAssets.assetsById(tileManifest);
 const events = fs.readFileSync(fixture, 'utf8').trim().split(/\n+/).filter(Boolean).map((line, index) => {
   const normalized = ShimProtocol.parseLine(line);
   assert.equal(normalized.valid, true, `fixture event ${index + 1} must satisfy shim protocol: ${normalized.errors.join(', ')}`);
@@ -46,7 +47,7 @@ function promptVerb(query) {
 for (const appEvent of events) {
   const event = appEvent.event;
   const result = gameView.process(appEvent);
-  const view = gameView.state;
+  const view = gameView.snapshot();
   if (event.name === 'shim_print_glyph' && event.window === view.mapWindowId) {
     state.cells.set(`${event.x},${event.y}`, { ch: event.char, assetId: assetFor(event), glyph: event.glyph });
   }
@@ -85,7 +86,7 @@ for (const appEvent of events) {
     if (effect.type === 'open-document') state.documentLines.push(...(effect.document?.lines || []));
   }
 }
-const view = gameView.state;
+const view = gameView.snapshot();
 const isActionInventoryFixture = /action-inventory-prompt-events\.jsonl$/.test(fixture);
 const isItemUseActionsFixture = /item-use-action-prompts-events\.jsonl$/.test(fixture);
 const isDropActionMenuFixture = /drop-action-menu-events\.jsonl$/.test(fixture);

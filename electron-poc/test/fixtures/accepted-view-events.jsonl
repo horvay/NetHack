@@ -1,10 +1,10 @@
 {"name":"shim_create_nhwindow","return":1,"windowType":3}
-{"name":"shim_print_glyph","window":1,"x":10,"y":4,"glyph":3985,"ttychar":46,"char":".","color":7,"tileidx":120,"semanticKind":"floor","semanticName":"floor of a room","cmapIndex":19}
+{"name":"shim_print_glyph","window":1,"x":10,"y":4,"glyph":3992,"ttychar":46,"char":".","color":7,"tileidx":120,"semanticKind":"floor","semanticName":"floor of a room","cmapIndex":19}
 {"name":"shim_print_glyph","window":1,"x":11,"y":4,"glyph":725,"ttychar":64,"char":"@","color":15,"tileidx":42,"semanticKind":"player","semanticName":"hero"}
 {"name":"shim_print_glyph","window":1,"x":12,"y":4,"glyph":798,"ttychar":102,"char":"f","color":7,"tileidx":45,"semanticKind":"pet","semanticName":"kitten pet"}
-{"name":"shim_print_glyph","window":1,"x":13,"y":4,"glyph":4014,"ttychar":123,"char":"{","color":14,"tileidx":141,"semanticKind":"fixture","semanticName":"fountain","cmapIndex":37}
-{"name":"shim_print_glyph","window":1,"x":14,"y":4,"glyph":3979,"ttychar":45,"char":"-","color":6,"tileidx":113,"semanticKind":"door","semanticName":"vertical open door","cmapIndex":13}
-{"name":"shim_print_glyph","window":1,"x":15,"y":4,"glyph":3980,"ttychar":124,"char":"|","color":6,"tileidx":114,"semanticKind":"door","semanticName":"horizontal open door","cmapIndex":14}
+{"name":"shim_print_glyph","window":1,"x":13,"y":4,"glyph":4014,"ttychar":123,"char":"{","color":14,"tileidx":141,"semanticKind":"fixture","semanticName":"fountain","semanticKnown":true,"cmapIndex":37}
+{"name":"shim_print_glyph","window":1,"x":14,"y":4,"glyph":3986,"ttychar":47,"char":"/","color":6,"tileidx":113,"semanticKind":"door","semanticName":"vertical open door","cmapIndex":13}
+{"name":"shim_print_glyph","window":1,"x":15,"y":4,"glyph":3987,"ttychar":47,"char":"/","color":6,"tileidx":114,"semanticKind":"door","semanticName":"horizontal open door","cmapIndex":14}
 {"name":"shim_status_update","field":18,"value":"12"}
 {"name":"shim_status_update","field":19,"value":"16"}
 {"name":"shim_status_update","field":17,"value":"Hungry"}

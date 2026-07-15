@@ -2,9 +2,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const Harness = require('./lib/electron-test-harness');
 
+const EvidenceApproval = require('./lib/evidence-approval');
+
 const root = path.resolve(__dirname, '..');
-const outDir = process.env.NH_REAL_INPUT_OUT_DIR || path.join(root, 'test-output', 'real-input-regression');
-const port = Number(process.env.NH_REAL_INPUT_CDP_PORT || 9491);
 const width = Number(process.env.NH_REAL_INPUT_WIDTH || 1280);
 const height = Number(process.env.NH_REAL_INPUT_HEIGHT || 900);
 const { waitFor, delay } = Harness;
@@ -19,8 +19,8 @@ async function state(page) {
     seen: document.getElementById('shim-output')?.dataset?.seen || '',
     interaction: window.__nethackPromptTest?.dialog?.(),
     automation: window.__nethackAutomation?.state?.(),
-    actionOpen: document.getElementById('action-dialog')?.open || false,
-    actionText: document.getElementById('action-dialog')?.innerText || '',
+    actionOpen: Boolean(document.getElementById('action-dialog')?.open || document.getElementById('ux-command-palette')?.open),
+    actionText: document.querySelector('dialog#ux-command-palette[open], dialog#action-dialog[open]')?.innerText || '',
     hasMapTarget: Boolean(document.querySelector('.target-selection-controls')),
     movementText: document.getElementById('movement-actions')?.innerText || ''
   }))()`);
@@ -52,6 +52,7 @@ async function waitForGameplayReady(page, timeoutMs = 7000) {
 
 async function capture(page, qc, id, stateName) {
   return page.screenshotEvidence(qc, id, {
+    classification: 'actual-player',
     viewport: { width, height, zoomPercent: 100 },
     state: stateName,
     viewSafeFormat: 'BMP',
@@ -59,13 +60,26 @@ async function capture(page, qc, id, stateName) {
   });
 }
 
+function reviewRun(outputDir, reviewFile) {
+  const manifestFile = path.join(path.resolve(outputDir), 'evidence-approval.json');
+  const approval = EvidenceApproval.openEvidenceApproval({ manifestFile });
+  EvidenceApproval.applyEvidenceReview(approval, path.resolve(reviewFile));
+  const validation = Harness.screenshotQc.validateManifest(manifestFile, {
+    expectedRunIdentity: approval.runIdentity,
+    requireApproval: true,
+  });
+  if (!validation.ok) throw new Error(`Evidence Approval failed: ${validation.errors.join('; ')}`);
+  EvidenceApproval.writeEvidenceReport(manifestFile);
+  console.log(`real-input-regression-test: APPROVED ${approval.runIdentity} ${manifestFile}`);
+}
+
 async function main() {
-  fs.mkdirSync(outDir, { recursive: true });
-  const qc = Harness.screenshotQc.createScreenshotQc({ rootDir: outDir });
-  const staleLocksRemovedBeforeStart = Harness.removeStalePlaygroundLocks({ root });
-  const initialLockFiles = new Set(Harness.playgroundLockFiles({ root }).map((lock) => lock.file));
-  const page = await Harness.createElectronBrowserDriver({ root, port, width, height });
-  const results = { outDir, staleLocksRemovedBeforeStart, screenshots: {}, checks: {} };
+  const page = await Harness.createElectronBrowserDriver({ root, width, height });
+  const { outputIdentity: runIdentity, outputDir: outDir } = page;
+  const qc = Harness.screenshotQc.createScreenshotQc({ rootDir: outDir, runIdentity, manifestFile: path.join(outDir, 'evidence-approval.json') });
+  const results = { runIdentity, screenshots: {}, checks: {} };
+  let scenarioError = null;
+  let diagnosticFile = null;
   try {
     await page.waitForRendererReady({ timeoutMs: 10000, promptTest: true, automation: true, startButton: true });
     await page.startDefaultGame({ timeoutMs: 10000, playerName: `Input${Date.now().toString(36).slice(-6)}` });
@@ -123,7 +137,7 @@ async function main() {
     await delay(100);
     results.afterUseItemActionsClick = await state(page);
     results.screenshots.actions = await capture(page, qc, '05-after-use-item-actions-click', 'actions');
-    await page.click('#item-actions button[data-command-key="a"]');
+    await page.click('#ux-command-palette [data-command-id="item.apply"]');
     results.afterActionButton = await waitFor(async () => {
       const value = await state(page);
       return value.sent === 'a' ? value : null;
@@ -161,29 +175,47 @@ async function main() {
       rightLogOnlyMovementControls: /Walk|Run|Fight/.test(results.afterUseItemActionsClick.movementText) && !/Map target|Preview/.test(results.afterUseItemActionsClick.movementText),
     };
     results.diagnostic = await page.evalCheckedValue('window.netHackPOC.activeDiagnosticRun()', { awaitPromise: true }).catch((error) => ({ ok: false, error: error.message }));
-    fs.writeFileSync(path.join(outDir, 'diagnostic-summary.json'), `${JSON.stringify(results.diagnostic, null, 2)}\n`);
-    results.screenshotManifest = qc.manifestFile;
-    fs.writeFileSync(path.join(outDir, 'real-input-regression-debug.json'), `${JSON.stringify(results, null, 2)}\n`);
-    const failed = Object.entries(results.checks).filter(([, ok]) => !ok).map(([name]) => name);
-    const md = [
-      '# Real input regression', '', `Output: ${outDir}`, '', '## Checks',
-      ...Object.entries(results.checks).map(([name, ok]) => `- ${ok ? 'PASS' : 'FAIL'} ${name}`),
-      '', '## Screenshots',
-      ...Object.entries(results.screenshots).map(([name, entry]) => `- ${name}: raw ${entry.raw.path}; view-safe ${entry.derivative.path}`),
-      '', `Screenshot QC manifest: ${qc.manifestFile}`, '',
-    ].join('\n');
-    fs.writeFileSync(path.join(outDir, 'real-input-regression-summary.json'), `${JSON.stringify(results, null, 2)}\n`);
-    fs.writeFileSync(path.join(outDir, 'real-input-regression-summary.md'), md);
-    console.log(md);
-    if (failed.length) throw new Error(`Real input regression failed: ${failed.join(', ')}`);
+    diagnosticFile = path.join(outDir, 'diagnostic-summary.json');
+    fs.writeFileSync(diagnosticFile, `${JSON.stringify(results.diagnostic, null, 2)}\n`);
+  } catch (error) {
+    scenarioError = error;
   } finally {
-    const output = page.output();
-    fs.writeFileSync(path.join(outDir, 'electron-stdout.log'), output.stdout);
-    fs.writeFileSync(path.join(outDir, 'electron-stderr.log'), output.stderr);
-    await page.close().catch(() => {});
-    const newLocks = Harness.playgroundLockFiles({ root }).filter((lock) => !initialLockFiles.has(lock.file));
-    Harness.removeStalePlaygroundLocks({ root, knownFiles: newLocks.map((lock) => lock.file) });
+    await page.close().catch((error) => {
+      if (!scenarioError) scenarioError = error;
+    });
   }
+
+  const outcomes = Object.entries(results.checks).map(([id, ok]) => ({
+    id,
+    status: ok ? 'passed' : 'failed',
+    details: ok ? '' : 'Observable scenario condition was not satisfied.',
+  }));
+  outcomes.push({
+    id: 'scenario-completed',
+    status: scenarioError ? 'failed' : 'passed',
+    details: scenarioError ? String(scenarioError.message || scenarioError) : '',
+  });
+  qc.recordAssertions(outcomes);
+  qc.recordLog({ id: 'electron-stdout', path: page.logs.stdout, classification: 'electron-stdout' });
+  qc.recordLog({ id: 'electron-stderr', path: page.logs.stderr, classification: 'electron-stderr' });
+  if (diagnosticFile) qc.recordLog({ id: 'diagnostic-summary', path: diagnosticFile, classification: 'diagnostic' });
+  const validation = Harness.screenshotQc.validateManifest(qc.manifestFile, {
+    expectedRunIdentity: runIdentity,
+    requireApproval: false,
+  });
+  if (!validation.ok) throw new Error(`Evidence Approval capture failed: ${validation.errors.join('; ')}`);
+  console.log(`real-input-regression-test: CAPTURED ${runIdentity} ${qc.manifestFile}`);
+  if (scenarioError) throw scenarioError;
+  const failed = outcomes.filter((outcome) => outcome.status === 'failed').map((outcome) => outcome.id);
+  if (failed.length) throw new Error(`Real input regression failed: ${failed.join(', ')}`);
 }
 
-main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+const reviewIndex = process.argv.indexOf('--review');
+if (reviewIndex !== -1) {
+  Promise.resolve().then(() => reviewRun(process.argv[reviewIndex + 1], process.argv[reviewIndex + 2])).catch((error) => {
+    console.error(error.stack || error);
+    process.exit(1);
+  });
+} else {
+  main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+}

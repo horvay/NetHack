@@ -27,6 +27,21 @@
     if (/\(weapon in (?:right |left )?hands?\)/i.test(displayName)) return displayName.replace(/\s*\(alternate weapon; not wielded\)\s*/ig, ' ').replace(/\s+/g, ' ').trim();
     return displayName;
   }
+  function displayNameWithKnownFacts(displayName, fields = {}) {
+    const label = String(displayName || '').replace(/\s+/g, ' ').trim();
+    if (!label || !isPlainObject(fields)) return label;
+    const prefixes = [];
+    const beatitude = typeof fields.beatitude === 'string' && /^(?:blessed|uncursed|cursed)$/.test(fields.beatitude) ? fields.beatitude : '';
+    if (beatitude && !new RegExp(`\\b${beatitude}\\b`, 'i').test(label)) prefixes.push(beatitude);
+    if (fields.poisoned === true && !/\bpoisoned\b/i.test(label)) prefixes.push('poisoned');
+    if (Number.isInteger(fields.enchantment)) {
+      const enchantment = `${fields.enchantment >= 0 ? '+' : ''}${fields.enchantment}`;
+      if (!new RegExp(`(?:^|\\s)${enchantment.replace('+', '\\+')}\\b`).test(label)) prefixes.push(enchantment);
+    }
+    if (!prefixes.length) return label;
+    const leading = label.match(/^(?:(?:a|an|the|some)|\d+)\s+/i)?.[0] || '';
+    return `${leading}${prefixes.join(' ')} ${label.slice(leading.length)}`.trim();
+  }
   function objectClassFromGlyphChar(value) {
     const code = Number(value);
     if (!Number.isInteger(code) || code <= 0 || code >= 128) return undefined;
@@ -73,7 +88,8 @@
         : publicClass === 'armor' ? new Set(Array.from(equipmentSlotIds).filter((slot) => slot.startsWith('armor.')))
           : publicClass === 'ring' ? new Set(['ring.left', 'ring.right'])
             : publicClass === 'amulet' ? new Set(['amulet'])
-              : publicClass === 'tool' ? new Set(['eyes']) : new Set();
+              : publicClass === 'gem' ? new Set(['quiver'])
+                : publicClass === 'tool' ? new Set(['mainHand', 'offHand', 'eyes']) : new Set();
       target.equipmentSlots = publicClass ? equipmentSlots.filter((slot) => classSlots.has(slot)) : equipmentSlots;
     }
     const knownFields = copyKnownFields(source.knownFields, publicClass);
@@ -117,7 +133,7 @@
     if (!isStructurallyValidPublicItem(item)) return null;
     const inventoryLetter = selectorToLetter(item.inventoryLetter ?? item.selector);
     const identityKnown = identityIsExplicitlyKnown(item);
-    const displayName = displayNameFromText(PublicItemKnowledge.publicDisplayLabel(item, { neutral: 'item' }), inventoryLetter) || 'item';
+    const displayName = displayNameWithKnownFacts(displayNameFromText(PublicItemKnowledge.publicDisplayLabel(item, { neutral: 'item' }), inventoryLetter) || 'item', item.knownFields);
     const out = {
       displayName,
       location: { kind: 'inventory' },

@@ -162,7 +162,7 @@ assert.equal(normalizedMapLayer.event.objectLayerSemanticName, undefined, 'shim 
 const view = GameViewState.createGameViewState({ mapWidth: 80, mapHeight: 21 });
 view.process({ name: 'shim_create_nhwindow', return: 3, windowType: 3 });
 view.process(mapLayerEvent);
-const storedCell = view.state.mapCells[5][4];
+const storedCell = view.snapshot().mapCells[5][4];
 for (const key of ['backgroundGlyph', 'backgroundSemanticKind', 'backgroundSemanticName', 'backgroundActionAffordances', 'objectLayerGlyph', 'objectLayerChar', 'objectLayerSemanticKind', 'objectLayerSemanticAppearance', 'objectLayerSemanticKnown', 'objectLayerActionAffordances', 'semanticAppearance']) {
   assert.deepEqual(storedCell[key], mapLayerEvent[key], `v1 map layer field preserved by game view state: ${key}`);
 }

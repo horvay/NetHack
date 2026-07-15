@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const ItemPresentation = require('../../src/ux/item-presentation');
+const ItemDetailPanel = require('../../src/ux/item-detail-panel');
 const EquipmentScreen = require('../../src/ux/equipment-screen');
 const InventoryAdapter = require('../../src/shared/inventory-snapshot-adapter');
 const GroundAdapter = require('../../src/shared/ground-pile-snapshot-adapter');
@@ -14,6 +15,7 @@ const UiProtocol = require('../../src/shared/ui-protocol-v2');
 const CommandGateway = require('../../src/shared/command-gateway');
 const RecordingSchema = require('../../src/shared/recording-schema');
 const PublicItemKnowledge = require('../../src/shared/public-item-knowledge');
+const InteractionModel = require('../../src/shared/interaction-model');
 
 const unknown = ItemPresentation.presentItem({
   objectId: 10,
@@ -30,6 +32,14 @@ const unknown = ItemPresentation.presentItem({
   glyphChar: '!'.charCodeAt(0),
   actionAffordances: ['quaff', 'drop'],
 });
+assert.equal(ItemDetailPanel.primaryAction([
+  { id: 'item.wield.hold', enabled: true, section: 'primary', danger: 'safe' },
+  { id: 'item.read.scroll', enabled: true, section: 'primary', danger: 'caution' },
+]).id, 'item.read.scroll', 'Read remains the defining primary scroll action instead of generic wielding');
+assert.equal(ItemDetailPanel.primaryAction([
+  { id: 'item.wield.hold', enabled: true, section: 'primary', danger: 'safe' },
+  { id: 'item.study', enabled: true, section: 'primary', danger: 'caution' },
+]).id, 'item.study', 'Read remains the defining primary spellbook action instead of generic wielding');
 assert.equal(unknown.knownState, 'appearance');
 assert.equal(unknown.displayName, 'an uncursed milky potion called sunrise');
 assert.equal(unknown.appearance, 'milky potion');
@@ -92,6 +102,17 @@ for (const grammarCase of exactNamingGrammarMatrix) {
 }
 assert.equal(PublicItemKnowledge.publicDisplayLabel({ displayName: 'a long sword sword', semanticKnown: true, known: { identity: true, naming: true }, individualName: 'sword' }), 'a long sword sword named sword', 'ordinary repeated substring is never treated as an exact naming marker');
 assert.equal(PublicItemKnowledge.publicDisplayLabel({ displayName: 'a long sword n\u200bamed sword', semanticKnown: true, known: { identity: true, naming: true }, individualName: 'sword' }), 'a long sword n\u200bamed sword named sword', 'zero-width marker obfuscation is not accepted as exact suffix grammar');
+for (const appearanceCase of [
+  { displayName: 'potion', semanticAppearance: 'sky blue potion', expected: 'sky blue potion' },
+  { displayName: 'a wand', semanticAppearance: 'long wand', expected: 'long wand' },
+  { displayName: 'ring', semanticAppearance: 'opal ring', expected: 'opal ring' },
+  { displayName: 'an item', semanticAppearance: 'scroll labeled KIRJE', expected: 'scroll labeled KIRJE' },
+]) {
+  const item = { ...appearanceCase, semanticKnown: false, known: { identity: false, appearance: true } };
+  assert.equal(PublicItemKnowledge.publicDisplayLabel(item), appearanceCase.expected, 'public semantic appearance replaces a bare object-class fallback');
+  assert.equal(ContainerAdapter.normalizeContainerContentsSnapshotPayload({ revision: 1, sessionId: 'appearance-test', container: { publicId: 'box', displayName: 'box' }, items: [item] }).items[0].displayName, appearanceCase.expected, 'container rows use the same public semantic appearance precedence');
+}
+assert.equal(PublicItemKnowledge.publicDisplayLabel({ displayName: 'an uncursed opal ring called circle', semanticAppearance: 'opal ring', semanticKnown: false, known: { identity: false, appearance: true, naming: true }, calledName: 'circle' }), 'an uncursed opal ring called circle', 'an already-informative public label retains its known facts and player-assigned name');
 const unknownFacts = ItemPresentation.presentItem({ displayName: 'a glass wand', semanticKnown: false, semanticAppearance: 'glass wand', publicClass: 'wand', filterGroups: ['magic'], knownFields: {} });
 assert.deepEqual(ItemPresentation.factRows(unknownFacts), [{ id: 'identity', label: 'Identity', value: 'Unknown' }], 'unknown BUC, charges, and enchantment are omitted rather than inferred');
 const explicitlyRedactedEquippedFilter = ItemPresentation.presentItem({ displayName: 'a gray stone', semanticKnown: false, publicClass: 'gem', filterGroups: [], wornMask: 256 });
@@ -378,8 +399,8 @@ const nativeMenuView = GameViewState.createGameViewState({ mapWidth: 80, mapHeig
 nativeMenuView.process({ name: 'shim_start_menu', window: 77 });
 nativeMenuView.process({ name: 'shim_add_menu', window: 77, ...nativeCalledShape });
 nativeMenuView.process({ name: 'shim_end_menu', window: 77, prompt: 'Inventory:' });
-assert.equal(nativeMenuView.state.currentMenu.items[0].calledName, 'sunrise', 'game view keeps classic-menu calledName');
-assertNoHiddenGeneric(nativeMenuView.state.currentMenu, 'game-view called classic menu');
+assert.equal(nativeMenuView.snapshot().currentMenu.items[0].calledName, 'sunrise', 'game view keeps classic-menu calledName');
+assertNoHiddenGeneric(nativeMenuView.snapshot().currentMenu, 'game-view called classic menu');
 const selectorTextOnlyMenu = MenuMetadataAdapter.adaptV1MenuSnapshotToV2Events({ window: 7, prompt: 'Inventory:', items: [{ selector: 97, text: `a - ${hiddenGeneric}` }] }, { sequenceStart: 240 }).find((entry) => entry.eventType === 'menu.item');
 assert.equal(selectorTextOnlyMenu.payload.item.text, 'a - item', 'selector/text-only classic inventory row fails closed without semantic metadata');
 assertNoHiddenGeneric(selectorTextOnlyMenu, 'selector/text-only classic menu lowering');
@@ -545,6 +566,10 @@ assertNoHiddenGeneric(shimGroundClassProbe, 'shim ground class projection');
 const shimMapProbe = ShimProtocol.normalizeRawShimEvent({ name: 'shim_print_glyph', window: 1, x: 1, y: 1, char: '.', semanticKind: hiddenGeneric, assetId: hiddenGeneric, backgroundSemanticKind: hiddenGeneric, backgroundSemanticName: hiddenGeneric, objectLayerChar: hiddenGeneric, objectLayerSemanticKind: hiddenGeneric, actionAffordances: [hiddenGeneric] });
 assertNoHiddenGeneric(shimMapProbe, 'shim map token and semantic-layer projection');
 assert.equal(shimMapProbe.event.backgroundSemanticName, undefined, 'shim map background identity requires explicit knowledge');
+const exactMapObject = ShimProtocol.normalizeRawShimEvent({ name: 'shim_print_glyph', window: 1, x: 2, y: 1, char: '(', glyph: 1, objectId: 73, displayName: 'a figurine of a horse', semanticKind: 'object', semanticName: 'figurine', semanticKnown: true });
+assert.equal(exactMapObject.event.displayName, 'a figurine of a horse', 'known map object keeps the native instance-specific public display name');
+const redactedMapObject = ShimProtocol.normalizeRawShimEvent({ name: 'shim_print_glyph', window: 1, x: 3, y: 1, char: '!', glyph: 2, objectId: 74, displayName: 'a potion of death', semanticKind: 'object', semanticName: 'death', semanticAppearance: 'ruby potion', semanticKnown: false });
+assert.equal(redactedMapObject.event.displayName, 'ruby potion', 'unidentified map object display name fails closed to its public appearance');
 for (const recording of [
   { schema: RecordingSchema.v2, metadata: { recorder: 'test', itemName: hiddenGeneric }, events: [] },
   { schema: RecordingSchema.v2, character: { role: 'Wizard', itemName: hiddenGeneric }, events: [] },
@@ -671,14 +696,14 @@ for (const appearanceFlag of [undefined, false, true]) {
 
 const gameView = GameViewState.createGameViewState({ mapWidth: 20, mapHeight: 10 });
 let gameResult = gameView.process({ name: 'shim_update_inventory', revision: 60, items: [namingCase('text', undefined)] });
-assertNoHiddenGeneric(gameView.state.inventory, 'game-view inventory state');
-assertNoHiddenGeneric(gameView.state.cachedInventoryChoices, 'game-view compatibility cache');
+assertNoHiddenGeneric(gameView.snapshot().inventory, 'game-view inventory state');
+assertNoHiddenGeneric(gameView.snapshot().cachedInventoryChoices, 'game-view compatibility cache');
 assertNoHiddenGeneric(gameResult.effects, 'game-view inventory diagnostics/effects');
 gameResult = gameView.process({ name: 'shim_ground_pile_snapshot', revision: 1, coord: { x: 2, y: 3 }, items: [namingCase('name', false)] });
-assertNoHiddenGeneric(gameView.state.groundPiles, 'game-view ground state');
+assertNoHiddenGeneric(gameView.snapshot().groundPiles, 'game-view ground state');
 assertNoHiddenGeneric(gameResult.effects, 'game-view ground diagnostics/effects');
 gameResult = gameView.process({ name: 'shim_container_contents_snapshot', revision: 1, sessionId: 'matrix-session', container: { publicId: 'box', displayName: 'box', semanticKnown: false, known: { identity: false, appearance: true } }, items: [namingCase('displayName', undefined)] });
-assertNoHiddenGeneric(gameView.state.containerContents, 'game-view container state');
+assertNoHiddenGeneric(gameView.snapshot().containerContents, 'game-view container state');
 assertNoHiddenGeneric(gameResult.effects, 'game-view container diagnostics/effects');
 const reconciledOmittedObservation = GroundAdapter.reconcileGroundPileObservation([], [{ displayName: hiddenGeneric }], { complete: true });
 assertNoHiddenGeneric(reconciledOmittedObservation, 'ground reconciliation without explicit visible-text provenance');
@@ -704,20 +729,20 @@ assertNoHiddenGeneric(reconciledKnownFlagOnly, 'ground known-flag-only downgrade
 const v2GameView = GameViewState.createGameViewState();
 const v2InventoryEvent = InventoryAdapter.createInventorySnapshotEvent({ revision: 5, items: [namingCase('displayName', undefined)] }, { sequence: 101 });
 let v2Result = v2GameView.process(v2InventoryEvent);
-assert.equal(v2GameView.state.inventory.revision, 5, 'game-view consumes valid v2 inventory snapshots');
-assertNoHiddenGeneric(v2GameView.state.inventory, 'game-view v2 inventory state');
+assert.equal(v2GameView.snapshot().inventory.revision, 5, 'game-view consumes valid v2 inventory snapshots');
+assertNoHiddenGeneric(v2GameView.snapshot().inventory, 'game-view v2 inventory state');
 assertNoHiddenGeneric(v2Result.effects, 'game-view v2 inventory effects');
 const v2EquipmentSnapshot = EquipmentAdapter.normalizeEquipmentSnapshotPayload({ revision: 5, inventoryRevision: 5, slots: [{ slotId: 'ring.left', objectId: 992, item: { objectId: 992, displayName: 'ring of conflict', semanticKnown: false, semanticAppearance: 'opal ring', publicClass: 'ring', equipmentSlots: ['ring.left', 'ring.right'] } }] });
 const v2EquipmentEvent = EquipmentAdapter.createEquipmentSnapshotEvent({}, { snapshot: v2EquipmentSnapshot, sequence: 102 });
 v2Result = v2GameView.process(v2EquipmentEvent);
-assert.equal(v2GameView.state.equipment.revision, 5, 'game-view consumes valid v2 equipment snapshots');
-assertNoRecursiveText(v2GameView.state.equipment, 'ring of conflict', 'game-view v2 equipment state');
+assert.equal(v2GameView.snapshot().equipment.revision, 5, 'game-view consumes valid v2 equipment snapshots');
+assertNoRecursiveText(v2GameView.snapshot().equipment, 'ring of conflict', 'game-view v2 equipment state');
 assertNoRecursiveText(v2Result.effects, 'ring of conflict', 'game-view v2 equipment effects');
 const optionalRevisionEquipment = { ...v2EquipmentEvent, sequence: 104, eventId: 'evt-equipment-optional-inventory-revision', payload: { ...v2EquipmentEvent.payload, revision: 6 } };
 delete optionalRevisionEquipment.payload.inventoryRevision;
 optionalRevisionEquipment.revision = { equipment: 6 };
 v2Result = v2GameView.process(optionalRevisionEquipment);
-assert.equal(v2GameView.state.equipment.revision, 6, 'optional equipment inventoryRevision inherits current public inventory revision instead of being rejected as zero');
+assert.equal(v2GameView.snapshot().equipment.revision, 6, 'optional equipment inventoryRevision inherits current public inventory revision instead of being rejected as zero');
 
 // Authoritative collections reject atomically instead of replacing state with a filtered subset.
 let inventoryState = InventoryAdapter.applyInventorySnapshot(InventoryAdapter.emptyInventoryState(), { revision: 1, items: [{ objectId: 1, displayName: 'food ration', semanticKnown: true }] });
@@ -753,12 +778,12 @@ assertNoRecursiveText(containerApplied.state, 'secret', 'container malformed rej
 
 const malformedShim = ShimProtocol.normalizeRawShimEvent({ name: 'shim_update_inventory', revision: 61, items: [{ selector: 97, text: 'a - apple', semanticKnown: true }, { private: 'secret' }] });
 assert.equal(malformedShim.valid, false, 'shim lowering rejects a mixed malformed authoritative collection instead of filtering it');
-const beforeInvalidWrapper = JSON.stringify(gameView.state.inventory.orderedItems);
+const beforeInvalidWrapper = JSON.stringify(gameView.snapshot().inventory.orderedItems);
 const ignoredInvalidWrapper = gameView.process({ name: 'shim_update_inventory', revision: 61, items: [{ selector: 97, text: 'a - apple', semanticKnown: true }, { private: 'secret' }] });
-assert.equal(JSON.stringify(gameView.state.inventory.orderedItems), beforeInvalidWrapper, 'game-view ignores malformed shim wrapper without replacing accepted inventory');
-assert.deepEqual(ignoredInvalidWrapper, [], 'invalid shim wrapper remains ignored by game-view');
+assert.equal(JSON.stringify(gameView.snapshot().inventory.orderedItems), beforeInvalidWrapper, 'game-view ignores malformed shim wrapper without replacing accepted inventory');
+assert.deepEqual(ignoredInvalidWrapper.effects, [], 'invalid shim wrapper publishes no effects');
 const invalidV2InventoryResult = v2GameView.process({ protocol: UiProtocol.protocol, sequence: 103, eventId: 'evt-invalid-inventory-wrapper', eventType: 'inventory.snapshot', turn: 1, payload: { revision: 6, items: [{ displayName: hiddenGeneric, semanticKnown: false, private: 'secret' }] } });
-assert.equal(v2GameView.state.inventory.revision, 5, 'invalid v2 inventory wrapper preserves prior state');
+assert.equal(v2GameView.snapshot().inventory.revision, 5, 'invalid v2 inventory wrapper preserves prior state');
 assertNoHiddenGeneric(invalidV2InventoryResult, 'invalid v2 inventory diagnostic');
 assertNoRecursiveText(invalidV2InventoryResult, 'secret', 'invalid v2 inventory diagnostic is sanitized');
 const invalidValueDiagnostic = v2GameView.process({ protocol: UiProtocol.protocol, sequence: 105, eventId: 'evt-invalid-value-diagnostic', eventType: 'inventory.snapshot', turn: 1, payload: { revision: 7, items: [{ displayName: 'milky potion', semanticKnown: false, semanticAppearance: 'milky potion', known: { identity: false, appearance: true }, publicClass: hiddenGeneric, knownFields: { charges: 1 } }] } });
@@ -768,17 +793,17 @@ assertNoHiddenGeneric(UiProtocol.validateEventEnvelope(invalidValueEnvelope), 'd
 assertNoHiddenGeneric(UiProtocol.normalizeEventEnvelope(invalidValueEnvelope), 'normalized validator diagnostics cannot echo attacker-controlled values');
 const duplicateShimEnvelope = { name: 'shim_update_inventory', revision: 8, items: [{ selector: 97, objectId: 10001, text: 'a - apple', semanticKnown: true }, { selector: 97, objectId: 10002, text: 'a - orange', semanticKnown: true }] };
 assert.equal(ShimProtocol.normalizeRawShimEvent(duplicateShimEnvelope).valid, false, 'shim rejects duplicate authoritative selectors before adaptation');
-const inventoryBeforeDuplicateShim = v2GameView.state.inventory.revision;
+const inventoryBeforeDuplicateShim = v2GameView.snapshot().inventory.revision;
 assert.doesNotThrow(() => v2GameView.process(duplicateShimEnvelope), 'game-view ignores duplicate shim keys without throwing');
-assert.equal(v2GameView.state.inventory.revision, inventoryBeforeDuplicateShim, 'duplicate shim keys preserve prior inventory state');
+assert.equal(v2GameView.snapshot().inventory.revision, inventoryBeforeDuplicateShim, 'duplicate shim keys preserve prior inventory state');
 const duplicateGroundLetters = GroundAdapter.normalizeGroundPileSnapshotPayload({ revision: 8, coord: { x: 1, y: 1 }, items: [{ selector: 97, displayName: 'apple', semanticKnown: true }, { selector: 97, displayName: 'orange', semanticKnown: true }] });
 assert.equal(duplicateGroundLetters.collectionValid, false, 'ground authoritative collections reject duplicate selectors atomically');
-const groundBeforeInvalidProtocol = GroundAdapter.groundPileAt(gameView.state.groundPiles, { x: 2, y: 3 });
+const groundBeforeInvalidProtocol = GroundAdapter.groundPileAt(gameView.snapshot().groundPiles, { x: 2, y: 3 });
 const invalidProtocolResult = gameView.process({
   protocol: UiProtocol.protocol, sequence: 99, eventId: 'evt-invalid-ground-wrapper', eventType: 'ground.pile.snapshot', turn: 1,
   payload: { revision: 99, coord: { x: 2, y: 3 }, items: [{ objectId: 999, displayName: 'apple', semanticKnown: true }, { private: 'secret', displayName: hiddenGeneric, semanticKnown: false }] },
 });
-assert.deepEqual(GroundAdapter.groundPileAt(gameView.state.groundPiles, { x: 2, y: 3 }), groundBeforeInvalidProtocol, 'invalid v2 wrapper does not replace accepted ground state');
+assert.deepEqual(GroundAdapter.groundPileAt(gameView.snapshot().groundPiles, { x: 2, y: 3 }), groundBeforeInvalidProtocol, 'invalid v2 wrapper does not replace accepted ground state');
 assertNoHiddenGeneric(invalidProtocolResult, 'invalid v2 game-view diagnostic');
 assertNoRecursiveText(invalidProtocolResult, 'secret', 'invalid v2 game-view diagnostic is sanitized');
 
@@ -787,6 +812,113 @@ for (const required of ['armor.helm', 'eyes', 'amulet', 'armor.cloak', 'armor.bo
 assert.equal(new Set(groupedSlots).size, groupedSlots.length, 'every semantic slot has one stable callout position');
 assert.equal(EquipmentScreen.GROUPS.filter((group) => group.rail === 'left').length, 3);
 assert.equal(EquipmentScreen.GROUPS.filter((group) => group.rail === 'right').length, 3);
+
+const ownerInventoryItems = Object.freeze([
+  Object.freeze({ objectId: 610, selector: 97, text: 'a - a +1 spear', displayName: 'a +1 spear', semanticName: 'spear', semanticKnown: true, known: Object.freeze({ identity: true, appearance: true }), publicClass: 'weapon', actionAffordances: Object.freeze(['wield', 'drop']) }),
+  Object.freeze({ objectId: 611, inventoryLetter: 'b', text: 'b - a ruby potion', displayName: 'ruby potion', semanticAppearance: 'ruby potion', semanticKnown: false, known: Object.freeze({ identity: false, appearance: true }), publicClass: 'potion', actionAffordances: Object.freeze(['quaff', 'drop', 'dip']) }),
+  Object.freeze({ objectId: 612, selector: 99, text: 'c - an uncursed helmet', displayName: 'uncursed helmet', semanticName: 'helmet', semanticKnown: true, known: Object.freeze({ identity: true, appearance: true }), publicClass: 'armor', equipmentSlots: Object.freeze(['armor.helm']), actionAffordances: Object.freeze(['wear', 'drop']) }),
+]);
+const ownerInventory = Object.freeze({ revision: 20, orderedItems: ownerInventoryItems });
+const ownerEquipment = Object.freeze({ revision: 20, inventoryRevision: 20, orderedSlots: Object.freeze([
+  Object.freeze({ slotId: 'mainHand', objectId: null, publicStatus: 'empty', blockedBy: Object.freeze([]) }),
+  Object.freeze({ slotId: 'armor.helm', objectId: null, publicStatus: 'empty', blockedBy: Object.freeze([]) }),
+]) });
+const ownerIntents = [];
+const itemEquipmentOwner = EquipmentScreen.createController({ onIntent(intent) { ownerIntents.push(intent); return true; } });
+const initialOwnerReconcile = itemEquipmentOwner.reconcile({ inventory: ownerInventory, equipment: ownerEquipment });
+assert.equal(initialOwnerReconcile.inventoryAccepted, true, 'item/equipment owner accepts the first immutable inventory revision');
+assert.equal(initialOwnerReconcile.equipmentAccepted, true, 'item/equipment owner accepts the linked equipment revision');
+assert.equal(itemEquipmentOwner.snapshot().inventoryCount, 3, 'item/equipment owner derives its inventory model from the authoritative snapshot');
+assert.equal(itemEquipmentOwner.request({ kind: 'item-action', stableId: 'object:611', actionId: 'item.quaff', inventoryRevision: 19 }), false, 'stale action revision is rejected before routing');
+assert.equal(ownerIntents.length, 0, 'stale action rejection dispatches no transport intent');
+assert.equal(itemEquipmentOwner.request({ kind: 'item-action', stableId: 'object:611', actionId: 'item.quaff', inventoryRevision: 20 }), true, 'inventoryLetter action is planned');
+assert.equal(ownerIntents.at(-1).command, 'qb', 'inventoryLetter is the exact routed NetHack selector');
+itemEquipmentOwner.settle({ intentId: ownerIntents.at(-1).intentId, status: 'completed' });
+assert.equal(itemEquipmentOwner.request({ kind: 'item-action', stableId: 'object:612', actionId: 'item.wear', inventoryRevision: 20 }), true, 'numeric selector action is planned');
+assert.equal(ownerIntents.at(-1).command, 'Wc', 'numeric selector is converted to its exact NetHack inventory letter');
+itemEquipmentOwner.settle({ intentId: ownerIntents.at(-1).intentId, status: 'completed' });
+assert.equal(itemEquipmentOwner.request({ kind: 'item-action', stableId: 'object:611', actionId: 'item.quaff', inventoryRevision: 20 }), true, 'owner can plan another exact selector action');
+const pendingPromptIntent = ownerIntents.at(-1);
+const unrelatedPrompt = Object.freeze({
+  kind: 'question',
+  requestId: 'prompt-unrelated',
+  transactionId: 'other-transaction',
+  lifecycleRevision: 6,
+  query: 'What do you want to quaff? [b or ?*]',
+  choices: '',
+  promptPurpose: 'prompt.question',
+});
+assert.equal(itemEquipmentOwner.reconcile({ interaction: Object.freeze({ prompt: unrelatedPrompt, menu: null }) }).ownership.ownsPrompt, false, 'selector-compatible prompt from another transaction is not claimed');
+const completedPrompt = Object.freeze({
+  kind: 'question',
+  requestId: 'prompt-owned-after-completion',
+  transactionId: pendingPromptIntent.transactionId,
+  lifecycleRevision: 7,
+  query: 'What do you want to quaff? [b or ?*]',
+  choices: '',
+  promptPurpose: 'prompt.question',
+});
+assert.equal(itemEquipmentOwner.reconcile({ interaction: Object.freeze({ prompt: completedPrompt, menu: null }) }).ownership.ownsPrompt, true, 'matching selector and exact semantic transaction claim the native prompt');
+itemEquipmentOwner.settle({ intentId: pendingPromptIntent.intentId, status: 'completed' });
+assert.equal(itemEquipmentOwner.ownership().ownsPrompt, true, 'completed action keeps exact native prompt ownership until its immutable prompt revision retires');
+assert.equal(itemEquipmentOwner.reconcile({ interaction: Object.freeze({ prompt: completedPrompt, menu: null }) }).ownership.ownsPrompt, true, 'same native prompt revision cannot leak to a duplicate renderer owner');
+assert.equal(itemEquipmentOwner.reconcile({ interaction: Object.freeze({ prompt: null, menu: null }) }).ownership.ownsPrompt, false, 'native prompt ownership retires when that exact prompt disappears');
+const conflictingOwnerInventory = Object.freeze({ revision: 20, orderedItems: Object.freeze([ownerInventoryItems[0], Object.freeze({ ...ownerInventoryItems[1], displayName: 'conflicting same revision' }), ownerInventoryItems[2]]) });
+assert.equal(itemEquipmentOwner.reconcile({ inventory: conflictingOwnerInventory, equipment: ownerEquipment }).inventoryAccepted, false, 'same-revision conflicting immutable inventory is rejected');
+assert(itemEquipmentOwner.diagnostics().some((entry) => entry.type === 'snapshot.inventory.rejected' && entry.detail.code === 'conflicting-revision'), 'owner diagnostics identify conflicting immutable revisions');
+assert.equal(itemEquipmentOwner.reconcile({ transferOwner: Object.freeze({ id: 'transfer-1', active: true }) }).ownership.active, false, 'Transfer Session signal takes precedence without a second UI owner');
+const newRunOwner = EquipmentScreen.createController();
+newRunOwner.reconcile({
+  inventory: Object.freeze({ revision: 500, orderedItems: Object.freeze([Object.freeze({ objectId: 9001, inventoryLetter: 'a', displayName: 'old hero sword' })]) }),
+  equipment: Object.freeze({ revision: 500, inventoryRevision: 500, orderedSlots: Object.freeze([]) }),
+});
+assert.deepEqual({ revision: newRunOwner.snapshot().inventoryRevision, count: newRunOwner.snapshot().inventoryCount }, { revision: 500, count: 1 }, 'first run seeds the item owner with its authoritative inventory');
+newRunOwner.reset({ reason: 'new-run-test' });
+assert.deepEqual({ revision: newRunOwner.snapshot().inventoryRevision, count: newRunOwner.snapshot().inventoryCount }, { revision: 0, count: 0 }, 'new run reset removes the prior hero inventory and revision floor');
+newRunOwner.reconcile({
+  inventory: Object.freeze({ revision: 1, orderedItems: Object.freeze([Object.freeze({ objectId: 1, inventoryLetter: 'b', displayName: 'new hero food ration' })]) }),
+  equipment: Object.freeze({ revision: 1, inventoryRevision: 1, orderedSlots: Object.freeze([]) }),
+});
+assert.deepEqual({ revision: newRunOwner.snapshot().inventoryRevision, count: newRunOwner.snapshot().inventoryCount }, { revision: 1, count: 1 }, 'new run accepts its low initial revision instead of retaining the previous hero snapshot');
+const layeredIntents = [];
+const layeredOwner = EquipmentScreen.createController({ onIntent(intent) { layeredIntents.push(intent); return true; } });
+const layeredInventory = Object.freeze({ revision: 1, orderedItems: Object.freeze([
+  Object.freeze({ objectId: 701, inventoryLetter: 'f', displayName: 'an uncursed +0 T-shirt (being worn)', text: 'f - an uncursed +0 T-shirt (being worn)', publicClass: 'armor', equipmentSlots: Object.freeze(['armor.shirt']), actionAffordances: Object.freeze(['takeOff']) }),
+  Object.freeze({ objectId: 702, inventoryLetter: 'g', displayName: 'an uncursed +0 leather armor (being worn)', text: 'g - an uncursed +0 leather armor (being worn)', publicClass: 'armor', equipmentSlots: Object.freeze(['armor.body']), actionAffordances: Object.freeze(['takeOff']) }),
+]) });
+const layeredEquipment = Object.freeze({ revision: 1, inventoryRevision: 1, orderedSlots: Object.freeze([
+  Object.freeze({ slotId: 'armor.body', objectId: 702, publicStatus: 'equipped', blockedBy: Object.freeze(['blocked.armor.bodyOverShirt']) }),
+  Object.freeze({ slotId: 'armor.shirt', objectId: 701, publicStatus: 'equipped', blockedBy: Object.freeze(['blocked.armor.bodyOverShirt']) }),
+]) });
+layeredOwner.reconcile({ inventory: layeredInventory, equipment: layeredEquipment });
+assert.equal(layeredOwner.request({ kind: 'item-action', stableId: 'object:701', slotId: 'armor.shirt', actionId: 'item.takeOff', inventoryRevision: 1 }), false, 'covered shirt action is rejected at the owner seam');
+assert.equal(layeredOwner.snapshot().feedback, 'Shirt covered; remove armor first.', 'covered shirt rejection uses the public blocker label');
+assert.equal(layeredIntents.length, 0, 'covered shirt rejection emits no transport intent');
+assert.equal(layeredOwner.request({ kind: 'item-action', stableId: 'object:702', slotId: 'armor.body', actionId: 'item.takeOff', inventoryRevision: 1 }), true, 'outer body armor remains directly removable');
+assert.equal(layeredIntents.at(-1).command, 'Tg', 'outer body armor uses its exact authoritative selector');
+const ringHandOptions = InteractionModel.buildPromptInteraction({
+  kind: 'question',
+  query: 'Which ring-finger, Right or Left?',
+  choices: 'rl',
+});
+assert.deepEqual(ringHandOptions.options.map(({ key, label }) => ({ key, label })), [
+  { key: 'r', label: 'Right hand' },
+  { key: 'l', label: 'Left hand' },
+], 'classic ring follow-up exposes semantic hand labels instead of generic command names');
+const sacrificeOptions = InteractionModel.buildPromptInteraction({
+  kind: 'question',
+  query: 'What do you want to sacrifice? [f or ?*]',
+  choices: '',
+}, [{
+  objectId: 703,
+  inventoryLetter: 'f',
+  displayName: 'an uncursed jackal corpse',
+  semanticName: 'jackal corpse',
+  publicClass: 'food',
+}]);
+assert.equal(sacrificeOptions.inventoryRows.length, 1, 'normalized inventory letters hydrate sacrifice selectors without a legacy menu cache');
+assert.equal(sacrificeOptions.inventoryRows[0].key, 'f', 'sacrifice row preserves the authoritative inventory letter');
+assert.match(sacrificeOptions.inventoryRows[0].itemName, /jackal corpse/i, 'sacrifice row exposes the carried corpse name');
 
 const css = fs.readFileSync(path.join(__dirname, '..', '..', 'src', 'ux', 'styles', 'items.css'), 'utf8');
 assert.match(css, /grid-template-columns:\s*minmax\(0, 42%\) minmax\(0, 58%\)/, 'full layout allocates inventory the larger width');

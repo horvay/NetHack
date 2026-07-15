@@ -1,0 +1,57 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "object/horse-figurine-east",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current"
+  },
+  "level": {
+    "safeAreaAroundHero": 3,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none",
+    "terrain": [
+      {
+        "at": {
+          "dx": 1,
+          "dy": 0
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": 2,
+          "dy": 0
+        },
+        "type": "altar"
+      }
+    ]
+  },
+  "ground": [
+    {
+      "at": {
+        "dx": 1,
+        "dy": 0
+      },
+      "object": {
+        "typeId": "FIGURINE",
+        "corpseMonsterTypeId": "HORSE",
+        "identityKnown": true
+      }
+    }
+  ],
+  "monsters": [],
+  "inventory": [],
+  "expectedPublicFacts": {
+    "groundRows": [
+      "figurine of a horse"
+    ],
+    "mapAffordances": [
+      "figurine",
+      "altar"
+    ],
+    "messages": [
+      "horse figurine tooltip fixture"
+    ]
+  }
+}

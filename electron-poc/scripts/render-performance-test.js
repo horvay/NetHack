@@ -16,6 +16,7 @@ const staticChecks = [
   ['display_nhwindow flushes pending map render', /flush-map/.test(displayBranch) && /flushMapRenderNow\(\)/.test(js)],
   ['level reloads defer print_glyph renders until display_nhwindow', /mapRefreshPendingDisplay/.test(gameViewJs) && /deferMapRenderUntilDisplay/.test(printGlyphBranch)],
   ['main-to-renderer shim events are batchable', /pendingShimEventBatch/.test(fs.readFileSync(path.join(root, 'src', 'main', 'game-process.js'), 'utf8')) && /handleShimEvents/.test(js)],
+  ['map event runs publish one shared presentation snapshot', /deferredGameViewEffects/.test(js) && /flushDeferredGameViewEffects/.test(js)],
   ['renderer exposes render instrumentation', /__nethackRenderStats/.test(js) && /dataset\.partialRenders/.test(js)],
   ['grid has stable element cache', /mapCellElements/.test(js) && /applyMapCellToElement/.test(js)],
 ];
@@ -86,10 +87,10 @@ function simulateRapidActorMovement() {
   view.process({ name: 'shim_print_glyph', window: 2, x: 5, y: 5, char: 'd', glyph: 1167, ttychar: 'd'.charCodeAt(0), semanticKind: 'monster', semanticName: 'dog', actorId: 'monster-17', backgroundGlyph: 3992, backgroundChar: '.', backgroundSemanticKind: 'terrain', backgroundSemanticName: 'room floor' });
   const moved = view.process({ name: 'shim_print_glyph', window: 2, x: 6, y: 5, char: 'd', glyph: 1167, ttychar: 'd'.charCodeAt(0), semanticKind: 'monster', semanticName: 'dog', actorId: 'monster-17', backgroundGlyph: 3992, backgroundChar: '.', backgroundSemanticKind: 'terrain', backgroundSemanticName: 'room floor' });
   return {
-    oldCell: view.state.mapCells[5][5],
-    newCell: view.state.mapCells[5][6],
+    oldCell: view.snapshot().mapCells[5][5],
+    newCell: view.snapshot().mapCells[5][6],
     effects: moved.effects,
-    visibleDogs: view.state.mapCells.flat().filter((cell) => cell.actorId === 'monster-17' || (cell.semanticKind === 'monster' && cell.semanticName === 'dog')).length,
+    visibleDogs: view.snapshot().mapCells.flat().filter((cell) => cell.actorId === 'monster-17' || (cell.semanticKind === 'monster' && cell.semanticName === 'dog')).length,
   };
 }
 

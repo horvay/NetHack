@@ -111,6 +111,30 @@ body.uxm02-shell-active .ux-status-chip strong {
   text-overflow: clip;
 }
 
+body.uxm02-shell-active #stats-panel[data-status-adaptive='true'][data-hud-density='compact'] .ux-status-adaptive-only {
+  display: none;
+}
+
+body.uxm02-shell-active .ux-status-chip {
+  align-items: baseline;
+  gap: 0.28rem;
+  white-space: nowrap;
+}
+
+@media (min-width: 1400px) {
+  body.uxm02-shell-active #stats-panel[data-status-adaptive='true'][data-hud-density='compact'] .ux-status-group.ux-status-adaptive-only {
+    display: inline-flex;
+  }
+
+  body.uxm02-shell-active #stats-panel[data-status-adaptive='true'][data-hud-density='compact'] .ux-status-chip.ux-status-adaptive-only {
+    display: inline-flex;
+  }
+
+  body.uxm02-shell-active #stats-panel .ux-status-group-hero {
+    flex: 1 1 15rem;
+  }
+}
+
 body.uxm02-shell-active .ux-status-chip.warning {
   border-color: var(--ux-color-warning);
   background: color-mix(in oklch, var(--ux-color-warning) 12%, var(--ux-color-surface));
@@ -124,6 +148,67 @@ body.uxm02-shell-active .ux-status-chip.danger {
 body.uxm02-shell-active .ux-status-chip.info {
   border-color: color-mix(in oklch, var(--ux-color-info) 55%, var(--ux-color-border));
   background: var(--ux-color-surface-muted);
+}
+
+body.uxm02-shell-active button.ux-status-chip.ux-status-urgent {
+  --ux-status-attention-color: var(--ux-color-warning);
+  position: relative;
+  isolation: isolate;
+  gap: 0.38rem;
+  border-width: 2px;
+  font-weight: 750;
+  box-shadow:
+    0 0 0 1px color-mix(in oklch, var(--ux-status-attention-color) 35%, transparent),
+    0 0 0.7rem color-mix(in oklch, var(--ux-status-attention-color) 28%, transparent);
+  animation: ux-status-attention-pulse 2.35s ease-in-out infinite;
+}
+
+body.uxm02-shell-active button.ux-status-chip.ux-status-urgent::before {
+  width: 0.42rem;
+  height: 0.42rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--ux-status-attention-color);
+  box-shadow: 0 0 0.45rem var(--ux-status-attention-color);
+  content: '';
+}
+
+body.uxm02-shell-active button.ux-status-chip.ux-status-urgent.warning {
+  border-color: color-mix(in oklch, var(--ux-color-warning) 88%, white);
+  background: color-mix(in oklch, var(--ux-color-warning) 24%, var(--ux-color-surface));
+}
+
+body.uxm02-shell-active button.ux-status-chip.ux-status-urgent.danger {
+  --ux-status-attention-color: var(--ux-color-danger);
+  border-color: color-mix(in oklch, var(--ux-color-danger) 88%, white);
+  background: color-mix(in oklch, var(--ux-color-danger) 28%, var(--ux-color-surface));
+  animation-duration: 1.8s;
+}
+
+body.uxm02-shell-active button.ux-status-chip.ux-status-urgent span,
+body.uxm02-shell-active button.ux-status-chip.ux-status-urgent strong {
+  color: var(--ux-color-text);
+}
+
+body.uxm02-shell-active button.ux-status-chip.ux-status-urgent:hover,
+body.uxm02-shell-active button.ux-status-chip.ux-status-urgent:focus-visible {
+  animation-play-state: paused;
+}
+
+@keyframes ux-status-attention-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow:
+      0 0 0 1px color-mix(in oklch, var(--ux-status-attention-color) 35%, transparent),
+      0 0 0.6rem color-mix(in oklch, var(--ux-status-attention-color) 24%, transparent);
+  }
+  50% {
+    transform: scale(1.025);
+    box-shadow:
+      0 0 0 0.24rem color-mix(in oklch, var(--ux-status-attention-color) 20%, transparent),
+      0 0 1rem color-mix(in oklch, var(--ux-status-attention-color) 42%, transparent);
+  }
 }
 
 body.uxm02-shell-active #ux-player-notice-root:not(:empty) {
@@ -494,13 +579,19 @@ body.uxm02-shell-active input:focus-visible,
 @media (max-width: 960px), (max-height: 760px) {
   body.uxm02-shell-active > header { display: flex; min-height: 3.25rem; }
   body.uxm02-shell-active main { height: calc(100vh - 3.25rem); padding: var(--ux-space-1) var(--ux-space-2) var(--ux-space-2); }
+  body.uxm02-shell-active .game-view-section {
+    grid-template-rows: max-content max-content auto max-content minmax(0, 1fr) minmax(6.8rem, 8rem) auto;
+  }
+  body.uxm02-shell-active #top-bar { grid-auto-rows: max-content; }
+  body.uxm02-shell-active #play-area { grid-template-rows: max-content minmax(0, 1fr); }
+  body.uxm02-shell-active .ux-map-toolbar button { min-height: 1.75rem; padding-block: 0.2rem; }
   body.uxm02-shell-active .game-view-section { gap: var(--ux-space-1); }
   body.uxm02-shell-active #stats-panel { flex-wrap: wrap; overflow: visible; }
   body.uxm02-shell-active .ux-status-group { flex: 0 1 auto; }
   body.uxm02-shell-active #quick-actions { overflow: visible; flex-wrap: wrap; }
   body.uxm02-shell-active #context-action-bar { flex-wrap: wrap; overflow: visible; }
   body.uxm02-shell-active #game-grid {
-    --map-available-width: calc(100vw - 1rem);
+    --map-available-width: calc(100vw - 2rem);
     --tile-size: max(6px, min(calc((var(--map-available-width) - var(--map-frame-extra)) / 80), calc((100vh - 20rem) / 21)));
   }
   body.uxm02-shell-active #log-panel { min-height: 6.8rem; max-height: 8rem; grid-template-columns: minmax(0, 1fr) 6rem; }
@@ -530,8 +621,16 @@ body.uxm02-shell-active input:focus-visible,
 
 @media (prefers-reduced-motion: reduce) {
   body.uxm02-shell-active[data-ux-map-mode='follow'] #game-grid { transition: none; }
+  body.uxm02-shell-active button.ux-status-chip.ux-status-urgent {
+    animation: none;
+    transform: none;
+  }
 }
 
 body.uxm02-shell-active:has(.ux-history-dialog[open], .ux-character-sheet-dialog[open]) main { overflow: hidden; }
 
 body[data-ux-motion='reduced'].uxm02-shell-active[data-ux-map-mode='follow'] #game-grid { transition: none; }
+body[data-ux-motion='reduced'].uxm02-shell-active button.ux-status-chip.ux-status-urgent {
+  animation: none;
+  transform: none;
+}

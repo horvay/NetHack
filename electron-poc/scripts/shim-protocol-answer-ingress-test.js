@@ -119,14 +119,14 @@ function identity(requestId, transactionId, family = 'prompt') {
 
 const promptView = GameViewState.createGameViewState();
 process(promptView, { name: 'shim_yn_function', query: 'Continue?', choices: 'yn', ...identity('prompt-r', 'prompt-t') });
-assert.equal(promptView.state.activePrompt.requestId, 'prompt-r');
+assert.equal(promptView.snapshot().activePrompt.requestId, 'prompt-r');
 process(promptView, { name: 'bridge_prompt_answer', keycode: 110, ...identity('prompt-r', 'prompt-t') });
-assert.equal(promptView.state.activePrompt, null, 'prompt consumer remains compatible with normalized answer');
+assert.equal(promptView.snapshot().activePrompt, null, 'prompt consumer remains compatible with normalized answer');
 
 const lineView = GameViewState.createGameViewState();
 process(lineView, { name: 'shim_getlin', query: 'Name?', ...identity('line-r', 'line-t') });
 process(lineView, { name: 'bridge_line_answer', value: '', ...identity('line-r', 'line-t') });
-assert.equal(lineView.state.activePrompt, null, 'line consumer remains compatible with normalized empty cancellation');
+assert.equal(lineView.snapshot().activePrompt, null, 'line consumer remains compatible with normalized empty cancellation');
 
 const menuView = GameViewState.createGameViewState();
 for (const event of [
@@ -136,12 +136,12 @@ for (const event of [
   { name: 'shim_select_menu', window: 44, how: 0 },
 ]) process(menuView, { ...event, ...identity('menu-r', 'menu-t', 'menu') });
 process(menuView, { name: 'bridge_menu_answer', window: 44, return: 0, selector: 0, selectors: '', ...identity('menu-r', 'menu-t', 'menu') });
-assert.equal(menuView.state.currentMenu, null, 'menu consumer remains compatible with normalized cancellation');
+assert.equal(menuView.snapshot().currentMenu, null, 'menu consumer remains compatible with normalized cancellation');
 
 const extcmdView = GameViewState.createGameViewState();
 process(extcmdView, { name: 'shim_get_ext_cmd', ...identity('ext-r', 'ext-t') });
 process(extcmdView, { name: 'bridge_extcmd_answer', return: -1, value: '', ...identity('ext-r', 'ext-t') });
-assert.equal(extcmdView.state.activePrompt, null, 'extcmd consumer remains compatible with normalized cancellation');
+assert.equal(extcmdView.snapshot().activePrompt, null, 'extcmd consumer remains compatible with normalized cancellation');
 
 console.log(JSON.stringify({
   passed: true,

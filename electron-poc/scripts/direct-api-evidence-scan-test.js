@@ -73,24 +73,6 @@ assert(dirtyBoundary.matches.some((match) => match.ruleId === 'no-hidden-action-
 assert(dirtyBoundary.matches.some((match) => match.ruleId === 'no-hidden-action-token' && match.value === 'container.locked' && /publicActionHints/.test(match.field)));
 assert(dirtyBoundary.matches.some((match) => match.ruleId === 'no-hidden-container-public-text' && /locked chest/i.test(match.value)));
 
-const validManifest = EvidenceScan.createEvidenceManifest({
-  task: 'ground.transfer',
-  scenarioId: 'ground/pickup-pile-on-hero',
-  screenshots: [{ path: 'screenshots/01-before.png', label: 'Before transfer', inspectionNotes: ['Ground panel shows public item names.'] }],
-  forbiddenTokenScan: { passed: true, tokens: ['Pick up what?', 'bridge_extcmd_answer'] },
-  publicBoundaryScan: { passed: true, forbiddenFields: EvidenceScan.forbiddenPublicBoundaryFields },
-  reviewNotes: ['No selector menu visible in reviewed screenshot.'],
-});
-assert.equal(EvidenceScan.validateEvidenceManifest(validManifest).ok, true);
-const invalidManifest = EvidenceScan.createEvidenceManifest({ task: 'ground.transfer', scenarioId: '../bad', screenshots: ['../leak.png'], forbiddenTokenScan: { passed: true }, reviewNotes: [] });
-const invalid = EvidenceScan.validateEvidenceManifest(invalidManifest);
-assert.equal(invalid.ok, false);
-assert.match(invalid.errors.join('\n'), /scenarioId|screenshots\[0\]|reviewNotes|inspectionNotes/);
-const missingBoundaryManifest = JSON.parse(JSON.stringify(validManifest));
-delete missingBoundaryManifest.directApiEvidence.publicBoundaryScan;
-const missingBoundary = EvidenceScan.validateEvidenceManifest(missingBoundaryManifest);
-assert.equal(missingBoundary.ok, false, 'manifest must declare public-boundary scan result');
-assert.match(missingBoundary.errors.join('\n'), /publicBoundaryScan/);
 
 fs.writeFileSync(path.join(root, 'test-output', 'direct-api-foundation', 'evidence-scan-summary.md'), EvidenceScan.markdownSummary(dirty, 'Direct API foundation evidence-scan fixture'));
 fs.writeFileSync(path.join(root, 'test-output', 'direct-api-foundation', 'public-boundary-scan-summary.md'), EvidenceScan.markdownSummary(dirtyBoundary, 'Direct API public-boundary dirty fixture'));

@@ -161,6 +161,13 @@ function assertNoHiddenContainerTokens(item, label) {
 }
 
 {
+  const events = runScenario('endgame/astral-offering', 20000);
+  const altarCell = events.find((event) => event.name === 'shim_print_glyph' && /altar to Tyr \(lawful\)/i.test(String(event.featureDescription || '')));
+  assert(altarCell, 'visible Astral altar cell publishes the same deity and alignment description as native look-here');
+  assert.equal(altarCell.featureDescription, 'high altar to Tyr (lawful)', 'sanctum altar description preserves every native look-here detail');
+}
+
+{
   const events = runScenario('object/gray-stone-public-rub-candidates');
   const inventory = events.filter((event) => event.name === 'shim_update_inventory').find((event) => Array.isArray(event.items) && event.items.length >= 4);
   assert(inventory, 'expected inventory snapshot for gray-stone public rub candidates');
@@ -176,7 +183,7 @@ function assertNoHiddenContainerTokens(item, label) {
     assert.match(String(item.text || ''), /^[a-z] - a gray stone$/i, `${label} must not expose quiver/equipment or true identity text`);
     assert.equal(item.semanticKnown, false, `${label} keeps identity unknown`);
     assert.equal(item.semanticName, undefined, `${label} must not expose semanticName`);
-    assert.equal(item.semanticAppearance, 'gray', `${label} exposes only public gray appearance`);
+    assert.equal(item.semanticAppearance, 'gray stone', `${label} publishes NetHack's complete public appearance, not the bare color adjective`);
     assert.equal(item.glyph, undefined, `${label} must redact true object glyph discriminator`);
     assert.equal(item.wornMask, 0, `${label} must not expose implicit fixture equipment state`);
     assert.equal(JSON.stringify([...(item.actionAffordances || [])].sort()), referenceActions, `${label} action affordances must be public-indistinguishable across hidden gray-stone identities`);
@@ -185,6 +192,43 @@ function assertNoHiddenContainerTokens(item, label) {
     assertTokens(item, ['rub'], label);
     assertNoTokens(item, ['fire', 'wielded', 'container.locked', 'container.trapped', 'container.broken'], label);
     assertNoHiddenIdentity(item, [/flint/i, /touchstone/i, /luckstone/i, /loadstone/i], label);
+  }
+}
+
+{
+  const events = runScenario('identity/canonical-gem-public-names');
+  const inventory = events.filter((event) => event.name === 'shim_update_inventory').find((event) => Array.isArray(event.items) && event.items.length >= 2);
+  assert(inventory, 'expected inventory snapshot for canonical gem public names');
+  const inventoryItems = inventory.items;
+  const yellowGem = inventoryItems.find((item) => /yellow gem/i.test(displayText(item)));
+  const chrysoberyl = inventoryItems.find((item) => /chrysoberyl/i.test(displayText(item)));
+  assert(yellowGem, 'unidentified inventory gem uses NetHack public appearance “yellow gem”');
+  assert.equal(yellowGem.semanticKnown, false, 'unidentified inventory gem keeps identity unknown');
+  assert.equal(yellowGem.semanticName, undefined, 'unidentified inventory gem omits its true identity');
+  assert.equal(yellowGem.semanticAppearance, 'yellow gem', 'unidentified inventory semantic appearance is complete and canonical');
+  assert.doesNotMatch(JSON.stringify(yellowGem), /citrine/i, 'unidentified yellow gem does not leak citrine identity');
+  assert.match(yellowGem.text, /^[a-z] - a yellow gem$/, 'unknown inventory gem text uses the complete NetHack look name');
+  assert(chrysoberyl, 'identified inventory gem uses its full NetHack identity');
+  assert.equal(chrysoberyl.semanticKnown, true, 'identified inventory gem publishes known identity');
+  assert.equal(chrysoberyl.semanticName, 'chrysoberyl', 'identified inventory gem publishes full semantic name');
+  assert.match(chrysoberyl.text, /^[a-z] - 2 chrysoberyl stones$/, 'identified inventory gem text uses NetHack’s full quantity-aware look name');
+
+  const groundItems = events.filter((event) => event.name === 'shim_ground_pile_snapshot').flatMap((event) => event.items || []);
+  const redGem = groundItems.find((item) => /red gem/i.test(displayText(item)));
+  const garnet = groundItems.find((item) => /garnet/i.test(displayText(item)));
+  assert(redGem, 'unidentified ground gem uses NetHack public appearance “red gem”');
+  assert.equal(redGem.semanticKnown, false, 'unidentified ground gem keeps identity unknown');
+  assert.equal(redGem.semanticName, undefined, 'unidentified ground gem omits its true identity');
+  assert.equal(redGem.semanticAppearance, 'red gem', 'unidentified ground semantic appearance is complete and canonical');
+  assert.doesNotMatch(JSON.stringify(redGem), /ruby/i, 'unidentified red gem does not leak ruby identity');
+  assert.equal(redGem.displayName, 'a red gem', 'unknown ground gem displayName uses the complete NetHack look name');
+  assert(garnet, 'identified ground gem uses its full NetHack identity');
+  assert.equal(garnet.semanticKnown, true, 'identified ground gem publishes known identity');
+  assert.equal(garnet.semanticName, 'garnet', 'identified ground gem publishes full semantic name');
+  assert.equal(garnet.displayName, 'a garnet stone', 'identified ground gem displayName uses the full NetHack look name');
+
+  for (const item of [...inventoryItems, ...groundItems]) {
+    assert.doesNotMatch(String(item.semanticAppearance || ''), /^(?:red|yellow)$/i, 'native item evidence never publishes a bare gem color adjective');
   }
 }
 

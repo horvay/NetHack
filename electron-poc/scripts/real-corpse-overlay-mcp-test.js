@@ -1,37 +1,32 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { spawn } = require('node:child_process');
-const electronBin = require('electron');
+const Harness = require('./lib/electron-test-harness');
+const EvidenceApproval = require('./lib/evidence-approval');
 
 const root = path.resolve(__dirname, '..');
-const outDir = process.env.NH_CORPSE_OVERLAY_OUT_DIR || path.join(root, 'test-output', 'real-corpse-overlay-mcp');
-const port = Number(process.env.NH_CORPSE_OVERLAY_CDP_PORT || 9598);
 const width = Number(process.env.NH_CORPSE_OVERLAY_WIDTH || 1280);
 const height = Number(process.env.NH_CORPSE_OVERLAY_HEIGHT || 900);
-fs.mkdirSync(outDir, { recursive: true });
-function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
-async function json(url) { const res = await fetch(url); if (!res.ok) throw new Error(`${res.status} ${url}`); return res.json(); }
-async function waitFor(fn, timeoutMs = 20000, stepMs = 150) { const start = Date.now(); let last; while (Date.now() - start < timeoutMs) { try { const v = await fn(); if (v) return v; } catch (e) { last = e; } await delay(stepMs); } throw last || new Error('timed out waiting'); }
-async function connect(wsUrl) { const ws = new WebSocket(wsUrl); await new Promise((resolve, reject) => { ws.addEventListener('open', resolve, { once: true }); ws.addEventListener('error', reject, { once: true }); }); let id = 0; const pending = new Map(); ws.addEventListener('message', (event) => { const msg = JSON.parse(event.data); if (msg.id && pending.has(msg.id)) { const p = pending.get(msg.id); pending.delete(msg.id); msg.error ? p.reject(new Error(JSON.stringify(msg.error))) : p.resolve(msg.result); } }); return { send(method, params = {}) { const callId = ++id; ws.send(JSON.stringify({ id: callId, method, params })); return new Promise((resolve, reject) => pending.set(callId, { resolve, reject })); }, close() { ws.close(); } }; }
-async function evalExpr(cdp, expression) { const res = await cdp.send('Runtime.evaluate', { returnByValue: true, expression }); if (res.exceptionDetails) throw new Error(JSON.stringify(res.exceptionDetails)); return res.result.value; }
-async function shot(cdp, name) { const res = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }); const p = path.join(outDir, name); fs.writeFileSync(p, Buffer.from(res.data, 'base64')); return p; }
+const { delay, waitFor } = Harness;
+async function evalExpr(cdp, expression) { return cdp.evalCheckedValue(expression, { awaitPromise: true }); }
+async function shot(cdp, name) {
+  const capture = await cdp.screenshotEvidence(cdp.qc, path.basename(name, path.extname(name)), { classification: 'synthetic-fixture', viewport: { width, height, zoomPercent: 100 }, state: name, viewSafeFormat: 'BMP', viewSafeScale: 0.25 });
+  return capture.raw.path;
+}
 async function clickCenter(cdp, selector) { const box = await evalExpr(cdp, `(() => { const el = document.querySelector(${JSON.stringify(selector)}); el?.scrollIntoView?.({block:'center', inline:'center'}); const r = el?.getBoundingClientRect(); return r ? {x:r.left+r.width/2,y:r.top+r.height/2} : null; })()`); if (!box) throw new Error(`missing selector ${selector}`); await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: box.x, y: box.y, button: 'left', clickCount: 1 }); await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: box.x, y: box.y, button: 'left', clickCount: 1 }); }
 async function hoverFirstCellKind(cdp, kind) { const box = await evalExpr(cdp, `(() => { const el = document.querySelector('.tile-cell[data-semantic-kind="${kind}"]'); el?.scrollIntoView?.({block:'center', inline:'center'}); const r = el?.getBoundingClientRect(); return r ? {x:r.left+r.width/2,y:r.top+r.height/2} : null; })()`); if (!box) throw new Error(`missing ${kind} cell to hover`); await cdp.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: box.x, y: box.y }); await delay(150); }
 async function tooltipMetrics(cdp) { return evalExpr(cdp, `(() => { const tip = document.getElementById('map-tooltip'); const icon = document.getElementById('map-tooltip-icon'); const title = document.getElementById('map-tooltip-title'); const description = document.getElementById('map-tooltip-description'); const r = tip?.getBoundingClientRect(); return { hidden: Boolean(tip?.hidden), text: tip?.innerText || '', title: title?.textContent || '', description: description?.textContent || '', tooltipClass: tip?.className || '', titleColor: title ? getComputedStyle(title).color : '', descriptionColor: description ? getComputedStyle(description).color : '', iconClass: icon?.className || '', rect: r ? {left:r.left, top:r.top, right:r.right, bottom:r.bottom, width:r.width, height:r.height} : null }; })()`); }
 async function state(cdp) { return evalExpr(cdp, `(() => ({ status: document.getElementById('status')?.textContent || '', dialogs: Array.from(document.querySelectorAll('dialog[open]')).map(d => d.id), messages: window.__nethackPromptTest?.messages?.().slice(-8).map(m => m.text || String(m)) || [], seen: document.getElementById('shim-output')?.dataset?.seen || '', automation: window.__nethackAutomation?.state?.() }))()`); }
 async function waitForStarted(cdp) {
-  await waitFor(async () => (await evalExpr(cdp, "document.readyState === 'complete' && !!window.__nethackAutomation && !!window.__nethackPromptTest")), 10000);
-  await clickCenter(cdp, '#start-shim');
-  await delay(200);
-  await clickCenter(cdp, '#confirm-character');
-  const started = await waitFor(async () => { const s = await state(cdp); return s.automation?.runningState?.running && /shim_glyph|shim_print_glyph|shim_status_update|shim_curs|shim_putstr/.test(s.seen) ? s : null; }, 20000);
-  if (started.dialogs.includes('intro-dialog')) {
-    await clickCenter(cdp, '#intro-continue');
-    await waitFor(async () => !(await state(cdp)).dialogs.includes('intro-dialog'), 5000);
-  }
-  await delay(250);
-  await evalExpr(cdp, "document.getElementById('game-grid').focus()");
-  return state(cdp);
+  await cdp.startDefaultGame({ timeoutMs: 25000, playerName: 'BatchBProof' });
+  await cdp.dismissIntroDialogs();
+    await delay(500);
+    await cdp.dismissIntroDialogs();
+  const started = await waitFor(async () => {
+    const value = await state(cdp);
+    return /shim_glyph|shim_print_glyph|shim_status_update|shim_curs|shim_putstr/.test(value.seen) ? value : null;
+  }, 20000);
+  await evalExpr(cdp, "document.getElementById('game-grid')?.focus?.()");
+  return started;
 }
 async function liveMapMetrics(cdp) { return evalExpr(cdp, `(() => {
   const cells = Array.from(document.querySelectorAll('.tile-cell'));
@@ -58,30 +53,36 @@ async function liveMapMetrics(cdp) { return evalExpr(cdp, `(() => {
   };
 })()`); }
 
-(async () => {
-  const proc = spawn(electronBin, ['.'], {
-    cwd: root,
-    env: {
-      ...process.env,
-      ELECTRON_DISABLE_SECURITY_WARNINGS: '1',
-      AI_ORG_ELECTRON_CDP_PORT: String(port),
-      NH_ELECTRON_WINDOW_WIDTH: String(width),
-      NH_ELECTRON_WINDOW_HEIGHT: String(height),
-      NH_SHIM_TEST_CORPSE_OVERLAY_SCENE: '1',
-      NETHACK_SEED: '424242'
-    },
-    stdio: ['ignore', 'pipe', 'pipe']
+function reviewRun(outputDir, reviewFile) {
+  const manifestFile = path.join(path.resolve(outputDir), 'evidence-approval.json');
+  const approval = EvidenceApproval.openEvidenceApproval({ manifestFile });
+  EvidenceApproval.applyEvidenceReview(approval, path.resolve(reviewFile));
+  const validation = Harness.screenshotQc.validateManifest(manifestFile, { expectedRunIdentity: approval.runIdentity, requireApproval: true });
+  if (!validation.ok) throw new Error(`Evidence Approval failed: ${validation.errors.join('; ')}`);
+  EvidenceApproval.writeEvidenceReport(manifestFile);
+  console.log(`real-corpse-overlay-mcp-test: APPROVED ${approval.runIdentity} ${manifestFile}`);
+}
+function recordJsonSidecars(qc, outDir) {
+  for (const name of fs.readdirSync(outDir)) {
+    if (!name.endsWith('.json') || name === 'evidence-approval.json') continue;
+    const file = path.join(outDir, name);
+    if (!fs.statSync(file).isFile()) continue;
+    qc.recordLog({ id: `sidecar-${name.replace(/[^a-z0-9._-]+/gi, '-')}`, path: file, classification: 'scenario-state' });
+  }
+}
+
+async function main() {
+  const page = await Harness.createElectronBrowserDriver({
+    root, width, height,
+    env: { ELECTRON_DISABLE_SECURITY_WARNINGS: '1', NH_SHIM_TEST_CORPSE_OVERLAY_SCENE: '1', NETHACK_SEED: '424242' },
   });
-  let logs = '';
-  proc.stdout.on('data', (d) => { logs += d.toString(); });
-  proc.stderr.on('data', (d) => { logs += d.toString(); });
-  let cdp;
+  const outDir = page.outputDir;
+  const qc = Harness.screenshotQc.createScreenshotQc({ rootDir: outDir, runIdentity: page.outputIdentity, manifestFile: path.join(outDir, 'evidence-approval.json') });
+  const cdp = Object.freeze({ ...page, qc });
+  const outcomes = [];
+  if (typeof assertionOutcomes !== 'undefined') assertionOutcomes = outcomes;
+  let scenarioError = null;
   try {
-    const target = await waitFor(async () => (await json(`http://127.0.0.1:${port}/json/list`)).find((t) => t.type === 'page' && t.webSocketDebuggerUrl), 20000);
-    cdp = await connect(target.webSocketDebuggerUrl);
-    await cdp.send('Runtime.enable');
-    await cdp.send('Page.enable');
-    await cdp.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
     const startup = await waitForStarted(cdp);
     const initial = await shot(cdp, '01-live-game-started-before-corpse-assertion.png');
     const metrics = await waitFor(async () => {
@@ -111,13 +112,28 @@ async function liveMapMetrics(cdp) { return evalExpr(cdp, `(() => {
       noRendererStagedCellsUsed: !/fixture/i.test(metrics.status) && metrics.shimEventCount > 0,
       noUnexpectedDialogs: metrics.openDialogs.length === 0,
     };
-    const md = [`# Real corpse and statue overlay MCP/CDP validation`, '', `Output: ${outDir}`, '', '## Startup/root cause check', '- Real Electron launched: yes', '- Shim/game startup reached live map events: yes', '- Startup wait waits for renderer automation hooks before clicking New game.', '', '## Live-game setup', '- The Electron process was started with `NH_SHIM_TEST_CORPSE_OVERLAY_SCENE=1` and `NETHACK_SEED=424242`.', '- The fixture is injected in NetHack game initialization, not through renderer DOM hooks: it places a real jackal corpse object, a real jackal statue object, and a live jackal monster near the player before `docrt()`, so the screenshot is produced from live shim `shim_print_glyph` map events.', '- The tooltip screenshots are produced by dispatching real mouse hovers over the rendered corpse and statue cells in the live Electron game.', '', '## Checks', ...Object.entries(checks).map(([k,v]) => `- ${v ? 'PASS' : 'FAIL'} ${k}`), '', '## Live map cell evidence', '```json', JSON.stringify(metrics, null, 2), '```', '', '## Corpse tooltip evidence', '```json', JSON.stringify(corpseTooltip, null, 2), '```', '', '## Statue tooltip evidence', '```json', JSON.stringify(statueTooltip, null, 2), '```', '', '## Screenshots', `- Live Electron game after real shim startup: ${initial}`, `- Live-game corpse red-X and statue stone overlays with live monster negative: ${overlayShot}`, `- Live-game corpse tooltip with matching red-X overlay: ${tooltipShot}`, `- Live-game statue tooltip with grey text and statue label: ${statueTooltipShot}`, ''].join('\n');
-    fs.writeFileSync(path.join(outDir, 'real-corpse-overlay-mcp-summary.md'), md);
-    if (!Object.values(checks).every(Boolean)) throw new Error(md);
-    console.log(md);
+    for (const [id, ok] of Object.entries(checks)) outcomes.push({ id, status: ok ? 'passed' : 'failed', details: ok ? '' : 'Observable scenario condition was not satisfied.' });
+    const failedChecks = Object.entries(checks).filter(([, ok]) => !ok).map(([id]) => id);
+    if (failedChecks.length) throw new Error(`Scenario checks failed: ${failedChecks.join(', ')}`);
+  } catch (error) {
+    scenarioError = error;
   } finally {
-    if (cdp) cdp.close();
-    proc.kill('SIGTERM');
-    fs.writeFileSync(path.join(outDir, 'electron.log'), logs);
+    await page.close().catch((error) => { if (!scenarioError) scenarioError = error; });
   }
-})().catch((error) => { console.error(error.stack || error); process.exit(1); });
+  outcomes.push({ id: 'scenario-completed', status: scenarioError ? 'failed' : 'passed', details: scenarioError ? String(scenarioError.message || scenarioError) : '' });
+  qc.recordAssertions(outcomes);
+  recordJsonSidecars(qc, outDir);
+  qc.recordLog({ id: 'electron-stdout', path: page.logs.stdout, classification: 'electron-stdout' });
+  qc.recordLog({ id: 'electron-stderr', path: page.logs.stderr, classification: 'electron-stderr' });
+  const validation = Harness.screenshotQc.validateManifest(qc.manifestFile, { expectedRunIdentity: page.outputIdentity, requireApproval: false });
+  if (!validation.ok) throw new Error(`Evidence Approval capture failed: ${validation.errors.join('; ')}`);
+  console.log(`real-corpse-overlay-mcp-test: CAPTURED ${page.outputIdentity} ${qc.manifestFile}`);
+  if (scenarioError) throw scenarioError;
+}
+
+const reviewIndex = process.argv.indexOf('--review');
+if (reviewIndex !== -1) {
+  Promise.resolve().then(() => reviewRun(process.argv[reviewIndex + 1], process.argv[reviewIndex + 2])).catch((error) => { console.error(error.stack || error); process.exit(1); });
+} else {
+  main().catch((error) => { console.error(error.stack || error); process.exit(1); });
+}
