@@ -39,11 +39,15 @@ jobs:
 
       - name: Create relocatable Linux release archive
         run: |
-          mkdir -p release/nethack-linux-x64
-          cp -a "$HOME/nethack-minimal/games/lib" release/nethack-linux-x64/
+          mkdir -p release/nethack-linux-x64/lib/runtime-libs
+          cp -a "$HOME/nethack-minimal/games/lib/nethackdir" release/nethack-linux-x64/lib/
+          cp -L /lib/x86_64-linux-gnu/libncurses.so.6 release/nethack-linux-x64/lib/runtime-libs/
+          cp -L /lib/x86_64-linux-gnu/libtinfo.so.6 release/nethack-linux-x64/lib/runtime-libs/
           cat > release/nethack-linux-x64/nethack <<'EOF'
           #!/bin/sh
           root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+          LD_LIBRARY_PATH="$root/lib/runtime-libs${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          export LD_LIBRARY_PATH
           exec "$root/lib/nethackdir/nethack" -d "$root/lib/nethackdir" "$@"
           EOF
           chmod 0755 release/nethack-linux-x64/nethack
