@@ -1,1 +1,824 @@
-/* UXM-08 reserved stylesheet slot. */
+/* UXM-08 motion language: opacity + transform only, never paces turns. */
+
+@keyframes ux-motion-enter-up {
+  from { opacity: 0; transform: translateY(var(--ux-motion-enter-distance)); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ux-motion-enter-scale {
+  from { opacity: 0; transform: scale(0.985); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes ux-motion-enter-centered-scale {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.985); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes ux-motion-enter-pop {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes ux-motion-exit-up {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(calc(var(--ux-motion-enter-distance) * -1)); }
+}
+
+@keyframes ux-motion-exit-fade {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes ux-motion-select-bloom {
+  from { opacity: 0.35; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes ux-motion-success-tick {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+@keyframes ux-motion-danger-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+@keyframes ux-motion-value-flash {
+  0% { opacity: 0.45; transform: translateY(2px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ux-motion-value-down {
+  0% { opacity: 0.45; transform: translateY(-2px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ux-motion-border-flash-danger {
+  0% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--ux-color-danger) 0%, transparent); }
+  35% { box-shadow: 0 0 0 0.18rem color-mix(in oklch, var(--ux-color-danger) 42%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--ux-color-danger) 0%, transparent); }
+}
+
+@keyframes ux-motion-border-flash-success {
+  0% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--ux-color-success) 0%, transparent); }
+  35% { box-shadow: 0 0 0 0.16rem color-mix(in oklch, var(--ux-color-success) 38%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--ux-color-success) 0%, transparent); }
+}
+
+@keyframes ux-motion-border-flash-action {
+  0% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--ux-color-action) 0%, transparent); }
+  40% { box-shadow: 0 0 0 0.18rem color-mix(in oklch, var(--ux-color-action) 36%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--ux-color-action) 0%, transparent); }
+}
+
+@keyframes ux-motion-urgent-arrive {
+  0% { transform: scale(0.97); }
+  55% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+@keyframes ux-motion-primary-breath {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+@keyframes ux-motion-focus-bloom {
+  from { outline-offset: 0; }
+  to { outline-offset: 2px; }
+}
+
+@keyframes ux-motion-underline-draw {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes ux-motion-map-level-fade {
+  0% { opacity: 1; }
+  40% { opacity: 0.28; }
+  100% { opacity: 1; }
+}
+
+@keyframes ux-motion-row-migrate {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(8px); }
+}
+
+@keyframes ux-motion-transfer-insert {
+  from { opacity: 0; transform: translateX(-6px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes ux-motion-keycap-press {
+  0% { transform: translateY(0); }
+  40% { transform: translateY(1px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes ux-motion-stagger-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ux-motion-enter {
+  animation: ux-motion-enter-up var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+.ux-motion-enter-scale {
+  animation: ux-motion-enter-scale var(--ux-motion-standard) var(--ux-motion-ease-out) both;
+}
+
+.ux-motion-enter-pop {
+  animation: ux-motion-enter-pop var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+.ux-motion-exit {
+  animation: ux-motion-exit-up var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+.ux-motion-exit-fade {
+  animation: ux-motion-exit-fade var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+.ux-motion-select {
+  animation: ux-motion-select-bloom var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+.ux-motion-success {
+  animation: ux-motion-success-tick var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+.ux-motion-danger {
+  animation: ux-motion-danger-shake var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+.ux-motion-value-up {
+  animation: ux-motion-value-flash var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+.ux-motion-value-down {
+  animation: ux-motion-value-down var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+.ux-motion-flash-danger {
+  animation: ux-motion-border-flash-danger var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+.ux-motion-flash-success {
+  animation: ux-motion-border-flash-success var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+.ux-motion-flash-action {
+  animation: ux-motion-border-flash-action var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+.ux-motion-urgent-arrive {
+  animation: ux-motion-urgent-arrive var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+.ux-motion-primary-breath {
+  animation: ux-motion-primary-breath 720ms var(--ux-motion-ease-in-out) 1 both;
+}
+
+.ux-motion-row-migrate {
+  animation: ux-motion-row-migrate var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+.ux-motion-transfer-insert {
+  animation: ux-motion-transfer-insert var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+.ux-motion-keycap-press {
+  animation: ux-motion-keycap-press var(--ux-motion-instant) var(--ux-motion-ease-out) both;
+}
+
+.ux-motion-stagger > * {
+  animation: ux-motion-stagger-in var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+.ux-motion-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.ux-motion-stagger > *:nth-child(2) { animation-delay: 20ms; }
+.ux-motion-stagger > *:nth-child(3) { animation-delay: 40ms; }
+.ux-motion-stagger > *:nth-child(4) { animation-delay: 60ms; }
+.ux-motion-stagger > *:nth-child(5) { animation-delay: 80ms; }
+
+/* Shared transitions for interactive chrome. */
+button:hover:not(:disabled),
+.ux-shell-action:hover:not(:disabled),
+#quick-actions > button:hover:not(:disabled),
+.context-action-button:hover:not(:disabled),
+.uxm-filter-button:hover:not(:disabled),
+.uxm-items-tabs button:hover:not(:disabled),
+.ux-command-row:hover:not(:disabled),
+.ux-history-row:hover,
+.choice-button:hover {
+  transform: translateY(calc(var(--ux-motion-press-distance) * -1));
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  animation: ux-motion-focus-bloom var(--ux-motion-instant) var(--ux-motion-ease-out) both;
+}
+
+/* Player notices */
+.ux-player-notice:not([hidden]) {
+  animation: ux-motion-enter-up var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+.ux-player-notice.ux-motion-exit-pending {
+  animation: ux-motion-exit-up var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+.ux-player-notice-icon {
+  transition: color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    border-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    transform var(--ux-motion-micro) var(--ux-motion-ease-out);
+}
+
+.ux-player-notice.ux-motion-kind-change .ux-player-notice-icon {
+  animation: ux-motion-enter-pop var(--ux-motion-instant) var(--ux-motion-ease-out) both;
+}
+
+/* Status HUD */
+.ux-status-chip strong {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+  transition: color var(--ux-motion-fast) var(--ux-motion-ease-out);
+}
+
+.ux-status-chip.ux-motion-value-up strong {
+  animation: ux-motion-value-flash var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+.ux-status-chip.ux-motion-value-down strong {
+  animation: ux-motion-value-down var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+.ux-status-chip.ux-motion-flash-danger {
+  animation: ux-motion-border-flash-danger var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+.ux-status-chip.ux-motion-flash-success {
+  animation: ux-motion-border-flash-success var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+body.uxm02-shell-active button.ux-status-chip.ux-status-urgent.ux-motion-urgent-arrive {
+  animation:
+    ux-motion-urgent-arrive var(--ux-motion-fast) var(--ux-motion-ease-out) both,
+    ux-status-attention-pulse 2.35s ease-in-out 200ms infinite;
+}
+
+body.uxm02-shell-active button.ux-status-chip.ux-status-urgent.danger.ux-motion-urgent-arrive {
+  animation:
+    ux-motion-urgent-arrive var(--ux-motion-fast) var(--ux-motion-ease-out) both,
+    ux-status-attention-pulse 1.8s ease-in-out 200ms infinite;
+}
+
+/* Adaptive density chips enter when expanding to full stats. */
+.ux-status-chip.ux-status-adaptive-only.ux-motion-enter {
+  animation: ux-motion-enter-up var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+/* Selected transfer rows keep a stable selected edge without re-pulsing forever. */
+.container-item-row.is-selected,
+.container-item-row[aria-checked="true"] {
+  border-color: color-mix(in oklch, var(--ux-color-selection) 70%, var(--ux-color-border));
+  background: color-mix(in oklch, var(--ux-color-selection) 12%, var(--ux-color-surface));
+}
+
+/* Inventory quantity ticks remain tabular and transform-only. */
+.uxm-item-row-quantity {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Command palette selected row feedback. */
+.ux-command-row[aria-selected="true"] {
+  animation: ux-motion-select-bloom var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+/* Help tab selection indicator. */
+.ux-help-tabs button {
+  transition: border-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    background-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    transform var(--ux-motion-fast) var(--ux-motion-ease-out);
+}
+
+/* Onboarding progress dots fill. */
+.ux-onboarding-progress > * {
+  transition: transform var(--ux-motion-fast) var(--ux-motion-ease-out),
+    opacity var(--ux-motion-fast) var(--ux-motion-ease-out),
+    background-color var(--ux-motion-fast) var(--ux-motion-ease-out);
+}
+
+/* Turn / status pill */
+#status:not([hidden]) {
+  position: relative;
+  transition: border-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    background-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    opacity var(--ux-motion-fast) var(--ux-motion-ease-out);
+}
+
+#status.ux-status-ready {
+  border-color: color-mix(in oklch, var(--ux-color-action) 55%, var(--ux-color-border));
+}
+
+#status.ux-status-ready::after {
+  content: '';
+  position: absolute;
+  left: 0.65rem;
+  right: 0.65rem;
+  bottom: 0.2rem;
+  height: 1px;
+  transform-origin: left center;
+  background: var(--ux-color-action);
+  animation: ux-motion-underline-draw var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+/* Quick actions + context bar */
+#quick-actions > button,
+body.uxm02-shell-active #quick-actions > button {
+  transition: border-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    background-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    opacity var(--ux-motion-fast) var(--ux-motion-ease-out),
+    transform var(--ux-motion-fast) var(--ux-motion-ease-out),
+    box-shadow var(--ux-motion-fast) var(--ux-motion-ease-out);
+}
+
+#quick-actions > button[aria-pressed="true"],
+body.uxm02-shell-active #quick-actions > button[aria-pressed="true"],
+#inventory-equipment-button.ux-surface-open,
+#open-actions.ux-surface-open {
+  box-shadow: inset 0 -2px 0 var(--ux-color-action);
+}
+
+#context-action-bar .context-action-button {
+  transition: border-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    background-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    opacity var(--ux-motion-fast) var(--ux-motion-ease-out),
+    transform var(--ux-motion-fast) var(--ux-motion-ease-out);
+  animation: ux-motion-stagger-in var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+#context-action-bar .context-action-button:nth-child(1) { animation-delay: 0ms; }
+#context-action-bar .context-action-button:nth-child(2) { animation-delay: 15ms; }
+#context-action-bar .context-action-button:nth-child(3) { animation-delay: 30ms; }
+#context-action-bar .context-action-button:nth-child(4) { animation-delay: 45ms; }
+#context-action-bar .context-action-button:nth-child(5) { animation-delay: 60ms; }
+#context-action-bar .context-action-button:nth-child(n+6) { animation-delay: 75ms; }
+
+#context-action-bar .context-action-button.primary-context.ux-motion-primary-breath {
+  animation:
+    ux-motion-stagger-in var(--ux-motion-fast) var(--ux-motion-ease-out) both,
+    ux-motion-primary-breath 720ms var(--ux-motion-ease-in-out) 120ms 1 both;
+}
+
+/* Consequence feed */
+.ux-consequence-row {
+  transition: opacity var(--ux-motion-fast) var(--ux-motion-ease-out),
+    transform var(--ux-motion-fast) var(--ux-motion-ease-out);
+}
+
+.ux-consequence-row.ux-motion-enter {
+  animation: ux-motion-enter-up var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+.ux-consequence-mark {
+  display: inline-block;
+  transform-origin: center;
+}
+
+.ux-consequence-row.ux-motion-success .ux-consequence-mark,
+.ux-consequence-row[data-severity="success"].ux-motion-enter .ux-consequence-mark {
+  animation: ux-motion-success-tick var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+.ux-consequence-row[data-severity="danger"].ux-motion-enter .ux-consequence-mark,
+.ux-consequence-row[data-severity="warning"].ux-motion-enter .ux-consequence-mark {
+  animation: ux-motion-success-tick var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+.ux-consequence-empty {
+  animation: ux-motion-enter-up var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+/* Direction helper */
+#direction-helper:not([hidden]) {
+  animation: ux-motion-enter-scale var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+#direction-helper .direction-pad-button,
+#direction-helper .direction-pad-run {
+  transition: border-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    background-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    transform var(--ux-motion-fast) var(--ux-motion-ease-out);
+}
+
+#direction-helper .direction-pad-button:active:not(:disabled),
+#direction-helper .direction-pad-run:active:not(:disabled) {
+  transform: translateY(1px) scale(0.97);
+}
+
+#direction-helper .direction-pad-run.selected {
+  animation: ux-motion-flash-action var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+/* Dialogs / overlays */
+dialog[open],
+.ux-command-palette[open],
+.ux-help-center[open],
+.ux-character-creation[open],
+.ux-history-dialog[open],
+.ux-character-sheet-dialog[open],
+.ux-final-chronicle[open] {
+  animation: ux-motion-enter-scale var(--ux-motion-standard) var(--ux-motion-ease-out) both;
+}
+
+dialog[open]::backdrop,
+.ux-command-palette[open]::backdrop,
+.ux-help-center[open]::backdrop,
+.ux-character-creation[open]::backdrop,
+.ux-history-dialog[open]::backdrop,
+.ux-character-sheet-dialog[open]::backdrop,
+.ux-final-chronicle[open]::backdrop {
+  animation: ux-motion-enter-up var(--ux-motion-standard) var(--ux-motion-ease-out) both;
+}
+
+.interaction-dialog[data-dialog-family="confirmation"][open],
+.interaction-dialog.destructive-confirm-dialog[open] {
+  animation:
+    ux-motion-enter-scale var(--ux-motion-standard) var(--ux-motion-ease-out) both,
+    ux-motion-border-flash-danger var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+.startup-choice-card {
+  transition: border-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    background-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    transform var(--ux-motion-fast) var(--ux-motion-ease-out),
+    box-shadow var(--ux-motion-fast) var(--ux-motion-ease-out);
+}
+
+.startup-choice-card:hover,
+.startup-choice-card:focus-within {
+  transform: translateY(-1px);
+}
+
+.intro-seal {
+  animation: ux-motion-enter-pop var(--ux-motion-standard) var(--ux-motion-ease-out) both;
+}
+
+.ux-first-turn-guide:not([hidden]) {
+  animation: ux-motion-enter-up var(--ux-motion-standard) var(--ux-motion-ease-out) both;
+}
+
+.ux-keycap.ux-motion-keycap-press {
+  animation: ux-motion-keycap-press var(--ux-motion-instant) var(--ux-motion-ease-out) both;
+}
+
+.ux-command-row[aria-selected="true"],
+.ux-history-row[data-selected="true"],
+.choice-button.selected,
+.choice-button[aria-selected="true"],
+.choice-button[aria-checked="true"] {
+  transition: border-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    background-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    transform var(--ux-motion-fast) var(--ux-motion-ease-out);
+}
+
+/* Map */
+#game-grid .tile-cell.ux-map-hovered {
+  transition: outline-color var(--ux-motion-instant) var(--ux-motion-ease-out),
+    background-color var(--ux-motion-instant) var(--ux-motion-ease-out);
+  background-color: color-mix(in oklch, var(--ux-color-selection) 8%, transparent);
+}
+
+#game-grid .tile-cell.ux-map-selected {
+  animation: ux-motion-select-bloom var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+  transition: outline-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    box-shadow var(--ux-motion-fast) var(--ux-motion-ease-out);
+}
+
+#game-grid .tile-cell.ux-target-confirmed-legal {
+  animation: ux-motion-select-bloom var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+#game-grid .tile-cell.ux-target-confirmed-illegal {
+  animation: ux-motion-border-flash-danger var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+#game-grid .tile-cell.ux-cue-hostile {
+  animation: ux-motion-enter-up var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+#game-grid .tile-cell.ux-cue-known-trap {
+  animation: ux-motion-enter-pop var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+#game-grid.ux-map-level-transition {
+  animation: ux-motion-map-level-fade var(--ux-motion-standard) var(--ux-motion-ease-in-out) both;
+}
+
+body.uxm02-shell-active[data-ux-map-mode='follow'] #game-grid {
+  transition: transform var(--ux-motion-standard) var(--ux-motion-ease-out);
+}
+
+.map-tooltip:not([hidden]) {
+  animation: ux-motion-enter-up var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+.ux-map-inspector:not([hidden]) {
+  animation: ux-motion-enter-up var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+.ux-map-toolbar button[aria-pressed="true"],
+.ux-map-inspect-toggle[aria-pressed="true"],
+.ux-map-glyph-toggle[aria-pressed="true"],
+.ux-map-contrast-toggle[aria-pressed="true"] {
+  transition: border-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    background-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    transform var(--ux-motion-fast) var(--ux-motion-ease-out);
+}
+
+/* Inventory / equipment */
+#ux-items-root.uxm-items-overlay:not([hidden]) {
+  animation: ux-motion-enter-up var(--ux-motion-standard) var(--ux-motion-ease-out) both;
+}
+
+
+.uxm-item-row,
+.uxm-slot-button,
+.uxm-filter-button,
+.uxm-items-tabs button {
+  transition: border-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    background-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    opacity var(--ux-motion-fast) var(--ux-motion-ease-out),
+    transform var(--ux-motion-fast) var(--ux-motion-ease-out),
+    box-shadow var(--ux-motion-fast) var(--ux-motion-ease-out);
+}
+
+.uxm-item-row:hover .uxm-item-icon,
+.uxm-item-row.is-selected .uxm-item-icon {
+  transform: translateY(-1px);
+}
+
+.uxm-item-icon {
+  transition: transform var(--ux-motion-fast) var(--ux-motion-ease-out),
+    opacity var(--ux-motion-fast) var(--ux-motion-ease-out);
+}
+
+.uxm-item-row.is-selected,
+.uxm-slot-button.is-selected,
+.uxm-filter-button.is-selected,
+.uxm-items-tabs button.is-selected {
+  animation: ux-motion-select-bloom var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+.uxm-slot-button.is-equipped.ux-motion-flash-action {
+  animation: ux-motion-border-flash-action var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+.uxm-slot-button.is-blocked.ux-motion-danger {
+  animation: ux-motion-danger-shake var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+.uxm-slot-button.drag-over {
+  animation: ux-motion-border-flash-action var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+.uxm-selection-summary,
+.uxm-inventory-details,
+.uxm-equipment-details {
+  transition: opacity var(--ux-motion-fast) var(--ux-motion-ease-out),
+    transform var(--ux-motion-fast) var(--ux-motion-ease-out);
+}
+
+.uxm-selection-summary.ux-motion-detail-swap {
+  animation: ux-motion-enter-up var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+.uxm-detail-actions .uxm-action-primary {
+  transition: border-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    background-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    transform var(--ux-motion-fast) var(--ux-motion-ease-out),
+    box-shadow var(--ux-motion-fast) var(--ux-motion-ease-out);
+}
+
+.uxm-detail-actions .uxm-action-primary.ux-motion-enter-pop {
+  animation: ux-motion-enter-pop var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+.uxm-action-disclosure > summary::after {
+  transition: transform var(--ux-motion-fast) var(--ux-motion-ease-out);
+}
+
+.uxm-item-context-menu {
+  animation: ux-motion-enter-scale var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+  transform-origin: top left;
+}
+
+.uxm-item-row-quantity.ux-motion-value-up,
+.uxm-item-row-quantity.ux-motion-value-down {
+  display: inline-block;
+}
+
+/* Transfer panels */
+.container-transfer-panel:not([hidden]),
+#container-transfer-panel:not([hidden]) {
+  animation: ux-motion-enter-centered-scale var(--ux-motion-standard) var(--ux-motion-ease-out) both;
+}
+
+.container-pane,
+.transfer-pane {
+  transition: border-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    background-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    box-shadow var(--ux-motion-fast) var(--ux-motion-ease-out),
+    transform var(--ux-motion-fast) var(--ux-motion-ease-out);
+}
+
+.container-pane.drag-over,
+.transfer-pane.drag-over {
+  animation: ux-motion-border-flash-action var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+.container-item-row,
+.transfer-row,
+.choice-button.transfer-row {
+  transition: border-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    background-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    opacity var(--ux-motion-fast) var(--ux-motion-ease-out),
+    transform var(--ux-motion-fast) var(--ux-motion-ease-out);
+}
+
+.container-item-row.ux-motion-transfer-insert,
+.transfer-row.ux-motion-transfer-insert,
+.choice-button.transfer-row.ux-motion-transfer-insert {
+  animation: ux-motion-transfer-insert var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+.container-item-row.ux-motion-row-migrate,
+.transfer-row.ux-motion-row-migrate {
+  animation: ux-motion-row-migrate var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+.container-item-row.ux-motion-danger,
+.transfer-row.ux-motion-danger {
+  animation: ux-motion-danger-shake var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+button.primary:not(:disabled) {
+  transition: border-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    background-color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    color var(--ux-motion-fast) var(--ux-motion-ease-out),
+    opacity var(--ux-motion-fast) var(--ux-motion-ease-out),
+    transform var(--ux-motion-fast) var(--ux-motion-ease-out),
+    box-shadow var(--ux-motion-fast) var(--ux-motion-ease-out);
+}
+
+button.primary.ux-motion-enable-pop {
+  animation: ux-motion-enter-pop var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+/* Final chronicle */
+.ux-final-chronicle-status.ux-final-cause-authoritative {
+  animation: ux-motion-border-flash-danger var(--ux-motion-standard) var(--ux-motion-ease-out) both;
+}
+
+.ux-final-chronicle-disclosure[open] > summary + * {
+  animation: ux-motion-enter-up var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+/* Character legality / field errors */
+.ux-character-legality[data-adjusted="true"],
+.ux-field-error:not(:empty),
+.ux-character-submit-error:not([hidden]) {
+  animation: ux-motion-enter-up var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+.interaction-text-row input.ux-motion-danger,
+.wish-text-dialog input.ux-motion-danger {
+  animation: ux-motion-danger-shake var(--ux-motion-micro) var(--ux-motion-ease-out) both;
+}
+
+/* Nested modal dim is opacity-only on the owner body flag. */
+body:has(dialog[open] dialog[open]) > dialog[open]:not(:focus-within) {
+  opacity: 0.92;
+  transition: opacity var(--ux-motion-fast) var(--ux-motion-ease-out);
+}
+
+/* Reduced motion — hard cut for nonessential animation. */
+@media (prefers-reduced-motion: reduce) {
+  .ux-motion-enter,
+  .ux-motion-enter-scale,
+  .ux-motion-enter-pop,
+  .ux-motion-exit,
+  .ux-motion-exit-fade,
+  .ux-motion-select,
+  .ux-motion-success,
+  .ux-motion-danger,
+  .ux-motion-value-up,
+  .ux-motion-value-down,
+  .ux-motion-flash-danger,
+  .ux-motion-flash-success,
+  .ux-motion-flash-action,
+  .ux-motion-urgent-arrive,
+  .ux-motion-primary-breath,
+  .ux-motion-row-migrate,
+  .ux-motion-transfer-insert,
+  .ux-motion-keycap-press,
+  .ux-motion-stagger > *,
+  .ux-player-notice:not([hidden]),
+  .ux-player-notice.ux-motion-exit-pending,
+  .ux-player-notice.ux-motion-kind-change .ux-player-notice-icon,
+  #status.ux-status-ready::after,
+  #context-action-bar .context-action-button,
+  #context-action-bar .context-action-button.primary-context.ux-motion-primary-breath,
+  .ux-consequence-row.ux-motion-enter,
+  .ux-consequence-empty,
+  #direction-helper:not([hidden]),
+  dialog[open],
+  dialog[open]::backdrop,
+  .ux-command-palette[open],
+  .ux-help-center[open],
+  .ux-character-creation[open],
+  .ux-history-dialog[open],
+  .ux-character-sheet-dialog[open],
+  .ux-final-chronicle[open],
+  .intro-seal,
+  .ux-first-turn-guide:not([hidden]),
+  #game-grid .tile-cell.ux-map-selected,
+  #game-grid .tile-cell.ux-target-confirmed-legal,
+  #game-grid .tile-cell.ux-target-confirmed-illegal,
+  #game-grid .tile-cell.ux-cue-hostile,
+  #game-grid .tile-cell.ux-cue-known-trap,
+  #game-grid.ux-map-level-transition,
+  .map-tooltip:not([hidden]),
+  .ux-map-inspector:not([hidden]),
+  #ux-items-root.uxm-items-overlay:not([hidden]),
+  #ux-items-root.uxm-items-overlay:not([hidden]) .uxm-items-workspace,
+  .uxm-item-row.is-selected,
+  .uxm-slot-button.is-selected,
+  .uxm-filter-button.is-selected,
+  .uxm-items-tabs button.is-selected,
+  .uxm-item-context-menu,
+  .container-transfer-panel:not([hidden]),
+  #container-transfer-panel:not([hidden]),
+  body.uxm02-shell-active button.ux-status-chip.ux-status-urgent.ux-motion-urgent-arrive,
+  body.uxm02-shell-active button.ux-status-chip.ux-status-urgent.danger.ux-motion-urgent-arrive {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+
+  button:hover:not(:disabled),
+  .startup-choice-card:hover,
+  .startup-choice-card:focus-within,
+  .uxm-item-row:hover .uxm-item-icon {
+    transform: none !important;
+  }
+}
+
+body[data-ux-motion="reduced"] .ux-motion-enter,
+body[data-ux-motion="reduced"] .ux-motion-enter-scale,
+body[data-ux-motion="reduced"] .ux-motion-enter-pop,
+body[data-ux-motion="reduced"] .ux-motion-exit,
+body[data-ux-motion="reduced"] .ux-motion-exit-fade,
+body[data-ux-motion="reduced"] .ux-motion-select,
+body[data-ux-motion="reduced"] .ux-motion-success,
+body[data-ux-motion="reduced"] .ux-motion-danger,
+body[data-ux-motion="reduced"] .ux-motion-value-up,
+body[data-ux-motion="reduced"] .ux-motion-value-down,
+body[data-ux-motion="reduced"] .ux-motion-flash-danger,
+body[data-ux-motion="reduced"] .ux-motion-flash-success,
+body[data-ux-motion="reduced"] .ux-motion-flash-action,
+body[data-ux-motion="reduced"] .ux-motion-urgent-arrive,
+body[data-ux-motion="reduced"] .ux-motion-primary-breath,
+body[data-ux-motion="reduced"] .ux-motion-row-migrate,
+body[data-ux-motion="reduced"] .ux-motion-transfer-insert,
+body[data-ux-motion="reduced"] .ux-motion-keycap-press,
+body[data-ux-motion="reduced"] .ux-motion-stagger > *,
+body[data-ux-motion="reduced"] .ux-player-notice:not([hidden]),
+body[data-ux-motion="reduced"] #context-action-bar .context-action-button,
+body[data-ux-motion="reduced"] .ux-consequence-row.ux-motion-enter,
+body[data-ux-motion="reduced"] dialog[open],
+body[data-ux-motion="reduced"] #game-grid.ux-map-level-transition,
+body[data-ux-motion="reduced"] #ux-items-root.uxm-items-overlay:not([hidden]),
+body[data-ux-motion="reduced"] .container-transfer-panel:not([hidden]),
+body[data-ux-motion="reduced"] #container-transfer-panel:not([hidden]),
+body[data-ux-motion="reduced"].uxm02-shell-active button.ux-status-chip.ux-status-urgent.ux-motion-urgent-arrive {
+  animation: none !important;
+  transition-duration: 0.01ms !important;
+  transform: none !important;
+}

@@ -62,6 +62,14 @@ async function main() {
       document.querySelector('#context-action-bar button[data-context-action-id="pickup"]')?.click();
       await sleep(80);
       const firstExplicitOpen = t.container();
+      const firstExplicitPanel = document.getElementById('container-transfer-panel');
+      const firstExplicitRect = firstExplicitPanel?.getBoundingClientRect();
+      const firstExplicitLayout = firstExplicitRect ? {
+        centerDeltaX: firstExplicitRect.left + (firstExplicitRect.width / 2) - (innerWidth / 2),
+        centerDeltaY: firstExplicitRect.top + (firstExplicitRect.height / 2) - (innerHeight / 2),
+        contained: firstExplicitRect.left >= 0 && firstExplicitRect.right <= innerWidth && firstExplicitRect.top >= 0 && firstExplicitRect.bottom <= innerHeight,
+        animationName: getComputedStyle(firstExplicitPanel).animationName,
+      } : null;
       document.querySelector('#container-transfer-panel .container-transfer-heading button')?.click();
       await sleep(80);
       const cancelled = { container:t.container(), sent:t.sentInputs().join('') };
@@ -144,11 +152,12 @@ async function main() {
       await sleep(60);
       const takeAllCommand = window.__groundTransferCommands[takeAllCommandStart];
       const takeAllState = { rows:richRows(), container:t.container() };
-      return { passive, firstExplicitOpen, cancelled, afterMovementRedraw, opened, sentAfterOpen, beforeCoreConfirmation, afterPickupCommand, afterDropCommand, afterPickup, afterDrop, batchBefore, batchSelected, batchFirstCommand, batchSecondCommand, batchAfter, takeAllCommand, takeAllState, sent: t.sentInputs().join(''), commands: window.__groundTransferCommands, transfers: t.transferTransactions(), ground: t.groundSnapshots(), body: document.body.innerText };
+      return { passive, firstExplicitOpen, firstExplicitLayout, cancelled, afterMovementRedraw, opened, sentAfterOpen, beforeCoreConfirmation, afterPickupCommand, afterDropCommand, afterPickup, afterDrop, batchBefore, batchSelected, batchFirstCommand, batchSecondCommand, batchAfter, takeAllCommand, takeAllState, sent: t.sentInputs().join(''), commands: window.__groundTransferCommands, transfers: t.transferTransactions(), ground: t.groundSnapshots(), body: document.body.innerText };
     })()`);
     assert('passive multi-item ground report does not open pickup UI or send input', !metrics.passive.container.active && metrics.passive.dialogs.length === 0 && metrics.passive.sent === '', JSON.stringify(metrics.passive));
     assert('passive ground evidence keeps the visible Pickup action available', metrics.passive.actions?.buttons?.some((button) => button.id === 'pickup') && /use Pick up or comma/i.test(metrics.passive.status), JSON.stringify(metrics.passive));
     assert('visible Pickup button explicitly opens the snapshot-backed ground panel', metrics.firstExplicitOpen.active && /Pick up from ground/i.test(metrics.firstExplicitOpen.text), JSON.stringify(metrics.firstExplicitOpen));
+    assert('pickup panel remains centered and viewport-contained throughout its entrance animation', metrics.firstExplicitLayout && Math.abs(metrics.firstExplicitLayout.centerDeltaX) <= 1 && Math.abs(metrics.firstExplicitLayout.centerDeltaY) <= 1 && metrics.firstExplicitLayout.contained && metrics.firstExplicitLayout.animationName === 'ux-motion-enter-centered-scale', JSON.stringify(metrics.firstExplicitLayout));
     assert('cancel followed by ordinary movement/redraw does not reopen pickup UI', !metrics.cancelled.container.active && !metrics.afterMovementRedraw.container.active && metrics.afterMovementRedraw.dialogs.length === 0 && metrics.afterMovementRedraw.sent === '', JSON.stringify({ cancelled:metrics.cancelled, afterMovementRedraw:metrics.afterMovementRedraw }));
     assert('explicit reopen hydrates the panel without comma', metrics.opened.active && metrics.sentAfterOpen === '', JSON.stringify(metrics));
     assert('explicit panel rows retain authoritative public IDs', metrics.opened.left.some((row) => row.selector === 'ground-object-145' && /cream pie/i.test(row.text)) && metrics.opened.left.some((row) => row.selector === 'ground-object-133' && /lichen corpse/i.test(row.text)), JSON.stringify(metrics.opened.left));

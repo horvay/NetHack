@@ -239,6 +239,8 @@
       previousDungeon = nextDungeon;
       const destination = levelDestinationLabel(nextDungeon);
       if (!destination) return;
+      const grid = documentRoot.getElementById('game-grid');
+      globalRoot.NetHackUxFeedback?.markMapLevelTransition?.(grid);
       noticeService()?.show?.({
         id: `level:${game?.mapRevision || 0}:${nextDungeon}`,
         dedupeKey: `level:${game?.mapRevision || 0}:${nextDungeon}`,
@@ -291,6 +293,9 @@
         messageMount = documentRoot.getElementById('messages');
         setDensity(settings.hudDensity, { persist: false, render: false });
         setMapMode(settings.map?.mode, { persist: false });
+        if (settings.motion === 'reduced') documentRoot.body.dataset.uxMotion = 'reduced';
+        else if (settings.motion === 'full') documentRoot.body.dataset.uxMotion = 'full';
+        else documentRoot.body.dataset.uxMotion = 'system';
         const listen = (target, type, listener, options) => {
           target?.addEventListener?.(type, listener, options);
           cleanupListeners.push(() => target?.removeEventListener?.(type, listener, options));

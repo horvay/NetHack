@@ -744,6 +744,29 @@ pre, #status-lines, #command-help {
 .settings-grid .checkbox-row input { margin-top: 3px; width: 1rem; height: 1rem; }
 .settings-grid .checkbox-row span { display: grid; gap: 3px; }
 .settings-grid .checkbox-row small { color: #a5a5b6; line-height: 1.35; }
+.settings-grid .settings-select-row {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid #3f3f55;
+  border-radius: 10px;
+  background: #171720;
+  color: #e8e8f0;
+  font-weight: 700;
+}
+.settings-grid .settings-select-row select {
+  min-height: 2.5rem;
+  padding: 0 10px;
+  border: 1px solid #59607a;
+  border-radius: 8px;
+  color: #f5f0df;
+  background: #0f1018;
+}
+.settings-grid .settings-select-row small {
+  color: #a5a5b6;
+  font-weight: 500;
+  line-height: 1.35;
+}
 .context-dialog #interaction-prompt { white-space: pre-line; }
 .context-dialog #interaction-options { gap: 8px; }
 .choice-button.context-choice { min-height: 46px; border-color: rgba(246, 211, 101, 0.18); grid-template-columns: minmax(10rem, 0.8fr) minmax(0, 1.3fr); align-items: center; }

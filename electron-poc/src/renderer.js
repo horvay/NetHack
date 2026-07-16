@@ -81,6 +81,7 @@ const settingsDialog = document.getElementById('settings-dialog');
 const settingsForm = document.getElementById('settings-form');
 const settingContextualMenus = document.getElementById('setting-contextual-menus');
 const settingAutoLootGold = document.getElementById('setting-auto-loot-gold');
+const settingMotion = document.getElementById('setting-motion');
 const itemActions = document.getElementById('item-actions');
 const systemActions = document.getElementById('system-actions');
 const repeatActions = document.getElementById('repeat-actions');
@@ -583,6 +584,9 @@ function setStatus(text) {
   if (status.dataset.status === diagnosticText) return;
   status.textContent = diagnosticText;
   status.dataset.status = diagnosticText;
+  const ready = /^(your turn|ready\.?|map ready|dungeon map ready|command accepted)$/i.test(diagnosticText)
+    || /dungeon running|previous game restored|tile map focused/i.test(diagnosticText);
+  status.classList.toggle('ux-status-ready', ready);
   diagnosticEvent('status-compatibility', 'status.diagnostic-only', { text: diagnosticText });
 }
 
@@ -1667,6 +1671,7 @@ function saveSettings(nextSettings = userSettings) {
 function resetSettings() {
   const reset = presentationSettingsStore?.reset?.();
   userSettings = reset?.settings || userSettings;
+  document.body.dataset.uxMotion = userSettings.motion === 'reduced' ? 'reduced' : userSettings.motion;
   syncSettingsForm();
   scheduleUxPublicStatePublish('presentation-settings-reset');
 }
@@ -1674,12 +1679,14 @@ function resetSettings() {
 function syncSettingsForm() {
   if (settingContextualMenus) settingContextualMenus.checked = Boolean(userSettings.contextualMenus);
   if (settingAutoLootGold) settingAutoLootGold.checked = Boolean(userSettings.autoLootGold);
+  if (settingMotion) settingMotion.value = ['system', 'full', 'reduced'].includes(userSettings.motion) ? userSettings.motion : 'system';
 }
 
 function settingsFromForm() {
   return {
     contextualMenus: Boolean(settingContextualMenus?.checked),
     autoLootGold: Boolean(settingAutoLootGold?.checked),
+    motion: ['system', 'full', 'reduced'].includes(settingMotion?.value) ? settingMotion.value : (userSettings.motion || 'system'),
   };
 }
 
@@ -2693,6 +2700,7 @@ async function runContextAction(action) {
   gameGrid.focus({ preventScroll: true });
 }
 
+let contextActionBarSignature = '';
 function renderContextActionBar() {
   if (!contextActionBar) return;
   const actions = interactionDecision('render-context-actions').contextActions;
@@ -2710,6 +2718,8 @@ function renderContextActionBar() {
     });
     contextActionBar.appendChild(button);
   }
+  const feedback = globalThis.NetHackUxFeedback;
+  contextActionBarSignature = feedback?.animateContextActionBar?.(contextActionBar, contextActionBarSignature) || contextActionBarSignature;
 }
 
 function showMapContextActionSheet(cellEl) {
@@ -4620,11 +4630,17 @@ function renderPromptPanel() {
       options,
       family: promptPlan.family,
       dialogClass: loadingInventoryRows ? 'inventory-dialog action-inventory-dialog inventory-loading-dialog' : (hasInventoryRows ? 'inventory-dialog action-inventory-dialog' : (promptPlan.offer ? 'shop-offer-confirm-dialog' : (promptPlan.serious ? 'destructive-confirm-dialog' : (promptPlan.classRows.length ? 'class-dialog' : '')))),
-      textEntry: needsTyping,
-      textLabel: hasInventoryRows ? 'Filter items' : 'Filter choices',
+      onConfirm: needsTyping ? (() => {
+        if (!String(interactionText.value || '').trim() && /wish/i.test(String(promptPlan?.title || promptPlan?.prompt || interactionDialog?.className || ''))) {
+          globalThis.NetHackUxFeedback?.animateBlocked?.(interactionText);
+          interactionFeedback.textContent = 'Type a wish before confirming.';
+          interactionText.focus({ preventScroll: true });
+          return;
+        }
+        sendPlayableText(`${interactionText.value}\n`);
+      }) : null,
       textPlaceholder: hasInventoryRows ? 'Filter items…' : 'Filter choices…',
       confirmText: needsTyping ? 'Confirm selection' : 'Confirm',
-      onConfirm: needsTyping ? (() => sendPlayableText(`${interactionText.value}\n`)) : null,
       onClear: needsTyping ? (() => { interactionText.value = ''; interactionText.dispatchEvent(new Event('input')); interactionText.focus({ preventScroll: true }); }) : null,
       feedback: hasInventoryRows && needsTyping ? ((value, visible) => menuSelectionFeedback(value, visible, promptPlan.inventoryRows, false)) : undefined,
       panelControls: hasInventoryRows && needsTyping ? objectActionPanelControls(promptPlan.filters, promptPlan.actionVerb) : (promptPlan.classRows.length ? objectClassPanelControls(promptPlan.classRows) : null),
@@ -4647,7 +4663,15 @@ function renderPromptPanel() {
       textPlaceholder: classRows.length ? 'Filter classes…' : (commandRows.length ? 'Search commands…' : (promptPlan.wishText ? 'blessed greased +2 gray dragon scale mail…' : (promptPlan.engravingText ? 'Elbereth, a note, or leave blank…' : ''))),
       contextLines: recentPromptContextLines(promptPlan.prompt),
       confirmText: commandRows.length ? 'Submit command' : 'Confirm',
-      onConfirm: classRows.length && smallClassSet ? null : () => sendPlayableText(`${interactionText.value}\n`),
+      onConfirm: classRows.length && smallClassSet ? null : (() => {
+        if (promptPlan.wishText && !String(interactionText.value || '').trim()) {
+          globalThis.NetHackUxFeedback?.animateBlocked?.(interactionText);
+          interactionFeedback.textContent = 'Type a wish before confirming.';
+          interactionText.focus({ preventScroll: true });
+          return;
+        }
+        sendPlayableText(`${interactionText.value}\n`);
+      }),
       onClear: (classRows.length && !smallClassSet) || commandRows.length ? (() => { interactionText.value = ''; interactionText.dispatchEvent(new Event('input')); interactionText.focus({ preventScroll: true }); }) : null,
       panelControls: classRows.length ? objectClassPanelControls(promptPlan.classRows) : null,
     });
@@ -5817,7 +5841,7 @@ function renderContainerItemRow(item, side) {
   const targetLabel = isGroundPickup ? (side === 'left' ? 'inventory' : 'ground') : (side === 'left' ? 'inventory' : 'container');
 
   button.type = 'button';
-  button.className = 'container-item-row';
+  button.className = `container-item-row${selected ? ' is-selected' : ''}`;
   button.draggable = draggable;
   button.dataset.containerSide = side;
   button.dataset.selector = key;
@@ -6401,13 +6425,26 @@ function renderContainerTransferPanel() {
   footer.innerHTML = `<span class="container-transfer-selected-count" aria-live="polite">${selectedCount} selected</span>`;
   const moveSelected = document.createElement('button');
   moveSelected.type = 'button';
-  moveSelected.className = 'container-transfer-selected-action';
+  moveSelected.className = 'container-transfer-selected-action primary';
   moveSelected.dataset.transferSelected = 'true';
+  const previousSelectedCount = Number(containerTransferPanel.dataset.selectedCount || 0);
   moveSelected.disabled = selectedCount === 0 || Boolean(transferSession.snapshot().pending);
   moveSelected.innerHTML = `${selectedVerb} ${selectedCount || ''} selected <kbd>Enter</kbd>`;
   moveSelected.addEventListener('click', () => submitSelectedTransfers());
   footer.appendChild(moveSelected);
   containerTransferPanel.replaceChildren(title, grid, footer);
+  containerTransferPanel.dataset.selectedCount = String(selectedCount);
+  if (selectedCount > 0 && previousSelectedCount === 0 && !moveSelected.disabled) {
+    globalThis.NetHackUxFeedback?.animateEnablePop?.(moveSelected);
+  }
+  const previousSelectedIds = new Set(String(containerTransferPanel.dataset.selectedIds || '').split('|').filter(Boolean));
+  const nextSelectedIds = [];
+  for (const row of containerTransferPanel.querySelectorAll('.container-item-row[aria-checked="true"], .container-item-row.is-selected')) {
+    const id = row.dataset.stableId || `${row.dataset.containerSide}:${row.dataset.selector}`;
+    nextSelectedIds.push(id);
+    if (!previousSelectedIds.has(id)) globalThis.NetHackUxFeedback?.pulse?.(row, 'ux-motion-select', { durationMs: 140 });
+  }
+  containerTransferPanel.dataset.selectedIds = nextSelectedIds.join('|');
   containerTransferPanel.onkeydown = handleContainerTransferPanelKeydown;
   const firstTransferItem = containerTransferPanel.querySelector('.container-item-row');
   const transferCloseButton = containerTransferPanel.querySelector('.container-transfer-heading button');
@@ -7540,8 +7577,23 @@ function handleShimEvent(event) {
       diagnosticEvent('transaction', 'transfer-session.followup-ignored', { transferId, reason: ignored.reason, event: rawEvent }, { transactionId: transferId });
     } else {
       clearDirectTransferPending(transferId);
-      renderContainerTransferPanel();
-      if (!accepted) {
+      if (accepted) {
+        const migrateSelector = String(rawEvent.selector || rawEvent.itemSelector || '');
+        const migrateSide = rawEvent.direction === 'to-container' || rawEvent.direction === 'drop' ? 'right' : 'left';
+        const migrateRow = migrateSelector
+          ? containerTransferPanel?.querySelector(`.container-item-row[data-container-side="${migrateSide}"][data-selector="${CSS.escape(migrateSelector)}"]`)
+          : containerTransferPanel?.querySelector('.container-item-row.is-selected, .container-item-row[aria-checked="true"]');
+        if (migrateRow) globalThis.NetHackUxFeedback?.animateTransferMigrate?.(migrateRow);
+        window.setTimeout(() => {
+          renderContainerTransferPanel();
+          const insertSide = migrateSide === 'left' ? 'right' : 'left';
+          const inserted = containerTransferPanel?.querySelector(`.container-item-row[data-container-side="${insertSide}"]`);
+          if (inserted) globalThis.NetHackUxFeedback?.animateTransferInsert?.(inserted);
+        }, 140);
+      } else {
+        const failed = containerTransferPanel?.querySelector('.container-item-row.is-selected, .container-item-row[aria-checked="true"], .container-item-row.dragging');
+        if (failed) globalThis.NetHackUxFeedback?.animateBlocked?.(failed);
+        renderContainerTransferPanel();
         showFailureNotice({
           id: `transfer-session:${transferId || shimEventCount}:rejected`,
           kind: /stale|revision|moved/i.test(String(rawEvent.reason || '')) ? 'stale-revision' : 'rejected',
@@ -7742,8 +7794,14 @@ function randomizeCharacter() {
   } else {
     for (const field of characterOptionFields) {
       const select = document.getElementById(characterFieldIds[field]);
+      if (!select?.options?.length) continue;
       select.selectedIndex = Math.floor(Math.random() * select.options.length);
     }
+    syncCharacterSelects();
+  }
+  const feedback = globalThis.NetHackUxFeedback;
+  for (const id of ['player-name', 'player-role', 'player-race', 'player-gender', 'player-align']) {
+    feedback?.pulse?.(document.getElementById(id), 'ux-motion-value-up', { durationMs: 150 });
   }
 }
 

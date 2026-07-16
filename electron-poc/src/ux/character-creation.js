@@ -238,7 +238,15 @@
     advanced.addEventListener('toggle', () => model.setAdvanced(advanced.open));
     seedInput.addEventListener('input', () => model.setSeed(seedInput.value));
     recordingInput.addEventListener('change', () => model.setRecordingEnabled(recordingInput.checked));
-    randomButton.addEventListener('click', () => { model.randomize(); render(); nameInput.focus({ preventScroll: true }); });
+    randomButton.addEventListener('click', () => {
+      model.randomize();
+      render();
+      const feedback = typeof globalThis !== 'undefined' ? globalThis.NetHackUxFeedback : null;
+      for (const node of [nameInput, ...fields.map((fieldName) => controls[fieldName])]) {
+        feedback?.pulse?.(node, 'ux-motion-value-up', { durationMs: 150 });
+      }
+      nameInput.focus({ preventScroll: true });
+    });
     cancelButton.addEventListener('click', () => close('cancel'));
     dialog.addEventListener('cancel', (event) => { event.preventDefault(); close('escape'); });
     form.addEventListener('submit', async (event) => {

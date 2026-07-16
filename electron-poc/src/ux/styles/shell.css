@@ -28,6 +28,10 @@ body.uxm02-shell-active #stop {
   display: none;
 }
 
+body.uxm02-shell-active #settings-button {
+  display: inline-flex;
+}
+
 body.uxm02-shell-active main {
   height: calc(100vh - 3.25rem);
   gap: 0;

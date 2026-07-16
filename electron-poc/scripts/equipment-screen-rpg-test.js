@@ -194,11 +194,13 @@ async function main() {
       body: document.getElementById('ux-items-root').innerText,
       stats: Array.from(document.querySelectorAll('#ux-items-root .uxm-items-status .ux-status-chip')).filter((chip) => chip.getClientRects().length && getComputedStyle(chip).display !== 'none').map((chip) => ({ field: chip.dataset.statusField, label: chip.querySelector('span')?.textContent || '', value: chip.querySelector('strong')?.textContent || '' })),
       overflow: window.NetHackUxEquipmentScreen.controller.snapshot().horizontalOverflow,
-      log: (() => { const viewport = document.querySelector('#ux-items-root .uxm-recent-log-scroll'); return { lines: Array.from(viewport?.querySelectorAll('li') || [], (line) => line.textContent), scrollable: Boolean(viewport && viewport.scrollHeight > viewport.clientHeight), atBottom: Boolean(viewport && viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight <= 1) }; })(),
+      log: (() => { const viewport = document.querySelector('#ux-items-root .uxm-recent-log-scroll'); const box = viewport?.getBoundingClientRect(); return { lines: Array.from(viewport?.querySelectorAll('li') || [], (line) => line.textContent), scrollable: Boolean(viewport && viewport.scrollHeight > viewport.clientHeight), atBottom: Boolean(viewport && viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight <= 1), clientHeight: box?.height || 0, scrollHeight: viewport?.scrollHeight || 0 }; })(),
+      workspaceAnimations: document.querySelector('#ux-items-root .uxm-items-workspace')?.getAnimations().map((animation) => animation.animationName) || [],
     }))()`);
     const layout1440 = await layoutMetrics(cdp);
     const firstShot = await screenshot(cdp, '01-many-items-1440x1080.png');
     assert('single item DOM owner', initialDom.ownerCount === 1 && !initialDom.legacyEquipmentShell && !initialDom.legacyDialogWriter, JSON.stringify(initialDom));
+    assert('workspace rerenders do not restart a child opacity animation', initialDom.workspaceAnimations.length === 0, JSON.stringify(initialDom.workspaceAnimations));
     assert('numeric selector and inventoryLetter are both routed', initialDom.rowSelectors.includes('a') && initialDom.rowSelectors.includes('b') && initialDom.rowSelectors.includes('c'), JSON.stringify(initialDom.rowSelectors));
     assert('equipment distinctions and empty slots render', /Main hand[\s\S]*spear/i.test(initialDom.body) && /Helmet[\s\S]*Empty/i.test(initialDom.body), initialDom.body);
     assert('1440x1080 inventory dominates the right column and shows at least ten rows', layout1440.listShare >= 0.62 && layout1440.visibleRowCount >= 10 && layout1440.listClientHeight >= 480, JSON.stringify(layout1440));
@@ -207,11 +209,11 @@ async function main() {
     assert('canonical icon provider receives raw public semantic metadata', new Set(layout1440.iconInputs.map((entry) => entry.objectId)).size === layout1440.rowCount && layout1440.iconInputs.some((entry) => entry.semanticName === 'spear' && entry.glyphChar === 41) && layout1440.iconInputs.some((entry) => entry.semanticAppearance === 'yellow gem'), JSON.stringify(layout1440.iconInputs));
     assert('1440x1080 workspace has no horizontal overflow or raw labels', !layout1440.rootHorizontalOverflow && !layout1440.documentHorizontalOverflow && !layout1440.rawFallbackLabels && initialDom.overflow === false, JSON.stringify(layout1440));
     assert('wide inventory header exposes live attributes and defenses', ['Str', 'Dex', 'Con', 'Int', 'Wis', 'Cha', 'HP', 'Pw', 'AC', 'XL'].every((label) => initialDom.stats.some((stat) => stat.label === label && stat.value)), JSON.stringify(initialDom.stats));
-    assert('inventory rail shows the latest eight canonical messages in a scrollable newest-last log', initialDom.log.lines.length === 8
+    assert('inventory rail shows the latest eight canonical messages in an expanded newest-last log', initialDom.log.lines.length === 8
       && initialDom.log.lines[0] === 'You see here a spear.'
       && initialDom.log.lines.at(-1) === 'Inventory updated.'
-      && initialDom.log.scrollable
-      && initialDom.log.atBottom, JSON.stringify(initialDom.log));
+      && initialDom.log.atBottom
+      && initialDom.log.clientHeight >= 140, JSON.stringify(initialDom.log));
     const liveLog = await evaluate(cdp, `(() => {
       const fixture = window.__itemOwnerFixture;
       const viewport = document.querySelector('#ux-items-root .uxm-recent-log-scroll');

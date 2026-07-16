@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="./ux/styles/run-lifecycle.css" />
     <link rel="stylesheet" href="./ux/styles/responsive.css" />
     <link rel="stylesheet" href="./ux/styles/feedback.css" />
+    <link rel="stylesheet" href="./ux/styles/game-chrome.css" />
   </head>
   <body>
     <header>
@@ -280,6 +281,14 @@
         <div class="settings-grid">
           <label class="checkbox-row"><input id="setting-contextual-menus" type="checkbox" /> <span><strong>Contextual action prompts</strong><small>Show helpful prompts such as “Door is locked. Kick it?” when NetHack messages reveal an obvious action.</small></span></label>
           <label class="checkbox-row"><input id="setting-auto-loot-gold" type="checkbox" /> <span><strong>Auto-loot gold only</strong><small>Start NetHack with safe pickup options: autopickup enabled for gold ($) only.</small></span></label>
+          <label class="settings-select-row">Motion
+            <select id="setting-motion" aria-describedby="setting-motion-help">
+              <option value="system">System default</option>
+              <option value="full">Full motion</option>
+              <option value="reduced">Reduced motion</option>
+            </select>
+            <small id="setting-motion-help">Controls nonessential UI motion only. Gameplay input is never delayed.</small>
+          </label>
         </div>
         <menu class="dialog-actions">
           <button type="button" id="settings-reset">Reset defaults</button>
@@ -417,6 +426,7 @@
     <script src="./ux/focus-layer.js"></script>
     <script src="./ux/dialog-shell.js"></script>
     <script src="./ux/player-notice.js"></script>
+    <script src="./ux/feedback-adapter.js"></script>
     <script src="./ux/failure-presentation.js"></script>
     <script src="./ux/app-shell.js"></script>
     <script src="./ux/status-presentation.js"></script>
@@ -438,7 +448,6 @@
     <script src="./ux/run-lifecycle.js"></script>
     <script src="./ux/final-chronicle.js"></script>
     <script src="./ux/responsive-controller.js"></script>
-    <script src="./ux/feedback-adapter.js"></script>
     <script src="./renderer.js"></script>
   </body>
 </html>

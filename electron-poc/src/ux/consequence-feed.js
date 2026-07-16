@@ -37,7 +37,7 @@
     let canonicalLines = [];
     let runEpoch = 1;
     let currentRunIdentity = '';
-
+    let previousRenderedIds = new Set();
     function resetForRun(runIdentity) {
       const identity = String(runIdentity || '').trim();
       if (!identity) throw new TypeError('Consequence History reset requires a trustworthy run identity');
@@ -45,6 +45,7 @@
       currentRunIdentity = identity;
       runEpoch += 1;
       canonicalLines = [];
+      previousRenderedIds = new Set();
       log.clear();
       return Object.freeze({ reset: true, runIdentity: identity, events: log.events() });
     }
@@ -113,6 +114,7 @@
         waiting.className = 'ux-consequence-empty';
         waiting.textContent = 'Your next consequence will appear here.';
         mount.append(waiting);
+        previousRenderedIds = new Set();
         return events;
       }
       for (const event of events) {
@@ -132,6 +134,8 @@
         row.append(mark, text);
         mount.append(row);
       }
+      const feedback = (typeof globalThis !== 'undefined' ? globalThis.NetHackUxFeedback : null) || null;
+      previousRenderedIds = feedback?.animateConsequenceMount?.(mount, previousRenderedIds) || new Set(events.map((event) => event.id));
       mount.scrollTop = mount.scrollHeight;
       return events;
     }

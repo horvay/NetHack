@@ -82,16 +82,25 @@
       return Object.freeze({ info: 'i', success: '✓', warning: '!', error: '!' })[kind] || 'i';
     }
 
+    function feedbackApi() {
+      return (typeof globalThis !== 'undefined' ? globalThis.NetHackUxFeedback : null) || null;
+    }
+
     function render(notice) {
       if (!visible) return;
       if (!notice) {
-        visible.hidden = true;
-        visible.removeAttribute('data-kind');
-        message.textContent = '';
-        actionButton.hidden = true;
-        actionButton.onclick = null;
+        const hide = () => {
+          visible.hidden = true;
+          visible.removeAttribute('data-kind');
+          message.textContent = '';
+          actionButton.hidden = true;
+          actionButton.onclick = null;
+        };
+        if (!feedbackApi()?.animateNoticeHide?.(visible, hide)) hide();
         return;
       }
+      const previousKind = visible.dataset.kind || '';
+      const wasHidden = visible.hidden;
       visible.hidden = false;
       visible.dataset.kind = notice.kind;
       visible.className = `ux-player-notice ux-state-default ux-notice-${notice.kind}`;
@@ -103,6 +112,7 @@
         try { notice.action(); }
         catch (error) { diagnostic('notice.action-failed', { id: notice.id, message: String(error?.message || error) }); }
       } : null;
+      feedbackApi()?.animateNoticeShow?.(visible, { kindChanged: !wasHidden && previousKind && previousKind !== notice.kind });
     }
 
     function clearTimer(id) {

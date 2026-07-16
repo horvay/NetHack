@@ -203,6 +203,8 @@
     let pending = null;
     let feedback = '';
     let feedbackGood = false;
+    let previousSelectionKey = '';
+    let previousQuantities = new Map();
     let interaction = null;
     let completedPrompt = null;
     let transferOwner = null;
@@ -329,7 +331,17 @@
         close({ reason: `${completed.actionId}-completed`, cancelNative: false });
         return true;
       }
-      if (root?.isConnected) render({ skipFocus: true });
+      if (root?.isConnected) {
+        render({ skipFocus: true });
+        const feedbackApi = globalThis.NetHackUxFeedback;
+        const slotButton = completed.slotId
+          ? root.querySelector(`[data-slot-id="${completed.slotId}"]`)
+          : root.querySelector('.uxm-slot-button.is-selected, .uxm-slot-button.is-equipped');
+        if (/wear|wield|put|equip|quiver|take|remove/i.test(String(completed.actionId || completed.label || ''))) {
+          feedbackApi?.animateEquipSlot?.(slotButton || root.querySelector('.uxm-slot-button.is-selected'));
+        }
+        if (feedbackGood) feedbackApi?.pulse?.(root.querySelector('.uxm-item-feedback'), 'ux-motion-flash-success', { durationMs: 180 });
+      }
       return true;
     }
     function rejectPending(reason, code = 'rejected') {
@@ -549,6 +561,10 @@
         feedback = affordance?.disabledReasonLabel || affordance?.disabledReason || 'That action is not available for this item.';
         feedbackGood = false;
         render({ skipFocus: true });
+        const blockedTarget = root?.querySelector?.(`[data-stable-id="${stableId}"]`)
+          || root?.querySelector?.(`[data-slot-id="${String(requested.slotId || '')}"]`)
+          || root?.querySelector?.('.uxm-slot-button.is-blocked.is-selected');
+        globalThis.NetHackUxFeedback?.animateBlocked?.(blockedTarget);
         return false;
       }
       if (affordance.consumesTurn === 'no' && !affordance.execution?.keys) {
@@ -989,6 +1005,23 @@
       const listWrap = root.querySelector('.uxm-inventory-list-wrap'); if (listWrap) listWrap.scrollTop = inventoryScroll; content.scrollTop = workspaceScroll;
       const nextLogViewport = root.querySelector('.uxm-recent-log-scroll');
       if (nextLogViewport) nextLogViewport.scrollTop = logWasNearBottom ? nextLogViewport.scrollHeight : Math.min(logScroll, Math.max(0, nextLogViewport.scrollHeight - nextLogViewport.clientHeight));
+      const selectionKey = `${selectedSlotId || ''}|${selectedStableId || ''}`;
+      if (selectionKey && selectionKey !== previousSelectionKey) {
+        globalThis.NetHackUxFeedback?.animateDetailSwap?.(root.querySelector('.uxm-selection-summary'));
+        const primary = root.querySelector('.uxm-action-primary');
+        if (primary) globalThis.NetHackUxFeedback?.pulse?.(primary, 'ux-motion-enter-pop', { durationMs: 140 });
+        previousSelectionKey = selectionKey;
+      }
+      const nextQuantities = new Map();
+      for (const model of models) nextQuantities.set(model.stableId, model.quantity);
+      for (const [stableId, quantity] of nextQuantities) {
+        const previous = previousQuantities.get(stableId);
+        if (previous == null || previous === quantity) continue;
+        const qtyNode = root.querySelector(`[data-stable-id="${CSS.escape ? CSS.escape(stableId) : stableId}"] .uxm-item-row-quantity`);
+        if (!qtyNode) continue;
+        globalThis.NetHackUxFeedback?.pulse?.(qtyNode, quantity > previous ? 'ux-motion-value-up' : 'ux-motion-value-down', { durationMs: 140 });
+      }
+      previousQuantities = nextQuantities;
       if (focus.skipFocus) {
         const preserved = (focusedFollowupKey && root.querySelector(`.uxm-native-followup-row[data-key="${focusedFollowupKey}"]`))
           || (followup && root.querySelector('.uxm-native-followup-row'))

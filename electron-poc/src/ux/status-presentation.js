@@ -19,6 +19,13 @@
     const presentation = StatusHud.buildStatusPresentation(values, { density });
     if (!mount || !documentRoot?.createElement) return presentation;
     const focusedKey = mount.contains(documentRoot.activeElement) ? documentRoot.activeElement?.dataset?.statusKey || '' : '';
+    const previousValues = new Map();
+    for (const chip of mount.querySelectorAll('.ux-status-chip')) {
+      const key = chip.dataset?.statusKey || '';
+      if (!key) continue;
+      previousValues.set(key, chip.querySelector('strong')?.textContent || '');
+      if (chip.classList.contains('ux-status-urgent')) previousValues.set(`urgent:${key}`, '1');
+    }
     mount.replaceChildren();
     mount.dataset.hudDensity = density;
     mount.dataset.statusAdaptive = String(adaptive);
@@ -40,7 +47,10 @@
         const chip = documentRoot.createElement(interactive ? 'button' : 'span');
         if (interactive) chip.type = 'button';
         chip.className = ['stat-chip', 'ux-status-chip', item.important ? 'important' : '', item.severity || '', item.className || '', interactive ? 'ux-status-urgent' : ''].filter(Boolean).join(' ');
-        if (adaptive && !compactKeys.has(`${item.field ?? 'label'}:${item.label}`)) chip.classList.add('ux-status-adaptive-only');
+        if (adaptive && !compactKeys.has(`${item.field ?? 'label'}:${item.label}`)) {
+          chip.classList.add('ux-status-adaptive-only');
+          if (density === 'detailed') chip.classList.add('ux-motion-enter');
+        }
         chip.dataset.statusRole = item.role || 'persistent';
         chip.dataset.statusField = item.field == null ? '' : String(item.field);
         chip.dataset.statusKey = `${item.field ?? 'label'}:${item.label}`;
@@ -64,6 +74,8 @@
       mount.append(empty);
     }
     if (focusedKey) Array.from(mount.querySelectorAll('[data-status-key]')).find((chip) => chip.dataset.statusKey === focusedKey)?.focus?.({ preventScroll: true });
+    const feedback = (typeof globalThis !== 'undefined' ? globalThis.NetHackUxFeedback : null) || null;
+    feedback?.animateStatusMount?.(mount, previousValues);
     return presentation;
   }
 

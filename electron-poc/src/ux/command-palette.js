@@ -213,6 +213,17 @@
       return model.snapshot();
     }
 
+    function pulseSelectedKeycap(row = null) {
+      const selected = model.selected();
+      const selectedRow = row || (selected
+        ? list.querySelector(`[data-command-id="${String(selected.command.id).replace(/["\\]/g, '\\$&')}"]`)
+        : null);
+      const keycap = selectedRow?.querySelector?.('.ux-keycap');
+      if (!keycap) return false;
+      return Boolean((typeof globalThis !== 'undefined' ? globalThis.NetHackUxFeedback : null)
+        ?.pulse?.(keycap, 'ux-motion-keycap-press', { durationMs: 120 }));
+    }
+
     function activate() {
       const selected = model.selected();
       if (!selected) return false;
@@ -243,6 +254,12 @@
         candidate.tabIndex = selected ? 0 : -1;
       }
     });
+    list.addEventListener('pointerdown', (event) => {
+      const row = event.target.closest?.('[data-command-id]');
+      if (!row) return;
+      model.select(row.dataset.commandId);
+      pulseSelectedKeycap(row);
+    });
     list.addEventListener('click', (event) => {
       const row = event.target.closest?.('[data-command-id]');
       if (!row) return;
@@ -256,17 +273,26 @@
         close('escape');
         return;
       }
-      if (!['ArrowDown', 'ArrowUp', 'Home', 'End', 'Enter'].includes(event.key)) return;
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        if (!event.repeat) pulseSelectedKeycap();
+        return;
+      }
+      if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
       if ((event.key === 'Home' || event.key === 'End') && event.target === searchInput) return;
-      if (event.key === 'Enter' && event.target === searchInput && !model.selected()) return;
       event.preventDefault();
       event.stopPropagation();
       if (event.key === 'ArrowDown') model.move(1);
       else if (event.key === 'ArrowUp') model.move(-1);
       else if (event.key === 'Home') model.moveBoundary('home');
       else if (event.key === 'End') model.moveBoundary('end');
-      else activate();
       render();
+    });
+    dialog.addEventListener('keyup', (event) => {
+      if (event.key !== 'Enter' || !dialog.open) return;
+      event.preventDefault();
+      event.stopPropagation();
+      activate();
     });
 
     return Object.freeze({ version, model, element: dialog, open, close, render, updatePublicState(publicState) { model.updatePublicState(publicState); return render(); } });

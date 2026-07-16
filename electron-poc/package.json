@@ -77,6 +77,7 @@
     "test:real-inventory-context-actions-mcp": "npm run build:shim:test-fixtures && node scripts/real-inventory-context-actions-mcp-test.js",
     "test:container-transfer-panel": "node scripts/transfer-menu-classification-test.js && node scripts/container-transfer-panel-test.js && node scripts/container-active-selector-remap-test.js",
     "test:ground-pickup-transfer-panel": "node scripts/ground-pickup-transfer-panel-test.js && node scripts/ground-transfer-owner-lifecycle-test.js",
+    "test:motion-layout": "node scripts/motion-layout-regression-test.js",
     "test:real-container-transfer-panel-mcp": "npm run build:shim:test-fixtures && NH_ELECTRON_TEST_FIXTURES=1 node scripts/real-container-transfer-panel-mcp-test.js",
     "test:real-scenario-container-drag-mcp": "npm run build:shim:test-fixtures && NH_SCENARIO_CONTAINER_ID=container/unlocked-chest-on-hero node scripts/real-scenario-container-mcp-test.js",
     "test:real-scenario-container-classic-takeout-mcp": "npm run build:shim:test-fixtures && NH_ELECTRON_TEST_FIXTURES=1 node scripts/real-scenario-container-classic-takeout-mcp-test.js",
