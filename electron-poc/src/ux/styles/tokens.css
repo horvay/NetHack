@@ -1,33 +1,37 @@
 :root {
   color-scheme: dark;
 
-  /* Warmer torchlit dungeon neutrals */
-  --ux-color-canvas: oklch(0.135 0.018 72);
-  --ux-color-surface: oklch(0.185 0.02 70);
-  --ux-color-surface-raised: oklch(0.235 0.024 68);
-  --ux-color-surface-muted: oklch(0.16 0.016 68);
-  --ux-color-well: oklch(0.145 0.018 55);
-  --ux-color-plate-mid: oklch(0.21 0.022 72);
-  --ux-color-text: oklch(0.9 0.02 85);
-  --ux-color-text-muted: oklch(0.72 0.028 78);
-  --ux-color-text-faint: oklch(0.58 0.022 74);
-  --ux-color-border: oklch(0.38 0.03 72);
-  --ux-color-border-strong: oklch(0.48 0.045 78);
-  --ux-color-rule: oklch(0.55 0.07 78 / 0.55);
-  --ux-color-action: oklch(0.78 0.13 82);
-  --ux-color-action-hover: oklch(0.84 0.14 84);
-  --ux-color-action-ink: oklch(0.18 0.03 75);
-  --ux-color-focus: oklch(0.84 0.12 90);
-  --ux-color-selection: oklch(0.72 0.1 78);
-  --ux-color-selection-fill: oklch(0.32 0.05 75 / 0.55);
-  --ux-color-info: oklch(0.72 0.1 220);
-  --ux-color-success: oklch(0.72 0.12 150);
-  --ux-color-warning: oklch(0.8 0.13 78);
-  --ux-color-danger: oklch(0.67 0.18 27);
-  --ux-color-error: oklch(0.7 0.19 25);
+  /* Obsidian Reliquary — cold stone, copper ember, ward cyan */
+  --ux-color-canvas: oklch(0.11 0.028 265);
+  --ux-color-surface: oklch(0.155 0.03 268);
+  --ux-color-surface-raised: oklch(0.205 0.034 270);
+  --ux-color-surface-muted: oklch(0.135 0.026 262);
+  --ux-color-well: oklch(0.1 0.03 258);
+  --ux-color-plate-mid: oklch(0.19 0.032 268);
+  --ux-color-text: oklch(0.93 0.018 95);
+  --ux-color-text-muted: oklch(0.74 0.03 250);
+  --ux-color-text-faint: oklch(0.58 0.028 255);
+  --ux-color-border: oklch(0.36 0.04 270);
+  --ux-color-border-strong: oklch(0.48 0.055 55);
+  --ux-color-rule: oklch(0.62 0.1 55 / 0.45);
+  --ux-color-action: oklch(0.76 0.155 58);
+  --ux-color-action-hover: oklch(0.84 0.16 62);
+  --ux-color-action-ink: oklch(0.16 0.04 55);
+  --ux-color-focus: oklch(0.86 0.12 95);
+  --ux-color-selection: oklch(0.78 0.11 210);
+  --ux-color-selection-fill: oklch(0.32 0.06 220 / 0.45);
+  --ux-color-info: oklch(0.78 0.1 220);
+  --ux-color-success: oklch(0.74 0.13 150);
+  --ux-color-warning: oklch(0.82 0.14 70);
+  --ux-color-danger: oklch(0.66 0.2 22);
+  --ux-color-error: oklch(0.7 0.2 20);
+  --ux-color-ember: oklch(0.7 0.18 40);
+  --ux-color-ward: oklch(0.8 0.12 210);
+  --ux-color-blood: oklch(0.55 0.2 18);
+  --ux-color-moss: oklch(0.62 0.1 145);
 
-  /* Type: display for titles, UI for controls, mono for messages/keys */
-  --ux-font-display: "Liberation Serif", "DejaVu Serif", "Noto Serif", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  /* Type: carved display + clean UI + ledger mono */
+  --ux-font-display: "Palatino Linotype", Palatino, "Book Antiqua", "Iowan Old Style", "Liberation Serif", "Noto Serif", Georgia, "Times New Roman", serif;
   --ux-font-ui: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --ux-font-product: var(--ux-font-ui);
   --ux-font-mono: "SFMono-Regular", Consolas, "Liberation Mono", ui-monospace, monospace;
@@ -39,9 +43,9 @@
   --ux-space-6: 1.5rem;
   --ux-space-8: 2rem;
 
-  --ux-radius-control: 0.25rem;
-  --ux-radius-overlay: 0.5rem;
-  --ux-radius-socket: 0.2rem;
+  --ux-radius-control: 0.2rem;
+  --ux-radius-overlay: 0.35rem;
+  --ux-radius-socket: 0.15rem;
 
   --ux-motion-instant: 90ms;
   --ux-motion-fast: 150ms;
@@ -49,32 +53,49 @@
   --ux-motion-micro: 120ms;
   --ux-motion-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ux-motion-ease-in-out: cubic-bezier(0.45, 0, 0.2, 1);
-  --ux-motion-enter-distance: 8px;
+  --ux-motion-enter-distance: 10px;
   --ux-motion-press-distance: 1px;
 
   --ux-window-min-width: 960px;
   --ux-window-min-height: 720px;
 
-  /* Material recipes */
+  /* Material recipes — carved stone, hammered copper, deep wells */
   --ux-shadow-plate:
-    inset 0 1px 0 oklch(0.78 0.05 85 / 0.1),
-    inset 0 0 0 1px oklch(0.08 0.01 70 / 0.7),
-    0 18px 42px oklch(0.05 0.01 70 / 0.5);
-  --ux-shadow-well: inset 0 2px 10px oklch(0.05 0.01 55 / 0.62);
-  --ux-shadow-socket: inset 0 2px 6px oklch(0.05 0.01 55 / 0.7);
+    inset 0 1px 0 oklch(0.85 0.06 90 / 0.12),
+    inset 0 0 0 1px oklch(0.05 0.02 265 / 0.75),
+    0 0 0 1px oklch(0.45 0.08 55 / 0.18),
+    0 22px 50px oklch(0.04 0.02 265 / 0.65);
+  --ux-shadow-well:
+    inset 0 3px 14px oklch(0.04 0.02 260 / 0.75),
+    inset 0 0 0 1px oklch(0.5 0.08 55 / 0.12);
+  --ux-shadow-socket:
+    inset 0 2px 8px oklch(0.04 0.02 260 / 0.8),
+    inset 0 0 0 1px oklch(0.55 0.1 55 / 0.15);
   --ux-shadow-keycap:
-    inset 0 1px 0 oklch(0.85 0.04 85 / 0.14),
-    inset 0 -1px 0 oklch(0.08 0.01 70 / 0.55),
-    0 1px 0 oklch(0.05 0.01 70 / 0.35);
+    inset 0 1px 0 oklch(0.9 0.05 90 / 0.16),
+    inset 0 -1px 0 oklch(0.08 0.02 265 / 0.6),
+    0 1px 0 oklch(0.04 0.02 265 / 0.4);
+  --ux-shadow-ember:
+    0 0 18px oklch(0.65 0.16 50 / 0.35),
+    0 0 2px oklch(0.8 0.14 60 / 0.5);
+  --ux-shadow-ward:
+    0 0 16px oklch(0.7 0.12 210 / 0.35),
+    0 0 2px oklch(0.85 0.1 210 / 0.45);
   --ux-gradient-plate:
-    radial-gradient(120% 80% at 50% 0%, oklch(0.3 0.03 75 / 0.35), transparent 58%),
-    linear-gradient(180deg, oklch(0.23 0.024 70), oklch(0.165 0.018 72));
+    radial-gradient(120% 90% at 50% -10%, oklch(0.32 0.05 55 / 0.28), transparent 55%),
+    radial-gradient(90% 70% at 100% 100%, oklch(0.28 0.05 265 / 0.35), transparent 50%),
+    linear-gradient(165deg, oklch(0.22 0.035 270), oklch(0.145 0.03 262));
   --ux-gradient-banner:
-    linear-gradient(180deg, oklch(0.27 0.03 72), oklch(0.2 0.022 70));
+    linear-gradient(180deg, oklch(0.24 0.04 268), oklch(0.16 0.03 265));
   --ux-gradient-primary:
-    linear-gradient(180deg, oklch(0.84 0.13 84), oklch(0.68 0.12 78));
+    linear-gradient(180deg, oklch(0.86 0.15 62), oklch(0.62 0.15 48));
   --ux-gradient-metal:
-    linear-gradient(180deg, oklch(0.3 0.02 75), oklch(0.2 0.018 70));
+    linear-gradient(180deg, oklch(0.28 0.03 270), oklch(0.16 0.028 265));
+  --ux-gradient-ember:
+    radial-gradient(circle at 30% 20%, oklch(0.78 0.16 70 / 0.45), transparent 45%),
+    linear-gradient(180deg, oklch(0.55 0.14 45), oklch(0.35 0.12 35));
   --ux-scrim-overlay:
-    radial-gradient(ellipse 80% 70% at 50% 42%, oklch(0.12 0.02 70 / 0.42), oklch(0.06 0.015 70 / 0.88));
+    radial-gradient(ellipse 75% 65% at 50% 40%, oklch(0.14 0.04 265 / 0.35), oklch(0.05 0.03 265 / 0.92));
+  --ux-noise:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.85 0 0 0 0 0.75 0 0 0 0 0.45 0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 }

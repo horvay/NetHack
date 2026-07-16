@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' file:; img-src 'self' file: data:; style-src 'self' 'unsafe-inline' file:; script-src 'self' 'unsafe-inline' file:; connect-src 'self' file:; object-src 'none'; base-uri 'none'; form-action 'none'" />
-    <title>NetHack Electron POC</title>
+    <title>NetHack — Obsidian Reliquary</title>
     <link rel="stylesheet" href="../node_modules/@xterm/xterm/css/xterm.css" />
     <link rel="stylesheet" href="./ux/styles/tokens.css" />
     <link rel="stylesheet" href="./styles.css" />
@@ -19,12 +19,22 @@
     <link rel="stylesheet" href="./ux/styles/responsive.css" />
     <link rel="stylesheet" href="./ux/styles/feedback.css" />
     <link rel="stylesheet" href="./ux/styles/game-chrome.css" />
+    <link rel="stylesheet" href="./ux/styles/reliquary-theme.css" />
   </head>
-  <body>
-    <header>
-      <div>
-        <h1>NetHack</h1>
-        <p id="paths">Loading project paths…</p>
+  <body class="reliquary-skin">
+    <div class="reliquary-atmosphere" aria-hidden="true">
+      <div class="reliquary-vignette"></div>
+      <div class="reliquary-embers"></div>
+      <div class="reliquary-grain"></div>
+    </div>
+    <header class="reliquary-header">
+      <div class="brand-lockup">
+        <span class="brand-sigil" aria-hidden="true"></span>
+        <div>
+          <p class="brand-kicker">Dungeons of Doom</p>
+          <h1>NetHack</h1>
+          <p id="paths">Loading project paths…</p>
+        </div>
       </div>
       <div class="controls">
         <button id="start-shim" class="primary">New game</button>

@@ -1,8 +1,8 @@
 :root {
   color-scheme: dark;
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-  background: #08090d;
-  color: #f5f0df;
+  font-family: var(--ux-font-ui, "Segoe UI", system-ui, sans-serif);
+  background: var(--ux-color-canvas, #0c0e18);
+  color: var(--ux-color-text, #f3efe2);
 }
 
 * { box-sizing: border-box; }
@@ -10,7 +10,7 @@ body {
   margin: 0;
   min-height: 100vh;
   overflow: hidden;
-  background: radial-gradient(circle at top, #1b1a24 0, #08090d 46rem);
+  background: transparent;
 }
 
 header {

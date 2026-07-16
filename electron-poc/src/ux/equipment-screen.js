@@ -24,8 +24,8 @@
   const GROUPS = Object.freeze([
     Object.freeze({ id: 'head', label: 'Head & neck', rail: 'left', slots: Object.freeze(['armor.helm', 'eyes', 'amulet']) }),
     Object.freeze({ id: 'layers', label: 'Armor layers', rail: 'left', slots: Object.freeze(['armor.cloak', 'armor.body', 'armor.shirt']) }),
-    Object.freeze({ id: 'hands-feet', label: 'Hands & feet', rail: 'left', slots: Object.freeze(['armor.gloves', 'armor.boots', 'armor.shield']) }),
-    Object.freeze({ id: 'weapons', label: 'Weapons', rail: 'right', slots: Object.freeze(['mainHand', 'offHand']) }),
+    Object.freeze({ id: 'hands-feet', label: 'Hands & feet', rail: 'left', slots: Object.freeze(['armor.gloves', 'armor.boots']) }),
+    Object.freeze({ id: 'weapons', label: 'Weapons', rail: 'right', slots: Object.freeze(['mainHand', 'offHand', 'armor.shield']) }),
     Object.freeze({ id: 'rings', label: 'Rings', rail: 'right', slots: Object.freeze(['ring.left', 'ring.right']) }),
     Object.freeze({ id: 'ready', label: 'Ready', rail: 'right', slots: Object.freeze(['quiver']) }),
   ]);
