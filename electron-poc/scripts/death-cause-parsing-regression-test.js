@@ -38,6 +38,16 @@ async function scenario(cdp, name, events, expected) {
   assert.match(metrics.stoneCause, expected, `${name}: gravestone cause`);
   return { name, expected: String(expected), metrics, screenshot };
 }
+async function nonDeathScenario(cdp) {
+  const name = '00-poisoned-dart-is-not-death';
+  await evalExpr(cdp, `(() => { window.__nethackPromptTest.reset(); window.__nethackPromptTest.setRunning(true); })()`);
+  await evalExpr(cdp, `window.__nethackPromptTest.event(${JSON.stringify({ event: { name: 'shim_putstr', window: 1, text: 'You see here a poisoned dart.' } })})`);
+  await delay(800);
+  const metrics = await gameOverMetrics(cdp);
+  assert.equal(metrics.modalOpen, false, `${name}: an ordinary poisoned-item description must not open game over`);
+  const screenshot = await shot(cdp, `${name}.png`);
+  return { name, metrics, screenshot };
+}
 async function lateFinalCauseScenario(cdp) {
   const name = '07-late-final-cause-refresh';
   await evalExpr(cdp, `(() => { window.__nethackPromptTest.reset(); window.__nethackPromptTest.setRunning(true); })()`);
@@ -69,6 +79,11 @@ async function lateFinalCauseScenario(cdp) {
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1200, height: 900, deviceScaleFactor: 1, mobile: false });
     await waitFor(() => evalExpr(cdp, `document.readyState === 'complete' && !!window.__nethackPromptTest`), 10000);
     const results = [];
+    results.push(await nonDeathScenario(cdp));
+    results.push(await scenario(cdp, '00b-authoritative-poison-death', [
+      { name: 'shim_putstr', window: 1, text: 'You see here a poisoned dart.' },
+      { name: 'shim_native_end_diagnostic', phase: 'really_done.final_killer', how: 2, reason: 'poisoned', killerName: 'dart', killerFormat: 0, killer: 'poisoned by a dart', finalFlow: true, disclosureFlow: false, taken: false },
+    ], /Poisoned by a dart/i));
     results.push(await scenario(cdp, '01-combat-you-die', [
       { name: 'shim_putstr', window: 1, text: 'The jackal bites!' },
       { name: 'shim_putstr', window: 1, text: 'You die...' },

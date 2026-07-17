@@ -3211,7 +3211,7 @@ function isGameOverMessage(text) {
   const line = String(text || '').replace(/\s+/g, ' ').trim();
   if (!line) return false;
   if (/^Really quit without saving\??$/i.test(line)) return false;
-  return /\b(?:You die|You were killed|You are dead|killed by|died of|starv(?:e|ed|ation)|choked|poisoned|petrified|drowned|Rest in peace)\b/i.test(line)
+  return /\b(?:You die|You were killed|You are dead|killed by|died of|starved to death|were poisoned|choked on|drowned in|burned by|dissolved in|crushed to death|turned to stone|turned into slime|were genocided|Rest in peace)\b/i.test(line)
     || /^(?:Goodbye\b|You (?:escaped|ascended|quit)\b|.*\bquit while already on Charon's boat\b)/i.test(line);
 }
 
