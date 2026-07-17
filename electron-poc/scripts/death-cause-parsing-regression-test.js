@@ -39,14 +39,39 @@ async function scenario(cdp, name, events, expected) {
   return { name, expected: String(expected), metrics, screenshot };
 }
 async function nonDeathScenario(cdp) {
-  const name = '00-poisoned-dart-is-not-death';
+  const name = '00-nondeath-phrases-stay-in-game';
+  const messages = [
+    'You see here a poisoned dart.',
+    'The jackal was killed by a falling rock.',
+    'Your kitten drowned in a pool.',
+    'The troll turned to stone.',
+    'The fire ant was burned by lava.',
+    'The gelatinous cube was dissolved in acid.',
+    'The giant was crushed to death by a drawbridge.',
+    'The orc choked on a ration.',
+    'The kobolds were poisoned by gas.',
+    'The grave reads: Rest in peace.',
+  ];
   await evalExpr(cdp, `(() => { window.__nethackPromptTest.reset(); window.__nethackPromptTest.setRunning(true); })()`);
-  await evalExpr(cdp, `window.__nethackPromptTest.event(${JSON.stringify({ event: { name: 'shim_putstr', window: 1, text: 'You see here a poisoned dart.' } })})`);
-  await delay(800);
+  for (const text of messages) {
+    await evalExpr(cdp, `window.__nethackPromptTest.event(${JSON.stringify({ event: { name: 'shim_putstr', window: 1, text } })})`);
+  }
+  await delay(1200);
   const metrics = await gameOverMetrics(cdp);
-  assert.equal(metrics.modalOpen, false, `${name}: an ordinary poisoned-item description must not open game over`);
+  assert.equal(metrics.modalOpen, false, `${name}: descriptions of other creatures, items, and graves must not open game over`);
   const screenshot = await shot(cdp, `${name}.png`);
-  return { name, metrics, screenshot };
+  return { name, messages, metrics, screenshot };
+}
+async function thirdPartyCombatScenario(cdp) {
+  const name = '00a-third-party-combat-is-not-killer';
+  await evalExpr(cdp, `(() => { window.__nethackPromptTest.reset(); window.__nethackPromptTest.setRunning(true); })()`);
+  await evalExpr(cdp, `window.__nethackPromptTest.event(${JSON.stringify({ event: { name: 'shim_putstr', window: 1, text: 'The jackal bites the newt!' } })})`);
+  await evalExpr(cdp, `window.__nethackPromptTest.event(${JSON.stringify({ event: { name: 'shim_putstr', window: 1, text: 'You die...' } })})`);
+  await waitFor(async () => (await gameOverMetrics(cdp)).modalOpen, 3000);
+  const metrics = await gameOverMetrics(cdp);
+  assert.doesNotMatch(metrics.cause, /jackal/i, `${name}: an attack on another creature must not become the hero's fallback killer`);
+  assert.match(metrics.cause, /You die/i, `${name}: generic hero death remains visible until authoritative cause arrives`);
+  return { name, metrics };
 }
 async function lateFinalCauseScenario(cdp) {
   const name = '07-late-final-cause-refresh';
@@ -80,6 +105,7 @@ async function lateFinalCauseScenario(cdp) {
     await waitFor(() => evalExpr(cdp, `document.readyState === 'complete' && !!window.__nethackPromptTest`), 10000);
     const results = [];
     results.push(await nonDeathScenario(cdp));
+    results.push(await thirdPartyCombatScenario(cdp));
     results.push(await scenario(cdp, '00b-authoritative-poison-death', [
       { name: 'shim_putstr', window: 1, text: 'You see here a poisoned dart.' },
       { name: 'shim_native_end_diagnostic', phase: 'really_done.final_killer', how: 2, reason: 'poisoned', killerName: 'dart', killerFormat: 0, killer: 'poisoned by a dart', finalFlow: true, disclosureFlow: false, taken: false },

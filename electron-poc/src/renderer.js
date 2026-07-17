@@ -3211,7 +3211,7 @@ function isGameOverMessage(text) {
   const line = String(text || '').replace(/\s+/g, ' ').trim();
   if (!line) return false;
   if (/^Really quit without saving\??$/i.test(line)) return false;
-  return /\b(?:You die|You were killed|You are dead|killed by|died of|starved to death|were poisoned|choked on|drowned in|burned by|dissolved in|crushed to death|turned to stone|turned into slime|were genocided|Rest in peace)\b/i.test(line)
+  return /^(?:You (?:die\b|were killed\b|are dead(?:[.!?]|$)|died\b|starved to death\b|were poisoned\b|choked on\b|drowned in\b|burned by\b|dissolved in\b|were crushed to death\b|turned to stone\b|turned into slime\b|were genocided\b)|Killed by\b|Rest in peace\b)/i.test(line)
     || /^(?:Goodbye\b|You (?:escaped|ascended|quit)\b|.*\bquit while already on Charon's boat\b)/i.test(line);
 }
 
@@ -3234,9 +3234,9 @@ function killedByPhrase(actor) {
 function deathCauseCandidateFromText(text) {
   const line = String(text || '').replace(/\s+/g, ' ').trim();
   if (!line) return '';
-  const actorAttack = line.match(/^(?!(?:You|Your)\b)(?:(?:The|A|An)\s+)?(.+?)\s+(?:hits(?: you)?|bites|stings|kicks|scratches|claws|touches|butts|engulfs|zaps|shoots|throws|strikes|attacks)(?:\s+.+?)?!?$/i)
+  const actorAttack = line.match(/^(?!(?:You|Your)\b)(?:(?:The|A|An)\s+)?(.+?)\s+(?:hits(?: you)?|bites(?: you)?|stings(?: you)?|kicks(?: you)?|scratches(?: you)?|claws(?: you)?|touches(?: you)?|butts(?: you)?|engulfs(?: you)?|strikes(?: you)?|attacks(?: you)?)[.!?]*$/i)
     || line.match(/^(?:(?:The|A|An)\s+)?(.+?)'s\s+(?:bite|sting|touch|attack)\b/i)
-    || line.match(/^(?!(?:You|Your)\b)(?:(?:The|A|An)\s+)?(.+?)\s+(?:explodes|breathes|casts)(?:\s+.+?)?!?$/i);
+    || line.match(/^(?!(?:You|Your)\b)(?:(?:The|A|An)\s+)?(.+?)\s+(?:zaps|shoots|throws|explodes|breathes|casts)(?:\s+.+?)?!?$/i);
   if (actorAttack) return killedByPhrase(actorAttack[1]);
   const hitBy = line.match(/\b(?:You are hit by|You are struck by|You are blasted by)\s+(.+?)(?:[.!?]|$)/i);
   if (hitBy) return killedByPhrase(hitBy[1]) || '';
@@ -3262,6 +3262,7 @@ function deathCauseFromText(text) {
   if (starved) return 'Starved to death';
   const dieFrom = line.match(/You die from (.+?)(?:\.|$)/i);
   if (dieFrom) return `Died from ${dieFrom[1].trim()}`;
+  if (/^You died\b/i.test(line)) return recentDeathCauseCandidate || 'You died.';
   if (/You die/i.test(line)) return recentDeathCauseCandidate || line;
   if (/Rest in peace/i.test(line)) return recentDeathCauseCandidate || line;
   if (/died of|starv(?:e|ed|ation)|choked|poisoned|petrified|drowned/i.test(line)) return line;
@@ -3279,7 +3280,7 @@ function rememberDeathCauseCandidate(text) {
 }
 
 function isGenericDeathReason(reason) {
-  return !reason || /^(?:The dungeon has claimed another hero\.|You die\.\.\.?|Rest in peace\.?|Goodbye\b.*)$/i.test(String(reason).trim());
+  return !reason || /^(?:The dungeon has claimed another hero\.|You (?:die\.\.\.?|died\.)|Rest in peace\.?|Goodbye\b.*)$/i.test(String(reason).trim());
 }
 
 function deathCauseSourcePriority(source, reason) {
