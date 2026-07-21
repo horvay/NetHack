@@ -537,12 +537,8 @@ body.uxm02-shell-active[data-ux-map-mode='follow'] #game-grid {
   animation: ux-motion-enter-up var(--ux-motion-micro) var(--ux-motion-ease-out) both;
 }
 
-.ux-map-inspector:not([hidden]) {
-  animation: ux-motion-enter-up var(--ux-motion-fast) var(--ux-motion-ease-out) both;
-}
 
 .ux-map-toolbar button[aria-pressed="true"],
-.ux-map-inspect-toggle[aria-pressed="true"],
 .ux-map-glyph-toggle[aria-pressed="true"],
 .ux-map-contrast-toggle[aria-pressed="true"] {
   transition: border-color var(--ux-motion-fast) var(--ux-motion-ease-out),
@@ -765,7 +761,6 @@ body:has(dialog[open] dialog[open]) > dialog[open]:not(:focus-within) {
   #game-grid .tile-cell.ux-cue-known-trap,
   #game-grid.ux-map-level-transition,
   .map-tooltip:not([hidden]),
-  .ux-map-inspector:not([hidden]),
   #ux-items-root.uxm-items-overlay:not([hidden]),
   #ux-items-root.uxm-items-overlay:not([hidden]) .uxm-items-workspace,
   .uxm-item-row.is-selected,

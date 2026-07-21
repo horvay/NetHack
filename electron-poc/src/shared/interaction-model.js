@@ -599,7 +599,7 @@
   }
   function buildContextActions(input = {}) {
     const facts = contextFacts(input);
-    const actions = [{ id: 'search', label: 'Search', command: 'key', key: 's', primary: true }, { id: 'wait', label: 'Wait', command: 'keys', keys: 'm.' }, { id: 'look', label: 'Inspect / look', command: 'key', key: ';' }];
+    const actions = [{ id: 'search', label: 'Search', command: 'key', key: 's', primary: true }, { id: 'wait', label: 'Wait', command: 'keys', keys: 'm.' }];
     if (input.running && input.playable !== false) {
       actions.unshift(...actionsForCurrentSquare(input, facts));
       for (let y = Math.max(0, facts.cursor.y - 1); y <= Math.min((facts.gameView.mapHeight || 21) - 1, facts.cursor.y + 1); y += 1) for (let x = Math.max(0, facts.cursor.x - 1); x <= Math.min((facts.gameView.mapWidth || 80) - 1, facts.cursor.x + 1); x += 1) if (x !== facts.cursor.x || y !== facts.cursor.y) actions.push(...actionsForAdjacentSquare(input, facts, x, y));

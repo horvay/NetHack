@@ -1,4 +1,4 @@
-/* UXM-04 map inspection and truthful target presentation. */
+/* Click-to-open map details and presentation controls. */
 .ux-map-surface {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -15,9 +15,18 @@
   color: var(--ux-color-text-muted);
 }
 
+.ux-map-toolbar-label {
+  margin-inline-end: 4px;
+  color: var(--ux-color-text-faint);
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
 .ux-map-toolbar button,
-.ux-map-inspector-action,
-.ux-map-danger-confirm button {
+.ux-map-detail-action,
+.ux-map-detail-close {
   min-height: 36px;
   padding: 7px 11px;
   border: 1px solid var(--ux-color-border);
@@ -27,31 +36,17 @@
 }
 
 .ux-map-toolbar button:hover,
-.ux-map-inspector-action:hover,
-.ux-map-danger-confirm button:hover {
+.ux-map-detail-action:hover,
+.ux-map-detail-close:hover {
   border-color: var(--ux-color-text-muted);
   background: var(--ux-color-surface-muted);
 }
 
 .ux-map-toolbar button:focus-visible,
-.ux-map-inspector-action:focus-visible,
-.ux-map-danger-confirm button:focus-visible {
+.ux-map-detail-action:focus-visible,
+.ux-map-detail-close:focus-visible {
   outline: 3px solid var(--ux-color-focus);
   outline-offset: 2px;
-}
-
-.ux-map-inspect-toggle[aria-pressed="true"] {
-  color: var(--ux-color-canvas);
-  border-color: var(--ux-color-action);
-  background: var(--ux-color-action);
-  font-weight: 750;
-}
-
-.ux-map-toolbar-separator {
-  width: 1px;
-  height: 24px;
-  margin-inline: 2px;
-  background: var(--ux-color-border);
 }
 
 .ux-map-scale-value {
@@ -67,89 +62,11 @@
   box-shadow: inset 0 0 0 1px var(--ux-color-selection);
 }
 
-.ux-map-inspector {
-  display: grid;
-  grid-template-columns: minmax(150px, 0.8fr) minmax(160px, 1fr) minmax(220px, 1.2fr);
-  align-items: center;
-  gap: 8px 16px;
-  min-height: 70px;
-  padding: 10px 12px;
-  border: 1px solid var(--ux-color-border);
-  border-radius: 10px;
-  color: var(--ux-color-text);
-  background: var(--ux-color-surface);
-  box-shadow: 0 12px 28px oklch(0.08 0.01 78 / 0.48);
-}
-
-.ux-map-inspector[hidden] { display: none; }
-
-.ux-map-inspector-heading { display: grid; gap: 2px; }
-.ux-map-inspector-kicker {
-  color: var(--ux-color-text-faint);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.ux-map-inspector-label { font-size: 1rem; line-height: 1.2; }
-.ux-map-inspector-facts,
-.ux-map-inspector-layers { color: var(--ux-color-text-muted); font-size: 0.82rem; line-height: 1.35; }
-.ux-map-inspector-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
-.ux-map-inspector-empty { color: var(--ux-color-text-faint); font-size: 0.78rem; }
-.ux-map-inspector-help {
-  grid-column: 1 / -1;
-  margin: 0;
-  color: var(--ux-color-text-faint);
-  font-size: 0.76rem;
-}
-
-.ux-map-action-danger,
-.ux-map-confirm-action {
-  border-color: var(--ux-color-danger) !important;
-  color: var(--ux-color-text);
-  background: oklch(0.26 0.055 27) !important;
-}
-
-.ux-map-danger-confirm {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding-top: 10px;
-  border-top: 1px solid var(--ux-color-danger);
-}
-.ux-map-danger-confirm[hidden] { display: none; }
-.ux-map-danger-confirm > div { display: flex; gap: 8px; }
-
-/* Scale uses Chromium's layout-aware zoom so the map's own scroll region grows
+/* Scale uses Chromium's layout-aware zoom so the map's scroll region grows
    without transform blur or horizontal page overflow. */
 #play-area { min-width: 0; overflow: auto; }
 #game-grid { zoom: var(--ux-map-scale, 1); }
-
-#game-grid.ux-inspect-mode { cursor: cell; }
-#game-grid.ux-inspect-mode .tile-cell { cursor: cell; }
-#game-grid .tile-cell.ux-map-hovered {
-  z-index: 6;
-  outline: 1px dashed var(--ux-color-selection);
-  outline-offset: -2px;
-}
-#game-grid .tile-cell.ux-map-selected {
-  z-index: 7;
-  outline: 3px solid var(--ux-color-selection);
-  outline-offset: -3px;
-  box-shadow: inset 0 0 0 1px var(--ux-color-canvas), 0 0 0 1px var(--ux-color-selection);
-}
-#game-grid .tile-cell.ux-map-selected::selection { background: transparent; }
-
-/* Non-color state geometry. */
-#game-grid .tile-cell.ux-cue-hero { border-radius: 50%; }
-#game-grid .tile-cell.ux-cue-pet { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
-#game-grid .tile-cell.ux-cue-peaceful { border: 2px double var(--ux-color-info); }
-#game-grid .tile-cell.ux-cue-hostile { border: 2px solid var(--ux-color-danger); }
-#game-grid .tile-cell.ux-cue-known-trap { box-shadow: inset 0 0 0 2px var(--ux-color-warning); }
-#game-grid .tile-cell.ux-target-confirmed-legal { outline-style: double; outline-width: 4px; }
-#game-grid .tile-cell.ux-target-confirmed-illegal { outline-color: var(--ux-color-error); outline-style: dashed; }
+#game-grid .tile-cell { cursor: pointer; }
 
 #game-grid.ux-map-high-contrast .tile-cell.terrain-wall,
 #game-grid.ux-map-high-contrast .tile-cell.terrain-door { box-shadow: inset 0 0 0 1px var(--ux-color-text-muted); }
@@ -157,8 +74,7 @@
 #game-grid.ux-map-high-contrast .tile-cell.terrain-corridor { filter: contrast(1.24) brightness(1.08); }
 #game-grid.ux-map-high-contrast .tile-cell.cursor { outline-width: 3px; outline-color: var(--ux-color-focus); }
 
-/* Classic glyph overlay is presentation-only and uses the already-public glyph
-   carried by each rendered cell. It replaces decorative overlays while on. */
+/* Classic glyph overlay remains a presentation setting. */
 #game-grid.ux-map-glyph-overlay .tile-cell::after {
   content: attr(data-glyph) !important;
   position: absolute;
@@ -174,66 +90,222 @@
 }
 #game-grid.ux-map-glyph-overlay .tile-cell[data-glyph=" "]::after { color: transparent; background: transparent; }
 
-/* The legacy hover tooltip remains available outside Inspect, but the compact
-   selected-cell model is the sole inspector while Inspect owns the map. */
-#game-grid.ux-inspect-mode ~ .map-tooltip { display: none !important; }
-
-@media (max-width: 1040px) {
-  .ux-map-inspector { grid-template-columns: minmax(130px, 0.8fr) minmax(180px, 1.2fr); }
-  .ux-map-inspector-actions { grid-column: 1 / -1; justify-content: flex-start; }
+.ux-map-detail-dialog {
+  width: min(1080px, calc(100vw - 56px));
+  max-width: none;
+  height: min(760px, calc(100vh - 56px));
+  max-height: none;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid oklch(0.56 0.07 78 / 0.7);
+  border-radius: 18px;
+  color: var(--ux-color-text);
+  background:
+    linear-gradient(135deg, oklch(0.22 0.018 77 / 0.98), oklch(0.135 0.012 263 / 0.99) 58%),
+    var(--ux-color-surface);
+  box-shadow: 0 30px 90px oklch(0.04 0.01 260 / 0.82), inset 0 1px oklch(0.82 0.05 82 / 0.08);
 }
 
-@media (max-width: 760px) {
-  .ux-map-surface {
-    padding: 6px;
-    border: 1px solid var(--ux-color-border);
-    border-radius: 8px;
-    background: var(--ux-color-canvas);
-  }
-  .ux-map-inspector {
-    grid-template-columns: minmax(120px, 0.8fr) minmax(180px, 1.2fr);
-    min-height: 58px;
-    padding: 8px 10px;
-  }
-  .ux-map-inspector-actions,
-  .ux-map-danger-confirm { grid-column: 1 / -1; }
-  .ux-map-inspector-help { display: none; }
+.ux-map-detail-dialog::backdrop {
+  background:
+    radial-gradient(circle at 50% 42%, oklch(0.22 0.03 76 / 0.24), transparent 45%),
+    oklch(0.04 0.012 264 / 0.82);
+  backdrop-filter: blur(5px) saturate(0.75);
 }
 
-/* Browser 200 percent zoom presents the 1360x920 window as roughly a
-   680x460 CSS viewport. Pin the compact inspector to the top: its bounded
-   161px context leaves the lower viewport available for the map and selected
-   ring, unlike the former bottom overlay that covered the map completely. */
-@media (max-height: 500px) {
-  .ux-map-surface {
-    position: fixed;
-    z-index: 70;
-    inset: 8px 8px auto;
-    max-height: calc(100vh - 16px);
+.ux-map-detail-frame {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100%;
+}
+
+.ux-map-detail-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.24;
+  background-image: repeating-linear-gradient(118deg, transparent 0 21px, oklch(0.72 0.035 76 / 0.045) 22px, transparent 23px 47px);
+}
+
+.ux-map-detail-header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 26px 30px 20px;
+  border-bottom: 1px solid oklch(0.66 0.045 78 / 0.2);
+}
+
+.ux-map-detail-kicker {
+  margin: 0 0 5px;
+  color: var(--ux-color-action);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.ux-map-detail-header h2 {
+  margin: 0;
+  color: oklch(0.94 0.045 88);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.7rem, 3vw, 2.65rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.025em;
+}
+
+.ux-map-detail-description {
+  margin: 9px 0 0;
+  color: var(--ux-color-text-muted);
+  font-size: 0.88rem;
+}
+
+.ux-map-detail-body {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(320px, 1.28fr) minmax(260px, 0.72fr);
+  gap: 28px;
+  min-height: 0;
+  padding: 28px 30px 30px;
+}
+
+.ux-map-detail-art {
+  --tile-size: min(51vh, 500px);
+  align-self: center;
+  justify-self: center;
+  display: grid;
+  place-items: center;
+  width: var(--tile-size);
+  height: var(--tile-size);
+  overflow: hidden;
+  border: 1px solid oklch(0.68 0.055 80 / 0.34);
+  border-radius: 16px;
+  background: oklch(0.11 0.012 260);
+  box-shadow:
+    0 22px 54px oklch(0.04 0.01 260 / 0.62),
+    inset 0 0 0 7px oklch(0.76 0.045 78 / 0.035),
+    inset 0 -30px 70px oklch(0.03 0.008 260 / 0.3);
+}
+
+.ux-map-detail-artwork {
+  --tile-size: min(51vh, 500px);
+  flex: 0 0 auto;
+  image-rendering: auto;
+}
+
+.ux-map-detail-artwork.tile-overlay { background-size: auto, cover, cover, auto; }
+.ux-map-detail-art-fallback {
+  color: var(--ux-color-action);
+  font: 800 clamp(6rem, 24vw, 16rem) / 1 "SFMono-Regular", Consolas, monospace;
+}
+
+.ux-map-detail-information {
+  align-self: center;
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+  max-height: 100%;
+  overflow: auto;
+  padding: 4px 8px 4px 2px;
+}
+
+.ux-map-detail-information h3 {
+  margin: 0 0 10px;
+  color: var(--ux-color-text-faint);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.ux-map-detail-contents {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid oklch(0.66 0.045 78 / 0.2);
+}
+
+.ux-map-detail-contents li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 13px 2px;
+  border-bottom: 1px solid oklch(0.66 0.045 78 / 0.13);
+}
+
+.ux-map-detail-contents strong {
+  min-width: 0;
+  color: oklch(0.9 0.025 86);
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.ux-map-detail-contents span {
+  flex: 0 0 auto;
+  color: var(--ux-color-text-muted);
+  font-size: 0.76rem;
+}
+
+.ux-map-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ux-map-action-danger {
+  border-color: var(--ux-color-danger) !important;
+  background: oklch(0.26 0.055 27) !important;
+}
+
+.ux-map-detail-note {
+  margin: 0;
+  padding: 12px 14px;
+  border-left: 2px solid var(--ux-color-action);
+  color: var(--ux-color-text-muted);
+  background: oklch(0.26 0.028 78 / 0.3);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 760px), (max-height: 620px) {
+  .ux-map-detail-dialog {
+    width: calc(100vw - 24px);
+    height: calc(100vh - 24px);
+  }
+  .ux-map-detail-header { padding: 18px 20px 14px; }
+  .ux-map-detail-body {
+    grid-template-columns: minmax(180px, 0.9fr) minmax(220px, 1.1fr);
+    gap: 18px;
+    padding: 18px 20px 20px;
+  }
+  .ux-map-detail-art,
+  .ux-map-detail-artwork { --tile-size: min(43vh, 42vw); }
+}
+
+@media (max-width: 560px) {
+  .ux-map-detail-body {
+    grid-template-columns: 1fr;
     overflow: auto;
-    padding: 8px;
-    border: 1px solid var(--ux-color-border);
-    border-radius: 10px;
-    background: var(--ux-color-canvas);
-    box-shadow: 0 18px 48px oklch(0.06 0.01 78 / 0.78);
   }
-  #play-area {
-    position: fixed;
-    z-index: 60;
-    inset: 48vh 8px 8px;
-    min-height: 0;
-    overflow: auto;
-    border: 1px solid var(--ux-color-border);
-    border-radius: 10px;
-    background: var(--ux-color-canvas);
-  }
-  .ux-map-toolbar { min-height: 36px; }
-  .ux-map-inspector { grid-template-columns: minmax(120px, 0.7fr) minmax(170px, 1.3fr); max-height: none; overflow: visible; }
-  .ux-map-inspector-actions,
-  .ux-map-inspector-help,
-  .ux-map-danger-confirm { grid-column: 1 / -1; }
+  .ux-map-detail-art,
+  .ux-map-detail-artwork { --tile-size: min(42vh, calc(100vw - 80px)); }
+  .ux-map-detail-information { overflow: visible; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  #game-grid .tile-cell.ux-map-selected { transition: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .ux-map-detail-dialog[open] .ux-map-detail-art {
+    animation: ux-map-detail-reveal 180ms ease-out both;
+  }
+  @keyframes ux-map-detail-reveal {
+    from { opacity: 0; transform: scale(0.975); }
+    to { opacity: 1; transform: scale(1); }
+  }
 }

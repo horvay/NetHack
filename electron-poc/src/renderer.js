@@ -1416,6 +1416,17 @@ function updateMapTooltipFromPointer(event) {
   showMapTooltipForCell(cellEl);
 }
 
+window.NetHackMapTileDetailSource = Object.freeze({
+  infoForCellElement(cellEl) {
+    if (!cellEl || !gameGrid.contains(cellEl)) return null;
+    const x = Number(cellEl.dataset.mapX);
+    const y = Number(cellEl.dataset.mapY);
+    if (!Number.isInteger(x) || !Number.isInteger(y)) return null;
+    return mapTooltipInfoForCell(gameViewSnapshot.mapCells[y]?.[x], x, y);
+  },
+  hideTooltip: hideMapTooltip,
+});
+
 function updateGameGridMetadata() {
   gameGrid.dataset.mapWindowId = gameViewSnapshot.mapWindowId == null ? '' : String(gameViewSnapshot.mapWindowId);
   gameGrid.dataset.cursor = `${gameViewSnapshot.cursor.x},${gameViewSnapshot.cursor.y}`;

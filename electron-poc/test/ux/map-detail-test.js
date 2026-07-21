@@ -2,14 +2,14 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const Map = require('../../src/ux/map-inspector');
+const Map = require('../../src/ux/map-detail');
 const Target = require('../../src/ux/target-presentation');
 const Context = require('../../src/ux/context-action-presentation');
 const MapPresentation = require('../../src/shared/map-presentation');
 
 const fixture = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/target-presentation-cases.json'), 'utf8'));
 
-const unknownItem = Map.createMapInspectorModel({
+const unknownItem = Map.createMapDetailModel({
   selectedCell: { x: 3, y: 4 },
   origin: { x: 1, y: 1 },
   cell: { ch: '/', semanticKind: 'object', semanticName: 'wand of death', semanticKnown: false },
@@ -17,11 +17,11 @@ const unknownItem = Map.createMapInspectorModel({
 assert.equal(unknownItem.publicLabel, 'Unknown');
 assert.doesNotMatch(JSON.stringify(unknownItem), /death/i, 'missing public appearance cannot reveal identity');
 assert.equal(unknownItem.distance, 3);
-assert.equal(unknownItem.validation, 'core-will-validate');
+assert.equal(Map.version, 'nethack-map-detail/v1');
 assert.deepEqual(Map.publicStateCues({ semanticKind: 'trap', actionAffordances: [] }), [], 'trap kind alone does not create a known-trap cue');
 assert.deepEqual(Map.publicStateCues({ semanticKind: 'trap', actionAffordances: ['trap.known'] }), ['known-trap']);
 
-const appearance = Map.createMapInspectorModel({
+const appearance = Map.createMapDetailModel({
   selectedCell: { x: 2, y: 2 },
   cell: { ch: '/', semanticKind: 'object', semanticName: 'wand of death', semanticAppearance: 'long wand', semanticKnown: false },
 });
@@ -33,7 +33,7 @@ assert.equal(Map.publicFallbackLabel({ semanticKind: 'door', semanticName: 'vert
 assert.equal(Map.publicFallbackLabel({ semanticKind: 'monster', semanticName: 'Medusa' }), 'Medusa', 'authoritative proper-name casing is preserved');
 assert.doesNotMatch(JSON.stringify(appearance), /death/i);
 
-const hiddenObjectLayer = Map.createMapInspectorModel({
+const hiddenObjectLayer = Map.createMapDetailModel({
   selectedCell: { x: 2, y: 2 },
   cell: { ch: '@', semanticKind: 'hero', semanticName: 'hero', objectLayerSemanticKind: 'object', objectLayerSemanticName: 'wand of death', objectLayerSemanticKnown: false },
 });
@@ -51,20 +51,6 @@ assert.equal(exactFigurineTooltip.title, 'Figurine of a horse', 'tooltip uses th
 const layeredFigurineTooltip = MapPresentation.tooltipInfoForCell({ ch: '@', semanticKind: 'hero', semanticName: 'hero', objectLayerGlyph: 1, objectLayerObjectId: 73, objectLayerDisplayName: 'a figurine of a horse', objectLayerSemanticKind: 'object', objectLayerSemanticName: 'figurine', objectLayerSemanticKnown: true }, 24, 13, {});
 assert.equal(layeredFigurineTooltip.contents.some((entry) => entry.label === 'Figurine of a horse'), true, 'object beneath an actor keeps its authoritative object-instance name');
 
-let state = Map.initialInspectionState({ x: 10, y: 10 });
-state = Map.reduceInspectionState(state, { type: 'click-select', cell: { x: 11, y: 10 } });
-assert.equal(state.active, true);
-assert.deepEqual(state.selectedCell, { x: 11, y: 10 });
-assert.equal(state.dispatchRequest, null, 'ordinary click is turnless selection only');
-state = Map.reduceInspectionState(state, { type: 'right-click-select', cell: { x: 12, y: 10 } });
-assert.equal(state.dispatchRequest, null, 'right-click opens the same selection model without implicit dispatch');
-state = Map.reduceInspectionState(state, { type: 'keyboard-select', cell: { x: 999, y: -4 } }, { width: 80, height: 21 });
-assert.deepEqual(state.selectedCell, { x: 79, y: 0 }, 'keyboard selection clamps at public map bounds');
-state = Map.reduceInspectionState(state, { type: 'explicit-action', actionId: 'creature.chat' });
-assert.equal(state.dispatchRequest.actionId, 'creature.chat', 'only an explicit named action requests dispatch');
-state = Map.reduceInspectionState(state, { type: 'exit' });
-assert.equal(state.active, false);
-assert.equal(state.dispatchRequest, null);
 
 const browserContext = {
   console,
@@ -74,7 +60,7 @@ const browserContext = {
 browserContext.window = browserContext;
 browserContext.self = browserContext;
 vm.createContext(browserContext);
-for (const source of ['runtime.js', 'map-inspector.js']) {
+for (const source of ['runtime.js', 'map-detail.js']) {
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../../src/ux', source), 'utf8'), browserContext, { filename: source });
 }
 const mapDomain = browserContext.NetHackUxRuntime.runtime.domain('map');
@@ -166,7 +152,7 @@ const started = process.hrtime.bigint();
 let models = 0;
 for (let y = 0; y < 21; y += 1) {
   for (let x = 0; x < 80; x += 1) {
-    Map.createMapInspectorModel({ selectedCell: { x, y }, origin: { x: 40, y: 10 }, cell: cells[y][x] }, { contextActions: Context });
+    Map.createMapDetailModel({ selectedCell: { x, y }, origin: { x: 40, y: 10 }, cell: cells[y][x] }, { contextActions: Context });
     models += 1;
   }
 }

@@ -59,6 +59,7 @@
     "test:stair-descent-gameover-regression": "npm run build:shim:test-fixtures && node scripts/stair-descent-gameover-regression-test.js",
     "test:death-new-random-regression": "node scripts/death-new-random-regression-test.js",
     "test:map-tooltip": "node scripts/map-presentation-asset-policy-test.js && node scripts/object-appearance-asset-resolution-test.js && node scripts/map-tooltip-test.js && node scripts/scroll-tooltip-identification-test.js && node scripts/generated-runtime-asset-audit.js",
+    "test:map-tile-detail": "node scripts/map-tile-detail-test.js",
     "test:corpse-overlay": "node scripts/corpse-overlay-rendering-test.js",
     "test:input-safety": "node scripts/input-safety-test.js && npm run build:shim && node scripts/bridge-input-behavior-test.js",
     "test:bridge-lock-isolation": "npm run build:shim && node scripts/bridge-lock-isolation-test.js",
