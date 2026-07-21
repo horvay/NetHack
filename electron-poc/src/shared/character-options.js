@@ -69,6 +69,7 @@
     });
   }
   function allowedValues(field, selection = {}) {
+    if (field === 'role') return Object.keys(roles);
     if (field === 'alignment') return comboAlignmentOptions(resolveSelection(selection));
     const filters = {};
     for (const other of fieldOrder) if (other !== field && selection[other]) filters[other] = selection[other];

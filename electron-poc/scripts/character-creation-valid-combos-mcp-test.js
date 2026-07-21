@@ -50,18 +50,24 @@ async function main() {
     await cdp.send('Page.enable'); await cdp.send('Runtime.enable'); await cdp.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
     await waitFor(async () => (await evalExpr(cdp, "document.readyState === 'complete' && !!window.__nethackAutomation")), 10000);
     await clickCenter(cdp, '#start-shim');
+    await waitFor(async () => (await evalExpr(cdp, "document.getElementById('startup-choice-dialog')?.open || document.getElementById('character-dialog')?.open")), 5000);
+    if (await evalExpr(cdp, "document.getElementById('startup-choice-dialog')?.open")) await clickCenter(cdp, '#startup-new-game');
     await waitFor(async () => (await evalExpr(cdp, "document.getElementById('character-dialog')?.open")), 5000);
     results.screenshots.initialDialog = await shot(cdp, '01-valid-character-dialog-default.png');
-    await evalExpr(cdp, `(() => { const race = document.getElementById('player-race'); race.value = 'Dwa'; race.dispatchEvent(new Event('change', { bubbles: true })); })()`);
-    results.dwarfOptions = await state(cdp);
-    results.screenshots.dwarfOptions = await shot(cdp, '02-dwarf-role-list-no-monk.png');
-    assert('Dwarf role options exclude Monk', !results.dwarfOptions.selects.role.options.some((o) => o.value === 'Mon'), JSON.stringify(results.dwarfOptions.selects.role.options));
-    assert('Dwarf Valkyrie remains generated combo backed', results.dwarfOptions.comboAvatarId === 'dwarf-valkyrie-female-avatar' && results.dwarfOptions.comboAvatarAvailable === 'true', JSON.stringify(results.dwarfOptions));
+    await evalExpr(cdp, `(() => { const role = document.getElementById('player-role'); role.value = 'Arc'; role.dispatchEvent(new Event('change', { bubbles: true })); const gender = document.getElementById('player-gender'); gender.value = 'Mal'; gender.dispatchEvent(new Event('change', { bubbles: true })); })()`);
+    results.maleOptions = await state(cdp);
+    results.screenshots.maleOptions = await shot(cdp, '02-male-all-roles-selectable.png');
+    assert('Male role options still include female-only Valkyrie', results.maleOptions.selects.role.options.some((o) => o.value === 'Val'), JSON.stringify(results.maleOptions.selects.role.options));
+    assert('Role options always include every class', results.maleOptions.selects.role.options.length === 13, JSON.stringify(results.maleOptions.selects.role.options));
+    await evalExpr(cdp, `(() => { const role = document.getElementById('player-role'); role.value = 'Val'; role.dispatchEvent(new Event('change', { bubbles: true })); })()`);
+    results.femaleRoleResolved = await state(cdp);
+    results.screenshots.femaleRoleResolved = await shot(cdp, '03-valkyrie-rebases-gender.png');
+    assert('Selecting Valkyrie preserves the requested role', results.femaleRoleResolved.selects.role.value === 'Val', JSON.stringify(results.femaleRoleResolved));
+    assert('Selecting Valkyrie rebases gender to the first available option', results.femaleRoleResolved.selects.gender.value === 'Fem' && results.femaleRoleResolved.selects.gender.options.map((o) => o.value).join(',') === 'Fem', JSON.stringify(results.femaleRoleResolved));
     await evalExpr(cdp, `(() => { const race = document.getElementById('player-race'); race.value = 'Hum'; race.dispatchEvent(new Event('change', { bubbles: true })); const role = document.getElementById('player-role'); role.value = 'Mon'; role.dispatchEvent(new Event('change', { bubbles: true })); document.getElementById('player-name').value = 'MonkQA'; })()`);
     results.monkResolved = await state(cdp);
-    results.screenshots.monkResolved = await shot(cdp, '03-monk-is-human-only.png');
+    results.screenshots.monkResolved = await shot(cdp, '04-monk-is-human-only.png');
     assert('Selecting Monk constrains race to Human only', results.monkResolved.selects.race.value === 'Hum' && results.monkResolved.selects.race.options.length === 1, JSON.stringify(results.monkResolved));
-    assert('Human Monk generated combo is available', results.monkResolved.comboAvatarId === 'human-monk-female-avatar' && results.monkResolved.comboAvatarAvailable === 'true', JSON.stringify(results.monkResolved));
     await clickCenter(cdp, '#confirm-character');
     await waitFor(async () => !(await evalExpr(cdp, "document.getElementById('character-dialog')?.open")), 5000);
     await waitFor(async () => {
@@ -73,7 +79,7 @@ async function main() {
       await waitFor(async () => !(await evalExpr(cdp, `Boolean(document.getElementById('intro-dialog')?.open)`)), 5000);
     }
     results.playerCell = await waitFor(async () => { const s = await state(cdp); return s.dialogs.length === 0 && s.player?.tileId ? s.player : null; }, 12000);
-    results.screenshots.humanMonkGameplay = await shot(cdp, '04-human-monk-generated-avatar-gameplay.png');
+    results.screenshots.humanMonkGameplay = await shot(cdp, '05-human-monk-generated-avatar-gameplay.png');
     assert('Real gameplay uses generated Human Monk combo avatar', results.playerCell.tileId === 'human-monk-female-avatar', JSON.stringify(results.playerCell));
     fs.writeFileSync(path.join(outDir, 'character-creation-valid-combos-result.json'), JSON.stringify(results, null, 2));
     console.log(JSON.stringify(results, null, 2));

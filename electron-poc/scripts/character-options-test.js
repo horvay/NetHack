@@ -16,7 +16,10 @@ assert('NetHack race-role-gender combo count remains 54', characterOptions.valid
 assert('rule combos exactly match generated combo avatar manifest IDs', !missingFromRules.length && !missingFromManifest.length, JSON.stringify({ missingFromRules, missingFromManifest }, null, 2));
 assert('non-human Monk is invalid', !characterOptions.isValidSelection({ role: 'Mon', race: 'Dwa', gender: 'Fem', alignment: 'Law' }));
 assert('Monk resolves to human while preserving requested role', characterOptions.resolveSelection({ role: 'Mon', race: 'Dwa', gender: 'Fem', alignment: 'Law' }, ['role']).race === 'Hum');
-assert('Dwarf role list excludes Monk', !characterOptions.allowedValues('role', { race: 'Dwa', gender: 'Fem' }).includes('Mon'));
+assert('role list always includes every class despite incompatible race and gender', characterOptions.allowedValues('role', { race: 'Dwa', gender: 'Mal' }).join(',') === Object.keys(characterOptions.roles).join(','));
+const femaleOnlyRole = characterOptions.selectionPresentation({ role: 'Val', race: 'Hum', gender: 'Mal', alignment: 'Law' }, ['role']);
+assert('selecting female-only Valkyrie preserves role', femaleOnlyRole.resolved.role === 'Val');
+assert('selecting female-only Valkyrie rebases gender to first available option', femaleOnlyRole.resolved.gender === 'Fem');
 assert('Dwarf Valkyrie is female-only', characterOptions.allowedValues('gender', { role: 'Val', race: 'Dwa' }).join(',') === 'Fem');
 assert('Dwarf alignment is lawful-only after role/race resolution', characterOptions.optionsFor('alignment', { role: 'Arc', race: 'Dwa', gender: 'Mal', alignment: 'Neu' }).map((o) => o.value).join(',') === 'Law');
 
