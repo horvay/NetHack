@@ -74,6 +74,19 @@
 #game-grid.ux-map-high-contrast .tile-cell.terrain-corridor { filter: contrast(1.24) brightness(1.08); }
 #game-grid.ux-map-high-contrast .tile-cell.cursor { outline-width: 3px; outline-color: var(--ux-color-focus); }
 
+.tile-ally-marker {
+  position: absolute;
+  top: clamp(1px, calc(var(--tile-size) * 0.08), 2px);
+  left: clamp(1px, calc(var(--tile-size) * 0.08), 2px);
+  z-index: 20;
+  width: clamp(2px, calc(var(--tile-size) * 0.22), 5px);
+  height: clamp(2px, calc(var(--tile-size) * 0.22), 5px);
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 0 1px rgba(1, 8, 5, 0.9), 0 0 calc(var(--tile-size) * 0.16) rgba(74, 222, 128, 0.72);
+  pointer-events: none;
+}
+
 /* Classic glyph overlay remains a presentation setting. */
 #game-grid.ux-map-glyph-overlay .tile-cell::after {
   content: attr(data-glyph) !important;

@@ -73,6 +73,15 @@ const engravingModel = MapPresentation.cellViewModel({ ch: '`', glyph: 3994, cma
 assert.equal(engravingModel.assetId, 'engraving');
 assert.equal(engravingModel.classes.includes('tile-overlay'), true);
 assert.match(engravingModel.ariaLabel, /engraving/i);
+const tamePetModel = MapPresentation.cellViewModel({ ch: 'd', semanticKind: 'pet', semanticName: 'little dog' }, 1, 1, { tileAssetsById: byId, cells: [[{ ch: '.' }]] });
+const tameMonsterModel = MapPresentation.cellViewModel({ ch: 'D', semanticKind: 'monster', semanticName: 'dragon', actionAffordances: ['monster.attitude.tame'] }, 1, 1, { tileAssetsById: byId, cells: [[{ ch: '.' }]] });
+const peacefulMonsterModel = MapPresentation.cellViewModel({ ch: 'h', semanticKind: 'monster', semanticName: 'shopkeeper', actionAffordances: ['monster.attitude.peaceful'] }, 1, 1, { tileAssetsById: byId, cells: [[{ ch: '.' }]] });
+assert.equal(tamePetModel.tameAlly, true);
+assert.equal(tamePetModel.classes.includes('tame-ally'), true);
+assert.match(tamePetModel.ariaLabel, /tame ally/i);
+assert.equal(tameMonsterModel.tameAlly, true);
+assert.equal(peacefulMonsterModel.tameAlly, false);
+assert.equal(peacefulMonsterModel.classes.includes('tame-ally'), false);
 
 const appEvent = ShimProtocol.normalizeRawShimEvent({ name: 'shim_putstr', text: 'hi' });
 assert.equal(appEvent.protocol, ShimProtocol.version);

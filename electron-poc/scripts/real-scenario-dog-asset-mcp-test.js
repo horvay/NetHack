@@ -23,7 +23,7 @@ async function start(cdp) {
     await delay(500);
     await cdp.dismissIntroDialogs();
 }
-async function dogCells(cdp) { return evaluate(cdp, `(() => Array.from(document.querySelectorAll('.tile-cell')).filter(el => /dog/i.test([el.dataset.semanticName,el.getAttribute('aria-label')].join(' '))).map(el => ({x:Number(el.dataset.mapX),y:Number(el.dataset.mapY),tileId:el.dataset.tileId||'',glyph:el.dataset.glyph||'',glyphNumber:el.dataset.glyphNumber||'',semanticKind:el.dataset.semanticKind||'',semanticName:el.dataset.semanticName||'',aria:el.getAttribute('aria-label')||'',className:el.className||''})))()`); }
+async function dogCells(cdp) { return evaluate(cdp, `(() => Array.from(document.querySelectorAll('.tile-cell')).filter(el => /dog/i.test([el.dataset.semanticName,el.getAttribute('aria-label')].join(' '))).map(el => ({x:Number(el.dataset.mapX),y:Number(el.dataset.mapY),tileId:el.dataset.tileId||'',glyph:el.dataset.glyph||'',glyphNumber:el.dataset.glyphNumber||'',semanticKind:el.dataset.semanticKind||'',semanticName:el.dataset.semanticName||'',aria:el.getAttribute('aria-label')||'',className:el.className||'',allyMarker:Boolean(el.querySelector('.tile-ally-marker'))})))()`); }
 async function tooltip(cdp) { return evaluate(cdp, `(() => { const tip=document.getElementById('map-tooltip'), icon=document.getElementById('map-tooltip-icon'); return {hidden:Boolean(tip?.hidden),text:tip?.innerText||'',title:document.getElementById('map-tooltip-title')?.textContent||'',description:document.getElementById('map-tooltip-description')?.textContent||'',assetId:icon?.dataset.tileId||'',iconImage:icon?.style.backgroundImage||''}; })()`); }
 let assertionOutcomes = null;
 function assert(name, ok, detail = '') {
@@ -75,6 +75,8 @@ async function main() {
     assert('real tame little dog uses dedicated pet art', tameLittleDog?.tileId === 'little-dog-pet', JSON.stringify(cells));
     assert('real hostile little dog keeps little-dog art', hostileLittleDog?.tileId === 'little-dog', JSON.stringify(cells));
     assert('real hostile large dog keeps large-dog art', hostileLargeDog?.tileId === 'large-dog', JSON.stringify(cells));
+    assert('real tame dogs have ally markers', bossDog?.allyMarker === true && tameLittleDog?.allyMarker === true, JSON.stringify(cells));
+    assert('real hostile dogs have no ally markers', hostileLittleDog?.allyMarker === false && hostileLargeDog?.allyMarker === false, JSON.stringify(cells));
     const mapShot = await screenshot(cdp, '01-real-all-dog-variants-map.png');
     await pointer(cdp, `.tile-cell[data-map-x="${bossDog.x}"][data-map-y="${bossDog.y}"]`);
     const bossTip = await tooltip(cdp); await delay(750); await primeScreenshotSurface(cdp); const bossShot = await screenshot(cdp, '02-real-boss-dog-glyph-1167-tooltip.png');

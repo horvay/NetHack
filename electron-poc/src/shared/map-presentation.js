@@ -108,6 +108,12 @@
     return normalized.ch === '@' || actorSemanticKinds.has(semanticKindOf(normalized));
   }
   function isObjectCell(cell) { return objectSemanticKinds.has(semanticKindOf(cell)); }
+  function isTameAllyCell(cell) {
+    const normalized = TileAssets.normalizeCell(cell);
+    if (semanticKindOf(normalized) === 'pet') return true;
+    const affordances = new Set(normalized.actionAffordances.map((value) => String(value || '').toLowerCase()));
+    return affordances.has('monster.attitude.tame') || affordances.has('monster.pet');
+  }
   function terrainGlyphForSemantic(kind, name) {
     const hay = `${kind || ''} ${name || ''}`.toLowerCase();
     if (/corridor/.test(hay)) return '#';
@@ -184,6 +190,7 @@
     const { assetId: baseAssetId, tile: baseTile } = actorOverObject ? tileForCell(presentationBaseCell, context) : { assetId, tile };
     const useCssTerrain = shouldUseCssTerrain(presentationBaseCell.ch, actorOverObject ? baseTile : tile);
     const classes = ['tile-cell'];
+    const tameAlly = isTameAllyCell(normalized);
     if (useCssTerrain || actorOverObject) classes.push(...contextualTerrainClasses(presentationBaseCell, x, y, actorOverObject ? baseAssetId : assetId, cells));
     if (!useCssTerrain && shouldForceFloorUnderGlyph(ch, tile)) classes.push('terrain-floor');
     const baseTileId = tile ? TileAssets.baseTileIdForCell(normalized, tile) : undefined;
@@ -239,8 +246,12 @@
     if (statue) classes.push('statue-tile', 'statue-overlay');
     const fallbackGlyph = !tile && ch !== ' ' && !cssTerrainGlyphs.has(ch) ? ch : '';
     if (fallbackGlyph && !actorOverObject) { classes.push('fallback-glyph'); ariaLabel = `NetHack glyph ${ch}`; }
+    if (tameAlly) {
+      classes.push('tame-ally');
+      ariaLabel = ariaLabel ? `${ariaLabel}, tame ally` : 'Tame ally';
+    }
     if (context.cursor?.window === context.mapWindowId && context.cursor?.x === x && context.cursor?.y === y) classes.push('cursor');
-    return { x, y, cell: normalized, glyph: ch, assetId, tile, baseTileId: baseDatasetId, objectLayerAssetId, objectTileImage, objectLayerFallbackGlyph, layers, layerOrder: actorOverObject ? ['terrain', 'object', 'actor'] : (isObjectCell(normalized) ? ['terrain', 'object'] : ['terrain']), classes, useCssTerrain, ariaLabel, backgroundImage, tileImage, fallbackGlyph: actorOverObject ? '' : fallbackGlyph };
+    return { x, y, cell: normalized, glyph: ch, assetId, tile, baseTileId: baseDatasetId, objectLayerAssetId, objectTileImage, objectLayerFallbackGlyph, layers, layerOrder: actorOverObject ? ['terrain', 'object', 'actor'] : (isObjectCell(normalized) ? ['terrain', 'object'] : ['terrain']), classes, tameAlly, useCssTerrain, ariaLabel, backgroundImage, tileImage, fallbackGlyph: actorOverObject ? '' : fallbackGlyph };
   }
   function tooltipInfoForCell(cell, x, y, context = {}) {
     const normalized = TileAssets.normalizeCell(cell);

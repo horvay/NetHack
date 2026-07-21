@@ -1174,6 +1174,12 @@ function applyMapCellToElement(cellEl, x, y) {
     if (model.ariaLabel) cellEl.setAttribute('aria-label', model.ariaLabel);
     if (model.fallbackGlyph) cellEl.textContent = model.fallbackGlyph;
     renderMapCellLayers(cellEl, model.layers);
+    if (model.tameAlly) {
+      const marker = document.createElement('span');
+      marker.className = 'tile-ally-marker';
+      marker.setAttribute('aria-hidden', 'true');
+      cellEl.appendChild(marker);
+    }
     applyMapCellInteractionClasses(cellEl, x, y);
     return;
   }
