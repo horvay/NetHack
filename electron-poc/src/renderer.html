@@ -89,18 +89,32 @@
             <ul id="map-tooltip-contents" class="map-tooltip-contents" aria-label="Everything visible on this square"></ul>
           </div>
         </div>
+        <div id="map-log-resizer" class="map-log-resizer" role="separator" tabindex="0" aria-label="Resize map and message log" aria-orientation="horizontal" aria-controls="play-area log-panel" aria-valuemin="20" aria-valuemax="75" aria-valuenow="50" title="Drag to resize the map and message log. Use Up and Down arrows for keyboard resizing.">
+          <span aria-hidden="true"></span>
+        </div>
         <section id="log-panel" aria-label="NetHack message log">
           <div class="log-heading">
             <strong>Recent messages</strong>
-            <span>Full history is collapsed below.</span>
+            <span id="log-position-hint">Exact messages, newest first. Scroll for earlier events.</span>
+            <button id="log-jump-newest" type="button" hidden>Newest ↑</button>
           </div>
-          <aside id="direction-helper" aria-label="Direction/action helper" hidden>
-            <div class="direction-helper-heading">
-              <strong id="direction-helper-title">Choose direction</strong>
-            </div>
-            <div id="direction-helper-options" class="direction-pad"></div>
-          </aside>
-          <div id="messages" data-testid="messages">Waiting to begin…</div>
+          <div id="log-side-rail" class="log-side-rail">
+            <aside id="direction-helper" aria-label="Direction/action helper" hidden>
+              <div class="direction-helper-heading">
+                <strong id="direction-helper-title">Choose direction</strong>
+              </div>
+              <div id="direction-helper-options" class="direction-pad"></div>
+            </aside>
+            <section class="log-now" aria-labelledby="log-now-title">
+              <strong id="log-now-title">Now</strong>
+              <dl>
+                <div><dt>Turn</dt><dd id="log-now-turn">—</dd></div>
+                <div><dt>Mode</dt><dd id="log-now-mode">Exploring</dd></div>
+                <div><dt>Pending</dt><dd id="log-now-pending">No pending choice</dd></div>
+              </dl>
+            </section>
+          </div>
+          <div id="messages" data-testid="messages" tabindex="0" aria-label="Message chronology, newest first">Waiting to begin…</div>
           <details id="message-history" class="hint">
             <summary>Full message history</summary>
             <pre id="message-history-body" data-testid="message-history-body"></pre>

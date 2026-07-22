@@ -14,6 +14,7 @@
     hudDensity: 'compact',
     keyHints: 'contextual',
     map: Object.freeze({ mode: 'full', scale: 1, glyphOverlay: false, highContrast: false }),
+    layout: Object.freeze({ logRatio: 0.5 }),
     motion: 'system',
     sound: Object.freeze({ uiEnabled: false, gameFeedbackEnabled: false, volume: 0.5 }),
   });
@@ -26,6 +27,7 @@
     const source = input && typeof input === 'object' && !Array.isArray(input) ? input : {};
     const onboarding = source.onboarding && typeof source.onboarding === 'object' ? source.onboarding : {};
     const map = source.map && typeof source.map === 'object' ? source.map : {};
+    const layout = source.layout && typeof source.layout === 'object' ? source.layout : {};
     const sound = source.sound && typeof source.sound === 'object' ? source.sound : {};
     return Object.freeze({
       schemaVersion,
@@ -44,6 +46,9 @@
         glyphOverlay: bool(map.glyphOverlay, defaultSettings.map.glyphOverlay),
         highContrast: bool(map.highContrast, defaultSettings.map.highContrast),
       }),
+      layout: Object.freeze({
+        logRatio: numberInRange(layout.logRatio, 0.2, 0.75, defaultSettings.layout.logRatio),
+      }),
       motion: oneOf(source.motion, ['system', 'reduced', 'full'], defaultSettings.motion),
       sound: Object.freeze({
         uiEnabled: bool(sound.uiEnabled, defaultSettings.sound.uiEnabled),
@@ -60,6 +65,7 @@
       ...source,
       onboarding: { ...current.onboarding, ...(source.onboarding && typeof source.onboarding === 'object' ? source.onboarding : {}) },
       map: { ...current.map, ...(source.map && typeof source.map === 'object' ? source.map : {}) },
+      layout: { ...current.layout, ...(source.layout && typeof source.layout === 'object' ? source.layout : {}) },
       sound: { ...current.sound, ...(source.sound && typeof source.sound === 'object' ? source.sound : {}) },
     });
   }

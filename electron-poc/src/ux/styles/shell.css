@@ -40,8 +40,8 @@ body.uxm02-shell-active main {
 }
 
 body.uxm02-shell-active .game-view-section {
-  grid-template-areas: 'top' 'quick' 'recording' 'context' 'play' 'log' 'keyboard';
-  grid-template-rows: auto auto auto auto auto minmax(10.5rem, 1fr) auto;
+  grid-template-areas: 'top' 'quick' 'recording' 'context' 'play' 'resize' 'log' 'keyboard';
+  grid-template-rows: auto auto auto auto minmax(8rem, 1fr) 8px minmax(10.5rem, var(--ux-log-height, 1fr)) auto;
   gap: var(--ux-space-2);
 }
 
@@ -320,7 +320,8 @@ body.uxm02-shell-active #game-grid {
 }
 
 body.uxm02-shell-active[data-ux-map-mode='follow'] #play-area {
-  min-height: clamp(16rem, 48vh, 31rem);
+  min-height: 0;
+  height: 100%;
   border: 1px solid var(--ux-color-border);
 }
 
@@ -349,13 +350,33 @@ body.uxm02-shell-active #log-panel {
   background: var(--ux-color-surface);
 }
 
+body.uxm02-shell-active #map-log-resizer {
+  min-height: 8px;
+}
+
+
 body.uxm02-shell-active .log-heading {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--ux-space-2);
   justify-content: space-between;
   color: var(--ux-color-text);
 }
 
 body.uxm02-shell-active .log-heading span {
+  justify-self: end;
   color: var(--ux-color-text-muted);
+}
+
+body.uxm02-shell-active #log-jump-newest {
+  min-height: 1.45rem;
+  padding: 0.15rem 0.5rem;
+  color: var(--ux-color-action);
+  border-color: color-mix(in srgb, var(--ux-color-action) 45%, transparent);
+  font: 800 0.6rem/1 var(--ux-font-ui);
+  letter-spacing: 0.04em;
+
 }
 
 body.uxm02-shell-active #messages {
@@ -364,18 +385,75 @@ body.uxm02-shell-active #messages {
   grid-row: 2;
   align-content: start;
   gap: 0.18rem;
-  max-height: none;
-  overflow: auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   scrollbar-gutter: stable;
   font: 0.78rem/1.3 var(--ux-font-mono);
 }
 
 body.uxm02-shell-active #message-history { display: none; }
 
+body.uxm02-shell-active #log-side-rail {
+  grid-column: 2;
+  grid-row: 1 / -1;
+  gap: var(--ux-space-2);
+}
+
+body.uxm02-shell-active .log-now {
+  min-height: 0;
+  padding-top: var(--ux-space-2);
+  border-top: 1px solid var(--ux-color-border);
+}
+
+body.uxm02-shell-active .log-now > strong {
+  display: block;
+  margin-bottom: var(--ux-space-2);
+  color: var(--ux-color-action);
+  font: 800 0.62rem/1 var(--ux-font-ui);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+body.uxm02-shell-active .log-now dl {
+  display: grid;
+  gap: var(--ux-space-2);
+  margin: 0;
+}
+
+body.uxm02-shell-active .log-now dl > div {
+  min-width: 0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+body.uxm02-shell-active .log-now dt {
+  color: var(--ux-color-text-muted);
+  font: 700 0.55rem/1 var(--ux-font-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+body.uxm02-shell-active .log-now dd {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: var(--ux-color-text);
+  font: 0.7rem/1.25 var(--ux-font-mono);
+  text-overflow: ellipsis;
+}
+
+body.uxm02-shell-active .log-now-history {
+  width: 100%;
+  min-height: 2rem;
+  margin-top: var(--ux-space-3);
+  justify-content: space-between;
+}
+
+
 body.uxm02-shell-active.direction-helper-active #log-panel #direction-helper {
   position: static;
-  width: 8.5rem;
-  height: 9.625rem;
+  width: 100%;
+  height: auto;
   align-self: start;
   padding: 0.35rem;
   border-color: var(--ux-color-border);
@@ -584,7 +662,7 @@ body.uxm02-shell-active input:focus-visible,
   body.uxm02-shell-active > header { display: flex; min-height: 3.25rem; }
   body.uxm02-shell-active main { height: calc(100vh - 3.25rem); padding: var(--ux-space-1) var(--ux-space-2) var(--ux-space-2); }
   body.uxm02-shell-active .game-view-section {
-    grid-template-rows: max-content max-content auto max-content minmax(0, 1fr) minmax(6.8rem, 8rem) auto;
+    grid-template-rows: max-content max-content auto max-content minmax(6rem, 1fr) 8px minmax(6.8rem, var(--ux-log-height, 8rem)) auto;
   }
   body.uxm02-shell-active #top-bar { grid-auto-rows: max-content; }
   body.uxm02-shell-active #play-area { grid-template-rows: max-content minmax(0, 1fr); }
@@ -598,8 +676,8 @@ body.uxm02-shell-active input:focus-visible,
     --map-available-width: calc(100vw - 2rem);
     --tile-size: max(6px, min(calc((var(--map-available-width) - var(--map-frame-extra)) / 80), calc((100vh - 20rem) / 21)));
   }
-  body.uxm02-shell-active #log-panel { min-height: 6.8rem; max-height: 8rem; grid-template-columns: minmax(0, 1fr) 6rem; }
-  body.uxm02-shell-active.direction-helper-active #log-panel #direction-helper { width: 6.25rem; height: 7rem; padding: 0.25rem; }
+  body.uxm02-shell-active #log-panel { min-height: 6.8rem; max-height: none; grid-template-columns: minmax(0, 1fr) 7rem; }
+  body.uxm02-shell-active.direction-helper-active #log-panel #direction-helper { width: 100%; height: auto; padding: 0.25rem; }
   body.uxm02-shell-active #direction-helper .direction-helper-heading { margin-bottom: 0.2rem; font-size: 0.52rem; }
   body.uxm02-shell-active #direction-helper .direction-pad { grid-auto-rows: 1.8rem; gap: 0.12rem; }
   body.uxm02-shell-active #direction-helper .direction-pad-button,

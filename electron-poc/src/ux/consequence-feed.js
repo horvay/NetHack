@@ -33,7 +33,7 @@
 
   function createConsequenceFeed(options = {}) {
     const log = options.log || MessageLog.createMessageLog({ idPrefix: options.idPrefix || 'consequence' });
-    const feedLimit = Math.max(2, Math.min(12, Number(options.feedLimit) || 10));
+    const feedLimit = Math.max(2, Math.min(200, Number(options.feedLimit) || 100));
     let canonicalLines = [];
     let runEpoch = 1;
     let currentRunIdentity = '';
@@ -117,7 +117,7 @@
         previousRenderedIds = new Set();
         return events;
       }
-      for (const event of events) {
+      for (const event of events.slice().reverse()) {
         const row = documentRoot.createElement('div');
         row.className = 'ux-consequence-row';
         row.dataset.category = event.category || 'unclassified';
@@ -136,7 +136,6 @@
       }
       const feedback = (typeof globalThis !== 'undefined' ? globalThis.NetHackUxFeedback : null) || null;
       previousRenderedIds = feedback?.animateConsequenceMount?.(mount, previousRenderedIds) || new Set(events.map((event) => event.id));
-      mount.scrollTop = mount.scrollHeight;
       return events;
     }
 

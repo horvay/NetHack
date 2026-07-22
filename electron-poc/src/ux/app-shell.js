@@ -59,6 +59,10 @@
     let densityButton;
     let mapModeButton;
     let subscription;
+    let gameViewSection;
+    let layoutResizer;
+    let logRatio = 0.5;
+    let resizeDrag = null;
     const cleanupListeners = [];
 
     function noticeService() { return runtime?.service?.('notice'); }
@@ -86,14 +90,135 @@
       });
     }
 
+    function updateMessageScrollPosition() {
+      if (!messageMount) return;
+      const viewingEarlier = messageMount.scrollTop > 32;
+      const hint = documentRoot.getElementById('log-position-hint');
+      const jump = documentRoot.getElementById('log-jump-newest');
+      if (hint) hint.textContent = viewingEarlier ? 'Viewing earlier events.' : 'Exact messages, newest first. Scroll for earlier events.';
+      if (jump) jump.hidden = !viewingEarlier;
+    }
+
     function renderMessageFacts() {
       if (!messageMount) return [];
-      const wasNearBottom = messageMount.scrollHeight - messageMount.scrollTop - messageMount.clientHeight <= 32;
+      const wasNearTop = messageMount.scrollTop <= 32;
       const previousScrollTop = messageMount.scrollTop;
+      const previousScrollHeight = messageMount.scrollHeight;
+      const viewportTop = messageMount.getBoundingClientRect?.().top || 0;
+      let anchorId = '';
+      let anchorOffset = 0;
+      if (!wasNearTop) {
+        for (const row of messageMount.children) {
+          const bounds = row.getBoundingClientRect?.();
+          if (bounds && bounds.bottom > viewportTop + 1) {
+            anchorId = row.dataset?.messageId || '';
+            anchorOffset = bounds.top - viewportTop;
+            break;
+          }
+        }
+      }
       const events = consequenceFeed?.render?.(messageMount, documentRoot) || [];
-      if (!wasNearBottom) messageMount.scrollTop = Math.min(previousScrollTop, Math.max(0, messageMount.scrollHeight - messageMount.clientHeight));
+      if (wasNearTop) {
+        messageMount.scrollTop = 0;
+      } else {
+        let restored = false;
+        for (const row of messageMount.children) {
+          if (row.dataset?.messageId !== anchorId) continue;
+          const nextOffset = (row.getBoundingClientRect?.().top || viewportTop) - viewportTop;
+          messageMount.scrollTop = Math.max(0, previousScrollTop + nextOffset - anchorOffset);
+          restored = true;
+          break;
+        }
+        if (!restored) messageMount.scrollTop = Math.max(0, previousScrollTop + messageMount.scrollHeight - previousScrollHeight);
+      }
+      updateMessageScrollPosition();
       return events;
     }
+
+    function currentTurnLabel(events = []) {
+      for (let index = events.length - 1; index >= 0; index -= 1) {
+        if (Number.isSafeInteger(events[index]?.turn)) return String(events[index].turn);
+      }
+      const turnChip = Array.from(statusMount?.querySelectorAll?.('.ux-status-chip') || [])
+        .find((chip) => /^(?:T|Time|Turn)$/i.test(String(chip.querySelector('span')?.textContent || '').trim()));
+      return String(turnChip?.querySelector('strong')?.textContent || '—').trim() || '—';
+    }
+
+    function currentModeLabel(game = {}) {
+      if (documentRoot.body.classList.contains('map-target-mode')) return 'Targeting';
+      if (game.currentMenu?.awaitingSelection) return 'Choosing';
+      if (game.activePrompt) {
+        if (/direction/i.test(String(game.activePrompt.kind || game.activePrompt.promptType || ''))) {
+          return String(documentRoot.getElementById('direction-helper-title')?.textContent || 'Choosing direction').trim();
+        }
+        return 'Answering';
+      }
+      return 'Exploring';
+    }
+
+    function pendingChoiceLabel(game = {}) {
+      const prompt = game.activePrompt;
+      const menu = game.currentMenu?.awaitingSelection ? game.currentMenu : null;
+      return String(prompt?.query || prompt?.question || prompt?.message || menu?.prompt || 'No pending choice').trim();
+    }
+
+    function renderNowFacts(game = {}, events = []) {
+      const turn = documentRoot.getElementById('log-now-turn');
+      const mode = documentRoot.getElementById('log-now-mode');
+      const pending = documentRoot.getElementById('log-now-pending');
+      if (turn) turn.textContent = currentTurnLabel(events);
+      if (mode) mode.textContent = currentModeLabel(game);
+      if (pending) {
+        pending.textContent = pendingChoiceLabel(game);
+        pending.title = pending.textContent;
+      }
+    }
+
+    function workspaceSplitHeight() {
+      const play = documentRoot.getElementById('play-area');
+      const log = documentRoot.getElementById('log-panel');
+      return Math.max(0, Number(play?.getBoundingClientRect?.().height) + Number(log?.getBoundingClientRect?.().height));
+    }
+
+    function applyLogRatio(value, { persist = false } = {}) {
+      logRatio = Math.min(0.75, Math.max(0.2, Number(value) || 0.5));
+      const available = workspaceSplitHeight();
+      if (available > 0) gameViewSection?.style?.setProperty('--ux-log-height', `${Math.round(available * logRatio)}px`);
+      layoutResizer?.setAttribute?.('aria-valuenow', String(Math.round(logRatio * 100)));
+      if (persist) persistPresentationPatch({ layout: { logRatio } });
+      return logRatio;
+    }
+    function beginWorkspaceResize(event) {
+      if (event.button !== 0) return;
+      const available = workspaceSplitHeight();
+      const logHeight = documentRoot.getElementById('log-panel')?.getBoundingClientRect?.().height || 0;
+      if (!available || !logHeight) return;
+      resizeDrag = { pointerId: event.pointerId, startY: event.clientY, available, logHeight };
+      layoutResizer?.setPointerCapture?.(event.pointerId);
+      documentRoot.body.classList.add('ux-log-resizing');
+      event.preventDefault();
+    }
+
+    function continueWorkspaceResize(event) {
+      if (!resizeDrag || event.pointerId !== resizeDrag.pointerId) return;
+      const nextHeight = resizeDrag.logHeight - (event.clientY - resizeDrag.startY);
+      applyLogRatio(nextHeight / resizeDrag.available);
+    }
+
+    function finishWorkspaceResize(event) {
+      if (!resizeDrag || event.pointerId !== resizeDrag.pointerId) return;
+      resizeDrag = null;
+      documentRoot.body.classList.remove('ux-log-resizing');
+      applyLogRatio(logRatio, { persist: true });
+    }
+
+    function resizeWorkspaceFromKeyboard(event) {
+      const direction = event.key === 'ArrowUp' ? 1 : (event.key === 'ArrowDown' ? -1 : 0);
+      if (!direction) return;
+      event.preventDefault();
+      applyLogRatio(logRatio + direction * 0.05, { persist: true });
+    }
+
 
     function recordDiagnostic(type, detail = {}) {
       try { options.onDiagnostic?.({ type, detail }); } catch {}
@@ -120,6 +245,8 @@
       const inventory = documentRoot.getElementById('inventory-equipment-button');
       const commands = documentRoot.getElementById('open-actions');
       const logPanel = documentRoot.getElementById('log-panel');
+      gameViewSection = documentRoot.querySelector('.game-view-section');
+      layoutResizer = documentRoot.getElementById('map-log-resizer');
       if (!body || !topBar || !stats || !noticeMount || !quick || !inventory || !commands || !logPanel) throw new Error('UXM-02 shell mount is incomplete');
 
       body.classList.add('uxm02-shell-active');
@@ -142,14 +269,16 @@
       densityButton = ensureButton('ux-hud-density-button', 'HUD: Compact', 'ux-shell-action');
       mapModeButton = ensureButton('ux-map-mode-button', 'View: Full', 'ux-shell-action');
       mapModeButton.setAttribute('aria-pressed', 'false');
-      quick.append(characterButton, historyButton, densityButton, mapModeButton);
+      quick.append(characterButton, densityButton, mapModeButton);
+      historyButton.classList.add('log-now-history');
+      documentRoot.querySelector('.log-now')?.append(historyButton);
 
       const heading = logPanel.querySelector('.log-heading');
       if (heading) {
         const strong = heading.querySelector('strong');
         const hint = heading.querySelector('span');
         if (strong) strong.textContent = 'Latest consequences';
-        if (hint) hint.textContent = 'Exact messages, newest last.';
+        if (hint) hint.textContent = 'Exact messages, newest first. Scroll for earlier events.';
       }
       const legacyHistory = documentRoot.getElementById('message-history');
       if (legacyHistory) legacyHistory.hidden = true;
@@ -271,7 +400,8 @@
       const canonicalMessages = game.messages || [];
       consequenceFeed?.syncCanonicalLines?.(canonicalMessages, { source: 'core-message' });
       if (hasCanonicalMessageContent(canonicalMessages)) consequenceFeed?.setOpeningChronicle?.(openingChronicleLines(canonicalMessages));
-      renderMessageFacts();
+      const renderedEvents = renderMessageFacts();
+      renderNowFacts(game, renderedEvents);
       if (historyDialog?.dialog?.()?.open) historyDialog.render();
       handleLevelTransition(game);
       focusMapWhenSafe();
@@ -285,7 +415,7 @@
         configureStructure();
         settingsStore = globalRoot.NetHackUxSettingsStore?.createSettingsStore?.({ storage: globalRoot.localStorage, onDiagnostic: (entry) => recordDiagnostic(entry.type, entry.detail) });
         settings = settingsStore?.load?.().settings || globalRoot.NetHackUxSettingsStore?.defaultSettings || { hudDensity: 'compact', map: { mode: 'full' } };
-        consequenceFeed = globalRoot.NetHackUxConsequenceFeed?.createConsequenceFeed?.({ feedLimit: 10 });
+        consequenceFeed = globalRoot.NetHackUxConsequenceFeed?.createConsequenceFeed?.({ feedLimit: 100 });
         const model = globalRoot.NetHackUxMessagePresentation?.createHistoryModel?.(consequenceFeed.log);
         historyDialog = globalRoot.NetHackUxMessagePresentation?.createHistoryDialog?.({ documentRoot, model, log: consequenceFeed.log, dialogService: dialogService(), noticeService: noticeService(), mount: documentRoot.body });
         characterSheet = globalRoot.NetHackUxCharacterSheet?.createCharacterSheet?.({ documentRoot, dialogService: dialogService(), mount: documentRoot.body });
@@ -293,6 +423,7 @@
         messageMount = documentRoot.getElementById('messages');
         setDensity(settings.hudDensity, { persist: false, render: false });
         setMapMode(settings.map?.mode, { persist: false });
+        globalRoot.requestAnimationFrame?.(() => applyLogRatio(settings.layout?.logRatio, { persist: false }));
         if (settings.motion === 'reduced') documentRoot.body.dataset.uxMotion = 'reduced';
         else if (settings.motion === 'full') documentRoot.body.dataset.uxMotion = 'full';
         else documentRoot.body.dataset.uxMotion = 'system';
@@ -303,8 +434,23 @@
         listen(characterButton, 'click', () => characterSheet?.open?.(publicGameFacts().statusValues || [], characterButton));
         listen(historyButton, 'click', () => historyDialog?.open?.(historyButton));
         listen(densityButton, 'click', () => setDensity(hudDensity === 'compact' ? 'detailed' : 'compact'));
+        const jumpNewestButton = documentRoot.getElementById('log-jump-newest');
+        listen(messageMount, 'scroll', updateMessageScrollPosition, { passive: true });
+        listen(jumpNewestButton, 'click', () => {
+          messageMount.scrollTop = 0;
+          updateMessageScrollPosition();
+          messageMount.focus?.({ preventScroll: true });
+        });
         listen(mapModeButton, 'click', () => setMapMode(documentRoot.body.dataset.uxMapMode === 'follow' ? 'full' : 'follow'));
-        listen(globalRoot, 'resize', () => { if (documentRoot.body.dataset.uxMapMode === 'follow') globalRoot.requestAnimationFrame?.(centerFollowMap); });
+        listen(layoutResizer, 'pointerdown', beginWorkspaceResize);
+        listen(globalRoot, 'pointermove', continueWorkspaceResize);
+        listen(globalRoot, 'pointerup', finishWorkspaceResize);
+        listen(globalRoot, 'pointercancel', finishWorkspaceResize);
+        listen(layoutResizer, 'keydown', resizeWorkspaceFromKeyboard);
+        listen(globalRoot, 'resize', () => {
+          globalRoot.requestAnimationFrame?.(() => applyLogRatio(logRatio));
+          if (documentRoot.body.dataset.uxMapMode === 'follow') globalRoot.requestAnimationFrame?.(centerFollowMap);
+        });
         listen(documentRoot, 'close', () => globalRoot.setTimeout?.(focusMapWhenSafe, 0), true);
         if (!runtime?.latestPublicState?.()?.snapshot) {
           renderStatusFacts([]);

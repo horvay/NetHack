@@ -127,8 +127,8 @@
     const rows = Array.from(mount.querySelectorAll('.ux-consequence-row'));
     const nextIds = new Set(rows.map((row) => row.dataset.messageId).filter(Boolean));
     if (!previousIds.size) {
-      const last = rows[rows.length - 1];
-      if (last) last.classList.add('ux-motion-enter');
+      const first = rows[0];
+      if (first) first.classList.add('ux-motion-enter');
       return nextIds;
     }
     for (const row of rows) {

@@ -157,4 +157,39 @@ result = classic.dispatch({ type: 'close', reason: 'done' });
 assert.equal(result.snapshot.active, false);
 assert.ok(result.effects.some((effect) => effect.eventType === 'transfer.session.closed'));
 
+const classicBatch = TransferSession.createTransferSession({ now: () => clock, timeoutMs: 500, idPrefix: 'classic-batch' });
+classicBatch.dispatch({
+  type: 'menu',
+  menu: {
+    window: 10,
+    requestId: 'request-ground-batch',
+    awaitingSelection: true,
+    how: 2,
+    prompt: 'Pick up what?',
+    items: [
+      { selector: 'a'.charCodeAt(0), objectId: 501, text: 'a - a dagger', displayName: 'dagger' },
+      { selector: 'b'.charCodeAt(0), objectId: 502, text: 'b - a food ration', displayName: 'food ration' },
+    ],
+  },
+  kind: 'ground-pickup',
+  sessionId: 'ground-classic-batch',
+  groundCoord: { x: 4, y: 9 },
+});
+result = classicBatch.dispatch({ type: 'select-all', side: 'left' });
+assert.deepEqual(result.snapshot.selection.left, ['left-object-501', 'left-object-502']);
+result = classicBatch.dispatch({ type: 'submit', sides: ['left'] });
+const classicBatchCommand = result.effects.find((effect) => effect.type === 'dispatch-classic');
+assert.equal(classicBatchCommand.text, 'ab\n', 'classic multi-select answers one native menu with every selected selector');
+assert.equal(result.snapshot.queuedCount, 0, 'classic multi-select is represented by one correlated pending answer');
+assert.equal(result.snapshot.pending.batchRows.length, 2);
+result = classicBatch.dispatch({
+  type: 'confirmed',
+  transferId: result.snapshot.pending.transferId,
+  sessionId: 'ground-classic-batch',
+  requestId: 'request-ground-batch',
+  direction: 'ground-to-inventory',
+});
+assert.equal(result.snapshot.pending, null);
+assert.equal(result.snapshot.panes.left.length, 0, 'one native confirmation exhausts the presented source pane');
+
 console.log('transfer-session-test PASS');

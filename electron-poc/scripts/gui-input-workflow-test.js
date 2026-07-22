@@ -56,10 +56,13 @@ async function main() {
       const selector = initial.dataset.selector || initial.dataset.shortcut || '';
       initial.click();
       const current = document.querySelector('[data-container-pane="left"] .container-item-row[data-stable-id="' + CSS.escape(stableId) + '"]');
+      current.focus();
+      current.dispatchEvent(new KeyboardEvent('keydown', { key:'b', bubbles:true }));
+      const selectedRows = Array.from(document.querySelectorAll('[data-container-pane="left"] .container-item-row'));
       const submit = document.querySelector('[data-transfer-selected="true"]');
       return {
         stableId, selector,
-        checked:current?.getAttribute('aria-checked') || '',
+        checked:selectedRows.map((row) => row.getAttribute('aria-checked')),
         selectedCount:document.querySelector('.container-transfer-selected-count')?.textContent || '',
         submitText:submit?.innerText || '',
         interactionOpen:t.dialog().interactionOpen,
@@ -69,7 +72,7 @@ async function main() {
     const selectedScreenshot = await page.screenshot(path.join(outDir, 'explicit-pickup-ground-transfer-selected.png'));
     const completion = await page.evalCheckedValue(`(async () => {
       const t = window.__nethackPromptTest;
-      document.querySelector('[data-transfer-selected="true"]').click();
+      document.activeElement.dispatchEvent(new KeyboardEvent('keydown', { key:'Enter', bubbles:true }));
       await new Promise((resolve) => setTimeout(resolve, 80));
       return {
         sentCodes:t.sentInputs().join('').split('').map((character)=>character.charCodeAt(0)),
@@ -80,10 +83,15 @@ async function main() {
       };
     })()`, { awaitPromise: true });
 
-    await page.evalCheckedValue(`(() => {
+    const classicClosed = await page.evalCheckedValue(`(async () => {
       const t = window.__nethackPromptTest;
       const pending = t.transferPanelCommandState().transfer;
-      t.event({ name:'bridge_menu_answer', window:40, requestId:pending.expectedRequestId, menuRequestId:pending.expectedRequestId, transactionId:pending.transferId, inputTransactionId:pending.transferId, lifecycleRevision:1, lifecycle:'answered', return:1, selector:97, selectors:'a' });
+      t.event({ name:'bridge_menu_answer', window:40, requestId:pending.expectedRequestId, menuRequestId:pending.expectedRequestId, transactionId:pending.transferId, inputTransactionId:pending.transferId, lifecycleRevision:1, lifecycle:'answered', return:2, selector:97, selectors:'ab' });
+      await new Promise((resolve) => setTimeout(resolve, 220));
+      return t.container();
+    })()`, { awaitPromise: true });
+    await page.evalCheckedValue(`(() => {
+      const t = window.__nethackPromptTest;
       t.reset(); t.setRunning(true); t.setCursor(10, 10); t.clearSentInputs();
       t.setGroundPileSnapshotForTest([
         { objectId:2103, displayName:'7 arrows', quantity:7, semanticKind:'object', semanticName:'arrow', semanticKnown:true, actionAffordances:['pickup'] },
@@ -115,13 +123,14 @@ async function main() {
       authoritativeGroundTransferOwnsPickup: owner.container.active && !owner.container.hidden && owner.container.status === 'ready' && owner.container.transferSessionId.length > 0 && owner.container.menu?.awaitingSelection === true && owner.container.menu?.prompt === 'Pick up what?' && owner.rows.length === 2 && owner.rows.some((row)=>/food ration/i.test(row.text)) && owner.rows.some((row)=>/potion of healing/i.test(row.text)),
       interactionDialogDoesNotCompeteWithTransferOwner: !owner.dialog.interactionOpen && !owner.openDialogs.includes('interaction-dialog'),
       transferOwnerIsVisibleAndUnclipped: owner.panelWithinViewport && owner.panelNotClipped && /Ground items/i.test(owner.container.text) && /Your inventory/i.test(owner.container.text),
-      visibleRowSelectionPreservesExactOwnerIdentity: selection.checked === 'true' && /1 selected/i.test(selection.selectedCount) && /Take 1 selected/i.test(selection.submitText) && !selection.interactionOpen && selection.sentBeforeSubmit === '',
-      selectionDispatchesExactOwnedClassicSelector: completion.sentCodes.length === 2 && completion.sentCodes[0] === 97 && completion.sentCodes[1] === 10 && completion.container.pendingTransferId && completion.commandState.transfer?.route === 'classic' && completion.commandState.transfer?.expectedRequestId === 'pickup-menu-r1',
+      visiblePointerAndKeyboardSelectionPreserveIdentity: selection.checked.length === 2 && selection.checked.every((value) => value === 'true') && /2 selected/i.test(selection.selectedCount) && /Take 2 selected/i.test(selection.submitText) && !selection.interactionOpen && selection.sentBeforeSubmit === '',
+      enterDispatchesExactOwnedClassicSelectors: completion.sentCodes.length === 3 && completion.sentCodes[0] === 97 && completion.sentCodes[1] === 98 && completion.sentCodes[2] === 10 && completion.container.pendingTransferId && completion.commandState.transfer?.route === 'classic' && completion.commandState.transfer?.expectedRequestId === 'pickup-menu-r1',
+      finalClassicConfirmationClosesPickup: !classicClosed.active && classicClosed.hidden,
       stackSelectionRemainsWholeRow: stackSelection.owner.active && stackSelection.owner.status === 'ready' && stackSelection.checked === 'true' && /1 selected/i.test(stackSelection.selectedCount) && /Take 1 selected/i.test(stackSelection.submitText) && stackSelection.quantityControlAbsent && stackSelection.sent === '',
       noStartupRawPromptStaleModalOrUnknownCommand: !owner.openDialogs.includes('startup-choice-dialog') && !completion.openDialogs.includes('startup-choice-dialog') && !/Choose your path|Choose visible item rows|Loading inventory choices|Unknown command/i.test(`${owner.body}\n${completion.body}`),
     };
     const metrics = {
-      owner, selection, completion, stackSelection,
+      owner, selection, completion, classicClosed, stackSelection,
       screenshots: { ownerScreenshot, selectedScreenshot, stackScreenshot },
       assertions,
     };

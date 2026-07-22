@@ -77,100 +77,121 @@ async function main() {
     await cdp.send('Runtime.enable');
     await cdp.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
     await waitFor(async () => (await cdp.send('Runtime.evaluate', { returnByValue: true, expression: "document.readyState === 'complete' && !!window.__nethackPromptTest" })).result.value, 10000);
+    await cdp.send('Runtime.evaluate', { expression: `localStorage.removeItem('nethack-electron-presentation-settings-v2')` });
+    await cdp.send('Page.reload', { ignoreCache: true });
+    await waitFor(async () => (await cdp.send('Runtime.evaluate', { returnByValue: true, expression: "document.readyState === 'complete' && !!window.__nethackPromptTest" })).result.value, 10000);
     await cdp.send('Runtime.evaluate', { expression: `(() => {
       window.__nethackPromptTest.reset();
-      for (let i = 1; i <= 48; i += 1) window.__nethackPromptTest.event({ name: 'shim_putstr', text: 'Log expansion message ' + String(i).padStart(2, '0') });
+      window.__nethackPromptTest.setRunning(true);
+      for (let i = 1; i <= 120; i += 1) window.__nethackPromptTest.event({ name: 'shim_putstr', text: 'Log expansion message ' + String(i).padStart(3, '0') });
       document.querySelectorAll('dialog[open]').forEach((dialog) => dialog.close('silent'));
     })()` });
-    await delay(250);
+    await delay(300);
+
+    const layoutState = async () => (await cdp.send('Runtime.evaluate', { returnByValue: true, expression: `(() => {
+      const rect = (el) => { const r = el.getBoundingClientRect(); return { left:r.left, top:r.top, right:r.right, bottom:r.bottom, width:r.width, height:r.height, scrollWidth:el.scrollWidth, scrollHeight:el.scrollHeight, clientWidth:el.clientWidth, clientHeight:el.clientHeight }; };
+      const messages = document.getElementById('messages');
+      const rows = Array.from(messages.querySelectorAll('.ux-consequence-row'));
+      return {
+        viewport:{width:innerWidth,height:innerHeight},
+        mapMode:document.body.dataset.uxMapMode || '',
+        play:rect(document.getElementById('play-area')),
+        log:rect(document.getElementById('log-panel')),
+        messages:rect(messages),
+        resizer:rect(document.getElementById('map-log-resizer')),
+        rowTexts:rows.map((row)=>row.innerText.trim()),
+        scrollTop:messages.scrollTop,
+        overflowY:getComputedStyle(messages).overflowY,
+        now:document.querySelector('.log-now')?.innerText || '',
+        separator:{role:document.getElementById('map-log-resizer')?.getAttribute('role'),value:document.getElementById('map-log-resizer')?.getAttribute('aria-valuenow')},
+      };
+    })()` })).result.value;
+
+    const initial = await layoutState();
     await cdp.send('Runtime.evaluate', { expression: `(() => {
-      const style = document.createElement('style');
-      style.id = 'legacy-compact-log-style';
-      style.textContent = '#log-panel{height:auto;max-height:136px;align-self:start}#messages{max-height:4.8em}';
-      document.head.appendChild(style);
+      const messages=document.getElementById('messages');
+      messages.scrollTop=0;
+      window.__nethackPromptTest.event({name:'shim_putstr',text:'NEWEST TOP MESSAGE'});
     })()` });
-    await delay(100);
-    const legacyCompact = (await cdp.send('Runtime.evaluate', { returnByValue: true, expression: `(() => {
-      const rect = (el) => { const r = el.getBoundingClientRect(); return { top:r.top, bottom:r.bottom, width:r.width, height:r.height, scrollWidth:el.scrollWidth, scrollHeight:el.scrollHeight, clientWidth:el.clientWidth, clientHeight:el.clientHeight }; };
-      const messages = document.getElementById('messages');
-      const log = document.getElementById('log-panel');
-      const grid = document.getElementById('game-grid');
-      const play = document.getElementById('play-area');
-      const keyboardHelp = document.getElementById('keyboard-help');
-      const visibleLineEstimate = Math.max(0, Math.floor(messages.clientHeight / parseFloat(getComputedStyle(messages).lineHeight || '15')));
-      return { viewport: { width: innerWidth, height: innerHeight }, outerWindow: { width: outerWidth, height: outerHeight }, play: rect(play), grid: rect(grid), log: rect(log), messages: rect(messages), keyboardHelp: rect(keyboardHelp), visibleLineEstimate, text: messages.innerText, scrollTop: messages.scrollTop };
+    await delay(120);
+    const autoTop = await layoutState();
+
+    await cdp.send('Runtime.evaluate', { expression: `(() => {
+      const messages=document.getElementById('messages');
+      const anchor=()=>Array.from(messages.querySelectorAll('.ux-consequence-row')).find((row)=>row.getBoundingClientRect().bottom>messages.getBoundingClientRect().top+1)?.innerText.trim()||'';
+      messages.scrollTop=240;
+      window.__manualBefore={top:messages.scrollTop,anchor:anchor()};
+      window.__nethackPromptTest.event({name:'shim_putstr',text:'MANUAL SCROLLBACK SHOULD NOT JUMP'});
+    })()` });
+    await delay(120);
+    const manual = (await cdp.send('Runtime.evaluate', { returnByValue:true, expression:`(() => {
+      const messages=document.getElementById('messages');
+      const anchor=Array.from(messages.querySelectorAll('.ux-consequence-row')).find((row)=>row.getBoundingClientRect().bottom>messages.getBoundingClientRect().top+1)?.innerText.trim()||'';
+      return {before:window.__manualBefore,after:messages.scrollTop,anchor,hint:document.getElementById('log-position-hint')?.textContent||'',jumpHidden:document.getElementById('log-jump-newest')?.hidden};
     })()` })).result.value;
-    if (saveScreenshot) {
-      const shot = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
-      fs.writeFileSync(path.join(outDir, 'before-legacy-compact-log-unused-room.png'), Buffer.from(shot.data, 'base64'));
-    }
-    await cdp.send('Runtime.evaluate', { expression: "document.getElementById('legacy-compact-log-style')?.remove()" });
+
+    const separator = initial.resizer;
+    const dragX = separator.left + separator.width / 2;
+    const dragY = separator.top + separator.height / 2;
+    await cdp.send('Input.dispatchMouseEvent', { type:'mousePressed', x:dragX, y:dragY, button:'left', clickCount:1 });
+    await cdp.send('Input.dispatchMouseEvent', { type:'mouseMoved', x:dragX, y:dragY-160, button:'left', buttons:1 });
+    await cdp.send('Input.dispatchMouseEvent', { type:'mouseReleased', x:dragX, y:dragY-160, button:'left', clickCount:1 });
+    await delay(180);
+    const afterDrag = await layoutState();
+
+    await cdp.send('Runtime.evaluate', { expression:`document.getElementById('map-log-resizer').dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowDown',bubbles:true,cancelable:true}))` });
     await delay(100);
-    const beforeManual = (await cdp.send('Runtime.evaluate', { returnByValue: true, expression: `(() => {
-      const rect = (el) => { const r = el.getBoundingClientRect(); return { top:r.top, bottom:r.bottom, width:r.width, height:r.height, scrollWidth:el.scrollWidth, scrollHeight:el.scrollHeight, clientWidth:el.clientWidth, clientHeight:el.clientHeight }; };
-      const messages = document.getElementById('messages');
-      const log = document.getElementById('log-panel');
-      const grid = document.getElementById('game-grid');
-      const keyboardHelp = document.getElementById('keyboard-help');
-      const play = document.getElementById('play-area');
-      const visibleLineEstimate = Math.max(0, Math.floor(messages.clientHeight / parseFloat(getComputedStyle(messages).lineHeight || '15')));
-      return { viewport: { width: innerWidth, height: innerHeight }, outerWindow: { width: outerWidth, height: outerHeight }, play: rect(play), grid: rect(grid), log: rect(log), messages: rect(messages), keyboardHelp: rect(keyboardHelp), visibleLineEstimate, text: messages.innerText, scrollTop: messages.scrollTop };
-    })()` })).result.value;
-    await cdp.send('Runtime.evaluate', { expression: `(() => { window.__logPanelBeforeAppendTop = document.getElementById('messages').scrollTop; window.__nethackPromptTest.event({ name: 'shim_putstr', text: 'BOTTOM FOLLOW MESSAGE' }); })()` });
-    await delay(100);
-    const autoBottom = (await cdp.send('Runtime.evaluate', { returnByValue: true, expression: `(() => {
-      const messages = document.getElementById('messages');
-      return { text: messages.innerText, scrollTop: messages.scrollTop, bottomGap: messages.scrollHeight - messages.scrollTop - messages.clientHeight };
-    })()` })).result.value;
-    if (saveScreenshot) {
-      const shot = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
-      fs.writeFileSync(path.join(outDir, 'after-log-panel-expanded-autoscroll.png'), Buffer.from(shot.data, 'base64'));
-    }
-    await cdp.send('Runtime.evaluate', { expression: `(() => { const messages = document.getElementById('messages'); messages.scrollTop = 0; window.__manualScrollTopBeforeAppend = messages.scrollTop; window.__nethackPromptTest.event({ name: 'shim_putstr', text: 'MANUAL SCROLLBACK SHOULD NOT JUMP' }); })()` });
-    await delay(100);
-    const manual = (await cdp.send('Runtime.evaluate', { returnByValue: true, expression: `(() => {
-      const messages = document.getElementById('messages');
-      return { text: messages.innerText, before: window.__manualScrollTopBeforeAppend, after: messages.scrollTop, bottomGap: messages.scrollHeight - messages.scrollTop - messages.clientHeight };
-    })()` })).result.value;
-    const gridLogGap = beforeManual.log.top - beforeManual.play.bottom;
-    const logKeyboardGap = beforeManual.keyboardHelp.top - beforeManual.log.bottom;
-    const legacyGridLogGap = legacyCompact.log.top - legacyCompact.play.bottom;
-    const legacyLogKeyboardGap = legacyCompact.keyboardHelp.top - legacyCompact.log.bottom;
-    const compactViewport = beforeManual.viewport.height < 1000;
+    const afterKeyboard = await layoutState();
+    const persisted = (await cdp.send('Runtime.evaluate', { returnByValue:true, expression:`JSON.parse(localStorage.getItem('nethack-electron-presentation-settings-v2')||'{}')?.layout?.logRatio` })).result.value;
+    await cdp.send('Runtime.evaluate', { expression:`document.getElementById('ux-map-mode-button').click()` });
+    await delay(180);
+    const follow = await layoutState();
+
+    const gridLogGap = initial.resizer.top - initial.play.bottom;
     const metrics = {
-      requestedWindow: { width, height, contentSize: true, shown: process.env.NH_ELECTRON_SHOW !== '0' },
-      legacyCompact,
-      beforeManual,
-      autoBottom,
-      manual,
-      gridLogGap,
-      logKeyboardGap,
-      legacyGridLogGap,
-      legacyLogKeyboardGap,
-      compactViewport,
-      visibleLineCount: beforeManual.text.split('\n').filter(Boolean).length,
-      pass: beforeManual.viewport.width >= 1200
-        && beforeManual.viewport.height >= 650
-        && gridLogGap >= 6
-        && logKeyboardGap >= 6
-        && beforeManual.log.height > (compactViewport ? 145 : 420)
-        && beforeManual.messages.clientHeight > (compactViewport ? 100 : 380)
-        && beforeManual.grid.width >= beforeManual.viewport.width - 40
-        && beforeManual.text.includes('Log expansion message 39')
-        && beforeManual.text.includes('Log expansion message 48')
-        && beforeManual.text.split('\n').filter(Boolean).length >= 20
-        && autoBottom.text.includes('BOTTOM FOLLOW MESSAGE')
-        && autoBottom.bottomGap <= 32
-        && manual.text.includes('MANUAL SCROLLBACK SHOULD NOT JUMP')
-        && (manual.bottomGap <= 32 || manual.after <= manual.before + 2),
+      requestedWindow:{width,height,contentSize:true,shown:process.env.NH_ELECTRON_SHOW!=='0'},
+      initial,autoTop,manual,afterDrag,afterKeyboard,follow,persisted,gridLogGap,
+      pass:initial.viewport.width>=1200
+        && initial.viewport.height>=650
+        && initial.log.height>300
+        && initial.messages.clientHeight>250
+        && initial.messages.scrollHeight>initial.messages.clientHeight
+        && /auto|scroll/.test(initial.overflowY)
+        && initial.rowTexts.length===100
+        && initial.rowTexts[0].includes('120')
+        && initial.rowTexts.at(-1).includes('021')
+        && autoTop.rowTexts[0].endsWith('NEWEST TOP MESSAGE')
+        && autoTop.scrollTop<=2
+        && manual.before.top>0
+        && manual.after>manual.before.top
+        && manual.anchor===manual.before.anchor
+        && /Viewing earlier events/i.test(manual.hint)
+        && manual.jumpHidden===false
+        && afterDrag.log.height>initial.log.height+100
+        && afterDrag.play.height<initial.play.height-100
+        && Number(afterDrag.separator.value)>Number(initial.separator.value)
+        && afterKeyboard.log.height<afterDrag.log.height
+        && follow.mapMode==='follow'
+        && follow.play.bottom<=follow.resizer.top
+        && follow.resizer.bottom<=follow.log.top
+        && follow.play.height<=afterKeyboard.play.height+1
+        && Number.isFinite(persisted)
+        && ['NOW','TURN','MODE','PENDING','History'].every((label)=>initial.now.includes(label))
+        && initial.separator.role==='separator',
     };
-    fs.writeFileSync(path.join(outDir, 'log-panel-behavior-metrics.json'), JSON.stringify(metrics, null, 2));
+    fs.writeFileSync(path.join(outDir,'log-panel-behavior-metrics.json'),JSON.stringify(metrics,null,2));
     if (saveScreenshot) {
-      const shot = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
-      fs.writeFileSync(path.join(outDir, 'after-manual-scrollback-preserved.png'), Buffer.from(shot.data, 'base64'));
+      await cdp.send('Runtime.evaluate',{expression:`(() => { const messages=document.getElementById('messages'); const top=messages.getBoundingClientRect().top; const row=Array.from(messages.querySelectorAll('.ux-consequence-row')).find((item)=>item.getBoundingClientRect().bottom>top+1); if(row) messages.scrollTop+=row.getBoundingClientRect().top-top; })()`});
+      await delay(80);
+      const scrollbackShot=await cdp.send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+      fs.writeFileSync(path.join(outDir,'log-workspace-manual-scrollback.png'),Buffer.from(scrollbackShot.data,'base64'));
+      await cdp.send('Runtime.evaluate',{expression:`document.getElementById('messages').scrollTop=0`});
+      await delay(80);
+      const newestShot=await cdp.send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+      fs.writeFileSync(path.join(outDir,'log-workspace-newest-first-resizable.png'),Buffer.from(newestShot.data,'base64'));
     }
-    console.log(JSON.stringify(metrics, null, 2));
-    if (!metrics.pass) throw new Error('log panel behavior assertion failed');
+    console.log(JSON.stringify(metrics,null,2));
+    if(!metrics.pass) throw new Error('log panel behavior assertion failed');
   } finally {
     cleanup();
   }

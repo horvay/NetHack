@@ -5590,6 +5590,19 @@ function syncTransferPresentationFromSession(snapshot = transferSession.snapshot
   return snapshot;
 }
 
+function closeExhaustedPickupPanel(event = {}, snapshot = transferSession.snapshot()) {
+  if (event.type !== 'confirmed' || !snapshot.active || snapshot.pending || snapshot.queuedCount) return false;
+  if (!['ground-to-inventory', 'container-to-inventory'].includes(String(event.direction || ''))) return false;
+  if (snapshot.panes?.left?.length) return false;
+  const reason = snapshot.kind === 'ground-pickup' ? 'All ground items picked up.' : 'All container items picked up.';
+  const closed = closeContainerTransferPanel(reason);
+  if (closed) {
+    setStatus(reason);
+    gameGrid?.focus?.({ preventScroll: true });
+  }
+  return closed;
+}
+
 function dispatchTransferSessionEvent(event = {}) {
   const result = transferSession.dispatch(event);
   for (const effect of result.effects) {
@@ -7579,6 +7592,7 @@ function handleShimEvent(event) {
   ].includes(rawEvent.name)) {
     const accepted = rawEvent.name.endsWith('_confirmed');
     const transferId = rawEvent.transferId || rawEvent.transactionId || '';
+    const confirmedDirection = transferSession.snapshot().pending?.direction || rawEvent.direction || '';
     const result = dispatchTransferSessionEvent({
       type: accepted ? 'confirmed' : 'rejected',
       transferId,
@@ -7607,6 +7621,7 @@ function handleShimEvent(event) {
           const insertSide = migrateSide === 'left' ? 'right' : 'left';
           const inserted = containerTransferPanel?.querySelector(`.container-item-row[data-container-side="${insertSide}"]`);
           if (inserted) globalThis.NetHackUxFeedback?.animateTransferInsert?.(inserted);
+          closeExhaustedPickupPanel({ type: 'confirmed', direction: confirmedDirection });
         }, 140);
       } else {
         const failed = containerTransferPanel?.querySelector('.container-item-row.is-selected, .container-item-row[aria-checked="true"], .container-item-row.dragging');
@@ -7644,6 +7659,7 @@ function handleShimEvent(event) {
       reason: cancelled ? 'cancelled by player' : 'confirmed by NetHack prompt/menu answer',
     });
     renderContainerTransferPanel();
+    if (!cancelled) window.setTimeout(() => closeExhaustedPickupPanel({ type: 'confirmed', direction: activePanelTransfer.direction }), 160);
   }
   if (transferPresentation?.active && transferPresentation.dropPending && (rawEvent.name === 'bridge_prompt_answer' || rawEvent.name === 'bridge_menu_answer')) {
     transferPresentation.dropPending = false;

@@ -345,11 +345,6 @@
     function dispatchNext(effects) {
       if (!state.active || state.pending || !state.queue.length) return;
       const queued = state.queue.shift();
-      if (state.batch) {
-        const selected = new Set(state.selection[queued.sourceSide] || []);
-        selected.delete(queued.rowKey);
-        state.selection = { ...state.selection, [queued.sourceSide]: Array.from(selected) };
-      }
       const sourceRows = presentationRows(state, queued.sourceSide);
       const row = sourceRows.find((candidate) => rowKey(candidate, queued.sourceSide) === queued.rowKey || sameIdentity(candidate, queued.row));
       if (!row) {
@@ -367,6 +362,25 @@
       const classicMenu = queued.sourceSide === sides.LEFT ? state.menus.left : state.menus.right;
       const mappedSelector = remapSelector(row, classicMenu);
       const route = state.route === 'classic' || (!Number(row.objectId) && mappedSelector) ? 'classic' : 'direct';
+      const pendingRows = [row];
+      const mappedSelectors = mappedSelector ? [mappedSelector] : [];
+      if (route === 'classic' && Number(classicMenu?.how) === 2 && state.batch && mappedSelector) {
+        for (let index = 0; index < state.queue.length;) {
+          const candidate = state.queue[index];
+          if (candidate.sourceSide !== queued.sourceSide) break;
+          const candidateRow = sourceRows.find((item) => rowKey(item, candidate.sourceSide) === candidate.rowKey || sameIdentity(item, candidate.row));
+          const candidateSelector = remapSelector(candidateRow, classicMenu);
+          if (!candidateRow || !candidateSelector) break;
+          pendingRows.push(candidateRow);
+          mappedSelectors.push(candidateSelector);
+          state.queue.splice(index, 1);
+        }
+      }
+      if (state.batch) {
+        const selected = new Set(state.selection[queued.sourceSide] || []);
+        for (const pendingRow of pendingRows) selected.delete(rowKey(pendingRow, queued.sourceSide));
+        state.selection = { ...state.selection, [queued.sourceSide]: Array.from(selected) };
+      }
       const expectedRequestId = String(classicMenu?.requestId || classicMenu?.menuRequestId || state.ownerRequestId || '');
       state.pending = {
         transferId,
@@ -376,13 +390,16 @@
         targetSide: targetSide(queued.sourceSide),
         row: clone(row),
         rowKey: rowKey(row, queued.sourceSide),
+        batchRows: pendingRows.length > 1 ? pendingRows.map(clone) : [],
         route,
         expectedRequestId,
         startedAt: now(),
         deadlineAt: now() + timeoutMs,
       };
       state.status = 'waiting-confirmation';
-      state.feedback = `Moving ${rowName(row)}; waiting for NetHack confirmation.`;
+      state.feedback = pendingRows.length > 1
+        ? `Moving ${pendingRows.length} selected items; waiting for NetHack confirmation.`
+        : `Moving ${rowName(row)}; waiting for NetHack confirmation.`;
       touch();
       effects.push(lifecycle('transfer.begun', {
         transferId,
@@ -393,15 +410,15 @@
         sourceSide: queued.sourceSide,
         targetSide: targetSide(queued.sourceSide),
         selector: rowKey(row, queued.sourceSide),
-        itemName: rowName(row),
+        itemName: pendingRows.length > 1 ? `${pendingRows.length} selected items` : rowName(row),
         expectedRequestId,
         beforePanes: { left: protocolRows(state.authoritative.left, sides.LEFT), right: protocolRows(state.authoritative.right, sides.RIGHT) },
       }));
       if (route === 'direct') {
         effects.push({ type: 'dispatch-direct', transferId, sessionId: state.sessionId, direction, row: immutable(row), groundCoord: immutable(state.groundCoord), container: immutable(state.container) });
-      } else if (mappedSelector) {
+      } else if (mappedSelectors.length) {
         state.pending.dispatched = true;
-        effects.push({ type: 'dispatch-classic', transferId, sessionId: state.sessionId, direction, text: `${mappedSelector}${classicMenu?.how === 2 ? '\n' : ''}`, expectedRequestId });
+        effects.push({ type: 'dispatch-classic', transferId, sessionId: state.sessionId, direction, text: `${mappedSelectors.join('')}${classicMenu?.how === 2 ? '\n' : ''}`, expectedRequestId });
       } else {
         effects.push({ type: 'request-classic-menu', transferId, sessionId: state.sessionId, direction, sourceSide: queued.sourceSide, row: immutable(row) });
       }
@@ -493,10 +510,19 @@
         state.menus = { ...state.menus, [pending.sourceSide]: null };
         if (state.ownerRequestId === pending.expectedRequestId) state.ownerRequestId = '';
       }
-      state.optimistic.push({ transferId: pending.transferId, sourceSide: pending.sourceSide, targetSide: pending.targetSide, rowKey: pending.rowKey, row: clone(pending.row) });
-      if (state.batch) state.batchSettlements.push({ sourceSide: pending.sourceSide, targetSide: pending.targetSide, row: clone(pending.row) });
+      const settledRows = pending.batchRows?.length ? pending.batchRows : [pending.row];
+      for (const settledRow of settledRows) {
+        state.optimistic.push({
+          transferId: pending.transferId,
+          sourceSide: pending.sourceSide,
+          targetSide: pending.targetSide,
+          rowKey: rowKey(settledRow, pending.sourceSide),
+          row: clone(settledRow),
+        });
+        if (state.batch) state.batchSettlements.push({ sourceSide: pending.sourceSide, targetSide: pending.targetSide, row: clone(settledRow) });
+      }
       state.pending = null;
-      const batch = state.batch ? { ...state.batch, completed: state.batch.completed + 1 } : null;
+      const batch = state.batch ? { ...state.batch, completed: state.batch.completed + settledRows.length } : null;
       state.batch = batch;
       state.status = state.queue.length ? 'queueing' : 'ready';
       state.rejection = null;
