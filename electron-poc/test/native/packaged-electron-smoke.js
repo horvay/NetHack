@@ -104,11 +104,19 @@ async function run() {
   })()`);
   await evaluate(`Array.from(document.querySelectorAll('#character-dialog button')).find((button) => button.textContent.includes('Enter dungeon')).click()`);
 
-  await retry(async () => {
-    const continueButton = await evaluate(`Array.from(document.querySelectorAll('dialog[open] button')).some((button) => button.textContent.includes('Continue'))`);
-    if (!continueButton) throw new Error('introduction not ready');
-  });
-  await evaluate(`Array.from(document.querySelectorAll('dialog[open] button')).find((button) => button.textContent.includes('Continue')).click()`);
+  const startup = await retry(async () => {
+    const state = await evaluate(`({
+      continueButton: Array.from(document.querySelectorAll('dialog[open] button')).some((button) => button.textContent.includes('Continue')),
+      mapCells: document.querySelectorAll('[data-map-x]').length,
+      openDialogs: Array.from(document.querySelectorAll('dialog[open]')).map((dialog) => dialog.id),
+      body: document.body.innerText.slice(-500),
+    })`);
+    if (!state.continueButton && state.mapCells < 1000) throw new Error(`game startup not ready: ${JSON.stringify(state)}`);
+    return state;
+  }, 90_000);
+  if (startup.continueButton) {
+    await evaluate(`Array.from(document.querySelectorAll('dialog[open] button')).find((button) => button.textContent.includes('Continue')).click()`);
+  }
 
   const gameplay = await retry(async () => {
     const state = await evaluate(`({
