@@ -42,6 +42,7 @@ function resolveRuntime({ packaged, devRepoRoot, resourcesPath, userDataPath, pl
 async function preparePlayground(runtime) {
   if (!runtime?.packaged) return runtime?.playground;
   await fs.mkdir(runtime.playground, { recursive: true });
+  await fs.mkdir(path.join(runtime.playground, 'save'), { recursive: true });
   const entries = await fs.readdir(runtime.playgroundTemplate, { withFileTypes: true });
   for (const entry of entries) {
     const source = path.join(runtime.playgroundTemplate, entry.name);

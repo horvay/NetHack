@@ -31,12 +31,26 @@ try {
   fs.writeFileSync(path.join(runtime.playground, 'record'), 'player record\n');
   fs.writeFileSync(path.join(runtime.playground, 'save', 'hero-save'), 'saved hero\n');
 
-  Runtime.preparePlayground(runtime).then(() => {
+  Runtime.preparePlayground(runtime).then(async () => {
     assert.equal(fs.readFileSync(path.join(runtime.playground, 'sysconf'), 'utf8'), 'OPTIONS=!autopickup\n');
     assert.equal(fs.readFileSync(path.join(runtime.playground, 'data'), 'utf8'), 'new static data\n');
     assert.equal(fs.readFileSync(path.join(runtime.playground, 'record'), 'utf8'), 'player record\n');
     assert.equal(fs.readFileSync(path.join(runtime.playground, 'save', 'hero-save'), 'utf8'), 'saved hero\n');
     assert.equal(fs.existsSync(path.join(runtime.playground, 'save', 'template-save')), false);
+
+    const emptyResourcesPath = path.join(root, 'empty-resources');
+    const emptyTemplate = path.join(emptyResourcesPath, 'runtime', 'playground-template');
+    fs.mkdirSync(emptyTemplate, { recursive: true });
+    fs.writeFileSync(path.join(emptyTemplate, 'sysconf'), 'OPTIONS=!autopickup\n');
+    const emptyRuntime = Runtime.resolveRuntime({
+      packaged: true,
+      devRepoRoot: '/unused',
+      resourcesPath: emptyResourcesPath,
+      userDataPath: path.join(root, 'empty-user-data'),
+      platform: 'linux',
+    });
+    await Runtime.preparePlayground(emptyRuntime);
+    assert.equal(fs.statSync(path.join(emptyRuntime.playground, 'save')).isDirectory(), true, 'first packaged launch creates the save directory required by recover');
 
     const env = Runtime.runtimeEnvironment(runtime, { PATH: '/bin', LD_LIBRARY_PATH: '/custom/lib' });
     assert.equal(env.NETHACKDIR, runtime.playground);
