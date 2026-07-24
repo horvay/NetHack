@@ -33,7 +33,12 @@ function stageRuntimeLibraries(binary, acceptedNames, requiredNames) {
       throw new Error(`${binary} did not resolve required runtime library ${name}`);
     }
   }
-  for (const [name, source] of libraries) copy(source, path.join(stageRoot, 'lib', name));
+  for (const [name, source] of libraries) {
+    const destination = path.join(stageRoot, 'lib', name);
+    fs.mkdirSync(path.dirname(destination), { recursive: true });
+    fs.copyFileSync(fs.realpathSync(source), destination);
+    if (fs.lstatSync(destination).isSymbolicLink()) throw new Error(`Runtime library must not be a symbolic link: ${name}`);
+  }
 }
 
 if (process.platform !== 'linux') throw new Error('The native Electron runtime currently supports Linux only.');
