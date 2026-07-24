@@ -60,6 +60,10 @@ int bridge_environment_set(const char *name, const char *value) {
     return uv_os_setenv(name, value);
 }
 
+int bridge_environment_get(const char *name, char *buffer, size_t *size) {
+    return uv_os_getenv(name, buffer, size);
+}
+
 int bridge_working_directory(char *buffer, size_t *size) {
     return uv_cwd(buffer, size);
 }

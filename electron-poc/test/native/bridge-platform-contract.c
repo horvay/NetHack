@@ -39,6 +39,8 @@ int main(void) {
     unsigned char random_a[32] = {0};
     unsigned char random_b[32] = {0};
     char cwd[4096] = {0};
+    char environment_value[32] = {0};
+    size_t environment_size = sizeof environment_value;
     size_t cwd_size = sizeof cwd;
 
     CHECK(bridge_mutex_init(&state.mutex) == 0, "mutex initialization");
@@ -62,8 +64,9 @@ int main(void) {
 
     CHECK(bridge_process_id() > 0, "positive process id");
     CHECK(bridge_environment_set("NH_BRIDGE_PLATFORM_CONTRACT", "libuv") == 0, "environment update");
-    CHECK(getenv("NH_BRIDGE_PLATFORM_CONTRACT") != NULL, "environment value is observable");
-    CHECK(strcmp(getenv("NH_BRIDGE_PLATFORM_CONTRACT"), "libuv") == 0, "environment value is exact");
+    CHECK(bridge_environment_get("NH_BRIDGE_PLATFORM_CONTRACT", environment_value, &environment_size) == 0,
+          "environment value is observable");
+    CHECK(strcmp(environment_value, "libuv") == 0, "environment value is exact");
     CHECK(bridge_working_directory(cwd, &cwd_size) == 0, "working directory read");
     CHECK(cwd[0] != '\0', "working directory is nonempty");
     CHECK(bridge_change_directory(cwd) == 0, "working directory change");

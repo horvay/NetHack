@@ -35,6 +35,7 @@ int bridge_thread_join(bridge_thread *thread);
 int bridge_thread_detach(bridge_thread *thread);
 
 int bridge_random(void *destination, size_t length);
+int bridge_environment_get(const char *name, char *buffer, size_t *size);
 long bridge_process_id(void);
 int bridge_environment_set(const char *name, const char *value);
 int bridge_working_directory(char *buffer, size_t *size);
