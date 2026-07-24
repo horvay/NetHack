@@ -35,12 +35,13 @@ enable_testing()
 add_test(NAME bridge_platform_contract COMMAND bridge_platform_contract)
 
 option(NH_ELECTRON_TEST_FIXTURES "Enable native bridge test fixtures" OFF)
+option(NH_BUILD_NATIVE_BRIDGE "Build the NetHack shim bridge executable" OFF)
 set(NETHACK_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 set(LIBNH_ARCHIVE "${NETHACK_ROOT}/src/libnh.a")
 set(HACKLIB_ARCHIVE "${NETHACK_ROOT}/src/hacklib.a")
 set(LUA_ARCHIVE "${NETHACK_ROOT}/lib/lua/liblua-5.4.8.a")
 
-if(UNIX AND EXISTS "${LIBNH_ARCHIVE}")
+if(NH_BUILD_NATIVE_BRIDGE AND UNIX AND EXISTS "${LIBNH_ARCHIVE}")
   find_library(NCURSES_LIBRARY NAMES ncurses REQUIRED)
   find_library(UUID_LIBRARY NAMES uuid REQUIRED)
   add_executable(nh_shim_bridge nh-shim-bridge.c)
@@ -72,7 +73,7 @@ if(UNIX AND EXISTS "${LIBNH_ARCHIVE}")
   )
 endif()
 
-if(WIN32)
+if(NH_BUILD_NATIVE_BRIDGE AND WIN32)
   file(
     STRINGS
     "${NETHACK_ROOT}/sys/windows/vs/NetHack/NetHack.vcxproj"
@@ -93,9 +94,8 @@ if(WIN32)
   list(APPEND NETHACK_CORE_SOURCES
     "${NETHACK_ROOT}/src/hacklib.c"
     "${NETHACK_ROOT}/src/nhmd4.c"
-    "${NETHACK_ROOT}/src/panic.c"
     "${NETHACK_ROOT}/sys/share/cppregex.cpp"
-    "${NETHACK_ROOT}/sys/share/random.c"
+    "${NETHACK_ROOT}/util/panic.c"
     "${NETHACK_ROOT}/sys/windows/windmain.c"
     "${NETHACK_ROOT}/sys/windows/windsys.c"
     "${NETHACK_ROOT}/win/shim/winshim.c"

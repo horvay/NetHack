@@ -57,10 +57,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
-
       - name: Configure static libuv bridge
         working-directory: electron-poc
-        run: cmake -S shim-bridge -B .native-build -DNH_ELECTRON_TEST_FIXTURES=ON
+        run: cmake -S shim-bridge -B .native-build -DNH_BUILD_NATIVE_BRIDGE=ON -DNH_ELECTRON_TEST_FIXTURES=ON
 
       - name: Build native bridge
         working-directory: electron-poc
