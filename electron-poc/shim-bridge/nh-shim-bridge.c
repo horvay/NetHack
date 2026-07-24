@@ -3963,9 +3963,11 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
 }
 
 int main(int argc, char **argv) {
+    fprintf(stderr, "[DEBUG-7f3a] main entered\n"); fflush(stderr);
     setvbuf(stdout, NULL, _IOLBF, 0);
     int runtime_rc = init_bridge_runtime();
     if (!runtime_rc) runtime_rc = bridge_mutex_init(&direct_command_mu);
+    fprintf(stderr, "[DEBUG-7f3a] synchronization initialized\n"); fflush(stderr);
     if (runtime_rc) {
         fprintf(stderr, "Cannot initialize bridge runtime: %s\n", bridge_platform_error(runtime_rc));
         return 2;
@@ -4051,11 +4053,13 @@ int main(int argc, char **argv) {
     bridge_thread tid;
     int thread_rc = bridge_thread_start(&tid, stdin_thread, NULL);
     if (!thread_rc) thread_rc = bridge_thread_detach(&tid);
+    fprintf(stderr, "[DEBUG-7f3a] input thread result=%d\n", thread_rc); fflush(stderr);
     if (thread_rc) {
         fprintf(stderr, "Cannot start bridge input thread: %s\n", bridge_platform_error(thread_rc));
         return 2;
     }
     shim_graphics_set_callback(shim_cb);
+    fprintf(stderr, "[DEBUG-7f3a] callback installed\n"); fflush(stderr);
 
     char userarg[80];
     snprintf(userarg, sizeof userarg, "-uElectron%ld-Val-Hum-Fem-Law", bridge_process_id() % 100000L);
