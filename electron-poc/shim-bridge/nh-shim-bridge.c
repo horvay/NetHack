@@ -4053,6 +4053,7 @@ int main(int argc, char **argv) {
     if (!thread_rc) thread_rc = bridge_thread_detach(&tid);
     if (thread_rc) {
         fprintf(stderr, "Cannot start bridge input thread: %s\n", bridge_platform_error(thread_rc));
+        return 2;
     }
     shim_graphics_set_callback(shim_cb);
 
@@ -4064,6 +4065,15 @@ int main(int argc, char **argv) {
         argv = default_argv;
     }
     emit_event_start("bridge_start"); emit_event_end();
+    if (getenv("NH_BRIDGE_PROTOCOL_CONTRACT")
+        && !strcmp(getenv("NH_BRIDGE_PROTOCOL_CONTRACT"), "1")) {
+        int queued_before = 0, queued_after = 0;
+        (void) pop_key_blocking_with_status(&queued_before, &queued_after);
+        emit_event_start("bridge_exit");
+        fputs(",\"code\":0,\"reason\":\"protocol-contract\"", stdout);
+        emit_event_end();
+        return 0;
+    }
     int rc = nhmain(argc, argv);
     emit_event_start("bridge_exit"); fprintf(stdout, ",\"code\":%d", rc); emit_event_end();
     return rc;

@@ -10,6 +10,7 @@ const child = spawn(path.resolve(bridgePath), [], {
   env: {
     ...process.env,
     NH_SHIM_NO_CHDIR: '1',
+    NH_BRIDGE_PROTOCOL_CONTRACT: '1',
     NETHACKOPTIONS: '!tutorial',
   },
   stdio: ['pipe', 'pipe', 'pipe'],
