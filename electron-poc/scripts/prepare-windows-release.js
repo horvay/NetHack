@@ -32,11 +32,11 @@ function copy(source, destination) {
 
 const files = walk(extractedRoot);
 const nhdat = findFile(files, (name) => /^nhdat\d*$/i.test(name), 'nhdat');
-const sysconf = findFile(files, (name) => name.toLowerCase() === 'sysconf', 'sysconf');
+const sysconf = findFile(files, (name) => /^sysconf(?:\.template)?$/i.test(name), 'sysconf');
 const nethack = findFile(files, (name) => name.toLowerCase() === 'nethack.exe', 'NetHack.exe');
-const recover = findFile(files, (name) => name.toLowerCase() === 'recover.exe', 'recover.exe');
 const bridge = path.join(appRoot, 'shim-bridge', 'nh-shim-bridge.exe');
-if (!fs.existsSync(bridge)) throw new Error(`Missing Windows shim bridge: ${bridge}`);
+const buildFiles = fs.existsSync(path.join(repoRoot, 'vsbinary')) ? walk(path.join(repoRoot, 'vsbinary')) : [];
+const recover = findFile([...files, ...buildFiles], (name) => name.toLowerCase() === 'recover.exe', 'recover.exe');
 
 const runtimeDirectory = path.dirname(nhdat);
 fs.rmSync(stageRoot, { recursive: true, force: true });

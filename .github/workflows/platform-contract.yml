@@ -84,8 +84,7 @@ jobs:
       - name: Extract Windows runtime data
         shell: pwsh
         run: |
-          $zip = Get-ChildItem binary -Recurse -Filter "NetHack-*-x64.zip" | Select-Object -First 1
-          if (-not $zip) { throw "Windows NetHack package not found" }
+          $zip = Get-Item "vspackage\\nethack-500-win-x64.zip"
           Expand-Archive -Path $zip.FullName -DestinationPath "$env:RUNNER_TEMP\\nethack-runtime" -Force
 
       - name: Install Electron dependencies
