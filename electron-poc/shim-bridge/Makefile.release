@@ -1,0 +1,25 @@
+ROOT := ../..
+CC ?= cc
+CFLAGS ?= -g -O0
+CPPFLAGS += -I$(ROOT)/include -D_GNU_SOURCE
+ifeq ($(NH_ELECTRON_TEST_FIXTURES),1)
+CPPFLAGS += -DNH_ELECTRON_TEST_FIXTURES
+endif
+LDFLAGS += -pthread
+LDLIBS += -lm -ldl
+TARGET := nh-shim-bridge
+LIBNH := $(ROOT)/src/libnh.a
+HACKLIB := $(ROOT)/src/hacklib.a
+LUALIB := $(ROOT)/lib/lua/liblua-5.4.8.a
+
+$(TARGET): nh-shim-bridge.c $(LIBNH) $(HACKLIB) $(LUALIB)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ nh-shim-bridge.c -Wl,--allow-multiple-definition -Wl,--start-group $(LIBNH) $(HACKLIB) $(LUALIB) -Wl,--end-group $(LDFLAGS) $(LDLIBS) -lncurses -luuid
+
+$(LIBNH): $(ROOT)/src/save.c $(ROOT)/src/Makefile
+	rm -f $(ROOT)/src/save.o
+	$(MAKE) -C $(ROOT) WANT_LIBNH=1 NH_ELECTRON_TEST_FIXTURES=$(NH_ELECTRON_TEST_FIXTURES)
+
+clean:
+	rm -f $(TARGET)
+
+.PHONY: clean
