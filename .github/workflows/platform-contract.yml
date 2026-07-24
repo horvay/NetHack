@@ -103,6 +103,18 @@ jobs:
         working-directory: electron-poc
         run: npm run package:windows
 
+      - name: Run packaged Windows gameplay smoke
+        working-directory: electron-poc
+        run: node test/native/packaged-electron-smoke.js dist/win-unpacked/nethack-electron.exe test-output/platform-contract/windows-gameplay.png
+
+      - name: Upload Windows gameplay evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-gameplay-evidence
+          path: electron-poc/test-output/platform-contract/windows-gameplay.png
+          if-no-files-found: warn
+
       - name: Upload portable Electron app
         uses: actions/upload-artifact@v4
         with:
@@ -148,3 +160,30 @@ jobs:
       - name: Run bridge protocol contract
         working-directory: electron-poc
         run: node test/native/bridge-protocol-contract.js shim-bridge/nh-shim-bridge
+
+      - name: Install Electron dependencies
+        working-directory: electron-poc
+        run: npm ci
+
+      - name: Build Linux Electron app
+        working-directory: electron-poc
+        run: npm run package:linux
+
+      - name: Run packaged Linux gameplay smoke
+        working-directory: electron-poc
+        run: xvfb-run --auto-servernum node test/native/packaged-electron-smoke.js dist/linux-unpacked/nethack-electron test-output/platform-contract/linux-gameplay.png
+
+      - name: Upload Linux gameplay evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-gameplay-evidence
+          path: electron-poc/test-output/platform-contract/linux-gameplay.png
+          if-no-files-found: warn
+
+      - name: Upload Linux Electron app
+        uses: actions/upload-artifact@v4
+        with:
+          name: nethack-electron-linux-x64
+          path: electron-poc/dist/NetHack-Electron-*-linux-x86_64.AppImage
+          if-no-files-found: error
