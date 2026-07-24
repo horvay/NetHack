@@ -142,7 +142,8 @@
     "test:real-escape-popups-mcp": "npm run build:shim:test-fixtures && NH_ELECTRON_TEST_FIXTURES=1 node scripts/real-escape-popup-mcp-test.js",
     "test:final-proof": "node scripts/final-verification-proof.js",
     "test:packaged-runtime": "node test/shared/packaged-runtime-test.js",
-    "package:linux": "node scripts/prepare-linux-release.js && electron-builder --linux AppImage --x64"
+    "package:linux": "node scripts/prepare-linux-release.js && electron-builder --linux AppImage --x64",
+    "test:platform-contract": "cmake -S shim-bridge -B .native-build -DCMAKE_BUILD_TYPE=Release && cmake --build .native-build --config Release --target bridge_platform_contract && ctest --test-dir .native-build -C Release --output-on-failure"
   },
   "license": "NGPL",
   "type": "commonjs",
