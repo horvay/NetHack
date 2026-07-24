@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Release tag to create or update (for example, v5.0.0-electron.5)"
+        description: "Release tag to create or update (for example, v5.0.0-electron.6)"
         required: true
         type: string
 
@@ -32,7 +32,7 @@ jobs:
       - name: Install native build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install --yes bison flex libncurses-dev uuid-dev
+          sudo apt-get install --yes bison flex libncurses-dev libuv1-dev uuid-dev
 
       - name: Install Electron dependencies
         working-directory: electron-poc

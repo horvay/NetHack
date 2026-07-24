@@ -1,6 +1,6 @@
 {
   "name": "nethack-electron",
-  "version": "5.0.0-electron.5",
+  "version": "5.0.0-electron.6",
   "private": true,
   "description": "NetHack with a native Electron gameplay interface.",
   "main": "src/main.js",

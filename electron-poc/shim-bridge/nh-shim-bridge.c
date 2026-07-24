@@ -7,12 +7,11 @@
 #define _GNU_SOURCE
 #endif
 #include <ctype.h>
-#include <pthread.h>
+#include <uv.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <limits.h>
 #include <stdint.h>
 #include <errno.h>
@@ -60,9 +59,25 @@ extern void equipment_change_take_result(boolean *, unsigned int *, char *, size
 typedef void (*shim_callback_t)(const char *name, void *ret_ptr, const char *fmt, ...);
 extern void shim_graphics_set_callback(shim_callback_t cb);
 
-static pthread_mutex_t out_mu = PTHREAD_MUTEX_INITIALIZER;
-static pthread_mutex_t in_mu = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t in_cv = PTHREAD_COND_INITIALIZER;
+static uv_mutex_t out_mu;
+static uv_mutex_t in_mu;
+static uv_cond_t in_cv;
+
+static int init_bridge_runtime(void) {
+    int rc = uv_mutex_init(&out_mu);
+    if (rc) return rc;
+    rc = uv_mutex_init(&in_mu);
+    if (rc) {
+        uv_mutex_destroy(&out_mu);
+        return rc;
+    }
+    rc = uv_cond_init(&in_cv);
+    if (rc) {
+        uv_mutex_destroy(&in_mu);
+        uv_mutex_destroy(&out_mu);
+    }
+    return rc;
+}
 static int pending_keys[1024];
 static int pending_head = 0, pending_tail = 0;
 static int next_winid = 1;
@@ -239,7 +254,7 @@ typedef struct bridge_terrain_action_request {
 } bridge_terrain_action_request;
 
 static bridge_direct_command_arbitration direct_command_arbitration;
-static pthread_mutex_t direct_command_mu = PTHREAD_MUTEX_INITIALIZER;
+static uv_mutex_t direct_command_mu;
 static bridge_ground_transfer_request active_ground_transfer;
 static bridge_container_transfer_request active_container_transfer;
 static bridge_container_snapshot_request active_container_snapshot;
@@ -438,9 +453,9 @@ static void active_prompt_or_menu_reason(char *out, size_t outsz) {
 
 static int pending_queue_length(void) {
     int queued;
-    pthread_mutex_lock(&in_mu);
+    uv_mutex_lock(&in_mu);
     queued = (pending_tail - pending_head + 1024) % 1024;
-    pthread_mutex_unlock(&in_mu);
+    uv_mutex_unlock(&in_mu);
     return queued;
 }
 
@@ -463,9 +478,9 @@ static int direct_command_is_active(bridge_direct_command_family family) {
 
 static int direct_command_is_idle(void) {
     int idle;
-    pthread_mutex_lock(&direct_command_mu);
+    uv_mutex_lock(&direct_command_mu);
     idle = direct_command_arbitration.active_family == BRIDGE_DIRECT_COMMAND_NONE;
-    pthread_mutex_unlock(&direct_command_mu);
+    uv_mutex_unlock(&direct_command_mu);
     return idle;
 }
 
@@ -474,21 +489,21 @@ static int begin_direct_command(bridge_direct_command_family family,
                                 const char *transaction_id,
                                 char *reason,
                                 size_t reasonsz) {
-    pthread_mutex_lock(&direct_command_mu);
+    uv_mutex_lock(&direct_command_mu);
     if (direct_command_arbitration.active_family != BRIDGE_DIRECT_COMMAND_NONE) {
         snprintf(reason, reasonsz, "%s", "another direct command is active");
-        pthread_mutex_unlock(&direct_command_mu);
+        uv_mutex_unlock(&direct_command_mu);
         return 0;
     }
     if (active_prompt_or_menu_owns_input()) {
         active_prompt_or_menu_reason(reason, reasonsz);
-        pthread_mutex_unlock(&direct_command_mu);
+        uv_mutex_unlock(&direct_command_mu);
         return 0;
     }
     if (pending_queue_length() > 0) {
         snprintf(reason, reasonsz, "pending native command blocks %s",
                  direct_command_family_label(family));
-        pthread_mutex_unlock(&direct_command_mu);
+        uv_mutex_unlock(&direct_command_mu);
         return 0;
     }
     memset(&direct_command_arbitration, 0, sizeof direct_command_arbitration);
@@ -498,18 +513,18 @@ static int begin_direct_command(bridge_direct_command_family family,
     snprintf(direct_command_arbitration.transaction_id,
              sizeof direct_command_arbitration.transaction_id, "%s",
              transaction_id && *transaction_id ? transaction_id : command_id);
-    pthread_mutex_unlock(&direct_command_mu);
+    uv_mutex_unlock(&direct_command_mu);
     return 1;
 }
 
 static int mark_direct_command_queued(bridge_direct_command_family family) {
-    pthread_mutex_lock(&direct_command_mu);
+    uv_mutex_lock(&direct_command_mu);
     if (!direct_command_is_active(family) || direct_command_arbitration.queued) {
-        pthread_mutex_unlock(&direct_command_mu);
+        uv_mutex_unlock(&direct_command_mu);
         return 0;
     }
     direct_command_arbitration.queued = 1;
-    pthread_mutex_unlock(&direct_command_mu);
+    uv_mutex_unlock(&direct_command_mu);
     return 1;
 }
 
@@ -869,7 +884,7 @@ static int emit_current_event_can_defer_flush = 0;
 static unsigned int emit_deferred_flush_count = 0;
 
 static void emit_event_start(const char *name) {
-    pthread_mutex_lock(&out_mu);
+    uv_mutex_lock(&out_mu);
     emit_current_event_can_defer_flush = !strcmp(name, "shim_print_glyph");
     fputs("{\"type\":\"shim-event\",\"name\":\"", stdout);
     json_escape(stdout, name);
@@ -889,7 +904,7 @@ static void emit_event_end(void) {
         emit_deferred_flush_count = 0;
     }
     emit_current_event_can_defer_flush = 0;
-    pthread_mutex_unlock(&out_mu);
+    uv_mutex_unlock(&out_mu);
 }
 
 static const char *direct_command_family_event_stem(
@@ -952,7 +967,7 @@ static void emit_authoritative_magic_rows(const char *kind, int window) {
     unsigned long sequence = ++ui_protocol_sequence;
     unsigned long revision = is_spell ? ++spell_rows_revision
                                       : ++skill_rows_revision;
-    pthread_mutex_lock(&out_mu);
+    uv_mutex_lock(&out_mu);
     fputs("{\"protocol\":\"nethack-electron-ui/v2\",\"sequence\":", stdout);
     fprintf(stdout, "%lu,\"eventId\":\"evt-%s-rows-%lu\",\"eventType\":\"%s.rows\",\"turn\":%ld",
             sequence, kind, revision, kind,
@@ -985,7 +1000,7 @@ static void emit_authoritative_magic_rows(const char *kind, int window) {
     }
     fputs("]}}\n", stdout);
     fflush(stdout);
-    pthread_mutex_unlock(&out_mu);
+    uv_mutex_unlock(&out_mu);
     if (is_spell) { pending_spell_row_count = 0; pending_spell_rows_window = -1; }
     else { pending_skill_row_count = 0; pending_skill_rows_window = -1; }
 }
@@ -1120,7 +1135,7 @@ static void push_key_with_metadata(int ch, const bridge_gui_action_metadata *met
     unsigned long transaction_revision = ++command_transaction_revision;
     if (meta && meta->transaction_id[0]) snprintf(active_transaction_id, sizeof active_transaction_id, "%s", meta->transaction_id);
     else snprintf(active_transaction_id, sizeof active_transaction_id, "shim-command-%lu-%d", transaction_revision, ch);
-    pthread_mutex_lock(&in_mu);
+    uv_mutex_lock(&in_mu);
     int queued_before = (pending_tail - pending_head + 1024) % 1024;
     int next = (pending_tail + 1) % 1024;
     int accepted = 0;
@@ -1128,10 +1143,10 @@ static void push_key_with_metadata(int ch, const bridge_gui_action_metadata *met
         pending_keys[pending_tail] = ch;
         pending_tail = next;
         accepted = 1;
-        pthread_cond_signal(&in_cv);
+        uv_cond_signal(&in_cv);
     }
     int queued_after = (pending_tail - pending_head + 1024) % 1024;
-    pthread_mutex_unlock(&in_mu);
+    uv_mutex_unlock(&in_mu);
     bridge_menu_lifecycle *active_menu = first_active_menu_lifecycle();
     char active_request_id[96] = "";
     const char *active_request_kind = "none";
@@ -1656,7 +1671,7 @@ static void maybe_emit_terrain_action_result(void) {
     char transaction_id[128] = "";
     char reason[192] = "";
     terrain_action_take_result(&success, action, sizeof action, &x, &y, terrain, sizeof terrain, &item_id, transaction_id, sizeof transaction_id, reason, sizeof reason);
-    pthread_mutex_lock(&direct_command_mu);
+    uv_mutex_lock(&direct_command_mu);
     bridge_terrain_action_request completed = active_terrain_action;
     bridge_direct_command_arbitration completed_command =
         direct_command_arbitration;
@@ -1670,7 +1685,7 @@ static void maybe_emit_terrain_action_result(void) {
     fprintf(stdout, ",\"coord\":{\"x\":%d,\"y\":%d},\"itemId\":%u", (int)x, (int)y, item_id);
     fputs(",\"reason\":\"", stdout); json_escape(stdout, reason); fputs("\"", stdout);
     emit_event_end();
-    pthread_mutex_unlock(&direct_command_mu);
+    uv_mutex_unlock(&direct_command_mu);
 }
 
 static void emit_equipment_change_rejected(const char *command_id, const char *transaction_id, const char *action, unsigned int item_id, const char *slot_id, const char *hand, const char *reason) {
@@ -1774,7 +1789,7 @@ static void maybe_emit_ground_transfer_result(void) {
     ground_transfer_take_result(&success, &item_id, &x, &y, direction, sizeof direction, transaction_id, sizeof transaction_id, reason, sizeof reason);
     emit_live_inventory_event(-31);
     if (isok(x, y)) emit_ground_pile_snapshot_event(WIN_MAP, x, y);
-    pthread_mutex_lock(&direct_command_mu);
+    uv_mutex_lock(&direct_command_mu);
     bridge_ground_transfer_request completed = active_ground_transfer;
     bridge_direct_command_arbitration completed_command =
         direct_command_arbitration;
@@ -1788,7 +1803,7 @@ static void maybe_emit_ground_transfer_result(void) {
     fprintf(stdout, ",\"coord\":{\"x\":%d,\"y\":%d}", x, y);
     fputs(",\"reason\":\"", stdout); json_escape(stdout, reason); fputs("\"", stdout);
     emit_event_end();
-    pthread_mutex_unlock(&direct_command_mu);
+    uv_mutex_unlock(&direct_command_mu);
 }
 
 static void maybe_emit_container_transfer_result(void) {
@@ -1801,7 +1816,7 @@ static void maybe_emit_container_transfer_result(void) {
     container_transfer_take_result(&success, &container_id, &item_id, direction, sizeof direction, transaction_id, sizeof transaction_id, reason, sizeof reason);
     struct obj *container = floor_container_by_public_id(container_id);
     if (container) emit_container_contents_snapshot_for(container, active_container_transfer.session_id, transaction_id);
-    pthread_mutex_lock(&direct_command_mu);
+    uv_mutex_lock(&direct_command_mu);
     bridge_container_transfer_request completed = active_container_transfer;
     bridge_direct_command_arbitration completed_command =
         direct_command_arbitration;
@@ -1814,7 +1829,7 @@ static void maybe_emit_container_transfer_result(void) {
     fprintf(stdout, ",\"containerId\":%u,\"itemId\":%u,\"direction\":\"", container_id, item_id); json_escape(stdout, direction[0] ? direction : completed.direction); fputs("\"", stdout);
     fputs(",\"reason\":\"", stdout); json_escape(stdout, reason); fputs("\"", stdout);
     emit_event_end();
-    pthread_mutex_unlock(&direct_command_mu);
+    uv_mutex_unlock(&direct_command_mu);
 }
 
 static void maybe_emit_container_snapshot_result(void) {
@@ -1826,7 +1841,7 @@ static void maybe_emit_container_snapshot_result(void) {
     container_snapshot_take_result(&success, &container_id, transaction_id, sizeof transaction_id, reason, sizeof reason);
     struct obj *container = floor_container_by_public_id(container_id);
     if (success && container) emit_container_contents_snapshot_for(container, active_container_snapshot.session_id, transaction_id);
-    pthread_mutex_lock(&direct_command_mu);
+    uv_mutex_lock(&direct_command_mu);
     bridge_container_snapshot_request completed = active_container_snapshot;
     bridge_direct_command_arbitration completed_command =
         direct_command_arbitration;
@@ -1841,7 +1856,7 @@ static void maybe_emit_container_snapshot_result(void) {
     else fputs(",\"status\":\"ok\"", stdout);
     fputs(",\"reason\":\"", stdout); json_escape(stdout, reason); fputs("\"", stdout);
     emit_event_end();
-    pthread_mutex_unlock(&direct_command_mu);
+    uv_mutex_unlock(&direct_command_mu);
 }
 
 static void maybe_emit_equipment_change_result(void) {
@@ -1854,7 +1869,7 @@ static void maybe_emit_equipment_change_result(void) {
     char transaction_id[128] = "";
     char reason[192] = "";
     equipment_change_take_result(&success, &item_id, action, sizeof action, slot_id, sizeof slot_id, hand, sizeof hand, transaction_id, sizeof transaction_id, reason, sizeof reason);
-    pthread_mutex_lock(&direct_command_mu);
+    uv_mutex_lock(&direct_command_mu);
     bridge_equipment_change_request completed = active_equipment_change;
     bridge_direct_command_arbitration completed_command =
         direct_command_arbitration;
@@ -1869,7 +1884,7 @@ static void maybe_emit_equipment_change_result(void) {
     fputs(",\"hand\":\"", stdout); json_escape(stdout, hand[0] ? hand : completed.hand); fputs("\"", stdout);
     fputs(",\"reason\":\"", stdout); json_escape(stdout, reason); fputs("\"", stdout);
     emit_event_end();
-    pthread_mutex_unlock(&direct_command_mu);
+    uv_mutex_unlock(&direct_command_mu);
 }
 
 static void handle_ui_command_line(const char *line) {
@@ -1951,20 +1966,20 @@ static void handle_ui_command_line(const char *line) {
 }
 
 static int pop_key_blocking_with_status(int *queued_before, int *queued_after) {
-    pthread_mutex_lock(&in_mu);
+    uv_mutex_lock(&in_mu);
     while (pending_head == pending_tail) {
         /* Do not synthesize ESC on EOF.  A detached/stdin-closed shim used to
          * feed ESC forever, making NetHack spin and look like it was
          * repeatedly restarting.  Electron keeps stdin open and sends explicit
          * JSON key events; if stdin closes, wait quietly for SIGTERM/cleanup.
          */
-        pthread_cond_wait(&in_cv, &in_mu);
+        uv_cond_wait(&in_cv, &in_mu);
     }
     if (queued_before) *queued_before = (pending_tail - pending_head + 1024) % 1024;
     int ch = pending_keys[pending_head];
     pending_head = (pending_head + 1) % 1024;
     if (queued_after) *queued_after = (pending_tail - pending_head + 1024) % 1024;
-    pthread_mutex_unlock(&in_mu);
+    uv_mutex_unlock(&in_mu);
     return ch;
 }
 
@@ -1975,14 +1990,14 @@ static int pop_key_blocking(void) {
 static int try_pop_matching_key(const char *choices) {
     int ch = 0;
     int accepted = 0;
-    pthread_mutex_lock(&in_mu);
+    uv_mutex_lock(&in_mu);
     if (pending_head != pending_tail) {
         ch = pending_keys[pending_head];
         if (ch == '\r') ch = '\n';
         accepted = (ch == 27) || !choices || !*choices || strchr(choices, ch) != NULL;
         if (accepted) pending_head = (pending_head + 1) % 1024;
     }
-    pthread_mutex_unlock(&in_mu);
+    uv_mutex_unlock(&in_mu);
     return accepted ? ch : 0;
 }
 
@@ -1993,7 +2008,7 @@ static int is_ring_finger_prompt(const char *query, const char *choices) {
         || (strstr(query, "Right or Left") != NULL && strstr(query, "ring") != NULL);
 }
 
-static void *stdin_thread(void *unused) {
+static void stdin_thread(void *unused) {
     (void) unused;
     char line[4096];
     while (fgets(line, sizeof line, stdin)) {
@@ -2074,7 +2089,7 @@ static void *stdin_thread(void *unused) {
         }
     }
     emit_event_start("bridge_stdin_closed"); emit_event_end();
-    return NULL;
+    return;
 }
 
 unsigned long
@@ -2122,13 +2137,10 @@ sys_random_seed(void)
     }
 
     unsigned long seed = 0UL;
-    FILE *fptr = fopen("/dev/urandom", "r");
-    if (fptr) {
-        if (fread(&seed, sizeof seed, 1, fptr) == 1) has_strong_rngseed = TRUE;
-        (void) fclose(fptr);
-    }
+    if (uv_random(NULL, NULL, &seed, sizeof seed, 0, NULL) == 0)
+        has_strong_rngseed = TRUE;
     if (!seed) {
-        unsigned long pid = (unsigned long) getpid();
+        unsigned long pid = (unsigned long) uv_os_getpid();
         seed = (unsigned long) time(NULL);
         if (pid) seed *= (pid & 3UL) ? pid : (pid - 1UL);
     }
@@ -3952,6 +3964,12 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
 
 int main(int argc, char **argv) {
     setvbuf(stdout, NULL, _IOLBF, 0);
+    int runtime_rc = init_bridge_runtime();
+    if (!runtime_rc) runtime_rc = uv_mutex_init(&direct_command_mu);
+    if (runtime_rc) {
+        fprintf(stderr, "Cannot initialize bridge runtime: %s\n", uv_strerror(runtime_rc));
+        return 2;
+    }
     if (has_fixture_env() && (!getenv("NH_ELECTRON_TEST_FIXTURES") || strcmp(getenv("NH_ELECTRON_TEST_FIXTURES"), "1") != 0)) {
         nh_test_bridge_event("bridge_test_scenario_failed", getenv("NH_TEST_SCENARIO_ID"), "fixture scenario env vars require explicit NH_ELECTRON_TEST_FIXTURES=1 runtime gate", NULL);
         return 2;
@@ -3982,8 +4000,9 @@ int main(int argc, char **argv) {
                 return 2;
             }
         }
-        char scenario_path[PATH_MAX];
-        if (!getcwd(scenario_path, sizeof scenario_path)) {
+        char scenario_path[4096];
+        size_t scenario_path_size = sizeof scenario_path;
+        if (uv_cwd(scenario_path, &scenario_path_size) != 0) {
             nh_test_bridge_event("bridge_test_scenario_failed", scenario_id, "cannot resolve scenario root", NULL);
             return 2;
         }
@@ -3993,30 +4012,52 @@ int main(int argc, char **argv) {
             nh_test_bridge_event("bridge_test_scenario_failed", scenario_id, "scenario path is too long", NULL);
             return 2;
         }
-        setenv("NH_TEST_SCENARIO", scenario_path, 1);
+        if (uv_os_setenv("NH_TEST_SCENARIO", scenario_path) != 0) {
+            nh_test_bridge_event("bridge_test_scenario_failed", scenario_id, "cannot configure scenario path", NULL);
+            return 2;
+        }
     }
 #endif
-    if (!getenv("NETHACKOPTIONS"))
-        setenv("NETHACKOPTIONS", "!tutorial", 0);
+    if (!getenv("NETHACKOPTIONS") && uv_os_setenv("NETHACKOPTIONS", "!tutorial") != 0) {
+        fprintf(stderr, "Cannot configure NETHACKOPTIONS\n");
+        return 2;
+    }
     if (!getenv("NH_SHIM_NO_CHDIR")) {
         const char *hackdir = getenv("NETHACKDIR");
         if (!hackdir || !*hackdir) hackdir = getenv("NH_TEST_PLAYGROUND");
-        if (!hackdir || !*hackdir) hackdir = "/home/horvay/work/nethack/playground";
-        (void) chdir(hackdir);
+        int chdir_rc;
+        if (hackdir && *hackdir) {
+            chdir_rc = uv_chdir(hackdir);
+        } else {
+            hackdir = "playground";
+            chdir_rc = uv_chdir(hackdir);
+            if (chdir_rc) {
+                hackdir = "../playground";
+                chdir_rc = uv_chdir(hackdir);
+            }
+        }
+        if (chdir_rc) {
+            fprintf(stderr, "Cannot open NetHack playground '%s': %s\n", hackdir, uv_strerror(chdir_rc));
+            return 2;
+        }
         /* Destructive reset is opt-in only; never clear shared lock files on
          * ordinary startup because another live Electron/fixture process may
          * own them and NetHack's pid guard treats that as fatal trickery. */
         if (getenv("NH_SHIM_RESET_LOCKS") && !strcmp(getenv("NH_SHIM_RESET_LOCKS"), "1")) {
             char lockname[] = "alock.0";
-            for (char c = 'a'; c <= 'z'; ++c) { lockname[0] = c; (void) unlink(lockname); }
+            for (char c = 'a'; c <= 'z'; ++c) { lockname[0] = c; (void) remove(lockname); }
         }
     }
-    pthread_t tid;
-    pthread_create(&tid, NULL, stdin_thread, NULL);
+    uv_thread_t tid;
+    int thread_rc = uv_thread_create(&tid, stdin_thread, NULL);
+    if (thread_rc) {
+        fprintf(stderr, "Cannot start bridge input thread: %s\n", uv_strerror(thread_rc));
+        return 2;
+    }
     shim_graphics_set_callback(shim_cb);
 
     char userarg[80];
-    snprintf(userarg, sizeof userarg, "-uElectron%ld-Val-Hum-Fem-Law", (long) getpid() % 100000L);
+    snprintf(userarg, sizeof userarg, "-uElectron%ld-Val-Hum-Fem-Law", (long) uv_os_getpid() % 100000L);
     char *default_argv[] = { "nh-shim-bridge", userarg, NULL };
     if (argc <= 1) {
         argc = 2;

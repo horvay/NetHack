@@ -57,8 +57,8 @@ copy(path.join(appRoot, 'shim-bridge', 'nh-shim-bridge'), path.join(stageRoot, '
 copy(path.join(repoRoot, 'util', 'recover'), path.join(stageRoot, 'util', 'recover'));
 stageRuntimeLibraries(
   path.join(stageRoot, 'electron-poc', 'shim-bridge', 'nh-shim-bridge'),
-  ['libncurses', 'libtinfo', 'libuuid'],
-  ['libncurses', 'libuuid'],
+  ['libncurses', 'libtinfo', 'libuuid', 'libuv'],
+  ['libncurses', 'libuuid', 'libuv'],
 );
 
 const required = [

@@ -1,12 +1,13 @@
 ROOT := ../..
 CC ?= cc
 CFLAGS ?= -g -O0
-CPPFLAGS += -I$(ROOT)/include -D_GNU_SOURCE
+LIBUV_CFLAGS := $(shell pkg-config --cflags libuv)
+LIBUV_LIBS := $(shell pkg-config --libs libuv)
+CPPFLAGS += -I$(ROOT)/include -D_GNU_SOURCE $(LIBUV_CFLAGS)
 ifeq ($(NH_ELECTRON_TEST_FIXTURES),1)
 CPPFLAGS += -DNH_ELECTRON_TEST_FIXTURES
 endif
-LDFLAGS += -pthread
-LDLIBS += -lm -ldl
+LDLIBS += -lm -ldl $(LIBUV_LIBS)
 TARGET := nh-shim-bridge
 LIBNH := $(ROOT)/src/libnh.a
 HACKLIB := $(ROOT)/src/hacklib.a
