@@ -6,9 +6,11 @@ on:
     paths:
       - ".github/workflows/platform-contract.yml"
       - "electron-poc/package.json"
+      - "electron-poc/scripts/prepare-windows-release.js"
       - "electron-poc/shim-bridge/**"
       - "electron-poc/test/native/**"
       - "sys/windows/windmain.c"
+      - "sys/windows/windsys.c"
       - "win/shim/**"
   push:
     branches:
@@ -16,9 +18,11 @@ on:
     paths:
       - ".github/workflows/platform-contract.yml"
       - "electron-poc/package.json"
+      - "electron-poc/scripts/prepare-windows-release.js"
       - "electron-poc/shim-bridge/**"
       - "electron-poc/test/native/**"
       - "sys/windows/windmain.c"
+      - "sys/windows/windsys.c"
       - "win/shim/**"
 
 permissions:
