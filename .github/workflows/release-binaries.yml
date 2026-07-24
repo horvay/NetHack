@@ -41,6 +41,7 @@ jobs:
         run: |
           mkdir -p release/nethack-linux-x64/lib/runtime-libs
           cp -a "$HOME/nethack-minimal/games/lib/nethackdir" release/nethack-linux-x64/lib/
+          install -m 0644 sys/unix/sysconf release/nethack-linux-x64/lib/nethackdir/sysconf
           cp -L /lib/x86_64-linux-gnu/libncurses.so.6 release/nethack-linux-x64/lib/runtime-libs/
           cp -L /lib/x86_64-linux-gnu/libtinfo.so.6 release/nethack-linux-x64/lib/runtime-libs/
           cat > release/nethack-linux-x64/nethack <<'EOF'
@@ -51,6 +52,7 @@ jobs:
           exec "$root/lib/nethackdir/nethack" -d "$root/lib/nethackdir" "$@"
           EOF
           chmod 0755 release/nethack-linux-x64/nethack
+          release/nethack-linux-x64/nethack -s
           tar -C release -czf release/nethack-linux-x64.tar.gz nethack-linux-x64
 
       - name: Upload Linux package
