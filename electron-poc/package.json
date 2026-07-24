@@ -1,8 +1,8 @@
 {
-  "name": "nethack-electron-poc",
-  "version": "0.1.0",
+  "name": "nethack-electron",
+  "version": "5.0.0-electron.4",
   "private": true,
-  "description": "Minimal Electron wrapper proof of concept for the local NetHack build.",
+  "description": "NetHack with a native Electron gameplay interface.",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
@@ -140,14 +140,49 @@
     "test:real-modal-layout-stability-mcp": "node scripts/real-modal-layout-stability-mcp-test.js",
     "test:escape-popups": "node scripts/escape-popup-coverage-test.js",
     "test:real-escape-popups-mcp": "npm run build:shim:test-fixtures && NH_ELECTRON_TEST_FIXTURES=1 node scripts/real-escape-popup-mcp-test.js",
-    "test:final-proof": "node scripts/final-verification-proof.js"
+    "test:final-proof": "node scripts/final-verification-proof.js",
+    "test:packaged-runtime": "node test/shared/packaged-runtime-test.js",
+    "package:linux": "node scripts/prepare-linux-release.js && electron-builder --linux AppImage --x64"
   },
   "license": "NGPL",
   "type": "commonjs",
   "devDependencies": {
-    "electron": "^42.5.0"
+    "electron": "^42.5.0",
+    "electron-builder": "^26.15.3"
   },
   "dependencies": {
     "@xterm/xterm": "^6.0.0"
+  },
+  "build": {
+    "appId": "org.nethack.electron",
+    "productName": "NetHack Electron",
+    "executableName": "nethack-electron",
+    "asar": true,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "node_modules/@xterm/xterm/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "release-runtime",
+        "to": "runtime"
+      },
+      {
+        "from": "../doc/Guidebook.txt",
+        "to": "doc/Guidebook.txt"
+      }
+    ],
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Game",
+      "artifactName": "NetHack-Electron-${version}-linux-${arch}.${ext}"
+    }
   }
 }

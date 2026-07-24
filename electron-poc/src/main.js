@@ -11,10 +11,20 @@ const { DiagnosticRunStore } = require('./main/diagnostic-log');
 const { installAppLifecycleDiagnostics } = require('./main/app-lifecycle-diagnostics');
 const RecoveryState = require('./main/recovery-state');
 const WindowPolicy = require('./main/window-policy');
+const PackagedRuntime = require('./main/packaged-runtime');
 
-const repoRoot = path.resolve(__dirname, '..', '..');
-const nethackBin = process.env.NETHACK_BINARY || path.join(repoRoot, 'src', 'nethack');
-const shimBridgeBin = process.env.NH_SHIM_BRIDGE || path.join(repoRoot, 'electron-poc', 'shim-bridge', 'nh-shim-bridge');
+const devRepoRoot = path.resolve(__dirname, '..', '..');
+const runtime = PackagedRuntime.resolveRuntime({
+  packaged: app.isPackaged,
+  devRepoRoot,
+  resourcesPath: process.resourcesPath,
+  userDataPath: app.getPath('userData'),
+  platform: process.platform,
+});
+const repoRoot = runtime.repoRoot;
+const nethackBin = process.env.NETHACK_BINARY || runtime.nethackBin;
+const shimBridgeBin = process.env.NH_SHIM_BRIDGE || runtime.shimBridgeBin;
+const runtimeEnv = PackagedRuntime.runtimeEnvironment(runtime, process.env);
 
 Security.configureCommandLine({ app });
 
@@ -34,12 +44,12 @@ function send(channel, payload) {
 }
 
 function createWindow() {
-  const windowPolicy = WindowPolicy.browserWindowSizePolicy(process.env);
-  const useContentSize = process.env.NH_ELECTRON_WINDOW_CONTENT_SIZE === '1';
-  const showWindow = process.env.NH_ELECTRON_SHOW !== '0';
-  diagnostics = new DiagnosticRunStore({ app, repoRoot, env: process.env });
+  const windowPolicy = WindowPolicy.browserWindowSizePolicy(runtimeEnv);
+  const useContentSize = runtimeEnv.NH_ELECTRON_WINDOW_CONTENT_SIZE === '1';
+  const showWindow = runtimeEnv.NH_ELECTRON_SHOW !== '0';
+  diagnostics = new DiagnosticRunStore({ app, repoRoot, env: runtimeEnv });
   diagnostics.recoverUnfinalized();
-  gameProcess = createGameProcess({ repoRoot, nethackBin, shimBridgeBin, send, diagnostics });
+  gameProcess = createGameProcess({ repoRoot, nethackBin, shimBridgeBin, send, env: runtimeEnv, diagnostics });
   win = new BrowserWindow({
     width: windowPolicy.initial.width,
     height: windowPolicy.initial.height,
@@ -47,7 +57,7 @@ function createWindow() {
     minHeight: windowPolicy.minimum.height,
     useContentSize,
     show: showWindow,
-    title: 'NetHack Electron POC',
+    title: 'NetHack Electron',
     webPreferences: Security.secureWebPreferences({ preload: path.join(__dirname, 'preload.js') }),
   });
   Security.hardenWindow(win, { allowFileNavigation: true });
@@ -62,7 +72,13 @@ function createWindow() {
   });
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(async () => {
+  await PackagedRuntime.preparePlayground(runtime);
+  createWindow();
+}).catch((error) => {
+  console.error(`[startup] ${error.stack || error}`);
+  app.exit(1);
+});
 app.on('window-all-closed', () => {
   appLifecycleDiagnostics.noteQuitIntent('window-all-closed');
   app.quit();
@@ -71,7 +87,8 @@ app.on('window-all-closed', () => {
 function recordingPathFor(recording) {
   const started = String(recording?.startedAt || new Date().toISOString()).replace(/[:.]/g, '-');
   const name = String(recording?.character?.name || 'nethack').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 24) || 'nethack';
-  return path.join(repoRoot, 'electron-poc', 'test', 'recordings', `${started}-${name}.nhrec.json`);
+  const root = app.isPackaged ? path.join(app.getPath('userData'), 'recordings') : path.join(repoRoot, 'electron-poc', 'test', 'recordings');
+  return path.join(root, `${started}-${name}.nhrec.json`);
 }
 
 ipcMain.handle('nethack:info', () => ({
@@ -85,7 +102,7 @@ ipcMain.handle('nethack:info', () => ({
 ipcMain.handle('nethack:stop', () => gameProcess.stop());
 
 ipcMain.handle('nethack:runVersion', async () => new Promise((resolve) => {
-  const proc = spawn(nethackBin, ['--version'], { cwd: repoRoot, env: process.env });
+  const proc = spawn(nethackBin, ['--version'], { cwd: repoRoot, env: runtimeEnv });
   let output = '';
   proc.stdout.on('data', (data) => { output += data.toString(); });
   proc.stderr.on('data', (data) => { output += data.toString(); });
@@ -142,8 +159,8 @@ ipcMain.handle('nethack:testCapturePage', async (event, captureId = '') => {
   return { ok: true, path: file, width: size.width, height: size.height, method: 'BrowserWindow.webContents.capturePage' };
 });
 
-ipcMain.handle('nethack:startupRecoveryState', () => RecoveryState.getRecoveryState({ repoRoot, env: process.env }));
-ipcMain.handle('nethack:prepareContinueGame', (_event, candidateId = '') => RecoveryState.prepareContinueGame({ repoRoot, env: process.env, candidateId: String(candidateId || '').slice(0, 120) }));
+ipcMain.handle('nethack:startupRecoveryState', () => RecoveryState.getRecoveryState({ repoRoot, env: runtimeEnv }));
+ipcMain.handle('nethack:prepareContinueGame', (_event, candidateId = '') => RecoveryState.prepareContinueGame({ repoRoot, env: runtimeEnv, candidateId: String(candidateId || '').slice(0, 120) }));
 
 ipcMain.handle('nethack:saveRecording', async (_event, recording) => {
   const checked = RecordingSchema.sanitizeForSave(recording);

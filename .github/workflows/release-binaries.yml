@@ -1,4 +1,4 @@
-name: Release Linux and Windows binaries
+name: Release NetHack Electron
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Release tag to create or update (for example, v5.0.0-electron.1)"
+        description: "Release tag to create or update (for example, v5.0.0-electron.4)"
         required: true
         type: string
 
@@ -16,84 +16,47 @@ permissions:
 
 jobs:
   build-linux:
-    name: Build Linux x64 package
-    runs-on: ubuntu-latest
+    name: Build Linux x64 Electron app
+    runs-on: ubuntu-22.04
     steps:
       - name: Check out source
         uses: actions/checkout@v4
 
-      - name: Install build dependencies
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: electron-poc/package-lock.json
+
+      - name: Install native build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install --yes bison flex libncurses-dev
+          sudo apt-get install --yes bison flex libncurses-dev uuid-dev
 
-      - name: Configure minimal Linux build
-        working-directory: sys/unix
-        run: sh setup.sh hints/linux-minimal
+      - name: Install Electron dependencies
+        working-directory: electron-poc
+        run: npm ci
 
-      - name: Build and install Linux package
-        run: |
-          make fetch-Lua
-          make all
-          make install
+      - name: Verify packaged runtime contract
+        working-directory: electron-poc
+        run: npm run test:packaged-runtime
 
-      - name: Create relocatable Linux release archive
-        run: |
-          mkdir -p release/nethack-linux-x64/lib/runtime-libs
-          cp -a "$HOME/nethack-minimal/games/lib/nethackdir" release/nethack-linux-x64/lib/
-          install -m 0644 sys/unix/sysconf release/nethack-linux-x64/lib/nethackdir/sysconf
-          cp -L /lib/x86_64-linux-gnu/libncurses.so.6 release/nethack-linux-x64/lib/runtime-libs/
-          cp -L /lib/x86_64-linux-gnu/libtinfo.so.6 release/nethack-linux-x64/lib/runtime-libs/
-          cat > release/nethack-linux-x64/nethack <<'EOF'
-          #!/bin/sh
-          root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-          LD_LIBRARY_PATH="$root/lib/runtime-libs${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-          export LD_LIBRARY_PATH
-          exec "$root/lib/nethackdir/nethack" -d "$root/lib/nethackdir" "$@"
-          EOF
-          chmod 0755 release/nethack-linux-x64/nethack
-          release/nethack-linux-x64/nethack -s
-          tar -C release -czf release/nethack-linux-x64.tar.gz nethack-linux-x64
+      - name: Build Electron AppImage
+        working-directory: electron-poc
+        run: npm run package:linux
 
-      - name: Upload Linux package
+      - name: Upload Electron application
         uses: actions/upload-artifact@v4
         with:
-          name: nethack-linux-x64
-          path: release/nethack-linux-x64.tar.gz
-          if-no-files-found: error
-
-  build-windows:
-    name: Build Windows x64 package
-    runs-on: windows-latest
-    steps:
-      - name: Check out source
-        uses: actions/checkout@v4
-
-      - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v2
-
-      - name: Fetch Windows build dependencies
-        shell: cmd
-        run: |
-          sys\windows\fetch.cmd lua
-          sys\windows\fetch.cmd pdcursesmod
-
-      - name: Build Windows release package
-        shell: cmd
-        run: msbuild sys\windows\vs\NetHack.sln /m /t:package /p:Configuration=Release /p:Platform=x64
-
-      - name: Upload Windows package
-        uses: actions/upload-artifact@v4
-        with:
-          name: nethack-windows-x64
-          path: vspackage/nethack-*-win-x64.zip
+          name: nethack-electron-linux-x64
+          path: electron-poc/dist/NetHack-Electron-*-linux-x86_64.AppImage
           if-no-files-found: error
 
   release:
     name: Publish GitHub release
     needs:
       - build-linux
-      - build-windows
     runs-on: ubuntu-latest
     permissions:
       contents: write

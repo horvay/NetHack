@@ -102,6 +102,8 @@ sys/amiga/regex/
 # Local Electron POC/test artifacts
 .tmp/
 electron-poc/node_modules/
+electron-poc/dist/
+electron-poc/release-runtime/
 playground/
 electron-poc/shim-bridge/nh-shim-bridge
 electron-poc/test-output*/
