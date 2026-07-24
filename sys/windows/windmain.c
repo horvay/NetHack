@@ -75,7 +75,11 @@ int windows_startup_state = 0;    /* we flag whether to continue with this */
                                   /* 0 = keep starting up, everything is good */
 
 extern int redirect_stdout;       /* from sys/share/pcsys.c */
+#ifdef SHIM_GRAPHICS
+int GUILaunched = FALSE;
+#else
 extern int GUILaunched;
+#endif
 HANDLE hStdOut;
 char default_window_sys[7] =
 #if defined(SHIM_GRAPHICS)

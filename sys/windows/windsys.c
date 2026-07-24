@@ -750,6 +750,7 @@ windows_early_options(const char *window_opt)
 #define STATUS_UNSUCCESSFUL 0xC0000001
 #endif
 
+#ifndef SHIM_GRAPHICS
 unsigned long
 sys_random_seed(void)
 {
@@ -784,6 +785,7 @@ sys_random_seed(void)
     }
     return ourseed;
 }
+#endif
 
 /* nt_assert_failed is called when an nhassert's condition is false */
 void

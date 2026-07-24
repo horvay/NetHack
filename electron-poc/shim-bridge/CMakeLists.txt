@@ -95,7 +95,6 @@ if(NH_BUILD_NATIVE_BRIDGE AND WIN32)
     "${NETHACK_ROOT}/src/hacklib.c"
     "${NETHACK_ROOT}/src/nhmd4.c"
     "${NETHACK_ROOT}/sys/share/cppregex.cpp"
-    "${NETHACK_ROOT}/util/panic.c"
     "${NETHACK_ROOT}/sys/windows/windmain.c"
     "${NETHACK_ROOT}/sys/windows/windsys.c"
     "${NETHACK_ROOT}/win/shim/winshim.c"
