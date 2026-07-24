@@ -140,10 +140,16 @@ run().catch((error) => {
   console.error(error.stack || error);
   if (stderr) console.error(stderr);
   process.exitCode = 1;
-}).finally(() => {
+}).finally(async () => {
   child.stdout.destroy();
   child.stderr.destroy();
+  const exited = new Promise((resolve) => child.once('exit', resolve));
   child.kill('SIGKILL');
+  await Promise.race([exited, delay(5_000)]);
   child.unref();
-  fs.rmSync(userData, { recursive: true, force: true });
+  try {
+    fs.rmSync(userData, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+  } catch (error) {
+    console.warn(`Unable to remove temporary Electron profile: ${error.message}`);
+  }
 });
