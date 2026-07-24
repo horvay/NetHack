@@ -74,6 +74,36 @@ jobs:
         working-directory: electron-poc
         run: node test/native/bridge-protocol-contract.js shim-bridge/nh-shim-bridge.exe
 
+      - name: Build traditional Windows runtime data
+        working-directory: .
+        run: msbuild sys/windows/vs/NetHack.sln /m /t:package /p:Configuration=Release /p:Platform=x64
+
+      - name: Extract Windows runtime data
+        shell: pwsh
+        run: |
+          $zip = Get-ChildItem binary -Recurse -Filter "NetHack-*-x64.zip" | Select-Object -First 1
+          if (-not $zip) { throw "Windows NetHack package not found" }
+          Expand-Archive -Path $zip.FullName -DestinationPath "$env:RUNNER_TEMP\\nethack-runtime" -Force
+
+      - name: Install Electron dependencies
+        working-directory: electron-poc
+        run: npm ci
+
+      - name: Stage Windows Electron runtime
+        working-directory: electron-poc
+        run: node scripts/prepare-windows-release.js "$env:RUNNER_TEMP\\nethack-runtime"
+
+      - name: Build portable Windows Electron app
+        working-directory: electron-poc
+        run: npm run package:windows
+
+      - name: Upload portable Electron app
+        uses: actions/upload-artifact@v4
+        with:
+          name: nethack-electron-windows-x64
+          path: electron-poc/dist/NetHack-Electron-*-windows-x64.exe
+          if-no-files-found: error
+
       - name: Upload native bridge
         uses: actions/upload-artifact@v4
         with:

@@ -143,6 +143,7 @@
     "test:final-proof": "node scripts/final-verification-proof.js",
     "test:packaged-runtime": "node test/shared/packaged-runtime-test.js",
     "package:linux": "node scripts/prepare-linux-release.js && electron-builder --linux AppImage --x64",
+    "package:windows": "electron-builder --win portable --x64",
     "test:platform-contract": "cmake -S shim-bridge -B .native-build -DCMAKE_BUILD_TYPE=Release && cmake --build .native-build --config Release --target bridge_platform_contract && ctest --test-dir .native-build -C Release --output-on-failure"
   },
   "license": "NGPL",
@@ -184,6 +185,12 @@
       ],
       "category": "Game",
       "artifactName": "NetHack-Electron-${version}-linux-${arch}.${ext}"
+    },
+    "win": {
+      "target": [
+        "portable"
+      ],
+      "artifactName": "NetHack-Electron-${version}-windows-${arch}.${ext}"
     }
   }
 }

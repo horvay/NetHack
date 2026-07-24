@@ -1045,6 +1045,18 @@ set_default_prefix_locations(const char *programPath UNUSED)
     static char versioned_user_data_path[MAX_PATH];
     static char versioned_global_data_path[MAX_PATH];
     /*    static char versioninfo[20] UNUSED; */
+#ifdef SHIM_GRAPHICS
+    static char embedded_path[MAX_PATH];
+    const char *configured_path = getenv("NETHACKDIR");
+    if (configured_path && *configured_path) {
+        Snprintf(embedded_path, sizeof embedded_path, "%s", configured_path);
+        append_slash(embedded_path);
+        for (int prefix = 0; prefix < PREFIX_COUNT; ++prefix)
+            gf.fqn_prefix[prefix] = embedded_path;
+        portable = TRUE;
+        return;
+    }
+#endif
 
     strcpy(executable_path, get_executable_path());
     append_slash(executable_path);
