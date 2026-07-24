@@ -21,6 +21,41 @@ assert.equal(Map.version, 'nethack-map-detail/v1');
 assert.deepEqual(Map.publicStateCues({ semanticKind: 'trap', actionAffordances: [] }), [], 'trap kind alone does not create a known-trap cue');
 assert.deepEqual(Map.publicStateCues({ semanticKind: 'trap', actionAffordances: ['trap.known'] }), ['known-trap']);
 
+const hostileGoblin = Map.createMapDetailModel({
+  selectedCell: { x: 10, y: 8 },
+  origin: { x: 9, y: 8 },
+  cell: {
+    ch: 'o',
+    semanticKind: 'monster',
+    semanticName: 'goblin',
+    semanticKnown: true,
+    actionAffordances: ['monster.attitude.hostile'],
+    creaturePublic: { attitude: 'hostile', size: 'small', status: ['asleep'] },
+  },
+});
+assert.equal(hostileGoblin.publicAttitude, 'hostile');
+assert.equal(hostileGoblin.creatureFacts.size, 'small');
+assert.deepEqual(hostileGoblin.creatureFactRows.map((row) => `${row.label}:${row.value}`), [
+  'Attitude:Hostile',
+  'Size:Small',
+  'Status:Asleep',
+]);
+assert.doesNotMatch(JSON.stringify(hostileGoblin), /\b(?:hp|ac|mhp|armor class|hit points)\b/i);
+
+const hallucinated = Map.createMapDetailModel({
+  selectedCell: { x: 11, y: 8 },
+  cell: {
+    ch: 'o',
+    semanticKind: 'monster',
+    semanticName: 'jabberwock',
+    semanticKnown: true,
+    actionAffordances: ['monster.hostile-unknown'],
+    creaturePublic: { status: [] },
+  },
+});
+assert.equal(hallucinated.creatureFacts, null, 'no creature facts without public attitude/size/status');
+assert.deepEqual(hallucinated.creatureFactRows, []);
+
 const appearance = Map.createMapDetailModel({
   selectedCell: { x: 2, y: 2 },
   cell: { ch: '/', semanticKind: 'object', semanticName: 'wand of death', semanticAppearance: 'long wand', semanticKnown: false },
@@ -50,6 +85,80 @@ const exactFigurineTooltip = MapPresentation.tooltipInfoForCell({ ch: '(', glyph
 assert.equal(exactFigurineTooltip.title, 'Figurine of a horse', 'tooltip uses the authoritative object-instance name rather than the glyph type');
 const layeredFigurineTooltip = MapPresentation.tooltipInfoForCell({ ch: '@', semanticKind: 'hero', semanticName: 'hero', objectLayerGlyph: 1, objectLayerObjectId: 73, objectLayerDisplayName: 'a figurine of a horse', objectLayerSemanticKind: 'object', objectLayerSemanticName: 'figurine', objectLayerSemanticKnown: true }, 24, 13, {});
 assert.equal(layeredFigurineTooltip.contents.some((entry) => entry.label === 'Figurine of a horse'), true, 'object beneath an actor keeps its authoritative object-instance name');
+// Objects covering stairs must list the staircase in ALSO ON THIS SQUARE, not only generic floor.
+const objectOnStairsTooltip = MapPresentation.tooltipInfoForCell({
+  ch: ')',
+  glyph: 1,
+  objectId: 88,
+  displayName: '2 darts',
+  semanticKind: 'object',
+  semanticName: 'dart',
+  semanticKnown: true,
+  backgroundGlyph: 100,
+  backgroundSemanticKind: 'floor',
+  backgroundSemanticName: 'floor of a room',
+  backgroundSemanticKnown: true,
+  featureDescription: 'staircase down',
+}, 11, 8, {});
+assert.equal(objectOnStairsTooltip.title, '2 darts');
+assert.equal(objectOnStairsTooltip.contents.some((entry) => /staircase down/i.test(entry.label) && /stairs/i.test(entry.kind)), true, 'stairs under an object appear in tooltip contents');
+assert.equal(objectOnStairsTooltip.contents.some((entry) => /floor of a room/i.test(entry.label)), false, 'generic floor does not replace stairs feature');
+const objectOnStairsDetail = Map.createMapDetailModel({
+  selectedCell: { x: 11, y: 8 },
+  cell: {
+    ch: ')',
+    semanticKind: 'object',
+    semanticName: 'dart',
+    semanticKnown: true,
+    displayName: '2 darts',
+    backgroundSemanticKind: 'floor',
+    backgroundSemanticName: 'floor of a room',
+    featureDescription: 'staircase down',
+  },
+});
+assert.equal(objectOnStairsDetail.publicLayers.some((layer) => layer.role === 'stairs' && /staircase down/i.test(layer.label)), true, 'map detail lists stairs under covered object');
+// Discovered traps under objects must appear in ALSO ON THIS SQUARE.
+const objectOnTrapTooltip = MapPresentation.tooltipInfoForCell({
+  ch: ')',
+  glyph: 1,
+  objectId: 89,
+  displayName: '2 darts',
+  semanticKind: 'object',
+  semanticName: 'dart',
+  semanticKnown: true,
+  backgroundGlyph: 100,
+  backgroundSemanticKind: 'floor',
+  backgroundSemanticName: 'floor of a room',
+  backgroundSemanticKnown: true,
+  featureDescription: 'arrow trap',
+}, 12, 8, {});
+assert.equal(objectOnTrapTooltip.contents.some((entry) => /arrow trap/i.test(entry.label) && /trap/i.test(entry.kind)), true, 'discovered trap under an object appears in tooltip contents');
+assert.equal(objectOnTrapTooltip.contents.some((entry) => /floor of a room/i.test(entry.label)), false, 'generic floor does not replace discovered trap');
+const bareTrapTooltip = MapPresentation.tooltipInfoForCell({
+  ch: '^',
+  semanticKind: 'trap',
+  semanticName: 'arrow trap',
+  semanticKnown: true,
+  actionAffordances: ['trap.known'],
+}, 12, 9, {});
+assert.equal(bareTrapTooltip.contents.some((entry) => /floor of a room/i.test(entry.label)), false, 'bare trap tooltip does not pad with generic floor');
+const objectOnTrapDetail = Map.createMapDetailModel({
+  selectedCell: { x: 12, y: 8 },
+  cell: {
+    ch: ')',
+    semanticKind: 'object',
+    semanticName: 'dart',
+    semanticKnown: true,
+    displayName: '2 darts',
+    backgroundSemanticKind: 'floor',
+    backgroundSemanticName: 'floor of a room',
+    featureDescription: 'arrow trap',
+  },
+});
+assert.equal(objectOnTrapDetail.publicLayers.some((layer) => layer.role === 'trap' && /arrow trap/i.test(layer.label)), true, 'map detail lists discovered trap under covered object');
+
+
+
 
 
 const browserContext = {

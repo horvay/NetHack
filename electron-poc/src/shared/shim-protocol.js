@@ -418,6 +418,27 @@
       if (Array.isArray(event.actionAffordances)) out.actionAffordances = publicActionTokens(event.actionAffordances);
       if (Array.isArray(event.backgroundActionAffordances)) out.backgroundActionAffordances = publicActionTokens(event.backgroundActionAffordances);
       if (Array.isArray(event.objectLayerActionAffordances)) out.objectLayerActionAffordances = publicActionTokens(event.objectLayerActionAffordances);
+      if (event.creaturePublic && typeof event.creaturePublic === 'object') {
+        const source = event.creaturePublic;
+        const attitude = typeof source.attitude === 'string' ? source.attitude.trim().toLowerCase() : '';
+        const size = typeof source.size === 'string' ? source.size.trim().toLowerCase() : '';
+        const allowedAttitude = new Set(['tame', 'peaceful', 'hostile']);
+        const allowedSize = new Set(['tiny', 'small', 'medium', 'large', 'huge', 'gigantic']);
+        const status = Array.isArray(source.status)
+          ? source.status
+            .filter((entry) => typeof entry === 'string')
+            .map((entry) => entry.trim())
+            .filter(Boolean)
+            .slice(0, 12)
+          : [];
+        const creaturePublic = {};
+        if (allowedAttitude.has(attitude)) creaturePublic.attitude = attitude;
+        if (allowedSize.has(size)) creaturePublic.size = size;
+        if (status.length) creaturePublic.status = status;
+        if (creaturePublic.attitude || creaturePublic.size || (creaturePublic.status && creaturePublic.status.length)) {
+          out.creaturePublic = creaturePublic;
+        }
+      }
       return out;
     },
     shim_curs(event) { return { name: event.name, window: asInt(event.window), x: asInt(event.x), y: asInt(event.y) }; },

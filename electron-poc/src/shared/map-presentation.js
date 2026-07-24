@@ -125,15 +125,54 @@
     if (/trap/.test(hay)) return '^';
     return '.';
   }
+  function featureTerrainKind(featureDescription = '', semanticKind = '', semanticName = '') {
+    const hay = `${featureDescription} ${semanticKind} ${semanticName}`.toLowerCase();
+    if (!hay.trim()) return '';
+    if (/\bstairs?\b|\bstaircase\b|\bladder\b/.test(hay)) return 'stairs';
+    if (/\balter\b|\baltar\b/.test(hay)) return 'feature';
+    if (/\bfountain\b|\bsink\b|\bthrone\b|\bgrave\b|\btree\b|\biron bars\b|\bdrawbridge\b|\bpool\b|\blava\b|\bmoat\b|\bwater\b/.test(hay)) return 'feature';
+    if (/\bdoor\b|\bdoorway\b/.test(hay)) return 'door';
+    if (/\btrap\b/.test(hay)) return 'trap';
+    return '';
+  }
   function backgroundTerrainCellForCell(cell) {
     const normalized = TileAssets.normalizeCell(cell);
-    const kind = normalized.backgroundSemanticKind;
-    const name = normalized.backgroundSemanticName;
-    if (/^(?:unexplored|nothing|unknown)$/i.test(String(kind || ''))) return { ch: '.', semanticKind: 'floor', semanticName: 'floor of a room' };
-    if (normalized.backgroundGlyph != null && Number(normalized.backgroundGlyph) >= 0) {
-      return { ch: terrainGlyphForSemantic(kind, name), glyph: normalized.backgroundGlyph, semanticKind: kind || 'floor', semanticName: name || 'floor of a room', featureDescription: normalized.featureDescription, engravingText: normalized.engravingText };
+    const featureDescription = humanizeId(normalized.featureDescription || '');
+    let kind = normalized.backgroundSemanticKind;
+    let name = normalized.backgroundSemanticName;
+    const featureKind = featureTerrainKind(featureDescription, kind, name);
+    const genericFloor = !kind
+      || /^(?:unexplored|nothing|unknown|floor|room|corridor|stone|rock|darkness)$/i.test(String(kind || ''))
+      || basicSemanticNames.has(String(name || '').toLowerCase());
+
+    // Prefer authoritative dungeon features over generic floor under objects.
+    if (featureDescription && (featureKind || genericFloor)) {
+      kind = featureKind || kind || 'feature';
+      name = featureDescription;
     }
-    if (kind || name) return { ch: terrainGlyphForSemantic(kind, name), semanticKind: kind || 'floor', semanticName: name || 'floor of a room', featureDescription: normalized.featureDescription, engravingText: normalized.engravingText };
+
+    if (/^(?:unexplored|nothing|unknown)$/i.test(String(kind || '')) && !featureDescription) {
+      return { ch: '.', semanticKind: 'floor', semanticName: 'floor of a room' };
+    }
+    if (normalized.backgroundGlyph != null && Number(normalized.backgroundGlyph) >= 0 && !(featureDescription && featureKind && genericFloor)) {
+      return {
+        ch: terrainGlyphForSemantic(kind, name),
+        glyph: (featureKind && genericFloor) ? undefined : normalized.backgroundGlyph,
+        semanticKind: kind || 'floor',
+        semanticName: name || 'floor of a room',
+        featureDescription,
+        engravingText: normalized.engravingText,
+      };
+    }
+    if (kind || name || featureDescription) {
+      return {
+        ch: terrainGlyphForSemantic(kind, name || featureDescription),
+        semanticKind: kind || featureKind || 'floor',
+        semanticName: name || featureDescription || 'floor of a room',
+        featureDescription,
+        engravingText: normalized.engravingText,
+      };
+    }
     return { ch: '.', semanticKind: 'floor', semanticName: 'floor of a room' };
   }
   function objectLayerCharForCell(cell) {
@@ -307,10 +346,25 @@
       const objectName = objectLayerCell.displayName ? exactObjectTitle(objectLayerCell.displayName) : (layerLabel(objectLayerCell, objectLayer.tile) || 'object');
       addContent(objectName, objectLayerCell.semanticKind || 'object', 'object', objectLayer.assetId, Boolean(objectLayerCell.displayName));
     }
-    if (layeredTooltipForegroundKinds.has(kindLower) || objectLayerCell) {
+    if (layeredTooltipForegroundKinds.has(kindLower) || objectLayerCell || featureDescription) {
       const backgroundCell = backgroundTerrainCellForCell(normalized);
       const backgroundLayer = tileForCell(backgroundCell, context);
-      addContent(backgroundCell.featureDescription || layerLabel(backgroundCell, backgroundLayer.tile) || 'floor of a room', backgroundCell.semanticKind || 'terrain', 'terrain', backgroundLayer.assetId);
+      const terrainLabel = backgroundCell.featureDescription
+        || backgroundCell.semanticName
+        || layerLabel(backgroundCell, backgroundLayer.tile)
+        || 'floor of a room';
+      const terrainKind = backgroundCell.semanticKind
+        || featureTerrainKind(terrainLabel)
+        || 'terrain';
+      const terrainLabelLower = String(terrainLabel || '').toLowerCase();
+      const terrainIsGeneric = basicSemanticNames.has(terrainLabelLower)
+        || /^(?:floor|room|corridor|stone|rock|darkness|terrain)$/i.test(String(terrainKind || ''));
+      const foregroundIsOccupant = ['monster', 'pet', 'player', 'hero', 'corpse', 'statue', 'object', 'item'].includes(kindLower)
+        || Boolean(objectLayerCell);
+      // Bare trap/stairs/feature already is the square; don't pad with generic floor.
+      if (foregroundIsOccupant || !terrainIsGeneric || featureDescription) {
+        addContent(terrainLabel, terrainKind, 'terrain', backgroundLayer.assetId);
+      }
     }
     return { title: exactDisplayName ? title : titleCase(title), description: details.join(' · '), contents, tile, assetId, glyph: ch, isCorpse: corpse, isStatue: statue, useCssTerrain, terrainClasses };
   }

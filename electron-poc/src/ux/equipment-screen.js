@@ -37,6 +37,26 @@
     'armor.shield': 'shield', amulet: 'amulet', 'ring.left': 'left-ring',
     'ring.right': 'right-ring', eyes: 'eyes',
   });
+  const ACTION_SERVICE_TO_CANONICAL_SLOT = Object.freeze(Object.fromEntries(
+    Object.entries(ACTION_SERVICE_SLOT_IDS).map(([canonical, serviceId]) => [serviceId, canonical]),
+  ));
+  const PRIMARY_ACTION_TO_SLOT = Object.freeze({
+    'item.wield.mainHand': 'mainHand',
+    'item.wield.hold': 'mainHand',
+    'item.quiver': 'quiver',
+    'item.putOn.ring': 'ring.left',
+    'item.putOn.accessory': 'amulet',
+    'item.putOn.eyes': 'eyes',
+  });
+  const ARMOR_SERVICE_TO_CANONICAL = Object.freeze({
+    'armor-suit': 'armor.body',
+    cloak: 'armor.cloak',
+    shirt: 'armor.shirt',
+    helmet: 'armor.helm',
+    gloves: 'armor.gloves',
+    boots: 'armor.boots',
+    shield: 'armor.shield',
+  });
   const CLOSE_AFTER_ACTIONS = new Set(['item.apply', 'item.lootOrApply', 'item.quaff', 'item.read.scroll']);
 
   function element(doc, tag, className, value) {
@@ -77,6 +97,50 @@
           : item.publicClass === 'amulet' ? new Set(['amulet'])
             : item.publicClass === 'tool' ? new Set(['mainHand', 'offHand', 'eyes']) : new Set();
     return allowed.has(slot?.slotId) && (!Array.isArray(item.equipmentSlots) || item.equipmentSlots.length === 0 || item.equipmentSlots.includes(slot.slotId)) ? item : null;
+  }
+  function preferredSlotForEquipmentItem(item, context = {}) {
+    if (!item) return '';
+    const actions = InventoryActionService.itemActionAffordances?.(item, context) || [];
+    const enabled = (id) => actions.some((action) => action.id === id && action.enabled !== false);
+    const text = String(item.displayName || item.text || item.semanticName || item.semanticAppearance || '');
+    const publicClass = String(item.publicClass || '').toLowerCase();
+    const modelSlots = Array.isArray(item.equipmentSlots) ? item.equipmentSlots : [];
+    const classSlots = publicClass === 'weapon' ? new Set(['mainHand', 'offHand', 'quiver'])
+      : publicClass === 'armor' ? new Set(['armor.body', 'armor.cloak', 'armor.shirt', 'armor.helm', 'armor.gloves', 'armor.boots', 'armor.shield'])
+        : publicClass === 'ring' ? new Set(['ring.left', 'ring.right'])
+          : publicClass === 'amulet' ? new Set(['amulet'])
+            : publicClass === 'gem' ? new Set(['quiver'])
+              : publicClass === 'tool' ? new Set(['mainHand', 'offHand', 'eyes'])
+                : new Set();
+    const compatible = (slotId) => {
+      if (!slotId || !classSlots.has(slotId)) return false;
+      return modelSlots.length === 0 || modelSlots.includes(slotId);
+    };
+    const pick = (slotId) => (compatible(slotId) ? slotId : '');
+
+    if (enabled('item.wear')) {
+      const armorServiceId = InventoryActionService.armorSlotForItem?.(item) || '';
+      const armorSlot = ARMOR_SERVICE_TO_CANONICAL[armorServiceId] || ACTION_SERVICE_TO_CANONICAL_SLOT[armorServiceId] || '';
+      if (pick(armorSlot)) return armorSlot;
+    }
+    if (enabled('item.putOn.ring')) {
+      const route = InventoryActionService.primaryEquipmentActionForItem?.(item, context);
+      const hand = String(route?.ringHand || route?.autoAnswerHand || '').toLowerCase();
+      const ringSlot = (hand === 'r' || hand === 'right') ? 'ring.right' : 'ring.left';
+      if (pick(ringSlot)) return ringSlot;
+    }
+    if (enabled('item.putOn.accessory') && pick('amulet')) return 'amulet';
+    if (enabled('item.putOn.eyes') && pick('eyes')) return 'eyes';
+
+    const ammoLike = publicClass === 'gem'
+      || /\b(?:arrow|arrows|bolt|bolts|dart|darts|shuriken|boomerang)\b/i.test(text);
+    if (enabled('item.quiver') && ammoLike && pick('quiver')) return 'quiver';
+    if ((enabled('item.wield.mainHand') || enabled('item.wield.hold')) && pick('mainHand')) return 'mainHand';
+    if (enabled('item.quiver') && pick('quiver')) return 'quiver';
+
+    if (pick('mainHand') && publicClass === 'weapon') return 'mainHand';
+    if (modelSlots.length === 1 && pick(modelSlots[0])) return modelSlots[0];
+    return '';
   }
   function equippedComparison(selected, items) {
     if (!selected || selected.equippedState || !selected.equipmentSlots?.length) return null;
@@ -429,7 +493,32 @@
           completePending(`${pending.label || 'Item action'} complete.`);
         }
       }
-      if ((inventoryChanged || equipmentChanged || statusValuesChanged || messagesChanged || interactionChanged || transferOwnerChanged || iconResolverChanged) && root && !root.hidden) render({ skipFocus: true });
+      if ((inventoryChanged || equipmentChanged || interactionChanged || transferOwnerChanged || iconResolverChanged) && root && !root.hidden) render({ skipFocus: true });
+      else if ((statusValuesChanged || messagesChanged) && root && !root.hidden) {
+        // Status/message-only public-state ticks must not rebuild the whole inventory workspace.
+        if (statusValuesChanged) {
+          const statusStrip = root.querySelector('.uxm-items-status');
+          const nextStrip = renderStatusStrip(root.ownerDocument);
+          if (statusStrip && nextStrip) statusStrip.replaceWith(nextStrip);
+          else if (!statusStrip && nextStrip) root.querySelector('.uxm-items-topbar')?.after(nextStrip);
+          else if (statusStrip && !nextStrip) statusStrip.remove();
+        }
+        if (messagesChanged) {
+          const viewport = root.querySelector('.uxm-recent-log-scroll');
+          if (viewport) {
+            const nearBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight <= 4;
+            const lines = recentMessageLines();
+            viewport.replaceChildren();
+            if (!lines.length) viewport.appendChild(element(root.ownerDocument, 'p', 'uxm-recent-log-empty', 'No messages yet.'));
+            else {
+              const listRoot = element(root.ownerDocument, 'ol', 'uxm-recent-log-lines');
+              for (const line of lines) listRoot.appendChild(element(root.ownerDocument, 'li', '', line));
+              viewport.appendChild(listRoot);
+            }
+            if (nearBottom) viewport.scrollTop = viewport.scrollHeight;
+          }
+        }
+      }
       return Object.freeze({ inventoryAccepted: inventoryChanged, equipmentAccepted: equipmentChanged, previousInventoryRevision, previousEquipmentRevision, ownership: ownership() });
     }
     function filteredModels() { return models.filter((model) => ItemPresentation.matchesItem(model, query, filter)); }
@@ -541,9 +630,27 @@
         return beginIntent({ item, action: { id: route.actionId, label: route.label }, route: { ...route, ok: route.enabled !== false }, source: 'item-equipment-primary', stableId, label: route.label });
       }
       if (requested.kind === 'equipment-drop') {
-        const slotId = String(requested.slotId || '');
+        const centerDrop = !String(requested.slotId || '').trim();
+        let slotId = String(requested.slotId || '');
+        if (centerDrop) {
+          slotId = preferredSlotForEquipmentItem(item, { items: inventoryItems(data) });
+          if (!slotId) {
+            feedback = 'No equipment slot matches that item. Drop it on a specific slot, or use the item actions.';
+            feedbackGood = false;
+            diagnostic('item.action-rejected', { code: 'no-preferred-slot', stableId });
+            render({ skipFocus: true });
+            return false;
+          }
+        }
         const route = InventoryActionService.routeEquipmentDrop?.(item, { id: ACTION_SERVICE_SLOT_IDS[slotId] || slotId, label: SLOT_LABELS[slotId] || slotId }, { items: inventoryItems(data) });
-        return beginIntent({ item, action: { id: route?.actionId || 'equipment.drop', label: route?.message || 'Change equipment' }, route, source: 'item-equipment-drop', stableId, label: route?.message });
+        return beginIntent({
+          item,
+          action: { id: route?.actionId || 'equipment.drop', label: route?.message || 'Change equipment' },
+          route: route ? { ...route, slotId } : route,
+          source: centerDrop ? 'item-equipment-center-drop' : 'item-equipment-drop',
+          stableId,
+          label: route?.message,
+        });
       }
       if (requested.kind === 'slot-action') {
         const slot = slotMap(data).get(String(requested.slotId || ''));
@@ -725,6 +832,66 @@
       panel.append(heading, viewport);
       return panel;
     }
+    function updateSelectionPresentation({ focusStableId = '', focusSlotId = '', skipFocus = false } = {}) {
+      if (!root?.isConnected) return false;
+      closeContextMenu({ restore: false });
+      const inventoryRail = root.querySelector('.uxm-selection-rail');
+      const equipmentDetails = root.querySelector('.uxm-equipment-details');
+      if (!inventoryRail || !equipmentDetails) return false;
+      const doc = root.ownerDocument;
+      for (const row of root.querySelectorAll('.uxm-item-row')) {
+        const selected = Boolean(row.dataset.stableId) && row.dataset.stableId === selectedStableId && !selectedSlotId;
+        row.classList.toggle('is-selected', selected);
+        row.setAttribute('aria-pressed', String(selected));
+      }
+      for (const button of root.querySelectorAll('.uxm-slot-button')) {
+        const selected = Boolean(button.dataset.slotId) && button.dataset.slotId === selectedSlotId;
+        button.classList.toggle('is-selected', selected);
+        button.setAttribute('aria-pressed', String(selected));
+      }
+      const nextRail = renderSelectionRail(doc);
+      inventoryRail.replaceWith(nextRail);
+      const selected = selectedModel();
+      ItemDetailPanel.renderDetailPanel(equipmentDetails, {
+        item: selected,
+        slotLabel: selectedSlotId ? (SLOT_LABELS[selectedSlotId] || selectedSlotId) : 'Selected equipment',
+        compareItem: null,
+        pending: Boolean(pending),
+        onAction: (action, item) => request({ kind: 'item-action', stableId: item.stableId, slotId: selectedSlotId, actionId: action.id, inventoryRevision: revisionOf(data.inventory) }),
+      });
+      const selectionKey = `${selectedSlotId || ''}|${selectedStableId || ''}`;
+      if (selectionKey && selectionKey !== previousSelectionKey) {
+        globalThis.NetHackUxFeedback?.animateDetailSwap?.(root.querySelector('.uxm-selection-summary'));
+        const primary = root.querySelector('.uxm-action-primary');
+        if (primary) globalThis.NetHackUxFeedback?.pulse?.(primary, 'ux-motion-enter-pop', { durationMs: 140 });
+        previousSelectionKey = selectionKey;
+      }
+      if (!skipFocus) {
+        const target = (focusStableId && root.querySelector(`[data-stable-id="${focusStableId}"]`))
+          || (focusSlotId && root.querySelector(`[data-slot-id="${focusSlotId}"]`));
+        target?.focus?.({ preventScroll: true });
+      }
+      return true;
+    }
+    function selectInventoryItem(model, focus = {}) {
+      if (!model) return false;
+      selectedSlotId = '';
+      if (selectedStableId !== model.stableId) expandedStableId = '';
+      selectedStableId = model.stableId;
+      if (updateSelectionPresentation({ focusStableId: model.stableId, ...focus })) return true;
+      render({ focusStableId: model.stableId, ...focus });
+      return true;
+    }
+    function selectEquipmentSlot(slotId, presented, focus = {}) {
+      if (!slotId) return false;
+      if (selectedSlotId !== slotId) expandedStableId = '';
+      selectedStableId = presented?.stableId || '';
+      selectedSlotId = slotId;
+      if (updateSelectionPresentation({ focusSlotId: slotId, ...focus })) return true;
+      render({ focusSlotId: slotId, ...focus });
+      return true;
+    }
+
     function renderSelectionRail(doc) {
       const rail = element(doc, 'section', 'uxm-inventory-details uxm-selection-rail');
       const item = selectedModel();
@@ -857,12 +1024,12 @@
       appendKnownFactBadges(state, model);
       if (state.childNodes.length) copy.appendChild(state);
       row.append(key, renderIcon(doc, model), copy, element(doc, 'span', 'uxm-item-row-quantity', model.quantity > 1 ? `×${model.quantity}` : ''));
-      row.addEventListener('click', () => { selectedSlotId = ''; if (selectedStableId !== model.stableId) expandedStableId = ''; selectedStableId = model.stableId; render({ focusStableId: model.stableId }); });
+      row.addEventListener('click', () => { selectInventoryItem(model); });
       row.addEventListener('dblclick', (event) => { event.preventDefault(); event.stopPropagation(); request({ kind: 'primary-equipment', stableId: model.stableId, inventoryRevision: revisionOf(data.inventory) }); });
       row.addEventListener('dragstart', (event) => { event.dataTransfer?.setData?.('application/x-nethack-stable-id', model.stableId); event.dataTransfer?.setData?.('text/plain', model.selectorAccelerator); });
-      row.addEventListener('contextmenu', (event) => { event.preventDefault(); selectedSlotId = ''; if (selectedStableId !== model.stableId) expandedStableId = ''; selectedStableId = model.stableId; render({ skipFocus: true }); showContextMenu(model, root.querySelector(`[data-stable-id="${model.stableId}"]`), { x: event.clientX, y: event.clientY }); });
+      row.addEventListener('contextmenu', (event) => { event.preventDefault(); selectInventoryItem(model, { skipFocus: true }); showContextMenu(model, root.querySelector(`[data-stable-id="${model.stableId}"]`), { x: event.clientX, y: event.clientY }); });
       row.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') { event.preventDefault(); selectedSlotId = ''; if (selectedStableId !== model.stableId) expandedStableId = ''; selectedStableId = model.stableId; render({ focusStableId: model.stableId }); }
+        if (event.key === 'Enter') { event.preventDefault(); selectInventoryItem(model); }
         else if ((event.key === 'F10' && event.shiftKey) || event.key === 'ContextMenu') { event.preventDefault(); showContextMenu(model, row); }
       });
       return row;
@@ -907,8 +1074,8 @@
       const label = element(doc, 'span', 'uxm-slot-label', SLOT_LABELS[slotId] || slot?.label || slotId);
       const value = element(doc, 'span', 'uxm-slot-value', presented?.displayName || (slot?.publicStatus === 'blocked' ? 'Blocked' : 'Empty'));
       button.append(label, value);
-      button.addEventListener('click', () => { if (selectedSlotId !== slotId) expandedStableId = ''; selectedStableId = presented?.stableId || ''; selectedSlotId = slotId; render({ focusSlotId: slotId }); });
-      const openActions = (event, anchor) => { const extras = slotActions(slotId, rawItem); if (!presented || (!presented.actions.length && !extras.length)) return; event?.preventDefault?.(); selectedStableId = presented.stableId; selectedSlotId = slotId; render({ skipFocus: true }); showContextMenu(presented, anchor || root.querySelector(`[data-slot-id="${slotId}"]`), event ? { x: event.clientX, y: event.clientY } : null, extras); };
+      button.addEventListener('click', () => { selectEquipmentSlot(slotId, presented); });
+      const openActions = (event, anchor) => { const extras = slotActions(slotId, rawItem); if (!presented || (!presented.actions.length && !extras.length)) return; event?.preventDefault?.(); selectEquipmentSlot(slotId, presented, { skipFocus: true }); showContextMenu(presented, anchor || root.querySelector(`[data-slot-id="${slotId}"]`), event ? { x: event.clientX, y: event.clientY } : null, extras); };
       button.addEventListener('contextmenu', (event) => openActions(event));
       button.addEventListener('keydown', (event) => { if ((event.key === 'F10' && event.shiftKey) || event.key === 'ContextMenu') openActions(event, button); });
       button.addEventListener('dragover', (event) => { event.preventDefault(); button.classList.add('drag-over'); });
@@ -919,10 +1086,33 @@
     function renderEquipment(doc) {
       const pane = element(doc, 'section', 'uxm-equipment-pane'); pane.dataset.itemMode = 'equipment';
       const heading = element(doc, 'div', 'uxm-pane-heading uxm-equipment-heading'); heading.append(element(doc, 'span', 'uxm-pane-kicker', 'Hero at a glance'), element(doc, 'h2', '', 'Hero equipment')); pane.appendChild(heading);
-      const stage = element(doc, 'div', 'uxm-paper-doll-stage'); const safe = element(doc, 'div', 'uxm-character-safe-area'); const avatar = element(doc, 'div', 'uxm-full-character');
+      const stage = element(doc, 'div', 'uxm-paper-doll-stage');
+      const safe = element(doc, 'div', 'uxm-character-safe-area');
+      safe.dataset.smartDrop = 'preferred-slot';
+      safe.setAttribute('aria-label', 'Drop item here to equip in the best matching slot');
+      const avatar = element(doc, 'div', 'uxm-full-character');
       if (data.avatar?.src) { const img = element(doc, 'img', ''); img.src = data.avatar.src; img.alt = data.avatar.alt || ''; avatar.appendChild(img); }
       else avatar.appendChild(element(doc, 'span', 'uxm-avatar-fallback', '@'));
-      safe.appendChild(avatar);
+      const dropHint = element(doc, 'span', 'uxm-smart-drop-hint', 'Drop here to equip');
+      safe.append(avatar, dropHint);
+      safe.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+        safe.classList.add('drag-over');
+      });
+      safe.addEventListener('dragleave', (event) => {
+        if (event.currentTarget.contains(event.relatedTarget)) return;
+        safe.classList.remove('drag-over');
+      });
+      safe.addEventListener('drop', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        safe.classList.remove('drag-over');
+        const stableId = event.dataTransfer?.getData?.('application/x-nethack-stable-id')
+          || models.find((model) => model.selectorAccelerator === event.dataTransfer?.getData?.('text/plain'))?.stableId
+          || '';
+        request({ kind: 'equipment-drop', stableId, slotId: '', inventoryRevision: revisionOf(data.inventory) });
+      });
       const slots = slotMap(data); const inventoryById = new Map(inventoryItems(data).map((item) => [item.objectId, item]));
       const left = element(doc, 'div', 'uxm-callout-rail uxm-callout-left'); const right = element(doc, 'div', 'uxm-callout-rail uxm-callout-right');
       for (const group of GROUPS) {
@@ -1053,7 +1243,17 @@
       if (active?.matches?.('input, textarea, select')) return;
       if (/^[A-Za-z$]$/.test(event.key)) {
         const model = models.find((candidate) => candidate.selectorAccelerator === event.key);
-        if (model) { event.preventDefault(); selectedSlotId = ''; if (selectedStableId !== model.stableId) expandedStableId = ''; selectedStableId = model.stableId; activeMode = 'inventory'; render({ focusStableId: model.stableId }); }
+        if (model) {
+          event.preventDefault();
+          const needsModeSwitch = activeMode !== 'inventory';
+          activeMode = 'inventory';
+          if (needsModeSwitch) {
+            selectedSlotId = '';
+            if (selectedStableId !== model.stableId) expandedStableId = '';
+            selectedStableId = model.stableId;
+            render({ focusStableId: model.stableId });
+          } else selectInventoryItem(model);
+        }
       }
     }
     function open(next = {}) {
@@ -1154,5 +1354,5 @@
     }
   }
 
-  return Object.freeze({ version, GROUPS, createController, equippedComparison, publicDispatchPayload, controller });
+  return Object.freeze({ version, GROUPS, createController, equippedComparison, publicDispatchPayload, preferredSlotForEquipmentItem, controller });
 }));

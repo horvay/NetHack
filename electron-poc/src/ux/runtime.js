@@ -13,7 +13,8 @@
     if (value == null || typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return value;
     if (typeof value === 'bigint') return String(value);
     if (typeof value === 'function' || typeof value === 'symbol') return undefined;
-    if (Object.isFrozen(value) && value[immutableGameSnapshotBrand] === true) return value;
+    // Game snapshots and presentation settings are already deep-frozen producers.
+    if (Object.isFrozen(value) && (value[immutableGameSnapshotBrand] === true || value.schemaVersion === 2)) return value;
     if (seen.has(value)) throw new TypeError('UX runtime snapshots must not contain cycles');
     seen.add(value);
     let copy;

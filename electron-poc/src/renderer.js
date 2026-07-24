@@ -10,6 +10,11 @@ term.writeln('Terminal bridge ready. Click "Start NetHack TTY" to launch.');
 
 const output = document.getElementById('output');
 const shimOutput = document.getElementById('shim-output');
+const debugPanel = document.getElementById('debug-panel');
+function debugDiagnosticsOpen() {
+  return Boolean(debugPanel && !debugPanel.hidden && debugPanel.open);
+}
+
 const gameGrid = document.getElementById('game-grid');
 const containerTransferPanel = document.getElementById('container-transfer-panel');
 if (containerTransferPanel && containerTransferPanel.parentElement !== document.body) {
@@ -5832,9 +5837,86 @@ function setTransferItemSelected(item, side, selected) {
   dispatchTransferSessionEvent({ type: 'toggle', side, selector: transferItemKey(item), selected });
 }
 
+function transferRowSelectionAriaLabel(button, selected) {
+  const current = String(button.getAttribute('aria-label') || '');
+  if (!current) return selected ? 'Selected item' : 'Not selected item';
+  if (selected) return current.replace(/^Not selected\b/, 'Selected');
+  return current.replace(/^Selected\b/, 'Not selected');
+}
+
+function applyTransferRowSelectionState(button, selected) {
+  if (!button) return;
+  button.classList.toggle('is-selected', selected);
+  button.setAttribute('aria-checked', String(selected));
+  button.setAttribute('aria-label', transferRowSelectionAriaLabel(button, selected));
+  const checkbox = button.querySelector('.transfer-checkbox');
+  if (checkbox) checkbox.textContent = selected ? '☑' : '☐';
+  let selectedLabel = button.querySelector('.transfer-selected-label');
+  if (selected && !selectedLabel) {
+    selectedLabel = document.createElement('span');
+    selectedLabel.className = 'transfer-selected-label';
+    selectedLabel.setAttribute('aria-hidden', 'true');
+    selectedLabel.textContent = 'Selected';
+    button.appendChild(selectedLabel);
+  } else if (!selected && selectedLabel) selectedLabel.remove();
+}
+
+function refreshTransferSelectionChrome({ pulseStableId = '' } = {}) {
+  if (!containerTransferPanel || containerTransferPanel.hidden || !transferPresentation?.active) return false;
+  const snapshot = transferSession.snapshot();
+  const isGroundPickup = transferPresentation.sessionKind === 'ground-pickup';
+  const selectedLeft = (snapshot.selection?.left || []).length;
+  const selectedRight = (snapshot.selection?.right || []).length;
+  const selectedCount = selectedLeft + selectedRight;
+  const selectedVerb = isGroundPickup
+    ? (selectedRight === 0 ? 'Take' : (selectedLeft === 0 ? 'Drop' : 'Move'))
+    : (selectedLeft > 0 && selectedRight === 0 ? 'Take' : 'Move');
+  const previousSelectedCount = Number(containerTransferPanel.dataset.selectedCount || 0);
+  const countNode = containerTransferPanel.querySelector('.container-transfer-selected-count');
+  if (countNode) countNode.textContent = `${selectedCount} selected`;
+  const moveSelected = containerTransferPanel.querySelector('[data-transfer-selected="true"]');
+  if (moveSelected) {
+    moveSelected.disabled = selectedCount === 0 || Boolean(snapshot.pending);
+    moveSelected.innerHTML = `${selectedVerb} ${selectedCount || ''} selected <kbd>Enter</kbd>`;
+    if (selectedCount > 0 && previousSelectedCount === 0 && !moveSelected.disabled) {
+      globalThis.NetHackUxFeedback?.animateEnablePop?.(moveSelected);
+    }
+  }
+  const selectAll = containerTransferPanel.querySelector('[data-select-all-container="true"]');
+  if (selectAll) {
+    const eligible = containerMenuItems('left').filter((item) => Boolean(transferItemKey(item)));
+    const selected = new Set(snapshot.selection?.left || []);
+    const allSelected = eligible.length > 0 && eligible.every((item) => selected.has(transferSelectionId(item, 'left')));
+    selectAll.disabled = Boolean(transferPresentation.loadingSides?.left)
+      || !transferPresentation.loadedSides?.left
+      || !eligible.length
+      || allSelected
+      || Boolean(snapshot.pending);
+  }
+  const nextSelectedIds = [];
+  for (const row of containerTransferPanel.querySelectorAll('.container-item-row')) {
+    const side = row.dataset.containerSide || '';
+    const stableId = row.dataset.stableId || `${side}:${row.dataset.selector || ''}`;
+    const selected = (snapshot.selection?.[side] || []).includes(stableId)
+      || (snapshot.selection?.[side] || []).includes(row.dataset.selector || '');
+    applyTransferRowSelectionState(row, selected);
+    if (selected) nextSelectedIds.push(stableId);
+  }
+  if (pulseStableId) {
+    const pulsed = containerTransferPanel.querySelector(`.container-item-row[data-stable-id="${CSS.escape ? CSS.escape(pulseStableId) : pulseStableId}"]`);
+    if (pulsed) globalThis.NetHackUxFeedback?.pulse?.(pulsed, 'ux-motion-select', { durationMs: 140 });
+  }
+  containerTransferPanel.dataset.selectedCount = String(selectedCount);
+  containerTransferPanel.dataset.selectedIds = nextSelectedIds.join('|');
+  return true;
+}
+
 function toggleTransferItemSelection(item, side) {
-  setTransferItemSelected(item, side, !transferItemIsSelected(item, side));
-  renderContainerTransferPanel();
+  const nextSelected = !transferItemIsSelected(item, side);
+  setTransferItemSelected(item, side, nextSelected);
+  if (!refreshTransferSelectionChrome({ pulseStableId: transferSelectionId(item, side) })) {
+    renderContainerTransferPanel();
+  }
 }
 
 function selectAllEligibleContainerItems() {
@@ -5847,7 +5929,7 @@ function selectAllEligibleContainerItems() {
     side: 'left',
     rowKeys: eligible.map((item) => transferSelectionId(item, 'left')),
   });
-  renderContainerTransferPanel();
+  if (!refreshTransferSelectionChrome()) renderContainerTransferPanel();
 }
 
 function transferRowGlyph(item = {}) {
@@ -6953,7 +7035,7 @@ const pendingUxPublicStateDomains = new Set();
 const allUxPublicStateDomains = Object.freeze(['interaction', 'shell', 'discovery', 'map', 'items', 'transfer', 'run-lifecycle', 'conformance']);
 function uxPublicStateDomainsForEffect(effect = {}) {
   const type = String(effect.type || 'unknown');
-  if (/^(?:dirty-map-|render-map$|map-reset$|flush-map$|ground-pile-)/.test(type)) return ['map'];
+  if (/^(?:dirty-map-|render-map$|map-reset$|flush-map$|ground-pile-)/.test(type)) return ['map', 'shell'];
   if (type === 'status') return [];
   if (type === 'render-status') return ['shell'];
   if (/message|milestone/.test(type)) return ['shell', 'discovery'];
@@ -6961,6 +7043,10 @@ function uxPublicStateDomainsForEffect(effect = {}) {
   if (/transfer|container/.test(type)) return ['transfer', 'items'];
   if (/prompt|menu|interaction|document|command-/.test(type)) return ['interaction', 'shell', 'discovery'];
   return allUxPublicStateDomains;
+}
+function uxPublicStateDomainsForReason(reason = '') {
+  if (/presentation-settings/.test(String(reason || ''))) return allUxPublicStateDomains;
+  return [];
 }
 function publishUxPublicState() {
   uxPublicStatePublishScheduled = false;
@@ -6987,7 +7073,7 @@ function publishUxPublicState() {
 }
 
 function scheduleUxPublicStatePublish(reason, effects = []) {
-  const domains = new Set();
+  const domains = new Set(uxPublicStateDomainsForReason(reason));
   for (const effect of effects || []) {
     pendingUxPublicStateEffectTypes.add(String(effect?.type || 'unknown'));
     for (const domain of uxPublicStateDomainsForEffect(effect)) domains.add(domain);
@@ -7000,6 +7086,7 @@ function scheduleUxPublicStatePublish(reason, effects = []) {
   if (typeof window.requestAnimationFrame === 'function') window.requestAnimationFrame(publishUxPublicState);
   else window.setTimeout(publishUxPublicState, 0);
 }
+
 
 function applyGameViewEffects(effects) {
   for (const item of effects || []) {
@@ -7217,8 +7304,8 @@ function processShimGameEvent(event) {
     setStatus(preRenderSuppressedExtendedPromptReason);
   }
   applyGameViewEffects(result.effects);
-  refreshGameViewPresentation();
 }
+
 
 function flushDeferredGameViewEffects() {
   if (!deferredGameViewEffects) return;
@@ -7226,8 +7313,8 @@ function flushDeferredGameViewEffects() {
   deferredGameViewEffects = null;
   refreshGameViewPresentation();
   applyGameViewEffects(effects);
-  refreshGameViewPresentation();
 }
+
 
 function publishTestMap(cells = [], cursor = { x: 0, y: 0 }) {
   processShimGameEvent({ name: 'shim_create_nhwindow', return: 1, windowType: 3 });
@@ -7328,13 +7415,25 @@ function flushShimEvents() {
   shimLines.push(...pendingShimEvents);
   pendingShimEvents = [];
   if (shimLines.length > maxShimLines) shimLines = shimLines.slice(-maxShimLines);
-  const omitted = shimEventCount > shimLines.length ? `[showing latest ${shimLines.length} of ${shimEventCount} shim events]\n` : '';
-  const summary = `[seen: ${Array.from(seenShimEventNames).sort().join(', ')}]\n`;
-  shimOutput.dataset.seen = Array.from(seenShimEventNames).sort().join(',');
+  const seen = Array.from(seenShimEventNames).sort().join(',');
+  shimOutput.dataset.seen = seen;
   shimOutput.dataset.count = String(shimEventCount);
-  shimOutput.textContent = `${summary}${omitted}${shimLines.join('\n')}\n`; 
+  if (!debugDiagnosticsOpen()) return;
+  const omitted = shimEventCount > shimLines.length ? `[showing latest ${shimLines.length} of ${shimEventCount} shim events]\n` : '';
+  const summary = `[seen: ${seen}]\n`;
+  shimOutput.textContent = `${summary}${omitted}${shimLines.map((entry) => typeof entry === 'string' ? entry : JSON.stringify(entry)).join('\n')}\n`;
   shimOutput.scrollTop = shimOutput.scrollHeight;
 }
+
+function paintShimDiagnosticsIfOpen() {
+  if (!debugDiagnosticsOpen() || !shimLines.length) return;
+  const seen = Array.from(seenShimEventNames).sort().join(',');
+  const omitted = shimEventCount > shimLines.length ? `[showing latest ${shimLines.length} of ${shimEventCount} shim events]\n` : '';
+  shimOutput.textContent = `[seen: ${seen}]\n${omitted}${shimLines.map((entry) => typeof entry === 'string' ? entry : JSON.stringify(entry)).join('\n')}\n`;
+  shimOutput.scrollTop = shimOutput.scrollHeight;
+}
+
+
 
 function handleShimEvent(event) {
   const sourceEvent = event?.event || event?.raw || event || {};
@@ -7684,7 +7783,7 @@ function handleShimEvent(event) {
   }
   if (gameOverState?.active && rawEvent.name === 'shim_display_nhwindow' && documentWindow?.lines?.length) appendGameOverSection(documentWindow.title || 'NetHack statistics', documentWindow.lines);
   if (gameOverState?.active) scheduleGameOverModal(rawEvent.name === 'shim_yn_function' ? 1200 : 500);
-  pendingShimEvents.push(JSON.stringify({ protocol: appEvent.protocol, kind: appEvent.kind, known: appEvent.known, event: rawEvent, autoAnswered: autoDisclosurePrompt ? 'y' : undefined }));
+  pendingShimEvents.push({ protocol: appEvent.protocol, kind: appEvent.kind, known: appEvent.known, event: rawEvent, autoAnswered: autoDisclosurePrompt ? 'y' : undefined });
   if (!shimFlushScheduled) {
     shimFlushScheduled = true;
     window.requestAnimationFrame(flushShimEvents);
@@ -9052,7 +9151,6 @@ function sendMovementCommand(directionKey) {
   const movementCommand = movementMode === 'run' ? directionKey.toUpperCase() : `${prefix}${directionKey}`;
   repeatCountInput.value = String(count);
   sendPlayableText(`${countPrefix}${movementCommand}`);
-  appendMessage(`${count > 1 ? `${count} × ` : ''}${movementMode} ${directionKey.toUpperCase()}.`);
   gameGrid.focus({ preventScroll: true });
 }
 
@@ -9074,7 +9172,6 @@ function sendCompassMovement(directionKey) {
   }
   const mode = compassRunArmed ? 'run' : 'walk';
   sendPlayableText(mode === 'run' ? directionKey.toUpperCase() : directionKey);
-  appendMessage(`${mode} ${directionKey.toUpperCase()} from the movement compass.`);
   compassRunArmed = false;
   updateCompassRunButton();
   gameGrid.focus({ preventScroll: true });
@@ -9095,6 +9192,9 @@ saveRecordingPrimaryButton?.addEventListener('click', () => saveActiveRecording(
 document.getElementById('shim-wait').addEventListener('click', () => sendPlayableKey('.'));
 document.getElementById('shim-esc').addEventListener('click', () => sendPlayableKey('\u001b'));
 document.getElementById('stop').addEventListener('click', () => netHackAPI.stop());
+debugPanel?.addEventListener('toggle', () => {
+  if (debugPanel.open) paintShimDiagnosticsIfOpen();
+});
 repeatActions?.addEventListener('click', (event) => {
   const preset = event.target.closest('button[data-repeat-count]');
   if (preset) {
@@ -9709,7 +9809,13 @@ if (typeof window !== 'undefined') {
     event: handleShimEvent,
     envelopedEvent: (event) => handleShimEvent(sharedModules.shimProtocol?.normalizeRawShimEvent ? sharedModules.shimProtocol.normalizeRawShimEvent(event) : event),
     messages: () => gameViewSnapshot.messages.slice(),
-    shimEvents: () => { flushShimEvents(); return shimLines.map((line) => { try { return JSON.parse(line); } catch { return null; } }).filter(Boolean); },
+    shimEvents: () => {
+      flushShimEvents();
+      return shimLines.map((entry) => {
+        if (entry && typeof entry === 'object') return entry;
+        try { return JSON.parse(entry); } catch { return null; }
+      }).filter(Boolean);
+    },
     publicGroundPileShimEvidence: () => publicGroundPileShimEvidence.map((event) => JSON.parse(JSON.stringify(event))),
     sentInputs: () => testSentInputs.slice(),
     sentPayloads: () => testSentPayloads.map((payload) => ({ ...payload })),

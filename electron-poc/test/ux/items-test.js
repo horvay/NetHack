@@ -939,4 +939,31 @@ const large = ItemPresentation.presentItems(Array.from({ length: 120 }, (_, inde
 assert.equal(large.length, 120, 'presentation accepts a 120-row authoritative list without truncation');
 assert.equal(new Set(large.map((item) => item.stableId)).size, 120, 'large inventory stable IDs remain unique');
 
+
+// Center-drop preferred slot routing (paper-doll middle target).
+assert.equal(typeof EquipmentScreen.preferredSlotForEquipmentItem, 'function');
+assert.equal(EquipmentScreen.preferredSlotForEquipmentItem({
+  objectId: 901, selector: 97, inventoryLetter: 'a', displayName: 'a +1 spear', text: 'a - a +1 spear',
+  semanticName: 'spear', semanticKnown: true, publicClass: 'weapon', equipmentSlots: ['mainHand', 'offHand', 'quiver'],
+  actionAffordances: ['wield', 'throw', 'drop'],
+}), 'mainHand', 'weapons prefer main hand on center drop');
+assert.equal(EquipmentScreen.preferredSlotForEquipmentItem({
+  objectId: 902, selector: 99, inventoryLetter: 'c', displayName: 'an uncursed helmet', text: 'c - an uncursed helmet',
+  semanticName: 'helmet', semanticKnown: true, publicClass: 'armor', equipmentSlots: ['armor.helm'],
+  actionAffordances: ['wear', 'drop'],
+}), 'armor.helm', 'helmets route to helm slot');
+assert.equal(EquipmentScreen.preferredSlotForEquipmentItem({
+  objectId: 903, selector: 108, inventoryLetter: 'l', displayName: 'a ring of protection', text: 'l - a ring of protection',
+  semanticName: 'ring of protection', semanticKnown: true, publicClass: 'ring', equipmentSlots: ['ring.left', 'ring.right'],
+  actionAffordances: ['putOn', 'drop'],
+}), 'ring.left', 'rings default to left hand when free');
+assert.equal(EquipmentScreen.preferredSlotForEquipmentItem({
+  objectId: 904, selector: 98, inventoryLetter: 'b', displayName: 'a ruby potion', text: 'b - a ruby potion',
+  semanticAppearance: 'ruby potion', semanticKnown: false, publicClass: 'potion',
+  actionAffordances: ['quaff', 'drop'],
+}), '', 'non-equipables have no preferred equipment slot');
+assert.match(fs.readFileSync(path.join(__dirname, '../../src/ux/equipment-screen.js'), 'utf8'), /smartDrop = 'preferred-slot'|Drop here to equip/, 'paper-doll center exposes a smart drop target');
+assert.doesNotMatch(fs.readFileSync(path.join(__dirname, '../../src/renderer.js'), 'utf8'), /from the movement compass/, 'compass movement no longer appends walk/run log spam');
+assert.doesNotMatch(fs.readFileSync(path.join(__dirname, '../../src/renderer.js'), 'utf8'), /\$\{movementMode\} \$\{directionKey/, 'directional movement no longer appends walk/run log spam');
+
 console.log('UXM-05 item presentation and equipment layout tests OK');

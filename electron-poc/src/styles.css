@@ -21,7 +21,7 @@ header {
   padding: 10px 16px;
   border-bottom: 1px solid rgba(246, 211, 101, 0.18);
   background: rgba(10, 11, 16, 0.88);
-  backdrop-filter: blur(10px);
+  backdrop-filter: none;
 }
 
 h1 { margin: 0; font-size: 1.25rem; letter-spacing: 0.02em; }

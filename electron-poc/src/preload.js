@@ -99,7 +99,10 @@ contextBridge.exposeInMainWorld('netHackPOC', Object.freeze({
   prepareContinueGame: (candidateId) => ipcRenderer.invoke('nethack:prepareContinueGame', String(candidateId || '').slice(0, 120)),
   stop: () => ipcRenderer.invoke('nethack:stop'),
   saveRecording: (recording) => ipcRenderer.invoke('nethack:saveRecording', validRecording(recording)),
-  diagnosticEvent: (event) => ipcRenderer.invoke('nethack:diagnosticEvent', validDiagnosticEvent(event)),
+  diagnosticEvent: (event) => {
+    ipcRenderer.send('nethack:diagnosticEvent', validDiagnosticEvent(event));
+    return { ok: true, queued: true };
+  },
   activeDiagnosticRun: () => ipcRenderer.invoke('nethack:activeDiagnosticRun'),
   ...(process.env.NH_ELECTRON_TEST_FIXTURES === '1' && process.env.NH_TEST_CAPTURE_DIR ? {
     setTestCaptureProfile: (profile) => ipcRenderer.invoke('nethack:testCaptureProfile', isPlainObject(profile) ? { width: Number(profile.width), height: Number(profile.height), zoomPercent: Number(profile.zoomPercent) } : {}),

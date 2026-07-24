@@ -68,6 +68,31 @@
     function noticeService() { return runtime?.service?.('notice'); }
     function dialogService() { return runtime?.service?.('dialog'); }
 
+    let lastShellRenderKey = '';
+    function statusValuesSignature(statusValues) {
+      const byField = tuplesToMap(statusValues);
+      if (!byField.size) return '0//';
+      return `${byField.size}//${Array.from(byField.entries())
+        .sort((left, right) => Number(left[0]) - Number(right[0]))
+        .map(([field, value]) => `${field}:${value ?? ''}`)
+        .join('|')}`;
+    }
+    function shellRenderKey(game = {}) {
+      const messages = Array.isArray(game.messages) ? game.messages : [];
+      const lastMessage = messages.length ? messages[messages.length - 1] : null;
+      const prompt = game.activePrompt || null;
+      const menu = game.currentMenu || null;
+      return [
+        statusValuesSignature(game.statusValues),
+        messages.length,
+        typeof lastMessage === 'string' ? lastMessage : `${lastMessage?.text || ''}:${lastMessage?.id || ''}`,
+        prompt?.requestId || prompt?.query || '',
+        menu?.requestId || '',
+        Boolean(menu?.awaitingSelection),
+        documentRoot.body?.classList?.contains?.('map-target-mode') ? 'target' : 'explore',
+      ].join('//');
+    }
+
     function publicGameFacts() {
       return runtime?.latestPublicState?.()?.snapshot?.game || {};
     }
@@ -394,6 +419,12 @@
 
     function update(snapshot) {
       const game = snapshot?.game || {};
+      const nextKey = shellRenderKey(game);
+      if (nextKey === lastShellRenderKey) {
+        if (documentRoot.body.dataset.uxMapMode === 'follow') globalRoot.requestAnimationFrame?.(centerFollowMap);
+        return;
+      }
+      lastShellRenderKey = nextKey;
       documentRoot.body.dataset.uxPromptOwned = String(Boolean(game.activePrompt || game.currentMenu?.awaitingSelection));
       renderStatusFacts(game.statusValues || []);
       characterSheet?.update?.(game.statusValues || []);

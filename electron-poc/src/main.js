@@ -96,17 +96,20 @@ ipcMain.handle('nethack:runVersion', async () => new Promise((resolve) => {
 ipcMain.handle('nethack:startGame', (_event, size = {}) => gameProcess.startGame(size));
 ipcMain.handle('nethack:startShimBridge', (_event, options = {}) => gameProcess.startShimBridge(options));
 
-ipcMain.handle('nethack:diagnosticEvent', (_event, event) => {
-  if (!event || typeof event !== 'object') return { ok: false, message: 'invalid diagnostic event' };
-  const record = diagnostics?.appendEvent?.({
-    layer: String(event.layer || 'renderer').slice(0, 64),
-    category: String(event.category || 'diagnostic').slice(0, 64),
-    type: String(event.type || 'renderer.event').slice(0, 128),
-    transactionId: event.transactionId,
-    requestId: event.requestId,
-    payload: event.payload || {},
-  });
-  return { ok: Boolean(record), seq: record?.seq || null, runId: record?.runId || null };
+ipcMain.on('nethack:diagnosticEvent', (_event, event) => {
+  if (!event || typeof event !== 'object') return;
+  try {
+    diagnostics?.appendEvent?.({
+      layer: String(event.layer || 'renderer').slice(0, 64),
+      category: String(event.category || 'diagnostic').slice(0, 64),
+      type: String(event.type || 'renderer.event').slice(0, 128),
+      transactionId: event.transactionId,
+      requestId: event.requestId,
+      payload: event.payload || {},
+    });
+  } catch (error) {
+    console.warn(`[diagnostic-log] renderer diagnostic failed: ${error.stack || error}`);
+  }
 });
 
 ipcMain.handle('nethack:activeDiagnosticRun', () => ({ ok: true, diagnostic: diagnostics?.publicRun?.() || null }));

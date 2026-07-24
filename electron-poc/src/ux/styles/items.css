@@ -360,6 +360,37 @@ body.uxm02-shell-active .uxm-items-status .ux-status-chip {
   outline: 2px solid var(--ux-color-selection, oklch(0.7 0.1 238));
   background: oklch(0.27 0.04 238);
 }
+
+.uxm-character-safe-area {
+  position: relative;
+}
+.uxm-character-safe-area.drag-over {
+  outline: 2px solid var(--ux-color-selection, oklch(0.7 0.1 238));
+  outline-offset: 4px;
+  border-radius: 18px;
+  background: oklch(0.27 0.04 238 / 0.28);
+}
+.uxm-smart-drop-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 0.55rem;
+  transform: translateX(-50%);
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklch, var(--ux-color-action) 45%, transparent);
+  background: oklch(0.14 0.02 260 / 0.82);
+  color: var(--ux-color-text-muted, oklch(0.82 0.02 86));
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ux-motion-fast, 120ms) ease-out;
+}
+.uxm-character-safe-area.drag-over .uxm-smart-drop-hint {
+  opacity: 1;
+}
 .uxm-inventory-tools {
   display: grid;
   grid-template-columns: auto minmax(220px, 1fr);

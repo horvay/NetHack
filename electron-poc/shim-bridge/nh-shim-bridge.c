@@ -2311,10 +2311,18 @@ static void emit_action_affordances_array_at(int glyph, int x, int y) {
         (void) any_trapped_box;
         (void) any_broken_box;
     }
-    if (!strcmp(kind, "monster")) {
+    if (!strcmp(kind, "monster") || !strcmp(kind, "pet")) {
         struct monst *mtmp = isok(x, y) ? m_at(x, y) : (struct monst *) 0;
-        AFFORD("monster.hostile-unknown");
-        if (mtmp && mtmp->isshk) {
+        if (!Hallucination && mtmp) {
+            if (mtmp->mtame || !strcmp(kind, "pet")) AFFORD("monster.attitude.tame");
+            else if (mtmp->mpeaceful) AFFORD("monster.attitude.peaceful");
+            else AFFORD("monster.attitude.hostile");
+        } else {
+            AFFORD("monster.hostile-unknown");
+        }
+        if (!strcmp(kind, "pet") || (mtmp && mtmp->mtame && !Hallucination))
+            AFFORD("monster.pet");
+        if (mtmp && mtmp->isshk && !Hallucination) {
             char recipient_token[64];
             AFFORD("monster.shopkeeper");
             snprintf(recipient_token, sizeof recipient_token,
@@ -2322,7 +2330,6 @@ static void emit_action_affordances_array_at(int glyph, int x, int y) {
             AFFORD(recipient_token);
         }
     }
-    if (!strcmp(kind, "pet")) AFFORD("monster.pet");
 #undef AFFORD
     fputc(']', stdout);
 }
@@ -2350,16 +2357,55 @@ static int glyph_exposes_public_location(int glyph, int background_glyph) {
         && !glyph_is_nothing(glyph);
 }
 
+static const char *public_monster_size_label(const struct permonst *ptr);
+static void emit_public_creature_look_fields_at(int glyph, int x, int y);
+
+static struct trap *public_seen_trap_at(int x, int y) {
+    struct trap *trap;
+
+    if (!isok(x, y))
+        return (struct trap *) 0;
+    trap = t_at((coordxy) x, (coordxy) y);
+    if (!trap || !trap->tseen)
+        return (struct trap *) 0;
+    return trap;
+}
+
+static int public_seen_trap_glyph_at(int x, int y) {
+    struct trap *trap = public_seen_trap_at(x, y);
+
+    return trap ? trap_to_glyph(trap) : NO_GLYPH;
+}
+
 static void emit_public_look_fields_at(int glyph, int background_glyph,
                                        int x, int y) {
     char feature_buf[BUFSZ];
-    const char *feature;
+    const char *feature = (const char *) 0;
     struct engr *ep;
+    struct trap *trap;
 
-    if (!isok(x, y)
-        || !glyph_exposes_public_location(glyph, background_glyph))
+    if (isok(x, y))
+        emit_public_creature_look_fields_at(glyph, x, y);
+
+    if (!isok(x, y))
         return;
+
+    /* print_glyph only runs for visible/remembered map cells. Always surface the
+       dungeon feature (stairs, altar, fountain, …) even when an object/monster
+       glyph covers it — matching farlook “also here” information. */
+    (void) background_glyph;
     feature = dfeature_at((coordxy) x, (coordxy) y, feature_buf);
+    /* Discovered traps are not dfeature_at terrain. Prefer an explicit trap name
+       when the foreground glyph is not already the trap itself. If a stairs or
+       other feature is also present, keep that feature text and rely on the
+       recovered trap background glyph for layering. */
+    if (!glyph_is_trap(glyph)) {
+        trap = public_seen_trap_at(x, y);
+        if (trap && (!feature || !*feature)) {
+            Strcpy(feature_buf, trapname(trap->ttyp, FALSE));
+            feature = feature_buf;
+        }
+    }
     if (feature && *feature) {
         fputs(",\"featureDescription\":\"", stdout);
         json_escape(stdout, feature);
@@ -2371,6 +2417,108 @@ static void emit_public_look_fields_at(int glyph, int background_glyph,
         json_escape(stdout, ep->engr_txt[remembered_text]);
         fputc('\"', stdout);
     }
+}
+
+static const char *public_monster_size_label(const struct permonst *ptr) {
+    if (!ptr) return NULL;
+    switch (ptr->msize) {
+    case MZ_TINY: return "tiny";
+    case MZ_SMALL: return "small";
+    case MZ_MEDIUM: return "medium";
+    case MZ_LARGE: return "large";
+    case MZ_HUGE: return "huge";
+    case MZ_GIGANTIC: return "gigantic";
+    default: return NULL;
+    }
+}
+
+/* Farlook-parity creature facts only: attitude, visible status, and known-species size.
+   Never emit HP/AC/level or other probing-only combat numbers. */
+static void emit_public_creature_look_fields_at(int glyph, int x, int y) {
+    struct monst *mtmp;
+    const char *kind;
+    const char *size_label = NULL;
+    int emitted = 0;
+    int accurate;
+    char trapbuf[BUFSZ];
+
+    if (!isok(x, y) || !glyph_is_monster(glyph))
+        return;
+    mtmp = m_at((coordxy) x, (coordxy) y);
+    if (!mtmp)
+        return;
+    kind = glyph_semantic_kind(glyph);
+    if (strcmp(kind, "monster") && strcmp(kind, "pet"))
+        return;
+
+    accurate = !Hallucination;
+    fputs(",\"creaturePublic\":{", stdout);
+
+    if (accurate) {
+        const char *attitude = NULL;
+        if (mtmp->mtame || glyph_is_pet(glyph))
+            attitude = "tame";
+        else if (mtmp->mpeaceful)
+            attitude = "peaceful";
+        else
+            attitude = "hostile";
+        fputs("\"attitude\":\"", stdout);
+        json_escape(stdout, attitude);
+        fputc('"', stdout);
+        emitted = 1;
+    }
+
+    if (accurate && mtmp->data) {
+        size_label = public_monster_size_label(mtmp->data);
+        if (size_label) {
+            if (emitted++) fputc(',', stdout);
+            fputs("\"size\":\"", stdout);
+            json_escape(stdout, size_label);
+            fputc('"', stdout);
+        }
+    }
+
+    fputs(emitted++ ? ",\"status\":[" : "\"status\":[", stdout);
+    {
+        int status_count = 0;
+#define CREATURE_STATUS(token) do { \
+            if (status_count++) fputc(',', stdout); \
+            fputc('"', stdout); \
+            fputs(token, stdout); \
+            fputc('"', stdout); \
+        } while (0)
+        if (u.ustuck == mtmp) {
+            if (u.uswallow || iflags.save_uswallow)
+                CREATURE_STATUS(digests(mtmp->data) ? "swallowing you" : "engulfing you");
+            else if (Upolyd && sticks(gy.youmonst.data))
+                CREATURE_STATUS("being held");
+            else
+                CREATURE_STATUS("holding you");
+        }
+        if (mtmp->mfrozen)
+            CREATURE_STATUS("can't move");
+        else if (mtmp->msleeping)
+            CREATURE_STATUS("asleep");
+        else if ((mtmp->mstrategy & STRAT_WAITMASK) != 0)
+            CREATURE_STATUS("meditating");
+        if (mtmp->mleashed)
+            CREATURE_STATUS("leashed to you");
+        if (mtmp->mtrapped && cansee(mtmp->mx, mtmp->my)) {
+            struct trap *t = t_at(mtmp->mx, mtmp->my);
+            int tt = t ? t->ttyp : NO_TRAP;
+            if (tt == BEAR_TRAP || is_pit(tt) || tt == WEB) {
+                Snprintf(trapbuf, sizeof trapbuf, "trapped in %s",
+                         an(trapname(tt, FALSE)));
+                if (status_count++) fputc(',', stdout);
+                fputc('"', stdout);
+                json_escape(stdout, trapbuf);
+                fputc('"', stdout);
+            }
+        }
+#undef CREATURE_STATUS
+    }
+    fputc(']', stdout);
+    fputc('}', stdout);
 }
 
 static const char *glyph_semantic_appearance(int glyph) {
@@ -2921,16 +3069,68 @@ static void emit_container_contents_snapshot_for(struct obj *container, const ch
     emit_event_end();
 }
 
+static int is_generic_floor_background_glyph(int glyph) {
+    int cmap;
+
+    if (glyph == NO_GLYPH || glyph_is_unexplored(glyph) || glyph_is_nothing(glyph))
+        return 1;
+    if (!glyph_is_cmap(glyph))
+        return 0;
+    cmap = glyph_to_cmap(glyph);
+    return is_cmap_room(cmap) || is_cmap_corr(cmap) || cmap == S_stone;
+}
+
+static int is_special_location_background_glyph(int glyph) {
+    int cmap;
+
+    if (!glyph_is_cmap(glyph))
+        return 0;
+    cmap = glyph_to_cmap(glyph);
+    return is_cmap_stairs(cmap)
+        || is_cmap_furniture(cmap)
+        || is_cmap_trap(cmap)
+        || is_cmap_door(cmap)
+        || is_cmap_drawbridge(cmap)
+        || is_cmap_water(cmap)
+        || is_cmap_lava(cmap)
+        || is_cmap_engraving(cmap)
+        || cmap == S_tree
+        || cmap == S_grave
+        || cmap == S_sink
+        || cmap == S_bars
+        || cmap == S_cloud
+        || cmap == S_air
+        || cmap == S_water;
+}
+
 static int effective_background_glyph_at(int x, int y, const glyph_info *bgi) {
     int background_glyph = bgi ? bgi->glyph : NO_GLYPH;
-    if (isok(x, y) && x == u.ux && y == u.uy
+    int terrain_glyph;
+    int trap_glyph;
+
+    if (!isok(x, y))
+        return background_glyph;
+
+    terrain_glyph = back_to_glyph(x, y);
+    if (terrain_glyph != NO_GLYPH
         && (background_glyph == NO_GLYPH
             || glyph_is_unexplored(background_glyph)
-            || glyph_is_nothing(background_glyph))) {
-        int terrain_glyph = back_to_glyph(x, y);
-        if (terrain_glyph != NO_GLYPH)
-            background_glyph = terrain_glyph;
-    }
+            || glyph_is_nothing(background_glyph)
+            || (is_special_location_background_glyph(terrain_glyph)
+                && is_generic_floor_background_glyph(background_glyph))))
+        background_glyph = terrain_glyph;
+
+    /* back_to_glyph never returns traps. If a trap is already discovered (tseen)
+       and the displayed background is only generic floor, expose the trap glyph
+       so tooltips/layers can list it under objects and monsters. */
+    trap_glyph = public_seen_trap_glyph_at(x, y);
+    if (trap_glyph != NO_GLYPH
+        && (background_glyph == NO_GLYPH
+            || glyph_is_unexplored(background_glyph)
+            || glyph_is_nothing(background_glyph)
+            || is_generic_floor_background_glyph(background_glyph)))
+        background_glyph = trap_glyph;
+
     return background_glyph;
 }
 

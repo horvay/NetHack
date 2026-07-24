@@ -55,12 +55,32 @@
     const kind = text(cell.semanticKind).toLowerCase();
     const label = publicDisplayName(cell);
     const objectLabel = publicObjectLayerName(cell);
+    const feature = text(cell.featureDescription);
+    const backgroundName = text(cell.backgroundSemanticName);
+    const backgroundKind = text(cell.backgroundSemanticKind).toLowerCase();
+    const featureLooksSpecial = /\bstairs?\b|\bstaircase\b|\bladder\b|\baltar\b|\bfountain\b|\bsink\b|\bthrone\b|\bgrave\b|\btree\b|\bdoor\b|\btrap\b|\bpool\b|\blava\b|\bmoat\b|\bwater\b|\biron bars\b|\bdrawbridge\b/i.test(feature);
+    const backgroundLooksSpecial = ['stairs', 'door', 'trap', 'feature'].includes(backgroundKind)
+      || /\bstairs?\b|\bstaircase\b|\bladder\b|\baltar\b|\bfountain\b/i.test(backgroundName);
     if (objectLabel) layers.push(normalizeLayer(cell.objectLayerSemanticKnown === false ? 'visible' : 'object', objectLabel));
     if (label) layers.push(normalizeLayer(cell.semanticKnown === false ? 'visible' : (['monster', 'pet', 'hero', 'player'].includes(kind) ? 'creature' : (kind || 'feature')), label));
-    if (!layers.length && publicFallbackLabel(cell) !== 'Unknown') layers.push(normalizeLayer('terrain', publicFallbackLabel(cell)));
+    if (feature && featureLooksSpecial) {
+      const role = /\bstairs?\b|\bstaircase\b|\bladder\b/i.test(feature) ? 'stairs' : (/\bdoor\b/i.test(feature) ? 'door' : (/\btrap\b/i.test(feature) ? 'trap' : 'feature'));
+      layers.push(normalizeLayer(role, sentenceCase(feature)));
+    } else if (backgroundLooksSpecial && backgroundName) {
+      layers.push(normalizeLayer(backgroundKind || 'feature', sentenceCase(backgroundName)));
+    } else if (!layers.length && publicFallbackLabel(cell) !== 'Unknown') {
+      layers.push(normalizeLayer('terrain', publicFallbackLabel(cell)));
+    } else if (layers.length && !featureLooksSpecial && !backgroundLooksSpecial) {
+      const terrainLabel = backgroundName || publicFallbackLabel(cell);
+      if (terrainLabel && terrainLabel !== 'Unknown' && !layers.some((entry) => entry.label.toLowerCase() === terrainLabel.toLowerCase())) {
+        layers.push(normalizeLayer('terrain', sentenceCase(terrainLabel)));
+      }
+    }
     return Object.freeze(layers.filter(Boolean));
   }
   function publicAttitudeForCell(cell = {}, contextActions) {
+    const fromCreature = text(cell?.creaturePublic?.attitude).toLowerCase();
+    if (fromCreature === 'tame' || fromCreature === 'peaceful' || fromCreature === 'hostile') return fromCreature;
     return contextActions?.attitudeFromPublicCell?.(cell);
   }
   function publicStateCues(cell = {}, publicAttitude) {
@@ -73,6 +93,47 @@
     if (publicAttitude === 'hostile') cues.push('hostile');
     if (tokens.has('trap.known')) cues.push('known-trap');
     return Object.freeze(cues);
+  }
+  function normalizeCreatureSize(value) {
+    const size = text(value).toLowerCase();
+    if (['tiny', 'small', 'medium', 'large', 'huge', 'gigantic'].includes(size)) return size;
+    return '';
+  }
+  function normalizeCreatureStatus(status = []) {
+    if (!Array.isArray(status)) return Object.freeze([]);
+    const seen = new Set();
+    const out = [];
+    for (const entry of status) {
+      const label = text(entry);
+      const key = label.toLowerCase();
+      if (!label || seen.has(key)) continue;
+      seen.add(key);
+      out.push(label);
+    }
+    return Object.freeze(out);
+  }
+  function publicCreatureFacts(cell = {}, publicAttitude) {
+    const kind = text(cell.semanticKind).toLowerCase();
+    const isCreature = ['monster', 'pet', 'hero', 'player'].includes(kind) || Boolean(cell.creaturePublic);
+    if (!isCreature) return undefined;
+    const source = cell.creaturePublic && typeof cell.creaturePublic === 'object' ? cell.creaturePublic : {};
+    const attitude = text(source.attitude).toLowerCase() || publicAttitude || '';
+    const size = normalizeCreatureSize(source.size);
+    const status = normalizeCreatureStatus(source.status);
+    if (!attitude && !size && !status.length) return undefined;
+    return Object.freeze({
+      ...(attitude ? { attitude } : {}),
+      ...(size ? { size } : {}),
+      status,
+    });
+  }
+  function creatureFactRows(facts) {
+    if (!facts) return Object.freeze([]);
+    const rows = [];
+    if (facts.attitude) rows.push(Object.freeze({ label: 'Attitude', value: titleCase(facts.attitude) }));
+    if (facts.size) rows.push(Object.freeze({ label: 'Size', value: titleCase(facts.size) }));
+    for (const entry of facts.status || []) rows.push(Object.freeze({ label: 'Status', value: sentenceCase(entry) }));
+    return Object.freeze(rows);
   }
   function chebyshevDistance(from, to) {
     if (!from || !to) return undefined;
@@ -98,14 +159,17 @@
     const publicLayers = publicLayersForCell(cell);
     const publicLabel = text(input.publicLabel) || publicLayers.at(-1)?.label || publicFallbackLabel(cell);
     const publicAttitude = publicAttitudeForCell(cell, dependencies.contextActions);
+    const creature = publicCreatureFacts(cell, publicAttitude);
     const model = {
       selectedCell,
       publicLabel,
       publicLayers,
       publicActions: normalizePublicActions(input.publicActions),
-      stateCues: publicStateCues(cell, publicAttitude),
+      stateCues: publicStateCues(cell, publicAttitude || creature?.attitude),
+      creatureFacts: creature || null,
+      creatureFactRows: creatureFactRows(creature),
     };
-    if (publicAttitude) model.publicAttitude = publicAttitude;
+    if (publicAttitude || creature?.attitude) model.publicAttitude = publicAttitude || creature.attitude;
     const distance = input.distance == null ? chebyshevDistance(input.origin, selectedCell) : Number(input.distance);
     if (Number.isFinite(distance) && distance >= 0) model.distance = distance;
     return Object.freeze(model);
@@ -213,6 +277,24 @@
       }
       elements.contentsSection.hidden = entries.length === 0;
     }
+    function renderCreatureFacts(model) {
+      elements.creatureFacts.replaceChildren();
+      const rows = Array.isArray(model?.creatureFactRows) ? model.creatureFactRows : [];
+      if (!rows.length) {
+        elements.creatureFactsSection.hidden = true;
+        return;
+      }
+      elements.creatureFactsSection.hidden = false;
+      for (const entry of rows) {
+        const row = documentRoot.createElement('li');
+        const label = documentRoot.createElement('span');
+        const value = documentRoot.createElement('strong');
+        label.textContent = text(entry.label);
+        value.textContent = text(entry.value);
+        row.append(label, value);
+        elements.creatureFacts.append(row);
+      }
+    }
     function requestDispatch(action, model) {
       if (typeof actionProvider?.dispatch === 'function') actionProvider.dispatch(action, model);
       else if (typeof browserRoot?.CustomEvent === 'function') {
@@ -249,6 +331,7 @@
       elements.description.hidden = !text(info?.description);
       renderArtwork(node);
       renderContents(info, model);
+      renderCreatureFacts(model);
       renderActions(model);
       return model;
     }
@@ -340,6 +423,7 @@
             <div class="ux-map-detail-art" aria-label="Tile artwork"></div>
             <div class="ux-map-detail-information">
               <section class="ux-map-detail-contents-section"><h3>Visible here</h3><ul class="ux-map-detail-contents"></ul></section>
+              <section class="ux-map-detail-creature-section" hidden><h3>Creature</h3><ul class="ux-map-detail-creature-facts"></ul></section>
               <section class="ux-map-detail-actions-section" hidden><h3>Available actions</h3><div class="ux-map-detail-actions"></div></section>
               <p class="ux-map-detail-note">Looking does not spend a turn.</p>
             </div>
@@ -360,6 +444,8 @@
         art: dialog.querySelector('.ux-map-detail-art'),
         contentsSection: dialog.querySelector('.ux-map-detail-contents-section'),
         contents: dialog.querySelector('.ux-map-detail-contents'),
+        creatureFactsSection: dialog.querySelector('.ux-map-detail-creature-section'),
+        creatureFacts: dialog.querySelector('.ux-map-detail-creature-facts'),
         actionsSection: dialog.querySelector('.ux-map-detail-actions-section'),
         actions: dialog.querySelector('.ux-map-detail-actions'),
       };
@@ -436,6 +522,8 @@
     publicLayersForCell,
     publicFallbackLabel,
     publicStateCues,
+    publicCreatureFacts,
+    creatureFactRows,
     chebyshevDistance,
     normalizePublicActions,
     createMapDetailModel,

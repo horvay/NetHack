@@ -251,6 +251,8 @@ class DiagnosticRunStore {
       appProcess: { pid: process.pid, ppid: process.ppid || null, startedAt: startedAt.toISOString() },
     };
     this.active = { run, runDir, seq: 0, events: [], counts: {}, dropped: {}, bytes: 0, startedMono: process.uptime() * 1000, finalized: false, pid };
+    this.writeQueue = { events: '', messages: '', shimRaw: '' };
+    this.writeTimer = null;
     fs.writeFileSync(path.join(runDir, 'run.json'), `${JSON.stringify(run, null, 2)}\n`, 'utf8');
     this.writeLiveMarker('running');
     fs.writeFileSync(path.join(runDir, 'events.jsonl'), '', 'utf8');
@@ -278,6 +280,34 @@ class DiagnosticRunStore {
     };
     try { fs.writeFileSync(path.join(this.active.runDir, LIVE_MARKER_FILE), `${JSON.stringify(marker, null, 2)}\n`, 'utf8'); }
     catch (error) { console.warn(`[diagnostic-log] live marker write failed: ${error.stack || error}`); }
+  }
+
+  queueWrite(fileName, chunk) {
+    if (!this.active || !chunk) return;
+    if (!this.writeQueue) this.writeQueue = { events: '', messages: '', shimRaw: '' };
+    if (fileName === 'events.jsonl') this.writeQueue.events += chunk;
+    else if (fileName === 'message-log.jsonl') this.writeQueue.messages += chunk;
+    else if (fileName === 'shim-raw.jsonl') this.writeQueue.shimRaw += chunk;
+    if (this.writeTimer) return;
+    this.writeTimer = setTimeout(() => this.flushWrites(), 16);
+    if (typeof this.writeTimer.unref === 'function') this.writeTimer.unref();
+  }
+
+  flushWrites() {
+    if (this.writeTimer) {
+      clearTimeout(this.writeTimer);
+      this.writeTimer = null;
+    }
+    if (!this.active || !this.writeQueue) return;
+    const queue = this.writeQueue;
+    this.writeQueue = { events: '', messages: '', shimRaw: '' };
+    try {
+      if (queue.events) fs.appendFileSync(path.join(this.active.runDir, 'events.jsonl'), queue.events, 'utf8');
+      if (queue.messages) fs.appendFileSync(path.join(this.active.runDir, 'message-log.jsonl'), queue.messages, 'utf8');
+      if (queue.shimRaw) fs.appendFileSync(path.join(this.active.runDir, 'shim-raw.jsonl'), queue.shimRaw, 'utf8');
+    } catch (error) {
+      console.warn(`[diagnostic-log] append failed: ${error.stack || error}`);
+    }
   }
 
   appendEvent(event = {}) {
@@ -308,9 +338,10 @@ class DiagnosticRunStore {
     try {
       const line = `${JSON.stringify(record)}\n`;
       this.active.bytes += Buffer.byteLength(line);
-      fs.appendFileSync(path.join(this.active.runDir, 'events.jsonl'), line, 'utf8');
-      if (record.category === 'message') fs.appendFileSync(path.join(this.active.runDir, 'message-log.jsonl'), `${JSON.stringify(record)}\n`, 'utf8');
-      if (record.category === 'shim-event' && /^shim\.raw/.test(record.type)) fs.appendFileSync(path.join(this.active.runDir, 'shim-raw.jsonl'), `${JSON.stringify(record)}\n`, 'utf8');
+      this.queueWrite('events.jsonl', line);
+      if (record.category === 'message') this.queueWrite('message-log.jsonl', `${JSON.stringify(record)}\n`);
+      if (record.category === 'shim-event' && /^shim\.raw/.test(record.type)) this.queueWrite('shim-raw.jsonl', `${JSON.stringify(record)}\n`);
+      if (['process', 'error', 'seed', 'game-over', 'user-action'].includes(record.category)) this.flushWrites();
     } catch (error) {
       console.warn(`[diagnostic-log] append failed: ${error.stack || error}`);
     }
@@ -354,6 +385,7 @@ class DiagnosticRunStore {
   finalize(exit = null) {
     if (!this.active || this.active.finalized) return null;
     this.appendEvent({ layer: 'main', category: 'process', type: 'run.finalizing', payload: { exit } });
+    this.flushWrites();
     const active = this.active;
     const summary = this.buildSummary({ run: active.run, events: active.events, finalized: true, exit });
     const index = {
@@ -372,6 +404,8 @@ class DiagnosticRunStore {
     active.finalized = true;
     const publicRun = this.publicRun();
     this.active = null;
+    this.writeQueue = null;
+    this.writeTimer = null;
     return publicRun;
   }
 }
