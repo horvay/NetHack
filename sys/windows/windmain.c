@@ -78,7 +78,9 @@ extern int redirect_stdout;       /* from sys/share/pcsys.c */
 extern int GUILaunched;
 HANDLE hStdOut;
 char default_window_sys[7] =
-#if defined(MSWIN_GRAPHICS)
+#if defined(SHIM_GRAPHICS)
+            "shim";
+#elif defined(MSWIN_GRAPHICS)
             "mswin";
 #elif defined(TTY_GRAPHICS)
             "tty";
@@ -140,7 +142,10 @@ DISABLE_WARNING_UNREACHABLE_CODE
  *
  */
 
-#if defined(MSWIN_GRAPHICS)
+#if defined(SHIM_GRAPHICS)
+#define MAIN nhmain
+int nhmain(int, char **);
+#elif defined(MSWIN_GRAPHICS)
 #define MAIN nethackw_main
 int nethackw_main(int, char **);
 #else
@@ -193,7 +198,9 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
 #endif
 
 #ifndef MSWIN_GRAPHICS
+#ifndef SHIM_GRAPHICS
     set_emergency_io();
+#endif
     early_init(argc, argv); /* already in WinMain for MSWIN_GRAPHICS */
 #endif
 
@@ -225,7 +232,7 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
 
     program_state.early_options = 1;
 
-#if !defined(MSWIN_GRAPHICS)
+#if defined(TTY_GRAPHICS) && !defined(MSWIN_GRAPHICS)
     nethack_enter_consoletty();
     consoletty_open(1);
 #endif
@@ -237,7 +244,9 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
 #endif
 
     if (!windowtype) {
-#ifdef MSWIN_GRAPHICS
+#if defined(SHIM_GRAPHICS)
+        windowtype = "shim";
+#elif defined(MSWIN_GRAPHICS)
         windowtype = "mswin";
 #else
         windowtype = "tty";

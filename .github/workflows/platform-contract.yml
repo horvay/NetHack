@@ -8,6 +8,8 @@ on:
       - "electron-poc/package.json"
       - "electron-poc/shim-bridge/**"
       - "electron-poc/test/native/**"
+      - "sys/windows/windmain.c"
+      - "win/shim/**"
   push:
     branches:
       - electron-ui
@@ -16,6 +18,8 @@ on:
       - "electron-poc/package.json"
       - "electron-poc/shim-bridge/**"
       - "electron-poc/test/native/**"
+      - "sys/windows/windmain.c"
+      - "win/shim/**"
 
 permissions:
   contents: read
@@ -44,3 +48,27 @@ jobs:
       - name: Build and run native platform contract
         working-directory: electron-poc
         run: npm run test:platform-contract
+
+  windows-bridge:
+    name: Windows native bridge
+    runs-on: windows-2022
+    steps:
+      - name: Check out source and Lua
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configure static libuv bridge
+        working-directory: electron-poc
+        run: cmake -S shim-bridge -B .native-build -DNH_ELECTRON_TEST_FIXTURES=ON
+
+      - name: Build native bridge
+        working-directory: electron-poc
+        run: cmake --build .native-build --config Release --target nh_shim_bridge
+
+      - name: Upload native bridge
+        uses: actions/upload-artifact@v4
+        with:
+          name: nh-shim-bridge-windows-x64
+          path: electron-poc/shim-bridge/nh-shim-bridge.exe
+          if-no-files-found: error

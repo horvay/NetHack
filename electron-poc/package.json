@@ -6,8 +6,8 @@
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
-    "build:shim": "rm -f ../src/allmain.o ../src/do.o ../src/fountain.o ../src/save.o ../src/stairs.o ../src/windows.o ../src/winshim.o ../src/libnhmain.o ../src/unixmain.o ../src/libnh.a shim-bridge/nh-shim-bridge && make -C ../src WANT_LIBNH=1 libnh.a && make -C shim-bridge -f Makefile.release",
-    "build:shim:test-fixtures": "rm -f ../src/allmain.o ../src/do.o ../src/fountain.o ../src/save.o ../src/stairs.o ../src/windows.o ../src/winshim.o ../src/libnhmain.o ../src/unixmain.o ../src/libnh.a shim-bridge/nh-shim-bridge && make -C ../src WANT_LIBNH=1 NH_ELECTRON_TEST_FIXTURES=1 libnh.a && make -C shim-bridge -f Makefile.release NH_ELECTRON_TEST_FIXTURES=1",
+    "build:shim": "rm -f ../src/allmain.o ../src/do.o ../src/fountain.o ../src/save.o ../src/stairs.o ../src/windows.o ../src/winshim.o ../src/libnhmain.o ../src/unixmain.o ../src/libnh.a shim-bridge/nh-shim-bridge && make -C ../src WANT_LIBNH=1 libnh.a && cmake -S shim-bridge -B .native-build -DCMAKE_BUILD_TYPE=Release -DNH_ELECTRON_TEST_FIXTURES=OFF && cmake --build .native-build --config Release --target nh_shim_bridge",
+    "build:shim:test-fixtures": "rm -f ../src/allmain.o ../src/do.o ../src/fountain.o ../src/save.o ../src/stairs.o ../src/windows.o ../src/winshim.o ../src/libnhmain.o ../src/unixmain.o ../src/libnh.a shim-bridge/nh-shim-bridge && make -C ../src WANT_LIBNH=1 NH_ELECTRON_TEST_FIXTURES=1 libnh.a && cmake -S shim-bridge -B .native-build -DCMAKE_BUILD_TYPE=Release -DNH_ELECTRON_TEST_FIXTURES=ON && cmake --build .native-build --config Release --target nh_shim_bridge",
     "build:recover": "make -C ../util recover",
     "smoke:version": "../src/nethack --version",
     "smoke:shim": "npm run build:shim && node scripts/smoke-shim.js",
