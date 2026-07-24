@@ -46,6 +46,18 @@ jobs:
         working-directory: electron-poc
         run: npm run package:linux
 
+      - name: Run packaged Linux gameplay smoke
+        working-directory: electron-poc
+        run: xvfb-run --auto-servernum node test/native/packaged-electron-smoke.js dist/linux-unpacked/nethack-electron test-output/release/linux-gameplay.png
+
+      - name: Upload Linux gameplay evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-release-gameplay-evidence
+          path: electron-poc/test-output/release/linux-gameplay.png
+          if-no-files-found: warn
+
       - name: Upload Electron application
         uses: actions/upload-artifact@v4
         with:
@@ -53,10 +65,83 @@ jobs:
           path: electron-poc/dist/NetHack-Electron-*-linux-x86_64.AppImage
           if-no-files-found: error
 
+  build-windows:
+    name: Build Windows x64 Electron app
+    runs-on: windows-2022
+    steps:
+      - name: Check out source and Lua
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: electron-poc/package-lock.json
+
+      - name: Configure static Windows bridge
+        working-directory: electron-poc
+        run: cmake -S shim-bridge -B .native-build -DNH_BUILD_NATIVE_BRIDGE=ON -DNH_ELECTRON_TEST_FIXTURES=OFF
+
+      - name: Build static Windows bridge
+        working-directory: electron-poc
+        run: cmake --build .native-build --config Release --target nh_shim_bridge
+
+      - name: Run bridge protocol contract
+        working-directory: electron-poc
+        run: node test/native/bridge-protocol-contract.js shim-bridge/nh-shim-bridge.exe
+
+      - name: Build traditional Windows runtime data
+        shell: cmd
+        run: |
+          call "%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" -arch=x64 -host_arch=x64
+          msbuild sys\windows\vs\NetHack.sln /m /t:package /p:Configuration=Release /p:Platform=x64
+
+      - name: Extract Windows runtime data
+        shell: pwsh
+        run: |
+          $zip = Get-Item "vspackage\\nethack-500-win-x64.zip"
+          Expand-Archive -Path $zip.FullName -DestinationPath "$env:RUNNER_TEMP\\nethack-runtime" -Force
+
+      - name: Install Electron dependencies
+        working-directory: electron-poc
+        run: npm ci
+
+      - name: Stage Windows Electron runtime
+        working-directory: electron-poc
+        run: node scripts/prepare-windows-release.js "$env:RUNNER_TEMP\\nethack-runtime"
+
+      - name: Build portable Windows Electron app
+        working-directory: electron-poc
+        run: npm run package:windows
+
+      - name: Run packaged Windows gameplay smoke
+        working-directory: electron-poc
+        run: node test/native/packaged-electron-smoke.js dist/win-unpacked/nethack-electron.exe test-output/release/windows-gameplay.png
+
+      - name: Upload Windows gameplay evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release-gameplay-evidence
+          path: electron-poc/test-output/release/windows-gameplay.png
+          if-no-files-found: warn
+
+      - name: Upload Electron application
+        uses: actions/upload-artifact@v4
+        with:
+          name: nethack-electron-windows-x64
+          path: electron-poc/dist/NetHack-Electron-*-windows-x64.exe
+          if-no-files-found: error
+
+
   release:
     name: Publish GitHub release
     needs:
       - build-linux
+      - build-windows
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -68,6 +153,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+          pattern: nethack-electron-*
           merge-multiple: true
 
       - name: Create or update release
