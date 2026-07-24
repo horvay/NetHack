@@ -107,11 +107,11 @@ async function run() {
   const startup = await retry(async () => {
     const state = await evaluate(`({
       continueButton: Array.from(document.querySelectorAll('dialog[open] button')).some((button) => button.textContent.includes('Continue')),
-      mapCells: document.querySelectorAll('[data-map-x]').length,
+      heroVisible: document.body.innerText.includes('WindowsSmoke'),
       openDialogs: Array.from(document.querySelectorAll('dialog[open]')).map((dialog) => dialog.id),
       body: document.body.innerText.slice(-500),
     })`);
-    if (!state.continueButton && state.mapCells < 1000) throw new Error(`game startup not ready: ${JSON.stringify(state)}`);
+    if (!state.continueButton && !state.heroVisible) throw new Error(`game startup not ready: ${JSON.stringify(state)}`);
     return state;
   }, 90_000);
   if (startup.continueButton) {
