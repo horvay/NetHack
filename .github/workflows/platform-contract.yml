@@ -105,7 +105,10 @@ jobs:
 
       - name: Run packaged Windows gameplay smoke
         working-directory: electron-poc
-        run: node test/native/packaged-electron-smoke.js dist/win-unpacked/nethack-electron.exe test-output/platform-contract/windows-gameplay.png
+        shell: pwsh
+        run: |
+          $app = Get-Item "dist\\NetHack-Electron-*-windows-x64.exe"
+          node test/native/packaged-electron-smoke.js $app.FullName test-output/platform-contract/windows-gameplay.png
 
       - name: Upload Windows gameplay evidence
         if: always()
