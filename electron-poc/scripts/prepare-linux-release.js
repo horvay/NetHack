@@ -51,7 +51,10 @@ run('make', ['all'], repoRoot);
 run('make', [`HACKDIR=${playgroundTemplate}`, `INSTDIR=${playgroundTemplate}`, `VARDIR=${playgroundTemplate}`, 'install'], repoRoot);
 run('npm', ['run', 'build:shim'], appRoot);
 run('make', ['-C', 'util', 'recover'], repoRoot);
-copy(path.join(repoRoot, 'sys', 'unix', 'sysconf'), path.join(stageRoot, 'playground-template', 'sysconf'));
+const sysconf = fs.readFileSync(path.join(repoRoot, 'sys', 'unix', 'sysconf'), 'utf8')
+  .replace(/^GDBPATH=.*$/m, '# GDBPATH disabled in the portable Electron package')
+  .replace(/^PANICTRACE_GDB=.*$/m, 'PANICTRACE_GDB=0');
+fs.writeFileSync(path.join(stageRoot, 'playground-template', 'sysconf'), sysconf);
 copy(path.join(repoRoot, 'src', 'nethack'), path.join(stageRoot, 'src', 'nethack'));
 copy(path.join(appRoot, 'shim-bridge', 'nh-shim-bridge'), path.join(stageRoot, 'electron-poc', 'shim-bridge', 'nh-shim-bridge'));
 copy(path.join(repoRoot, 'util', 'recover'), path.join(stageRoot, 'util', 'recover'));
