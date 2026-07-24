@@ -102,6 +102,7 @@ if(NH_BUILD_NATIVE_BRIDGE AND WIN32)
   )
   set(LUA_SOURCE_DIR "${NETHACK_ROOT}/submodules/lua")
   file(GLOB LUA_SOURCES "${LUA_SOURCE_DIR}/*.c")
+  list(FILTER LUA_SOURCES EXCLUDE REGEX "[/\\\\](lua|luac|onelua|ltests)\\.c$")
   set(GENERATED_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
   file(MAKE_DIRECTORY "${GENERATED_INCLUDE_DIR}")
   file(

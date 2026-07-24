@@ -144,8 +144,13 @@ staticfn void regen_pw(int);
 staticfn void regen_hp(int);
 staticfn void interrupt_multi(const char *);
 #ifdef NH_ELECTRON_TEST_FIXTURES
-extern void nh_test_bridge_event(const char *, const char *, const char *, const char *)
-    __attribute__((weak));
+#ifdef _MSC_VER
+extern void nh_test_bridge_event(const char *, const char *, const char *,
+                                 const char *);
+#else
+extern void nh_test_bridge_event(const char *, const char *, const char *,
+                                 const char *) __attribute__((weak));
+#endif
 #endif
 
 /*ARGSUSED*/
