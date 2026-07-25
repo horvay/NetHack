@@ -9522,6 +9522,15 @@ function sendPlayableDirection(directionKey) {
   return true;
 }
 
+function sendPlayableKeyboardDirection(directionKey, run = false) {
+  const canonical = String(directionKey || '').slice(0, 1);
+  if (!canonicalDirectionKeys.includes(canonical)) return false;
+  if (!run) return sendPlayableDirection(canonical);
+  lastDirectionKey = canonical;
+  sendPlayableText(`g${activeDirectionKey(canonical)}`);
+  return true;
+}
+
 const movementKeys = new Map([
   ['ArrowLeft', 'h'],
   ['ArrowDown', 'j'],
@@ -9597,7 +9606,7 @@ function handlePlayableKeydown(event) {
   if (!key) return;
   event.preventDefault();
   event.stopPropagation();
-  if (movementKeys.has(event.key)) sendPlayableDirection(key);
+  if (movementKeys.has(event.key)) sendPlayableKeyboardDirection(key, event.shiftKey);
   else sendPlayableKey(key);
 }
 
