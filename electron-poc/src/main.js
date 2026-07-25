@@ -159,8 +159,8 @@ ipcMain.handle('nethack:testCapturePage', async (event, captureId = '') => {
   return { ok: true, path: file, width: size.width, height: size.height, method: 'BrowserWindow.webContents.capturePage' };
 });
 
-ipcMain.handle('nethack:startupRecoveryState', () => RecoveryState.getRecoveryState({ repoRoot, env: runtimeEnv }));
-ipcMain.handle('nethack:prepareContinueGame', (_event, candidateId = '') => RecoveryState.prepareContinueGame({ repoRoot, env: runtimeEnv, candidateId: String(candidateId || '').slice(0, 120) }));
+ipcMain.handle('nethack:startupRecoveryState', () => RecoveryState.getRecoveryState({ repoRoot, env: runtimeEnv, recoverBin: runtime.recoverBin }));
+ipcMain.handle('nethack:prepareContinueGame', (_event, candidateId = '') => RecoveryState.prepareContinueGame({ repoRoot, env: runtimeEnv, recoverBin: runtime.recoverBin, candidateId: String(candidateId || '').slice(0, 120) }));
 
 ipcMain.handle('nethack:saveRecording', async (_event, recording) => {
   const checked = RecordingSchema.sanitizeForSave(recording);

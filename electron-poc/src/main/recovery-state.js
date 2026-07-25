@@ -8,16 +8,26 @@ function resolvePlayground({ repoRoot, env = process.env } = {}) {
   return path.resolve(env.NH_TEST_PLAYGROUND || env.NETHACKDIR || path.join(repoRoot, 'playground'));
 }
 
-function recoverBinaryFor({ repoRoot, playground } = {}) {
-  const candidates = [path.join(repoRoot, 'util', 'recover'), path.join(playground, 'recover')];
-  return candidates.find((candidate) => {
-    try {
-      fs.accessSync(candidate, fs.constants.X_OK);
-      return true;
-    } catch {
-      return false;
-    }
-  }) || candidates[0];
+function isExecutableFile(file) {
+  try {
+    if (!file || !fs.statSync(file).isFile()) return false;
+    if (process.platform === 'win32') return /\.(?:exe|com|bat|cmd)$/i.test(file);
+    fs.accessSync(file, fs.constants.X_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function recoverBinaryFor({ repoRoot, playground, recoverBin } = {}) {
+  const candidates = [
+    recoverBin,
+    path.join(repoRoot, 'util', 'recover'),
+    path.join(repoRoot, 'util', 'recover.exe'),
+    path.join(playground, 'recover'),
+    path.join(playground, 'recover.exe'),
+  ].filter(Boolean);
+  return candidates.find(isExecutableFile) || candidates[0];
 }
 
 function fileStat(file) {
@@ -108,22 +118,37 @@ function readSaveCharacter({ file, playerName } = {}) {
   }
 }
 
+function parseWindowsSaveName(name) {
+  const withoutCompression = String(name || '').endsWith('.gz') ? String(name).slice(0, -3) : String(name || '');
+  const suffix = '.NetHack-saved-game';
+  if (!withoutCompression.endsWith(suffix)) return null;
+  return safePlayerName(withoutCompression.slice(0, -suffix.length)) || null;
+}
+
 function listSaveCandidates({ playground, env = process.env } = {}) {
-  const saveDir = path.join(playground, 'save');
   const uid = currentUid(env);
-  let entries = [];
-  try { entries = fs.readdirSync(saveDir, { withFileTypes: true }); }
-  catch { return []; }
-  return entries
-    .filter((entry) => entry.isFile())
-    .map((entry) => {
-      const file = path.join(saveDir, entry.name);
+  const files = [];
+  for (const source of [
+    { directory: path.join(playground, 'save'), playerNameFor: (name) => parseSaveName(name, uid) },
+    { directory: playground, playerNameFor: parseWindowsSaveName },
+  ]) {
+    let entries = [];
+    try { entries = fs.readdirSync(source.directory, { withFileTypes: true }); }
+    catch { continue; }
+    for (const entry of entries) {
+      if (!entry.isFile()) continue;
+      const playerName = source.playerNameFor(entry.name);
+      if (!playerName) continue;
+      files.push({ file: path.join(source.directory, entry.name), playerName });
+    }
+  }
+  return files
+    .map(({ file, playerName }) => {
       const stat = fileStat(file);
-      const playerName = parseSaveName(entry.name, uid);
-      if (!stat || stat.size <= 0 || !playerName) return null;
+      if (!stat || stat.size <= 0) return null;
       const character = readSaveCharacter({ file, playerName });
       return {
-        id: opaqueCandidateId('save', fileGenerationIdentity(entry.name, stat)),
+        id: opaqueCandidateId('save', fileGenerationIdentity(path.relative(playground, file), stat)),
         kind: 'save',
         canContinue: true,
         playerName,
@@ -139,12 +164,27 @@ function listSaveCandidates({ playground, env = process.env } = {}) {
     .filter(Boolean);
 }
 
+function checkpointBaseFromName(name) {
+  const match = /^(.+)\.0$/.exec(String(name || ''));
+  if (!match) return '';
+  const base = match[1];
+  if (base.length > 63 || base === '.' || base === '..') return '';
+  const unescaped = base.replace(/%[0-9A-Fa-f]{2}/g, '');
+  return /^[A-Za-z0-9_.-]*$/.test(unescaped) ? base : '';
+}
+
 function checkpointLevelFiles({ playground, base } = {}) {
   let entries = [];
   try { entries = fs.readdirSync(playground, { withFileTypes: true }); }
   catch { return []; }
+  const escapedBase = String(base || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const levelPattern = new RegExp(`^${escapedBase}\\.([1-9]\\d{0,2})$`);
   return entries
-    .filter((entry) => entry.isFile() && entry.name.startsWith(`${base}.`) && !entry.name.endsWith('.0'))
+    .filter((entry) => {
+      if (!entry.isFile()) return false;
+      const match = levelPattern.exec(entry.name);
+      return match && Number(match[1]) <= 255;
+    })
     .map((entry) => {
       const file = path.join(playground, entry.name);
       const stat = fileStat(file);
@@ -157,14 +197,11 @@ function listCheckpointCandidates({ playground, recoverBin } = {}) {
   let entries = [];
   try { entries = fs.readdirSync(playground, { withFileTypes: true }); }
   catch { return []; }
-  let recoverAvailable = false;
-  try {
-    fs.accessSync(recoverBin, fs.constants.X_OK);
-    recoverAvailable = true;
-  } catch {}
+  const recoverAvailable = isExecutableFile(recoverBin);
   return entries
-    .filter((entry) => entry.isFile() && /^[a-z]lock\.0$/i.test(entry.name))
-    .map((entry) => {
+    .map((entry) => ({ entry, base: entry.isFile() ? checkpointBaseFromName(entry.name) : '' }))
+    .filter(({ base }) => Boolean(base))
+    .map(({ entry, base }) => {
       const file = path.join(playground, entry.name);
       const stat = fileStat(file);
       if (!stat) return null;
@@ -172,7 +209,6 @@ function listCheckpointCandidates({ playground, recoverBin } = {}) {
       const active = pidIsAlive(pid);
       const checkpointBytes = stat.size > 4096;
       if (!checkpointBytes || active) return null;
-      const base = entry.name.replace(/\.0$/, '');
       const levelFiles = checkpointLevelFiles({ playground, base });
       if (!levelFiles.length) return null;
       const modifiedMs = Math.max(stat.mtimeMs, ...levelFiles.map((level) => level.modifiedMs));
@@ -238,15 +274,15 @@ function publicCandidate(candidate) {
   return Object.freeze(publicValue);
 }
 
-function buildRecoveryState({ repoRoot, env = process.env } = {}) {
+function buildRecoveryState({ repoRoot, env = process.env, recoverBin } = {}) {
   const playground = resolvePlayground({ repoRoot, env });
-  const recoverBin = recoverBinaryFor({ repoRoot, playground });
+  const resolvedRecoverBin = recoverBinaryFor({ repoRoot, playground, recoverBin });
   const candidates = [
     ...listSaveCandidates({ playground, env }),
-    ...listCheckpointCandidates({ playground, recoverBin }),
+    ...listCheckpointCandidates({ playground, recoverBin: resolvedRecoverBin }),
   ].sort((a, b) => b.modifiedMs - a.modifiedMs);
   const primaryCandidate = candidates.find((candidate) => candidate.canContinue) || null;
-  return { playground, recoverBin, candidates, primaryCandidate };
+  return { playground, recoverBin: resolvedRecoverBin, candidates, primaryCandidate };
 }
 
 function publicRecoveryState(state = {}) {
@@ -263,8 +299,8 @@ function publicRecoveryState(state = {}) {
   });
 }
 
-function getRecoveryState({ repoRoot, env = process.env } = {}) {
-  return publicRecoveryState(buildRecoveryState({ repoRoot, env }));
+function getRecoveryState({ repoRoot, env = process.env, recoverBin } = {}) {
+  return publicRecoveryState(buildRecoveryState({ repoRoot, env, recoverBin }));
 }
 
 function tail(text, limit = 2400) {
@@ -282,8 +318,9 @@ function recoveredSaveFile({ recover, base, playground } = {}) {
   if (!reported) return '';
   const resolved = path.resolve(playground, reported);
   const saveRoot = path.resolve(playground, 'save');
-  if (resolved !== saveRoot && !resolved.startsWith(`${saveRoot}${path.sep}`)) return '';
-  return resolved;
+  const unixSave = resolved.startsWith(`${saveRoot}${path.sep}`);
+  const windowsSave = path.dirname(resolved) === path.resolve(playground) && Boolean(parseWindowsSaveName(path.basename(resolved)));
+  return unixSave || windowsSave ? resolved : '';
 }
 
 function withoutCandidate(state, candidateId) {
@@ -399,8 +436,8 @@ function runRecover({ recoverBin, playground, base, repoRoot, env = process.env,
   });
 }
 
-async function prepareContinueGame({ repoRoot, env = process.env, candidateId = '', onDiagnostic } = {}) {
-  const initialInternal = buildRecoveryState({ repoRoot, env });
+async function prepareContinueGame({ repoRoot, env = process.env, recoverBin, candidateId = '', onDiagnostic } = {}) {
+  const initialInternal = buildRecoveryState({ repoRoot, env, recoverBin });
   const initial = publicRecoveryState(initialInternal);
   const requestedId = String(candidateId || '').trim();
   const selected = requestedId
@@ -418,7 +455,7 @@ async function prepareContinueGame({ repoRoot, env = process.env, candidateId = 
 
   const beforeSaves = new Map(initialInternal.candidates.filter((candidate) => candidate.kind === 'save').map((candidate) => [candidate.id, candidate.modifiedMs]));
   const recover = await runRecover({ recoverBin: initialInternal.recoverBin, playground: initialInternal.playground, base: selected.base, repoRoot, env });
-  const afterInternal = buildRecoveryState({ repoRoot, env });
+  const afterInternal = buildRecoveryState({ repoRoot, env, recoverBin });
   const after = publicRecoveryState(afterInternal);
   if (recover.status !== 0) {
     reportRecoverDiagnostic(onDiagnostic, 'recovery.prepare-failed', {

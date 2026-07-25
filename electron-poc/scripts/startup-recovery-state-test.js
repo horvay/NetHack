@@ -19,9 +19,9 @@ function writePidFile(file, pid, extraBytes = 0) {
   fs.writeFileSync(file, buffer);
 }
 
-function writeCheckpointSet(playground, pid) {
-  writePidFile(path.join(playground, 'alock.0'), pid, 8192);
-  fs.writeFileSync(path.join(playground, 'alock.1'), Buffer.alloc(4096, 1));
+function writeCheckpointSet(playground, pid, base = 'alock') {
+  writePidFile(path.join(playground, `${base}.0`), pid, 8192);
+  fs.writeFileSync(path.join(playground, `${base}.1`), Buffer.alloc(4096, 1));
 }
 
 const publicPrepareKeys = new Set([
@@ -140,12 +140,35 @@ try {
   assert.deepStrictEqual(state.primaryCandidate.character, { name: 'GzipHero', role: 'Val', race: 'Hum', gender: 'Fem', alignment: 'Law' }, 'gzip save identity should be parsed when present');
 
   resetDir(playground);
+  const windowsSave = path.join(playground, 'Torch35.NetHack-saved-game');
+  fs.writeFileSync(windowsSave, Buffer.from('prefix Torch35\0Val-Hum-Fem-Law\0suffix', 'latin1'));
+  state = RecoveryState.getRecoveryState({ repoRoot, env: { ...process.env, NH_TEST_PLAYGROUND: playground } });
+  assert.strictEqual(state.hasContinue, true, 'Windows portable save should be offered from the playground root');
+  assert.strictEqual(state.primaryCandidate.playerName, 'Torch35');
+  assert.deepStrictEqual(state.primaryCandidate.character, { name: 'Torch35', role: 'Val', race: 'Hum', gender: 'Fem', alignment: 'Law' });
+
+  resetDir(playground);
+  writeCheckpointSet(playground, 999999, 'Torch35');
+  const windowsRuntime = path.join(workRoot, 'windows-runtime');
+  const windowsRecover = path.join(windowsRuntime, 'util', 'recover.exe');
+  fs.mkdirSync(path.dirname(windowsRecover), { recursive: true });
+  fs.writeFileSync(windowsRecover, 'packaged recover binary');
+  fs.chmodSync(windowsRecover, 0o755);
+  state = RecoveryState.getRecoveryState({
+    repoRoot: windowsRuntime,
+    recoverBin: windowsRecover,
+    env: { ...process.env, NH_TEST_PLAYGROUND: playground },
+  });
+  assert.strictEqual(state.hasContinue, true, 'real Windows player checkpoint basename should be offered');
+  assert.strictEqual(state.primaryCandidate.kind, 'checkpoint');
+
+  resetDir(playground);
   writeCheckpointSet(playground, 999999);
   const olderCheckpointTime = new Date('2026-07-11T10:00:00.000Z');
   const newerLevelTime = new Date('2026-07-11T10:05:00.000Z');
   fs.utimesSync(path.join(playground, 'alock.0'), olderCheckpointTime, olderCheckpointTime);
   fs.utimesSync(path.join(playground, 'alock.1'), newerLevelTime, newerLevelTime);
-  state = RecoveryState.getRecoveryState({ repoRoot, env: { ...process.env, NH_TEST_PLAYGROUND: playground } });
+  state = RecoveryState.getRecoveryState({ repoRoot, recoverBin: windowsRecover, env: { ...process.env, NH_TEST_PLAYGROUND: playground } });
   assert.strictEqual(state.hasContinue, true, 'dead checkpoint with level files should be offered');
   assert.strictEqual(state.primaryCandidate.kind, 'checkpoint');
   assert.strictEqual(state.primaryCandidate.status, 'recovery-candidate');
@@ -156,9 +179,9 @@ try {
   assert.strictEqual(state.primaryCandidate.file, undefined, 'public recovery metadata omits the checkpoint path');
   const displayedCheckpointId = state.primaryCandidate.id;
   fs.appendFileSync(path.join(playground, 'alock.1'), Buffer.from([2]));
-  const replacedCheckpointSelection = await RecoveryState.prepareContinueGame({ repoRoot, env: { ...process.env, NH_TEST_PLAYGROUND: playground }, candidateId: displayedCheckpointId });
+  const replacedCheckpointSelection = await RecoveryState.prepareContinueGame({ repoRoot, recoverBin: windowsRecover, env: { ...process.env, NH_TEST_PLAYGROUND: playground }, candidateId: displayedCheckpointId });
   assert.strictEqual(replacedCheckpointSelection.ok, false, 'an opaque checkpoint selection is bound to the displayed checkpoint generation');
-  state = RecoveryState.getRecoveryState({ repoRoot, env: { ...process.env, NH_TEST_PLAYGROUND: playground } });
+  state = RecoveryState.getRecoveryState({ repoRoot, recoverBin: windowsRecover, env: { ...process.env, NH_TEST_PLAYGROUND: playground } });
   fs.writeFileSync(path.join(playground, 'save', `${uid}OldHero`), Buffer.from('prefix OldHero\0Wiz-Hum-Mal-Neu\0suffix', 'latin1'));
   fs.utimesSync(path.join(playground, 'save', `${uid}OldHero`), olderCheckpointTime, olderCheckpointTime);
   const fakeRepo = path.join(workRoot, 'fake-repo');
@@ -168,6 +191,7 @@ try {
   fs.writeFileSync(fakeRecover, '#!/bin/sh\nexit 0\n');
   const nonExecutableState = RecoveryState.getRecoveryState({ repoRoot: fakeRepo, env: { ...process.env, NH_TEST_PLAYGROUND: playground } });
   assert.strictEqual(nonExecutableState.candidates.find((candidate) => candidate.kind === 'checkpoint')?.canContinue, false, 'a non-executable recovery binary is not advertised as continuable');
+  if (process.platform !== 'win32') {
   fs.writeFileSync(fakeRecover, `#!/bin/sh\nprintf 'failure path=%s/save/${uid}FailedHero lock=alock pid=999999 levels=alock.1\\n' "$2"\nprintf 'recover executable=${fakeRecover} argument=-uFailedHero\\n' >&2\nexit 7\n`);
   fs.chmodSync(fakeRecover, 0o755);
   const failedRecovery = await RecoveryState.prepareContinueGame({
@@ -209,6 +233,7 @@ try {
   assertStrictPublicPrepareResponse(strictCorrelatedRecovery, [playground, fakeRecover, 'alock', '999999', `${uid}RecoveredHero`, '-uRecoveredHero', 'alock.1']);
   assert.strictEqual(recoveryDiagnostics.at(-1).detail.correlated, true, 'internal diagnostics retain exact pre-sanitization correlation');
   assert.match(recoveryDiagnostics.at(-1).detail.recoveredFile, new RegExp(`${uid}RecoveredHero$`));
+  }
 
   resetDir(playground);
   writePidFile(path.join(playground, 'alock.0'), 999999, 0);
@@ -225,7 +250,7 @@ try {
   state = RecoveryState.getRecoveryState({ repoRoot, env: { ...process.env, NH_TEST_PLAYGROUND: playground } });
   assert.strictEqual(state.hasContinue, false, 'active lock should not be offered as a previous game');
 
-  console.log(JSON.stringify({ ok: true, workRoot, checks: ['save', 'checkpoint', 'pid-only-lock', 'checkpoint-without-level-files', 'active-lock'] }, null, 2));
+  console.log(JSON.stringify({ ok: true, workRoot, checks: ['save', 'windows-portable-save', 'windows-player-checkpoint', 'checkpoint', 'pid-only-lock', 'checkpoint-without-level-files', 'active-lock'] }, null, 2));
 } finally {
   fs.rmSync(workRoot, { recursive: true, force: true });
 }
