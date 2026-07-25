@@ -31,6 +31,16 @@ assert('unidentified mapped scroll label uses generic scroll art rather than hid
 
 const wall = model({ ch: '|', glyph: 3930, semanticKind: 'terrain', semanticName: 'vertical wall' });
 assert('walls keep legacy CSS rendering despite generated wall assets', wall.assetId === 'vertical-wall' && wall.useCssTerrain && wall.classes.includes('terrain-wall-v') && !wall.backgroundImage, JSON.stringify(wall));
+const blankVerticalWall = model({ ch: ' ', glyph: 3930, semanticKind: 'wall', semanticName: 'vertical wall' });
+const blankHorizontalWall = model({ ch: ' ', glyph: 3931, semanticKind: 'wall', semanticName: 'horizontal wall' });
+const blankWallCorner = model({ ch: ' ', glyph: 3932, semanticKind: 'wall', semanticName: 'top left corner wall' });
+assert('native blank wall characters still render as CSS walls from their mapped asset orientation', blankVerticalWall.classes.includes('terrain-wall-v') && !blankVerticalWall.classes.includes('terrain-rock') && blankHorizontalWall.classes.includes('terrain-wall-h') && !blankHorizontalWall.classes.includes('terrain-rock') && blankWallCorner.classes.includes('terrain-wall') && !blankWallCorner.classes.includes('terrain-rock'), JSON.stringify({ blankVerticalWall, blankHorizontalWall, blankWallCorner }));
+const blankRoomFloor = model({ ch: ' ', glyph: 3992, semanticKind: 'terrain', semanticName: 'floor of a room' });
+const blankCorridor = model({ ch: ' ', glyph: 3991, semanticKind: 'corridor', semanticName: 'corridor' });
+const rememberedDarkCorridor = model({ ch: ' ', glyph: 3991, cmapIndex: 22, semanticKind: 'corridor', semanticName: 'dark corridor' });
+assert('remembered dark corridor remains a rendered passable corridor after leaving sight', rememberedDarkCorridor.assetId === 'dark-corridor' && rememberedDarkCorridor.classes.includes('terrain-corridor') && !rememberedDarkCorridor.classes.includes('terrain-rock'), JSON.stringify(rememberedDarkCorridor));
+const nonblankRock = model({ ch: '.', semanticKind: 'terrain', semanticName: 'unexplored stone' });
+assert('mapped semantic terrain wins over inconsistent native display characters', blankRoomFloor.classes.includes('terrain-floor') && !blankRoomFloor.classes.includes('terrain-rock') && blankCorridor.classes.includes('terrain-corridor') && !blankCorridor.classes.includes('terrain-rock') && nonblankRock.classes.includes('terrain-rock') && !nonblankRock.classes.includes('terrain-floor'), JSON.stringify({ blankRoomFloor, blankCorridor, nonblankRock }));
 
 const verticalDoor = model({ ch: '-', glyph: 3986, semanticKind: 'door', semanticName: 'vertical open door' });
 assert('glyph 3986 maps to vertical open door id but renders with legacy CSS, not generated door art', verticalDoor.assetId === 'open-vertical-door' && verticalDoor.useCssTerrain && verticalDoor.classes.includes('terrain-door-open-vertical') && !verticalDoor.backgroundImage, JSON.stringify(verticalDoor));
@@ -157,4 +167,4 @@ assert('monster over object uses the same terrain<object<actor layer order', jac
 const jackalOverChestTooltip = MapPresentation.tooltipInfoForCell(jackalOverChestCell, 0, 0, { tileMapConfig: tileMap, tileAssetsById, cells: [[jackalOverChestCell]] });
 assert('monster/object tooltip lists monster, object, and terrain instead of only the top layer', /Jackal/i.test(jackalOverChestTooltip.title) && jackalOverChestTooltip.contents.map((entry) => `${entry.label}:${entry.kind}`).join('|') === 'Jackal:Monster|Chest:Object|Floor Of A Room:Floor', JSON.stringify(jackalOverChestTooltip));
 
-console.log(JSON.stringify({ pass: true, assertions: 39 }, null, 2));
+console.log(JSON.stringify({ pass: true, assertions: 41 }, null, 2));

@@ -131,6 +131,10 @@ const mapPublication = publicationView.process({
   semanticKnown: true,
 });
 assertEffect(mapPublication, 'render-map');
+assert.equal(publicationView.snapshot().directionKeys, 'hykulnjb><', 'Game View defaults to classic vi directions until NetHack publishes its active layout');
+assert.equal(publicationView.snapshot().numberPadEnabled, false, 'Game View defaults to vi count-prefix semantics');
+const directionPublication = publicationView.process({ name: 'shim_number_pad', enabled: 1, directionKeys: '47896321><' });
+assert.deepEqual(directionPublication.effects, [], 'direction layout publication changes no player-facing surface by itself');
 publicationView.process({ name: 'shim_status_enablefield', field: 0, label: 'Hero', enabled: true });
 const statusPublication = publicationView.process({ name: 'shim_status_update', field: 0, value: 'Ada' });
 assertEffect(statusPublication, 'render-status');
@@ -145,6 +149,8 @@ assert.equal(publicationSnapshot.mapCells[1][3].semanticKind, 'hero');
 assert.equal(publicationSnapshot.statusLabels.get(0), 'Hero');
 assert.equal(publicationSnapshot.statusValues.get(0), 'Ada');
 assert.deepEqual(publicationSnapshot.messages, ['You hear a door open.']);
+assert.equal(publicationSnapshot.directionKeys, '47896321><', 'Game View publishes the active native number-pad direction layout');
+assert.equal(publicationSnapshot.numberPadEnabled, true, 'Game View publishes native number-pad count-prefix semantics');
 assert.deepEqual(Object.keys(publicationView).sort(), ['process', 'snapshot', 'version'], 'the interface exposes no mutable state');
 assert(Object.isFrozen(publicationSnapshot), 'snapshot root is frozen');
 assert(Object.isFrozen(publicationSnapshot.mapCells), 'map rows collection is frozen');

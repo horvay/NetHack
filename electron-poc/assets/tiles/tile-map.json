@@ -133,6 +133,7 @@
     "dark-room": "dark-room-floor",
     "corridor": "dark-corridor",
     "lit-corridor": "lit-corridor",
+    "dark-corridor": "dark-corridor",
     "floor-of-a-room": "room-floor",
     "dark-part-of-a-room": "dark-room-floor",
     "doorway": "no-door-doorway",

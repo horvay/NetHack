@@ -3814,6 +3814,12 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
         int win = va_int_arg(&ap);
         if (!strcmp(name, "shim_clear_nhwindow")) memset(ground_pile_snapshot_known, 0, sizeof ground_pile_snapshot_known);
         fprintf(stdout, ",\"window\":%d", win);
+    } else if (!strcmp(name, "shim_number_pad")) {
+        int enabled = va_int_arg(&ap);
+        const char *direction_keys = gc.Cmd.dirchars ? gc.Cmd.dirchars : "hykulnjb><";
+        fprintf(stdout, ",\"enabled\":%d,\"directionKeys\":\"", enabled);
+        json_escape(stdout, direction_keys);
+        fputs("\"", stdout);
     } else if (!strcmp(name, "shim_start_menu")) {
         int win = va_int_arg(&ap); int behavior = va_int_arg(&ap);
         clear_menu_window(win);

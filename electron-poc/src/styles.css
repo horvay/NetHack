@@ -440,6 +440,10 @@ body.map-target-mode .direction-pad { height: auto; grid-auto-rows: minmax(26px,
      size to preserve fixed NetHack cell geometry. A discovered room is allowed
      to look small inside the full-level map; do not zoom/pan it separately. */
   --tile-size: max(7px, min(calc((var(--map-available-width) - var(--map-frame-extra)) / 80), calc((100vh - 485px) / 21)));
+  --wall-edge: #101317;
+  --wall-shadow: #535e66;
+  --wall-light: #8f989f;
+  --wall-highlight: #a9b0b6;
   display: grid;
   grid-template-columns: repeat(var(--grid-cols, 80), var(--tile-size));
   grid-auto-rows: var(--tile-size);
@@ -499,16 +503,16 @@ body.map-target-mode .direction-pad { height: auto; grid-auto-rows: minmax(26px,
   background:
     linear-gradient(135deg, rgba(255,255,255,0.14), transparent 26%),
     linear-gradient(0deg, rgba(0,0,0,0.36), transparent 38%, rgba(255,255,255,0.055) 52%, rgba(0,0,0,0.34)),
-    repeating-linear-gradient(90deg, #4d555b 0 18%, #363d43 18% 22%, #596168 22% 40%, #2e353a 40% 44%);
+    repeating-linear-gradient(90deg, var(--wall-light) 0 18%, var(--wall-shadow) 18% 22%, var(--wall-highlight) 22% 40%, var(--wall-edge) 40% 44%);
   box-shadow: inset 0 0 0 1px rgba(8, 9, 12, 0.7), inset 0 0 calc(var(--tile-size) * 0.35) rgba(0,0,0,0.42);
 }
 .tile-cell.terrain-wall-v {
   background:
-    linear-gradient(90deg, #101317 0 10%, #8f989f 13% 31%, #535e66 31% 69%, #a9b0b6 70% 87%, #101317 90% 100%);
+    linear-gradient(90deg, var(--wall-edge) 0 10%, var(--wall-light) 13% 31%, var(--wall-shadow) 31% 69%, var(--wall-highlight) 70% 87%, var(--wall-edge) 90% 100%);
 }
 .tile-cell.terrain-wall-h {
   background:
-    linear-gradient(0deg, #101317 0 10%, #8f989f 13% 31%, #535e66 31% 69%, #a9b0b6 70% 87%, #101317 90% 100%);
+    linear-gradient(0deg, var(--wall-edge) 0 10%, var(--wall-light) 13% 31%, var(--wall-shadow) 31% 69%, var(--wall-highlight) 70% 87%, var(--wall-edge) 90% 100%);
 }
 .tile-cell.terrain-door,
 .map-tooltip-icon.terrain-door {

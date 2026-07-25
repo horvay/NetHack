@@ -27,6 +27,10 @@ async function state(driver) {
       body: document.body.innerText,
       seenShim: document.getElementById('shim-output')?.dataset?.seen || '',
       shimTail: (document.getElementById('shim-output')?.innerText || '').slice(-6000),
+      interaction: {
+        open: Boolean(document.getElementById('interaction-dialog')?.open),
+        title: document.getElementById('interaction-title')?.textContent?.trim() || '',
+      },
     };
   })()`);
 }
@@ -42,7 +46,7 @@ async function main() {
       NH_SHIM_RESET_LOCKS: '1',
       NH_TEST_SCENARIO_ID: 'movement/open-runway',
       NETHACK_SEED: '777331',
-      NETHACKOPTIONS: '!tutorial,!autopickup,pettype:none',
+      NETHACKOPTIONS: '!tutorial,!autopickup,pettype:none,number_pad:2',
     },
   });
   outDir = driver.outputDir;
@@ -50,9 +54,10 @@ async function main() {
   let scenarioError;
   try {
     await driver.waitForRendererReady({ timeoutMs: 15000, promptTest: true, automation: true, startButton: true });
-    await driver.startDefaultGame({ timeoutMs: 20000, playerName: 'RunTester' });
+    await driver.startDefaultGame({ timeoutMs: 20000, playerName: `MovePad${process.pid}` });
     await driver.dismissIntroDialogs();
     const before = await Harness.waitFor(async () => {
+      await driver.dismissIntroDialogs();
       const current = await state(driver);
       if (/bridge_test_scenario_failed/.test(`${current.seenShim}\n${current.shimTail}`)) throw new Error(current.shimTail);
       return current.running && /bridge_test_scenario_loaded/.test(`${current.seenShim}\n${current.shimTail}`) && Number.isInteger(current.cursor?.x) ? current : null;
@@ -71,6 +76,29 @@ async function main() {
     await Harness.waitFor(async () => driver.evalCheckedValue(`document.querySelector('.ux-first-turn-guide')?.hidden === true`), 7000);
     const beforeShot = await driver.screenshotEvidence(qc, '01-before-run', { classification: 'synthetic-fixture', viewport: { width: 1200, height: 820, devicePixelRatio: 1 }, state: 'before-run' });
     await driver.evalCheckedValue('window.__nethackPromptTest.clearSentInputs()');
+    await driver.click('#direction-helper [data-key="h"]');
+    const west = await Harness.waitFor(async () => {
+      const current = await state(driver);
+      return current.sent ? current : null;
+    }, 5000);
+    assert('West compass uses the active native direction key', west.sent === '4', JSON.stringify({ sent: west.sent, interaction: west.interaction }));
+    assert('West compass does not open Help in number-pad mode', !west.interaction.open || west.interaction.title !== 'Help', JSON.stringify(west.interaction));
+    await Harness.waitFor(async () => {
+      const current = await state(driver);
+      return !current.interaction.open ? current : null;
+    }, 5000);
+    await driver.evalCheckedValue('document.getElementById("repeat-count").value = "10"');
+    await driver.evalCheckedValue('window.__nethackPromptTest.clearSentInputs()');
+    await driver.click('#movement-actions [data-move-direction="h"]');
+    const repeatedWest = await Harness.waitFor(async () => {
+      const current = await state(driver);
+      return current.sent ? current : null;
+    }, 5000);
+    assert('Repeated west movement uses the native count prefix', repeatedWest.sent === 'n104', JSON.stringify({ sent: repeatedWest.sent, interaction: repeatedWest.interaction }));
+    assert('Repeated west movement does not open Help in number-pad mode', !repeatedWest.interaction.open || repeatedWest.interaction.title !== 'Help', JSON.stringify(repeatedWest.interaction));
+
+
+    await driver.evalCheckedValue('window.__nethackPromptTest.clearSentInputs()');
     await driver.click('#direction-helper [data-compass-run]');
     await driver.click('#direction-helper [data-key="l"]');
     const after = await Harness.waitFor(async () => {
@@ -78,12 +106,13 @@ async function main() {
       return Number.isInteger(current.cursor?.x) && current.cursor.x >= before.cursor.x + 3 ? current : null;
     }, 10000);
     const afterShot = await driver.screenshotEvidence(qc, '02-after-run', { classification: 'synthetic-fixture', viewport: { width: 1200, height: 820, devicePixelRatio: 1 }, state: 'after-run' });
-    assert('Run emits the native direct-run direction key', after.sent === 'L', JSON.stringify({ sent: after.sent, movement: after.movement }));
+    assert('Run emits the active native run prefix and direction key', after.sent === 'g6', JSON.stringify({ sent: after.sent, movement: after.movement }));
     assert('Run traverses multiple open squares', after.cursor.x - before.cursor.x >= 3 && after.cursor.y === before.cursor.y, JSON.stringify({ before: before.cursor, after: after.cursor }));
     assert('Run does not leave a direction prompt open', !after.prompt, JSON.stringify(after.prompt));
-    fs.writeFileSync(path.join(outDir, 'summary.json'), JSON.stringify({ before: before.cursor, after: after.cursor, deltaX: after.cursor.x - before.cursor.x, sent: after.sent, screenshots: { before: beforeShot, after: afterShot } }, null, 2));
+    fs.writeFileSync(path.join(outDir, 'summary.json'), JSON.stringify({ before: before.cursor, west: { sent: west.sent, interaction: west.interaction }, repeatedWest: { sent: repeatedWest.sent, interaction: repeatedWest.interaction }, after: after.cursor, deltaX: after.cursor.x - before.cursor.x, sent: after.sent, screenshots: { before: beforeShot, after: afterShot } }, null, 2));
   } catch (error) {
-    scenarioError = error;
+    const failureState = await state(driver).catch(() => null);
+    scenarioError = new Error(`${error?.stack || error}${failureState ? `\nmovement state: ${JSON.stringify(failureState)}` : ''}`);
   } finally {
     await finishEvidence(driver, qc, scenarioError);
   }

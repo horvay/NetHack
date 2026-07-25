@@ -52,6 +52,18 @@ try {
     await Runtime.preparePlayground(emptyRuntime);
     assert.equal(fs.statSync(path.join(emptyRuntime.playground, 'save')).isDirectory(), true, 'first packaged launch creates the save directory required by recover');
 
+    const devRepoRoot = path.join(root, 'dev-repo');
+    const devRuntime = Runtime.resolveRuntime({
+      packaged: false,
+      devRepoRoot,
+      resourcesPath: '/unused',
+      userDataPath: '/unused',
+      platform: 'win32',
+    });
+    const devEnv = Runtime.runtimeEnvironment(devRuntime, { PATH: 'C:\\Windows\\System32' });
+    assert.equal(devRuntime.playground, path.join(devRepoRoot, 'playground'));
+    assert.equal(devEnv.NETHACKDIR, devRuntime.playground, 'development bridge resolves generated runtime data from the repository playground');
+
     const env = Runtime.runtimeEnvironment(runtime, { PATH: '/bin', LD_LIBRARY_PATH: '/custom/lib' });
     assert.equal(env.NETHACKDIR, runtime.playground);
     assert.equal(env.LD_LIBRARY_PATH, `${runtime.libraryPath}:/custom/lib`);

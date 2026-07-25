@@ -7,7 +7,7 @@
     'shim_create_nhwindow', 'shim_clear_nhwindow', 'shim_print_glyph', 'shim_curs', 'shim_putstr', 'shim_raw_print', 'shim_raw_print_bold',
     'shim_start_menu', 'shim_add_menu', 'shim_end_menu', 'shim_select_menu', 'shim_display_nhwindow', 'shim_message_menu',
     'bridge_menu_answer', 'shim_yn_function', 'shim_getlin', 'bridge_command_prompt', 'bridge_direction_prompt', 'bridge_extcmd_catalog', 'shim_get_ext_cmd',
-    'bridge_prompt_answer', 'bridge_line_answer', 'bridge_extcmd_answer', 'bridge_direction_answer', 'shim_status_enablefield', 'shim_status_update',
+    'bridge_prompt_answer', 'bridge_line_answer', 'bridge_extcmd_answer', 'bridge_direction_answer', 'shim_number_pad', 'shim_status_enablefield', 'shim_status_update',
     'shim_update_inventory', 'shim_ground_pile_snapshot', 'shim_ground_transfer_accepted', 'shim_ground_transfer_queued', 'shim_ground_transfer_confirmed', 'shim_ground_transfer_rejected', 'shim_terrain_action_accepted', 'shim_terrain_action_queued', 'shim_terrain_action_confirmed', 'shim_terrain_action_rejected', 'shim_container_contents_snapshot', 'shim_container_transfer_accepted', 'shim_container_transfer_queued', 'shim_container_transfer_confirmed', 'shim_container_transfer_rejected', 'shim_container_snapshot_accepted', 'shim_container_snapshot_queued', 'shim_container_snapshot_confirmed', 'shim_container_snapshot_rejected', 'shim_equipment_change_accepted', 'shim_equipment_change_queued', 'shim_equipment_change_confirmed', 'shim_equipment_change_rejected', 'bridge_command', 'bridge_input_queue_full', 'bridge_unsupported_command', 'bridge_semantic_followup_rejected',
     'bridge_ui_command_accepted', 'bridge_ui_command_rejected',
     'bridge_seed', 'bridge_seed_invalid', 'bridge_seed_ignored', 'bridge_start', 'bridge_exit', 'bridge_stdin_closed',
@@ -480,6 +480,11 @@
     bridge_direction_answer(event) { validateAnswerIngress(event, 'bridge_direction_answer', ['keycode']); return copyPublicMetadata(copyAnswerFields({ name: event.name }, event, ['keycode']), event); },
     bridge_test_scenario_loaded(event) { return { name: event.name, id: asText(event.id), message: asText(event.message), expectedPublicFacts: event.expectedPublicFacts && typeof event.expectedPublicFacts === 'object' ? event.expectedPublicFacts : undefined }; },
     bridge_test_scenario_failed(event) { return { name: event.name, id: asText(event.id), message: asText(event.message) }; },
+    shim_number_pad(event) {
+      const directionKeys = asText(event.directionKeys);
+      if (directionKeys.length < 8) throw new TypeError('shim_number_pad requires eight direction keys');
+      return { name: event.name, enabled: Boolean(asInt(event.enabled)), directionKeys: directionKeys.slice(0, 10) };
+    },
     shim_status_enablefield(event) { return { name: event.name, field: asInt(event.field), label: asText(event.label), enabled: event.enabled }; },
     shim_status_update(event) { return { name: event.name, field: asInt(event.field), value: event.value == null ? undefined : asText(event.value), conditionMask: asOptInt(event.conditionMask), percent: asOptInt(event.percent), color: asOptInt(event.color) }; },
     shim_update_inventory(event) {

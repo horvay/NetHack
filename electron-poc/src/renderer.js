@@ -996,12 +996,28 @@ function doorTerrainClassForAsset(assetId) {
   if (assetId === 'no-door-doorway') return 'terrain-door terrain-doorway';
   return '';
 }
+function wallTerrainClassForAsset(assetId) {
+  if (assetId === 'vertical-wall') return 'terrain-wall terrain-wall-v';
+  if (assetId === 'horizontal-wall') return 'terrain-wall terrain-wall-h';
+  if (wallAssetIds.has(assetId)) return 'terrain-wall';
+  return '';
+}
+function terrainClassForAsset(assetId) {
+  if (['room-floor', 'dark-room-floor', 'floor'].includes(assetId)) return 'terrain-floor';
+  if (['lit-corridor', 'dark-corridor', 'corridor'].includes(assetId)) return 'terrain-corridor';
+  if (['unexplored-stone', 'solid-rock', 'stone'].includes(assetId)) return 'terrain-rock';
+  return '';
+}
 
 function terrainClassForCell(cell, assetId, x, y) {
   const normalized = normalizeCell(cell);
   const ch = normalized.ch;
   const doorClass = doorTerrainClassForAsset(assetId);
   if (doorClass) return doorClass;
+  const wallClass = wallTerrainClassForAsset(assetId);
+  if (wallClass) return wallClass;
+  const assetClass = terrainClassForAsset(assetId);
+  if (assetClass) return assetClass;
   if (ch === ' ') return 'terrain-rock';
   if (ch === '.') return 'terrain-floor';
   if (ch === '#') return 'terrain-corridor';
@@ -2063,7 +2079,7 @@ function dismissContextualPrompt() {
 
 function kickDirectionFromContext(direction = activeContextualPrompt?.direction || lastDirectionKey) {
   sendPlayableKey('\u0004');
-  if (direction && /^[hjklyubn]$/.test(direction)) window.setTimeout(() => sendPlayableKey(direction), 40);
+  if (direction && /^[hjklyubn]$/.test(direction)) window.setTimeout(() => sendPlayableDirection(direction), 40);
   else appendMessage('Kick: choose the direction when NetHack asks.');
 }
 
@@ -2081,7 +2097,7 @@ function commandThenDirection(commandKey, direction, label) {
   closeInteractionDialog();
   hideDirectionHelper();
   sendPlayableKey(commandKey);
-  if (direction && /^[hjklyubn.]$/.test(direction)) window.setTimeout(() => sendPlayableKey(direction), 40);
+  if (direction && /^[hjklyubn.]$/.test(direction)) window.setTimeout(() => sendPlayableDirection(direction), 40);
   else if (label) appendMessage(`${label}: choose a direction when NetHack asks.`);
   gameGrid.focus({ preventScroll: true });
 }
@@ -2094,7 +2110,7 @@ function sendTravelToCell(cellEl) {
   activeContextualPrompt = null;
   closeInteractionDialog();
   sendPlayableKey('_');
-  window.setTimeout(() => sendPlayableText(`${path}.`), 40);
+  window.setTimeout(() => sendPlayableText(`${activeDirectionText(path)}.`), 40);
   appendMessage('Travel target selected.');
   gameGrid.focus({ preventScroll: true });
 }
@@ -2108,7 +2124,7 @@ function unlockDoorWithInventoryTool(tool = {}, direction = '') {
   hideDirectionHelper();
   sendPlayableKey('a');
   window.setTimeout(() => sendPlayableText(selector), 60);
-  if (direction && /^[hjklyubn]$/.test(direction)) window.setTimeout(() => sendPlayableKey(direction), 120);
+  if (direction && /^[hjklyubn]$/.test(direction)) window.setTimeout(() => sendPlayableDirection(direction), 120);
   else appendMessage(`Unlock with ${label}: choose the door direction when NetHack asks.`);
   gameGrid.focus({ preventScroll: true });
 }
@@ -2716,7 +2732,7 @@ async function runContextAction(action) {
     setWorkflowContextFromButton({ dataset: { workflowLabel: action.label } }, action.label);
     if (activeWorkflowContext) activeWorkflowContext.submittedExtendedCommand = action.ext;
     sendPlayableText(`#${action.ext}\n`);
-    if (action.direction) window.setTimeout(() => sendPlayableKey(action.direction), 60);
+    if (action.direction) window.setTimeout(() => sendPlayableDirection(action.direction), 60);
   }
   if (actionDispatched && !isShopPaymentAction) appendMessage(`${action.label}.`);
   gameGrid.focus({ preventScroll: true });
@@ -4329,7 +4345,7 @@ function renderDirectionHelper(query, { promptActive = true } = {}) {
     button.addEventListener('click', () => {
       if (!promptActive) sendCompassMovement(option.key);
       else if (option.key === '.') sendMovementCommand(option.key);
-      else sendPlayableText(option.key);
+      else sendPlayableDirection(option.key);
       gameGrid.focus({ preventScroll: true });
     });
     directionHelperOptions.appendChild(button);
@@ -9113,12 +9129,17 @@ function normalizedRepeatCount() {
   const raw = Number(repeatCountInput?.value || 1);
   return Math.max(1, Math.min(999, Number.isFinite(raw) ? Math.floor(raw) : 1));
 }
+function repeatCountPrefix(count) {
+  if (count <= 1) return '';
+  return `${gameViewSnapshot.numberPadEnabled ? 'n' : ''}${count}`;
+}
+
 
 function sendRepeatedCommand(commandKey) {
   if (!commandKey || hasActiveUiInputOwner()) return;
   const count = normalizedRepeatCount();
   repeatCountInput.value = String(count);
-  sendPlayableText(`${count}${commandKey}`);
+  sendPlayableText(`${repeatCountPrefix(count)}${commandKey}`);
   appendMessage(`${count} × ${commandKey === '.' ? 'wait/rest' : commandKey === 's' ? 'search' : describePlayableKey(commandKey)}.`);
   gameGrid.focus({ preventScroll: true });
 }
@@ -9145,12 +9166,11 @@ function setMovementMode(mode) {
 
 function sendMovementCommand(directionKey) {
   if (!/^[hjklyubn]$/.test(String(directionKey || '')) || hasActiveUiInputOwner()) return;
-  const count = normalizedRepeatCount();
-  const countPrefix = count > 1 ? String(count) : '';
+  const nativeDirection = activeDirectionKey(directionKey);
   const prefix = movementPrefixForMode();
-  const movementCommand = movementMode === 'run' ? directionKey.toUpperCase() : `${prefix}${directionKey}`;
-  repeatCountInput.value = String(count);
-  sendPlayableText(`${countPrefix}${movementCommand}`);
+  const movementCommand = movementMode === 'run' ? `g${nativeDirection}` : `${prefix}${nativeDirection}`;
+  lastDirectionKey = directionKey;
+  sendPlayableText(movementCommand);
   gameGrid.focus({ preventScroll: true });
 }
 
@@ -9171,7 +9191,9 @@ function sendCompassMovement(directionKey) {
     return false;
   }
   const mode = compassRunArmed ? 'run' : 'walk';
-  sendPlayableText(mode === 'run' ? directionKey.toUpperCase() : directionKey);
+  const nativeDirection = activeDirectionKey(directionKey);
+  lastDirectionKey = directionKey;
+  sendPlayableText(mode === 'run' ? `g${nativeDirection}` : nativeDirection);
   compassRunArmed = false;
   updateCompassRunButton();
   gameGrid.focus({ preventScroll: true });
@@ -9476,6 +9498,29 @@ interactionDialog.addEventListener('keydown', (event) => {
   handleInteractionNavigationKeydown(event);
 });
 
+const canonicalDirectionKeys = 'hykulnjb><';
+
+function activeDirectionKey(directionKey) {
+  const canonical = String(directionKey || '').slice(0, 1);
+  if (canonical === '.') return canonical;
+  const index = canonicalDirectionKeys.indexOf(canonical);
+  if (index < 0) return canonical;
+  const active = String(gameViewSnapshot.directionKeys || canonicalDirectionKeys)[index] || canonical;
+  return isSupportedPlayableKey(active) ? active : canonical;
+}
+
+function activeDirectionText(text) {
+  return Array.from(String(text || ''), (key) => activeDirectionKey(key)).join('');
+}
+
+function sendPlayableDirection(directionKey) {
+  const canonical = String(directionKey || '').slice(0, 1);
+  if (!canonicalDirectionKeys.includes(canonical) && canonical !== '.') return false;
+  lastDirectionKey = canonical;
+  sendPlayableKey(activeDirectionKey(canonical));
+  return true;
+}
+
 const movementKeys = new Map([
   ['ArrowLeft', 'h'],
   ['ArrowDown', 'j'],
@@ -9551,7 +9596,8 @@ function handlePlayableKeydown(event) {
   if (!key) return;
   event.preventDefault();
   event.stopPropagation();
-  sendPlayableKey(key);
+  if (movementKeys.has(event.key)) sendPlayableDirection(key);
+  else sendPlayableKey(key);
 }
 
 function handleActiveDirectionPromptKeydown(event) {
@@ -9561,7 +9607,8 @@ function handleActiveDirectionPromptKeydown(event) {
   if (!key || !isSupportedPlayableKey(key)) return false;
   event.preventDefault();
   event.stopPropagation();
-  sendPlayableKey(key);
+  if (movementKeys.has(event.key)) sendPlayableDirection(key);
+  else sendPlayableKey(key);
   return true;
 }
 

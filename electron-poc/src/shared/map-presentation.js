@@ -45,10 +45,26 @@
     if (assetId === 'no-door-doorway') return 'terrain-door terrain-doorway';
     return '';
   }
+  function wallTerrainClassForAsset(assetId) {
+    if (assetId === 'vertical-wall') return 'terrain-wall terrain-wall-v';
+    if (assetId === 'horizontal-wall') return 'terrain-wall terrain-wall-h';
+    if (wallAssetIds.has(assetId)) return 'terrain-wall';
+    return '';
+  }
+  function terrainClassForAsset(assetId) {
+    if (['room-floor', 'dark-room-floor', 'floor'].includes(assetId)) return 'terrain-floor';
+    if (['lit-corridor', 'dark-corridor', 'corridor'].includes(assetId)) return 'terrain-corridor';
+    if (['unexplored-stone', 'solid-rock', 'stone'].includes(assetId)) return 'terrain-rock';
+    return '';
+  }
   function terrainClassForCell(cell, assetId) {
     const ch = TileAssets.normalizeCell(cell).ch;
     const doorClass = doorTerrainClassForAsset(assetId);
     if (doorClass) return doorClass;
+    const wallClass = wallTerrainClassForAsset(assetId);
+    if (wallClass) return wallClass;
+    const assetClass = terrainClassForAsset(assetId);
+    if (assetClass) return assetClass;
     if (ch === ' ') return 'terrain-rock';
     if (ch === '.') return 'terrain-floor';
     if (ch === '#') return 'terrain-corridor';

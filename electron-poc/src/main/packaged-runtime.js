@@ -61,7 +61,7 @@ async function preparePlayground(runtime) {
 }
 
 function runtimeEnvironment(runtime, env = process.env) {
-  if (!runtime?.packaged) return env;
+  if (!runtime) return env;
   return {
     ...env,
     NETHACKDIR: runtime.playground,

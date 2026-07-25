@@ -314,6 +314,8 @@
       currentMenu: null,
       activePrompt: null,
       extCommandCatalog: [],
+      directionKeys: 'hykulnjb><',
+      numberPadEnabled: false,
       cachedInventoryChoices: [],
       inventory: InventorySnapshotAdapter?.emptyInventoryState ? InventorySnapshotAdapter.emptyInventoryState() : { revision: 0, itemsByObjectId: new Map(), itemsByLetter: new Map(), orderedItems: [], lastSnapshotSource: null, lastSnapshotEvent: null },
       equipment: EquipmentSnapshotAdapter?.emptyEquipmentState ? EquipmentSnapshotAdapter.emptyEquipmentState() : { revision: 0, inventoryRevision: 0, slotsById: new Map(), objectToSlots: new Map(), orderedSlots: [], lastSnapshotSource: null, lastSnapshotEvent: null },
@@ -1225,6 +1227,9 @@
         }
         state.activePrompt = null;
         effects.push(effect('close-interaction'), effect('hide-direction-helper'), effect('render-prompt'));
+      } else if (event.name === 'shim_number_pad') {
+        state.directionKeys = event.directionKeys;
+        state.numberPadEnabled = event.enabled;
       } else if (event.name === 'shim_status_enablefield') {
         state.statusLabels.set(event.field, event.label || `field ${event.field}`);
         if (event.enabled === 0 || event.enabled === false) state.statusValues.delete(event.field);
@@ -1348,7 +1353,7 @@
     }
     function snapshot() {
       if (publishedSnapshot) return publishedSnapshot;
-      const detached = detachAndFreeze({ mapWidth: width, mapHeight: height, mapWindowId: state.mapWindowId, windowTypes: state.windowTypes, statusLabels: state.statusLabels, statusValues: state.statusValues, mapCells: snapshotMapCells(), mapRevision: state.mapRevision, cursor: state.cursor, menusByWindow: state.menusByWindow, textWindowsByWindow: state.textWindowsByWindow, currentMenu: state.currentMenu, activePrompt: state.activePrompt, extCommandCatalog: state.extCommandCatalog, cachedInventoryChoices: state.cachedInventoryChoices, inventory: state.inventory, equipment: state.equipment, spellRows: state.spellRows, skillRows: state.skillRows, groundPiles: state.groundPiles, containerContents: state.containerContents, messages: state.messages, documentWindow: state.documentWindow, milestones: state.milestones, pendingMenuSelections: state.pendingMenuSelections, menuLifecyclesByWindow: state.menuLifecyclesByWindow, activeInteractionRevision: state.activeInteractionRevision, interactionLifecycleRevision: state.interactionLifecycleRevision, activeTransactionId: state.activeTransactionId, commandTransactions: state.commandTransactions, commandProtocolAcks: state.commandProtocolAcks, lastCommandProtocolAck: state.lastCommandProtocolAck, lastCommandProtocolRejection: state.lastCommandProtocolRejection, transferTransactions: state.transferTransactions, pendingTransferEvidence: state.pendingTransferEvidence, commandTransactionAliases: state.commandTransactionAliases, lastWorldCommand: state.lastWorldCommand, protocolSequence: state.protocolSequence });
+      const detached = detachAndFreeze({ mapWidth: width, mapHeight: height, mapWindowId: state.mapWindowId, windowTypes: state.windowTypes, statusLabels: state.statusLabels, statusValues: state.statusValues, mapCells: snapshotMapCells(), mapRevision: state.mapRevision, cursor: state.cursor, menusByWindow: state.menusByWindow, textWindowsByWindow: state.textWindowsByWindow, currentMenu: state.currentMenu, activePrompt: state.activePrompt, extCommandCatalog: state.extCommandCatalog, directionKeys: state.directionKeys, numberPadEnabled: state.numberPadEnabled, cachedInventoryChoices: state.cachedInventoryChoices, inventory: state.inventory, equipment: state.equipment, spellRows: state.spellRows, skillRows: state.skillRows, groundPiles: state.groundPiles, containerContents: state.containerContents, messages: state.messages, documentWindow: state.documentWindow, milestones: state.milestones, pendingMenuSelections: state.pendingMenuSelections, menuLifecyclesByWindow: state.menuLifecyclesByWindow, activeInteractionRevision: state.activeInteractionRevision, interactionLifecycleRevision: state.interactionLifecycleRevision, activeTransactionId: state.activeTransactionId, commandTransactions: state.commandTransactions, commandProtocolAcks: state.commandProtocolAcks, lastCommandProtocolAck: state.lastCommandProtocolAck, lastCommandProtocolRejection: state.lastCommandProtocolRejection, transferTransactions: state.transferTransactions, pendingTransferEvidence: state.pendingTransferEvidence, commandTransactionAliases: state.commandTransactionAliases, lastWorldCommand: state.lastWorldCommand, protocolSequence: state.protocolSequence });
       publishedSnapshot = Object.freeze({ [immutableSnapshotBrand]: true, ...detached });
       return publishedSnapshot;
     }

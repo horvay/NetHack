@@ -1,5 +1,5 @@
 {
-  "auditedAt": "2026-07-10T01:50:06.578Z",
+  "auditedAt": "2026-07-25T03:25:00.538Z",
   "summary": {
     "armor appearance": 17,
     "known armor": 3,
@@ -46,7 +46,7 @@
       "tooltip": {
         "title": "Iron Skull Cap",
         "assetId": "helmet",
-        "description": "Object · Objects and inventory items · glyph 3579 · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -75,7 +75,7 @@
       "tooltip": {
         "title": "Iron Skull Cap",
         "assetId": "helmet",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -103,7 +103,7 @@
       "tooltip": {
         "title": "Leather Hat",
         "assetId": "helmet",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -131,7 +131,7 @@
       "tooltip": {
         "title": "Hard Hat",
         "assetId": "helmet",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -159,7 +159,7 @@
       "tooltip": {
         "title": "Conical Hat",
         "assetId": "helmet",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -187,7 +187,7 @@
       "tooltip": {
         "title": "Crystal Helmet",
         "assetId": "helmet",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -215,7 +215,7 @@
       "tooltip": {
         "title": "Plumed Helmet",
         "assetId": "helmet",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -243,7 +243,7 @@
       "tooltip": {
         "title": "Etched Helmet",
         "assetId": "helmet",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -271,7 +271,7 @@
       "tooltip": {
         "title": "Crested Helmet",
         "assetId": "helmet",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -299,7 +299,7 @@
       "tooltip": {
         "title": "Visored Helmet",
         "assetId": "helmet",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -327,7 +327,7 @@
       "tooltip": {
         "title": "Wooden Shield",
         "assetId": "shield",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -355,7 +355,7 @@
       "tooltip": {
         "title": "Large Round Shield",
         "assetId": "shield",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -383,7 +383,7 @@
       "tooltip": {
         "title": "Tattered Cape",
         "assetId": "cloak",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -411,7 +411,7 @@
       "tooltip": {
         "title": "Riding Gloves",
         "assetId": "gloves",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -439,7 +439,7 @@
       "tooltip": {
         "title": "Combat Boots",
         "assetId": "boots",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -467,7 +467,7 @@
       "tooltip": {
         "title": "Crude Ring Mail",
         "assetId": "orcish-ring-mail",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -495,7 +495,7 @@
       "tooltip": {
         "title": "Crude Chain Mail",
         "assetId": "chain-mail",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -523,7 +523,7 @@
       "tooltip": {
         "title": "Orcish Helm",
         "assetId": "orcish-helm",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -550,7 +550,7 @@
       "tooltip": {
         "title": "Large Shield",
         "assetId": "large-shield",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -577,7 +577,7 @@
       "tooltip": {
         "title": "Fedora",
         "assetId": "fedora",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -610,7 +610,7 @@
       "tooltip": {
         "title": "Crude Dagger",
         "assetId": "orcish-dagger",
-        "description": "Object · Objects and inventory items · glyph 3484 · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -641,7 +641,7 @@
       "tooltip": {
         "title": "Crude Dagger",
         "assetId": "orcish-dagger",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -668,7 +668,7 @@
       "tooltip": {
         "title": "Long Sword",
         "assetId": "long-sword",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -696,7 +696,7 @@
       "tooltip": {
         "title": "Runed Dagger",
         "assetId": "weapon-class-icon",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -723,7 +723,7 @@
       "tooltip": {
         "title": "Lock Pick",
         "assetId": "lock-pick",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -751,7 +751,7 @@
       "tooltip": {
         "title": "Key",
         "assetId": "tool-class-icon",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -778,7 +778,7 @@
       "tooltip": {
         "title": "Food Ration",
         "assetId": "food-ration",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -805,7 +805,7 @@
       "tooltip": {
         "title": "Apple",
         "assetId": "apple",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -834,7 +834,7 @@
       "tooltip": {
         "title": "Purple Red Potion",
         "assetId": "potion-class-icon",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -865,7 +865,7 @@
       "tooltip": {
         "title": "Ruby Potion",
         "assetId": "potion-class-icon",
-        "description": "Object · Objects and inventory items · glyph 3755 · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -894,7 +894,7 @@
       "tooltip": {
         "title": "Scroll Labeled READ ME",
         "assetId": "read-me",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -923,7 +923,7 @@
       "tooltip": {
         "title": "Scroll Labeled FOOBIE BLETCH",
         "assetId": "scroll-class-icon",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -952,7 +952,7 @@
       "tooltip": {
         "title": "Thin Spellbook",
         "assetId": "spellbook-class-icon",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -981,7 +981,7 @@
       "tooltip": {
         "title": "Long Wand",
         "assetId": "wand-class-icon",
-        "description": "Object · Objects and inventory items · map 1,1"
+        "description": "Object"
       }
     },
     {
@@ -1008,7 +1008,7 @@
       "tooltip": {
         "title": "Jackal",
         "assetId": "jackal",
-        "description": "Monster · Common early monsters · glyph 395 · map 1,1"
+        "description": "Monster"
       }
     },
     {
@@ -1036,7 +1036,7 @@
       "tooltip": {
         "title": "Jackal Corpse",
         "assetId": "jackal",
-        "description": "Common early monsters · map 1,1"
+        "description": ""
       }
     },
     {
@@ -1064,7 +1064,7 @@
       "tooltip": {
         "title": "Statue Of A Jackal",
         "assetId": "jackal",
-        "description": "Common early monsters · map 1,1"
+        "description": ""
       }
     },
     {
@@ -1111,7 +1111,7 @@
       "tooltip": {
         "title": "Fountain",
         "assetId": "fountain",
-        "description": "Fixture · Terrain and features · glyph 4014 · map 1,1"
+        "description": "Fixture"
       }
     },
     {
@@ -1139,7 +1139,7 @@
       "tooltip": {
         "title": "Engraving In A Room",
         "assetId": "engraving",
-        "description": "Terrain and features · glyph 3994 · map 1,1"
+        "description": ""
       }
     },
     {
@@ -1165,7 +1165,7 @@
       "tooltip": {
         "title": "Fire",
         "assetId": "fire-trap",
-        "description": "Trap · Traps and hazards · map 1,1"
+        "description": "Trap"
       }
     }
   ]
