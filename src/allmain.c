@@ -1056,8 +1056,18 @@ electron_test_read_file(const char *path)
     long len;
     char *buf;
 
-    if (!path || !*path || path[0] != '/')
+    if (!path || !*path)
         electron_test_fixture_fail("", "NH_TEST_SCENARIO must be an absolute path");
+#ifdef WIN32
+    if (!((isalpha((unsigned char) path[0]) && path[1] == ':'
+           && (path[2] == '/' || path[2] == '\\'))
+          || ((path[0] == '/' || path[0] == '\\')
+              && (path[1] == '/' || path[1] == '\\'))))
+        electron_test_fixture_fail("", "NH_TEST_SCENARIO must be an absolute path");
+#else
+    if (path[0] != '/')
+        electron_test_fixture_fail("", "NH_TEST_SCENARIO must be an absolute path");
+#endif
     fp = fopen(path, "rb");
     if (!fp)
         electron_test_fixture_fail("", "unable to open NH_TEST_SCENARIO");

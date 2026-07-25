@@ -10,6 +10,7 @@ const LAUNCH_CONTROL_ENV_KEYS = [
 const ALLOWED_NETHACK_OPTIONS = new Set([
   '!tutorial', 'tutorial',
   'autopickup', '!autopickup',
+  'number_pad:0',
   'pickup_types:$',
   'disclose:+i +a +v +g +c +o',
   'time', '!time',

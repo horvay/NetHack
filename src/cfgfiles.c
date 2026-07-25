@@ -1962,10 +1962,15 @@ rcfile(void)
     (void) read_config_file(nameval, set_in_config);
     config_error_done();
     if (xtraopts) {
-        /* NETHACKOPTIONS is present and not a file name */
+        char *xtraopts_copy;
+
+        /* parseoptions() splits comma-separated input in place.  Keep the
+           environment value intact for Windows' later full config pass. */
+        xtraopts_copy = dupstr(xtraopts);
         go.opt_phase = environ_opt;
         config_error_init(FALSE, envname, FALSE);
-        (void) parseoptions(xtraopts, TRUE, FALSE);
+        (void) parseoptions(xtraopts_copy, TRUE, FALSE);
+        free((genericptr_t) xtraopts_copy);
         config_error_done();
     }
 

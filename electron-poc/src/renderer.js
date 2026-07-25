@@ -1734,6 +1734,7 @@ function buildNethackOptions(settings = userSettings) {
   const options = ['!tutorial', 'disclose:+i +a +v +g +c +o'];
   if (settings.autoLootGold) options.push('autopickup', 'pickup_types:$');
   else options.push('!autopickup');
+  options.push('number_pad:0');
   return options.join(',');
 }
 

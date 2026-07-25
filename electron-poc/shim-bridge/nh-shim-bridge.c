@@ -4012,8 +4012,17 @@ int main(int argc, char **argv) {
             nh_test_bridge_event("bridge_test_scenario_failed", scenario_id, "cannot resolve scenario root", NULL);
             return 2;
         }
+        for (char *cursor = scenario_path; *cursor; ++cursor)
+            if (*cursor == '\\') *cursor = '/';
+        const char *leaf = strrchr(scenario_path, '/');
+        const char *windows_leaf = strrchr(scenario_path, '\\');
+        if (!leaf || (windows_leaf && windows_leaf > leaf)) leaf = windows_leaf;
+        leaf = leaf ? leaf + 1 : scenario_path;
+        const char *scenario_root = !strcmp(leaf, "electron-poc")
+            ? "/test/scenarios/"
+            : "/electron-poc/test/scenarios/";
         size_t used = strlen(scenario_path);
-        int wrote = snprintf(scenario_path + used, sizeof scenario_path - used, "/electron-poc/test/scenarios/%s.json", scenario_id);
+        int wrote = snprintf(scenario_path + used, sizeof scenario_path - used, "%s%s.json", scenario_root, scenario_id);
         if (wrote < 0 || (size_t) wrote >= sizeof scenario_path - used) {
             nh_test_bridge_event("bridge_test_scenario_failed", scenario_id, "scenario path is too long", NULL);
             return 2;

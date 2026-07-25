@@ -67,6 +67,7 @@
     "test:bridge-level-change-checkpoint-recovery": "npm run build:recover && npm run build:shim:test-fixtures && node scripts/bridge-checkpoint-failure-retry-test.js && node scripts/bridge-level-change-checkpoint-recovery-test.js",
     "test:bridge-lock-pid-tamper-regression": "npm run build:shim:test-fixtures && node scripts/bridge-lock-pid-tamper-regression-test.js",
     "test:real-input-regression": "node scripts/real-input-regression-test.js",
+    "test:real-classic-input-autopickup": "npm run build:shim:test-fixtures && node scripts/real-classic-input-autopickup-test.js",
     "test:real-startup-no-blank-command": "node scripts/real-startup-no-blank-command-test.js",
     "test:real-startup-choice-mcp": "node scripts/real-startup-choice-mcp-test.js",
     "test:inventory-selection-gui-audit": "node scripts/inventory-selection-gui-audit-test.js",

@@ -67,6 +67,9 @@ int main(void) {
     CHECK(bridge_environment_get("NH_BRIDGE_PLATFORM_CONTRACT", environment_value, &environment_size) == 0,
           "environment value is observable");
     CHECK(strcmp(environment_value, "libuv") == 0, "environment value is exact");
+    CHECK(getenv("NH_BRIDGE_PLATFORM_CONTRACT") != NULL, "environment value reaches C runtime");
+    CHECK(strcmp(getenv("NH_BRIDGE_PLATFORM_CONTRACT"), "libuv") == 0,
+          "C runtime environment value is exact");
     CHECK(bridge_working_directory(cwd, &cwd_size) == 0, "working directory read");
     CHECK(cwd[0] != '\0', "working directory is nonempty");
     CHECK(bridge_change_directory(cwd) == 0, "working directory change");

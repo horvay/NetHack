@@ -1,5 +1,7 @@
 #include "bridge-platform.h"
 
+#include <stdlib.h>
+
 int bridge_mutex_init(bridge_mutex *mutex) {
     return uv_mutex_init(&mutex->native);
 }
@@ -57,7 +59,11 @@ long bridge_process_id(void) {
 }
 
 int bridge_environment_set(const char *name, const char *value) {
+#ifdef _WIN32
+    return _putenv_s(name, value);
+#else
     return uv_os_setenv(name, value);
+#endif
 }
 
 int bridge_environment_get(const char *name, char *buffer, size_t *size) {
