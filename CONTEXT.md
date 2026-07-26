@@ -8,6 +8,18 @@ The NetHack Electron context presents real NetHack state and interactions throug
 The complete player-visible and publicly remembered game state at a point in time, including the map, status, messages, prompts, menus, inventory, equipment, and active interactions.
 _Avoid_: renderer state, UI state, client state
 
+**Close-up View**:
+A persistent Game View presentation that keeps the hero central while showing a player-configurable nearby region at an enlarged scale.
+_Avoid_: focused view, close view, zoom mode
+
+**Level Overview**:
+A full-current-level view limited to Public Game Facts from the hero’s present dungeon level. Known squares can be inspected without moving the hero or spending a turn.
+_Avoid_: whole dungeon, dungeon atlas, world map
+
+**Minimap**:
+A compact Level Overview available within Close-up View.
+_Avoid_: thumbnail, radar
+
 **Public Game Fact**:
 A fact NetHack has exposed or the player is allowed to remember, without hidden identity or spoiler information.
 _Avoid_: raw game state, internal state

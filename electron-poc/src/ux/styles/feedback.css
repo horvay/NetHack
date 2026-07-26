@@ -529,7 +529,7 @@ dialog[open]::backdrop,
   animation: ux-motion-map-level-fade var(--ux-motion-standard) var(--ux-motion-ease-in-out) both;
 }
 
-body.uxm02-shell-active[data-ux-map-mode='follow'] #game-grid {
+body.uxm02-shell-active:is([data-ux-map-mode='follow'], [data-ux-map-mode='close']) #game-grid {
   transition: transform var(--ux-motion-standard) var(--ux-motion-ease-out);
 }
 

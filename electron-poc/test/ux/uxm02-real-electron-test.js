@@ -228,11 +228,67 @@ async function runShellViewport(viewport, index, qc, summary) {
     run.checks.followTurnless = follow.mapMode === 'follow' && follow.sent === '';
     run.checks.followUsesRenderedMap = follow.map.cells === 1680 && follow.map.transform !== 'none';
     run.screenshots.follow = await capture(page, qc, `${runId}-04-follow-view`, viewport, follow);
+
+    await page.click('#ux-map-mode-button');
+    const closeUp = await waitFor(async () => {
+      const state = await shellState(page);
+      return state.mapMode === 'close' && await page.evalCheckedValue("!document.querySelector('.ux-minimap-button')?.hidden") ? state : null;
+    }, 5000);
+    const closeUpFacts = await page.evalCheckedValue(`(() => {
+      const play = document.getElementById('play-area').getBoundingClientRect();
+      const hero = document.querySelector('#game-grid .tile-cell.cursor').getBoundingClientRect();
+      const minimap = document.querySelector('.ux-minimap-button').getBoundingClientRect();
+      return {
+        closeRows: Number(document.body.dataset.uxCloseRows),
+        tileSize: hero.width,
+        centered: Math.abs((hero.left + hero.width / 2) - (play.left + play.width / 2)) <= hero.width
+          && Math.abs((hero.top + hero.height / 2) - (play.top + play.height / 2)) <= hero.height,
+        minimapInside: minimap.left >= play.left && minimap.right <= play.right && minimap.top >= play.top && minimap.bottom <= play.bottom,
+      };
+    })()`);
+    run.checks.closeUpTurnlessAndCentered = closeUp.sent === '' && closeUpFacts.closeRows === 9 && closeUpFacts.centered;
+    run.checks.closeUpMinimapVisible = closeUpFacts.minimapInside;
+    run.screenshots.closeUp = await capture(page, qc, `${runId}-05-close-up-view`, viewport, closeUp);
+
+    await page.click('.ux-minimap-button');
+    const overview = await waitFor(async () => {
+      const state = await shellState(page);
+      return state.openDialogs.includes('ux-level-overview-dialog') ? state : null;
+    }, 5000);
+    const overviewFacts = await page.evalCheckedValue(`(() => {
+      const hero = document.querySelector('#game-grid .tile-cell.cursor');
+      const target = document.querySelector('.ux-level-overview-map .tile-cell[data-map-x="' + hero.dataset.mapX + '"][data-map-y="' + hero.dataset.mapY + '"]');
+      target.click();
+      return {
+        cells: document.querySelectorAll('.ux-level-overview-map .tile-cell').length,
+        title: document.querySelector('.ux-level-overview-inspector-title').textContent,
+        closeFocused: document.activeElement.classList.contains('ux-level-overview-close'),
+        sent: window.__nethackPromptTest.sentInputs().join(''),
+      };
+    })()`);
+    run.checks.levelOverviewInspectsTurnlessly = overviewFacts.cells === 1680 && overviewFacts.title && overviewFacts.sent === '';
+    run.checks.levelOverviewCloseFocused = overviewFacts.closeFocused;
+    run.screenshots.levelOverview = await capture(page, qc, `${runId}-06-level-overview`, viewport, overview);
+    await page.pressKey('Escape');
+    const overviewClosed = await waitFor(async () => {
+      const state = await shellState(page);
+      return !state.openDialogs.includes('ux-level-overview-dialog') ? state : null;
+    }, 5000);
+    run.checks.levelOverviewEscapeRestoresCloseUp = overviewClosed.mapMode === 'close' && overviewClosed.active.id === 'game-grid' && overviewClosed.sent === '';
+    await page.click('.ux-minimap-button');
+    await waitFor(async () => (await shellState(page)).openDialogs.includes('ux-level-overview-dialog'), 5000);
+    await page.click('.ux-level-overview-close');
+    const overviewXClosed = await waitFor(async () => {
+      const state = await shellState(page);
+      return !state.openDialogs.includes('ux-level-overview-dialog') ? state : null;
+    }, 5000);
+    run.checks.levelOverviewXRestoresCloseUp = overviewXClosed.mapMode === 'close' && overviewXClosed.active.id === 'game-grid' && overviewXClosed.sent === '';
+
+
     await page.click('#ux-map-mode-button');
     await delay(100);
     const fullAgain = await shellState(page);
     run.checks.fullImmediateAndTurnless = fullAgain.mapMode === 'full' && fullAgain.sent === '';
-
     if (viewport.id === 'full-1360x920') {
       await page.click('#ux-hud-density-button');
       await delay(400);

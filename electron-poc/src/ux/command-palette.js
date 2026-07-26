@@ -154,6 +154,8 @@
     function render() {
       const snapshot = model.snapshot();
       list.replaceChildren();
+      const policy = keyHints();
+      list.dataset.keyHints = policy;
       empty.hidden = snapshot.entries.length > 0;
       list.hidden = !snapshot.entries.length;
       for (const section of snapshot.sections) {
@@ -175,7 +177,6 @@
           if (detailParts.length) copy.append(createElement(documentRoot, 'small', '', detailParts.join('. ')));
           button.append(copy);
           if (command.danger !== 'none') button.append(createElement(documentRoot, 'span', `ux-command-danger ux-danger-${command.danger}`, command.danger === 'serious' ? 'Serious' : 'Caution'));
-          const policy = keyHints();
           if (command.publicShortcut && policy !== 'never') {
             const keycap = createElement(documentRoot, 'kbd', 'ux-keycap', command.publicShortcut);
             keycap.title = 'Keyboard shortcut';

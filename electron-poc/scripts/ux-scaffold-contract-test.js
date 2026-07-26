@@ -25,6 +25,6 @@ vm.createContext(context);
 for (const source of expectedCore) vm.runInContext(fs.readFileSync(path.join(root, 'src', source.replace(/^\.\//, '')), 'utf8'), context, { filename: source });
 for (const name of ['NetHackUxRuntime', 'NetHackUxSettingsStore', 'NetHackUxAppMounts']) assert.equal(Object.isFrozen(context[name]), true, `${name} must be frozen`);
 assert.equal(context.NetHackUxRuntime.version, 'nethack-ux-runtime/v1');
-assert.equal(context.NetHackUxSettingsStore.schemaVersion, 2);
+assert.equal(context.NetHackUxSettingsStore.schemaVersion, 4);
 
 console.log('UX scaffold preload and browser-global contract OK');

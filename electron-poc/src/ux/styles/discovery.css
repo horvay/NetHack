@@ -141,6 +141,8 @@
   font: 700 0.76rem/1 var(--ux-font-mono);
   white-space: nowrap;
 }
+.ux-command-results[data-key-hints="contextual"] .ux-keycap { visibility: hidden; }
+.ux-command-results[data-key-hints="contextual"] .ux-command-row[aria-selected="true"] .ux-keycap { visibility: visible; }
 
 .ux-command-danger {
   display: inline-flex;

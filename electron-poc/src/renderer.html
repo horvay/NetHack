@@ -302,17 +302,93 @@
       <form method="dialog" id="settings-form">
         <h2 id="settings-title">Settings</h2>
         <p class="modal-copy">These app settings are saved locally. NetHack options are applied when a new tile game starts.</p>
-        <div class="settings-grid">
-          <label class="checkbox-row"><input id="setting-contextual-menus" type="checkbox" /> <span><strong>Contextual action prompts</strong><small>Show helpful prompts such as “Door is locked. Kick it?” when NetHack messages reveal an obvious action.</small></span></label>
-          <label class="checkbox-row"><input id="setting-auto-loot-gold" type="checkbox" /> <span><strong>Auto-loot gold only</strong><small>Start NetHack with safe pickup options: autopickup enabled for gold ($) only.</small></span></label>
-          <label class="settings-select-row">Motion
-            <select id="setting-motion" aria-describedby="setting-motion-help">
-              <option value="system">System default</option>
-              <option value="full">Full motion</option>
-              <option value="reduced">Reduced motion</option>
-            </select>
-            <small id="setting-motion-help">Controls nonessential UI motion only. Gameplay input is never delayed.</small>
-          </label>
+        <div class="settings-groups">
+          <fieldset class="settings-section">
+            <legend>Display</legend>
+            <p>Choose how much dungeon and status information stays visible while you play.</p>
+            <div class="settings-grid settings-grid-two">
+              <label class="settings-select-row">Stats detail
+                <select id="setting-hud-density">
+                  <option value="compact">Automatic</option>
+                  <option value="detailed">Full</option>
+                </select>
+                <small>Automatic prioritizes urgent facts; Full keeps every available stat visible.</small>
+              </label>
+              <label class="settings-select-row">Map view
+                <select id="setting-map-mode">
+                  <option value="full">Full dungeon</option>
+                  <option value="follow">Follow player</option>
+                  <option value="close">Close-up</option>
+                </select>
+                <small>Follow player keeps your position centered. Close-up uses much larger tiles and adds a full-level Minimap.</small>
+              </label>
+              <label class="settings-select-row">Close-up size
+                <select id="setting-close-rows">
+                  <option value="7">7 rows</option>
+                  <option value="9">9 rows</option>
+                  <option value="11">11 rows</option>
+                  <option value="13">13 rows</option>
+                  <option value="15">15 rows</option>
+                </select>
+                <small>Sets the nearby vertical range in Close-up View. Nine rows is the default.</small>
+              </label>
+              <label class="settings-range-row">Message log size
+                <span><input id="setting-log-ratio" type="range" min="20" max="75" step="1" aria-describedby="setting-log-ratio-help setting-log-ratio-value" /><output id="setting-log-ratio-value" for="setting-log-ratio">50%</output></span>
+                <small id="setting-log-ratio-help">Sets how much of the workspace the latest consequences occupy. You can still drag the divider during play.</small>
+              </label>
+              <label class="settings-select-row">Motion
+                <select id="setting-motion" aria-describedby="setting-motion-help">
+                  <option value="system">System default</option>
+                  <option value="full">Full motion</option>
+                  <option value="reduced">Reduced motion</option>
+                </select>
+                <small id="setting-motion-help">Controls nonessential UI motion only. Gameplay input is never delayed.</small>
+              </label>
+            </div>
+          </fieldset>
+          <fieldset class="settings-section">
+            <legend>Gameplay defaults</legend>
+            <p>These options apply when a new tile game starts. They never rewrite the current run.</p>
+            <div class="settings-grid settings-grid-two">
+              <label class="settings-select-row">Autopickup
+                <select id="setting-autopickup">
+                  <option value="gold">Gold only</option>
+                  <option value="all">All eligible items</option>
+                  <option value="off">Off</option>
+                </select>
+                <small>Gold only preserves the current safe default. NetHack still decides whether an item is eligible.</small>
+              </label>
+              <label class="settings-select-row">Movement keys
+                <select id="setting-movement">
+                  <option value="classic">Arrow and vi keys</option>
+                  <option value="numpad">Numeric keypad</option>
+                </select>
+                <small>Arrow keys remain available in both modes. Numeric keypad gives the number keys to movement instead of count prefixes.</small>
+              </label>
+            </div>
+          </fieldset>
+          <fieldset class="settings-section">
+            <legend>Guidance</legend>
+            <p>Control how often the app explains available actions without changing NetHack’s decisions.</p>
+            <div class="settings-grid settings-grid-two">
+              <label class="settings-select-row">Contextual prompt level
+                <select id="setting-contextual-prompts">
+                  <option value="full">Full</option>
+                  <option value="essential">Essential only</option>
+                  <option value="off">Off</option>
+                </select>
+                <small>Full offers complete action sheets. Essential only prompts when a carried tool directly solves the obstacle.</small>
+              </label>
+              <label class="settings-select-row">Show key hints
+                <select id="setting-key-hints">
+                  <option value="contextual">Contextual</option>
+                  <option value="always">Always</option>
+                  <option value="never">Never</option>
+                </select>
+                <small>Contextual shows shortcuts for the currently selected command. Always shows every available shortcut.</small>
+              </label>
+            </div>
+          </fieldset>
         </div>
         <menu class="dialog-actions">
           <button type="button" id="settings-reset">Reset defaults</button>

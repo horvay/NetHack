@@ -789,6 +789,25 @@ pre, #status-lines, #command-help {
 #terminal { height: 300px; padding: 8px; overflow: hidden; background: #101014; border: 1px solid #343444; border-radius: 8px; }
 
 #character-form, #settings-form { display: grid; gap: 12px; }
+dialog.settings-dialog { width: min(900px, calc(100vw - 28px)); }
+.settings-groups { display: grid; gap: 14px; }
+.settings-section {
+  min-width: 0;
+  margin: 0;
+  padding: 13px;
+  border: 1px solid rgba(246, 211, 101, 0.2);
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(28, 27, 34, 0.96), rgba(18, 19, 27, 0.96));
+}
+.settings-section legend {
+  padding: 0 7px;
+  color: #f6d365;
+  font-weight: 850;
+  letter-spacing: 0.035em;
+}
+.settings-section > p { margin: 0 0 10px; color: #a5a5b6; font-size: 0.82rem; line-height: 1.35; }
+.settings-grid-two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.settings-grid-two .settings-range-row { grid-column: 1 / -1; }
 .settings-grid { display: grid; gap: 10px; }
 .settings-grid .checkbox-row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; padding: 12px; border: 1px solid #3f3f55; border-radius: 10px; background: #171720; }
 .settings-grid .checkbox-row input { margin-top: 3px; width: 1rem; height: 1rem; }
@@ -816,6 +835,32 @@ pre, #status-lines, #command-help {
   color: #a5a5b6;
   font-weight: 500;
   line-height: 1.35;
+}
+.settings-grid .settings-range-row {
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+  border: 1px solid #3f3f55;
+  border-radius: 10px;
+  background: #171720;
+  color: #e8e8f0;
+  font-weight: 700;
+}
+.settings-grid .settings-range-row > span { display: grid; grid-template-columns: minmax(0, 1fr) 3.5rem; gap: 12px; align-items: center; }
+.settings-grid .settings-range-row input { width: 100%; accent-color: #f6d365; }
+.settings-grid .settings-range-row output {
+  padding: 5px 7px;
+  border: 1px solid rgba(246, 211, 101, 0.24);
+  border-radius: 7px;
+  background: #0f1018;
+  color: #f6d365;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.settings-grid .settings-range-row small { color: #a5a5b6; font-weight: 500; line-height: 1.35; }
+@media (max-width: 720px) {
+  .settings-grid-two { grid-template-columns: 1fr; }
+  .settings-grid-two .settings-range-row { grid-column: auto; }
 }
 .context-dialog #interaction-prompt { white-space: pre-line; }
 .context-dialog #interaction-options { gap: 8px; }

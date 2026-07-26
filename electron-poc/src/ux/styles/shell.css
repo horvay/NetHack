@@ -319,21 +319,30 @@ body.uxm02-shell-active #game-grid {
   box-shadow: inset 0 0 1.5rem color-mix(in oklch, var(--ux-color-canvas) 82%, transparent);
 }
 
-body.uxm02-shell-active[data-ux-map-mode='follow'] #play-area {
+body.uxm02-shell-active:is([data-ux-map-mode='follow'], [data-ux-map-mode='close']) #play-area {
   min-height: 0;
   height: 100%;
   border: 1px solid var(--ux-color-border);
 }
 
-body.uxm02-shell-active[data-ux-map-mode='follow'] #game-grid {
-  --tile-size: clamp(1.1rem, 2.2vw, 1.75rem);
+body.uxm02-shell-active:is([data-ux-map-mode='follow'], [data-ux-map-mode='close']) #game-grid {
   position: absolute;
   top: 0;
   left: 0;
   width: max-content;
-  height: calc(var(--tile-size) * 21 + 0.875rem);
   transform: translate(var(--ux-follow-x, 0), var(--ux-follow-y, 0));
   transition: transform var(--ux-motion-fast) var(--ux-motion-ease-out);
+}
+
+body.uxm02-shell-active[data-ux-map-mode='follow'] #game-grid {
+  --tile-size: clamp(1.1rem, 2.2vw, 1.75rem);
+  height: calc(var(--tile-size) * 21 + 0.875rem);
+}
+
+body.uxm02-shell-active[data-ux-map-mode='close'] #game-grid {
+  --tile-size: var(--ux-close-tile-size, 2.5rem);
+  height: calc(var(--tile-size) * 21 + 0.875rem);
+  zoom: 1;
 }
 
 body.uxm02-shell-active #log-panel {
@@ -702,7 +711,7 @@ body.uxm02-shell-active input:focus-visible,
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body.uxm02-shell-active[data-ux-map-mode='follow'] #game-grid { transition: none; }
+  body.uxm02-shell-active:is([data-ux-map-mode='follow'], [data-ux-map-mode='close']) #game-grid { transition: none; }
   body.uxm02-shell-active button.ux-status-chip.ux-status-urgent {
     animation: none;
     transform: none;
@@ -711,7 +720,7 @@ body.uxm02-shell-active input:focus-visible,
 
 body.uxm02-shell-active:has(.ux-history-dialog[open], .ux-character-sheet-dialog[open]) main { overflow: hidden; }
 
-body[data-ux-motion='reduced'].uxm02-shell-active[data-ux-map-mode='follow'] #game-grid { transition: none; }
+body[data-ux-motion='reduced'].uxm02-shell-active:is([data-ux-map-mode='follow'], [data-ux-map-mode='close']) #game-grid { transition: none; }
 body[data-ux-motion='reduced'].uxm02-shell-active button.ux-status-chip.ux-status-urgent {
   animation: none;
   transform: none;

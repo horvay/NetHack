@@ -21,6 +21,7 @@ const focusedContracts = Object.freeze([
   'transfer-transaction-lifecycle-test.js',
   'ground-transfer-owner-lifecycle-test.js',
   'equipment-snapshot-test.js',
+  'map-tile-detail-test.js',
 ]);
 const representativeScenarios = Object.freeze([
   Object.freeze({ id: 'locked-container-rejection-unlock-open', script: 'real-scenario-locked-container-direct-open-mcp-test.js' }),

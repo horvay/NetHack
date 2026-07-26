@@ -77,7 +77,7 @@ async function main() {
     await cdp.send('Runtime.enable');
     await cdp.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
     await waitFor(async () => (await cdp.send('Runtime.evaluate', { returnByValue: true, expression: "document.readyState === 'complete' && !!window.__nethackPromptTest" })).result.value, 10000);
-    await cdp.send('Runtime.evaluate', { expression: `localStorage.removeItem('nethack-electron-presentation-settings-v2')` });
+    await cdp.send('Runtime.evaluate', { expression: `localStorage.removeItem('nethack-electron-presentation-settings-v4')` });
     await cdp.send('Page.reload', { ignoreCache: true });
     await waitFor(async () => (await cdp.send('Runtime.evaluate', { returnByValue: true, expression: "document.readyState === 'complete' && !!window.__nethackPromptTest" })).result.value, 10000);
     await cdp.send('Runtime.evaluate', { expression: `(() => {
@@ -142,7 +142,7 @@ async function main() {
     await cdp.send('Runtime.evaluate', { expression:`document.getElementById('map-log-resizer').dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowDown',bubbles:true,cancelable:true}))` });
     await delay(100);
     const afterKeyboard = await layoutState();
-    const persisted = (await cdp.send('Runtime.evaluate', { returnByValue:true, expression:`JSON.parse(localStorage.getItem('nethack-electron-presentation-settings-v2')||'{}')?.layout?.logRatio` })).result.value;
+    const persisted = (await cdp.send('Runtime.evaluate', { returnByValue:true, expression:`JSON.parse(localStorage.getItem('nethack-electron-presentation-settings-v4')||'{}')?.layout?.logRatio` })).result.value;
     await cdp.send('Runtime.evaluate', { expression:`document.getElementById('ux-map-mode-button').click()` });
     await delay(180);
     const follow = await layoutState();

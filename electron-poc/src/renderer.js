@@ -84,8 +84,15 @@ const openActionsButton = document.getElementById('open-actions');
 const actionDialogClose = document.getElementById('action-dialog-close');
 const settingsDialog = document.getElementById('settings-dialog');
 const settingsForm = document.getElementById('settings-form');
-const settingContextualMenus = document.getElementById('setting-contextual-menus');
-const settingAutoLootGold = document.getElementById('setting-auto-loot-gold');
+const settingHudDensity = document.getElementById('setting-hud-density');
+const settingMapMode = document.getElementById('setting-map-mode');
+const settingCloseRows = document.getElementById('setting-close-rows');
+const settingLogRatio = document.getElementById('setting-log-ratio');
+const settingLogRatioValue = document.getElementById('setting-log-ratio-value');
+const settingAutopickup = document.getElementById('setting-autopickup');
+const settingMovement = document.getElementById('setting-movement');
+const settingContextualPrompts = document.getElementById('setting-contextual-prompts');
+const settingKeyHints = document.getElementById('setting-key-hints');
 const settingMotion = document.getElementById('setting-motion');
 const itemActions = document.getElementById('item-actions');
 const systemActions = document.getElementById('system-actions');
@@ -272,7 +279,7 @@ function applyFixedDialogContract(dialog, input) {
 const fixedDialogContracts = new Map([
   [startupChoiceDialog, { id: 'startup-choice', family: 'confirmation', closeKind: 'blocked', escapePolicy: 'blocked', initialFocus: () => startupRecoveryState?.hasContinue ? startupContinueGame : startupNewGame, returnFocus: () => document.getElementById('start-shim') }],
   [actionDialog, { id: 'actions', family: 'command', closeKind: 'close', initialFocus: () => itemActions?.querySelector('button'), returnFocus: 'invoker' }],
-  [settingsDialog, { id: 'settings', family: 'form', closeKind: 'cancel', initialFocus: () => settingContextualMenus, returnFocus: 'invoker' }],
+  [settingsDialog, { id: 'settings', family: 'form', closeKind: 'cancel', initialFocus: () => settingHudDensity, returnFocus: 'invoker' }],
   [characterDialog, { id: 'character', family: 'form', closeKind: 'cancel', initialFocus: () => document.getElementById('player-name'), returnFocus: 'invoker' }],
   [documentDialog, { id: 'document', family: 'document', closeKind: 'close', initialFocus: () => documentFilter || documentTitle, returnFocus: 'invoker', descriptionElement: document.getElementById('document-description') }],
   [introDialog, { id: 'intro', family: 'document', closeKind: 'continue', escapePolicy: 'continue', initialFocus: () => introTitle, returnFocus: 'invoker' }],
@@ -1559,13 +1566,15 @@ const presentationSettingsStore = sharedModules.uxSettingsStore?.createSettingsS
   },
 });
 let userSettings = presentationSettingsStore?.load?.().settings || {
-  schemaVersion: 2,
-  contextualMenus: true,
-  autoLootGold: true,
+  schemaVersion: 4,
+  contextualPrompts: 'full',
+  autopickup: 'gold',
+  movement: 'classic',
   onboarding: { completed: false, disabled: false, lastStep: 'not-started' },
   hudDensity: 'compact',
   keyHints: 'contextual',
-  map: { mode: 'full', scale: 1, glyphOverlay: false, highContrast: false },
+  map: { mode: 'full', closeRows: 9, scale: 1, glyphOverlay: false, highContrast: false },
+  layout: { logRatio: 0.5 },
   motion: 'system',
   sound: { uiEnabled: false, gameFeedbackEnabled: false, volume: 0.5 },
 };
@@ -1696,10 +1705,39 @@ function initializeDiscoveryDomain() {
   return uxDiscoveryController;
 }
 
+function presentationShell() {
+  return window.NetHackUxAppShell?.browserController?.() || null;
+}
+
+function applyPresentationSettings(settings) {
+  const shell = presentationShell();
+  shell?.setDensity?.(settings.hudDensity, { persist: false });
+  shell?.setCloseRows?.(settings.map?.closeRows, { persist: false });
+  shell?.setMapMode?.(settings.map?.mode, { persist: false });
+  shell?.setLogRatio?.(settings.layout?.logRatio, { persist: false });
+  document.body.dataset.uxMotion = settings.motion === 'reduced' ? 'reduced' : settings.motion;
+}
+
+function refreshSettingsFromPresentation() {
+  const loaded = presentationSettingsStore?.load?.().settings || userSettings;
+  const shellState = presentationShell()?.state?.();
+  userSettings = {
+    ...loaded,
+    ...(shellState?.density ? { hudDensity: shellState.density } : {}),
+    map: {
+      ...loaded.map,
+      ...(shellState?.mapMode ? { mode: shellState.mapMode } : {}),
+      ...(Number.isFinite(shellState?.closeRows) ? { closeRows: shellState.closeRows } : {}),
+    },
+    layout: { ...loaded.layout, ...(Number.isFinite(shellState?.logRatio) ? { logRatio: shellState.logRatio } : {}) },
+  };
+  return userSettings;
+}
+
 function saveSettings(nextSettings = userSettings) {
   const saved = presentationSettingsStore?.save?.(nextSettings);
   userSettings = saved?.settings || { ...userSettings, ...nextSettings };
-  document.body.dataset.uxMotion = userSettings.motion === 'reduced' ? 'reduced' : userSettings.motion;
+  applyPresentationSettings(userSettings);
   syncSettingsForm();
   scheduleUxPublicStatePublish('presentation-settings');
   if (saved?.persisted) showPlayerNotice({ id: 'settings:saved', kind: 'success', message: 'Settings saved', source: 'result', persistence: 'transient' });
@@ -1709,21 +1747,40 @@ function saveSettings(nextSettings = userSettings) {
 function resetSettings() {
   const reset = presentationSettingsStore?.reset?.();
   userSettings = reset?.settings || userSettings;
-  document.body.dataset.uxMotion = userSettings.motion === 'reduced' ? 'reduced' : userSettings.motion;
+  applyPresentationSettings(userSettings);
   syncSettingsForm();
   scheduleUxPublicStatePublish('presentation-settings-reset');
 }
 
+function syncLogRatioOutput() {
+  if (settingLogRatioValue) settingLogRatioValue.value = `${Math.round(Number(settingLogRatio?.value || 50))}%`;
+}
+
 function syncSettingsForm() {
-  if (settingContextualMenus) settingContextualMenus.checked = Boolean(userSettings.contextualMenus);
-  if (settingAutoLootGold) settingAutoLootGold.checked = Boolean(userSettings.autoLootGold);
+  if (settingHudDensity) settingHudDensity.value = userSettings.hudDensity === 'detailed' ? 'detailed' : 'compact';
+  if (settingMapMode) settingMapMode.value = ['full', 'follow', 'close'].includes(userSettings.map?.mode) ? userSettings.map.mode : 'full';
+  if (settingCloseRows) settingCloseRows.value = String([7, 9, 11, 13, 15].includes(Number(userSettings.map?.closeRows)) ? Number(userSettings.map.closeRows) : 9);
+  if (settingLogRatio) settingLogRatio.value = String(Math.round((userSettings.layout?.logRatio || 0.5) * 100));
+  if (settingAutopickup) settingAutopickup.value = ['off', 'gold', 'all'].includes(userSettings.autopickup) ? userSettings.autopickup : 'gold';
+  if (settingMovement) settingMovement.value = userSettings.movement === 'numpad' ? 'numpad' : 'classic';
+  if (settingContextualPrompts) settingContextualPrompts.value = ['off', 'essential', 'full'].includes(userSettings.contextualPrompts) ? userSettings.contextualPrompts : 'full';
+  if (settingKeyHints) settingKeyHints.value = ['contextual', 'always', 'never'].includes(userSettings.keyHints) ? userSettings.keyHints : 'contextual';
   if (settingMotion) settingMotion.value = ['system', 'full', 'reduced'].includes(userSettings.motion) ? userSettings.motion : 'system';
+  syncLogRatioOutput();
 }
 
 function settingsFromForm() {
   return {
-    contextualMenus: Boolean(settingContextualMenus?.checked),
-    autoLootGold: Boolean(settingAutoLootGold?.checked),
+    hudDensity: settingHudDensity?.value === 'detailed' ? 'detailed' : 'compact',
+    map: {
+      mode: ['full', 'follow', 'close'].includes(settingMapMode?.value) ? settingMapMode.value : 'full',
+      closeRows: [7, 9, 11, 13, 15].includes(Number(settingCloseRows?.value)) ? Number(settingCloseRows.value) : 9,
+    },
+    layout: { logRatio: Math.min(0.75, Math.max(0.2, Number(settingLogRatio?.value || 50) / 100)) },
+    autopickup: ['off', 'gold', 'all'].includes(settingAutopickup?.value) ? settingAutopickup.value : 'gold',
+    movement: settingMovement?.value === 'numpad' ? 'numpad' : 'classic',
+    contextualPrompts: ['off', 'essential', 'full'].includes(settingContextualPrompts?.value) ? settingContextualPrompts.value : 'full',
+    keyHints: ['contextual', 'always', 'never'].includes(settingKeyHints?.value) ? settingKeyHints.value : 'contextual',
     motion: ['system', 'full', 'reduced'].includes(settingMotion?.value) ? settingMotion.value : (userSettings.motion || 'system'),
   };
 }
@@ -1732,9 +1789,10 @@ initializeDiscoveryDomain();
 
 function buildNethackOptions(settings = userSettings) {
   const options = ['!tutorial', 'disclose:+i +a +v +g +c +o'];
-  if (settings.autoLootGold) options.push('autopickup', 'pickup_types:$');
+  if (settings.autopickup === 'all') options.push('autopickup');
+  else if (settings.autopickup === 'gold') options.push('autopickup', 'pickup_types:$');
   else options.push('!autopickup');
-  options.push('number_pad:0');
+  options.push(settings.movement === 'numpad' ? 'number_pad:1' : 'number_pad:0');
   return options.join(',');
 }
 
@@ -2131,10 +2189,12 @@ function unlockDoorWithInventoryTool(tool = {}, direction = '') {
 }
 
 function showLockedDoorPrompt(message) {
-  if (!userSettings.contextualMenus || gameViewSnapshot.activePrompt || gameViewSnapshot.currentMenu?.awaitingSelection || interactionDialog.open || introDialog.open) return;
+  const level = userSettings.contextualPrompts || 'full';
+  if (level === 'off' || gameViewSnapshot.activePrompt || gameViewSnapshot.currentMenu?.awaitingSelection || interactionDialog.open || introDialog.open) return;
   const direction = lastDirectionKey;
   const directionLabel = direction ? (contextDirectionLabels.get(direction) || direction.toUpperCase()) : '';
   const tools = availableLockTools().map((tool) => ({ selector: selectorForInventoryItem(tool), label: publicInventoryItemLabel(tool) })).filter((tool) => tool.selector);
+  if (level === 'essential' && !tools.length) return;
   activeContextualPrompt = { kind: 'locked-door', message, direction, directionLabel, tools };
   promptPanel.textContent = direction ? `Door is locked to the ${directionLabel}; choose an action from the visible sheet.` : 'Door is locked; choose an action from the visible sheet.';
   hideDirectionHelper();
@@ -8292,10 +8352,12 @@ gameOverExit.addEventListener('click', () => {
 });
 
 document.getElementById('settings-button').addEventListener('click', () => {
+  refreshSettingsFromPresentation();
   syncSettingsForm();
   if (!settingsDialog.open) { uxFocusLayer?.prepareOpen?.(settingsDialog, document.getElementById('settings-button')); settingsDialog.showModal(); }
 });
 document.getElementById('settings-reset').addEventListener('click', resetSettings);
+settingLogRatio?.addEventListener('input', syncLogRatioOutput);
 settingsForm.addEventListener('submit', (event) => {
   if (event.submitter?.id === 'settings-save') saveSettings(settingsFromForm());
 });
@@ -9581,6 +9643,10 @@ function transferPanelOwnsUiInput() {
   return Boolean(transferPresentation?.active && transferPresentation.sessionKind === 'container' && containerTransferPanel && !containerTransferPanel.hidden);
 }
 
+function levelOverviewOwnsUiInput() {
+  return Boolean(window.NetHackUxRuntime?.runtime?.domain?.('map')?.overviewActive?.());
+}
+
 function hasActiveUiInputOwner() {
   return Boolean(
     interactionDialog.open
@@ -9589,6 +9655,7 @@ function hasActiveUiInputOwner() {
     || introDialog.open
     || characterDialog.open
     || actionDialog.open
+    || levelOverviewOwnsUiInput()
     || uxCommandPalette?.element?.open
     || uxHelpCenter?.element?.open
     || uxCharacterCreation?.element?.open
@@ -9612,7 +9679,7 @@ function handlePlayableKeydown(event) {
 
 function handleActiveDirectionPromptKeydown(event) {
   if (!isActiveDirectionPrompt()) return false;
-  if (interactionDialog.open || documentDialog.open || startupChoiceDialog.open || introDialog.open || characterDialog.open || actionDialog.open || settingsDialog.open || gameOverDialog.open || (gameViewSnapshot.currentMenu && gameViewSnapshot.currentMenu.awaitingSelection) || focusMode !== 'game') return false;
+  if (levelOverviewOwnsUiInput() || interactionDialog.open || documentDialog.open || startupChoiceDialog.open || introDialog.open || characterDialog.open || actionDialog.open || settingsDialog.open || gameOverDialog.open || (gameViewSnapshot.currentMenu && gameViewSnapshot.currentMenu.awaitingSelection) || focusMode !== 'game') return false;
   const key = keyToNetHackCommand(event);
   if (!key || !isSupportedPlayableKey(key)) return false;
   event.preventDefault();

@@ -26,7 +26,8 @@
 
 .ux-map-toolbar button,
 .ux-map-detail-action,
-.ux-map-detail-close {
+.ux-map-detail-close,
+.ux-level-overview-close {
   min-height: 36px;
   padding: 7px 11px;
   border: 1px solid var(--ux-color-border);
@@ -37,14 +38,16 @@
 
 .ux-map-toolbar button:hover,
 .ux-map-detail-action:hover,
-.ux-map-detail-close:hover {
+.ux-map-detail-close:hover,
+.ux-level-overview-close:hover {
   border-color: var(--ux-color-text-muted);
   background: var(--ux-color-surface-muted);
 }
 
 .ux-map-toolbar button:focus-visible,
 .ux-map-detail-action:focus-visible,
-.ux-map-detail-close:focus-visible {
+.ux-map-detail-close:focus-visible,
+.ux-level-overview-close:focus-visible {
   outline: 3px solid var(--ux-color-focus);
   outline-offset: 2px;
 }
@@ -322,7 +325,190 @@
   font-size: 0.82rem;
 }
 
-@media (max-width: 760px), (max-height: 620px) {
+.ux-minimap-button {
+  position: absolute;
+  z-index: 45;
+  top: 0.85rem;
+  right: 0.85rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.35rem 0.65rem;
+  width: clamp(10rem, 22vw, 15rem);
+  padding: 0.55rem;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklch, var(--ux-color-action) 42%, var(--ux-color-border));
+  border-radius: 0.35rem;
+  color: var(--ux-color-text);
+  background:
+    linear-gradient(145deg, oklch(0.19 0.018 72 / 0.96), oklch(0.105 0.012 264 / 0.98)),
+    var(--ux-color-surface);
+  box-shadow: 0 0.8rem 2.4rem oklch(0.03 0.01 264 / 0.62), inset 0 1px oklch(0.82 0.05 82 / 0.09);
+  cursor: pointer;
+}
+.ux-minimap-button[hidden] { display: none; }
+.ux-minimap-button::after {
+  content: "";
+  position: absolute;
+  inset: 0.35rem;
+  border: 1px solid oklch(0.78 0.07 82 / 0.12);
+  pointer-events: none;
+}
+.ux-minimap-button:hover {
+  border-color: var(--ux-color-action);
+  transform: translateY(-1px);
+}
+.ux-minimap-button:focus-visible {
+  outline: 3px solid var(--ux-color-focus);
+  outline-offset: 3px;
+}
+.ux-minimap-kicker,
+.ux-minimap-hint {
+  position: relative;
+  z-index: 1;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.ux-minimap-kicker { color: var(--ux-color-action); text-align: left; }
+.ux-minimap-hint { color: var(--ux-color-text-muted); text-align: right; }
+.ux-minimap-canvas {
+  position: relative;
+  z-index: 1;
+  grid-column: 1 / -1;
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid oklch(0.6 0.03 77 / 0.34);
+  background: #08090d;
+  image-rendering: pixelated;
+}
+
+.ux-level-overview-dialog {
+  width: min(1280px, calc(100vw - 48px));
+  max-width: none;
+  height: min(640px, calc(100vh - 48px));
+  max-height: none;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid oklch(0.56 0.07 78 / 0.72);
+  border-radius: 0.5rem;
+  color: var(--ux-color-text);
+  background:
+    linear-gradient(135deg, oklch(0.205 0.018 77 / 0.99), oklch(0.115 0.012 263 / 0.995) 62%),
+    var(--ux-color-surface);
+  box-shadow: 0 2rem 6rem oklch(0.03 0.012 264 / 0.88), inset 0 1px oklch(0.82 0.05 82 / 0.08);
+}
+.ux-level-overview-dialog::backdrop {
+  background:
+    radial-gradient(circle at 50% 42%, oklch(0.22 0.03 76 / 0.25), transparent 48%),
+    oklch(0.035 0.014 264 / 0.88);
+  backdrop-filter: blur(6px) saturate(0.7);
+}
+.ux-level-overview-frame {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100%;
+}
+.ux-level-overview-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.35rem 1.5rem 1rem;
+  border-bottom: 1px solid oklch(0.66 0.045 78 / 0.2);
+}
+.ux-level-overview-header h2 {
+  margin: 0;
+  color: oklch(0.94 0.045 88);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.65rem, 3vw, 2.45rem);
+  font-weight: 600;
+}
+.ux-level-overview-header p:not(.ux-map-detail-kicker) {
+  max-width: 68ch;
+  margin: 0.35rem 0 0;
+  color: var(--ux-color-text-muted);
+}
+.ux-level-overview-close {
+  align-self: flex-start;
+  min-width: 2.6rem;
+  min-height: 2.6rem;
+  padding: 0;
+  font-size: 1.55rem;
+  line-height: 1;
+}
+.ux-level-overview-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(14rem, 18rem);
+  gap: 1rem;
+  min-height: 0;
+  padding: 1rem 1.25rem 1.25rem;
+}
+.ux-level-overview-map {
+  --overview-tile-size: max(6px, min(calc((100vw - 26rem) / 80), calc((100vh - 12rem) / 21)));
+  display: grid;
+  grid-template-columns: repeat(var(--grid-cols, 80), var(--overview-tile-size));
+  grid-auto-rows: var(--overview-tile-size);
+  align-self: start;
+  justify-self: center;
+  width: max-content;
+  max-width: 100%;
+  padding: 0.45rem;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklch, var(--ux-color-action) 28%, var(--ux-color-border));
+  background: #05060a;
+  box-shadow: inset 0 0 2rem rgb(0 0 0 / 0.72);
+}
+.ux-level-overview-map .tile-cell {
+  --tile-size: var(--overview-tile-size);
+  width: var(--overview-tile-size);
+  height: var(--overview-tile-size);
+  cursor: crosshair;
+}
+.ux-level-overview-map .tile-cell.ux-level-overview-selected {
+  z-index: 30;
+  outline: max(1px, calc(var(--overview-tile-size) * 0.16)) solid var(--ux-color-focus);
+  outline-offset: calc(var(--overview-tile-size) * -0.16);
+}
+.ux-level-overview-inspector {
+  min-width: 0;
+  padding: 1rem;
+  overflow: auto;
+  border: 1px solid var(--ux-color-border);
+  background: oklch(0.16 0.012 264 / 0.76);
+}
+.ux-level-overview-inspector h3 {
+  margin: 0;
+  color: oklch(0.93 0.04 86);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.35rem;
+}
+.ux-level-overview-inspector-description {
+  margin: 0.35rem 0 1rem;
+  color: var(--ux-color-text-muted);
+  line-height: 1.5;
+}
+.ux-level-overview-inspector-contents {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+.ux-level-overview-inspector-contents li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-block: 0.45rem;
+  border-bottom: 1px solid color-mix(in oklch, var(--ux-color-border) 68%, transparent);
+}
+.ux-level-overview-inspector-contents span {
+  color: var(--ux-color-text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+@media (max-width: 1050px), (max-height: 620px) {
   .ux-map-detail-dialog {
     width: calc(100vw - 24px);
     height: calc(100vh - 24px);
@@ -335,6 +521,28 @@
   }
   .ux-map-detail-art,
   .ux-map-detail-artwork { --tile-size: min(43vh, 42vw); }
+  .ux-minimap-button {
+    top: 0.5rem;
+    right: 0.5rem;
+    width: clamp(8.5rem, 28vw, 11rem);
+  }
+  .ux-level-overview-dialog {
+    width: calc(100vw - 24px);
+    height: min(640px, calc(100vh - 24px));
+  }
+  .ux-level-overview-header { padding: 1rem 1.1rem 0.8rem; }
+  .ux-level-overview-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    overflow: auto;
+  }
+  .ux-level-overview-map {
+    --overview-tile-size: max(4px, min(calc((100vw - 4rem) / 80), calc((100vh - 20rem) / 21)));
+  }
+  .ux-level-overview-inspector {
+    max-height: 12rem;
+    overflow: auto;
+  }
 }
 
 @media (max-width: 560px) {

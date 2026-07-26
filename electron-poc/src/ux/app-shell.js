@@ -38,6 +38,41 @@
       y: axis(Number(containerHeight), Number(contentHeight), Number(cursorCenterY)),
     });
   }
+  function computeCloseUpTranslation({ containerWidth, containerHeight, cursorCenterX, cursorCenterY }) {
+    function axis(container, cursor) {
+      if (![container, cursor].every(Number.isFinite)) return 0;
+      return Math.round(container / 2 - cursor);
+    }
+    return Object.freeze({
+      x: axis(Number(containerWidth), Number(cursorCenterX)),
+      y: axis(Number(containerHeight), Number(cursorCenterY)),
+    });
+  }
+
+  const closeUpRowOptions = Object.freeze([7, 9, 11, 13, 15]);
+
+  function normalizeMapMode(value) {
+    return ['full', 'follow', 'close'].includes(value) ? value : 'full';
+  }
+
+  function nextMapMode(value) {
+    const modes = ['full', 'follow', 'close'];
+    return modes[(modes.indexOf(normalizeMapMode(value)) + 1) % modes.length];
+  }
+
+  function computeCloseUpTileSize({ containerHeight, closeRows }) {
+    const height = Number(containerHeight);
+    const rows = closeUpRowOptions.includes(Number(closeRows)) ? Number(closeRows) : 9;
+    if (!Number.isFinite(height)) return 18;
+    return Math.max(18, Math.min(80, Math.floor((height - 14) / rows)));
+  }
+
+  function adjustCloseUpRows(current, direction) {
+    const index = closeUpRowOptions.indexOf(Number(current));
+    const safeIndex = index < 0 ? closeUpRowOptions.indexOf(9) : index;
+    return closeUpRowOptions[Math.max(0, Math.min(closeUpRowOptions.length - 1, safeIndex + Math.sign(Number(direction) || 0)))];
+  }
+
 
   function createAppShellController(options = {}) {
     const globalRoot = options.root || root;
@@ -62,6 +97,7 @@
     let gameViewSection;
     let layoutResizer;
     let logRatio = 0.5;
+    let closeRows = 9;
     let resizeDrag = null;
     const cleanupListeners = [];
 
@@ -293,7 +329,7 @@
       historyButton = ensureButton('ux-history-button', 'History', 'ux-shell-action');
       densityButton = ensureButton('ux-hud-density-button', 'HUD: Compact', 'ux-shell-action');
       mapModeButton = ensureButton('ux-map-mode-button', 'View: Full', 'ux-shell-action');
-      mapModeButton.setAttribute('aria-pressed', 'false');
+      mapModeButton.setAttribute('aria-label', 'Cycle map view. Current view: Full dungeon.');
       quick.append(characterButton, densityButton, mapModeButton);
       historyButton.classList.add('log-now-history');
       documentRoot.querySelector('.log-now')?.append(historyButton);
@@ -311,6 +347,7 @@
 
     function persistPresentationPatch(patch) {
       if (!settingsStore) return;
+      settingsStore.load();
       const outcome = settingsStore.save(patch);
       settings = outcome.settings;
       if (!outcome.persisted) {
@@ -330,37 +367,70 @@
       return hudDensity;
     }
 
+    function mapTracksPlayer() {
+      return normalizeMapMode(documentRoot.body.dataset.uxMapMode) !== 'full';
+    }
+
+    function publishMapPresentation() {
+      if (typeof globalRoot.CustomEvent !== 'function') return;
+      globalRoot.dispatchEvent?.(new globalRoot.CustomEvent('nethack:map-presentation-changed', {
+        detail: Object.freeze({ mode: normalizeMapMode(documentRoot.body.dataset.uxMapMode), closeRows }),
+      }));
+    }
+
     function centerFollowMap() {
-      if (documentRoot.body.dataset.uxMapMode !== 'follow') return;
+      if (!mapTracksPlayer()) return;
       const playArea = documentRoot.getElementById('play-area');
       const grid = documentRoot.getElementById('game-grid');
       const cursorCell = grid?.querySelector?.('.tile-cell.cursor');
       if (!playArea || !grid || !cursorCell) return;
-      const translation = computeFollowTranslation({
+      if (documentRoot.body.dataset.uxMapMode === 'close') {
+        grid.style.setProperty('--ux-close-tile-size', `${computeCloseUpTileSize({ containerHeight: playArea.clientHeight, closeRows })}px`);
+      }
+      const translationInput = {
         containerWidth: playArea.clientWidth,
         containerHeight: playArea.clientHeight,
         contentWidth: grid.scrollWidth,
         contentHeight: grid.scrollHeight,
         cursorCenterX: cursorCell.offsetLeft + cursorCell.offsetWidth / 2,
         cursorCenterY: cursorCell.offsetTop + cursorCell.offsetHeight / 2,
-      });
+      };
+      const translation = documentRoot.body.dataset.uxMapMode === 'close'
+        ? computeCloseUpTranslation(translationInput)
+        : computeFollowTranslation(translationInput);
       grid.style.setProperty('--ux-follow-x', `${translation.x}px`);
       grid.style.setProperty('--ux-follow-y', `${translation.y}px`);
     }
 
+    function setCloseRows(value, { persist = true } = {}) {
+      closeRows = closeUpRowOptions.includes(Number(value)) ? Number(value) : 9;
+      documentRoot.body.dataset.uxCloseRows = String(closeRows);
+      if (mapTracksPlayer()) globalRoot.requestAnimationFrame?.(centerFollowMap);
+      if (persist) persistPresentationPatch({ map: { closeRows } });
+      publishMapPresentation();
+      return closeRows;
+    }
+    function adjustCloseRows(direction, options) {
+      return setCloseRows(adjustCloseUpRows(closeRows, direction), options);
+    }
+
+
     function setMapMode(value, { persist = true } = {}) {
-      const mode = value === 'follow' ? 'follow' : 'full';
+      const mode = normalizeMapMode(value);
       documentRoot.body.dataset.uxMapMode = mode;
       if (mapModeButton) {
-        mapModeButton.textContent = mode === 'follow' ? 'View: Follow' : 'View: Full';
-        mapModeButton.setAttribute('aria-pressed', String(mode === 'follow'));
+        const label = mode === 'close' ? 'Close-up' : mode === 'follow' ? 'Follow player' : 'Full dungeon';
+        mapModeButton.textContent = `View: ${mode === 'close' ? 'Close-up' : mode === 'follow' ? 'Follow' : 'Full'}`;
+        mapModeButton.setAttribute('aria-label', `Cycle map view. Current view: ${label}.`);
       }
       if (mode === 'full') {
         const grid = documentRoot.getElementById('game-grid');
         grid?.style.removeProperty('--ux-follow-x');
         grid?.style.removeProperty('--ux-follow-y');
+        grid?.style.removeProperty('--ux-close-tile-size');
       } else globalRoot.requestAnimationFrame?.(centerFollowMap);
       if (persist) persistPresentationPatch({ map: { mode } });
+      publishMapPresentation();
       return mode;
     }
 
@@ -421,7 +491,7 @@
       const game = snapshot?.game || {};
       const nextKey = shellRenderKey(game);
       if (nextKey === lastShellRenderKey) {
-        if (documentRoot.body.dataset.uxMapMode === 'follow') globalRoot.requestAnimationFrame?.(centerFollowMap);
+        if (mapTracksPlayer()) globalRoot.requestAnimationFrame?.(centerFollowMap);
         return;
       }
       lastShellRenderKey = nextKey;
@@ -436,7 +506,7 @@
       if (historyDialog?.dialog?.()?.open) historyDialog.render();
       handleLevelTransition(game);
       focusMapWhenSafe();
-      if (documentRoot.body.dataset.uxMapMode === 'follow') globalRoot.requestAnimationFrame?.(centerFollowMap);
+      if (mapTracksPlayer()) globalRoot.requestAnimationFrame?.(centerFollowMap);
     }
 
     function connect() {
@@ -453,6 +523,7 @@
         statusMount = documentRoot.getElementById('stats-panel');
         messageMount = documentRoot.getElementById('messages');
         setDensity(settings.hudDensity, { persist: false, render: false });
+        setCloseRows(settings.map?.closeRows, { persist: false });
         setMapMode(settings.map?.mode, { persist: false });
         globalRoot.requestAnimationFrame?.(() => applyLogRatio(settings.layout?.logRatio, { persist: false }));
         if (settings.motion === 'reduced') documentRoot.body.dataset.uxMotion = 'reduced';
@@ -472,7 +543,7 @@
           updateMessageScrollPosition();
           messageMount.focus?.({ preventScroll: true });
         });
-        listen(mapModeButton, 'click', () => setMapMode(documentRoot.body.dataset.uxMapMode === 'follow' ? 'full' : 'follow'));
+        listen(mapModeButton, 'click', () => setMapMode(nextMapMode(documentRoot.body.dataset.uxMapMode)));
         listen(layoutResizer, 'pointerdown', beginWorkspaceResize);
         listen(globalRoot, 'pointermove', continueWorkspaceResize);
         listen(globalRoot, 'pointerup', finishWorkspaceResize);
@@ -480,7 +551,7 @@
         listen(layoutResizer, 'keydown', resizeWorkspaceFromKeyboard);
         listen(globalRoot, 'resize', () => {
           globalRoot.requestAnimationFrame?.(() => applyLogRatio(logRatio));
-          if (documentRoot.body.dataset.uxMapMode === 'follow') globalRoot.requestAnimationFrame?.(centerFollowMap);
+          if (mapTracksPlayer()) globalRoot.requestAnimationFrame?.(centerFollowMap);
         });
         listen(documentRoot, 'close', () => globalRoot.setTimeout?.(focusMapWhenSafe, 0), true);
         if (!runtime?.latestPublicState?.()?.snapshot) {
@@ -517,8 +588,11 @@
       },
       setDensity,
       setMapMode,
+      setCloseRows,
+      adjustCloseRows,
+      setLogRatio: applyLogRatio,
       centerFollowMap,
-      state: () => Object.freeze({ connected, density: hudDensity || settings?.hudDensity || 'compact', mapMode: documentRoot?.body?.dataset?.uxMapMode || 'full', previousDungeon, pendingMapFocus, messageCount: consequenceFeed?.log?.size?.() || 0 }),
+      state: () => Object.freeze({ connected, density: hudDensity || settings?.hudDensity || 'compact', mapMode: documentRoot?.body?.dataset?.uxMapMode || 'full', closeRows, logRatio, previousDungeon, pendingMapFocus, messageCount: consequenceFeed?.log?.size?.() || 0 }),
     });
   }
 
@@ -541,5 +615,5 @@
     return browserController;
   }
 
-  return Object.freeze({ version, tuplesToMap, hasCanonicalMessageContent, levelDestinationLabel, computeFollowTranslation, createAppShellController, installBrowserShell, browserController: () => browserController });
+  return Object.freeze({ version, tuplesToMap, hasCanonicalMessageContent, levelDestinationLabel, computeFollowTranslation, computeCloseUpTranslation, normalizeMapMode, nextMapMode, computeCloseUpTileSize, adjustCloseUpRows, createAppShellController, installBrowserShell, browserController: () => browserController });
 }));

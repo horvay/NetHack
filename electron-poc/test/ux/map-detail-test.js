@@ -161,6 +161,22 @@ assert.equal(objectOnTrapDetail.publicLayers.some((layer) => layer.role === 'tra
 
 
 
+const minimap = Map.createMinimapModel({
+  mapWidth: 4,
+  mapHeight: 1,
+  cursor: { x: 1, y: 0 },
+  mapCells: [[
+    { ch: ' ', semanticKind: 'unknown' },
+    { ch: '.', semanticKind: 'terrain', semanticName: 'floor of a room' },
+    { ch: 'o', semanticKind: 'monster', semanticName: 'secret monster identity', semanticKnown: false },
+    { ch: '>', semanticKind: 'stairs', semanticName: 'staircase down', semanticKnown: true },
+  ]],
+});
+assert.equal(minimap.width, 4);
+assert.equal(minimap.height, 1);
+assert.deepEqual(minimap.tones, ['unknown', 'hero', 'creature', 'stairs']);
+assert.doesNotMatch(JSON.stringify(minimap), /secret monster identity/, 'Minimap exposes categories, never hidden identities');
+
 const browserContext = {
   console,
   document: { getElementById: () => null },

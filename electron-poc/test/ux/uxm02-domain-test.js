@@ -127,6 +127,17 @@ assert.equal(AppShell.levelDestinationLabel('The Dungeons of Doom:3'), 'The Dung
 assert.equal(AppShell.levelDestinationLabel('Quest'), 'Dungeon level Quest');
 assert.deepEqual(AppShell.computeFollowTranslation({ containerWidth: 400, containerHeight: 300, contentWidth: 1000, contentHeight: 600, cursorCenterX: 800, cursorCenterY: 100 }), { x: -600, y: 0 });
 assert.deepEqual(AppShell.computeFollowTranslation({ containerWidth: 400, containerHeight: 300, contentWidth: 200, contentHeight: 100, cursorCenterX: 20, cursorCenterY: 20 }), { x: 100, y: 100 });
+assert.deepEqual(AppShell.computeCloseUpTranslation({ containerWidth: 400, containerHeight: 300, cursorCenterX: 20, cursorCenterY: 20 }), { x: 180, y: 130 }, 'Close-up View keeps an edge hero centered with empty margin');
+assert.equal(AppShell.normalizeMapMode('close'), 'close');
+assert.equal(AppShell.normalizeMapMode('unknown'), 'full');
+assert.equal(AppShell.nextMapMode('full'), 'follow');
+assert.equal(AppShell.nextMapMode('follow'), 'close');
+assert.equal(AppShell.nextMapMode('close'), 'full');
+assert.equal(AppShell.computeCloseUpTileSize({ containerHeight: 374, closeRows: 9 }), 40);
+assert.equal(AppShell.computeCloseUpTileSize({ containerHeight: 120, closeRows: 9 }), 18, 'compact windows retain playable minimum tile size');
+assert.equal(AppShell.adjustCloseUpRows(9, 1), 11);
+assert.equal(AppShell.adjustCloseUpRows(9, -1), 7);
+assert.equal(AppShell.adjustCloseUpRows(15, 1), 15);
 
 const root = path.resolve(__dirname, '..', '..');
 const context = { console, setTimeout() {}, clearTimeout() {} };

@@ -91,42 +91,110 @@ try {
   else global.document = previousDocument;
 }
 
-const v1 = memoryStorage({
-  [Settings.legacyStorageKey]: JSON.stringify({ contextualMenus: false, autoLootGold: true, ignoredFutureValue: 'ignored' }),
+const closeUpSettings = Settings.normalizeSettings({ map: { mode: 'close', closeRows: 11 } });
+assert.equal(closeUpSettings.schemaVersion, 4);
+assert.equal(closeUpSettings.map.mode, 'close');
+assert.equal(closeUpSettings.map.closeRows, 11);
+assert.equal(Settings.normalizeSettings({ map: { mode: 'close', closeRows: 10 } }).map.closeRows, 9, 'Close-up View uses supported odd row counts');
+
+const v3 = memoryStorage({
+  [Settings.previousStorageKey]: JSON.stringify({
+    schemaVersion: 3,
+    contextualPrompts: 'essential',
+    autopickup: 'all',
+    movement: 'numpad',
+    hudDensity: 'detailed',
+    keyHints: 'always',
+    map: { mode: 'follow', scale: 1.5 },
+    layout: { logRatio: 0.65 },
+  }),
+});
+const migratedV3 = Settings.createSettingsStore({ storage: v3 }).load();
+assert.equal(migratedV3.source, 'v3');
+assert.equal(migratedV3.settings.schemaVersion, 4);
+assert.equal(migratedV3.settings.contextualPrompts, 'essential');
+assert.equal(migratedV3.settings.autopickup, 'all');
+assert.equal(migratedV3.settings.movement, 'numpad');
+assert.equal(migratedV3.settings.map.mode, 'follow');
+assert.equal(migratedV3.settings.map.closeRows, 9);
+assert.equal(v3.values.has(Settings.previousStorageKey), false);
+assert.equal(JSON.parse(v3.values.get(Settings.storageKey)).schemaVersion, 4);
+
+const v2 = memoryStorage({
+  [Settings.v2StorageKey]: JSON.stringify({
+    contextualMenus: false,
+    autoLootGold: true,
+    hudDensity: 'detailed',
+    keyHints: 'always',
+    map: { mode: 'follow' },
+    layout: { logRatio: 0.65 },
+    ignoredFutureValue: 'ignored',
+  }),
 });
 const migrationDiagnostics = [];
-const migratedStore = Settings.createSettingsStore({ storage: v1, onDiagnostic: (entry) => migrationDiagnostics.push(entry) });
+const migratedStore = Settings.createSettingsStore({ storage: v2, onDiagnostic: (entry) => migrationDiagnostics.push(entry) });
 const migrated = migratedStore.load();
 assert.equal(migrated.migrated, true);
+assert.equal(migrated.source, 'v2');
 assert.equal(migrated.persisted, true);
-assert.equal(migrated.settings.schemaVersion, 2);
-assert.equal(migrated.settings.contextualMenus, false);
-assert.equal(migrated.settings.autoLootGold, true);
-assert.equal(migrated.settings.hudDensity, 'compact');
-assert.equal(migrated.settings.layout.logRatio, 0.5);
+assert.equal(migrated.settings.schemaVersion, 4);
+assert.equal(migrated.settings.contextualPrompts, 'off');
+assert.equal(migrated.settings.autopickup, 'gold');
+assert.equal(migrated.settings.movement, 'classic');
+assert.equal(migrated.settings.hudDensity, 'detailed');
+assert.equal(migrated.settings.keyHints, 'always');
+assert.equal(migrated.settings.map.mode, 'follow');
+assert.equal(migrated.settings.layout.logRatio, 0.65);
 assert.equal(migrated.settings.sound.uiEnabled, false);
+assert.equal('contextualMenus' in migrated.settings, false);
+assert.equal('autoLootGold' in migrated.settings, false);
 assert.equal('ignoredFutureValue' in migrated.settings, false);
-assert.equal(v1.values.has(Settings.legacyStorageKey), false);
-assert.equal(JSON.parse(v1.values.get(Settings.storageKey)).schemaVersion, 2);
-const secondLoad = Settings.createSettingsStore({ storage: v1 }).load();
-assert.equal(secondLoad.source, 'v2');
-assert.equal(secondLoad.migrated, false, 'migration is idempotent after v2 persists');
+assert.equal(v2.values.has(Settings.v2StorageKey), false);
+assert.equal(JSON.parse(v2.values.get(Settings.storageKey)).schemaVersion, 4);
+const secondLoad = Settings.createSettingsStore({ storage: v2 }).load();
+assert.equal(secondLoad.source, 'v4');
+assert.equal(secondLoad.migrated, false, 'migration is idempotent after v4 persists');
 assert(migrationDiagnostics.some((entry) => entry.type === 'settings.migrated'));
+const sharedSettingsStorage = memoryStorage();
+const shellWriter = Settings.createSettingsStore({ storage: sharedSettingsStorage });
+const onboardingWriter = Settings.createSettingsStore({ storage: sharedSettingsStorage });
+shellWriter.load();
+onboardingWriter.load();
+shellWriter.save({ map: { mode: 'close', closeRows: 11 } });
+onboardingWriter.save({ onboarding: { completed: true, lastStep: 'finished' } });
+const cooperativelySaved = JSON.parse(sharedSettingsStorage.values.get(Settings.storageKey));
+assert.equal(cooperativelySaved.map.mode, 'close', 'a later partial writer preserves the latest persisted Map View');
+assert.equal(cooperativelySaved.map.closeRows, 11, 'a later partial writer preserves the latest persisted Close-up framing');
+assert.equal(cooperativelySaved.onboarding.completed, true);
+
+
+const v1 = memoryStorage({
+  [Settings.legacyStorageKey]: JSON.stringify({ contextualMenus: true, autoLootGold: false }),
+});
+const migratedV1 = Settings.createSettingsStore({ storage: v1 }).load();
+assert.equal(migratedV1.source, 'v1');
+assert.equal(migratedV1.settings.contextualPrompts, 'full');
+assert.equal(migratedV1.settings.autopickup, 'off');
+assert.equal(v1.values.has(Settings.legacyStorageKey), false);
 
 const warnings = [];
-const malformed = memoryStorage({ [Settings.storageKey]: '{bad json', [Settings.legacyStorageKey]: '{also bad' });
+const malformed = memoryStorage({ [Settings.storageKey]: '{bad json', [Settings.previousStorageKey]: '{also bad', [Settings.v2StorageKey]: '{still bad', [Settings.legacyStorageKey]: '{bad too' });
 const malformedStore = Settings.createSettingsStore({ storage: malformed, onWarning: (message) => warnings.push(message) });
 const malformedResult = malformedStore.load();
 assert.equal(malformedResult.source, 'defaults');
-assert.equal(malformedResult.settings.contextualMenus, true);
+assert.equal(malformedResult.settings.contextualPrompts, 'full');
+assert.equal(malformedResult.settings.autopickup, 'gold');
+assert.equal(malformedResult.settings.movement, 'classic');
 assert.equal(warnings.length, 1, 'parse failure warns at most once per session');
-
 const writeWarnings = [];
 const failingStore = Settings.createSettingsStore({ storage: memoryStorage({}, { writeError: true }), onWarning: (message) => writeWarnings.push(message) });
 failingStore.load();
-const failedSave = failingStore.save({ hudDensity: 'detailed', map: { scale: 2 }, layout: { logRatio: 4 }, sound: { uiEnabled: true, volume: 4 } });
+const failedSave = failingStore.save({ contextualPrompts: 'essential', autopickup: 'all', movement: 'numpad', hudDensity: 'detailed', map: { scale: 2 }, layout: { logRatio: 4 }, sound: { uiEnabled: true, volume: 4 } });
 assert.equal(failedSave.persisted, false);
 assert.equal(failingStore.current().hudDensity, 'detailed', 'write failure keeps current session value');
+assert.equal(failingStore.current().contextualPrompts, 'essential');
+assert.equal(failingStore.current().autopickup, 'all');
+assert.equal(failingStore.current().movement, 'numpad');
 assert.equal(failingStore.current().map.scale, 2);
 assert.equal(failingStore.current().layout.logRatio, 0.75);
 assert.equal(failingStore.current().sound.uiEnabled, true);

@@ -12,6 +12,18 @@
   const version = 'nethack-map-detail/v1';
   const mapWidth = 80;
   const mapHeight = 21;
+  const minimapColors = Object.freeze({
+    unknown: '#08090d',
+    floor: '#6f6a5d',
+    wall: '#343945',
+    door: '#c48a4a',
+    stairs: '#67d5d0',
+    hazard: '#e66b49',
+    object: '#70a6d8',
+    creature: '#d95f74',
+    hero: '#f6d365',
+    known: '#8b8291',
+  });
 
   function text(value) { return String(value == null ? '' : value).replace(/\s+/g, ' ').trim(); }
   function sentenceCase(value) {
@@ -23,6 +35,36 @@
     if (!value || !Number.isInteger(value.x) || !Number.isInteger(value.y)) return null;
     return Object.freeze({ x: value.x, y: value.y });
   }
+  function minimapTone(cell = {}) {
+    const kind = text(cell.semanticKind).toLowerCase();
+    const glyph = text(cell.ch);
+    const feature = text(cell.featureDescription);
+    if (!glyph || glyph === ' ' || kind === 'unknown' || kind === 'void') return 'unknown';
+    if (kind === 'hero' || kind === 'player') return 'hero';
+    if (kind === 'monster' || kind === 'pet') return 'creature';
+    if (kind === 'object') return 'object';
+    if (kind === 'trap' || /\btrap\b/i.test(feature)) return 'hazard';
+    if (kind === 'stairs' || /\bstairs?\b|\bstaircase\b|\bladder\b/i.test(`${feature} ${publicDisplayName(cell)}`)) return 'stairs';
+    if (kind === 'door' || glyph === '+' || glyph === '/') return 'door';
+    if (glyph === '|' || glyph === '-') return 'wall';
+    if (glyph === '.' || glyph === '#') return 'floor';
+    return 'known';
+  }
+
+  function createMinimapModel(input = {}) {
+    const cells = Array.isArray(input.mapCells) ? input.mapCells : [];
+    const width = Math.max(1, Number(input.mapWidth) || cells[0]?.length || mapWidth);
+    const height = Math.max(1, Number(input.mapHeight) || cells.length || mapHeight);
+    const cursor = coordinate(input.cursor);
+    const tones = [];
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        tones.push(cursor?.x === x && cursor?.y === y ? 'hero' : minimapTone(cells[y]?.[x]));
+      }
+    }
+    return Object.freeze({ width, height, tones: Object.freeze(tones) });
+  }
+
   function publicDisplayName(cell = {}) {
     if (cell.semanticKnown === false) return text(cell.semanticAppearance);
     return text(cell.semanticName || cell.semanticAppearance);
@@ -190,6 +232,8 @@
     let actionProvider = null;
     let subscription;
     let elements = {};
+    let lastMapSettings = SettingsStore?.defaultSettings?.map || { mode: 'full', closeRows: 9, scale: 1 };
+    let overviewSelection = null;
 
     function diagnostic(type, detail = {}) {
       try { diagnostics(Object.freeze({ type, detail: Object.freeze({ ...detail }) })); } catch {}
@@ -257,24 +301,28 @@
       artwork.removeAttribute('aria-label');
       artwork.classList.remove('cursor', 'adjacent-move-target', 'ux-map-selected', 'ux-map-hovered');
       artwork.classList.add('ux-map-detail-artwork');
+      for (const adornment of artwork.querySelectorAll('.tile-ally-marker')) adornment.remove();
       artwork.setAttribute('aria-hidden', 'true');
       elements.art.classList.remove('ux-map-detail-art-fallback');
       elements.art.append(artwork);
     }
-    function renderContents(info, model) {
-      elements.contents.replaceChildren();
-      const entries = Array.isArray(info?.contents) && info.contents.length
-        ? info.contents
-        : model.publicLayers.map((layer) => ({ label: layer.label, kind: titleCase(layer.role) }));
-      for (const entry of entries) {
+    function renderInspectionContents(container, entries) {
+      container.replaceChildren(...entries.map((entry) => {
         const row = documentRoot.createElement('li');
         const label = documentRoot.createElement('strong');
         const kind = documentRoot.createElement('span');
         label.textContent = text(entry.label);
         kind.textContent = text(entry.kind || 'Visible feature');
         row.append(label, kind);
-        elements.contents.append(row);
-      }
+        return row;
+      }));
+    }
+
+    function renderContents(info, model) {
+      const entries = Array.isArray(info?.contents) && info.contents.length
+        ? info.contents
+        : model.publicLayers.map((layer) => ({ label: layer.label, kind: titleCase(layer.role) }));
+      renderInspectionContents(elements.contents, entries);
       elements.contentsSection.hidden = entries.length === 0;
     }
     function renderCreatureFacts(model) {
@@ -359,7 +407,14 @@
       open(coord);
     }
     function onWindowKeydown(event) {
-      if (event.key !== 'Escape' || !elements.dialog?.open) return;
+      if (event.key !== 'Escape') return;
+      if (elements.overviewDialog?.open) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        closeOverview('escape');
+        return;
+      }
+      if (!elements.dialog?.open) return;
       event.preventDefault();
       event.stopImmediatePropagation();
       close('escape');
@@ -373,20 +428,120 @@
         settingsStore?.save?.({ map: patch });
       } catch (error) { diagnostic('map.settings-save-failed', { message: text(error?.message || error) }); }
     }
+    function closeUpActive() {
+      return documentRoot?.body?.dataset?.uxMapMode === 'close';
+    }
+    function shellController() {
+      return runtime?.domain?.('shell');
+    }
     function applySettings(mapSettings = {}) {
-      const scale = Math.max(0.75, Math.min(2, Number(mapSettings.scale) || 1));
+      lastMapSettings = { ...lastMapSettings, ...mapSettings };
+      const scale = Math.max(0.75, Math.min(2, Number(lastMapSettings.scale) || 1));
       grid?.style?.setProperty('--ux-map-scale', String(scale));
-      grid?.classList?.toggle('ux-map-glyph-overlay', Boolean(mapSettings.glyphOverlay));
-      grid?.classList?.toggle('ux-map-high-contrast', Boolean(mapSettings.highContrast));
-      if (elements.scaleValue) elements.scaleValue.textContent = `${Math.round(scale * 100)}%`;
-      if (elements.glyphToggle) elements.glyphToggle.setAttribute('aria-pressed', String(Boolean(mapSettings.glyphOverlay)));
-      if (elements.contrastToggle) elements.contrastToggle.setAttribute('aria-pressed', String(Boolean(mapSettings.highContrast)));
+      grid?.classList?.toggle('ux-map-glyph-overlay', Boolean(lastMapSettings.glyphOverlay));
+      grid?.classList?.toggle('ux-map-high-contrast', Boolean(lastMapSettings.highContrast));
+      const closeRows = Number(shellController()?.state?.().closeRows || lastMapSettings.closeRows) || 9;
+      if (elements.scaleValue) elements.scaleValue.textContent = closeUpActive() ? `${closeRows} rows` : `${Math.round(scale * 100)}%`;
+      if (elements.scaleDown) elements.scaleDown.setAttribute('aria-label', closeUpActive() ? 'Show more nearby map rows' : 'Decrease map scale');
+      if (elements.scaleUp) elements.scaleUp.setAttribute('aria-label', closeUpActive() ? 'Show fewer nearby map rows' : 'Increase map scale');
+      if (elements.glyphToggle) elements.glyphToggle.setAttribute('aria-pressed', String(Boolean(lastMapSettings.glyphOverlay)));
+      if (elements.contrastToggle) elements.contrastToggle.setAttribute('aria-pressed', String(Boolean(lastMapSettings.highContrast)));
+      syncMinimap();
     }
     function changeScale(delta) {
+      if (closeUpActive()) {
+        shellController()?.adjustCloseRows?.(delta > 0 ? -1 : 1);
+        return;
+      }
       const current = Number(grid?.style?.getPropertyValue('--ux-map-scale')) || 1;
       const scale = Math.max(0.75, Math.min(2, Math.round((current + delta) * 4) / 4));
-      applySettings({ scale, glyphOverlay: grid.classList.contains('ux-map-glyph-overlay'), highContrast: grid.classList.contains('ux-map-high-contrast') });
+      applySettings({ scale });
       persistMapSettings({ scale });
+    }
+    function renderMinimap() {
+      const canvas = elements.minimapCanvas;
+      if (!canvas?.getContext) return null;
+      const game = gameState();
+      const model = createMinimapModel({
+        mapCells: cells(),
+        mapWidth: game.mapWidth || mapWidth,
+        mapHeight: game.mapHeight || mapHeight,
+        cursor: cursor(),
+      });
+      const context = canvas.getContext('2d');
+      if (!context) return model;
+      const cellWidth = canvas.width / model.width;
+      const cellHeight = canvas.height / model.height;
+      context.fillStyle = minimapColors.unknown;
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      for (let index = 0; index < model.tones.length; index += 1) {
+        const tone = model.tones[index];
+        if (tone === 'unknown') continue;
+        context.fillStyle = minimapColors[tone] || minimapColors.known;
+        context.fillRect((index % model.width) * cellWidth, Math.floor(index / model.width) * cellHeight, Math.max(1, cellWidth), Math.max(1, cellHeight));
+      }
+      return model;
+    }
+    function syncMinimap() {
+      if (!elements.minimapButton) return;
+      elements.minimapButton.hidden = !closeUpActive();
+      if (!elements.minimapButton.hidden) renderMinimap();
+    }
+    function renderOverviewMap() {
+      if (!elements.overviewMap || !grid) return;
+      const clones = Array.from(grid.children || [], (node) => {
+        const clone = node.cloneNode(true);
+        clone.classList.remove('adjacent-move-target', 'ux-map-selected', 'ux-map-hovered');
+        clone.removeAttribute('tabindex');
+        return clone;
+      });
+      elements.overviewMap.style.setProperty('--grid-cols', String(gameState().mapWidth || mapWidth));
+      elements.overviewMap.replaceChildren(...clones);
+    }
+    function renderOverviewInspection(coord) {
+      const bounded = boundedCoordinate(coord);
+      const cell = cellAt(bounded);
+      if (minimapTone(cell) === 'unknown') return null;
+      overviewSelection = bounded;
+      const sourceNode = cellElement(bounded);
+      const info = detailSource?.infoForCellElement?.(sourceNode) || null;
+      const model = modelFor(bounded);
+      elements.overviewInspectorTitle.textContent = text(info?.title) || model.publicLabel;
+      elements.overviewInspectorDescription.textContent = text(info?.description) || 'Known square on the current level.';
+      const entries = Array.isArray(info?.contents) && info.contents.length
+        ? info.contents
+        : model.publicLayers.map((layer) => ({ label: layer.label, kind: titleCase(layer.role) }));
+      renderInspectionContents(elements.overviewInspectorContents, entries);
+      for (const node of elements.overviewMap.querySelectorAll('.tile-cell.ux-level-overview-selected')) node.classList.remove('ux-level-overview-selected');
+      elements.overviewMap.querySelector(`.tile-cell[data-map-x="${bounded.x}"][data-map-y="${bounded.y}"]`)?.classList.add('ux-level-overview-selected');
+      return model;
+    }
+    function openOverview() {
+      if (!elements.overviewDialog || elements.overviewDialog.open) return false;
+      renderOverviewMap();
+      renderOverviewInspection(cursor());
+      detailSource?.hideTooltip?.();
+      elements.overviewDialog.showModal();
+      elements.overviewClose?.focus?.({ preventScroll: true });
+      diagnostic('map.level-overview-opened', { turnless: true });
+      return true;
+    }
+    function closeOverview(reason = 'close') {
+      if (!elements.overviewDialog?.open) return false;
+      elements.overviewDialog.close(reason);
+      overviewSelection = null;
+      diagnostic('map.level-overview-closed', { turnless: true, reason });
+      grid?.focus?.({ preventScroll: true });
+      return true;
+    }
+    function inspectOverviewCell(event) {
+      const node = event.target?.closest?.('.tile-cell');
+      if (!node || !elements.overviewMap?.contains?.(node)) return;
+      renderOverviewInspection({ x: Number(node.dataset.mapX), y: Number(node.dataset.mapY) });
+    }
+    function onMapPresentationChanged(event) {
+      lastMapSettings = { ...lastMapSettings, ...(event?.detail || {}) };
+      applySettings(lastMapSettings);
     }
     function toggleSetting(key, className, button) {
       const value = !grid.classList.contains(className);
@@ -409,6 +564,43 @@
         <button type="button" class="ux-map-glyph-toggle" aria-pressed="false">Glyphs</button>
         <button type="button" class="ux-map-contrast-toggle" aria-pressed="false">High contrast</button>`;
       mount.append(toolbar);
+      const minimapButton = documentRoot.createElement('button');
+      minimapButton.type = 'button';
+      minimapButton.className = 'ux-minimap-button';
+      minimapButton.hidden = true;
+      minimapButton.setAttribute('aria-haspopup', 'dialog');
+      minimapButton.setAttribute('aria-controls', 'ux-level-overview-dialog');
+      minimapButton.setAttribute('aria-label', 'Open full current level overview');
+      minimapButton.innerHTML = `
+        <span class="ux-minimap-kicker">Current level</span>
+        <canvas class="ux-minimap-canvas" width="320" height="84" aria-hidden="true"></canvas>
+        <span class="ux-minimap-hint">Open overview</span>`;
+      documentRoot.getElementById('play-area')?.append(minimapButton);
+      const overviewDialog = documentRoot.createElement('dialog');
+      overviewDialog.id = 'ux-level-overview-dialog';
+      overviewDialog.className = 'ux-level-overview-dialog';
+      overviewDialog.setAttribute('aria-labelledby', 'ux-level-overview-title');
+      overviewDialog.innerHTML = `
+        <div class="ux-level-overview-frame">
+          <header class="ux-level-overview-header">
+            <div>
+              <p class="ux-map-detail-kicker">Current dungeon level</p>
+              <h2 id="ux-level-overview-title">Level Overview</h2>
+              <p>Every square NetHack has revealed on this level. Select a known square to inspect it without spending a turn.</p>
+            </div>
+            <button type="button" class="ux-level-overview-close" aria-label="Close Level Overview">×</button>
+          </header>
+          <div class="ux-level-overview-workspace">
+            <div class="ux-level-overview-map" aria-label="Remembered current dungeon level"></div>
+            <aside class="ux-level-overview-inspector">
+              <p class="ux-map-detail-kicker">Inspecting</p>
+              <h3 class="ux-level-overview-inspector-title">Hero</h3>
+              <p class="ux-level-overview-inspector-description">Known square on the current level.</p>
+              <ul class="ux-level-overview-inspector-contents"></ul>
+              <p class="ux-map-detail-note">Inspection never moves the hero or spends a turn.</p>
+            </aside>
+          </div>
+        </div>`;
       const dialog = documentRoot.createElement('dialog');
       dialog.id = 'ux-map-detail-dialog';
       dialog.className = 'ux-map-detail-dialog';
@@ -429,10 +621,18 @@
             </div>
           </div>
         </div>`;
-      documentRoot.body.append(dialog);
+      documentRoot.body.append(dialog, overviewDialog);
       elements = {
         toolbar,
         dialog,
+        minimapButton,
+        minimapCanvas: minimapButton.querySelector('.ux-minimap-canvas'),
+        overviewDialog,
+        overviewClose: overviewDialog.querySelector('.ux-level-overview-close'),
+        overviewMap: overviewDialog.querySelector('.ux-level-overview-map'),
+        overviewInspectorTitle: overviewDialog.querySelector('.ux-level-overview-inspector-title'),
+        overviewInspectorDescription: overviewDialog.querySelector('.ux-level-overview-inspector-description'),
+        overviewInspectorContents: overviewDialog.querySelector('.ux-level-overview-inspector-contents'),
         scaleDown: toolbar.querySelector('.ux-map-scale-down'),
         scaleUp: toolbar.querySelector('.ux-map-scale-up'),
         scaleValue: toolbar.querySelector('.ux-map-scale-value'),
@@ -456,17 +656,28 @@
       elements.closeButton.addEventListener('click', () => close());
       dialog.addEventListener('cancel', (event) => { event.preventDefault(); close('escape'); });
       dialog.addEventListener('click', (event) => { if (event.target === dialog) close('backdrop'); });
+      minimapButton.addEventListener('click', openOverview);
+      elements.overviewClose.addEventListener('click', () => closeOverview());
+      elements.overviewMap.addEventListener('click', inspectOverviewCell);
+      overviewDialog.addEventListener('cancel', (event) => { event.preventDefault(); closeOverview('escape'); });
+      overviewDialog.addEventListener('click', (event) => { if (event.target === overviewDialog) closeOverview('backdrop'); });
       return true;
     }
     function onPublicState(snapshot) {
       publicState = snapshot || {};
       applySettings(publicState.presentationSettings?.map || {});
+      renderMinimap();
       if (elements.dialog?.open && selection) render();
+      if (elements.overviewDialog?.open) {
+        renderOverviewMap();
+        renderOverviewInspection(overviewSelection || cursor());
+      }
     }
     function attach() {
       if (!buildDom()) return false;
       grid.addEventListener('click', onClick, true);
       browserRoot?.addEventListener?.('keydown', onWindowKeydown, true);
+      browserRoot?.addEventListener?.('nethack:map-presentation-changed', onMapPresentationChanged);
       if (runtime?.subscribePublicState) subscription = runtime.subscribePublicState('map', onPublicState);
       applySettings(runtime?.latestPublicState?.()?.snapshot?.presentationSettings?.map || SettingsStore?.defaultSettings?.map || {});
       diagnostic('map.detail-controller-attached', { clickOpensDialog: true, clickDispatch: false });
@@ -475,8 +686,11 @@
     function destroy() {
       grid?.removeEventListener?.('click', onClick, true);
       browserRoot?.removeEventListener?.('keydown', onWindowKeydown, true);
+      browserRoot?.removeEventListener?.('nethack:map-presentation-changed', onMapPresentationChanged);
       subscription?.unsubscribe?.();
       elements.dialog?.remove?.();
+      elements.minimapButton?.remove?.();
+      elements.overviewDialog?.remove?.();
       mount?.replaceChildren?.();
     }
 
@@ -491,6 +705,10 @@
       model: () => selection ? modelFor(selection) : null,
       selection: () => selection,
       active: () => Boolean(elements.dialog?.open),
+      openOverview,
+      closeOverview,
+      overviewActive: () => Boolean(elements.overviewDialog?.open),
+      overviewSelection: () => overviewSelection,
       setActionProvider(provider) { actionProvider = provider && typeof provider === 'object' ? provider : null; if (elements.dialog?.open) render(); },
       setTargetMetadata() { return null; },
       applySettings,
@@ -517,6 +735,8 @@
     version,
     coordinate,
     sentenceCase,
+    minimapTone,
+    createMinimapModel,
     publicDisplayName,
     publicObjectLayerName,
     publicLayersForCell,
