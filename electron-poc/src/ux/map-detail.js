@@ -21,7 +21,7 @@
     hazard: '#e66b49',
     object: '#70a6d8',
     creature: '#d95f74',
-    hero: '#f6d365',
+    hero: '#75f59a',
     known: '#8b8291',
   });
 
@@ -64,6 +64,22 @@
     }
     return Object.freeze({ width, height, tones: Object.freeze(tones) });
   }
+  function minimapHeroMarker(model, canvasWidth, canvasHeight) {
+    const index = Array.isArray(model?.tones) ? model.tones.indexOf('hero') : -1;
+    const width = Number(model?.width);
+    const height = Number(model?.height);
+    const pixelWidth = Number(canvasWidth);
+    const pixelHeight = Number(canvasHeight);
+    if (index < 0 || ![width, height, pixelWidth, pixelHeight].every((value) => Number.isFinite(value) && value > 0)) return null;
+    const cellWidth = pixelWidth / width;
+    const cellHeight = pixelHeight / height;
+    return Object.freeze({
+      x: ((index % width) + 0.5) * cellWidth,
+      y: (Math.floor(index / width) + 0.5) * cellHeight,
+      radius: Math.max(4, Math.min(8, Math.min(cellWidth, cellHeight) * 0.9)),
+    });
+  }
+
 
   function publicDisplayName(cell = {}) {
     if (cell.semanticKnown === false) return text(cell.semanticAppearance);
@@ -232,7 +248,7 @@
     let actionProvider = null;
     let subscription;
     let elements = {};
-    let lastMapSettings = SettingsStore?.defaultSettings?.map || { mode: 'full', closeRows: 9, scale: 1 };
+    let lastMapSettings = SettingsStore?.defaultSettings?.map || { mode: 'full', closeRows: 9, minimapSize: 'medium', scale: 1 };
     let overviewSelection = null;
 
     function diagnostic(type, detail = {}) {
@@ -440,6 +456,7 @@
       grid?.style?.setProperty('--ux-map-scale', String(scale));
       grid?.classList?.toggle('ux-map-glyph-overlay', Boolean(lastMapSettings.glyphOverlay));
       grid?.classList?.toggle('ux-map-high-contrast', Boolean(lastMapSettings.highContrast));
+      if (documentRoot?.body) documentRoot.body.dataset.uxMinimapSize = ['small', 'medium', 'large'].includes(lastMapSettings.minimapSize) ? lastMapSettings.minimapSize : 'medium';
       const closeRows = Number(shellController()?.state?.().closeRows || lastMapSettings.closeRows) || 9;
       if (elements.scaleValue) elements.scaleValue.textContent = closeUpActive() ? `${closeRows} rows` : `${Math.round(scale * 100)}%`;
       if (elements.scaleDown) elements.scaleDown.setAttribute('aria-label', closeUpActive() ? 'Show more nearby map rows' : 'Decrease map scale');
@@ -477,8 +494,18 @@
       for (let index = 0; index < model.tones.length; index += 1) {
         const tone = model.tones[index];
         if (tone === 'unknown') continue;
-        context.fillStyle = minimapColors[tone] || minimapColors.known;
+        context.fillStyle = tone === 'hero' ? minimapColors.known : (minimapColors[tone] || minimapColors.known);
         context.fillRect((index % model.width) * cellWidth, Math.floor(index / model.width) * cellHeight, Math.max(1, cellWidth), Math.max(1, cellHeight));
+      }
+      const marker = minimapHeroMarker(model, canvas.width, canvas.height);
+      if (marker) {
+        context.beginPath();
+        context.arc(marker.x, marker.y, marker.radius, 0, Math.PI * 2);
+        context.fillStyle = minimapColors.hero;
+        context.fill();
+        context.lineWidth = 1.5;
+        context.strokeStyle = '#07120b';
+        context.stroke();
       }
       return model;
     }
@@ -737,6 +764,7 @@
     sentenceCase,
     minimapTone,
     createMinimapModel,
+    minimapHeroMarker,
     publicDisplayName,
     publicObjectLayerName,
     publicLayersForCell,

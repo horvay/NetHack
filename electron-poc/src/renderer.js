@@ -87,6 +87,7 @@ const settingsForm = document.getElementById('settings-form');
 const settingHudDensity = document.getElementById('setting-hud-density');
 const settingMapMode = document.getElementById('setting-map-mode');
 const settingCloseRows = document.getElementById('setting-close-rows');
+const settingMinimapSize = document.getElementById('setting-minimap-size');
 const settingLogRatio = document.getElementById('setting-log-ratio');
 const settingLogRatioValue = document.getElementById('setting-log-ratio-value');
 const settingAutopickup = document.getElementById('setting-autopickup');
@@ -1573,7 +1574,7 @@ let userSettings = presentationSettingsStore?.load?.().settings || {
   onboarding: { completed: false, disabled: false, lastStep: 'not-started' },
   hudDensity: 'compact',
   keyHints: 'contextual',
-  map: { mode: 'full', closeRows: 9, scale: 1, glyphOverlay: false, highContrast: false },
+  map: { mode: 'full', closeRows: 9, minimapSize: 'medium', scale: 1, glyphOverlay: false, highContrast: false },
   layout: { logRatio: 0.5 },
   motion: 'system',
   sound: { uiEnabled: false, gameFeedbackEnabled: false, volume: 0.5 },
@@ -1715,6 +1716,7 @@ function applyPresentationSettings(settings) {
   shell?.setCloseRows?.(settings.map?.closeRows, { persist: false });
   shell?.setMapMode?.(settings.map?.mode, { persist: false });
   shell?.setLogRatio?.(settings.layout?.logRatio, { persist: false });
+  document.body.dataset.uxMinimapSize = ['small', 'medium', 'large'].includes(settings.map?.minimapSize) ? settings.map.minimapSize : 'medium';
   document.body.dataset.uxMotion = settings.motion === 'reduced' ? 'reduced' : settings.motion;
 }
 
@@ -1760,6 +1762,7 @@ function syncSettingsForm() {
   if (settingHudDensity) settingHudDensity.value = userSettings.hudDensity === 'detailed' ? 'detailed' : 'compact';
   if (settingMapMode) settingMapMode.value = ['full', 'follow', 'close'].includes(userSettings.map?.mode) ? userSettings.map.mode : 'full';
   if (settingCloseRows) settingCloseRows.value = String([7, 9, 11, 13, 15].includes(Number(userSettings.map?.closeRows)) ? Number(userSettings.map.closeRows) : 9);
+  if (settingMinimapSize) settingMinimapSize.value = ['small', 'medium', 'large'].includes(userSettings.map?.minimapSize) ? userSettings.map.minimapSize : 'medium';
   if (settingLogRatio) settingLogRatio.value = String(Math.round((userSettings.layout?.logRatio || 0.5) * 100));
   if (settingAutopickup) settingAutopickup.value = ['off', 'gold', 'all'].includes(userSettings.autopickup) ? userSettings.autopickup : 'gold';
   if (settingMovement) settingMovement.value = userSettings.movement === 'numpad' ? 'numpad' : 'classic';
@@ -1775,6 +1778,7 @@ function settingsFromForm() {
     map: {
       mode: ['full', 'follow', 'close'].includes(settingMapMode?.value) ? settingMapMode.value : 'full',
       closeRows: [7, 9, 11, 13, 15].includes(Number(settingCloseRows?.value)) ? Number(settingCloseRows.value) : 9,
+      minimapSize: ['small', 'medium', 'large'].includes(settingMinimapSize?.value) ? settingMinimapSize.value : 'medium',
     },
     layout: { logRatio: Math.min(0.75, Math.max(0.2, Number(settingLogRatio?.value || 50) / 100)) },
     autopickup: ['off', 'gold', 'all'].includes(settingAutopickup?.value) ? settingAutopickup.value : 'gold',

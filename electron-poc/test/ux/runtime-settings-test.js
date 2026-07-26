@@ -96,6 +96,9 @@ assert.equal(closeUpSettings.schemaVersion, 4);
 assert.equal(closeUpSettings.map.mode, 'close');
 assert.equal(closeUpSettings.map.closeRows, 11);
 assert.equal(Settings.normalizeSettings({ map: { mode: 'close', closeRows: 10 } }).map.closeRows, 9, 'Close-up View uses supported odd row counts');
+assert.equal(closeUpSettings.map.minimapSize, 'medium', 'Minimap defaults to the slightly enlarged medium size');
+assert.equal(Settings.normalizeSettings({ map: { minimapSize: 'large' } }).map.minimapSize, 'large');
+assert.equal(Settings.normalizeSettings({ map: { minimapSize: 'oversized' } }).map.minimapSize, 'medium');
 
 const v3 = memoryStorage({
   [Settings.previousStorageKey]: JSON.stringify({

@@ -65,6 +65,7 @@ async function main() {
       const shell = window.NetHackUxRuntime.runtime.domain('shell');
       shell.setCloseRows(9, { persist: false });
       shell.setMapMode('close', { persist: false });
+      shell.setLogRatio(0.56, { persist: false });
       window.__nethackPromptTest.clearSentInputs();
       window.__nethackPromptTest.setRunning(true);
       return true;
@@ -80,10 +81,20 @@ async function main() {
     const closeUpState = await page.evalCheckedValue(`(() => {
       const play = document.getElementById('play-area').getBoundingClientRect();
       const hero = document.querySelector('#game-grid .tile-cell.cursor').getBoundingClientRect();
-      const minimap = document.querySelector('.ux-minimap-button').getBoundingClientRect();
+      const minimapElement = document.querySelector('.ux-minimap-button');
+      const minimap = minimapElement.getBoundingClientRect();
+      const minimapCanvas = minimapElement.querySelector('.ux-minimap-canvas');
+      const pixels = minimapCanvas.getContext('2d').getImageData(0, 0, minimapCanvas.width, minimapCanvas.height).data;
+      let greenMarkerPixels = 0;
+      for (let index = 0; index < pixels.length; index += 4) {
+        if (pixels[index] < 160 && pixels[index + 1] > 210 && pixels[index + 2] > 120 && pixels[index + 3] > 200) greenMarkerPixels += 1;
+      }
       return {
         mode: document.body.dataset.uxMapMode,
         rows: Number(document.body.dataset.uxCloseRows),
+        minimapSize: document.body.dataset.uxMinimapSize,
+        minimapWidth: minimap.width,
+        greenMarkerPixels,
         heroCentered: Math.abs((hero.left + hero.width / 2) - (play.left + play.width / 2)) <= hero.width
           && Math.abs((hero.top + hero.height / 2) - (play.top + play.height / 2)) <= hero.height,
         minimapInside: minimap.left >= play.left && minimap.right <= play.right && minimap.top >= play.top && minimap.bottom <= play.bottom,
@@ -92,6 +103,31 @@ async function main() {
     })()`);
     const closeUpScreenshot = path.join(outDir, 'close-up-view.png');
     await page.screenshot(closeUpScreenshot);
+    await page.click('#settings-button');
+    await page.waitForValue("document.getElementById('settings-dialog')?.open === true", 5000);
+    const minimapSettingsScreenshot = path.join(outDir, 'minimap-size-settings.png');
+    await page.screenshot(minimapSettingsScreenshot);
+    await page.evalCheckedValue(`(() => {
+      const select = document.getElementById('setting-minimap-size');
+      select.value = 'large';
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    })()`);
+    await page.click('#settings-save');
+    await page.waitForValue(`document.body.dataset.uxMinimapSize === 'large' && document.querySelector('.ux-minimap-button').getBoundingClientRect().width > ${closeUpState.minimapWidth}`, 5000);
+    const largeMinimapWidth = await page.evalCheckedValue("document.querySelector('.ux-minimap-button').getBoundingClientRect().width");
+    await page.click('#settings-button');
+    await page.waitForValue("document.getElementById('settings-dialog')?.open === true", 5000);
+    await page.evalCheckedValue(`(() => {
+      const select = document.getElementById('setting-minimap-size');
+      select.value = 'medium';
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    })()`);
+    await page.click('#settings-save');
+    await page.waitForValue("document.body.dataset.uxMinimapSize === 'medium'", 5000);
+    const minimapSizePersisted = await page.evalCheckedValue("JSON.parse(localStorage.getItem('nethack-electron-presentation-settings-v4') || '{}')?.map?.minimapSize");
+
     await page.evalCheckedValue("window.__nethackPromptTest.event({ name: 'shim_curs', window: 1, x: 1, y: 1 }); true");
     await page.waitForValue(`(() => {
       const play = document.getElementById('play-area')?.getBoundingClientRect();
@@ -162,13 +198,15 @@ async function main() {
       clickAndEscapeAreTurnless: openState.sentInputs.length === 0 && closedState.sentInputs.length === 0,
       escapeClosesAndReturnsFocus: !closedState.open && closedState.focusedId === 'game-grid',
       closeUpCentersHeroAndShowsMinimap: closeUpState.mode === 'close' && closeUpState.rows === 9 && closeUpState.heroCentered && closeUpState.minimapInside,
+      minimapDefaultsLargerAndShowsGreenHero: closeUpState.minimapSize === 'medium' && closeUpState.minimapWidth >= 260 && closeUpState.greenMarkerPixels >= 20,
+      minimapSizeSettingPersistsAndResizes: largeMinimapWidth > closeUpState.minimapWidth && minimapSizePersisted === 'medium',
       closeUpCentersHeroAtDungeonEdge: edgeCentered,
       closeUpControlsPersistRowCount: closeRowsPersisted === 9,
       levelOverviewInspectsKnownSquareTurnlessly: overviewState.open && overviewState.cells === 1680 && overviewState.title === 'Goblin' && overviewState.sentInputs.length === 0,
       levelOverviewEscapeRestoresCloseUp: overviewEscapeState.mode === 'close' && overviewEscapeState.focusedId === 'game-grid' && overviewEscapeState.sentInputs.length === 0,
       levelOverviewXRestoresCloseUp: overviewXState.mode === 'close' && overviewXState.focusedId === 'game-grid' && overviewXState.sentInputs.length === 0,
     };
-    const result = { checks, openState, closedState, closeUpState, edgeCentered, closeRowsPersisted, overviewState, overviewEscapeState, overviewXState, screenshots: { tileDetail: screenshot, closeUp: closeUpScreenshot, levelOverview: overviewScreenshot } };
+    const result = { checks, openState, closedState, closeUpState, largeMinimapWidth, minimapSizePersisted, edgeCentered, closeRowsPersisted, overviewState, overviewEscapeState, overviewXState, screenshots: { tileDetail: screenshot, closeUp: closeUpScreenshot, minimapSettings: minimapSettingsScreenshot, levelOverview: overviewScreenshot } };
     fs.writeFileSync(path.join(outDir, 'map-tile-detail-result.json'), `${JSON.stringify(result, null, 2)}\n`);
     console.log(JSON.stringify(result, null, 2));
     const failed = Object.entries(checks).filter(([, passed]) => !passed).map(([name]) => name);

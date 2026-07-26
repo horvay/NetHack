@@ -16,7 +16,7 @@
     onboarding: Object.freeze({ completed: false, disabled: false, lastStep: 'not-started' }),
     hudDensity: 'compact',
     keyHints: 'contextual',
-    map: Object.freeze({ mode: 'full', closeRows: 9, scale: 1, glyphOverlay: false, highContrast: false }),
+    map: Object.freeze({ mode: 'full', closeRows: 9, minimapSize: 'medium', scale: 1, glyphOverlay: false, highContrast: false }),
     layout: Object.freeze({ logRatio: 0.5 }),
     motion: 'system',
     sound: Object.freeze({ uiEnabled: false, gameFeedbackEnabled: false, volume: 0.5 }),
@@ -48,6 +48,7 @@
       map: Object.freeze({
         mode: oneOf(map.mode, ['full', 'follow', 'close'], defaultSettings.map.mode),
         closeRows: oneOf(Number(map.closeRows), closeUpRowOptions, defaultSettings.map.closeRows),
+        minimapSize: oneOf(map.minimapSize, ['small', 'medium', 'large'], defaultSettings.map.minimapSize),
         scale: numberInRange(map.scale, 0.5, 3, defaultSettings.map.scale),
         glyphOverlay: bool(map.glyphOverlay, defaultSettings.map.glyphOverlay),
         highContrast: bool(map.highContrast, defaultSettings.map.highContrast),

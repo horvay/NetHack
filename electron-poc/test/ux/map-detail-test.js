@@ -176,6 +176,8 @@ assert.equal(minimap.width, 4);
 assert.equal(minimap.height, 1);
 assert.deepEqual(minimap.tones, ['unknown', 'hero', 'creature', 'stairs']);
 assert.doesNotMatch(JSON.stringify(minimap), /secret monster identity/, 'Minimap exposes categories, never hidden identities');
+assert.deepEqual(Map.minimapHeroMarker(minimap, 320, 84), { x: 120, y: 42, radius: 8 }, 'hero marker is centered and intentionally larger than a minimap cell');
+assert.equal(Map.minimapHeroMarker({ width: 2, height: 1, tones: ['floor', 'wall'] }, 20, 10), null);
 
 const browserContext = {
   console,

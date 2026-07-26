@@ -333,7 +333,8 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.35rem 0.65rem;
-  width: clamp(10rem, 22vw, 15rem);
+  --ux-minimap-width: clamp(12rem, 23vw, 17rem);
+  width: var(--ux-minimap-width);
   padding: 0.55rem;
   overflow: hidden;
   border: 1px solid color-mix(in oklch, var(--ux-color-action) 42%, var(--ux-color-border));
@@ -345,6 +346,9 @@
   box-shadow: 0 0.8rem 2.4rem oklch(0.03 0.01 264 / 0.62), inset 0 1px oklch(0.82 0.05 82 / 0.09);
   cursor: pointer;
 }
+body[data-ux-minimap-size='small'] .ux-minimap-button { --ux-minimap-width: clamp(10rem, 20vw, 15rem); }
+body[data-ux-minimap-size='medium'] .ux-minimap-button { --ux-minimap-width: clamp(12rem, 23vw, 17rem); }
+body[data-ux-minimap-size='large'] .ux-minimap-button { --ux-minimap-width: clamp(14rem, 27vw, 20rem); }
 .ux-minimap-button[hidden] { display: none; }
 .ux-minimap-button::after {
   content: "";
@@ -524,8 +528,12 @@
   .ux-minimap-button {
     top: 0.5rem;
     right: 0.5rem;
-    width: clamp(8.5rem, 28vw, 11rem);
+    --ux-minimap-width: clamp(10rem, 32vw, 13rem);
+    width: var(--ux-minimap-width);
   }
+  body[data-ux-minimap-size='small'] .ux-minimap-button { --ux-minimap-width: clamp(8.5rem, 28vw, 11rem); }
+  body[data-ux-minimap-size='medium'] .ux-minimap-button { --ux-minimap-width: clamp(10rem, 32vw, 13rem); }
+  body[data-ux-minimap-size='large'] .ux-minimap-button { --ux-minimap-width: clamp(11.5rem, 36vw, 15rem); }
   .ux-level-overview-dialog {
     width: calc(100vw - 24px);
     height: min(640px, calc(100vh - 24px));
