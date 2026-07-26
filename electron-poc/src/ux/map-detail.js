@@ -248,7 +248,7 @@
     let actionProvider = null;
     let subscription;
     let elements = {};
-    let lastMapSettings = SettingsStore?.defaultSettings?.map || { mode: 'full', closeRows: 9, minimapSize: 'medium', scale: 1 };
+    let lastMapSettings = SettingsStore?.defaultSettings?.map || { mode: 'close', closeRows: 9, minimapSize: 'medium', scale: 1 };
     let overviewSelection = null;
 
     function diagnostic(type, detail = {}) {
@@ -602,7 +602,7 @@
         <span class="ux-minimap-kicker">Current level</span>
         <canvas class="ux-minimap-canvas" width="320" height="84" aria-hidden="true"></canvas>
         <span class="ux-minimap-hint">Open overview</span>`;
-      documentRoot.getElementById('play-area')?.append(minimapButton);
+      (documentRoot.getElementById('play-area')?.parentElement || documentRoot.getElementById('play-area'))?.append(minimapButton);
       const overviewDialog = documentRoot.createElement('dialog');
       overviewDialog.id = 'ux-level-overview-dialog';
       overviewDialog.className = 'ux-level-overview-dialog';

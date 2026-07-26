@@ -91,6 +91,9 @@ try {
   else global.document = previousDocument;
 }
 
+assert.equal(Settings.defaultSettings.map.mode, 'close', 'Close-up View is the default map presentation');
+assert.equal(Settings.normalizeSettings({}).map.mode, 'close', 'missing map preferences normalize to Close-up View');
+
 const closeUpSettings = Settings.normalizeSettings({ map: { mode: 'close', closeRows: 11 } });
 assert.equal(closeUpSettings.schemaVersion, 4);
 assert.equal(closeUpSettings.map.mode, 'close');

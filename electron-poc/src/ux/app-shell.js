@@ -52,7 +52,7 @@
   const closeUpRowOptions = Object.freeze([7, 9, 11, 13, 15]);
 
   function normalizeMapMode(value) {
-    return ['full', 'follow', 'close'].includes(value) ? value : 'full';
+    return ['full', 'follow', 'close'].includes(value) ? value : 'close';
   }
 
   function nextMapMode(value) {
@@ -382,8 +382,11 @@
       if (!mapTracksPlayer()) return;
       const playArea = documentRoot.getElementById('play-area');
       const grid = documentRoot.getElementById('game-grid');
-      const cursorCell = grid?.querySelector?.('.tile-cell.cursor');
-      if (!playArea || !grid || !cursorCell) return;
+      if (!playArea || !grid) return;
+      playArea.scrollLeft = 0;
+      playArea.scrollTop = 0;
+      const cursorCell = grid.querySelector?.('.tile-cell.cursor');
+      if (!cursorCell) return;
       if (documentRoot.body.dataset.uxMapMode === 'close') {
         grid.style.setProperty('--ux-close-tile-size', `${computeCloseUpTileSize({ containerHeight: playArea.clientHeight, closeRows })}px`);
       }
@@ -401,11 +404,18 @@
       grid.style.setProperty('--ux-follow-x', `${translation.x}px`);
       grid.style.setProperty('--ux-follow-y', `${translation.y}px`);
     }
+    function scheduleCenterFollowMap() {
+      if (!mapTracksPlayer()) return;
+      globalRoot.requestAnimationFrame?.(() => {
+        centerFollowMap();
+        globalRoot.requestAnimationFrame?.(centerFollowMap);
+      });
+    }
 
     function setCloseRows(value, { persist = true } = {}) {
       closeRows = closeUpRowOptions.includes(Number(value)) ? Number(value) : 9;
       documentRoot.body.dataset.uxCloseRows = String(closeRows);
-      if (mapTracksPlayer()) globalRoot.requestAnimationFrame?.(centerFollowMap);
+      scheduleCenterFollowMap();
       if (persist) persistPresentationPatch({ map: { closeRows } });
       publishMapPresentation();
       return closeRows;
@@ -428,7 +438,7 @@
         grid?.style.removeProperty('--ux-follow-x');
         grid?.style.removeProperty('--ux-follow-y');
         grid?.style.removeProperty('--ux-close-tile-size');
-      } else globalRoot.requestAnimationFrame?.(centerFollowMap);
+      } else scheduleCenterFollowMap();
       if (persist) persistPresentationPatch({ map: { mode } });
       publishMapPresentation();
       return mode;
@@ -491,7 +501,7 @@
       const game = snapshot?.game || {};
       const nextKey = shellRenderKey(game);
       if (nextKey === lastShellRenderKey) {
-        if (mapTracksPlayer()) globalRoot.requestAnimationFrame?.(centerFollowMap);
+        scheduleCenterFollowMap();
         return;
       }
       lastShellRenderKey = nextKey;
@@ -506,7 +516,7 @@
       if (historyDialog?.dialog?.()?.open) historyDialog.render();
       handleLevelTransition(game);
       focusMapWhenSafe();
-      if (mapTracksPlayer()) globalRoot.requestAnimationFrame?.(centerFollowMap);
+      scheduleCenterFollowMap();
     }
 
     function connect() {
@@ -515,7 +525,7 @@
       try {
         configureStructure();
         settingsStore = globalRoot.NetHackUxSettingsStore?.createSettingsStore?.({ storage: globalRoot.localStorage, onDiagnostic: (entry) => recordDiagnostic(entry.type, entry.detail) });
-        settings = settingsStore?.load?.().settings || globalRoot.NetHackUxSettingsStore?.defaultSettings || { hudDensity: 'compact', map: { mode: 'full' } };
+        settings = settingsStore?.load?.().settings || globalRoot.NetHackUxSettingsStore?.defaultSettings || { hudDensity: 'compact', map: { mode: 'close' } };
         consequenceFeed = globalRoot.NetHackUxConsequenceFeed?.createConsequenceFeed?.({ feedLimit: 100 });
         const model = globalRoot.NetHackUxMessagePresentation?.createHistoryModel?.(consequenceFeed.log);
         historyDialog = globalRoot.NetHackUxMessagePresentation?.createHistoryDialog?.({ documentRoot, model, log: consequenceFeed.log, dialogService: dialogService(), noticeService: noticeService(), mount: documentRoot.body });
@@ -551,7 +561,7 @@
         listen(layoutResizer, 'keydown', resizeWorkspaceFromKeyboard);
         listen(globalRoot, 'resize', () => {
           globalRoot.requestAnimationFrame?.(() => applyLogRatio(logRatio));
-          if (mapTracksPlayer()) globalRoot.requestAnimationFrame?.(centerFollowMap);
+          scheduleCenterFollowMap();
         });
         listen(documentRoot, 'close', () => globalRoot.setTimeout?.(focusMapWhenSafe, 0), true);
         if (!runtime?.latestPublicState?.()?.snapshot) {
@@ -559,7 +569,7 @@
           renderMessageFacts();
         }
         subscription = runtime?.subscribePublicState?.('shell', update);
-        recordDiagnostic('shell.connected', { density: settings.hudDensity, mapMode: settings.map?.mode || 'full' });
+        recordDiagnostic('shell.connected', { density: settings.hudDensity, mapMode: settings.map?.mode || 'close' });
         return true;
       } catch (error) {
         connected = false;
@@ -592,7 +602,7 @@
       adjustCloseRows,
       setLogRatio: applyLogRatio,
       centerFollowMap,
-      state: () => Object.freeze({ connected, density: hudDensity || settings?.hudDensity || 'compact', mapMode: documentRoot?.body?.dataset?.uxMapMode || 'full', closeRows, logRatio, previousDungeon, pendingMapFocus, messageCount: consequenceFeed?.log?.size?.() || 0 }),
+      state: () => Object.freeze({ connected, density: hudDensity || settings?.hudDensity || 'compact', mapMode: documentRoot?.body?.dataset?.uxMapMode || 'close', closeRows, logRatio, previousDungeon, pendingMapFocus, messageCount: consequenceFeed?.log?.size?.() || 0 }),
     });
   }
 

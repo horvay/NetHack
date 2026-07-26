@@ -11,6 +11,7 @@ async function main() {
   await Harness.withElectronPage({ root, port, width: 1360, height: 920 }, async (page) => {
     await page.waitForValue("document.readyState === 'complete' && !!window.__nethackTooltipTest && !!window.NetHackUxMapDetailController", 10000);
     await page.evalCheckedValue(`(() => {
+      window.NetHackUxRuntime.runtime.domain('shell').setMapMode('full', { persist: false });
       window.__nethackTooltipTest.setCells([
         { x: 3, y: 2, ch: 'f', semanticKind: 'pet', semanticName: 'kitten', semanticKnown: true, glyph: 798 }
       ]);
@@ -77,7 +78,16 @@ async function main() {
       return Boolean(play && hero
         && Math.abs((hero.left + hero.width / 2) - (play.left + play.width / 2)) <= hero.width
         && Math.abs((hero.top + hero.height / 2) - (play.top + play.height / 2)) <= hero.height);
-    })()`, 5000);
+    })()`, 5000).catch(async (error) => {
+      const geometry = await page.evalCheckedValue(`(() => {
+        const play = document.getElementById('play-area')?.getBoundingClientRect();
+        const grid = document.getElementById('game-grid');
+        const hero = grid?.querySelector('.tile-cell.cursor')?.getBoundingClientRect();
+        const values = (rect) => rect ? { left: rect.left, top: rect.top, width: rect.width, height: rect.height, right: rect.right, bottom: rect.bottom } : null;
+        return { mode: document.body.dataset.uxMapMode, play: values(play), hero: values(hero), grid: values(grid?.getBoundingClientRect()), transform: getComputedStyle(grid).transform, followX: getComputedStyle(grid).getPropertyValue('--ux-follow-x'), followY: getComputedStyle(grid).getPropertyValue('--ux-follow-y'), closeTileSize: getComputedStyle(grid).getPropertyValue('--ux-close-tile-size') };
+      })()`);
+      throw new Error(`${error.message}: ${JSON.stringify(geometry)}`);
+    });
     const closeUpState = await page.evalCheckedValue(`(() => {
       const play = document.getElementById('play-area').getBoundingClientRect();
       const hero = document.querySelector('#game-grid .tile-cell.cursor').getBoundingClientRect();
@@ -188,6 +198,22 @@ async function main() {
       focusedId: document.activeElement?.id || '',
       sentInputs: window.__nethackPromptTest.sentInputs(),
     }))()`);
+    await page.send('Page.reload', { ignoreCache: true });
+    await page.waitForValue("document.readyState === 'complete' && !!window.NetHackUxMapDetailController && document.body.dataset.uxMapMode === 'close'", 10000);
+    await page.evalCheckedValue("new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve(true))))", { awaitPromise: true });
+    const reloadState = await page.evalCheckedValue(`(() => ({
+      mode: document.body.dataset.uxMapMode,
+      minimapHidden: document.querySelector('.ux-minimap-button')?.hidden,
+    }))()`);
+    await page.evalCheckedValue("window.__nethackPromptTest.reset(); true");
+    await page.evalCheckedValue("new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve(true))))", { awaitPromise: true });
+    const restoredGameState = await page.evalCheckedValue(`(() => ({
+      mode: document.body.dataset.uxMapMode,
+      minimapExists: Boolean(document.querySelector('.ux-minimap-button')),
+      minimapHidden: document.querySelector('.ux-minimap-button')?.hidden,
+    }))()`);
+
+
 
 
     const checks = {
@@ -205,8 +231,10 @@ async function main() {
       levelOverviewInspectsKnownSquareTurnlessly: overviewState.open && overviewState.cells === 1680 && overviewState.title === 'Goblin' && overviewState.sentInputs.length === 0,
       levelOverviewEscapeRestoresCloseUp: overviewEscapeState.mode === 'close' && overviewEscapeState.focusedId === 'game-grid' && overviewEscapeState.sentInputs.length === 0,
       levelOverviewXRestoresCloseUp: overviewXState.mode === 'close' && overviewXState.focusedId === 'game-grid' && overviewXState.sentInputs.length === 0,
+      reloadedCloseUpRestoresMinimap: reloadState.mode === 'close' && reloadState.minimapHidden === false
+        && restoredGameState.mode === 'close' && restoredGameState.minimapExists && restoredGameState.minimapHidden === false,
     };
-    const result = { checks, openState, closedState, closeUpState, largeMinimapWidth, minimapSizePersisted, edgeCentered, closeRowsPersisted, overviewState, overviewEscapeState, overviewXState, screenshots: { tileDetail: screenshot, closeUp: closeUpScreenshot, minimapSettings: minimapSettingsScreenshot, levelOverview: overviewScreenshot } };
+    const result = { checks, openState, closedState, closeUpState, largeMinimapWidth, minimapSizePersisted, edgeCentered, closeRowsPersisted, overviewState, overviewEscapeState, overviewXState, reloadState, restoredGameState, screenshots: { tileDetail: screenshot, closeUp: closeUpScreenshot, minimapSettings: minimapSettingsScreenshot, levelOverview: overviewScreenshot } };
     fs.writeFileSync(path.join(outDir, 'map-tile-detail-result.json'), `${JSON.stringify(result, null, 2)}\n`);
     console.log(JSON.stringify(result, null, 2));
     const failed = Object.entries(checks).filter(([, passed]) => !passed).map(([name]) => name);

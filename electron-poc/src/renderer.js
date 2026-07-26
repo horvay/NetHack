@@ -1574,7 +1574,7 @@ let userSettings = presentationSettingsStore?.load?.().settings || {
   onboarding: { completed: false, disabled: false, lastStep: 'not-started' },
   hudDensity: 'compact',
   keyHints: 'contextual',
-  map: { mode: 'full', closeRows: 9, minimapSize: 'medium', scale: 1, glyphOverlay: false, highContrast: false },
+  map: { mode: 'close', closeRows: 9, minimapSize: 'medium', scale: 1, glyphOverlay: false, highContrast: false },
   layout: { logRatio: 0.5 },
   motion: 'system',
   sound: { uiEnabled: false, gameFeedbackEnabled: false, volume: 0.5 },
@@ -1760,7 +1760,7 @@ function syncLogRatioOutput() {
 
 function syncSettingsForm() {
   if (settingHudDensity) settingHudDensity.value = userSettings.hudDensity === 'detailed' ? 'detailed' : 'compact';
-  if (settingMapMode) settingMapMode.value = ['full', 'follow', 'close'].includes(userSettings.map?.mode) ? userSettings.map.mode : 'full';
+  if (settingMapMode) settingMapMode.value = ['full', 'follow', 'close'].includes(userSettings.map?.mode) ? userSettings.map.mode : 'close';
   if (settingCloseRows) settingCloseRows.value = String([7, 9, 11, 13, 15].includes(Number(userSettings.map?.closeRows)) ? Number(userSettings.map.closeRows) : 9);
   if (settingMinimapSize) settingMinimapSize.value = ['small', 'medium', 'large'].includes(userSettings.map?.minimapSize) ? userSettings.map.minimapSize : 'medium';
   if (settingLogRatio) settingLogRatio.value = String(Math.round((userSettings.layout?.logRatio || 0.5) * 100));

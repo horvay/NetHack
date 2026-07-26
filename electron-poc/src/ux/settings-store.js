@@ -16,7 +16,7 @@
     onboarding: Object.freeze({ completed: false, disabled: false, lastStep: 'not-started' }),
     hudDensity: 'compact',
     keyHints: 'contextual',
-    map: Object.freeze({ mode: 'full', closeRows: 9, minimapSize: 'medium', scale: 1, glyphOverlay: false, highContrast: false }),
+    map: Object.freeze({ mode: 'close', closeRows: 9, minimapSize: 'medium', scale: 1, glyphOverlay: false, highContrast: false }),
     layout: Object.freeze({ logRatio: 0.5 }),
     motion: 'system',
     sound: Object.freeze({ uiEnabled: false, gameFeedbackEnabled: false, volume: 0.5 }),
