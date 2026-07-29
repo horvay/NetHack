@@ -833,10 +833,6 @@ body.uxm02-shell-active button,
 }
 
 /* ---- Micro motion weight ---- */
-#ux-items-root .uxm-slot-button.is-selected,
-#ux-items-root .uxm-item-row.is-selected .uxm-item-selector {
-  animation: ux-motion-select-bloom var(--ux-motion-micro) var(--ux-motion-ease-out);
-}
 
 #ux-items-root .uxm-slot-button.ux-motion-equip-pop,
 #ux-items-root .uxm-slot-button.is-equipped.ux-motion-flash-success {
@@ -844,15 +840,9 @@ body.uxm02-shell-active button,
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #ux-items-root .uxm-slot-button.is-selected,
-  #ux-items-root .uxm-item-row.is-selected .uxm-item-selector,
   #ux-items-root .uxm-slot-button.ux-motion-equip-pop,
   #ux-items-root .uxm-slot-button.is-equipped.ux-motion-flash-success {
     animation: none;
   }
 }
 
-body[data-ux-motion='reduced'] #ux-items-root .uxm-slot-button.is-selected,
-body[data-ux-motion='reduced'] #ux-items-root .uxm-item-row.is-selected .uxm-item-selector {
-  animation: none;
-}

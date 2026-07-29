@@ -46,6 +46,8 @@ async function main() {
         rootAnimations: root?.getAnimations().map((animation) => animation.animationName) || [],
         workspaceAnimations: workspace?.getAnimations().map((animation) => animation.animationName) || [],
         workspaceOpacity: workspace ? getComputedStyle(workspace).opacity : '',
+        selectedFilterAnimations: root?.querySelector('.uxm-filter-button.is-selected')?.getAnimations().map((animation) => animation.animationName) || [],
+        selectedItemAnimations: root?.querySelector('.uxm-item-row.is-selected')?.getAnimations().map((animation) => animation.animationName) || [],
       };
       window.NetHackUxEquipmentScreen.controller.close({ reason: 'motion-layout-regression', cancelNative: false });
 
@@ -75,6 +77,7 @@ async function main() {
   assert('inventory workspace is open', result.inventory.open, JSON.stringify(result.inventory));
   assert('inventory child does not restart an opacity animation', result.inventory.workspaceAnimations.length === 0 && result.inventory.workspaceOpacity === '1', JSON.stringify(result.inventory));
   assert('stable inventory root owns the single entrance animation', result.inventory.rootAnimations.includes('ux-motion-enter-up'), JSON.stringify(result.inventory));
+  assert('inventory opens without replaying persistent selection animations', result.inventory.selectedFilterAnimations.length === 0 && result.inventory.selectedItemAnimations.length === 0, JSON.stringify(result.inventory));
   assert('pickup panel is centered during entrance', result.pickup && Math.abs(result.pickup.centerDeltaX) <= 1 && Math.abs(result.pickup.centerDeltaY) <= 1, JSON.stringify(result.pickup));
   assert('pickup panel remains viewport-contained', result.pickup?.contained, JSON.stringify(result.pickup));
   assert('pickup panel uses center-preserving animation', result.pickup?.animationName === 'ux-motion-enter-centered-scale', JSON.stringify(result.pickup));

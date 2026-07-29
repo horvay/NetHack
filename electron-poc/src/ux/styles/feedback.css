@@ -574,12 +574,6 @@ body.uxm02-shell-active:is([data-ux-map-mode='follow'], [data-ux-map-mode='close
     opacity var(--ux-motion-fast) var(--ux-motion-ease-out);
 }
 
-.uxm-item-row.is-selected,
-.uxm-slot-button.is-selected,
-.uxm-filter-button.is-selected,
-.uxm-items-tabs button.is-selected {
-  animation: ux-motion-select-bloom var(--ux-motion-micro) var(--ux-motion-ease-out) both;
-}
 
 .uxm-slot-button.is-equipped.ux-motion-flash-action {
   animation: ux-motion-border-flash-action var(--ux-motion-fast) var(--ux-motion-ease-out) both;
