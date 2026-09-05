@@ -81,9 +81,6 @@ async function main() {
       return !(await state(driver)).dialogs.length;
     }, 7000);
     await driver.evalCheckedValue(`(() => {
-      const guide = document.querySelector('.ux-first-turn-guide');
-      const skip = guide?.querySelector('.ux-onboarding-actions button:first-of-type');
-      if (guide && !guide.hidden && skip) skip.click();
       document.getElementById('game-grid').focus();
       return true;
     })()`);

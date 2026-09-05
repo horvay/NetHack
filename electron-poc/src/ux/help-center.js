@@ -187,7 +187,7 @@
     const frame = createElement(documentRoot, 'div', 'ux-help-frame');
     const header = createElement(documentRoot, 'header', 'ux-help-heading');
     const copy = createElement(documentRoot, 'div');
-    copy.append(createElement(documentRoot, 'span', 'ux-discovery-kicker', 'Field guide'));
+    copy.append(createElement(documentRoot, 'span', 'ux-discovery-kicker', 'Reference'));
     const title = createElement(documentRoot, 'h2', '', 'Help and commands');
     title.id = 'ux-help-title';
     copy.append(title);
@@ -211,12 +211,9 @@
     const footer = createElement(documentRoot, 'footer', 'dialog-actions ux-help-actions');
     const backButton = createElement(documentRoot, 'button', '', 'Back');
     backButton.type = 'button';
-    const restartGuideButton = createElement(documentRoot, 'button', '', 'Restart field guide');
-    restartGuideButton.type = 'button';
-    restartGuideButton.hidden = typeof options.onRestartGuide !== 'function';
     const footerClose = createElement(documentRoot, 'button', 'primary', 'Close');
     footerClose.type = 'button';
-    footer.append(backButton, restartGuideButton, footerClose);
+    footer.append(backButton, footerClose);
     frame.append(header, searchLabel, tabs, body, footer);
     dialog.append(frame);
     mount.append(dialog);
@@ -239,7 +236,6 @@
         button.classList.toggle('ux-state-selected', selected);
       }
       backButton.hidden = snapshot.section !== 'manual';
-      restartGuideButton.hidden = typeof options.onRestartGuide !== 'function' || snapshot.section !== 'basics';
       body.replaceChildren();
       if (snapshot.section === 'basics') snapshot.content.basics.forEach((topic) => body.append(topicNode(topic)));
       if (snapshot.section === 'keys') {
@@ -306,10 +302,6 @@
       tabs.querySelector(`[data-help-section="${buttons[next].dataset.helpSection}"]`)?.focus({ preventScroll: true });
     });
     backButton.addEventListener('click', () => { model.back(); render(); });
-    restartGuideButton.addEventListener('click', () => {
-      close('restart-guide');
-      try { options.onRestartGuide?.(); } catch {}
-    });
     footerClose.addEventListener('click', () => close());
     dialog.addEventListener('cancel', (event) => { event.preventDefault(); close('escape'); });
     return Object.freeze({ version, model, element: dialog, open, close, render, setManual(lines) { model.setManual(lines); return render(); } });

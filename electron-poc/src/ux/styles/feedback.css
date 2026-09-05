@@ -311,12 +311,6 @@ body.uxm02-shell-active button.ux-status-chip.ux-status-urgent.danger.ux-motion-
     transform var(--ux-motion-fast) var(--ux-motion-ease-out);
 }
 
-/* Onboarding progress dots fill. */
-.ux-onboarding-progress > * {
-  transition: transform var(--ux-motion-fast) var(--ux-motion-ease-out),
-    opacity var(--ux-motion-fast) var(--ux-motion-ease-out),
-    background-color var(--ux-motion-fast) var(--ux-motion-ease-out);
-}
 
 /* Turn / status pill */
 #status:not([hidden]) {
@@ -478,9 +472,6 @@ dialog[open]::backdrop,
   animation: ux-motion-enter-pop var(--ux-motion-standard) var(--ux-motion-ease-out) both;
 }
 
-.ux-first-turn-guide:not([hidden]) {
-  animation: ux-motion-enter-up var(--ux-motion-standard) var(--ux-motion-ease-out) both;
-}
 
 .ux-keycap.ux-motion-keycap-press {
   animation: ux-motion-keycap-press var(--ux-motion-instant) var(--ux-motion-ease-out) both;
@@ -747,7 +738,6 @@ body:has(dialog[open] dialog[open]) > dialog[open]:not(:focus-within) {
   .ux-character-sheet-dialog[open],
   .ux-final-chronicle[open],
   .intro-seal,
-  .ux-first-turn-guide:not([hidden]),
   #game-grid .tile-cell.ux-map-selected,
   #game-grid .tile-cell.ux-target-confirmed-legal,
   #game-grid .tile-cell.ux-target-confirmed-illegal,

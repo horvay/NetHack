@@ -111,6 +111,12 @@ async function state(page) {
       interaction: window.__nethackPromptTest?.dialog?.(),
       equipment: window.__nethackPromptTest?.equipment?.(),
       avatar: avatar ? { tileId: avatar.dataset.tileId || '', source: avatar.dataset.avatarSource || '', src: avatar.dataset.avatarSrc || img?.getAttribute('src') || '', aria: avatar.getAttribute('aria-label') || '' } : null,
+      mapMode: document.body.dataset.uxMapMode || '',
+      minimap: (() => {
+        const element = document.querySelector('.ux-minimap-button');
+        const box = element?.getBoundingClientRect();
+        return { exists: Boolean(element), hidden: element?.hidden ?? true, connected: element?.isConnected ?? false, width: box?.width || 0 };
+      })(),
       body: document.body.innerText,
       seenShim: document.getElementById('shim-output')?.dataset?.seen || '',
       shim: document.getElementById('shim-output')?.innerText || ''
@@ -160,6 +166,9 @@ async function main() {
   let scenarioError = null;
   try {
     await cdp.waitForRendererReady({ timeoutMs: 10000, promptTest: true, automation: true, startButton: true });
+    await cdp.evalCheckedValue("saveSettings({ map: { mode: 'close', closeRows: 9, minimapSize: 'medium' } }); true");
+    await cdp.send('Page.reload', { ignoreCache: true });
+    await cdp.waitForRendererReady({ timeoutMs: 10000, promptTest: true, automation: true, startButton: true });
     const startup = await waitFor(async () => {
       const s = await state(cdp);
       return s.dialogs.includes('startup-choice-dialog') && s.recovery?.hasContinue ? s : null;
@@ -172,6 +181,10 @@ async function main() {
       return s.running && s.hero?.tileId && /Restoring save file|Welcome back|Velkommen back/i.test(log) ? s : null;
     }, 30000);
     await cdp.evalCheckedValue(`(() => { document.getElementById('intro-dialog')?.close?.('test'); document.getElementById('document-dialog')?.close?.('test'); document.getElementById('game-grid')?.focus?.(); return true; })()`);
+    await delay(300);
+    const restoredPresentation = await state(cdp);
+    assert.equal(restoredPresentation.mapMode, 'close', `continued game retained Close-up View: ${JSON.stringify(restoredPresentation)}`);
+    assert.equal(restoredPresentation.minimap.exists && restoredPresentation.minimap.connected && !restoredPresentation.minimap.hidden && restoredPresentation.minimap.width > 0, true, `continued Close-up game restored its Minimap: ${JSON.stringify(restoredPresentation.minimap)}`);
     await hoverSelector(cdp, '.tile-cell[data-semantic-kind="hero"], .tile-cell[data-semantic-kind="player"]');
     const hovered = await waitFor(async () => { const s = await state(cdp); return !s.tooltip.hidden ? s : null; }, 5000);
     const hoverShot = await shot(cdp, '02-loaded-hero-hover-card.png');

@@ -13,7 +13,6 @@
     contextualPrompts: 'full',
     autopickup: 'gold',
     movement: 'classic',
-    onboarding: Object.freeze({ completed: false, disabled: false, lastStep: 'not-started' }),
     hudDensity: 'compact',
     keyHints: 'contextual',
     map: Object.freeze({ mode: 'close', closeRows: 9, minimapSize: 'medium', scale: 1, glyphOverlay: false, highContrast: false }),
@@ -29,7 +28,6 @@
 
   function normalizeSettings(input = {}) {
     const source = input && typeof input === 'object' && !Array.isArray(input) ? input : {};
-    const onboarding = source.onboarding && typeof source.onboarding === 'object' ? source.onboarding : {};
     const map = source.map && typeof source.map === 'object' ? source.map : {};
     const layout = source.layout && typeof source.layout === 'object' ? source.layout : {};
     const sound = source.sound && typeof source.sound === 'object' ? source.sound : {};
@@ -38,11 +36,6 @@
       contextualPrompts: oneOf(source.contextualPrompts, ['off', 'essential', 'full'], defaultSettings.contextualPrompts),
       autopickup: oneOf(source.autopickup, ['off', 'gold', 'all'], defaultSettings.autopickup),
       movement: oneOf(source.movement, ['classic', 'numpad'], defaultSettings.movement),
-      onboarding: Object.freeze({
-        completed: bool(onboarding.completed, defaultSettings.onboarding.completed),
-        disabled: bool(onboarding.disabled, defaultSettings.onboarding.disabled),
-        lastStep: typeof onboarding.lastStep === 'string' && onboarding.lastStep.trim() ? onboarding.lastStep.trim().slice(0, 64) : defaultSettings.onboarding.lastStep,
-      }),
       hudDensity: oneOf(source.hudDensity, ['compact', 'detailed'], defaultSettings.hudDensity),
       keyHints: oneOf(source.keyHints, ['contextual', 'always', 'never'], defaultSettings.keyHints),
       map: Object.freeze({
@@ -78,7 +71,6 @@
     return normalizeSettings({
       ...current,
       ...source,
-      onboarding: { ...current.onboarding, ...(source.onboarding && typeof source.onboarding === 'object' ? source.onboarding : {}) },
       map: { ...current.map, ...(source.map && typeof source.map === 'object' ? source.map : {}) },
       layout: { ...current.layout, ...(source.layout && typeof source.layout === 'object' ? source.layout : {}) },
       sound: { ...current.sound, ...(source.sound && typeof source.sound === 'object' ? source.sound : {}) },

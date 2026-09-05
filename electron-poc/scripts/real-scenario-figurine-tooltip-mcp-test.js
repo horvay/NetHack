@@ -73,7 +73,6 @@ async function main() {
     await delay(500);
     await page.dismissIntroDialogs();
     await waitFor(() => page.evalCheckedValue(`!document.getElementById('intro-dialog')?.open && !document.getElementById('document-dialog')?.open`, { awaitPromise: true }), 5000);
-    await page.evalCheckedValue(`(() => { document.querySelector('.ux-onboarding-actions button')?.click(); return true; })()`, { awaitPromise: true });
     await delay(100);
     const before = await state(page);
     assert('map cell exposes horse figurine name', /figurine of a horse/i.test(before.east.aria), JSON.stringify(before.east));

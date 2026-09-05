@@ -214,7 +214,6 @@ const sharedModules = Object.freeze({
   uxCommandCatalog: window.NetHackUxCommandCatalog,
   uxCommandPalette: window.NetHackUxCommandPalette,
   uxHelpCenter: window.NetHackUxHelpCenter,
-  uxOnboarding: window.NetHackUxOnboarding,
   uxCharacterCreation: window.NetHackUxCharacterCreation,
 });
 const transferSession = sharedModules.transferSession.createTransferSession({
@@ -1571,7 +1570,6 @@ let userSettings = presentationSettingsStore?.load?.().settings || {
   contextualPrompts: 'full',
   autopickup: 'gold',
   movement: 'classic',
-  onboarding: { completed: false, disabled: false, lastStep: 'not-started' },
   hudDensity: 'compact',
   keyHints: 'contextual',
   map: { mode: 'close', closeRows: 9, minimapSize: 'medium', scale: 1, glyphOverlay: false, highContrast: false },
@@ -1585,7 +1583,6 @@ let uxDiscoveryController = null;
 let uxCommandCatalog = null;
 let uxCommandPalette = null;
 let uxHelpCenter = null;
-let uxOnboarding = null;
 let uxCharacterCreation = null;
 
 function discoveryPublicState() {
@@ -1607,14 +1604,39 @@ function discoveryPublicState() {
 
 function openDiscoverySurface(surface, command = null, invoker = null) {
   window.setTimeout(() => {
-    if (surface === 'help') uxHelpCenter?.open?.({ section: 'basics', invoker: invoker || openActionsButton });
-    else if (surface === 'movement') uxHelpCenter?.open?.({ section: 'keys', query: command?.id === 'dungeon.counts' ? 'count' : '', invoker: invoker || openActionsButton });
+    if (surface === 'help') {
+      uxHelpCenter?.open?.({ section: 'basics', invoker: invoker || openActionsButton });
+      return;
+    }
+    if (surface !== 'movement') return;
+    const openControl = (control) => {
+      if (!control) return;
+      uxFocusLayer?.prepareOpen?.(actionDialog, invoker || openActionsButton);
+      if (!actionDialog.open) actionDialog.showModal();
+      window.requestAnimationFrame(() => {
+        control.scrollIntoView?.({ block: 'nearest' });
+        control.focus?.({ preventScroll: true });
+        if (control === repeatCountInput) control.select?.();
+      });
+    };
+    if (command?.id === 'dungeon.counts') {
+      openControl(repeatCountInput);
+      return;
+    }
+    const mode = {
+      'dungeon.walk': 'walk',
+      'dungeon.run': 'run',
+      'dungeon.fight': 'fight',
+    }[command?.id];
+    if (!mode) return;
+    setMovementMode(mode);
+    openControl(movementActions?.querySelector('button[data-move-direction="k"]'));
   }, 0);
   return true;
 }
 
 function initializeDiscoveryDomain() {
-  if (uxDiscoveryController || !uxRuntime || !sharedModules.uxCommandCatalog || !sharedModules.uxCommandPalette || !sharedModules.uxHelpCenter || !sharedModules.uxOnboarding || !sharedModules.uxCharacterCreation) return uxDiscoveryController;
+  if (uxDiscoveryController || !uxRuntime || !sharedModules.uxCommandCatalog || !sharedModules.uxCommandPalette || !sharedModules.uxHelpCenter || !sharedModules.uxCharacterCreation) return uxDiscoveryController;
   const mount = sharedModules.uxAppMounts?.lookupMount?.('discovery', document);
   if (!mount) return null;
   uxCommandCatalog = sharedModules.uxCommandCatalog.createCommandCatalog();
@@ -1666,7 +1688,6 @@ function initializeDiscoveryDomain() {
     mount,
     catalog: uxCommandCatalog,
     dialogService: uxDialogService,
-    onRestartGuide() { uxOnboarding?.restart?.(); },
   });
   uxCharacterCreation = sharedModules.uxCharacterCreation.createCharacterCreationController({
     documentRoot: document,
@@ -1677,20 +1698,11 @@ function initializeDiscoveryDomain() {
     dialogService: uxDialogService,
     onSubmit: startDiscoveryCharacter,
   });
-  uxOnboarding = sharedModules.uxOnboarding.createOnboardingController({
-    documentRoot: document,
-    mount,
-    settingsStore: presentationSettingsStore,
-    settings: userSettings.onboarding,
-    onDiagnostic: (entry) => diagnosticEvent('discovery', entry.type, entry.detail || {}),
-    onWarning: (message) => showFailureNotice({ id: 'onboarding:preference-warning', kind: 'storage-write', reason: message }),
-  });
   uxDiscoveryController = sharedModules.uxCommandCatalog.registerDiscoveryDomain({
     runtime: uxRuntime,
     catalog: uxCommandCatalog,
     palette: uxCommandPalette,
     help: uxHelpCenter,
-    onboarding: uxOnboarding,
     characterCreation: uxCharacterCreation,
     onPublicState(snapshot) {
       const state = { ...discoveryPublicState(), game: snapshot.game || {}, presentationSettings: snapshot.presentationSettings || userSettings };
@@ -2127,7 +2139,6 @@ function appendMessage(text, { allowConsecutiveDuplicate = false, logPrompt = tr
   clearGroundItemsHintForDestroyedContainerMessage(normalized);
   maybeFinishEmptyContainerPaneFromMessage(normalized);
   maybeShowContextualPrompt(normalized);
-  uxOnboarding?.observe?.({ type: 'consequence-visible', confirmed: true });
   return true;
 }
 
@@ -2815,10 +2826,7 @@ function renderContextActionBar() {
     button.dataset.contextActionId = action.id;
     button.textContent = action.label;
     button.title = action.title;
-    button.addEventListener('click', () => {
-      uxOnboarding?.observe?.({ type: 'here-actions-opened', confirmed: true });
-      runContextAction(action);
-    });
+    button.addEventListener('click', () => runContextAction(action));
     contextActionBar.appendChild(button);
   }
   const feedback = globalThis.NetHackUxFeedback;
@@ -3956,7 +3964,6 @@ function renderIntroWindow() {
 function openIntroWindow({ lines }) {
   introWindow = { lines: lines.filter(Boolean) };
   introLoreShown = true;
-  uxOnboarding?.observe?.({ type: 'dialog-opened', ownerId: 'intro' });
   renderIntroWindow();
   if (interactionDialog.open) closeInteractionDialog();
   if (!introDialog.open) { uxFocusLayer?.prepareOpen?.(introDialog, document.activeElement); introDialog.showModal(); }
@@ -4170,7 +4177,6 @@ function openDocumentWindow({ title, lines }) {
 documentFilter.addEventListener('input', renderDocumentWindow);
 introDialog.addEventListener('keydown', (event) => event.stopPropagation());
 introDialog.addEventListener('close', () => {
-  uxOnboarding?.observe?.({ type: 'dialog-closed', ownerId: 'intro' });
   // The Electron intro is a renderer presentation of NetHack's already-printed
   // role lore, not a NetHack --More-- prompt.  Do not send Space when the user
   // clicks "Begin the descent"; doing so leaked an unsolicited blank command
@@ -7145,7 +7151,6 @@ function publishUxPublicState() {
       session: {
         restored: currentRunConfig?.runKind === 'continue',
         replay: Boolean(currentRunConfig?.replay),
-        onboardingSuppressed: currentRunConfig?.runKind === 'continue' || Boolean(currentRunConfig?.replay),
       },
     }, { reasons, effectTypes, domains });
   } catch (error) {
@@ -7703,20 +7708,9 @@ function handleShimEvent(event) {
     sendRecordedShimInput({ type: 'keycode', keycode: 'y'.charCodeAt(0) }, 'auto-disclosure');
     setStatus('collecting final NetHack statistics');
   }
-  const onboardingCursorBefore = { x: gameViewSnapshot.cursor.x, y: gameViewSnapshot.cursor.y, window: gameViewSnapshot.cursor.window };
   processShimGameEvent(appEvent);
   if (rawEvent.name === 'bridge_extcmd_answer' && uxCommandPalette?.element?.open && uxCommandPalette.model.snapshot().mode === 'core') {
     uxCommandPalette.close('core-answered');
-  }
-  if (rawEvent.name === 'shim_curs' && introLoreShown && !introDialog?.open && (gameViewSnapshot.cursor.x !== onboardingCursorBefore.x || gameViewSnapshot.cursor.y !== onboardingCursorBefore.y) && gameViewSnapshot.cursor.window === gameViewSnapshot.mapWindowId) {
-    uxOnboarding?.observe?.({ type: 'movement-confirmed', confirmed: true });
-  }
-  if (['shim_yn_function', 'shim_getlin', 'shim_get_ext_cmd', 'shim_select_menu'].includes(rawEvent.name) && !rawEvent.autoAnswered) {
-    uxOnboarding?.observe?.({ type: 'core-prompt-opened', ownerId: String(rawEvent.requestId || rawEvent.menuRequestId || rawEvent.promptId || `core:${rawEvent.name}`) });
-  }
-  if (['bridge_prompt_answer', 'bridge_line_answer', 'bridge_extcmd_answer', 'bridge_menu_answer'].includes(rawEvent.name)) {
-    uxOnboarding?.observe?.({ type: 'core-prompt-closed', ownerId: String(rawEvent.requestId || rawEvent.menuRequestId || rawEvent.promptId || `core:${rawEvent.name.replace('bridge_', 'shim_')}`) });
-    if (rawEvent.name === 'bridge_menu_answer') uxOnboarding?.observe?.({ type: 'inventory-closed', confirmed: true });
   }
   if (['bridge_extcmd_catalog', 'shim_get_ext_cmd'].includes(rawEvent.name) && gameViewSnapshot.activePrompt?.kind === 'extended command' && !pendingPromptCancellation && !uxCommandPalette?.element?.open) {
     closeInteractionDialog({ force: true });
@@ -8244,7 +8238,6 @@ async function startShimRun({ playerSpec, character = null, seed = '', recording
   delete shimOutput.dataset.count;
   derivedPlayerCharacter = {};
   currentRunConfig = { character, playerSpec, seed, requestedSeed: seed, runKind, recovery };
-  uxOnboarding?.begin?.({ runKind: runKind === 'continue' ? 'restored' : runKind });
   if (recordingEnabled) startInputRecording(currentRunConfig);
   else { activeRecording = null; updateRecordingStatus(runKind === 'continue' ? 'Recording disabled while continuing a saved game.' : 'Recording disabled for this run.'); }
   const startingText = runKind === 'continue' ? 'restoring previous game' : (seed ? `starting seeded tile game (${seed})` : 'starting playable tile game');

@@ -272,7 +272,6 @@
       catalog,
       palette: options.palette || null,
       help: options.help || null,
-      onboarding: options.onboarding || null,
       characterCreation: options.characterCreation || null,
       hashActivation: hashActivation(),
     });

@@ -162,16 +162,16 @@ assert.equal(secondLoad.source, 'v4');
 assert.equal(secondLoad.migrated, false, 'migration is idempotent after v4 persists');
 assert(migrationDiagnostics.some((entry) => entry.type === 'settings.migrated'));
 const sharedSettingsStorage = memoryStorage();
-const shellWriter = Settings.createSettingsStore({ storage: sharedSettingsStorage });
-const onboardingWriter = Settings.createSettingsStore({ storage: sharedSettingsStorage });
-shellWriter.load();
-onboardingWriter.load();
-shellWriter.save({ map: { mode: 'close', closeRows: 11 } });
-onboardingWriter.save({ onboarding: { completed: true, lastStep: 'finished' } });
+const audioWriter = Settings.createSettingsStore({ storage: sharedSettingsStorage });
+const mapWriter = Settings.createSettingsStore({ storage: sharedSettingsStorage });
+audioWriter.load();
+mapWriter.load();
+audioWriter.save({ map: { mode: 'close', closeRows: 11 } });
+mapWriter.save({ sound: { volume: 0.75 } });
 const cooperativelySaved = JSON.parse(sharedSettingsStorage.values.get(Settings.storageKey));
 assert.equal(cooperativelySaved.map.mode, 'close', 'a later partial writer preserves the latest persisted Map View');
 assert.equal(cooperativelySaved.map.closeRows, 11, 'a later partial writer preserves the latest persisted Close-up framing');
-assert.equal(cooperativelySaved.onboarding.completed, true);
+assert.equal(cooperativelySaved.sound.volume, 0.75);
 
 
 const v1 = memoryStorage({

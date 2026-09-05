@@ -152,7 +152,6 @@ async function main() {
       return next.running && loaded && next.hero && next.east ? next : null;
     }, 25000);
     if (current.dialogs.includes('intro-dialog')) await page.click('#intro-continue');
-    await page.evalCheckedValue("document.querySelector('.ux-onboarding-actions button')?.click(); true");
     await Harness.delay(100);
     current = await state(page);
 

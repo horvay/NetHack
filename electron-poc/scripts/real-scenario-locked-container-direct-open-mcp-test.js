@@ -88,11 +88,6 @@ async function main() {
     await waitFor(async () => (await state(cdp)).running, 20000);
     await cdp.dismissIntroDialogs();
     await waitFor(async () => /bridge_test_scenario_loaded/.test(`${(await state(cdp)).seenShim}\n${(await state(cdp)).shimTail}`), 10000);
-    await cdp.evalCheckedValue(`(() => {
-      const guide = document.querySelector('.ux-first-turn-guide:not([hidden])');
-      Array.from(guide?.querySelectorAll('button') || []).find((button) => /Skip guide/i.test(button.textContent || ''))?.click();
-    })()`);
-    
     const ready = await waitFor(async () => {
       const s = await state(cdp);
       return (s.actions?.buttons || []).some((button) => button.id === 'open-container') ? s : null;

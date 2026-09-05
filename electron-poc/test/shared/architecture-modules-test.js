@@ -23,6 +23,7 @@ assert.equal(LaunchPolicy.normalizeSeed('0x10'), '16');
 assert.equal(LaunchPolicy.normalizeSeed('-1'), undefined);
 assert.equal(LaunchPolicy.normalizeSeed('18446744073709551616'), undefined);
 assert.equal(LaunchPolicy.normalizeNetHackOptions('autopickup,pickup_types:$,bad'), '!tutorial,autopickup,pickup_types:$');
+assert.equal(LaunchPolicy.normalizeNetHackOptions('number_pad:1,bad'), '!tutorial,number_pad:1');
 assert.equal(LaunchPolicy.launchEnv({ NETHACK_SEED: '123' }).NETHACK_SEED, undefined, 'launch env drops inherited seed');
 assert.equal(LaunchPolicy.launchEnv({ NH_ELECTRON_CHOSEN_SEED: '777' }).NH_ELECTRON_CHOSEN_SEED, undefined, 'launch env drops inherited chosen seed');
 assert.equal(LaunchPolicy.launchEnv({ NH_ELECTRON_TEST_FIXTURES: '1', NETHACK_SEED: '123' }).NETHACK_SEED, undefined, 'fixture launch env still drops inherited seed until policy adds normalized seed');

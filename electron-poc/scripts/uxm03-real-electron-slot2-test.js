@@ -23,7 +23,6 @@ async function pageState(driver) {
   return driver.evalCheckedValue(`(() => ({
     dialogs: Array.from(document.querySelectorAll('dialog[open]')).map((node) => node.id),
     focus: { id: document.activeElement?.id || '', commandId: document.activeElement?.dataset?.commandId || '', tag: document.activeElement?.tagName || '' },
-    guide: (() => { const node = document.querySelector('.ux-first-turn-guide'); return node ? { hidden: node.hidden, phase: node.dataset.phase, text: node.innerText } : null; })(),
     palette: (() => { const node = document.getElementById('ux-command-palette'); return node ? { open: node.open, text: node.innerText, selected: node.querySelector('[aria-selected="true"]')?.dataset?.commandId || '', mode: NetHackUxRuntime.runtime.domain('discovery')?.palette?.model?.snapshot?.().mode || '' } : null; })(),
     magic: (() => { const dialog = document.getElementById('interaction-dialog'); return { open: dialog.open, title: document.getElementById('interaction-title')?.textContent || '', rows: Array.from(dialog.querySelectorAll('[data-classification-confidence]')).map((row) => ({ confidence: row.dataset.classificationConfidence, text: row.innerText })), selectors: Array.from(dialog.querySelectorAll('.choice-button')).map((row) => row.dataset.key).filter(Boolean) }; })(),
     sent: window.__nethackPromptTest.sentInputs().join(''),
@@ -103,30 +102,14 @@ async function main() {
     await waitFor(driver, `document.getElementById('intro-dialog')?.open === true`, 20000);
     await driver.click('#intro-continue');
     await waitFor(driver, `!document.getElementById('intro-dialog')?.open`);
-    await waitFor(driver, `document.querySelector('.ux-first-turn-guide')?.dataset.phase === 'cue-1'`);
-    await capture(driver, '03-1360-guide-move', 'real Electron and real NetHack core', 'First-turn guide cue 1 after real intro; focus remains available to classic play.');
-
-    await driver.pressKey('l');
-    await waitFor(driver, `document.querySelector('.ux-first-turn-guide')?.dataset.phase === 'cue-2'`, 10000);
-    await capture(driver, '04-1360-guide-consequence', 'real Electron and real NetHack core', 'A real classic movement confirmation advanced cue 1.');
-    await driver.pressKey('o');
-    await Harness.delay(150);
-    await driver.pressKey('k');
-    await waitFor(driver, `['cue-3','cue-4','completed'].includes(document.querySelector('.ux-first-turn-guide')?.dataset.phase)`, 10000);
-    let guide = await pageState(driver);
-    if (guide.guide.phase === 'cue-3') {
-      await capture(driver, '05-1360-guide-here', 'real Electron and real NetHack core', 'A real canonical consequence advanced cue 2.');
-      const more = await driver.evalCheckedValue(`(() => { const button = Array.from(document.querySelectorAll('#context-action-bar button')).find((node) => /more|actions/i.test(node.textContent)); if (button) { button.click(); return true; } return false; })()`);
-      if (!more) await driver.evalCheckedValue(`(() => { const button = document.querySelector('#context-action-bar button'); if (button) button.click(); return Boolean(button); })()`);
-      await waitFor(driver, `document.querySelector('.ux-first-turn-guide')?.dataset.phase === 'cue-4'`);
-      if (await driver.evalCheckedValue(`document.getElementById('ux-command-palette')?.open === true`)) await driver.pressKey('Escape');
-    }
-    await capture(driver, '06-1360-guide-inventory', 'real Electron and real NetHack core', 'Opening real Here actions advanced cue 3 without synthetic event injection.');
-    await driver.evalCheckedValue(`(() => { document.getElementById('inventory-equipment-button').click(); return true; })()`);
-    await waitFor(driver, `document.getElementById('interaction-dialog')?.open === true && document.getElementById('interaction-dialog').classList.contains('rpg-equipment-dialog')`, 15000);
-    await driver.pressKey('Escape');
-    await waitFor(driver, `document.querySelector('.ux-first-turn-guide')?.dataset.phase === 'completed'`, 10000);
-    checks.onboardingCompletedByRealActions = true;
+    const removedGuide = await driver.evalCheckedValue(`({
+      elementPresent: Boolean(document.querySelector('.ux-first-turn-guide')),
+      globalPresent: typeof window.NetHackUxOnboarding !== 'undefined',
+      restartActionPresent: Array.from(document.querySelectorAll('button')).some((button) => /Restart field guide/i.test(button.textContent || '')),
+    })`);
+    assert.deepEqual(removedGuide, { elementPresent: false, globalPresent: false, restartActionPresent: false });
+    checks.onboardingRemoved = true;
+    await capture(driver, '03-1360-gameplay-no-guide', 'real Electron and real NetHack core', 'Normal gameplay begins without a first-turn overlay.');
 
     await driver.evalCheckedValue(`window.__nethackPromptTest.clearSentInputs()`);
     let palette = await openPaletteSearch(driver, 'drink potion');

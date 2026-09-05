@@ -64,16 +64,12 @@ async function main() {
     }, 12000);
     await driver.dismissIntroDialogs();
     await Harness.waitFor(async () => driver.evalCheckedValue(`!document.getElementById('intro-dialog')?.open && !document.getElementById('document-dialog')?.open`), 7000);
-    const guideDismissal = await Harness.waitFor(async () => driver.evalCheckedValue(`(() => {
-      const guide = document.querySelector('.ux-first-turn-guide');
-      const skip = guide?.querySelector('.ux-onboarding-actions button:first-of-type');
-      return !guide?.hidden && skip?.textContent?.trim() === 'Skip guide'
-        ? { phase: guide.dataset.phase || '', label: skip.textContent.trim() }
-        : null;
-    })()`), 7000);
-    assert('Field guide is dismissible through its visible Skip guide control', guideDismissal.label === 'Skip guide', JSON.stringify(guideDismissal));
-    await driver.click('.ux-first-turn-guide .ux-onboarding-actions button:first-of-type');
-    await Harness.waitFor(async () => driver.evalCheckedValue(`document.querySelector('.ux-first-turn-guide')?.hidden === true`), 7000);
+    const removedGuide = await driver.evalCheckedValue(`({
+      elementPresent: Boolean(document.querySelector('.ux-first-turn-guide')),
+      globalPresent: typeof window.NetHackUxOnboarding !== 'undefined',
+      restartActionPresent: Array.from(document.querySelectorAll('button')).some((button) => /Restart field guide/i.test(button.textContent || '')),
+    })`);
+    assert('Field guide is absent from the running game', !removedGuide.elementPresent && !removedGuide.globalPresent && !removedGuide.restartActionPresent, JSON.stringify(removedGuide));
     const beforeShot = await driver.screenshotEvidence(qc, '01-before-run', { classification: 'synthetic-fixture', viewport: { width: 1200, height: 820, devicePixelRatio: 1 }, state: 'before-run' });
     await driver.evalCheckedValue('window.__nethackPromptTest.clearSentInputs()');
     await driver.click('#direction-helper [data-key="h"]');

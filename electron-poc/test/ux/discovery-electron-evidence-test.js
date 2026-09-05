@@ -39,8 +39,7 @@ async function main() {
       const palette = NetHackUxCommandPalette.createPaletteController({ documentRoot: document, mount, catalog, dialogService, dispatchAdapter, keyHints: () => 'always' });
       const help = NetHackUxHelpCenter.createHelpController({ documentRoot: document, mount, catalog, dialogService, manualLines: ['NetHack Manual', '', 'Commands are case-sensitive.', 'Type # followed by an extended command name.', '', 'Escape cancels the current prompt.'] });
       const creation = NetHackUxCharacterCreation.createCharacterCreationController({ documentRoot: document, mount, characterOptions: NetHackCharacterOptions, dialogService });
-      const onboarding = NetHackUxOnboarding.createOnboardingController({ documentRoot: document, mount, settings: { completed: false, disabled: false }, settingsStore: { current: () => ({ onboarding: { completed: false, disabled: false, lastStep: 'not-started' } }), save: (patch) => ({ persisted: true, settings: patch }) } });
-      window.__uxm03Evidence = { mount, catalog, palette, help, creation, onboarding, dispatches };
+      window.__uxm03Evidence = { mount, catalog, palette, help, creation, dispatches };
       return true;
     })()`);
 
@@ -60,7 +59,7 @@ async function main() {
         clippedVisibleActions: Array.from(document.querySelectorAll('#ux-discovery-root dialog[open] header button, #ux-discovery-root dialog[open] .dialog-actions button')).filter((node) => { const r = node.getBoundingClientRect(); const style = getComputedStyle(node); return style.display !== 'none' && (!r.width || !r.height || r.left < 0 || r.right > innerWidth || r.top < 0 || r.bottom > innerHeight); }).map((node) => node.textContent.trim()),
         viewport: { width: innerWidth, height: innerHeight },
         textSize: getComputedStyle(document.documentElement).fontSize,
-        visibleText: Array.from(document.querySelectorAll('#ux-discovery-root dialog[open], #ux-discovery-root .ux-first-turn-guide:not([hidden])')).map((node) => node.innerText).join('\\n').slice(0, 4000),
+        visibleText: Array.from(document.querySelectorAll('#ux-discovery-root dialog[open]')).map((node) => node.innerText).join('\\n').slice(0, 4000),
       }))()`);
       assert.equal(state.horizontalOverflow, false, `${id} must not create horizontal page overflow`);
       assert.equal(state.internalHorizontalOverflow, false, `${id} must not create internal horizontal overflow`);
@@ -81,17 +80,7 @@ async function main() {
     await capture('1360-help-basics', { width: 1360, height: 920 }, 'synthetic domain controller in real Electron, Help Basics');
     await closeDialogs();
 
-    await driver.evalCheckedValue(`(() => { __uxm03Evidence.onboarding.begin({ runKind: 'new' }); return true; })()`);
-    await capture('1360-onboarding-1-move', { width: 1360, height: 920 }, 'synthetic domain controller in real Electron, field guide cue 1');
-    await driver.evalCheckedValue(`(() => { __uxm03Evidence.onboarding.observe({ type: 'movement-confirmed', confirmed: true }); return true; })()`);
-    await capture('1360-onboarding-2-consequence', { width: 1360, height: 920 }, 'synthetic domain controller in real Electron, field guide cue 2');
-    await driver.evalCheckedValue(`(() => { __uxm03Evidence.onboarding.observe({ type: 'consequence-visible', confirmed: true }); return true; })()`);
-    await capture('1360-onboarding-3-here', { width: 1360, height: 920 }, 'synthetic domain controller in real Electron, field guide cue 3');
-    await driver.evalCheckedValue(`(() => { __uxm03Evidence.onboarding.observe({ type: 'here-actions-opened', confirmed: true }); return true; })()`);
-    await capture('1360-onboarding-4-inventory', { width: 1360, height: 920 }, 'synthetic domain controller in real Electron, field guide cue 4');
-
     await driver.evalCheckedValue(`(() => {
-      __uxm03Evidence.onboarding.model.skip(); __uxm03Evidence.onboarding.render();
       const dialog = document.createElement('dialog'); dialog.id = 'ux-magic-evidence'; dialog.className = 'ux-help-center';
       const frame = document.createElement('div'); frame.className = 'ux-help-frame';
       const heading = document.createElement('header'); heading.className = 'ux-help-heading'; heading.innerHTML = '<div><span class="ux-discovery-kicker">Magic</span><h2>Spells</h2></div>';

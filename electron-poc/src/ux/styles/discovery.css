@@ -1,4 +1,4 @@
-/* UXM-03 command discovery, field guide, Help, and character creation. */
+/* UXM-03 command discovery, Help, and character creation. */
 .ux-command-palette,
 .ux-help-center,
 .ux-character-creation {
@@ -228,32 +228,6 @@
 }
 .ux-help-actions { margin: 0 var(--ux-space-6); }
 
-.ux-first-turn-guide {
-  position: fixed;
-  z-index: 40;
-  right: var(--ux-space-4);
-  bottom: var(--ux-space-4);
-  width: min(24rem, calc(100vw - 2rem));
-  padding: var(--ux-space-4);
-  border: 1px solid var(--ux-color-action);
-  border-radius: var(--ux-radius-overlay);
-  color: var(--ux-color-text);
-  background: var(--ux-color-surface-raised);
-  box-shadow: 0 1rem 3rem oklch(0.08 0.01 78 / 0.65);
-}
-.ux-first-turn-guide[hidden] { display: none; }
-.ux-onboarding-progress {
-  display: block;
-  margin-bottom: var(--ux-space-2);
-  color: var(--ux-color-action);
-  font: 800 0.72rem/1 var(--ux-font-ui);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.ux-first-turn-guide > strong { display: block; font-size: 1.05rem; }
-.ux-first-turn-guide > p { margin: var(--ux-space-2) 0 var(--ux-space-3); color: var(--ux-color-text-muted); line-height: 1.45; }
-.ux-onboarding-actions { display: flex; flex-wrap: wrap; gap: var(--ux-space-2); }
-.ux-onboarding-actions button { min-height: 2.5rem; }
 
 .ux-character-creation { width: min(48rem, calc(100vw - 2rem)); }
 .ux-character-creation .ux-character-form {
@@ -358,7 +332,6 @@
   .ux-character-legality,
   .ux-character-submit-error,
   .ux-character-advanced { margin-right: var(--ux-space-4); margin-left: var(--ux-space-4); }
-  .ux-first-turn-guide { right: var(--ux-space-3); bottom: var(--ux-space-3); }
 }
 
 @media (max-width: 700px) {
@@ -371,7 +344,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ux-first-turn-guide,
   .ux-command-palette,
   .ux-help-center,
   .ux-character-creation { animation: none; }

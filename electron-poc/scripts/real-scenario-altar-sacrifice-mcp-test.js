@@ -57,7 +57,7 @@ async function main() {
       return /bridge_test_scenario_loaded/.test(`${current.seen}\n${current.shim}`) && current.actions?.buttons?.some((button) => button.id === 'offer') ? current : null;
     }, 15000);
     await page.dismissIntroDialogs();
-    await evalExpr(page, `(() => { document.querySelector('.ux-onboarding-actions button')?.click(); document.getElementById('game-grid')?.focus?.(); window.__nethackPromptTest?.clearSentInputs?.(); return true; })()`);
+    await evalExpr(page, `(() => { document.getElementById('game-grid')?.focus?.(); window.__nethackPromptTest?.clearSentInputs?.(); return true; })()`);
     await delay(150);
     const before = await state(page);
     screenshots.push(await capture(page, qc, '00-altar-corpse-offer-action', 'altar and corpse with Offer sacrifice action'));

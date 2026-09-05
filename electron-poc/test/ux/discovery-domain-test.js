@@ -6,7 +6,6 @@ const vm = require('node:vm');
 const Catalog = require('../../src/ux/command-catalog');
 const Palette = require('../../src/ux/command-palette');
 const Help = require('../../src/ux/help-center');
-const Onboarding = require('../../src/ux/onboarding');
 const Creation = require('../../src/ux/character-creation');
 const CharacterOptions = require('../../src/shared/character-options');
 const Runtime = require('../../src/ux/runtime');
@@ -134,57 +133,6 @@ assert.throws(() => Help.normalizeSpellRow({}, 'typed'), /name is required/);
 assert.throws(() => Help.normalizeSpellRow({ name: 'force bolt' }), /explicit typed or fallback provenance/);
 assert.throws(() => Help.normalizeSkillRow([], 'typed'), /must be an object/);
 
-function settingsHarness({ persist = true } = {}) {
-  const calls = [];
-  let current = { onboarding: { completed: false, disabled: false, lastStep: 'not-started' } };
-  return {
-    calls,
-    current: () => current,
-    save(patch) { calls.push(patch); current = { ...current, ...patch }; return { settings: current, persisted: persist }; },
-  };
-}
-const onboardingSettings = settingsHarness();
-const onboarding = Onboarding.createOnboarding({ settingsStore: onboardingSettings });
-assert.equal(onboarding.begin({ runKind: 'new' }).cue.id, 'move');
-assert.equal(onboarding.observe({ type: 'movement-confirmed', confirmed: false }).cue.id, 'move', 'keydown without confirmation does not complete movement');
-assert.equal(onboarding.observe({ type: 'movement-confirmed', confirmed: true }).cue.id, 'consequence');
-assert.equal(onboarding.observe({ type: 'core-prompt-opened', ownerId: 'prompt-1' }).suspended, true);
-onboarding.observe({ type: 'dialog-opened', ownerId: 'help-1' });
-assert.equal(onboarding.observe({ type: 'consequence-visible', confirmed: true }).cue.id, 'consequence', 'suspended cues do not advance');
-onboarding.observe({ type: 'core-prompt-closed', ownerId: 'prompt-1' });
-assert.equal(onboarding.snapshot().suspended, true, 'one owner closing does not resume while another owner remains');
-onboarding.observe({ type: 'dialog-closed', ownerId: 'help-1' });
-assert.equal(onboarding.observe({ type: 'consequence-visible', confirmed: true }).cue.id, 'here-actions');
-assert.equal(onboarding.observe({ type: 'here-actions-opened', confirmed: true }).cue.id, 'inventory');
-onboarding.observe({ type: 'inventory-closed', confirmed: true });
-assert.equal(onboarding.snapshot().cue.id, 'inventory', 'Inventory must open before closing can complete the cue');
-onboarding.observe({ type: 'inventory-opened', confirmed: true });
-assert.equal(onboarding.observe({ type: 'inventory-closed', confirmed: true }).phase, 'completed');
-assert.equal(onboarding.snapshot().settings.completed, true);
-
-const restored = Onboarding.createOnboarding({ settingsStore: settingsHarness(), settings: { completed: false, disabled: false } });
-assert.equal(restored.begin({ runKind: 'restored' }).completionReason, 'restored-suppressed');
-assert.equal(restored.restart().cue.id, 'move', 'Help can explicitly restart the guide');
-const replay = Onboarding.createOnboarding({ settingsStore: settingsHarness(), settings: { completed: false, disabled: false } });
-assert.equal(replay.begin({ runKind: 'replay' }).completionReason, 'replay-suppressed');
-const skipped = Onboarding.createOnboarding({ settingsStore: settingsHarness() });
-skipped.begin({ runKind: 'new' });
-assert.equal(skipped.skip().completionReason, 'skipped');
-assert.equal(skipped.snapshot().settings.disabled, false);
-const disabled = Onboarding.createOnboarding({ settingsStore: settingsHarness() });
-disabled.begin({ runKind: 'new' });
-assert.equal(disabled.disable().phase, 'disabled');
-assert.equal(disabled.snapshot().settings.disabled, true);
-let storageWarnings = 0;
-const noStorage = Onboarding.createOnboarding({ onWarning() { storageWarnings += 1; } });
-noStorage.begin({ runKind: 'new' });
-noStorage.skip();
-assert.equal(storageWarnings, 1, 'unavailable settings storage warning deduplicates and does not block the guide');
-let throwingWarnings = 0;
-const throwingStore = { current: () => ({ onboarding: {} }), save: () => { throw new Error('disk unavailable'); } };
-const throwingOnboarding = Onboarding.createOnboarding({ settingsStore: throwingStore, onWarning: () => { throwingWarnings += 1; } });
-assert.doesNotThrow(() => throwingOnboarding.begin({ runKind: 'new' }));
-assert.equal(throwingWarnings, 1);
 
 assert.equal(Creation.validateName('').ok, false, 'blank name is rejected explicitly');
 assert.match(Creation.validateName('').message, /Enter a hero name/);
@@ -244,13 +192,13 @@ assert.equal(discoveryDomain.catalog.entries().length, entries.length);
 assert.equal(discoveryDomain.catalog.search('speak', { canChat: true })[0].command.id, 'context.chat');
 assert.throws(() => Catalog.registerDiscoveryDomain({ runtime, catalog }), /already has an owner/);
 
-const uxSources = ['command-catalog.js', 'command-palette.js', 'help-center.js', 'onboarding.js', 'character-creation.js'];
+const uxSources = ['command-catalog.js', 'command-palette.js', 'help-center.js', 'character-creation.js'];
 const context = { console };
 context.window = context;
 context.self = context;
 vm.createContext(context);
 for (const file of uxSources) vm.runInContext(fs.readFileSync(path.join(__dirname, '../../src/ux', file), 'utf8'), context, { filename: file });
-for (const name of ['NetHackUxCommandCatalog', 'NetHackUxCommandPalette', 'NetHackUxHelpCenter', 'NetHackUxOnboarding', 'NetHackUxCharacterCreation']) assert.equal(Object.isFrozen(context[name]), true, `${name} is a frozen browser global`);
+for (const name of ['NetHackUxCommandCatalog', 'NetHackUxCommandPalette', 'NetHackUxHelpCenter', 'NetHackUxCharacterCreation']) assert.equal(Object.isFrozen(context[name]), true, `${name} is a frozen browser global`);
 
 const css = fs.readFileSync(path.join(__dirname, '../../src/ux/styles/discovery.css'), 'utf8');
 assert(!/border-(?:left|right)\s*:\s*(?:[2-9]|\d{2,})px/i.test(css), 'discovery CSS has no forbidden side-stripe accent');
