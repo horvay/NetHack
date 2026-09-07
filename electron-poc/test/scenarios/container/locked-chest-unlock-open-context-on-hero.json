@@ -32,7 +32,8 @@
   "monsters": [],
   "inventory": [
     {
-      "typeId": "SKELETON_KEY"
+      "typeId": "SKELETON_KEY",
+      "identityKnown": true
     },
     {
       "typeId": "TIN_OPENER"

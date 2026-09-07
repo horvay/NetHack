@@ -21,6 +21,62 @@ assert.equal(Object.isFrozen(notice), true);
 assert.throws(() => Notice.normalizeNotice({ id: '', message: 'No id' }), /id is required/);
 assert.throws(() => Notice.normalizeNotice({ id: 'bad-action', message: 'Bad', actionLabel: 'Retry' }), /supplied together/);
 
+{
+  const queuedHideCallbacks = [];
+  const previousFeedback = globalThis.NetHackUxFeedback;
+  const createNode = () => ({
+    children: [],
+    className: '',
+    classList: { add() {} },
+    dataset: {},
+    hidden: false,
+    textContent: '',
+    onclick: null,
+    append(...children) { this.children.push(...children); },
+    replaceChildren(...children) { this.children = children; },
+    setAttribute() {},
+    removeAttribute() {},
+  });
+  const documentRoot = { createElement: () => createNode() };
+  const mount = createNode();
+  let replacementActionCalls = 0;
+  try {
+    globalThis.NetHackUxFeedback = {
+      animateNoticeHide(node, hide) {
+        queuedHideCallbacks.push(hide);
+        return true;
+      },
+      animateNoticeShow() {},
+    };
+    const service = Notice.createNoticeService({ documentRoot, mount });
+    service.show({ id: 'old-notice', kind: 'info', message: 'Old notice', persistence: 'sticky' });
+    assert.equal(service.clear('old-notice'), true);
+    service.show({
+      id: 'replacement-notice',
+      kind: 'warning',
+      message: 'Replacement warning',
+      persistence: 'sticky',
+      actionLabel: 'Acknowledge',
+      action: () => { replacementActionCalls += 1; },
+    });
+
+    assert.equal(queuedHideCallbacks.length, 1, 'clearing the old notice queues one exit callback');
+    queuedHideCallbacks[0]();
+    const visible = mount.children[0];
+    const message = visible.children[1];
+    const action = visible.children[2];
+    assert.equal(visible.hidden, false, 'a stale exit callback cannot hide a replacement notice');
+    assert.equal(message.textContent, 'Replacement warning', 'a stale exit callback cannot erase replacement notice text');
+    assert.equal(action.hidden, false, 'a stale exit callback cannot hide the replacement action');
+    assert.equal(action.textContent, 'Acknowledge');
+    action.onclick();
+    assert.equal(replacementActionCalls, 1, 'the replacement action remains usable after the stale exit callback');
+  } finally {
+    if (previousFeedback === undefined) delete globalThis.NetHackUxFeedback;
+    else globalThis.NetHackUxFeedback = previousFeedback;
+  }
+}
+
 const scheduled = [];
 const noticeDiagnostics = [];
 const noticeService = Notice.createNoticeService({
@@ -136,6 +192,28 @@ assert.equal(documentRoot.activeElement, last, 'Shift+Tab wraps backward inside 
 focusLayer.close(layerElement);
 assert.equal(documentRoot.activeElement, invoker, 'focus returns to the surviving invoker');
 assert(diagnostics.some((entry) => entry.type === 'focus.restored'));
+const cameraViewport = { scrollTop: 96, scrollLeft: 24 };
+const cameraManagedMap = focusNode('camera-managed-map', documentRoot);
+cameraManagedMap.tagName = 'DIV';
+cameraManagedMap.setAttribute('data-ux-focus-preserve-scroll', '');
+cameraManagedMap.scrollIntoView = () => {
+  cameraViewport.scrollTop = 0;
+  cameraViewport.scrollLeft = 0;
+};
+documentRoot.activeElement = cameraManagedMap;
+focusLayer.open({ id: 'camera-dialog', element: layerElement, initialFocus: first, returnFocus: cameraManagedMap });
+focusLayer.close(layerElement);
+assert.equal(documentRoot.activeElement, cameraManagedMap, 'closing a layer restores focus to a camera-managed map');
+assert.deepEqual(cameraViewport, { scrollTop: 96, scrollLeft: 24 }, 'restoring a marked transformed map preserves its camera scroll');
+
+let ordinaryRevealCount = 0;
+const ordinaryInvoker = focusNode('ordinary-offscreen-control', documentRoot);
+ordinaryInvoker.scrollIntoView = () => { ordinaryRevealCount += 1; };
+documentRoot.activeElement = ordinaryInvoker;
+focusLayer.open({ id: 'ordinary-dialog', element: layerElement, initialFocus: first, returnFocus: ordinaryInvoker });
+focusLayer.close(layerElement);
+assert.equal(documentRoot.activeElement, ordinaryInvoker, 'closing a layer restores focus to an ordinary control');
+assert.equal(ordinaryRevealCount, 1, 'restoring an unmarked control still reveals it');
 
 function focusContainer(id, nodes, documentRoot, replacements = {}) {
   const container = {
@@ -286,6 +364,121 @@ const saveCancelledNoted = CommandTransaction.noteInteraction(saveCancelledStart
 const saveCancelled = CommandTransaction.failTransaction(saveCancelledNoted.state, { transactionId: 'save-cancelled', name: 'bridge_prompt_answer.cancelled' }, 'cancelled');
 assert.equal(saveCancelled.transaction.result.status, 'failure');
 assert.equal(saveCancelled.transaction.interactions.some((entry) => entry.key === '\u001b'), true, 'cancelled Save remains cancellation, not success');
+
+let sharedHistory = CommandTransaction.emptyState();
+const firstHistoryEntry = CommandTransaction.beginTransaction(sharedHistory, {
+  keycode: 'a'.charCodeAt(0),
+  transactionId: 'history-first',
+  requestSource: { layer: 'renderer', owner: { id: 'first-owner' } },
+}, { now: 10 });
+sharedHistory = CommandTransaction.failTransaction(firstHistoryEntry.state, {
+  transactionId: 'history-first',
+  name: 'command.rejected',
+  now: 11,
+}, 'expected failure').state;
+const completedFirstEntry = sharedHistory.byId.get('history-first');
+const secondHistoryEntry = CommandTransaction.beginTransaction(sharedHistory, {
+  keycode: 'q'.charCodeAt(0),
+  transactionId: 'history-second',
+}, { now: 12 });
+assert.notStrictEqual(secondHistoryEntry.state.byId, sharedHistory.byId, 'a transaction update publishes a new history map');
+assert.strictEqual(secondHistoryEntry.state.byId.get('history-first'), completedFirstEntry, 'copy-on-write history reuses an unchanged immutable transaction');
+assert(Object.isFrozen(completedFirstEntry), 'stored command transactions are immutable');
+assert(Object.isFrozen(completedFirstEntry.source.owner), 'transaction-owned input is detached and deeply immutable');
+assert.throws(() => secondHistoryEntry.state.byId.set('forged', {}), /immutable command transaction history/, 'published transaction history rejects mutation');
+Map.prototype.set.call(secondHistoryEntry.state.byId, 'forged', {});
+assert.equal(secondHistoryEntry.state.byId.has('forged'), false, 'prototype mutation cannot forge command history outside its immutable interface');
+assert.equal(secondHistoryEntry.state.byId.withEntry, undefined, 'the immutable history exposes no insertion escape hatch');
+assert.throws(
+  () => new secondHistoryEntry.state.byId.constructor([['constructor-forged', { status: 'pending' }]]),
+  /construction is internal/,
+  'the history constructor cannot register caller-owned mutable entries',
+);
+const callerOwnedTransaction = { transactionId: 'caller-owned', status: 'pending', source: { layer: 'caller' } };
+const forgedPrototypeHistory = new Map([['caller-owned', callerOwnedTransaction]]);
+Object.setPrototypeOf(forgedPrototypeHistory, Object.getPrototypeOf(secondHistoryEntry.state.byId));
+const sanitizedForeignState = CommandTransaction.cloneState({ revision: 1, byId: forgedPrototypeHistory });
+callerOwnedTransaction.status = 'forged';
+callerOwnedTransaction.source.layer = 'forged';
+assert.equal(sanitizedForeignState.byId.get('caller-owned').status, 'pending', 'prototype forgery cannot make cloneState trust a caller-owned transaction');
+assert.equal(sanitizedForeignState.byId.get('caller-owned').source.layer, 'caller', 'foreign nested values are detached before history accepts them');
+assert(Object.isFrozen(sanitizedForeignState.byId.get('caller-owned').source), 'sanitized foreign transaction values become deeply immutable');
+assert.equal(sharedHistory.byId.has('history-second'), false, 'a later transaction cannot mutate an earlier history map');
+const staleHistoryCompletion = CommandTransaction.completeFromSnapshots(secondHistoryEntry.state, {
+  transactionId: 'history-first',
+}, {
+  previousInventory: {},
+  previousEquipment: {},
+  nextInventory: {},
+  nextEquipment: {},
+  now: 13,
+});
+assert.match(staleHistoryCompletion.rejected.reason, /already completed/, 'structural sharing preserves stale command recognition');
+
+const engulfmentChars = [
+  ['/', '-', '\\'],
+  ['|', '@', '|'],
+  ['\\', '-', '/'],
+];
+const engulfedMap = engulfmentChars.map((row, y) => row.map((ch, x) => {
+  if (x === 1 && y === 1) {
+    return {
+      ch,
+      semanticKind: 'hero',
+      semanticName: 'hero',
+      actorId: 'hero',
+      backgroundSemanticKind: 'stairs',
+      backgroundSemanticName: 'down stairs',
+    };
+  }
+  return {
+    ch,
+    semanticKind: 'engulfment',
+    semanticName: 'fog cloud',
+    semanticKnown: true,
+    ...(x === 0 && y === 0 ? { actionAffordances: ['door.open', 'monster.pet'] } : {}),
+  };
+}));
+const engulfedActions = Interaction.buildContextActions({
+  running: true,
+  playable: true,
+  terrainLabel: 'floor of a room',
+  groundHint: { x: 1, y: 1, items: ['a food ration', 'a locked trapped large box'] },
+  gameView: {
+    cursor: { x: 1, y: 1 },
+    mapCells: engulfedMap,
+    mapWidth: 3,
+    mapHeight: 3,
+  },
+});
+assert.deepEqual(engulfedActions.map((action) => action.id), ['search', 'wait', 'more'], 'authoritative engulfment suppresses remembered ground, container, terrain, and ASCII-derived surrounding actions');
+assert.deepEqual(
+  engulfedActions.map(({ id, command, key, keys }) => ({ id, command, key, keys })),
+  [
+    { id: 'search', command: 'key', key: 's', keys: undefined },
+    { id: 'wait', command: 'keys', key: undefined, keys: 'm.' },
+    { id: 'more', command: 'more', key: undefined, keys: undefined },
+  ],
+  'engulfment keeps the base NetHack commands unchanged',
+);
+const visibleDoorActions = Interaction.buildContextActions({
+  running: true,
+  playable: true,
+  gameView: {
+    cursor: { x: 0, y: 0 },
+    mapCells: [[
+      { ch: '@', semanticKind: 'hero', semanticName: 'hero' },
+      { ch: '/', semanticKind: 'door', semanticName: 'open door' },
+    ]],
+    mapWidth: 2,
+    mapHeight: 1,
+  },
+});
+assert.deepEqual(
+  visibleDoorActions.find((action) => action.id === 'close-l'),
+  { id: 'close-l', label: 'Close east door', command: 'direction', key: 'c', direction: 'l', title: 'Close east door; then choose a direction.' },
+  'an authoritative door beside the hero keeps the existing Close command',
+);
 
 const planner = Interaction.createInteractionPlanner();
 const directionInput = {

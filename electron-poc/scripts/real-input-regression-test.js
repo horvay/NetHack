@@ -160,6 +160,7 @@ async function main() {
       results.afterPickupCancel = await waitForGameplayReady(page).catch(async () => state(page));
     }
 
+
     await page.evalCheckedValue("window.__nethackPromptTest.clearSentInputs(); document.getElementById('game-grid').focus(); true");
     await page.click('#open-actions');
     await delay(100);

@@ -46,6 +46,7 @@ assert.match(registry.rendererReconcile, /reconcile/);
 const examples = [
   direct('ground.transfer', { transferId: 'ground-panel-1', direction: 'ground-to-inventory', coord: { x: 42, y: 12 }, itemId: 1234, count: 'all' }, { ground: 12, inventory: 31 }),
   direct('equipment.change', { action: 'putOnRing', itemId: 55, slotId: 'ring.left', hand: 'left' }, { inventory: 31, equipment: 14 }),
+  direct('equipment.change', { action: 'wearArmor', itemId: 56, slotId: 'armor.body' }, { inventory: 31, equipment: 14 }),
   direct('container.force', { containerId: 77, coord: { x: 42, y: 12 }, toolOrWeaponId: 88, confirmDestructive: true }, { ground: 12, inventory: 31 }),
   direct('item.use', { action: 'rub', itemId: 91, count: 1, followupPolicy: 'visible-netHack-owned' }, { inventory: 9 }),
   direct('terrain.action', { action: 'dip', coord: { x: 42, y: 12 }, terrain: 'fountain', itemId: 91 }, { map: 44, inventory: 9 }),
@@ -85,6 +86,9 @@ for (const command of examples) {
     ['wieldMain missing itemId', { action: 'wieldMain', slotId: 'mainHand' }, /itemId/],
     ['quiver missing itemId', { action: 'quiver', slotId: 'quiver' }, /itemId/],
     ['putOnRing missing itemId', { action: 'putOnRing', slotId: 'ring.left', hand: 'left' }, /itemId/],
+    ['wearArmor missing itemId', { action: 'wearArmor', slotId: 'armor.body' }, /itemId/],
+    ['wearArmor missing slotId', { action: 'wearArmor', itemId: 55 }, /slotId/],
+    ['wearArmor non-armor slot', { action: 'wearArmor', itemId: 55, slotId: 'mainHand' }, /slotId/],
     ['putOnRing missing hand', { action: 'putOnRing', itemId: 55, slotId: 'ring.left' }, /hand/],
     ['putOnRing missing slotId', { action: 'putOnRing', itemId: 55, hand: 'left' }, /slotId/],
     ['putOnRing hand-slot disagreement', { action: 'putOnRing', itemId: 55, hand: 'left', slotId: 'ring.right' }, /slotId and hand disagree/],

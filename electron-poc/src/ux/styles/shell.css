@@ -155,16 +155,12 @@ body.uxm02-shell-active .ux-status-chip.info {
 }
 
 body.uxm02-shell-active button.ux-status-chip.ux-status-urgent {
-  --ux-status-attention-color: var(--ux-color-warning);
+  --ux-status-attention-color: var(--ux-direction-cue-color);
   position: relative;
   isolation: isolate;
   gap: 0.38rem;
   border-width: 2px;
   font-weight: 750;
-  box-shadow:
-    0 0 0 1px color-mix(in oklch, var(--ux-status-attention-color) 35%, transparent),
-    0 0 0.7rem color-mix(in oklch, var(--ux-status-attention-color) 28%, transparent);
-  animation: ux-status-attention-pulse 2.35s ease-in-out infinite;
 }
 
 body.uxm02-shell-active button.ux-status-chip.ux-status-urgent::before {
@@ -178,15 +174,11 @@ body.uxm02-shell-active button.ux-status-chip.ux-status-urgent::before {
 }
 
 body.uxm02-shell-active button.ux-status-chip.ux-status-urgent.warning {
-  border-color: color-mix(in oklch, var(--ux-color-warning) 88%, white);
   background: color-mix(in oklch, var(--ux-color-warning) 24%, var(--ux-color-surface));
 }
 
 body.uxm02-shell-active button.ux-status-chip.ux-status-urgent.danger {
-  --ux-status-attention-color: var(--ux-color-danger);
-  border-color: color-mix(in oklch, var(--ux-color-danger) 88%, white);
   background: color-mix(in oklch, var(--ux-color-danger) 28%, var(--ux-color-surface));
-  animation-duration: 1.8s;
 }
 
 body.uxm02-shell-active button.ux-status-chip.ux-status-urgent span,
@@ -199,24 +191,40 @@ body.uxm02-shell-active button.ux-status-chip.ux-status-urgent:focus-visible {
   animation-play-state: paused;
 }
 
-@keyframes ux-status-attention-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    box-shadow:
-      0 0 0 1px color-mix(in oklch, var(--ux-status-attention-color) 35%, transparent),
-      0 0 0.6rem color-mix(in oklch, var(--ux-status-attention-color) 24%, transparent);
-  }
-  50% {
-    transform: scale(1.025);
-    box-shadow:
-      0 0 0 0.24rem color-mix(in oklch, var(--ux-status-attention-color) 20%, transparent),
-      0 0 1rem color-mix(in oklch, var(--ux-status-attention-color) 42%, transparent);
-  }
+body.uxm02-shell-active button.ux-status-chip.ux-status-urgent:focus-visible {
+  outline-color: var(--ux-color-focus);
+  outline-offset: 2px;
 }
 
-body.uxm02-shell-active #ux-player-notice-root:not(:empty) {
-  min-height: 2.5rem;
+
+
+/* Notices share the fixed header, never the map's layout rows. Long messages
+   scroll inside their own cell instead of changing the header height. */
+body.uxm02-shell-active > header .controls {
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+body.uxm02-shell-active #ux-player-notice-root {
+  order: -1;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: min(36rem, 52vw);
+}
+body.uxm02-shell-active #ux-player-notice {
+  min-width: 0;
+  max-height: 2.5rem;
+  padding: 0.125rem 0.5rem;
+}
+body.uxm02-shell-active #ux-player-notice .ux-player-notice-message {
+  max-height: 2rem;
+  overflow: auto;
+}
+body.uxm02-shell-active #ux-player-notice .ux-player-notice-action {
+  min-height: 2rem;
+  max-height: 2rem;
+  padding: 0 0.5rem;
+  font-size: 0.8125rem;
+  white-space: nowrap;
 }
 
 body.uxm02-shell-active #ux-player-notice {
@@ -226,10 +234,18 @@ body.uxm02-shell-active #ux-player-notice {
 
 body.uxm02-shell-active #quick-actions {
   display: flex;
-  min-height: 2.75rem;
-  gap: var(--ux-space-2);
+  flex-wrap: nowrap;
   align-items: center;
+  min-width: 0;
+  block-size: 3.5rem;
+  gap: var(--ux-space-2);
   padding: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-inline: contain;
+  scroll-padding-inline: var(--ux-space-2);
+  scrollbar-color: var(--ux-color-border-strong) transparent;
+  scrollbar-width: thin;
   border-bottom: 1px solid var(--ux-color-border);
 }
 
@@ -240,6 +256,7 @@ body.uxm02-shell-active #quick-actions > .shortcut-hint {
 
 body.uxm02-shell-active #quick-actions > #inventory-equipment-button,
 body.uxm02-shell-active #quick-actions > #open-actions,
+body.uxm02-shell-active #quick-actions > #cast-spell-button:not([hidden]),
 body.uxm02-shell-active #quick-actions > #ux-character-button,
 body.uxm02-shell-active #quick-actions > #ux-history-button,
 body.uxm02-shell-active #quick-actions > #ux-hud-density-button,
@@ -253,6 +270,11 @@ body.uxm02-shell-active #quick-actions > #ux-map-mode-button {
   background: var(--ux-color-surface-raised);
   border-color: var(--ux-color-border);
   font: 700 0.76rem/1 var(--ux-font-ui);
+}
+
+body.uxm02-shell-active #quick-actions > button {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 body.uxm02-shell-active #quick-actions > #open-actions {
@@ -275,9 +297,17 @@ body.uxm02-shell-active .ux-command-entry-label {
 }
 
 body.uxm02-shell-active #context-action-bar {
-  min-height: 2.5rem;
+  flex-wrap: nowrap;
+  min-width: 0;
+  block-size: 3.5rem;
   gap: var(--ux-space-2);
   padding: var(--ux-space-1) var(--ux-space-2);
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-inline: contain;
+  scroll-padding-inline: var(--ux-space-2);
+  scrollbar-color: var(--ux-color-border-strong) transparent;
+  scrollbar-width: thin;
   border: 1px solid var(--ux-color-border);
   border-radius: var(--ux-radius-control);
   background: var(--ux-color-surface-muted);
@@ -285,21 +315,35 @@ body.uxm02-shell-active #context-action-bar {
 }
 
 body.uxm02-shell-active #context-action-bar::before {
+  flex: 0 0 auto;
   color: var(--ux-color-text-muted);
 }
 
 body.uxm02-shell-active #context-action-bar .context-action-button {
+  flex: 0 0 auto;
   min-height: 2rem;
   border-radius: var(--ux-radius-control);
   color: var(--ux-color-text);
   background: var(--ux-color-surface-raised);
   border-color: var(--ux-color-border);
+  white-space: nowrap;
 }
 
 body.uxm02-shell-active #context-action-bar .context-action-button.primary-context {
   color: var(--ux-color-canvas);
   background: var(--ux-color-action);
   border-color: var(--ux-color-action);
+}
+
+body.uxm02-shell-active #quick-actions::-webkit-scrollbar,
+body.uxm02-shell-active #context-action-bar::-webkit-scrollbar {
+  height: 0.3rem;
+}
+
+body.uxm02-shell-active #quick-actions::-webkit-scrollbar-thumb,
+body.uxm02-shell-active #context-action-bar::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--ux-color-border-strong);
 }
 
 body.uxm02-shell-active #play-area {
@@ -406,6 +450,8 @@ body.uxm02-shell-active #log-side-rail {
   grid-column: 2;
   grid-row: 1 / -1;
   gap: var(--ux-space-2);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 body.uxm02-shell-active .log-now {
@@ -679,8 +725,12 @@ body.uxm02-shell-active input:focus-visible,
   body.uxm02-shell-active .game-view-section { gap: var(--ux-space-1); }
   body.uxm02-shell-active #stats-panel { flex-wrap: wrap; overflow: visible; }
   body.uxm02-shell-active .ux-status-group { flex: 0 1 auto; }
-  body.uxm02-shell-active #quick-actions { overflow: visible; flex-wrap: wrap; }
-  body.uxm02-shell-active #context-action-bar { flex-wrap: wrap; overflow: visible; }
+  body.uxm02-shell-active #quick-actions,
+  body.uxm02-shell-active #context-action-bar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
   body.uxm02-shell-active #game-grid {
     --map-available-width: calc(100vw - 2rem);
     --tile-size: max(6px, min(calc((var(--map-available-width) - var(--map-frame-extra)) / 80), calc((100vh - 20rem) / 21)));

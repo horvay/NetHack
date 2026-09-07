@@ -955,6 +955,14 @@ static void emit_active_direct_command_lifecycle_start(
                    ? native_transaction_id : ""));
 }
 
+static void emit_spell_availability_event(void) {
+    emit_event_start("shim_spell_availability");
+    fprintf(stdout,
+            ",\"knownSpellCount\":%d,\"authoritative\":true,\"source\":\"num_spells\"",
+            num_spells());
+    emit_event_end();
+}
+
 static void emit_authoritative_magic_rows(const char *kind, int window) {
     bridge_menu_lifecycle *ctx = find_menu_lifecycle(window);
     int is_spell = !strcmp(kind, "spell");
@@ -1735,11 +1743,12 @@ static void handle_equipment_change_line(const char *line) {
     if (strcmp(protocol, "nethack-electron-ui/v2")) { emit_equipment_change_rejected(command_id, transaction_id, action, item_id, slot_id, hand, "protocol must be nethack-electron-ui/v2"); return; }
     if (strcmp(command_type, "equipment.change")) { emit_equipment_change_rejected(command_id, transaction_id, action, item_id, slot_id, hand, "commandType must be equipment.change"); return; }
     if (!command_id[0]) { emit_equipment_change_rejected(command_id, transaction_id, action, item_id, slot_id, hand, "equipment.change requires commandId"); return; }
-    if (strcmp(action, "takeOff") && strcmp(action, "removeAccessory") && strcmp(action, "wieldMain") && strcmp(action, "quiver") && strcmp(action, "clearQuiver") && strcmp(action, "putOnRing")) { emit_equipment_change_rejected(command_id, transaction_id, action, item_id, slot_id, hand, "unsupported equipment.change action"); return; }
+    if (strcmp(action, "takeOff") && strcmp(action, "removeAccessory") && strcmp(action, "wieldMain") && strcmp(action, "quiver") && strcmp(action, "clearQuiver") && strcmp(action, "putOnRing") && strcmp(action, "wearArmor")) { emit_equipment_change_rejected(command_id, transaction_id, action, item_id, slot_id, hand, "unsupported equipment.change action"); return; }
     if (strcmp(action, "clearQuiver") && !item_id) { emit_equipment_change_rejected(command_id, transaction_id, action, item_id, slot_id, hand, "equipment.change requires public itemId for this action"); return; }
     if (strcmp(action, "putOnRing") && hand[0]) { emit_equipment_change_rejected(command_id, transaction_id, action, item_id, slot_id, hand, "equipment.change hand is only valid for putOnRing"); return; }
     if (!strcmp(action, "wieldMain") && slot_id[0] && strcmp(slot_id, "mainHand")) { emit_equipment_change_rejected(command_id, transaction_id, action, item_id, slot_id, hand, "wieldMain requires mainHand slot when slotId is supplied"); return; }
     if ((!strcmp(action, "quiver") || !strcmp(action, "clearQuiver")) && slot_id[0] && strcmp(slot_id, "quiver")) { emit_equipment_change_rejected(command_id, transaction_id, action, item_id, slot_id, hand, "quiver actions require quiver slot when slotId is supplied"); return; }
+    if (!strcmp(action, "wearArmor") && strcmp(slot_id, "armor.body") && strcmp(slot_id, "armor.cloak") && strcmp(slot_id, "armor.shirt") && strcmp(slot_id, "armor.helm") && strcmp(slot_id, "armor.gloves") && strcmp(slot_id, "armor.boots") && strcmp(slot_id, "armor.shield")) { emit_equipment_change_rejected(command_id, transaction_id, action, item_id, slot_id, hand, "wearArmor requires a canonical armor slot"); return; }
     if (!strcmp(action, "putOnRing") && strcmp(hand, "left") && strcmp(hand, "right")) { emit_equipment_change_rejected(command_id, transaction_id, action, item_id, slot_id, hand, "putOnRing requires explicit public hand"); return; }
     if (!strcmp(action, "putOnRing") && !slot_id[0]) { emit_equipment_change_rejected(command_id, transaction_id, action, item_id, slot_id, hand, "putOnRing requires explicit public ring slot"); return; }
     if (!strcmp(action, "putOnRing") && ((!strcmp(hand, "left") && strcmp(slot_id, "ring.left")) || (!strcmp(hand, "right") && strcmp(slot_id, "ring.right")))) { emit_equipment_change_rejected(command_id, transaction_id, action, item_id, slot_id, hand, "ring slot and hand disagree"); return; }
@@ -2154,11 +2163,21 @@ static const char *va_string_arg(va_list *ap) { return va_arg(*ap, const char *)
 static int va_int_arg(va_list *ap) { return va_arg(*ap, int); }
 static void *va_ptr_arg(va_list *ap) { return va_arg(*ap, void *); }
 
+static int engulfment_monster_id(int glyph) {
+    int offset;
+    if (!glyph_is_swallow(glyph))
+        return NON_PM;
+    offset = glyph - GLYPH_SWALLOW_OFF;
+    return offset / ((S_sw_br - S_sw_tl) + 1);
+}
+
+
 static const char *glyph_semantic_kind(int glyph) {
     if (glyph_is_monster(glyph)) return glyph_is_pet(glyph) ? "pet" : "monster";
     if (glyph_is_body(glyph)) return "corpse";
     if (glyph_is_statue(glyph)) return "statue";
     if (glyph_is_object(glyph)) return "object";
+    if (glyph_is_swallow(glyph)) return "engulfment";
     if (glyph_is_trap(glyph)) return "trap";
     if (glyph_is_cmap(glyph)) {
         int cmap = glyph_to_cmap(glyph);
@@ -2660,6 +2679,11 @@ static const char *glyph_semantic_name(int glyph) {
     if (glyph_is_object(glyph)) {
         int obj = glyph_to_obj(glyph);
         return (obj >= 0 && obj < NUM_OBJECTS) ? OBJ_NAME(objects[obj]) : NULL;
+    }
+    if (glyph_is_swallow(glyph)) {
+        int mon = engulfment_monster_id(glyph);
+        return (mon >= LOW_PM && mon < NUMMONS) ? pmname(&mons[mon], NEUTRAL)
+                                                : "engulfing monster";
     }
     if (glyph_is_trap(glyph)) {
         const char *name = cmap_semantic_name(trap_to_defsym(glyph_to_trap(glyph)));
@@ -3410,6 +3434,7 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
 
     if (!strcmp(name, "shim_nhgetch") && ret_ptr) {
         emit_live_inventory_event(-1);
+        emit_spell_availability_event();
         int queue_before = 0, queue_after = 0;
         int ch = pop_key_blocking_with_status(&queue_before, &queue_after);
         if (ch == 0) queue_active_direct_command();
@@ -3423,6 +3448,7 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
     }
     if (!strcmp(name, "shim_nh_poskey") && ret_ptr) {
         emit_live_inventory_event(-2);
+        emit_spell_availability_event();
         (void) va_ptr_arg(&ap); (void) va_ptr_arg(&ap); (void) va_ptr_arg(&ap);
         const int input_state = program_state.input_state;
         const char *prompt_purpose = input_state == commandInp ? "prompt.command"
@@ -3956,6 +3982,7 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
     } else if (!strcmp(name, "shim_curs")) {
         int win = va_int_arg(&ap); int x = va_int_arg(&ap); int y = va_int_arg(&ap);
         fprintf(stdout, ",\"window\":%d,\"x\":%d,\"y\":%d", win, x, y);
+        if (isok(x, y) && x == u.ux && y == u.uy) fputs(",\"actorId\":\"hero\"", stdout);
     } else if (!strcmp(name, "shim_cliparound")) {
         int x = va_int_arg(&ap); int y = va_int_arg(&ap);
         fprintf(stdout, ",\"x\":%d,\"y\":%d", x, y);

@@ -29,7 +29,33 @@ function assert(name, ok, detail = '') {
   if (existing) Object.assign(existing, outcome); else assertionOutcomes?.push(outcome);
   if (!ok) throw new Error(`${name}${detail ? `: ${detail}` : ''}`);
 }
-async function state(cdp) { return evalExpr(cdp, `(() => ({ dialogs: Array.from(document.querySelectorAll('dialog[open]')).map((d) => d.id), sent: window.__nethackPromptTest?.sentInputs?.().join('') || '', messages: window.__nethackPromptTest?.messages?.().slice(-24).map((m) => m.text || String(m)) || [], container: window.__nethackPromptTest?.container?.(), containerSnapshots: window.__nethackPromptTest?.containerSnapshots?.(), transferTransactions: window.__nethackPromptTest?.transferTransactions?.(), promptPanel: { hidden: document.getElementById('prompt-panel')?.hidden, text: document.getElementById('prompt-panel')?.textContent || '' }, menuPanel: { hidden: document.getElementById('menu-panel')?.hidden, text: document.getElementById('menu-panel')?.textContent || '' }, status: document.getElementById('status')?.textContent || '', interaction: window.__nethackPromptTest?.dialog?.(), running: window.__nethackAutomation?.state?.().runningState?.running || false, body: document.body.innerText, seenShim: document.getElementById('shim-output')?.dataset?.seen || '', shim: document.getElementById('shim-output')?.innerText || '' }))()`); }
+async function state(cdp) {
+  return evalExpr(cdp, `(() => ({
+    dialogs: Array.from(document.querySelectorAll('dialog[open]')).map((d) => d.id),
+    sent: window.__nethackPromptTest?.sentInputs?.().join('') || '',
+    messages: window.__nethackPromptTest?.messages?.().slice(-24).map((m) => m.text || String(m)) || [],
+    container: window.__nethackPromptTest?.container?.(),
+    containerSnapshots: window.__nethackPromptTest?.containerSnapshots?.(),
+    transferTransactions: window.__nethackPromptTest?.transferTransactions?.(),
+    shimEvents: (window.__nethackPromptTest?.shimEvents?.() || [])
+      .map((entry) => entry?.event || entry?.raw || entry)
+      .filter(Boolean),
+    promptPanel: {
+      hidden: document.getElementById('prompt-panel')?.hidden,
+      text: document.getElementById('prompt-panel')?.textContent || '',
+    },
+    menuPanel: {
+      hidden: document.getElementById('menu-panel')?.hidden,
+      text: document.getElementById('menu-panel')?.textContent || '',
+    },
+    status: document.getElementById('status')?.textContent || '',
+    interaction: window.__nethackPromptTest?.dialog?.(),
+    running: window.__nethackAutomation?.state?.().runningState?.running || false,
+    body: document.body.innerText,
+    seenShim: document.getElementById('shim-output')?.dataset?.seen || '',
+    shim: document.getElementById('shim-output')?.innerText || '',
+  }))()`);
+}
 function extendedCommandModalVisible(s) { const text = `${s?.interaction?.title || ''}\n${s?.interaction?.prompt || ''}\n${s?.promptPanel?.hidden ? '' : s?.promptPanel?.text || ''}\n${s?.menuPanel?.hidden ? '' : s?.menuPanel?.text || ''}`; return Boolean(s?.interaction?.interactionOpen && /Extended command|filter\/type any # command|matching options/i.test(text)); }
 async function startNoExtendedCommandModalMonitor(cdp, outDir, label, stepMs = 30) {
   await evalExpr(cdp, `(() => { window.__wandCorpseDirectNoExtended = window.__wandCorpseDirectNoExtended || {}; const label = ${JSON.stringify(label)}; const startedAt = performance.now(); const records = []; const collect = (trigger) => { const interaction = document.getElementById('interaction-dialog'); const title = document.getElementById('interaction-title')?.textContent || ''; const prompt = document.getElementById('interaction-prompt')?.textContent || ''; const promptPanel = document.getElementById('prompt-panel'); const menuPanel = document.getElementById('menu-panel'); const text = [title, prompt, promptPanel?.hidden ? '' : promptPanel?.textContent || '', menuPanel?.hidden ? '' : menuPanel?.textContent || ''].join('\\n'); const hit = Boolean(interaction?.open && /Extended command|filter\\/type any # command|matching options/i.test(text)); records.push({ atMs: Math.round(performance.now() - startedAt), trigger, hit, interactionOpen: Boolean(interaction?.open), title, prompt, promptPanelHidden: Boolean(promptPanel?.hidden), promptPanelText: promptPanel?.textContent || '', menuPanelHidden: Boolean(menuPanel?.hidden), menuPanelText: menuPanel?.textContent || '', status: document.getElementById('status')?.textContent || '' }); }; collect('install-before-drag'); const observer = new MutationObserver(() => collect('mutation')); observer.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['open', 'hidden', 'class', 'style'] }); let raf = 0; const tick = () => { collect('animation-frame'); raf = requestAnimationFrame(tick); }; raf = requestAnimationFrame(tick); window.__wandCorpseDirectNoExtended[label] = { stop: () => { cancelAnimationFrame(raf); observer.disconnect(); collect('stop'); return records.slice(); } }; })()`);
@@ -105,20 +131,26 @@ async function main() {
     assert('Select all checks both eligible container rows without dispatching', selectedUi.checked.length === 2 && selectedUi.checked.every((row) => row.checked === 'true') && selectedUi.selectedCount === '2 selected' && /Take 2 selected\s*Enter/i.test(selectedUi.selectedAction) && selectedUi.selectAllDisabled && selectedUi.sent === '', JSON.stringify(selectedUi));
     fs.writeFileSync(path.join(outDir, '03-select-all-selected-state.json'), JSON.stringify(selectedUi, null, 2));
     const selectedShot = await shot(cdp, '03-container-select-all-selected.png');
+    const transferredObjectId = (transfer) => Number(transfer.result?.delta?.containerContents?.removed?.[0]?.objectId)
+      || Number(String(transfer.selector || '').match(/object-(\d+)$/)?.[1]);
     await evalExpr(cdp, `(() => document.querySelector('#container-transfer-panel [data-container-pane="left"] .container-item-row')?.focus({ preventScroll: true }))()`);
     await key(cdp, 'Enter');
     const after = await waitFor(async () => {
       const s = await state(cdp);
       const leftText = (s.container?.left || []).map((row) => row.text).join('\n');
       const rightText = (s.container?.right || []).map((row) => row.text).join('\n');
-      const confirmations = (s.shim || '').match(/shim_container_transfer_confirmed/g) || [];
-      return s.container?.active && confirmations.length >= 2 && !/corpse|wand/i.test(leftText) && /corpse/i.test(rightText) && /wand/i.test(rightText) ? s : null;
+      const successfulTakeouts = (s.transferTransactions?.transfers || []).filter((transfer) => transfer.direction === 'container-to-inventory'
+        && transfer.status === 'success'
+        && [corpseObjectId, wandObjectId].includes(transferredObjectId(transfer)));
+      return successfulTakeouts.length === 2
+        && new Set(successfulTakeouts.map(transferredObjectId)).size === 2
+        && !/corpse|wand/i.test(leftText)
+        && /corpse/i.test(rightText)
+        && /wand/i.test(rightText) ? s : null;
     }, 15000);
     const samples = await monitor.stop();
     fs.writeFileSync(path.join(outDir, '04-after-select-all-takeout-state.json'), JSON.stringify(after, null, 2));
     const afterShot = await shot(cdp, '04-after-select-all-takeout-both.png');
-    const transferredObjectId = (transfer) => Number(transfer.result?.delta?.containerContents?.removed?.[0]?.objectId)
-      || Number(String(transfer.selector || '').match(/object-(\d+)$/)?.[1]);
     const successfulTakeouts = (after.transferTransactions?.transfers || []).filter((transfer) => transfer.direction === 'container-to-inventory' && transfer.status === 'success' && [corpseObjectId, wandObjectId].includes(transferredObjectId(transfer)));
     assert('single Enter sends no classic #loot or raw item selectors', after.sent === '', JSON.stringify({ sent: after.sent, corpseSelector: corpseRow.selector, wandSelector: wandRow.selector }));
     assert('shim confirms exactly one direct transfer for each selected public object', successfulTakeouts.length === 2 && new Set(successfulTakeouts.map(transferredObjectId)).size === 2 && successfulTakeouts.some((transfer) => transferredObjectId(transfer) === corpseObjectId) && successfulTakeouts.some((transfer) => transferredObjectId(transfer) === wandObjectId), JSON.stringify({ corpseObjectId, wandObjectId, transfers: after.transferTransactions }));

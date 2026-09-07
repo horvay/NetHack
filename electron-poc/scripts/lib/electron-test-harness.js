@@ -181,7 +181,7 @@ function appendLog(file, data) {
   try { fs.appendFileSync(file, data); } catch {}
 }
 
-function launchElectron({ root = defaultRoot, port, width, height, env = {}, stdio = ['ignore', 'pipe', 'pipe'], outputDir, logs } = {}) {
+function launchElectron({ root = defaultRoot, port, width, height, env = {}, stdio = ['ignore', 'pipe', 'pipe'], outputDir, logs, userDataDir } = {}) {
   if (!validPort(Number(port))) throw new TypeError('launchElectron requires an allocated CDP port');
   const logPaths = logs || (outputDir ? Object.freeze({
     stdout: path.join(outputDir, 'electron-stdout.log'),
@@ -192,7 +192,8 @@ function launchElectron({ root = defaultRoot, port, width, height, env = {}, std
     fs.closeSync(fs.openSync(logPaths.stdout, 'a'));
     fs.closeSync(fs.openSync(logPaths.stderr, 'a'));
   }
-  const child = spawn(electronBin, ['.'], {
+  // Keep automated screenshot animation frames independent of compositor vsync.
+  const child = spawn(electronBin, [...(userDataDir ? [`--user-data-dir=${path.resolve(userDataDir)}`] : []), '.', '--disable-frame-rate-limit'], {
     cwd: root,
     env: {
       ...process.env,
@@ -640,6 +641,7 @@ module.exports = Object.freeze({
   removeStalePlaygroundLocks,
   launchElectron,
   setViewport,
+  captureScreenshot,
   keyEventParams,
   terminateElectron,
   createElectronPageSession,

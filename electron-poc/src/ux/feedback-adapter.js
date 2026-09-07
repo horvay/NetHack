@@ -138,16 +138,13 @@
     return nextIds;
   }
 
-  function animateContextActionBar(bar, previousSignature = '') {
-    if (!bar) return '';
-    const buttons = Array.from(bar.querySelectorAll('.context-action-button'));
-    const signature = buttons.map((button) => `${button.dataset.contextActionId || ''}:${button.textContent || ''}`).join('|');
-    if (signature && signature !== previousSignature) {
-      for (const button of buttons) {
-        if (button.classList.contains('primary-context')) pulse(button, 'ux-motion-primary-breath', { durationMs: 760 });
-      }
+  function animateContextActionChanges(buttons) {
+    if (!buttons?.[Symbol.iterator]) return 0;
+    let animated = 0;
+    for (const button of buttons) {
+      if (button?.classList?.contains('primary-context') && pulse(button, 'ux-motion-primary-breath', { durationMs: 760 })) animated += 1;
     }
-    return signature;
+    return animated;
   }
 
   function markMapLevelTransition(grid) {
@@ -238,7 +235,7 @@
     compareStatusValues,
     animateStatusMount,
     animateConsequenceMount,
-    animateContextActionBar,
+    animateContextActionChanges,
     markMapLevelTransition,
     animateDetailSwap,
     animateEquipSlot,

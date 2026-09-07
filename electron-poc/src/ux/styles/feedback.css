@@ -268,17 +268,6 @@ textarea:focus-visible,
   animation: ux-motion-border-flash-success var(--ux-motion-fast) var(--ux-motion-ease-out) both;
 }
 
-body.uxm02-shell-active button.ux-status-chip.ux-status-urgent.ux-motion-urgent-arrive {
-  animation:
-    ux-motion-urgent-arrive var(--ux-motion-fast) var(--ux-motion-ease-out) both,
-    ux-status-attention-pulse 2.35s ease-in-out 200ms infinite;
-}
-
-body.uxm02-shell-active button.ux-status-chip.ux-status-urgent.danger.ux-motion-urgent-arrive {
-  animation:
-    ux-motion-urgent-arrive var(--ux-motion-fast) var(--ux-motion-ease-out) both,
-    ux-status-attention-pulse 1.8s ease-in-out 200ms infinite;
-}
 
 /* Adaptive density chips enter when expanding to full stats. */
 .ux-status-chip.ux-status-adaptive-only.ux-motion-enter {
@@ -426,6 +415,99 @@ body.uxm02-shell-active #quick-actions > button[aria-pressed="true"],
 
 #direction-helper .direction-pad-run.selected {
   animation: ux-motion-flash-action var(--ux-motion-fast) var(--ux-motion-ease-out) both;
+}
+
+/* A native direction request marks the compass in vivid purple without moving
+   the log or map. The label keeps its idle space; only paint and transform animate. */
+body.uxm02-shell-active #direction-helper .direction-helper-heading {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 2.5rem;
+}
+
+.ux-direction-prompt-cue {
+  display: none;
+}
+
+#direction-helper[data-direction-required="true"] #direction-helper-title {
+  visibility: hidden;
+}
+
+body.uxm02-shell-active button.ux-status-chip.ux-status-urgent,
+body.uxm02-shell-active #direction-helper[data-direction-required="true"] {
+  --ux-direction-cue-color: oklch(0.72 0.25 305);
+  border-color: var(--ux-direction-cue-color);
+  outline: 2px solid var(--ux-direction-cue-color);
+  outline-offset: -2px;
+  box-shadow:
+    inset 0 0 0 2px color-mix(in oklch, var(--ux-direction-cue-color) 68%, transparent),
+    0 0 1.25rem color-mix(in oklch, var(--ux-direction-cue-color) 58%, transparent);
+  animation: ux-direction-required-glow 800ms var(--ux-motion-ease-in-out) 3;
+}
+
+#direction-helper[data-direction-required="true"] .ux-direction-prompt-cue {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15rem 0.25rem;
+  border: 2px solid var(--ux-direction-cue-color);
+  border-radius: var(--ux-radius-control);
+  color: white;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in oklch, var(--ux-direction-cue-color) 32%, var(--ux-color-surface-raised)),
+      color-mix(in oklch, var(--ux-direction-cue-color) 18%, var(--ux-color-surface-muted))
+    );
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklch, white 18%, transparent),
+    0 0 0.8rem color-mix(in oklch, var(--ux-direction-cue-color) 52%, transparent);
+  font: 800 0.875rem/1.1 var(--ux-font-ui);
+  letter-spacing: 0.015em;
+  text-align: center;
+  text-transform: none;
+  pointer-events: none;
+  animation: ux-direction-cue-float 800ms var(--ux-motion-ease-in-out) 3;
+}
+
+body.uxm02-shell-active #direction-helper[data-direction-required="true"] .direction-pad-button:not(:disabled) {
+  color: var(--ux-color-text);
+  border-color: color-mix(in oklch, var(--ux-direction-cue-color) 82%, white);
+  background: color-mix(in oklch, var(--ux-direction-cue-color) 24%, var(--ux-color-surface-raised));
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklch, white 22%, transparent),
+    0 0 0.45rem color-mix(in oklch, var(--ux-direction-cue-color) 35%, transparent);
+}
+
+body.uxm02-shell-active #direction-helper[data-direction-required="true"] .direction-pad-button:is(:hover, :focus-visible):not(:disabled) {
+  color: white;
+  border-color: white;
+  background: var(--ux-direction-cue-color);
+}
+
+@keyframes ux-direction-required-glow {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow:
+      inset 0 0 0 2px color-mix(in oklch, var(--ux-direction-cue-color) 68%, transparent),
+      0 0 1.25rem color-mix(in oklch, var(--ux-direction-cue-color) 58%, transparent);
+  }
+  50% {
+    transform: scale(1.025);
+    box-shadow:
+      inset 0 0 0 3px color-mix(in oklch, var(--ux-direction-cue-color) 92%, white),
+      0 0 2.25rem color-mix(in oklch, var(--ux-direction-cue-color) 78%, transparent);
+  }
+}
+
+@keyframes ux-direction-cue-float {
+  0%,
+  100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-5px) scale(1.045); }
 }
 
 /* Dialogs / overlays */
@@ -729,6 +811,7 @@ body:has(dialog[open] dialog[open]) > dialog[open]:not(:focus-within) {
   .ux-consequence-row.ux-motion-enter,
   .ux-consequence-empty,
   #direction-helper:not([hidden]),
+  .ux-direction-prompt-cue,
   dialog[open],
   dialog[open]::backdrop,
   .ux-command-palette[open],
@@ -754,6 +837,7 @@ body:has(dialog[open] dialog[open]) > dialog[open]:not(:focus-within) {
   .uxm-item-context-menu,
   .container-transfer-panel:not([hidden]),
   #container-transfer-panel:not([hidden]),
+  body.uxm02-shell-active button.ux-status-chip.ux-status-urgent,
   body.uxm02-shell-active button.ux-status-chip.ux-status-urgent.ux-motion-urgent-arrive,
   body.uxm02-shell-active button.ux-status-chip.ux-status-urgent.danger.ux-motion-urgent-arrive {
     animation: none !important;
@@ -791,11 +875,14 @@ body[data-ux-motion="reduced"] .ux-motion-stagger > *,
 body[data-ux-motion="reduced"] .ux-player-notice:not([hidden]),
 body[data-ux-motion="reduced"] #context-action-bar .context-action-button,
 body[data-ux-motion="reduced"] .ux-consequence-row.ux-motion-enter,
+body[data-ux-motion="reduced"] #direction-helper:not([hidden]),
+body[data-ux-motion="reduced"] .ux-direction-prompt-cue,
 body[data-ux-motion="reduced"] dialog[open],
 body[data-ux-motion="reduced"] #game-grid.ux-map-level-transition,
 body[data-ux-motion="reduced"] #ux-items-root.uxm-items-overlay:not([hidden]),
 body[data-ux-motion="reduced"] .container-transfer-panel:not([hidden]),
 body[data-ux-motion="reduced"] #container-transfer-panel:not([hidden]),
+body[data-ux-motion="reduced"].uxm02-shell-active button.ux-status-chip.ux-status-urgent,
 body[data-ux-motion="reduced"].uxm02-shell-active button.ux-status-chip.ux-status-urgent.ux-motion-urgent-arrive {
   animation: none !important;
   transition-duration: 0.01ms !important;

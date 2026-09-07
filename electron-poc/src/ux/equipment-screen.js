@@ -489,7 +489,8 @@
         const nowEquipmentRevision = revisionOf(data.equipment);
         if (nowInventoryRevision < pending.expectedRevision.inventory || nowEquipmentRevision < pending.expectedRevision.equipment) {
           rejectPending('Inventory changed to an older revision while the action was pending.', 'stale-revision');
-        } else if (nowInventoryRevision > pending.expectedRevision.inventory || nowEquipmentRevision > pending.expectedRevision.equipment) {
+        } else if (!pending.awaitNativeCompletion
+          && (nowInventoryRevision > pending.expectedRevision.inventory || nowEquipmentRevision > pending.expectedRevision.equipment)) {
           completePending(`${pending.label || 'Item action'} complete.`);
         }
       }
@@ -584,6 +585,7 @@
         expectedRevision: currentRevisions(),
         label: label || route?.label || action?.label || 'Item action',
         phase: waitingForOverview ? 'waiting-overview-close' : 'dispatching',
+        awaitNativeCompletion: route?.directEquipmentChange === true,
       });
       interaction = waitingForOverview ? interaction : null;
       deferredExecution = Object.freeze({
@@ -1323,7 +1325,7 @@
         selectedStableId: selected?.stableId || '', selectedSlotId,
         inventoryRevision: revisionOf(data.inventory), equipmentRevision: revisionOf(data.equipment),
         inventoryCount: models.length, visibleCount: filteredModels().length,
-        pendingActionId: pending?.actionId || '', pendingPhase: pending?.phase || '', pendingIntentId: pending?.intentId || '',
+        pendingActionId: pending?.actionId || '', pendingPhase: pending?.phase || '', pendingIntentId: pending?.intentId || '', pendingAwaitNativeCompletion: pending?.awaitNativeCompletion === true,
         feedback, ownership: ownership(), horizontalOverflow: root ? root.scrollWidth > root.clientWidth : false,
       });
     }

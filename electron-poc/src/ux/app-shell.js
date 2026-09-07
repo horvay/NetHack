@@ -96,7 +96,8 @@
     let subscription;
     let gameViewSection;
     let layoutResizer;
-    let logRatio = 0.5;
+    let logRatio = null;
+    let effectiveLogRatio = 0.5;
     let closeRows = 9;
     let resizeDrag = null;
     const cleanupListeners = [];
@@ -240,12 +241,40 @@
       const log = documentRoot.getElementById('log-panel');
       return Math.max(0, Number(play?.getBoundingClientRect?.().height) + Number(log?.getBoundingClientRect?.().height));
     }
+    function cssPixels(style, property) {
+      const value = Number.parseFloat(style?.getPropertyValue?.(property) || '0');
+      return Number.isFinite(value) ? value : 0;
+    }
+
+    function defaultLogPanelHeight() {
+      const log = documentRoot.getElementById('log-panel');
+      const messages = documentRoot.getElementById('messages');
+      const heading = log?.querySelector?.('.log-heading');
+      if (!log || !messages || !heading || typeof globalRoot.getComputedStyle !== 'function') return 0;
+      const logStyle = globalRoot.getComputedStyle(log);
+      const messageStyle = globalRoot.getComputedStyle(messages);
+      const lineHeight = cssPixels(messageStyle, 'line-height');
+      if (!lineHeight) return 0;
+      const panelChrome = cssPixels(logStyle, 'padding-top')
+        + cssPixels(logStyle, 'padding-bottom')
+        + cssPixels(logStyle, 'border-top-width')
+        + cssPixels(logStyle, 'border-bottom-width');
+      const headingHeight = heading.getBoundingClientRect?.().height || 0;
+      return Math.ceil(panelChrome + headingHeight + cssPixels(logStyle, 'row-gap') + lineHeight * 8);
+    }
 
     function applyLogRatio(value, { persist = false } = {}) {
-      logRatio = Math.min(0.75, Math.max(0.2, Number(value) || 0.5));
+      const customRatio = value != null && value !== '' && Number.isFinite(Number(value));
+      logRatio = customRatio ? Math.min(0.75, Math.max(0.2, Number(value))) : null;
       const available = workspaceSplitHeight();
-      if (available > 0) gameViewSection?.style?.setProperty('--ux-log-height', `${Math.round(available * logRatio)}px`);
-      layoutResizer?.setAttribute?.('aria-valuenow', String(Math.round(logRatio * 100)));
+      const requestedHeight = customRatio ? available * logRatio : defaultLogPanelHeight();
+      if (requestedHeight > 0) gameViewSection?.style?.setProperty('--ux-log-height', `${Math.round(requestedHeight)}px`);
+      effectiveLogRatio = available > 0 && requestedHeight > 0
+        ? Math.min(0.75, Math.max(0.2, requestedHeight / available))
+        : (logRatio ?? effectiveLogRatio);
+      layoutResizer?.setAttribute?.('aria-valuenow', String(Math.round(effectiveLogRatio * 100)));
+      if (customRatio) layoutResizer?.removeAttribute?.('aria-valuetext');
+      else layoutResizer?.setAttribute?.('aria-valuetext', 'Default, eight message lines');
       if (persist) persistPresentationPatch({ layout: { logRatio } });
       return logRatio;
     }
@@ -277,7 +306,7 @@
       const direction = event.key === 'ArrowUp' ? 1 : (event.key === 'ArrowDown' ? -1 : 0);
       if (!direction) return;
       event.preventDefault();
-      applyLogRatio(logRatio + direction * 0.05, { persist: true });
+      applyLogRatio((logRatio ?? effectiveLogRatio) + direction * 0.05, { persist: true });
     }
 
 
@@ -311,7 +340,6 @@
       if (!body || !topBar || !stats || !noticeMount || !quick || !inventory || !commands || !logPanel) throw new Error('UXM-02 shell mount is incomplete');
 
       body.classList.add('uxm02-shell-active');
-      topBar.append(noticeMount);
       stats.setAttribute('aria-label', 'Hero and urgent status');
       inventory.textContent = 'Inventory';
       inventory.title = 'Open Inventory and Equipment (i)';
@@ -602,7 +630,7 @@
       adjustCloseRows,
       setLogRatio: applyLogRatio,
       centerFollowMap,
-      state: () => Object.freeze({ connected, density: hudDensity || settings?.hudDensity || 'compact', mapMode: documentRoot?.body?.dataset?.uxMapMode || 'close', closeRows, logRatio, previousDungeon, pendingMapFocus, messageCount: consequenceFeed?.log?.size?.() || 0 }),
+      state: () => Object.freeze({ connected, density: hudDensity || settings?.hudDensity || 'compact', mapMode: documentRoot?.body?.dataset?.uxMapMode || 'close', closeRows, logRatio, effectiveLogRatio, previousDungeon, pendingMapFocus, messageCount: consequenceFeed?.log?.size?.() || 0 }),
     });
   }
 

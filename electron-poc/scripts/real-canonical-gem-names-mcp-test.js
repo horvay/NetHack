@@ -59,7 +59,6 @@ async function state(page) {
     });
     const hero = cells.find((cell) => cell.semanticKind === 'hero' || cell.semanticKind === 'player' || /Hero|Player|Valkyrie/i.test(cell.aria));
     const east = hero ? cells.find((cell) => cell.x === hero.x + 1 && cell.y === hero.y) : null;
-    const tooltip = document.getElementById('map-tooltip');
     const interaction = window.__nethackPromptTest?.dialog?.();
     const itemsRoot = document.getElementById('ux-items-root');
     const inventoryRowNodes = Array.from(itemsRoot?.querySelectorAll('.uxm-item-row') || []);
@@ -74,6 +73,22 @@ async function state(page) {
       const rect = (node) => { const box = node?.getBoundingClientRect(); return box ? { left: box.left, top: box.top, right: box.right, bottom: box.bottom, width: box.width, height: box.height } : null; };
       const paneBox = rect(pane); const listBox = rect(list); const railBox = rect(rail);
       return { pane: paneBox, list: listBox, rail: railBox, listShare: paneBox && listBox ? listBox.height / paneBox.height : 0, railShare: paneBox && railBox ? railBox.height / paneBox.height : 1, rootHorizontalOverflow: Boolean(itemsRoot && itemsRoot.scrollWidth > itemsRoot.clientWidth), documentHorizontalOverflow: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+    })();
+    const camera = (() => {
+      const playArea = document.getElementById('play-area');
+      const cursorCell = document.querySelector('#game-grid .tile-cell.cursor');
+      const playRect = playArea?.getBoundingClientRect();
+      const heroRect = cursorCell?.getBoundingClientRect();
+      const rect = (value) => value ? { left: value.left, top: value.top, right: value.right, bottom: value.bottom, width: value.width, height: value.height } : null;
+      return {
+        scrollLeft: playArea?.scrollLeft || 0,
+        scrollTop: playArea?.scrollTop || 0,
+        playRect: rect(playRect),
+        heroRect: rect(heroRect),
+        heroCentered: Boolean(playRect && heroRect
+          && Math.abs((heroRect.left + heroRect.width / 2) - (playRect.left + playRect.width / 2)) <= heroRect.width
+          && Math.abs((heroRect.top + heroRect.height / 2) - (playRect.top + playRect.height / 2)) <= heroRect.height),
+      };
     })();
     return {
       running: Boolean(window.__nethackAutomation?.state?.().runningState?.running),
@@ -94,11 +109,13 @@ async function state(page) {
       shimEvents: (window.__nethackPromptTest?.shimEvents?.() || []).map((entry) => entry.event || entry),
       hero,
       east,
-      tooltip: {
-        hidden: Boolean(tooltip?.hidden),
-        title: document.getElementById('map-tooltip-title')?.textContent || '',
-        description: document.getElementById('map-tooltip-description')?.textContent || '',
-        text: tooltip?.innerText || '',
+      camera,
+      mapDetail: {
+        open: Boolean(document.getElementById('ux-map-detail-dialog')?.open),
+        title: document.getElementById('ux-map-detail-title')?.textContent || '',
+        description: document.querySelector('#ux-map-detail-dialog .ux-map-detail-description')?.textContent || '',
+        visibleRows: Array.from(document.querySelectorAll('#ux-map-detail-dialog .ux-map-detail-contents li')).map((row) => row.innerText || ''),
+        text: document.getElementById('ux-map-detail-dialog')?.innerText || '',
       },
       inventoryRows,
       inventoryRowModels,
@@ -108,7 +125,25 @@ async function state(page) {
   })()`);
 }
 
+async function waitForFiniteUiAnimations(page) {
+  return page.evalCheckedValue(`(async () => {
+    const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+    if (document.fonts?.ready) await document.fonts.ready;
+    for (;;) {
+      await frame();
+      await frame();
+      const animations = document.getAnimations().filter((animation) => {
+        const timing = animation.effect?.getComputedTiming?.();
+        return animation.playState !== 'finished' && Number.isFinite(timing?.endTime);
+      });
+      if (!animations.length) return true;
+      await Promise.allSettled(animations.map((animation) => animation.finished));
+    }
+  })()`, { awaitPromise: true });
+}
+
 async function screenshot(page, qc, id, stateName) {
+  await waitForFiniteUiAnimations(page);
   return page.screenshotEvidence(qc, id, {
     classification: 'synthetic-fixture',
     viewport: { width, height, devicePixelRatio: 1 },
@@ -151,9 +186,15 @@ async function main() {
       const loaded = next.shimEvents.some((event) => event.name === 'bridge_test_scenario_loaded');
       return next.running && loaded && next.hero && next.east ? next : null;
     }, 25000);
-    if (current.dialogs.includes('intro-dialog')) await page.click('#intro-continue');
-    await Harness.delay(100);
+    await waitForFiniteUiAnimations(page);
     current = await state(page);
+    assert('canonical scenario presents the intro before gameplay evidence', current.dialogs.includes('intro-dialog'), JSON.stringify(current.dialogs));
+    const cameraBeforeIntroClose = current.camera;
+    await page.click('#intro-continue');
+    await waitForFiniteUiAnimations(page);
+    current = await state(page);
+    assert('intro focus restoration preserves the close-up camera scroll', current.camera.scrollLeft === cameraBeforeIntroClose.scrollLeft && current.camera.scrollTop === cameraBeforeIntroClose.scrollTop, JSON.stringify({ before: cameraBeforeIntroClose, after: current.camera }));
+    assert('intro focus restoration keeps the hero framed in close-up view', current.camera.heroCentered, JSON.stringify(current.camera));
 
     const inventoryEvent = current.shimEvents.filter((event) => event.name === 'shim_update_inventory').findLast((event) => Array.isArray(event.items) && event.items.length === 2);
     const nativeYellow = inventoryEvent?.items?.find((item) => /yellow gem/i.test(item.text || item.displayName || item.semanticAppearance || ''));
@@ -171,14 +212,19 @@ async function main() {
 
     const screenshots = {};
     screenshots.gameplay = await screenshot(page, qc, '01-canonical-gems-gameplay', 'canonical-gems-gameplay');
-    await page.cdp.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: current.east.rect.x, y: current.east.rect.y });
-    await Harness.delay(350);
+    const sentInputsBeforeLook = current.sentInputs;
+    await page.click(`#game-grid .tile-cell[data-map-x="${current.east.x}"][data-map-y="${current.east.y}"]`);
+    await Harness.waitFor(() => state(page).then((next) => next.mapDetail.open ? next : null), 5000);
     current = await state(page);
-    assert('look-equivalent tooltip uses complete unknown gem appearance', /red gem/i.test(`${current.tooltip.title} ${current.tooltip.text}`), JSON.stringify(current.tooltip));
-    assert('look-equivalent tooltip does not leak ruby', !/ruby/i.test(current.tooltip.text), JSON.stringify(current.tooltip));
-    assert('look-equivalent tooltip is never a bare color', !/^red$/i.test(current.tooltip.title.trim()), JSON.stringify(current.tooltip));
-    const lookTooltip = current.tooltip;
-    screenshots.look = await screenshot(page, qc, '02-red-gem-look-tooltip', 'red-gem-look-equivalent');
+    const lookDetail = current.mapDetail;
+    const visibleLookDetail = `${lookDetail.title}\n${lookDetail.description}\n${lookDetail.visibleRows.join('\n')}`;
+    assert('look-equivalent details use complete unknown gem appearance', /red gem/i.test(visibleLookDetail), JSON.stringify(lookDetail));
+    assert('look-equivalent details do not leak ruby', !/ruby/i.test(visibleLookDetail), JSON.stringify(lookDetail));
+    assert('look-equivalent details are never a bare color', !/^red$/i.test(lookDetail.title.trim()), JSON.stringify(lookDetail));
+    assert('look-equivalent details open without sending game input', current.sentInputs === sentInputsBeforeLook, JSON.stringify({ before: sentInputsBeforeLook, after: current.sentInputs }));
+    screenshots.look = await screenshot(page, qc, '02-red-gem-look-details', 'red-gem-look-equivalent');
+    await page.pressKey('Escape');
+    await Harness.waitFor(() => state(page).then((next) => !next.mapDetail.open ? next : null), 5000);
 
     await page.evalCheckedValue("document.getElementById('game-grid')?.focus?.(); true");
     await page.pressKey('i', 'i');
@@ -196,7 +242,7 @@ async function main() {
     assert('gem equipment workspace exposes no raw or fallback labels', !/Inventory selector|Name unavailable|Loading your inventory|semantic IDs|undefined|null/i.test(current.itemsOwner.text), current.itemsOwner.text);
     screenshots.inventory = await screenshot(page, qc, '03-canonical-gems-inventory', 'canonical-gems-inventory');
 
-    fs.writeFileSync(path.join(page.outputDir, 'canonical-gem-names-result.json'), JSON.stringify({ scenarioId, viewport: { width, height }, screenshots, native: { yellow: nativeYellow, chrysoberyl: nativeChrysoberyl, red: nativeRed, garnet: nativeGarnet }, tooltip: lookTooltip, itemsOwner: current.itemsOwner, inventoryRows: current.inventoryRows, inventoryRowModels: current.inventoryRowModels, itemsLayout: current.itemsLayout }, null, 2));
+    fs.writeFileSync(path.join(page.outputDir, 'canonical-gem-names-result.json'), JSON.stringify({ scenarioId, viewport: { width, height }, screenshots, native: { yellow: nativeYellow, chrysoberyl: nativeChrysoberyl, red: nativeRed, garnet: nativeGarnet }, mapDetail: lookDetail, itemsOwner: current.itemsOwner, inventoryRows: current.inventoryRows, inventoryRowModels: current.inventoryRowModels, itemsLayout: current.itemsLayout }, null, 2));
   } catch (error) {
     scenarioError = error;
   } finally {

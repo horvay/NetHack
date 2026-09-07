@@ -96,6 +96,7 @@
   }
   function isPlayerCell(cell) {
     const normalized = normalizeCell(cell);
+    if (normalized.actorId === 'hero') return true;
     const semanticKind = String(normalized.semanticKind || '').toLowerCase();
     if (semanticKind) return semanticKind === 'player' || semanticKind === 'hero';
     if (normalized.assetId === 'hero-avatar') return true;
@@ -106,7 +107,7 @@
   }
   function normalizeCell(cell) {
     if (typeof cell === 'string') return { ch: cell || ' ', assetId: undefined, glyph: undefined, ttychar: undefined, color: undefined, tileidx: undefined };
-    return { ch: cell?.ch || ' ', assetId: cell?.assetId, glyph: cell?.glyph, ttychar: cell?.ttychar, color: cell?.color, tileidx: cell?.tileidx, glyphFlags: cell?.glyphFlags, objectId: cell?.objectId, displayName: cell?.displayName, backgroundGlyph: cell?.backgroundGlyph, backgroundSemanticKind: cell?.backgroundSemanticKind, backgroundSemanticName: cell?.backgroundSemanticName, objectLayerGlyph: cell?.objectLayerGlyph, objectLayerChar: cell?.objectLayerChar, objectLayerObjectId: cell?.objectLayerObjectId, objectLayerDisplayName: cell?.objectLayerDisplayName, objectLayerSemanticKind: cell?.objectLayerSemanticKind, objectLayerSemanticName: cell?.objectLayerSemanticName, objectLayerSemanticAppearance: cell?.objectLayerSemanticAppearance, objectLayerSemanticKnown: cell?.objectLayerSemanticKnown, semanticKind: cell?.semanticKind, semanticName: cell?.semanticName, semanticAppearance: cell?.semanticAppearance, semanticKnown: cell?.semanticKnown, featureDescription: cell?.featureDescription, engravingText: cell?.engravingText, creaturePublic: cell?.creaturePublic && typeof cell.creaturePublic === 'object' ? { ...(cell.creaturePublic.attitude ? { attitude: cell.creaturePublic.attitude } : {}), ...(cell.creaturePublic.size ? { size: cell.creaturePublic.size } : {}), status: Array.isArray(cell.creaturePublic.status) ? cell.creaturePublic.status.slice() : [] } : undefined, cmapIndex: cell?.cmapIndex, actionAffordances: Array.isArray(cell?.actionAffordances) ? cell.actionAffordances.slice() : [], backgroundActionAffordances: Array.isArray(cell?.backgroundActionAffordances) ? cell.backgroundActionAffordances.slice() : [], objectLayerActionAffordances: Array.isArray(cell?.objectLayerActionAffordances) ? cell.objectLayerActionAffordances.slice() : [] };
+    return { ch: cell?.ch || ' ', actorId: cell?.actorId, assetId: cell?.assetId, glyph: cell?.glyph, ttychar: cell?.ttychar, color: cell?.color, tileidx: cell?.tileidx, glyphFlags: cell?.glyphFlags, objectId: cell?.objectId, displayName: cell?.displayName, backgroundGlyph: cell?.backgroundGlyph, backgroundSemanticKind: cell?.backgroundSemanticKind, backgroundSemanticName: cell?.backgroundSemanticName, objectLayerGlyph: cell?.objectLayerGlyph, objectLayerChar: cell?.objectLayerChar, objectLayerObjectId: cell?.objectLayerObjectId, objectLayerDisplayName: cell?.objectLayerDisplayName, objectLayerSemanticKind: cell?.objectLayerSemanticKind, objectLayerSemanticName: cell?.objectLayerSemanticName, objectLayerSemanticAppearance: cell?.objectLayerSemanticAppearance, objectLayerSemanticKnown: cell?.objectLayerSemanticKnown, semanticKind: cell?.semanticKind, semanticName: cell?.semanticName, semanticAppearance: cell?.semanticAppearance, semanticKnown: cell?.semanticKnown, featureDescription: cell?.featureDescription, engravingText: cell?.engravingText, creaturePublic: cell?.creaturePublic && typeof cell.creaturePublic === 'object' ? { ...(cell.creaturePublic.attitude ? { attitude: cell.creaturePublic.attitude } : {}), ...(cell.creaturePublic.size ? { size: cell.creaturePublic.size } : {}), status: Array.isArray(cell.creaturePublic.status) ? cell.creaturePublic.status.slice() : [] } : undefined, cmapIndex: cell?.cmapIndex, actionAffordances: Array.isArray(cell?.actionAffordances) ? cell.actionAffordances.slice() : [], backgroundActionAffordances: Array.isArray(cell?.backgroundActionAffordances) ? cell.backgroundActionAffordances.slice() : [], objectLayerActionAffordances: Array.isArray(cell?.objectLayerActionAffordances) ? cell.objectLayerActionAffordances.slice() : [] };
   }
   function normalizeManifest(manifest) {
     const assets = Array.isArray(manifest?.assets) ? manifest.assets.filter((asset) => asset && typeof asset.id === 'string' && typeof asset.installedPath === 'string') : [];
@@ -279,6 +280,11 @@
       || (semanticAlias && tileAssetsById.has(semanticAlias) ? semanticAlias : undefined)
       || unscopedExactId;
   }
+  function engulfmentAssetId(cell, tileMapConfig = defaultTileMapConfig, tileAssetsById = new Map()) {
+    const normalized = normalizeCell(cell);
+    if (String(normalized.semanticKind || '').toLowerCase() !== 'engulfment') return undefined;
+    return assetIdForSemanticName(normalized.semanticName, 'monster', tileMapConfig, tileAssetsById);
+  }
   function mappedAssetIdForCell(cell, { tileMapConfig = defaultTileMapConfig, tileAssetsById = new Map(), playerCharacter } = {}) {
     const normalized = normalizeCell(cell);
     if (normalized.ch === ' ' && normalized.assetId == null && normalized.glyph == null && !normalized.semanticKind && !normalized.semanticName && !normalized.semanticAppearance) return undefined;
@@ -302,6 +308,7 @@
     const unknownAppearanceId = unknownAppearanceName ? (scrollLabelAppearanceAssetId(unknownAppearanceName, tileAssetsById) || publicAppearanceAssetId(unknownAppearanceName, normalized.semanticKind, tileMapConfig, tileAssetsById, normalized) || appearanceClassFallbackAssetId(unknownAppearanceName, normalized.semanticKind, tileAssetsById, normalized)) : undefined;
     const knownOrDisplayNameId = hidesSemanticName ? undefined : semanticNameId;
     const secondaryAppearanceId = hidesSemanticName ? undefined : semanticAppearanceId;
+    const engulfmentId = engulfmentAssetId(normalized, tileMapConfig, tileAssetsById);
     // Upstream fixture/runtime events may carry an explicit assetId.  For unknown
     // objects, do not let that precomputed id bypass public-appearance safeguards
     // and reveal hidden identity art; recompute from the visible appearance/class.
@@ -312,6 +319,7 @@
       const explicitSpecificAvatarId = explicitPlayerAvatarId === 'hero-avatar' ? undefined : explicitPlayerAvatarId;
       return explicitSpecificAvatarId || comboAvatarId || roleAvatarId || semanticPlayerAvatarId || explicitPlayerAvatarId || tileMapConfig.glyphNumber?.[String(normalized.glyph)] || tileMapConfig.semanticKind?.[semanticKind] || tileMapConfig.char?.[normalized.ch] || defaultTileMapConfig.char[normalized.ch];
     }
+    if (semanticKind === 'engulfment') return engulfmentId;
     return petStateId || explicitAssetId || unknownAppearanceId || semanticSubjectId || knownOrDisplayNameId || secondaryAppearanceId || corpseFallbackId || statueFallbackId || cmapGlyphId || classFallbackId || tileMapConfig.glyphNumber?.[String(normalized.glyph)]
       || tileMapConfig.semanticKind?.[semanticKind]
       || (nonPlayerAtSign ? undefined : (tileMapConfig.char?.[normalized.ch] || defaultTileMapConfig.char[normalized.ch]));
@@ -328,12 +336,17 @@
     return ['traps-hazards', 'player-pets-identity', 'player-combo-avatars', 'common-early-monsters', 'objects-inventory'].includes(tile.categorySlug);
   }
   function baseTileIdForCell(cell, overlayTile) {
-    const ch = normalizeCell(cell).ch;
+    const normalized = normalizeCell(cell);
+    const ch = normalized.ch;
+    if (normalized.actorId === 'hero' && String(normalized.semanticKind || '').toLowerCase() === 'terrain') {
+      const terrainName = String(normalized.semanticName || '').toLowerCase();
+      if (terrainName === 'cloud' || terrainName === 'poison cloud') return terrainName.replace(' ', '-');
+    }
     if (ch === ' ' || overlayTile?.id === 'unexplored-stone') return undefined;
     if (isOverlayTile(overlayTile)) return ch === '#' ? 'lit-corridor' : 'room-floor';
     if (['.', '#'].includes(ch) || ['room-floor', 'dark-room-floor', 'lit-corridor', 'dark-corridor'].includes(overlayTile?.id)) return undefined;
     if (['|', '-'].includes(ch) || /wall/i.test(overlayTile?.id || '')) return 'unexplored-stone';
     return 'room-floor';
   }
-  return Object.freeze({ version: 'nethack-tile-assets/v1', defaultTileMapConfig, semanticAssetAliases, petAssetAliases, spellbookAppearanceSlugs: Object.freeze(Array.from(spellbookAppearanceSlugs)), roleCodes, raceCodes, genderCodes, slugifySemanticName, normalizedPlayerParts, playerComboAvatarAssetId, playerRoleAvatarAssetId, playerSemanticAvatarAssetId, playerExplicitAvatarAssetId, scrollLabelParts, isSafeScrollLabelAsset, scrollLabelAssetId, scrollLabelAppearanceAssetId, objectClassFallbackAssetId, publicAppearanceClassNounForCell, publicObjectClassNameForCell, appendClassNounToAppearance, visibleSubjectNameForCorpseOrStatue, isSpellbookAppearanceName, publicDisplayNameForCell, publicAppearanceSubclassAssetId, publicAppearanceAssetId, appearanceClassFallbackAssetId, kindSpecificSemanticAssetId, isPlayerCell, normalizeCell, normalizeManifest, assetsById, mappedAssetIdForCell, tileUrl, isOverlayTile, baseTileIdForCell });
+  return Object.freeze({ version: 'nethack-tile-assets/v1', defaultTileMapConfig, semanticAssetAliases, petAssetAliases, spellbookAppearanceSlugs: Object.freeze(Array.from(spellbookAppearanceSlugs)), roleCodes, raceCodes, genderCodes, slugifySemanticName, normalizedPlayerParts, playerComboAvatarAssetId, playerRoleAvatarAssetId, playerSemanticAvatarAssetId, playerExplicitAvatarAssetId, scrollLabelParts, isSafeScrollLabelAsset, scrollLabelAssetId, scrollLabelAppearanceAssetId, objectClassFallbackAssetId, publicAppearanceClassNounForCell, publicObjectClassNameForCell, appendClassNounToAppearance, visibleSubjectNameForCorpseOrStatue, isSpellbookAppearanceName, publicDisplayNameForCell, publicAppearanceSubclassAssetId, publicAppearanceAssetId, appearanceClassFallbackAssetId, assetIdForSemanticName, engulfmentAssetId, mappedAssetIdForCell, tileUrl, isOverlayTile, baseTileIdForCell, normalizeCell, normalizeManifest, assetsById, isPlayerCell });
 }));

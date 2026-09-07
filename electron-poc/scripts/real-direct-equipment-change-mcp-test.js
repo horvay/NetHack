@@ -69,8 +69,15 @@ function isEquipmentScreen(s) { return Boolean(s.equipment?.open) && /Inventory 
 function commandByAction(s, action) { return (s.sentUiProtocolCommands || []).find((command) => command.commandType === 'equipment.change' && command.payload?.action === action); }
 function ackEventType(ack) { return ack?.eventType || ack?.payload?.eventType || ''; }
 function ackCommand(ack) { return ack?.command || ack?.payload?.command || null; }
-function completedByAction(s, action) { return (s.sentUiProtocolAcks || []).find((ack) => ackEventType(ack) === 'command.completed' && (ack.payload?.commandType === 'equipment.change' || ackCommand(ack)?.commandType === 'equipment.change') && (ack.payload?.result?.action === action || ackCommand(ack)?.payload?.action === action)); }
-function acceptedByAction(s, action) { return (s.sentUiProtocolAcks || []).find((ack) => ackEventType(ack) === 'command.accepted' && (ack.payload?.commandType === 'equipment.change' || ackCommand(ack)?.commandType === 'equipment.change') && (ack.payload?.result?.action === action || ackCommand(ack)?.payload?.action === action)); }
+function ackMatchesAction(s, ack, action) {
+  const command = commandByAction(s, action);
+  const correlatedCommandId = ack?.commandId || ack?.payload?.commandId || '';
+  return (ack?.payload?.result?.action === action || ackCommand(ack)?.payload?.action === action)
+    || Boolean(command?.commandId && correlatedCommandId === command.commandId);
+}
+function completedByAction(s, action) { return (s.sentUiProtocolAcks || []).find((ack) => ackEventType(ack) === 'command.completed' && (ack.payload?.commandType === 'equipment.change' || ackCommand(ack)?.commandType === 'equipment.change' || ack.commandType === 'equipment.change') && ackMatchesAction(s, ack, action)); }
+function acceptedByAction(s, action) { return (s.sentUiProtocolAcks || []).find((ack) => ackEventType(ack) === 'command.accepted' && (ack.payload?.commandType === 'equipment.change' || ackCommand(ack)?.commandType === 'equipment.change' || ack.commandType === 'equipment.change') && ackMatchesAction(s, ack, action)); }
+function rejectedByAction(s, action) { return (s.sentUiProtocolAcks || []).find((ack) => ackEventType(ack) === 'command.rejected' && (ack.payload?.commandType === 'equipment.change' || ackCommand(ack)?.commandType === 'equipment.change' || ack.commandType === 'equipment.change') && ackMatchesAction(s, ack, action)); }
 function hasForbiddenSelectorStream(text) { return /(?:^|\u001b)[TRPwQ][A-Za-z](?:[lr])?/.test(String(text || '')); }
 function isOwnedBackingInventoryCancellation(event = {}) {
   const own = (key) => Object.prototype.hasOwnProperty.call(event, key);
@@ -150,7 +157,7 @@ async function startApp({ scenarioId, seed }) {
   await click(cdp, '#confirm-character');
   await waitFor(async () => (await state(cdp)).running, 20000);
   await page.dismissIntroDialogs();
-  await waitFor(async () => { const s = await state(cdp); if (/bridge_test_scenario_failed/.test(`${s.seenShim}\n${s.shim}`)) throw new Error(s.shim); return /bridge_test_scenario_loaded/.test(`${s.seenShim}\n${s.shim}`) ? s : null; }, 10000);
+  await waitFor(async () => { const s = await state(cdp); const failure = s.shimEvents.find((event) => event.name === 'bridge_test_scenario_failed'); if (failure) throw new Error(JSON.stringify(failure)); return s.shimEvents.some((event) => event.name === 'bridge_test_scenario_loaded') ? s : null; }, 10000);
   return cdp;
 }
 async function waitForEquipmentStable(cdp) {
@@ -199,7 +206,7 @@ async function runIdentityScenario(evidenceRecords, screenshots, stateFiles) {
     const takeOffCommand = commandByAction(afterTakeOff, 'takeOff');
     assert('takeOff direct command has public objectId and shield slot', Number.isInteger(takeOffCommand?.payload?.itemId) && takeOffCommand.payload.slotId === 'armor.shield', JSON.stringify(takeOffCommand));
     assert('takeOff has exactly one semantic command and one authoritative command.completed acknowledgement', afterTakeOff.sentUiProtocolCommands.filter((command) => command.commandType === 'equipment.change' && command.payload?.action === 'takeOff').length === 1 && afterTakeOff.sentUiProtocolAcks.filter((ack) => ackEventType(ack) === 'command.completed' && (ack.result?.action || ack.payload?.result?.action) === 'takeOff').length === 1, JSON.stringify(publicState(afterTakeOff)));
-    assert('takeOff uses only the native direct command and reports the canonical core message', afterTakeOff.sent === '' && /You were wearing .*wooden shield\./i.test(afterTakeOff.messages.join('\n')), JSON.stringify(publicState(afterTakeOff)));
+    assert('takeOff uses only the native direct command and reports the canonical core message', afterTakeOff.sent === '' && /You were wearing .*small shield\./i.test(afterTakeOff.messages.join('\n')), JSON.stringify(publicState(afterTakeOff)));
     assertOnlyExactOwnedBackingInventoryCancellations('takeOff', afterTakeOff);
     assert('takeOff direct action used no hidden selector/menu/prompt choreography', !hasHiddenEquipmentChoreography(afterTakeOff), JSON.stringify(publicState(afterTakeOff)));
     assertWorkspaceVisual('identity after direct takeOff', afterTakeOff);
@@ -303,9 +310,82 @@ async function runRingScenario(evidenceRecords, screenshots, stateFiles) {
   console.log(`real-direct-equipment-change-mcp-test: CAPTURED ${cdp.outputIdentity} ${cdp.qc.manifestFile}`);
   if (scenarioError) throw scenarioError;
 }
+async function runArmorLayerScenario({ scenarioId, seed, expectSuccess, prefix }) {
+  const cdp = await startApp({ scenarioId, seed });
+  let scenarioError = null;
+  try {
+    const before = await openEquipment(cdp);
+    assert(`${prefix} starts with a worn cloak`, /cloak of protection/i.test(slotText(before, 'armor.cloak')), JSON.stringify(publicState(before)));
+    if (/empty/.test(prefix)) assert(`${prefix} starts without body armor under its cloak`, !/leather armor|splint mail/i.test(slotText(before, 'armor-suit')), JSON.stringify(publicState(before)));
+    else assert(`${prefix} starts with worn splint mail`, /splint mail/i.test(slotText(before, 'armor-suit')), JSON.stringify(publicState(before)));
+    assert(`${prefix} exposes loose leather armor`, /leather armor/i.test(rowsText(before)), JSON.stringify(publicState(before)));
+
+    await evalExpr(cdp, "window.__nethackPromptTest?.clearSentInputs?.();");
+    await dragTextToSlot(cdp, 'leather armor', 'armor-suit');
+    const accepted = await waitFor(async () => {
+      const s = await state(cdp);
+      return commandByAction(s, 'wearArmor') && acceptedByAction(s, 'wearArmor') ? s : null;
+    }, 10000);
+    const wearCommand = commandByAction(accepted, 'wearArmor');
+    assert(`${prefix} sends one native wearArmor command for the body slot`, wearCommand?.payload?.slotId === 'armor.body' && Number.isInteger(wearCommand.payload.itemId) && accepted.sentUiProtocolCommands.filter((command) => command.commandType === 'equipment.change' && command.payload?.action === 'wearArmor').length === 1, JSON.stringify(publicState(accepted)));
+    assert(`${prefix} does not send the obsolete T/W selector macro`, accepted.sent === '' && !hasForbiddenSelectorStream(accepted.sent), JSON.stringify(publicState(accepted)));
+    assert(`${prefix} never exposes completion before final ownership`, !completedByAction(accepted, 'wearArmor') || (/leather armor/i.test(slotText(accepted, 'armor-suit')) && /cloak of protection/i.test(slotText(accepted, 'armor.cloak'))), JSON.stringify(publicState(accepted)));
+
+    if (expectSuccess) {
+      const after = await waitFor(async () => {
+        const s = await state(cdp);
+        return completedByAction(s, 'wearArmor')
+          && /leather armor/i.test(slotText(s, 'armor-suit'))
+          && /cloak of protection/i.test(slotText(s, 'armor.cloak')) ? s : null;
+      }, 35000).catch(async (error) => {
+        const debug = await state(cdp).catch(() => ({}));
+        writeState(cdp, `debug-${prefix}-timeout.json`, publicState(debug));
+        await shot(cdp, `debug-${prefix}-timeout.png`).catch(() => undefined);
+        throw error;
+      });
+      assert(`${prefix} completes only with target body armor and original cloak equipped`, /leather armor/i.test(slotText(after, 'armor-suit')) && /cloak of protection/i.test(slotText(after, 'armor.cloak')), JSON.stringify(publicState(after)));
+      if (/swap/.test(prefix)) assert(`${prefix} leaves replaced splint mail unequipped in inventory`, /splint mail/i.test(rowsText(after)) && !/splint mail/i.test(slotText(after, 'armor-suit')), JSON.stringify(publicState(after)));
+      assert(`${prefix} has one authoritative completion and no rejection`, after.sentUiProtocolAcks.filter((ack) => ackEventType(ack) === 'command.completed' && (ack.payload?.commandType === 'equipment.change' || ackCommand(ack)?.commandType === 'equipment.change') && (ack.payload?.result?.action === 'wearArmor' || ackCommand(ack)?.payload?.action === 'wearArmor')).length === 1 && !rejectedByAction(after, 'wearArmor'), JSON.stringify(publicState(after)));
+      assert(`${prefix} presents the authoritative success without a generic transaction failure`,
+        /armor changed|equipment updated|complete/i.test(`${after.feedback}\n${after.status}`)
+          && !/already completed|reject|fail|error|interrupt/i.test(`${after.feedback}\n${after.status}`),
+        JSON.stringify(publicState(after)));
+      await shot(cdp, `${prefix}-completed.png`);
+    } else {
+      const after = await waitFor(async () => {
+        const s = await state(cdp);
+        return rejectedByAction(s, 'wearArmor') ? s : null;
+      }, 20000);
+      assert(`${prefix} rejects without a false completion`, !completedByAction(after, 'wearArmor') && /cursed|refused|remove/i.test(`${after.feedback}\n${after.messages.join('\n')}`), JSON.stringify(publicState(after)));
+      assert(`${prefix} preserves original cloak and suit ownership`, /cloak of protection/i.test(slotText(after, 'armor.cloak')) && /splint mail/i.test(slotText(after, 'armor-suit')), JSON.stringify(publicState(after)));
+      assert(`${prefix} leaves target leather armor unequipped`, /leather armor/i.test(rowsText(after)) && !/leather armor/i.test(slotText(after, 'armor-suit')), JSON.stringify(publicState(after)));
+      await shot(cdp, `${prefix}-rejected.png`);
+    }
+  } catch (error) {
+    scenarioError = error;
+  } finally {
+    await cdp.close().catch((error) => { if (!scenarioError) scenarioError = error; });
+  }
+  cdp.qc.recordAssertions([{ id: 'scenario-completed', status: scenarioError ? 'failed' : 'passed', details: scenarioError ? String(scenarioError.message || scenarioError) : '' }]);
+  cdp.qc.recordLog({ id: 'electron-stdout', path: cdp.logs.stdout, classification: 'electron-stdout' });
+  cdp.qc.recordLog({ id: 'electron-stderr', path: cdp.logs.stderr, classification: 'electron-stderr' });
+  const validation = Harness.screenshotQc.validateManifest(cdp.qc.manifestFile, { expectedRunIdentity: cdp.outputIdentity, requireApproval: false });
+  if (!validation.ok) throw new Error(`Evidence Approval capture failed: ${validation.errors.join('; ')}`);
+  console.log(`real-direct-equipment-change-mcp-test: CAPTURED ${cdp.outputIdentity} ${cdp.qc.manifestFile}`);
+  if (scenarioError) throw scenarioError;
+}
+
 async function main() {
-  await runIdentityScenario([], [], []);
-  await runRingScenario([], [], []);
+  const selected = String(process.env.NH_DIRECT_EQUIPMENT_SCENARIOS || '').trim();
+  if (!selected || selected === 'armor') {
+    await runArmorLayerScenario({ scenarioId: 'equipment/body-armor-swap-under-cloak', seed: '910303', expectSuccess: true, prefix: 'armor-swap-under-cloak' });
+    await runArmorLayerScenario({ scenarioId: 'equipment/body-armor-empty-under-cloak', seed: '910304', expectSuccess: true, prefix: 'armor-empty-under-cloak' });
+    await runArmorLayerScenario({ scenarioId: 'equipment/body-armor-cursed-cloak', seed: '910305', expectSuccess: false, prefix: 'armor-cursed-cloak' });
+  }
+  if (!selected || selected === 'existing') {
+    await runIdentityScenario([], [], []);
+    await runRingScenario([], [], []);
+  }
 }
 const reviewIndex = process.argv.indexOf('--review');
 if (reviewIndex !== -1) {

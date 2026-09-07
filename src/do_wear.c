@@ -54,6 +54,9 @@ staticfn struct obj *maybe_destroy_armor(struct obj *, struct obj *,
                                        boolean *) NONNULLARG3;
 staticfn int obj_erode_type(struct obj *) NONNULLARG1;
 staticfn boolean better_not_take_that_off(struct obj *) NONNULLARG1;
+staticfn boolean equipment_change_delayed_obj(struct obj *, boolean);
+staticfn void equipment_change_cancelled(void);
+staticfn boolean equipment_change_delayed_putting_on(void);
 
 /* plural "fingers" or optionally "gloves" */
 const char *
@@ -1575,8 +1578,10 @@ donning(struct obj *otmp)
 {
     boolean result = FALSE;
 
-    /* 'W' (or 'P' used for armor) sets ga.afternmv */
-    if (doffing(otmp))
+    /* Direct equipment transactions wrap NetHack's normal delayed callback. */
+    if (equipment_change_delayed_obj(otmp, TRUE))
+        result = TRUE;
+    else if (doffing(otmp))
         result = TRUE;
     else if (otmp == uarm)
         result = (ga.afternmv == Armor_on);
@@ -1605,8 +1610,10 @@ doffing(struct obj *otmp)
     long what = svc.context.takeoff.what;
     boolean result = FALSE;
 
-    /* 'T' (or 'R' used for armor) sets ga.afternmv, 'A' sets takeoff.what */
-    if (otmp == uarm)
+    /* Direct equipment transactions wrap NetHack's normal delayed callback. */
+    if (equipment_change_delayed_obj(otmp, FALSE))
+        result = TRUE;
+    else if (otmp == uarm)
         result = (ga.afternmv == Armor_off || what == WORN_ARMOR);
     else if (otmp == uarmu)
         result = (ga.afternmv == Shirt_off || what == WORN_SHIRT);
@@ -1675,12 +1682,14 @@ cancel_don(void)
                                         || ga.afternmv == Helmet_on
                                         || ga.afternmv == Gloves_on
                                         || ga.afternmv == Boots_on
-                                        || ga.afternmv == Shield_on);
+                                        || ga.afternmv == Shield_on
+                                        || equipment_change_delayed_putting_on());
     ga.afternmv = (int (*)(void)) 0;
     gn.nomovemsg = (char *) 0;
     gm.multi = 0;
     svc.context.takeoff.delay = 0;
     svc.context.takeoff.what = 0L;
+    equipment_change_cancelled();
 }
 
 /* called by steal() during theft from hero; interrupt donning/doffing */
@@ -2488,12 +2497,55 @@ struct equipment_change_result_state {
     char reason[160];
 };
 
+#define EQUIPMENT_CHANGE_MAX_REMOVED 3
+enum equipment_change_stage {
+    EQUIPMENT_CHANGE_IDLE = 0,
+    EQUIPMENT_CHANGE_REMOVE,
+    EQUIPMENT_CHANGE_WEAR_TARGET,
+    EQUIPMENT_CHANGE_RESTORE_SUCCESS,
+    EQUIPMENT_CHANGE_ROLLBACK_TARGET,
+    EQUIPMENT_CHANGE_ROLLBACK_ORIGINALS,
+    EQUIPMENT_CHANGE_FINISH_FAILURE
+};
+
+struct equipment_change_transaction_state {
+    boolean active;
+    enum equipment_change_stage stage;
+    unsigned int target_id;
+    unsigned int removed_ids[EQUIPMENT_CHANGE_MAX_REMOVED];
+    boolean removed[EQUIPMENT_CHANGE_MAX_REMOVED];
+    boolean restore_on_success[EQUIPMENT_CHANGE_MAX_REMOVED];
+    int remove_count;
+    int remove_index;
+    int restore_index;
+    unsigned int delayed_obj_id;
+    boolean delayed_putting_on;
+    int last_result;
+    boolean waiting_for_delay;
+    boolean running_native_delay_callback;
+    boolean continuation_queued;
+    char failure_reason[160];
+};
+
 static struct equipment_change_request_state g_equipment_change_request;
 static struct equipment_change_result_state g_equipment_change_result;
+static struct equipment_change_transaction_state g_equipment_change_transaction;
 
 staticfn struct obj *equipment_inventory_obj_by_id(unsigned int);
 staticfn boolean equipment_slot_matches_obj(const char *, struct obj *);
+staticfn const char *equipment_armor_slot_for_obj(struct obj *);
+staticfn struct obj *equipment_worn_in_slot(const char *);
 staticfn int direct_puton_ring_hand(struct obj *, const char *);
+staticfn void equipment_change_finish(boolean, const char *);
+staticfn void equipment_change_fail(const char *);
+staticfn boolean equipment_change_wait_for_delay(struct obj *, boolean);
+staticfn boolean equipment_change_remove_now(struct obj *);
+staticfn boolean equipment_change_wear_now(struct obj *);
+staticfn void equipment_change_queue_continuation(void);
+staticfn boolean equipment_change_finish_step_turn(void);
+staticfn void equipment_change_complete(boolean, const char *);
+staticfn int equipment_change_begin_armor(struct obj *);
+staticfn void equipment_change_advance(void);
 
 void
 equipment_change_set_request(unsigned int item_id, const char *action,
@@ -2551,7 +2603,7 @@ equipment_change_take_result(boolean *success, unsigned int *item_id,
                   sizeof g_equipment_change_result);
 }
 
-static void
+staticfn void
 equipment_change_finish(boolean success, const char *reason)
 {
     g_equipment_change_result.available = TRUE;
@@ -2575,6 +2627,8 @@ equipment_change_finish(boolean success, const char *reason)
                                         : "equipment change rejected"));
     (void) memset(&g_equipment_change_request, 0,
                   sizeof g_equipment_change_request);
+    (void) memset(&g_equipment_change_transaction, 0,
+                  sizeof g_equipment_change_transaction);
 }
 
 staticfn struct obj *
@@ -2622,6 +2676,477 @@ equipment_slot_matches_obj(const char *slot_id, struct obj *obj)
     if (!strcmp(slot_id, "armor.shield") || !strcmp(slot_id, "shield"))
         return obj == uarms;
     return FALSE;
+}
+
+staticfn const char *
+equipment_armor_slot_for_obj(struct obj *obj)
+{
+    if (!obj || obj->oclass != ARMOR_CLASS)
+        return "";
+    if (is_suit(obj))
+        return "armor.body";
+    if (is_cloak(obj))
+        return "armor.cloak";
+    if (is_shirt(obj))
+        return "armor.shirt";
+    if (is_helmet(obj))
+        return "armor.helm";
+    if (is_gloves(obj))
+        return "armor.gloves";
+    if (is_boots(obj))
+        return "armor.boots";
+    if (is_shield(obj))
+        return "armor.shield";
+    return "";
+}
+
+staticfn struct obj *
+equipment_worn_in_slot(const char *slot_id)
+{
+    if (!strcmp(slot_id, "armor.body"))
+        return uarm;
+    if (!strcmp(slot_id, "armor.cloak"))
+        return uarmc;
+    if (!strcmp(slot_id, "armor.shirt"))
+        return uarmu;
+    if (!strcmp(slot_id, "armor.helm"))
+        return uarmh;
+    if (!strcmp(slot_id, "armor.gloves"))
+        return uarmg;
+    if (!strcmp(slot_id, "armor.boots"))
+        return uarmf;
+    if (!strcmp(slot_id, "armor.shield"))
+        return uarms;
+    return (struct obj *) 0;
+}
+staticfn void
+equipment_change_add_removed(struct obj *obj, boolean restore_on_success)
+{
+    struct equipment_change_transaction_state *tx =
+        &g_equipment_change_transaction;
+    int i;
+
+    if (!obj || obj->o_id == tx->target_id)
+        return;
+    for (i = 0; i < tx->remove_count; ++i)
+        if (tx->removed_ids[i] == obj->o_id)
+            return;
+    if (tx->remove_count >= EQUIPMENT_CHANGE_MAX_REMOVED)
+        return;
+    tx->removed_ids[tx->remove_count] = obj->o_id;
+    tx->restore_on_success[tx->remove_count] = restore_on_success;
+    ++tx->remove_count;
+}
+
+staticfn void
+equipment_change_fail(const char *reason)
+{
+    struct equipment_change_transaction_state *tx =
+        &g_equipment_change_transaction;
+
+    Snprintf(tx->failure_reason, sizeof tx->failure_reason, "%s",
+             reason ? reason : "NetHack refused that armor change");
+    tx->stage = EQUIPMENT_CHANGE_ROLLBACK_TARGET;
+    tx->restore_index = tx->remove_count - 1;
+}
+
+staticfn boolean
+equipment_change_wait_for_delay(struct obj *obj, boolean putting_on)
+{
+    struct equipment_change_transaction_state *tx =
+        &g_equipment_change_transaction;
+
+    if (!ga.afternmv)
+        return FALSE;
+    tx->waiting_for_delay = TRUE;
+    tx->delayed_obj_id = obj ? obj->o_id : 0U;
+    tx->delayed_putting_on = putting_on;
+    return TRUE;
+}
+
+staticfn boolean
+equipment_change_remove_now(struct obj *obj)
+{
+    struct equipment_change_transaction_state *tx =
+        &g_equipment_change_transaction;
+
+    if (!obj || obj->where != OBJ_INVENT) {
+        tx->last_result = ECMD_OK;
+        return FALSE;
+    }
+    tx->last_result = armor_or_accessory_off(obj);
+    return equipment_change_wait_for_delay(obj, FALSE);
+}
+
+staticfn boolean
+equipment_change_wear_now(struct obj *obj)
+{
+    struct equipment_change_transaction_state *tx =
+        &g_equipment_change_transaction;
+
+    if (!obj || obj->where != OBJ_INVENT) {
+        tx->last_result = ECMD_OK;
+        return FALSE;
+    }
+    tx->last_result = accessory_or_armor_on(obj);
+    return equipment_change_wait_for_delay(obj, TRUE);
+}
+staticfn void
+equipment_change_queue_continuation(void)
+{
+    if (g_equipment_change_transaction.active) {
+        g_equipment_change_transaction.continuation_queued = TRUE;
+        cmdq_add_ec(CQ_CANNED, doshimequipmentchange);
+        cmdq_shift(CQ_CANNED);
+    }
+}
+void
+equipment_change_canned_queue_cleared(void)
+{
+    struct equipment_change_transaction_state *tx =
+        &g_equipment_change_transaction;
+
+    if (!tx->active || !tx->continuation_queued)
+        return;
+    equipment_change_finish(
+        FALSE,
+        "armor change command queue was interrupted; equipment may be partially changed");
+}
+
+staticfn boolean
+equipment_change_finish_step_turn(void)
+{
+    if (g_equipment_change_transaction.last_result != ECMD_TIME)
+        return FALSE;
+    equipment_change_queue_continuation();
+    return TRUE;
+}
+
+staticfn void
+equipment_change_complete(boolean success, const char *reason)
+{
+    update_inventory();
+    newsym(u.ux, u.uy);
+    equipment_change_finish(success, reason);
+}
+
+staticfn void
+equipment_change_advance(void)
+{
+    struct equipment_change_transaction_state *tx =
+        &g_equipment_change_transaction;
+    struct obj *obj, *target;
+    const char *slot_id = g_equipment_change_request.slot_id;
+
+    while (tx->active && !tx->waiting_for_delay) {
+        if (tx->stage == EQUIPMENT_CHANGE_REMOVE) {
+            if (tx->remove_index >= tx->remove_count) {
+                tx->stage = EQUIPMENT_CHANGE_WEAR_TARGET;
+                continue;
+            }
+            obj = equipment_inventory_obj_by_id(
+                tx->removed_ids[tx->remove_index]);
+            if (!obj || !(obj->owornmask & W_ARMOR)) {
+                equipment_change_fail(
+                    "an original armor blocker changed before removal");
+                continue;
+            }
+            if (equipment_change_remove_now(obj))
+                return;
+            if (obj->owornmask & W_ARMOR) {
+                equipment_change_fail(
+                    "NetHack refused to remove an armor blocker");
+                if (equipment_change_finish_step_turn())
+                    return;
+                continue;
+            }
+            tx->removed[tx->remove_index++] = TRUE;
+            if (equipment_change_finish_step_turn())
+                return;
+            continue;
+        }
+
+        if (tx->stage == EQUIPMENT_CHANGE_WEAR_TARGET) {
+            target = equipment_inventory_obj_by_id(tx->target_id);
+            if (!target) {
+                equipment_change_fail(
+                    "target armor is no longer in public inventory");
+                continue;
+            }
+            if (equipment_change_wear_now(target))
+                return;
+            if (equipment_worn_in_slot(slot_id) != target) {
+                equipment_change_fail("NetHack refused to wear the target armor");
+                if (equipment_change_finish_step_turn())
+                    return;
+                continue;
+            }
+            tx->stage = EQUIPMENT_CHANGE_RESTORE_SUCCESS;
+            tx->restore_index = tx->remove_count - 1;
+            if (equipment_change_finish_step_turn())
+                return;
+            continue;
+        }
+
+        if (tx->stage == EQUIPMENT_CHANGE_RESTORE_SUCCESS) {
+            while (tx->restore_index >= 0
+                   && (!tx->removed[tx->restore_index]
+                       || !tx->restore_on_success[tx->restore_index]))
+                --tx->restore_index;
+            if (tx->restore_index < 0) {
+                boolean restored = TRUE;
+                int i;
+
+                target = equipment_inventory_obj_by_id(tx->target_id);
+                for (i = 0; i < tx->remove_count; ++i) {
+                    if (tx->removed[i] && tx->restore_on_success[i]) {
+                        obj = equipment_inventory_obj_by_id(tx->removed_ids[i]);
+                        if (!obj
+                            || equipment_worn_in_slot(
+                                   equipment_armor_slot_for_obj(obj)) != obj)
+                            restored = FALSE;
+                    }
+                }
+                if (target && equipment_worn_in_slot(slot_id) == target
+                    && restored) {
+                    equipment_change_complete(
+                        TRUE, "armor changed and removed layers restored");
+                } else {
+                    equipment_change_complete(
+                        FALSE,
+                        "armor ownership changed before transaction completion");
+                }
+                return;
+            }
+            obj = equipment_inventory_obj_by_id(
+                tx->removed_ids[tx->restore_index]);
+            if (!obj) {
+                equipment_change_fail(
+                    "a removed armor layer is no longer in public inventory");
+                continue;
+            }
+            if (equipment_change_wear_now(obj))
+                return;
+            if (equipment_worn_in_slot(equipment_armor_slot_for_obj(obj))
+                != obj) {
+                equipment_change_fail(
+                    "NetHack refused to restore a removed armor layer");
+                if (equipment_change_finish_step_turn())
+                    return;
+                continue;
+            }
+            --tx->restore_index;
+            if (equipment_change_finish_step_turn())
+                return;
+            continue;
+        }
+
+        if (tx->stage == EQUIPMENT_CHANGE_ROLLBACK_TARGET) {
+            target = equipment_inventory_obj_by_id(tx->target_id);
+            if (target && (target->owornmask & W_ARMOR)) {
+                if (equipment_change_remove_now(target))
+                    return;
+                if (target->owornmask & W_ARMOR) {
+                    Snprintf(tx->failure_reason, sizeof tx->failure_reason,
+                             "%s", "armor change failed and target armor could not be removed");
+                    tx->stage = EQUIPMENT_CHANGE_FINISH_FAILURE;
+                    if (equipment_change_finish_step_turn())
+                        return;
+                    continue;
+                }
+                tx->stage = EQUIPMENT_CHANGE_ROLLBACK_ORIGINALS;
+                if (equipment_change_finish_step_turn())
+                    return;
+            } else {
+                tx->stage = EQUIPMENT_CHANGE_ROLLBACK_ORIGINALS;
+            }
+            continue;
+        }
+
+        if (tx->stage == EQUIPMENT_CHANGE_ROLLBACK_ORIGINALS) {
+            while (tx->restore_index >= 0
+                   && !tx->removed[tx->restore_index])
+                --tx->restore_index;
+            if (tx->restore_index < 0) {
+                equipment_change_complete(FALSE, tx->failure_reason);
+                return;
+            }
+            obj = equipment_inventory_obj_by_id(
+                tx->removed_ids[tx->restore_index]);
+            if (!obj) {
+                equipment_change_complete(
+                    FALSE,
+                    "armor change failed after an original layer disappeared");
+                return;
+            }
+            if (!(obj->owornmask & W_ARMOR)) {
+                if (equipment_change_wear_now(obj))
+                    return;
+                if (equipment_worn_in_slot(equipment_armor_slot_for_obj(obj))
+                    != obj) {
+                    Snprintf(tx->failure_reason, sizeof tx->failure_reason,
+                             "%s", "armor change failed and an original layer could not be restored");
+                    tx->stage = EQUIPMENT_CHANGE_FINISH_FAILURE;
+                    if (equipment_change_finish_step_turn())
+                        return;
+                    continue;
+                }
+                --tx->restore_index;
+                if (equipment_change_finish_step_turn())
+                    return;
+            } else {
+                --tx->restore_index;
+            }
+            continue;
+        }
+
+        if (tx->stage == EQUIPMENT_CHANGE_FINISH_FAILURE) {
+            equipment_change_complete(FALSE, tx->failure_reason);
+            return;
+        }
+
+        equipment_change_complete(FALSE, "invalid armor transaction state");
+        return;
+    }
+}
+
+void
+equipment_change_before_native_delay(void)
+{
+    struct equipment_change_transaction_state *tx =
+        &g_equipment_change_transaction;
+
+    if (tx->active && tx->waiting_for_delay)
+        tx->running_native_delay_callback = TRUE;
+}
+
+void
+equipment_change_after_native_delay(void)
+{
+    struct equipment_change_transaction_state *tx =
+        &g_equipment_change_transaction;
+    struct obj *obj;
+    boolean putting_on;
+
+    if (!tx->active || !tx->waiting_for_delay)
+        return;
+    obj = equipment_inventory_obj_by_id(tx->delayed_obj_id);
+    putting_on = tx->delayed_putting_on;
+    tx->waiting_for_delay = FALSE;
+    tx->running_native_delay_callback = FALSE;
+    tx->delayed_obj_id = 0U;
+
+    if (tx->stage == EQUIPMENT_CHANGE_REMOVE) {
+        if (!obj || (obj->owornmask & W_ARMOR)) {
+            equipment_change_fail(
+                "NetHack interrupted removal of an armor blocker");
+        } else {
+            tx->removed[tx->remove_index++] = TRUE;
+        }
+    } else if (tx->stage == EQUIPMENT_CHANGE_WEAR_TARGET) {
+        if (!obj
+            || equipment_worn_in_slot(g_equipment_change_request.slot_id)
+                   != obj)
+            equipment_change_fail(
+                "NetHack interrupted wearing the target armor");
+        else {
+            tx->stage = EQUIPMENT_CHANGE_RESTORE_SUCCESS;
+            tx->restore_index = tx->remove_count - 1;
+        }
+    } else if (tx->stage == EQUIPMENT_CHANGE_RESTORE_SUCCESS) {
+        if (!obj || !putting_on
+            || equipment_worn_in_slot(equipment_armor_slot_for_obj(obj))
+                   != obj)
+            equipment_change_fail(
+                "NetHack interrupted restoration of an armor layer");
+        else
+            --tx->restore_index;
+    } else if (tx->stage == EQUIPMENT_CHANGE_ROLLBACK_TARGET) {
+        if (!obj || (obj->owornmask & W_ARMOR)) {
+            equipment_change_complete(
+                FALSE,
+                "armor change failed and target removal was interrupted");
+            return;
+        }
+        tx->stage = EQUIPMENT_CHANGE_ROLLBACK_ORIGINALS;
+    } else if (tx->stage == EQUIPMENT_CHANGE_ROLLBACK_ORIGINALS) {
+        if (!obj || !putting_on
+            || equipment_worn_in_slot(equipment_armor_slot_for_obj(obj))
+                   != obj) {
+            equipment_change_complete(
+                FALSE,
+                "armor change failed and original-layer restoration was interrupted");
+            return;
+        }
+        --tx->restore_index;
+    }
+    equipment_change_queue_continuation();
+}
+
+staticfn boolean
+equipment_change_delayed_putting_on(void)
+{
+    return (boolean) (g_equipment_change_transaction.active
+                      && g_equipment_change_transaction.waiting_for_delay
+                      && !g_equipment_change_transaction.running_native_delay_callback
+                      && g_equipment_change_transaction.delayed_putting_on);
+}
+
+staticfn boolean
+equipment_change_delayed_obj(struct obj *obj, boolean putting_on)
+{
+    struct equipment_change_transaction_state *tx =
+        &g_equipment_change_transaction;
+
+    return (boolean) (tx->active && obj && tx->waiting_for_delay
+                      && !tx->running_native_delay_callback
+                      && tx->delayed_obj_id == obj->o_id
+                      && tx->delayed_putting_on == putting_on);
+}
+
+staticfn void
+equipment_change_cancelled(void)
+{
+    struct equipment_change_transaction_state *tx =
+        &g_equipment_change_transaction;
+
+    if (!tx->active)
+        return;
+    equipment_change_finish(
+        FALSE,
+        "armor donning or removal was interrupted; equipment may be partially changed");
+}
+
+staticfn int
+equipment_change_begin_armor(struct obj *target)
+{
+    struct equipment_change_transaction_state *tx =
+        &g_equipment_change_transaction;
+    const char *slot_id = equipment_armor_slot_for_obj(target);
+
+    if (!slot_id[0]
+        || strcmp(slot_id, g_equipment_change_request.slot_id)) {
+        equipment_change_finish(FALSE,
+                                "target armor does not match the requested slot");
+        return ECMD_OK;
+    }
+    (void) memset(tx, 0, sizeof *tx);
+    tx->active = TRUE;
+    tx->target_id = target->o_id;
+    tx->stage = EQUIPMENT_CHANGE_REMOVE;
+    if (!strcmp(slot_id, "armor.shirt")) {
+        equipment_change_add_removed(uarmc, TRUE);
+        equipment_change_add_removed(uarm, TRUE);
+        equipment_change_add_removed(uarmu, FALSE);
+    } else if (!strcmp(slot_id, "armor.body")) {
+        equipment_change_add_removed(uarmc, TRUE);
+        equipment_change_add_removed(uarm, FALSE);
+    } else {
+        equipment_change_add_removed(equipment_worn_in_slot(slot_id), FALSE);
+    }
+    tx->last_result = ECMD_OK;
+    equipment_change_advance();
+    return tx->last_result;
 }
 
 staticfn int
@@ -2702,6 +3227,13 @@ doshimequipmentchange(void)
     int result = ECMD_OK;
     boolean success = FALSE;
     const char *action;
+    if (g_equipment_change_transaction.active) {
+        g_equipment_change_transaction.continuation_queued = FALSE;
+        equipment_change_advance();
+        return g_equipment_change_transaction.active
+                   ? g_equipment_change_transaction.last_result
+                   : ECMD_OK;
+    }
 
     if (!g_equipment_change_request.pending) {
         equipment_change_finish(FALSE, "no pending equipment change request");
@@ -2722,6 +3254,8 @@ doshimequipmentchange(void)
         equipment_change_finish(FALSE, "item is no longer in public inventory");
         return ECMD_OK;
     }
+    if (!strcmp(action, "wearArmor"))
+        return equipment_change_begin_armor(obj);
     if (!strcmp(action, "takeOff") || !strcmp(action, "removeAccessory")) {
         if (!equipment_slot_matches_obj(g_equipment_change_request.slot_id, obj)) {
             equipment_change_finish(FALSE, "equipment slot target is stale");

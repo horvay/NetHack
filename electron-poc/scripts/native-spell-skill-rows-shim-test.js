@@ -72,8 +72,14 @@ function run() {
 
 run().then(({ events, view, stdout, stderr }) => {
   const spell = events.find((event) => event.eventType === 'spell.rows');
+  const availability = events.find((event) => event.name === 'shim_spell_availability');
   const skill = events.find((event) => event.eventType === 'skill.rows');
   assert(spell, 'real NetHack core emitted spell.rows');
+  assert(availability, 'real NetHack core emitted spell availability before opening a spell menu');
+  assert.equal(availability.authoritative, true);
+  assert.equal(availability.source, 'num_spells');
+  assert(availability.knownSpellCount >= 1, `Wizard starts with a learned spell: ${JSON.stringify(availability)}`);
+  assert(events.indexOf(availability) < events.indexOf(spell), 'availability is published from normal input refresh before spell.rows menu publication');
   assert(skill, 'real NetHack core emitted skill.rows');
   for (const event of [spell, skill]) {
     const checked = Ui.validateEventEnvelope(event);
@@ -103,14 +109,14 @@ run().then(({ events, view, stdout, stderr }) => {
   assert.equal(view.spellRows.classificationConfidence, 'typed');
   assert.equal(view.skillRows.classificationConfidence, 'typed');
   assert(spell.sequence < skill.sequence, 'native event sequence is strictly ordered');
-  const evidence = { seed: '20303', playerSpec: '-uSlotTwo-Wiz-Hum-Fem-Neu', spell, skill, reducedView: { spellRows: view.spellRows, skillRows: view.skillRows }, stderr };
+  const evidence = { seed: '20303', playerSpec: '-uSlotTwo-Wiz-Hum-Fem-Neu', availability, spell, skill, reducedView: { knownSpellCount: view.knownSpellCount, spellRows: view.spellRows, skillRows: view.skillRows }, stderr };
   if (outputFile) {
     fs.mkdirSync(path.dirname(outputFile), { recursive: true });
     fs.writeFileSync(outputFile, `${JSON.stringify(evidence, null, 2)}\n`);
     fs.writeFileSync(`${outputFile}.stdout.log`, stdout);
   }
   fs.rmSync(playground, { recursive: true, force: true });
-  console.log(JSON.stringify({ ok: true, spellRows: spell.payload.rows.length, skillRows: skill.payload.rows.length, spellSequence: spell.sequence, skillSequence: skill.sequence }, null, 2));
+  console.log(JSON.stringify({ ok: true, knownSpellCount: availability.knownSpellCount, spellRows: spell.payload.rows.length, skillRows: skill.payload.rows.length, spellSequence: spell.sequence, skillSequence: skill.sequence }, null, 2));
 }).catch((error) => {
   fs.rmSync(playground, { recursive: true, force: true });
   console.error(error.stack || error);

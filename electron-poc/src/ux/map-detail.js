@@ -250,6 +250,7 @@
     let elements = {};
     let lastMapSettings = SettingsStore?.defaultSettings?.map || { mode: 'close', closeRows: 9, minimapSize: 'medium', scale: 1 };
     let overviewSelection = null;
+    let overviewResizeObserver = null;
 
     function diagnostic(type, detail = {}) {
       try { diagnostics(Object.freeze({ type, detail: Object.freeze({ ...detail }) })); } catch {}
@@ -514,6 +515,30 @@
       elements.minimapButton.hidden = !closeUpActive();
       if (!elements.minimapButton.hidden) renderMinimap();
     }
+    function fitOverviewMap() {
+      const stage = elements.overviewMapStage;
+      const overviewMap = elements.overviewMap;
+      if (!stage || !overviewMap || !elements.overviewDialog?.open) return 0;
+      const columns = Math.max(1, Number(gameState().mapWidth || mapWidth));
+      const rows = Math.max(1, Number(gameState().mapHeight || Math.ceil(overviewMap.children.length / columns) || mapHeight));
+      const mapStyle = browserRoot?.getComputedStyle?.(overviewMap);
+      const pixel = (value) => Number.parseFloat(value || '0') || 0;
+      const horizontalChrome = pixel(mapStyle?.paddingLeft)
+        + pixel(mapStyle?.paddingRight)
+        + pixel(mapStyle?.borderLeftWidth)
+        + pixel(mapStyle?.borderRightWidth);
+      const verticalChrome = pixel(mapStyle?.paddingTop)
+        + pixel(mapStyle?.paddingBottom)
+        + pixel(mapStyle?.borderTopWidth)
+        + pixel(mapStyle?.borderBottomWidth);
+      const tileSize = Math.max(1, Math.min(
+        (stage.clientWidth - horizontalChrome) / columns,
+        (stage.clientHeight - verticalChrome) / rows,
+      ));
+      overviewMap.style.setProperty('--overview-tile-size', `${Math.floor(tileSize * 100) / 100}px`);
+      return tileSize;
+    }
+
     function renderOverviewMap() {
       if (!elements.overviewMap || !grid) return;
       const clones = Array.from(grid.children || [], (node) => {
@@ -524,6 +549,7 @@
       });
       elements.overviewMap.style.setProperty('--grid-cols', String(gameState().mapWidth || mapWidth));
       elements.overviewMap.replaceChildren(...clones);
+      fitOverviewMap();
     }
     function renderOverviewInspection(coord) {
       const bounded = boundedCoordinate(coord);
@@ -549,6 +575,7 @@
       renderOverviewInspection(cursor());
       detailSource?.hideTooltip?.();
       elements.overviewDialog.showModal();
+      browserRoot?.requestAnimationFrame?.(fitOverviewMap);
       elements.overviewClose?.focus?.({ preventScroll: true });
       diagnostic('map.level-overview-opened', { turnless: true });
       return true;
@@ -618,7 +645,7 @@
             <button type="button" class="ux-level-overview-close" aria-label="Close Level Overview">×</button>
           </header>
           <div class="ux-level-overview-workspace">
-            <div class="ux-level-overview-map" aria-label="Remembered current dungeon level"></div>
+            <div class="ux-level-overview-map-stage"><div class="ux-level-overview-map" aria-label="Remembered current dungeon level"></div></div>
             <aside class="ux-level-overview-inspector">
               <p class="ux-map-detail-kicker">Inspecting</p>
               <h3 class="ux-level-overview-inspector-title">Hero</h3>
@@ -656,6 +683,7 @@
         minimapCanvas: minimapButton.querySelector('.ux-minimap-canvas'),
         overviewDialog,
         overviewClose: overviewDialog.querySelector('.ux-level-overview-close'),
+        overviewMapStage: overviewDialog.querySelector('.ux-level-overview-map-stage'),
         overviewMap: overviewDialog.querySelector('.ux-level-overview-map'),
         overviewInspectorTitle: overviewDialog.querySelector('.ux-level-overview-inspector-title'),
         overviewInspectorDescription: overviewDialog.querySelector('.ux-level-overview-inspector-description'),
@@ -688,6 +716,12 @@
       elements.overviewMap.addEventListener('click', inspectOverviewCell);
       overviewDialog.addEventListener('cancel', (event) => { event.preventDefault(); closeOverview('escape'); });
       overviewDialog.addEventListener('click', (event) => { if (event.target === overviewDialog) closeOverview('backdrop'); });
+      if (typeof browserRoot?.ResizeObserver === 'function') {
+        overviewResizeObserver = new browserRoot.ResizeObserver(fitOverviewMap);
+        overviewResizeObserver.observe(elements.overviewMapStage);
+      } else {
+        browserRoot?.addEventListener?.('resize', fitOverviewMap);
+      }
       return true;
     }
     function onPublicState(snapshot) {
@@ -714,6 +748,8 @@
       grid?.removeEventListener?.('click', onClick, true);
       browserRoot?.removeEventListener?.('keydown', onWindowKeydown, true);
       browserRoot?.removeEventListener?.('nethack:map-presentation-changed', onMapPresentationChanged);
+      overviewResizeObserver?.disconnect?.();
+      browserRoot?.removeEventListener?.('resize', fitOverviewMap);
       subscription?.unsubscribe?.();
       elements.dialog?.remove?.();
       elements.minimapButton?.remove?.();

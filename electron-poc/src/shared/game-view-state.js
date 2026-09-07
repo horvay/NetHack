@@ -58,6 +58,12 @@
   function makeEmptyMap(width = defaultWidth, height = defaultHeight) { return Array.from({ length: height }, () => Array.from({ length: width }, () => ({ ch: ' ', assetId: undefined, glyph: undefined }))); }
   function normalizeMapCoord(value, max) { const n = Number(value); return Number.isFinite(n) ? Math.max(0, Math.min(max - 1, n)) : 0; }
   function actorBackgroundCell(cell = {}) {
+    const semanticKind = String(cell.semanticKind || '').toLowerCase();
+    const semanticName = String(cell.semanticName || '').toLowerCase();
+    if (cell.actorId === 'hero' && semanticKind === 'terrain' && (semanticName === 'cloud' || semanticName === 'poison cloud')) {
+      const { actorId: _actorId, ...backgroundCell } = cell;
+      return backgroundCell;
+    }
     const objectVisible = Number.isFinite(Number(cell.objectLayerGlyph)) && Number(cell.objectLayerGlyph) >= 0;
     if (objectVisible) {
       return {
@@ -334,6 +340,7 @@
       commandProtocolAcks: [],
       lastCommandProtocolAck: null,
       lastCommandProtocolRejection: null,
+      knownSpellCount: 0,
       spellRows: null,
       skillRows: null,
       magicRowEventIds: new Set(),
@@ -473,7 +480,12 @@
       state.commandTransactions = rejected.state;
       if (rejected.effect) effects.push(rejected.effect);
     }
-    function cloneCommandTransactionState() { return CommandTransactionModel?.cloneState ? CommandTransactionModel.cloneState(state.commandTransactions) : { ...state.commandTransactions, byId: new Map(state.commandTransactions?.byId || []) }; }
+    function trustCommandTransactionHistory() {
+      if (!CommandTransactionModel?.cloneState) return;
+      trustedImmutableValues.add(state.commandTransactions.byId);
+      if (state.commandTransactions.lastCompleted) trustedImmutableValues.add(state.commandTransactions.lastCompleted);
+      if (state.commandTransactions.lastRejected) trustedImmutableValues.add(state.commandTransactions.lastRejected);
+    }
     function cloneTransferTransactionState() { return TransferTransactionModel?.cloneState ? TransferTransactionModel.cloneState(state.transferTransactions) : { ...state.transferTransactions, sessionsById: new Map(state.transferTransactions?.sessionsById || []), transfersById: new Map(state.transferTransactions?.transfersById || []) }; }
     function cloneMagicRows(snapshot) { return snapshot ? { ...snapshot, rows: (snapshot.rows || []).map((row) => ({ ...row })) } : null; }
     function clonePlain(value) { return value == null ? value : JSON.parse(JSON.stringify(value)); }
@@ -803,7 +815,21 @@
       if (state.commandProtocolAcks.length > 80) state.commandProtocolAcks.splice(0, state.commandProtocolAcks.length - 80);
       state.lastCommandProtocolAck = clonePlainPublic(ack);
       if (eventEnvelope.eventType === 'command.rejected') state.lastCommandProtocolRejection = clonePlainPublic(ack);
-      return effect('command-protocol-ack-recorded', { ack: clonePlainPublic(ack), event: eventEnvelope });
+      const effects = [effect('command-protocol-ack-recorded', { ack: clonePlainPublic(ack), event: eventEnvelope })];
+      const tracked = ack.transactionId ? state.commandTransactions?.byId?.get?.(ack.transactionId) : null;
+      if (ack.commandType === 'equipment.change' && tracked?.status === 'pending') {
+        const terminal = eventEnvelope.eventType === 'command.completed'
+          ? CommandTransactionModel?.completeFromSnapshots?.(state.commandTransactions, { ...eventEnvelope, transactionId: ack.transactionId }, { previousInventory: state.inventory, previousEquipment: state.equipment, nextInventory: state.inventory, nextEquipment: state.equipment })
+          : (eventEnvelope.eventType === 'command.rejected'
+            ? CommandTransactionModel?.failTransaction?.(state.commandTransactions, { ...eventEnvelope, transactionId: ack.transactionId }, ack.reason || 'equipment change rejected')
+            : null);
+        if (terminal) {
+          state.commandTransactions = terminal.state;
+          if (terminal.effect) effects.push(terminal.effect);
+          if (terminal.transaction?.status === 'completed' || terminal.transaction?.status === 'failed') state.activeTransactionId = undefined;
+        }
+      }
+      return effects;
     }
     function processUiProtocolEvent(rawInput) {
       const eventEnvelope = rawInput?.eventType ? rawInput : (rawInput?.event?.eventType ? rawInput.event : null);
@@ -878,6 +904,11 @@
         pushEffects(applyContainerSessionEvent(eventEnvelope));
       }
       return publication(eventEnvelope, effects);
+    }
+    function transactionAwaitsNativeResult(tx) {
+      return tx?.status === 'pending'
+        && (tx.semanticActionId === 'equipment.change'
+          || tx.guiAction?.uiProtocol?.commandType === 'equipment.change');
     }
     function transactionShouldAwaitVisibleDelta(tx, previousInventory, previousEquipment, nextInventory, nextEquipment) {
       if (!tx || tx.status !== 'pending' || !CommandTransactionModel?.publicStateDelta) return false;
@@ -1008,6 +1039,9 @@
           if (event.semanticKind === 'stairs' || ch === '>' || ch === '<') effects.push(recordMilestone('stairs-seen', { x, y, ch, semanticName: event.semanticName || '' }));
           if (!deferMapRenderUntilDisplay) effects.push(effect('dirty-map-neighborhood', { x, y }), effect('render-map'), effect('status', { text: 'updating dungeon map' }));
         }
+      } else if (event.name === 'shim_spell_availability') {
+        state.knownSpellCount = event.knownSpellCount;
+        effects.push(effect('spell-availability-changed', { knownSpellCount: event.knownSpellCount, authoritative: true }));
       } else if (event.name === 'shim_ground_pile_snapshot') {
         const coord = event.coord || { x: event.x, y: event.y };
         const applied = applyGroundPileSnapshotPayload({ revision: event.revision, coord, items: event.items || [] }, { layer: 'shim-bridge', event: 'shim_ground_pile_snapshot', source: event.source || 'level.objects', authoritative: event.authoritative !== false });
@@ -1027,6 +1061,23 @@
       } else if (event.name === 'shim_curs') {
         const previous = state.cursor;
         state.cursor = { window: event.window, x: normalizeMapCoord(event.x, width), y: normalizeMapCoord(event.y, height) };
+        if (event.actorId && state.cursor.window === state.mapWindowId) {
+          const actorId = String(event.actorId);
+          const previousActorPosition = state.actorPositions.get(actorId);
+          if (previousActorPosition && (previousActorPosition.x !== state.cursor.x || previousActorPosition.y !== state.cursor.y)) {
+            const previousActorCell = state.mapCells[previousActorPosition.y]?.[previousActorPosition.x];
+            if (previousActorCell?.actorId === actorId) {
+              state.mapCells[previousActorPosition.y][previousActorPosition.x] = actorBackgroundCell(previousActorCell);
+              markMapSnapshotRowDirty(previousActorPosition.y);
+            }
+          }
+          const cursorCell = state.mapCells[state.cursor.y]?.[state.cursor.x];
+          if (cursorCell) {
+            state.mapCells[state.cursor.y][state.cursor.x] = { ...cursorCell, actorId };
+            state.actorPositions.set(actorId, { x: state.cursor.x, y: state.cursor.y });
+            markMapSnapshotRowDirty(state.cursor.y);
+          }
+        }
         if (previous.window === state.mapWindowId) effects.push(effect('dirty-map-neighborhood', { x: previous.x, y: previous.y }));
         if (state.cursor.window === state.mapWindowId) effects.push(effect('dirty-map-neighborhood', { x: state.cursor.x, y: state.cursor.y }));
         effects.push(effect('render-map'));
@@ -1296,7 +1347,9 @@
           const staleAliasedTransaction = Boolean(event.transactionId && aliasedTransactionId && trackedCompletion && trackedCompletion.status !== 'pending');
           const shouldCompleteOrReject = trackedCompletion?.status === 'pending' || staleKnownEventTransaction || completedKnownEventTransaction || unknownExplicitTransaction || staleAliasedTransaction;
           if (shouldCompleteOrReject) {
-            if (transactionShouldAwaitVisibleDelta(trackedCompletion, previousInventoryForTransaction, previousEquipmentForTransaction, acceptedInventory, acceptedEquipment)) {
+            if (transactionAwaitsNativeResult(trackedCompletion)) {
+              effects.push(effect('command-transaction-awaiting-native-result', { transactionId: completionId, commandType: 'equipment.change' }));
+            } else if (transactionShouldAwaitVisibleDelta(trackedCompletion, previousInventoryForTransaction, previousEquipmentForTransaction, acceptedInventory, acceptedEquipment)) {
               effects.push(effect('command-transaction-awaiting-public-delta', { transactionId: completionId, semanticAction: trackedCompletion.semanticAction }));
             } else {
               const completion = CommandTransactionModel.completeFromSnapshots(state.commandTransactions, completionEvent, { previousInventory: previousInventoryForTransaction, previousEquipment: previousEquipmentForTransaction, nextInventory: acceptedInventory, nextEquipment: acceptedEquipment });
@@ -1353,7 +1406,8 @@
     }
     function snapshot() {
       if (publishedSnapshot) return publishedSnapshot;
-      const detached = detachAndFreeze({ mapWidth: width, mapHeight: height, mapWindowId: state.mapWindowId, windowTypes: state.windowTypes, statusLabels: state.statusLabels, statusValues: state.statusValues, mapCells: snapshotMapCells(), mapRevision: state.mapRevision, cursor: state.cursor, menusByWindow: state.menusByWindow, textWindowsByWindow: state.textWindowsByWindow, currentMenu: state.currentMenu, activePrompt: state.activePrompt, extCommandCatalog: state.extCommandCatalog, directionKeys: state.directionKeys, numberPadEnabled: state.numberPadEnabled, cachedInventoryChoices: state.cachedInventoryChoices, inventory: state.inventory, equipment: state.equipment, spellRows: state.spellRows, skillRows: state.skillRows, groundPiles: state.groundPiles, containerContents: state.containerContents, messages: state.messages, documentWindow: state.documentWindow, milestones: state.milestones, pendingMenuSelections: state.pendingMenuSelections, menuLifecyclesByWindow: state.menuLifecyclesByWindow, activeInteractionRevision: state.activeInteractionRevision, interactionLifecycleRevision: state.interactionLifecycleRevision, activeTransactionId: state.activeTransactionId, commandTransactions: state.commandTransactions, commandProtocolAcks: state.commandProtocolAcks, lastCommandProtocolAck: state.lastCommandProtocolAck, lastCommandProtocolRejection: state.lastCommandProtocolRejection, transferTransactions: state.transferTransactions, pendingTransferEvidence: state.pendingTransferEvidence, commandTransactionAliases: state.commandTransactionAliases, lastWorldCommand: state.lastWorldCommand, protocolSequence: state.protocolSequence });
+      trustCommandTransactionHistory();
+      const detached = detachAndFreeze({ mapWidth: width, mapHeight: height, mapWindowId: state.mapWindowId, windowTypes: state.windowTypes, statusLabels: state.statusLabels, statusValues: state.statusValues, mapCells: snapshotMapCells(), mapRevision: state.mapRevision, cursor: state.cursor, menusByWindow: state.menusByWindow, textWindowsByWindow: state.textWindowsByWindow, currentMenu: state.currentMenu, activePrompt: state.activePrompt, extCommandCatalog: state.extCommandCatalog, directionKeys: state.directionKeys, numberPadEnabled: state.numberPadEnabled, cachedInventoryChoices: state.cachedInventoryChoices, inventory: state.inventory, equipment: state.equipment, knownSpellCount: state.knownSpellCount, spellRows: state.spellRows, skillRows: state.skillRows, groundPiles: state.groundPiles, containerContents: state.containerContents, messages: state.messages, documentWindow: state.documentWindow, milestones: state.milestones, activeInteractionRevision: state.activeInteractionRevision, interactionLifecycleRevision: state.interactionLifecycleRevision, commandTransactionRevision: state.commandTransactionRevision, activeTransactionId: state.activeTransactionId, commandTransactions: state.commandTransactions, commandProtocolAcks: state.commandProtocolAcks, lastCommandProtocolAck: state.lastCommandProtocolAck, lastCommandProtocolRejection: state.lastCommandProtocolRejection, transferTransactions: state.transferTransactions, pendingTransferEvidence: state.pendingTransferEvidence, mapClearPending: state.mapClearPending, mapRefreshPendingDisplay: state.mapRefreshPendingDisplay, lastWorldCommand: state.lastWorldCommand, protocolSequence: state.protocolSequence });
       publishedSnapshot = Object.freeze({ [immutableSnapshotBrand]: true, ...detached });
       return publishedSnapshot;
     }

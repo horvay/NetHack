@@ -1,0 +1,12 @@
+{
+  "schema": "nethack-evidence-approval/v1",
+  "rootDir": "/home/horvay/work/nethack/test-output/uxm02-real-electron",
+  "run": {
+    "identity": "d628f539-2ddd-4133-8b2b-3e1afaa04cb9",
+    "startedAt": "2026-07-26T17:38:08.715Z"
+  },
+  "captures": [],
+  "assertions": [],
+  "logs": [],
+  "updatedAt": "2026-07-26T17:38:08.715Z"
+}

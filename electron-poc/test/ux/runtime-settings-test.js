@@ -93,9 +93,11 @@ try {
 
 assert.equal(Settings.defaultSettings.map.mode, 'close', 'Close-up View is the default map presentation');
 assert.equal(Settings.normalizeSettings({}).map.mode, 'close', 'missing map preferences normalize to Close-up View');
+assert.equal(Settings.defaultSettings.layout.logRatio, null, 'message log defaults to automatic eight-line height');
+assert.equal(Settings.normalizeSettings({}).layout.logRatio, null, 'missing log preference remains automatic');
 
 const closeUpSettings = Settings.normalizeSettings({ map: { mode: 'close', closeRows: 11 } });
-assert.equal(closeUpSettings.schemaVersion, 4);
+assert.equal(closeUpSettings.schemaVersion, 5);
 assert.equal(closeUpSettings.map.mode, 'close');
 assert.equal(closeUpSettings.map.closeRows, 11);
 assert.equal(Settings.normalizeSettings({ map: { mode: 'close', closeRows: 10 } }).map.closeRows, 9, 'Close-up View uses supported odd row counts');
@@ -104,7 +106,7 @@ assert.equal(Settings.normalizeSettings({ map: { minimapSize: 'large' } }).map.m
 assert.equal(Settings.normalizeSettings({ map: { minimapSize: 'oversized' } }).map.minimapSize, 'medium');
 
 const v3 = memoryStorage({
-  [Settings.previousStorageKey]: JSON.stringify({
+  [Settings.v3StorageKey]: JSON.stringify({
     schemaVersion: 3,
     contextualPrompts: 'essential',
     autopickup: 'all',
@@ -117,14 +119,28 @@ const v3 = memoryStorage({
 });
 const migratedV3 = Settings.createSettingsStore({ storage: v3 }).load();
 assert.equal(migratedV3.source, 'v3');
-assert.equal(migratedV3.settings.schemaVersion, 4);
+assert.equal(migratedV3.settings.schemaVersion, 5);
 assert.equal(migratedV3.settings.contextualPrompts, 'essential');
 assert.equal(migratedV3.settings.autopickup, 'all');
 assert.equal(migratedV3.settings.movement, 'numpad');
 assert.equal(migratedV3.settings.map.mode, 'follow');
 assert.equal(migratedV3.settings.map.closeRows, 9);
-assert.equal(v3.values.has(Settings.previousStorageKey), false);
-assert.equal(JSON.parse(v3.values.get(Settings.storageKey)).schemaVersion, 4);
+assert.equal(v3.values.has(Settings.v3StorageKey), false);
+assert.equal(JSON.parse(v3.values.get(Settings.storageKey)).schemaVersion, 5);
+
+const v4Default = memoryStorage({
+  [Settings.previousStorageKey]: JSON.stringify({ schemaVersion: 4, layout: { logRatio: 0.5 } }),
+});
+const migratedV4Default = Settings.createSettingsStore({ storage: v4Default }).load();
+assert.equal(migratedV4Default.source, 'v4');
+assert.equal(migratedV4Default.settings.schemaVersion, 5);
+assert.equal(migratedV4Default.settings.layout.logRatio, null, 'the old always-written 50% default migrates to the eight-line automatic height');
+
+const v4Override = memoryStorage({
+  [Settings.previousStorageKey]: JSON.stringify({ schemaVersion: 4, layout: { logRatio: 0.63 } }),
+});
+const migratedV4Override = Settings.createSettingsStore({ storage: v4Override }).load();
+assert.equal(migratedV4Override.settings.layout.logRatio, 0.63, 'an adjusted version 4 divider remains an explicit override');
 
 const v2 = memoryStorage({
   [Settings.v2StorageKey]: JSON.stringify({
@@ -143,7 +159,7 @@ const migrated = migratedStore.load();
 assert.equal(migrated.migrated, true);
 assert.equal(migrated.source, 'v2');
 assert.equal(migrated.persisted, true);
-assert.equal(migrated.settings.schemaVersion, 4);
+assert.equal(migrated.settings.schemaVersion, 5);
 assert.equal(migrated.settings.contextualPrompts, 'off');
 assert.equal(migrated.settings.autopickup, 'gold');
 assert.equal(migrated.settings.movement, 'classic');
@@ -156,10 +172,10 @@ assert.equal('contextualMenus' in migrated.settings, false);
 assert.equal('autoLootGold' in migrated.settings, false);
 assert.equal('ignoredFutureValue' in migrated.settings, false);
 assert.equal(v2.values.has(Settings.v2StorageKey), false);
-assert.equal(JSON.parse(v2.values.get(Settings.storageKey)).schemaVersion, 4);
+assert.equal(JSON.parse(v2.values.get(Settings.storageKey)).schemaVersion, 5);
 const secondLoad = Settings.createSettingsStore({ storage: v2 }).load();
-assert.equal(secondLoad.source, 'v4');
-assert.equal(secondLoad.migrated, false, 'migration is idempotent after v4 persists');
+assert.equal(secondLoad.source, 'v5');
+assert.equal(secondLoad.migrated, false, 'migration is idempotent after version 5 persists');
 assert(migrationDiagnostics.some((entry) => entry.type === 'settings.migrated'));
 const sharedSettingsStorage = memoryStorage();
 const audioWriter = Settings.createSettingsStore({ storage: sharedSettingsStorage });
@@ -184,7 +200,7 @@ assert.equal(migratedV1.settings.autopickup, 'off');
 assert.equal(v1.values.has(Settings.legacyStorageKey), false);
 
 const warnings = [];
-const malformed = memoryStorage({ [Settings.storageKey]: '{bad json', [Settings.previousStorageKey]: '{also bad', [Settings.v2StorageKey]: '{still bad', [Settings.legacyStorageKey]: '{bad too' });
+const malformed = memoryStorage({ [Settings.storageKey]: '{bad json', [Settings.previousStorageKey]: '{also bad', [Settings.v3StorageKey]: '{still bad', [Settings.v2StorageKey]: '{still bad', [Settings.legacyStorageKey]: '{bad too' });
 const malformedStore = Settings.createSettingsStore({ storage: malformed, onWarning: (message) => warnings.push(message) });
 const malformedResult = malformedStore.load();
 assert.equal(malformedResult.source, 'defaults');

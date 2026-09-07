@@ -1,5 +1,6 @@
 const fs = require('node:fs');
 const path = require('node:path');
+const os = require('node:os');
 const Harness = require('./lib/electron-test-harness');
 
 const root = path.resolve(__dirname, '..');
@@ -8,7 +9,9 @@ const port = Number(process.env.NH_MAP_TILE_DETAIL_CDP_PORT || 19924);
 
 async function main() {
   fs.mkdirSync(outDir, { recursive: true });
-  await Harness.withElectronPage({ root, port, width: 1360, height: 920 }, async (page) => {
+  const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nethack-map-detail-profile-'));
+  try {
+    await Harness.withElectronPage({ root, port, width: 1360, height: 920, userDataDir }, async (page) => {
     await page.waitForValue("document.readyState === 'complete' && !!window.__nethackTooltipTest && !!window.NetHackUxMapDetailController", 10000);
     await page.evalCheckedValue(`(() => {
       window.NetHackUxRuntime.runtime.domain('shell').setMapMode('full', { persist: false });
@@ -136,7 +139,7 @@ async function main() {
     })()`);
     await page.click('#settings-save');
     await page.waitForValue("document.body.dataset.uxMinimapSize === 'medium'", 5000);
-    const minimapSizePersisted = await page.evalCheckedValue("JSON.parse(localStorage.getItem('nethack-electron-presentation-settings-v4') || '{}')?.map?.minimapSize");
+    const minimapSizePersisted = await page.evalCheckedValue("JSON.parse(localStorage.getItem('nethack-electron-presentation-settings-v5') || '{}')?.map?.minimapSize");
 
     await page.evalCheckedValue("window.__nethackPromptTest.event({ name: 'shim_curs', window: 1, x: 1, y: 1 }); true");
     await page.waitForValue(`(() => {
@@ -156,8 +159,9 @@ async function main() {
     await page.waitForValue("document.body.dataset.uxCloseRows === '7'", 5000);
     await page.click('.ux-map-scale-down');
     await page.waitForValue("document.body.dataset.uxCloseRows === '9'", 5000);
-    const closeRowsPersisted = await page.evalCheckedValue("JSON.parse(localStorage.getItem('nethack-electron-presentation-settings-v4') || '{}')?.map?.closeRows");
+    const closeRowsPersisted = await page.evalCheckedValue("JSON.parse(localStorage.getItem('nethack-electron-presentation-settings-v5') || '{}')?.map?.closeRows");
 
+    await page.send('Emulation.setDeviceMetricsOverride', { width: 1506, height: 819, deviceScaleFactor: 1, mobile: false });
     await page.click('.ux-minimap-button');
     await page.waitForValue("document.getElementById('ux-level-overview-dialog')?.open === true", 5000);
     await page.click('.ux-level-overview-map .tile-cell[data-map-x="44"][data-map-y="10"]');
@@ -174,14 +178,48 @@ async function main() {
       test.event({ name: 'bridge_direction_answer', return: 0, requestId: prompt?.requestId, transactionId: prompt?.transactionId, lifecycleRevision: prompt?.lifecycleRevision });
       return true;
     })()`);
+    const overviewLayouts = [];
+    const overviewScreenshots = [];
+    for (const { id, ...viewport } of [
+      { id: '01-open-1506x819', width: 1506, height: 819 },
+      { id: '02-resized-1328x750', width: 1328, height: 750 },
+      { id: '03-restored-1506x819', width: 1506, height: 819 },
+      { id: '04-large-1920x1080', width: 1920, height: 1080 },
+    ]) {
+      await page.send('Emulation.setDeviceMetricsOverride', { ...viewport, deviceScaleFactor: 1, mobile: false });
+      const rawScreenshot = path.join(outDir, `level-overview-${id}.png`);
+      await page.screenshot(rawScreenshot);
+      overviewScreenshots.push(rawScreenshot);
+      overviewLayouts.push(await page.evalCheckedValue(`(() => {
+        const values = (node) => {
+          const rect = node.getBoundingClientRect();
+          return { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom, width: rect.width, height: rect.height };
+        };
+        const dialog = document.getElementById('ux-level-overview-dialog');
+        const stage = dialog.querySelector('.ux-level-overview-map-stage');
+        const map = dialog.querySelector('.ux-level-overview-map');
+        const stageRect = values(stage);
+        const mapRect = values(map);
+        return {
+          viewport: { width: innerWidth, height: innerHeight },
+          dialog: values(dialog),
+          stage: stageRect,
+          map: mapRect,
+          tileSize: Number.parseFloat(getComputedStyle(map).getPropertyValue('--overview-tile-size')),
+          fits: mapRect.left >= stageRect.left - 0.75 && mapRect.right <= stageRect.right + 0.75
+            && mapRect.top >= stageRect.top - 0.75 && mapRect.bottom <= stageRect.bottom + 0.75,
+          centered: Math.abs((mapRect.left + mapRect.right) - (stageRect.left + stageRect.right)) <= 1.5
+            && Math.abs((mapRect.top + mapRect.bottom) - (stageRect.top + stageRect.bottom)) <= 1.5,
+        };
+      })()`));
+    }
     const overviewState = await page.evalCheckedValue(`(() => ({
       open: document.getElementById('ux-level-overview-dialog').open,
       cells: document.querySelectorAll('.ux-level-overview-map .tile-cell').length,
       title: document.querySelector('.ux-level-overview-inspector-title').textContent,
       sentInputs: window.__nethackPromptTest.sentInputs(),
     }))()`);
-    const overviewScreenshot = path.join(outDir, 'level-overview.png');
-    await page.screenshot(overviewScreenshot);
+    const overviewScreenshot = overviewScreenshots.at(-1);
     await page.pressKey('Escape');
     await page.waitForValue("document.getElementById('ux-level-overview-dialog')?.open === false", 5000);
     const overviewEscapeState = await page.evalCheckedValue(`(() => ({
@@ -200,13 +238,11 @@ async function main() {
     }))()`);
     await page.send('Page.reload', { ignoreCache: true });
     await page.waitForValue("document.readyState === 'complete' && !!window.NetHackUxMapDetailController && document.body.dataset.uxMapMode === 'close'", 10000);
-    await page.evalCheckedValue("new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve(true))))", { awaitPromise: true });
     const reloadState = await page.evalCheckedValue(`(() => ({
       mode: document.body.dataset.uxMapMode,
       minimapHidden: document.querySelector('.ux-minimap-button')?.hidden,
     }))()`);
     await page.evalCheckedValue("window.__nethackPromptTest.reset(); true");
-    await page.evalCheckedValue("new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve(true))))", { awaitPromise: true });
     const restoredGameState = await page.evalCheckedValue(`(() => ({
       mode: document.body.dataset.uxMapMode,
       minimapExists: Boolean(document.querySelector('.ux-minimap-button')),
@@ -228,18 +264,27 @@ async function main() {
       minimapSizeSettingPersistsAndResizes: largeMinimapWidth > closeUpState.minimapWidth && minimapSizePersisted === 'medium',
       closeUpCentersHeroAtDungeonEdge: edgeCentered,
       closeUpControlsPersistRowCount: closeRowsPersisted === 9,
+      levelOverviewFitsAfterFullscreenWindowedResize: overviewLayouts.length === 4
+        && overviewLayouts.every((layout, index) => layout.fits && layout.centered && layout.tileSize > 0
+          && layout.viewport.width === [1506, 1328, 1506, 1920][index]
+          && layout.viewport.height === [819, 750, 819, 1080][index]
+          && layout.dialog.left >= 0 && layout.dialog.top >= 0
+          && layout.dialog.right <= layout.viewport.width && layout.dialog.bottom <= layout.viewport.height),
       levelOverviewInspectsKnownSquareTurnlessly: overviewState.open && overviewState.cells === 1680 && overviewState.title === 'Goblin' && overviewState.sentInputs.length === 0,
       levelOverviewEscapeRestoresCloseUp: overviewEscapeState.mode === 'close' && overviewEscapeState.focusedId === 'game-grid' && overviewEscapeState.sentInputs.length === 0,
       levelOverviewXRestoresCloseUp: overviewXState.mode === 'close' && overviewXState.focusedId === 'game-grid' && overviewXState.sentInputs.length === 0,
       reloadedCloseUpRestoresMinimap: reloadState.mode === 'close' && reloadState.minimapHidden === false
         && restoredGameState.mode === 'close' && restoredGameState.minimapExists && restoredGameState.minimapHidden === false,
     };
-    const result = { checks, openState, closedState, closeUpState, largeMinimapWidth, minimapSizePersisted, edgeCentered, closeRowsPersisted, overviewState, overviewEscapeState, overviewXState, reloadState, restoredGameState, screenshots: { tileDetail: screenshot, closeUp: closeUpScreenshot, minimapSettings: minimapSettingsScreenshot, levelOverview: overviewScreenshot } };
+    const result = { checks, openState, closedState, closeUpState, largeMinimapWidth, minimapSizePersisted, edgeCentered, closeRowsPersisted, overviewLayouts, overviewState, overviewEscapeState, overviewXState, reloadState, restoredGameState, screenshots: { tileDetail: screenshot, closeUp: closeUpScreenshot, minimapSettings: minimapSettingsScreenshot, levelOverview: overviewScreenshot, levelOverviewResizeSequence: overviewScreenshots } };
     fs.writeFileSync(path.join(outDir, 'map-tile-detail-result.json'), `${JSON.stringify(result, null, 2)}\n`);
     console.log(JSON.stringify(result, null, 2));
     const failed = Object.entries(checks).filter(([, passed]) => !passed).map(([name]) => name);
     if (failed.length) throw new Error(`map tile detail assertions failed: ${failed.join(', ')}`);
-  });
+    });
+  } finally {
+    fs.rmSync(userDataDir, { recursive: true, force: true });
+  }
 }
 
 main().catch((error) => { console.error(error.stack || error); process.exit(1); });

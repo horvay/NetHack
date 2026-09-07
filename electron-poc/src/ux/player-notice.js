@@ -90,6 +90,7 @@
       if (!visible) return;
       if (!notice) {
         const hide = () => {
+          if (active) return;
           visible.hidden = true;
           visible.removeAttribute('data-kind');
           message.textContent = '';

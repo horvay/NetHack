@@ -70,6 +70,8 @@ staticfn void electron_test_parse_terrain_entry(const char **,
                                                 struct electron_test_scenario_v1 *);
 staticfn void electron_test_parse_terrain_array(const char **,
                                                 struct electron_test_scenario_v1 *);
+staticfn void electron_test_parse_gas_clouds(const char **,
+                                             struct electron_test_scenario_v1 *);
 staticfn void electron_test_parse_map(const char **,
                                       struct electron_test_scenario_v1 *);
 staticfn void electron_test_parse_monster_entry(const char **,
@@ -105,6 +107,7 @@ staticfn void electron_test_apply_level(const struct electron_test_scenario_v1 *
 staticfn void electron_test_apply_terrain_tile(const char *, coordxy, coordxy,
                                                int, int, int, int);
 staticfn void electron_test_apply_terrain(const struct electron_test_scenario_v1 *);
+staticfn void electron_test_apply_gas_clouds(const struct electron_test_scenario_v1 *);
 staticfn void electron_test_apply_monsters(const struct electron_test_scenario_v1 *);
 staticfn void electron_test_resolve_location(const struct electron_test_location_spec *,
                                              coordxy *, coordxy *);
@@ -867,6 +870,7 @@ electron_test_require_runtime_gate(const char *id)
 #define ELECTRON_TEST_MAX_MAP_ROWS 15
 #define ELECTRON_TEST_MAX_MAP_COLS 31
 #define ELECTRON_TEST_MAX_FACTS 24
+#define ELECTRON_TEST_MAX_GAS_CLOUDS 16
 #define ELECTRON_TEST_FACT_LEN 128
 #define ELECTRON_TEST_MAX_EVENT_RESULTS 16
 #define ELECTRON_TEST_EVENT_RESULT_LEN 48
@@ -950,6 +954,12 @@ struct electron_test_map_spec {
     char rows[ELECTRON_TEST_MAX_MAP_ROWS][ELECTRON_TEST_MAX_MAP_COLS + 1];
 };
 
+struct electron_test_gas_cloud_spec {
+    struct electron_test_location_spec loc;
+    int size, damage;
+    long ttl;
+};
+
 struct electron_test_monster_spec {
     struct electron_test_location_spec loc;
     int monster_id;
@@ -996,6 +1006,8 @@ struct electron_test_scenario_v1 {
     struct electron_test_terrain_spec terrain[ELECTRON_TEST_MAX_TERRAIN];
     int terrain_count;
     struct electron_test_map_spec map;
+    struct electron_test_gas_cloud_spec gas_clouds[ELECTRON_TEST_MAX_GAS_CLOUDS];
+    int gas_cloud_count;
     struct electron_test_object_spec objects[ELECTRON_TEST_MAX_OBJECTS];
     int object_count;
     struct electron_test_ground_spec ground[ELECTRON_TEST_MAX_GROUND];
@@ -1279,6 +1291,7 @@ electron_test_type_id_from_string(const char *type_id)
     if (!strcmp(type_id, "PICK_AXE")) return PICK_AXE;
     if (!strcmp(type_id, "LEATHER_ARMOR")) return LEATHER_ARMOR;
     if (!strcmp(type_id, "CHAIN_MAIL")) return CHAIN_MAIL;
+    if (!strcmp(type_id, "SPLINT_MAIL")) return SPLINT_MAIL;
     if (!strcmp(type_id, "T_SHIRT")) return T_SHIRT;
     if (!strcmp(type_id, "HAWAIIAN_SHIRT")) return HAWAIIAN_SHIRT;
     if (!strcmp(type_id, "HELMET")) return HELMET;
@@ -1339,6 +1352,7 @@ electron_test_monster_id_from_string(const char *monster_id)
     if (!strcmp(monster_id, "LICHEN")) return PM_LICHEN;
     if (!strcmp(monster_id, "NEWT")) return PM_NEWT;
     if (!strcmp(monster_id, "BAT")) return PM_BAT;
+    if (!strcmp(monster_id, "FOG_CLOUD")) return PM_FOG_CLOUD;
     if (!strcmp(monster_id, "DWARF")) return PM_DWARF;
     if (!strcmp(monster_id, "WEREJACKAL")) return PM_WEREJACKAL;
     if (!strcmp(monster_id, "HUMAN_WEREJACKAL")) return PM_HUMAN_WEREJACKAL;
@@ -2302,6 +2316,81 @@ electron_test_parse_terrain_array(const char **pp,
 }
 
 staticfn void
+electron_test_parse_gas_clouds(const char **pp,
+                               struct electron_test_scenario_v1 *scenario)
+{
+    electron_json_expect_char(pp, '[', scenario->id,
+                              "expected gasClouds array");
+    if (electron_json_consume_char(pp, ']'))
+        return;
+    for (;;) {
+        unsigned seen = 0U;
+        struct electron_test_gas_cloud_spec *cloud;
+        if (scenario->gas_cloud_count >= ELECTRON_TEST_MAX_GAS_CLOUDS)
+            electron_json_fail(scenario->id, "gasClouds array is too large");
+        cloud = &scenario->gas_clouds[scenario->gas_cloud_count];
+        memset(cloud, 0, sizeof *cloud);
+        cloud->size = 1;
+        cloud->ttl = 20L;
+        electron_json_expect_char(pp, '{', scenario->id,
+                                  "expected gas cloud entry");
+        if (electron_json_consume_char(pp, '}'))
+            electron_json_fail(scenario->id,
+                               "gas cloud entry cannot be empty");
+        for (;;) {
+            char *key = electron_json_parse_string(pp, scenario->id);
+            electron_json_expect_char(pp, ':', scenario->id,
+                                      "expected ':' after gas cloud field");
+            if (!strcmp(key, "at")) {
+                electron_json_require_unique(&seen, 0x01U, scenario->id, key);
+                electron_test_parse_location(pp, scenario, &cloud->loc);
+            } else if (!strcmp(key, "size")) {
+                long value;
+                electron_json_require_unique(&seen, 0x02U, scenario->id, key);
+                value = electron_json_parse_int(pp, scenario->id);
+                if (value < 1L || value > 150L)
+                    electron_json_fail(scenario->id,
+                                       "gas cloud size is out of range");
+                cloud->size = (int) value;
+            } else if (!strcmp(key, "damage")) {
+                long value;
+                electron_json_require_unique(&seen, 0x04U, scenario->id, key);
+                value = electron_json_parse_int(pp, scenario->id);
+                if (value < 0L || value > 50L)
+                    electron_json_fail(scenario->id,
+                                       "gas cloud damage is out of range");
+                cloud->damage = (int) value;
+            } else if (!strcmp(key, "ttl")) {
+                long value;
+                electron_json_require_unique(&seen, 0x08U, scenario->id, key);
+                value = electron_json_parse_int(pp, scenario->id);
+                if (value < 1L || value > 500L)
+                    electron_json_fail(scenario->id,
+                                       "gas cloud ttl is out of range");
+                cloud->ttl = value;
+            } else {
+                free(key);
+                electron_json_fail(scenario->id,
+                                   "unsupported gas cloud field");
+            }
+            free(key);
+            if (electron_json_consume_char(pp, '}'))
+                break;
+            electron_json_expect_char(pp, ',', scenario->id,
+                                      "expected ',' between gas cloud fields");
+        }
+        if (!(seen & 0x01U))
+            electron_json_fail(scenario->id,
+                               "gas cloud entry is missing at");
+        ++scenario->gas_cloud_count;
+        if (electron_json_consume_char(pp, ']'))
+            break;
+        electron_json_expect_char(pp, ',', scenario->id,
+                                  "expected ',' between gas cloud entries");
+    }
+}
+
+staticfn void
 electron_test_parse_map(const char **pp,
                         struct electron_test_scenario_v1 *scenario)
 {
@@ -2409,6 +2498,9 @@ electron_test_parse_level(const char **pp,
         } else if (!strcmp(key, "terrain")) {
             electron_json_require_unique(&seen, 0x10U, scenario->id, key);
             electron_test_parse_terrain_array(pp, scenario);
+        } else if (!strcmp(key, "gasClouds")) {
+            electron_json_require_unique(&seen, 0x80U, scenario->id, key);
+            electron_test_parse_gas_clouds(pp, scenario);
         } else if (!strcmp(key, "map")) {
             electron_json_require_unique(&seen, 0x20U, scenario->id, key);
             electron_test_parse_map(pp, scenario);
@@ -2954,6 +3046,13 @@ electron_test_preflight_locations(const struct electron_test_scenario_v1 *scenar
             }
         }
     }
+    for (i = 0; i < scenario->gas_cloud_count; ++i) {
+        coordxy x, y;
+        electron_test_resolve_location(&scenario->gas_clouds[i].loc, &x, &y);
+        if (!isok(x, y) || !electron_test_planned_accessible(scenario, x, y))
+            electron_test_fixture_fail(scenario->id,
+                                       "gas cloud location is not safe");
+    }
     for (i = 0; i < scenario->monster_count; ++i) {
         coordxy x, y;
         electron_test_resolve_location(&scenario->monsters[i].loc, &x, &y);
@@ -3346,6 +3445,23 @@ electron_test_apply_terrain(const struct electron_test_scenario_v1 *scenario)
                 || (isok(x + 1, y) && levl[x + 1][y].typ == HWALL);
             newsym(x, y);
         }
+    }
+}
+
+staticfn void
+electron_test_apply_gas_clouds(const struct electron_test_scenario_v1 *scenario)
+{
+    int i;
+    for (i = 0; i < scenario->gas_cloud_count; ++i) {
+        coordxy x, y;
+        NhRegion *cloud;
+        electron_test_resolve_location(&scenario->gas_clouds[i].loc, &x, &y);
+        cloud = create_gas_cloud(x, y, scenario->gas_clouds[i].size,
+                                 scenario->gas_clouds[i].damage);
+        if (!cloud)
+            electron_test_fixture_fail(scenario->id,
+                                       "failed to create gas cloud");
+        cloud->ttl = scenario->gas_clouds[i].ttl;
     }
 }
 
@@ -3808,13 +3924,14 @@ maybe_setup_electron_json_test_scenario(void)
     electron_test_preflight_locations(&scenario);
     electron_test_apply_level(&scenario);
     electron_test_apply_terrain(&scenario);
+    electron_test_apply_gas_clouds(&scenario);
     electron_test_apply_ground(&scenario);
     electron_test_apply_monsters(&scenario);
     if (!scenario.special_level_present)
         electron_test_apply_inventory(&scenario);
     electron_test_apply_hero_state(&scenario);
     electron_test_apply_event_results(&scenario);
-    newsym(u.ux, u.uy);
+    newsym_force(u.ux, u.uy);
     disp.botlx = TRUE;
     electron_test_build_expected_facts(&scenario, facts, sizeof facts);
     electron_test_fixture_event("bridge_test_scenario_loaded",
@@ -4253,13 +4370,6 @@ newgame(void)
         mnexto(m_at(u.ux, u.uy), RLOC_NOMSG);
     (void) makedog();
     u_init_inventory_attrs();
-    maybe_setup_electron_json_test_scenario();
-    maybe_setup_electron_pickup_test_pile();
-    maybe_setup_electron_container_context_test_scene();
-    maybe_setup_electron_container_transfer_test_scene();
-    maybe_setup_electron_locked_door_test_scene();
-    maybe_setup_electron_corpse_overlay_test_scene();
-    maybe_setup_electron_shop_payment_test_scene();
 
     docrt();
     flush_screen(1);
@@ -4294,6 +4404,18 @@ newgame(void)
         bot();
     }
     u_init_skills_discoveries();
+    /* Fixtures replace finalized startup state, after inventory rerolls and
+       skill discovery can no longer rewrite their explicit object state. */
+    maybe_setup_electron_json_test_scenario();
+    maybe_setup_electron_pickup_test_pile();
+    maybe_setup_electron_container_context_test_scene();
+    maybe_setup_electron_container_transfer_test_scene();
+    maybe_setup_electron_locked_door_test_scene();
+    maybe_setup_electron_corpse_overlay_test_scene();
+    maybe_setup_electron_shop_payment_test_scene();
+#ifdef NH_ELECTRON_TEST_FIXTURES
+    flush_screen(1);
+#endif
 
     if (wizard) {
         read_wizkit();

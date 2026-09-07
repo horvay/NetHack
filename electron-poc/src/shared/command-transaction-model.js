@@ -3,6 +3,33 @@
   else root.NetHackCommandTransactionModel = factory();
 }(typeof globalThis !== 'undefined' ? globalThis : this, function factory() {
   const version = 'nethack-command-transaction-model/v1';
+  const immutableValues = new WeakSet();
+  const immutableHistoryEntries = new WeakMap();
+  const immutableHistoryConstructorToken = Object.freeze({});
+
+  class ImmutableTransactionHistory extends Map {
+    constructor(entries = [], updatedId, updatedTransaction, token) {
+      super();
+      if (token !== immutableHistoryConstructorToken) throw new TypeError('immutable command transaction history construction is internal');
+      const backing = new Map(entries);
+      if (updatedId !== undefined) backing.set(updatedId, updatedTransaction);
+      immutableHistoryEntries.set(this, backing);
+      Object.freeze(this);
+    }
+    get size() { return immutableHistoryEntries.get(this).size; }
+    get(id) { return immutableHistoryEntries.get(this).get(id); }
+    has(id) { return immutableHistoryEntries.get(this).has(id); }
+    entries() { return immutableHistoryEntries.get(this).entries(); }
+    keys() { return immutableHistoryEntries.get(this).keys(); }
+    values() { return immutableHistoryEntries.get(this).values(); }
+    [Symbol.iterator]() { return this.entries(); }
+    forEach(callback, thisArg) {
+      immutableHistoryEntries.get(this).forEach((transaction, id) => callback.call(thisArg, transaction, id, this));
+    }
+    set() { throw new TypeError('immutable command transaction history'); }
+    delete() { throw new TypeError('immutable command transaction history'); }
+    clear() { throw new TypeError('immutable command transaction history'); }
+  }
 
   function asPositiveInteger(value) {
     const number = Number(value);
@@ -12,10 +39,31 @@
     const number = Number(value);
     return Number.isInteger(number) && number >= 0 && Number.isSafeInteger(number) ? number : 0;
   }
-  function cloneMap(map) { return new Map(map || []); }
   function clonePlain(value) {
     if (!value || typeof value !== 'object') return value;
     return JSON.parse(JSON.stringify(value));
+  }
+  function freezeValue(value) {
+    if (!value || typeof value !== 'object' || Object.isFrozen(value)) return value;
+    for (const key of Reflect.ownKeys(value)) freezeValue(value[key]);
+    return Object.freeze(value);
+  }
+  function immutableValue(value) {
+    if (!value || typeof value !== 'object' || immutableValues.has(value)) return value;
+    const detached = clonePlain(value);
+    freezeValue(detached);
+    immutableValues.add(detached);
+    return detached;
+  }
+  function immutableHistory(history) {
+    if (history && immutableHistoryEntries.has(history)) return history;
+    const entries = history instanceof Map ? Map.prototype.entries.call(history) : (history || []);
+    return new ImmutableTransactionHistory(Array.from(entries, ([id, transaction]) => [id, immutableValue(transaction)]), undefined, undefined, immutableHistoryConstructorToken);
+  }
+  function historyWithEntry(history, id, transaction) {
+    const entries = immutableHistoryEntries.get(history);
+    if (!entries) throw new TypeError('command transaction history is not owned by this model');
+    return new ImmutableTransactionHistory(entries, id, immutableValue(transaction), immutableHistoryConstructorToken);
   }
   function keyFromEvent(event = {}) {
     const keycode = Number(event.keycode);
@@ -74,7 +122,7 @@
     return {
       revision: 0,
       activeId: undefined,
-      byId: new Map(),
+      byId: new ImmutableTransactionHistory([], undefined, undefined, immutableHistoryConstructorToken),
       lastCompleted: null,
       lastRejected: null,
     };
@@ -83,9 +131,9 @@
     return {
       revision: asRevision(state.revision),
       activeId: state.activeId,
-      byId: new Map(Array.from(state.byId || []).map(([id, tx]) => [id, clonePlain(tx)])),
-      lastCompleted: clonePlain(state.lastCompleted),
-      lastRejected: clonePlain(state.lastRejected),
+      byId: immutableHistory(state.byId),
+      lastCompleted: immutableValue(state.lastCompleted),
+      lastRejected: immutableValue(state.lastRejected),
     };
   }
   function beginTransaction(state = emptyState(), event = {}, context = {}) {
@@ -110,9 +158,10 @@
       equipmentRevisionBefore: asRevision(context.equipmentRevision),
       interactions: [],
     };
+    const storedTransaction = immutableValue(tx);
     next.activeId = id;
-    next.byId.set(id, tx);
-    return { state: next, transaction: clonePlain(tx), effect: { type: 'command-transaction-started', transaction: clonePlain(tx) } };
+    next.byId = historyWithEntry(next.byId, id, storedTransaction);
+    return { state: next, transaction: clonePlain(storedTransaction), effect: { type: 'command-transaction-started', transaction: clonePlain(storedTransaction) } };
   }
   function followupOwnership(tx = {}, interaction = {}) {
     const action = tx.guiAction || null;
@@ -140,8 +189,9 @@
     const ownership = followupOwnership(tx, interaction);
     if (ownership) ownedInteraction.followupOwnership = ownership;
     tx.interactions.push(ownedInteraction);
-    next.byId.set(id, tx);
-    return { state: next, transaction: clonePlain(tx), effect: { type: 'command-transaction-updated', transaction: clonePlain(tx) } };
+    const storedTransaction = immutableValue(tx);
+    next.byId = historyWithEntry(next.byId, id, storedTransaction);
+    return { state: next, transaction: clonePlain(storedTransaction), effect: { type: 'command-transaction-updated', transaction: clonePlain(storedTransaction) } };
   }
   function itemId(item = {}) {
     if (item.objectId != null) return `object:${item.objectId}`;
@@ -207,7 +257,7 @@
   function rejectCompletion(state = emptyState(), event = {}, reason = 'stale command completion') {
     const next = cloneState(state);
     next.revision += 1;
-    const rejection = { revision: next.revision, transactionId: event.transactionId || '', reason, event: clonePlain(event) };
+    const rejection = immutableValue({ revision: next.revision, transactionId: event.transactionId || '', reason, event: clonePlain(event) });
     next.lastRejected = rejection;
     return { state: next, rejected: rejection, effect: { type: 'command-transaction-completion-rejected', reason, event: clonePlain(event), rejection } };
   }
@@ -216,12 +266,12 @@
     const current = id ? state.byId?.get?.(id) : null;
     const next = cloneState(state);
     next.revision += 1;
-    const rejection = { revision: next.revision, transactionId: id, reason, event: clonePlain(event), kind: 'follow-up' };
+    const rejection = immutableValue({ revision: next.revision, transactionId: id, reason, event: clonePlain(event), kind: 'follow-up' });
     if (current && current.status === 'pending') {
       const tx = { ...next.byId.get(id) };
       tx.interactions = Array.isArray(tx.interactions) ? tx.interactions.slice() : [];
       tx.interactions.push({ kind: 'followup-rejected', lifecycle: 'rejected-follow-up', reason, requestId: event.requestId || event.menuRequestId || event.promptId || '', eventName: event.name || '', followupOwnership: followupOwnership(tx, event) });
-      next.byId.set(id, tx);
+      next.byId = historyWithEntry(next.byId, id, tx);
     }
     next.lastRejected = rejection;
     return { state: next, rejected: rejection, transaction: current ? clonePlain(next.byId.get(id)) : null, effect: { type: 'command-transaction-followup-rejected', reason, event: clonePlain(event), rejection } };
@@ -250,10 +300,11 @@
       equipmentRevision: asRevision(context.nextEquipment?.revision),
       delta,
     };
-    next.byId.set(requestedId, tx);
+    const storedTransaction = immutableValue(tx);
+    next.byId = historyWithEntry(next.byId, requestedId, storedTransaction);
     next.activeId = undefined;
-    next.lastCompleted = clonePlain(tx);
-    return { state: next, transaction: clonePlain(tx), effect: { type: 'command-transaction-completed', transaction: clonePlain(tx), result: clonePlain(tx.result), delta: clonePlain(delta) } };
+    next.lastCompleted = storedTransaction;
+    return { state: next, transaction: clonePlain(storedTransaction), effect: { type: 'command-transaction-completed', transaction: clonePlain(storedTransaction), result: clonePlain(storedTransaction.result), delta: clonePlain(delta) } };
   }
   function createOwnedInputFlow(input = {}) {
     const requestId = String(input.requestId || '').trim();
@@ -466,10 +517,11 @@
     tx.status = 'failed';
     tx.completedAt = event.now ?? Date.now?.() ?? 0;
     tx.result = { status: 'failure', kind: event.name || 'command.failure', reason, actionId: tx.guiAction?.actionId || tx.semanticActionId || '', actionLabel: tx.guiAction?.label || '', target: clonePlain(tx.guiAction?.target || null) };
-    next.byId.set(requestedId, tx);
+    const storedTransaction = immutableValue(tx);
+    next.byId = historyWithEntry(next.byId, requestedId, storedTransaction);
     next.activeId = undefined;
-    next.lastCompleted = clonePlain(tx);
-    return { state: next, transaction: clonePlain(tx), effect: { type: 'command-transaction-completed', transaction: clonePlain(tx), result: clonePlain(tx.result) } };
+    next.lastCompleted = storedTransaction;
+    return { state: next, transaction: clonePlain(storedTransaction), effect: { type: 'command-transaction-completed', transaction: clonePlain(storedTransaction), result: clonePlain(storedTransaction.result) } };
   }
 
   return Object.freeze({ version, emptyState, cloneState, beginTransaction, noteInteraction, rejectFollowup, completeFromSnapshots, failTransaction, publicStateDelta, commandNameForKey, commandActionIdForKey, normalizeGuiAction, createOwnedInputFlow, settleOwnedInputFlow, observeOwnedRevisionStability, resolveExactOwnedInventoryItem });

@@ -1,0 +1,19 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "equipment/body-armor-empty-under-cloak",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": { "placement": "current", "role": "Valkyrie", "race": "human", "gender": "female", "alignment": "lawful" },
+  "level": { "safeAreaAroundHero": 2, "lit": true, "suppressAdjacentMonsters": true, "pet": "none" },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    { "typeId": "CLOAK_OF_PROTECTION", "beatitude": "uncursed", "beatitudeKnown": true, "equipped": "worn" },
+    { "typeId": "LEATHER_ARMOR", "beatitude": "uncursed", "beatitudeKnown": true }
+  ],
+  "expectedPublicFacts": {
+    "inventoryRows": ["cloak of protection", "leather armor"],
+    "equipmentRows": ["cloak"],
+    "status": ["Valkyrie", "female", "lawful"],
+    "messages": ["empty body armor under cloak"]
+  }
+}

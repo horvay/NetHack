@@ -2,10 +2,11 @@
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.NetHackUxSettingsStore = factory();
 }(typeof globalThis !== 'undefined' ? globalThis : this, function factory() {
-  const version = 'nethack-presentation-settings/v4';
-  const schemaVersion = 4;
-  const storageKey = 'nethack-electron-presentation-settings-v4';
-  const previousStorageKey = 'nethack-electron-presentation-settings-v3';
+  const version = 'nethack-presentation-settings/v5';
+  const schemaVersion = 5;
+  const storageKey = 'nethack-electron-presentation-settings-v5';
+  const previousStorageKey = 'nethack-electron-presentation-settings-v4';
+  const v3StorageKey = 'nethack-electron-presentation-settings-v3';
   const v2StorageKey = 'nethack-electron-presentation-settings-v2';
   const legacyStorageKey = 'nethack-electron-poc-settings-v1';
   const defaultSettings = Object.freeze({
@@ -16,7 +17,7 @@
     hudDensity: 'compact',
     keyHints: 'contextual',
     map: Object.freeze({ mode: 'close', closeRows: 9, minimapSize: 'medium', scale: 1, glyphOverlay: false, highContrast: false }),
-    layout: Object.freeze({ logRatio: 0.5 }),
+    layout: Object.freeze({ logRatio: null }),
     motion: 'system',
     sound: Object.freeze({ uiEnabled: false, gameFeedbackEnabled: false, volume: 0.5 }),
   });
@@ -25,6 +26,9 @@
   const closeUpRowOptions = Object.freeze([7, 9, 11, 13, 15]);
   const bool = (value, fallback) => typeof value === 'boolean' ? value : fallback;
   const numberInRange = (value, min, max, fallback) => Number.isFinite(Number(value)) ? Math.min(max, Math.max(min, Number(value))) : fallback;
+  const optionalNumberInRange = (value, min, max) => value == null || value === ''
+    ? null
+    : numberInRange(value, min, max, null);
 
   function normalizeSettings(input = {}) {
     const source = input && typeof input === 'object' && !Array.isArray(input) ? input : {};
@@ -47,7 +51,7 @@
         highContrast: bool(map.highContrast, defaultSettings.map.highContrast),
       }),
       layout: Object.freeze({
-        logRatio: numberInRange(layout.logRatio, 0.2, 0.75, defaultSettings.layout.logRatio),
+        logRatio: optionalNumberInRange(layout.logRatio, 0.2, 0.75),
       }),
       motion: oneOf(source.motion, ['system', 'reduced', 'full'], defaultSettings.motion),
       sound: Object.freeze({
@@ -63,6 +67,19 @@
       contextualPrompts: source.contextualMenus === false ? 'off' : 'full',
       autopickup: source.autoLootGold === false ? 'off' : 'gold',
       movement: 'classic',
+    });
+  }
+  function migrateV4Settings(source = {}) {
+    const logRatio = Number(source?.layout?.logRatio);
+    return normalizeSettings({
+      ...source,
+      layout: {
+        ...(source.layout && typeof source.layout === 'object' ? source.layout : {}),
+        // Version 4 always wrote 0.5, including for players who never touched
+        // the divider. Treat that old default as automatic; other values are
+        // intentional saved overrides.
+        logRatio: logRatio === 0.5 ? null : source?.layout?.logRatio,
+      },
     });
   }
 
@@ -141,11 +158,11 @@
       if (currentRaw != null && currentRaw !== '') {
         const parsed = parse(currentRaw, storageKey);
         settings = normalizeSettings(parsed || {});
-        diagnostic('settings.loaded', { source: parsed ? 'v4' : 'defaults', schemaVersion });
-        return Object.freeze({ settings, source: parsed ? 'v4' : 'defaults', migrated: false, persisted: Boolean(parsed) });
+        diagnostic('settings.loaded', { source: parsed ? 'v5' : 'defaults', schemaVersion });
+        return Object.freeze({ settings, source: parsed ? 'v5' : 'defaults', migrated: false, persisted: Boolean(parsed) });
       }
 
-      for (const [key, source] of [[previousStorageKey, 'v3'], [v2StorageKey, 'v2'], [legacyStorageKey, 'v1']]) {
+      for (const [key, source] of [[previousStorageKey, 'v4'], [v3StorageKey, 'v3'], [v2StorageKey, 'v2'], [legacyStorageKey, 'v1']]) {
         let legacyRaw = null;
         try { legacyRaw = read(key); }
         catch (error) {
@@ -155,7 +172,7 @@
         if (legacyRaw == null || legacyRaw === '') continue;
         const legacy = parse(legacyRaw, key);
         if (!legacy) continue;
-        settings = source === 'v3' ? normalizeSettings(legacy) : migrateLegacySettings(legacy);
+        settings = source === 'v4' ? migrateV4Settings(legacy) : source === 'v3' ? normalizeSettings(legacy) : migrateLegacySettings(legacy);
         const persisted = write(settings);
         if (persisted && typeof storage.removeItem === 'function') {
           try { storage.removeItem(key); }
@@ -195,6 +212,7 @@
       storageKey,
       previousStorageKey,
       v2StorageKey,
+      v3StorageKey,
       legacyStorageKey,
       load,
       save,
@@ -204,5 +222,5 @@
     });
   }
 
-  return Object.freeze({ version, schemaVersion, storageKey, previousStorageKey, v2StorageKey, legacyStorageKey, closeUpRowOptions, defaultSettings, normalizeSettings, mergeSettings, createSettingsStore });
+  return Object.freeze({ version, schemaVersion, storageKey, previousStorageKey, v3StorageKey, v2StorageKey, legacyStorageKey, closeUpRowOptions, defaultSettings, normalizeSettings, mergeSettings, createSettingsStore });
 }));

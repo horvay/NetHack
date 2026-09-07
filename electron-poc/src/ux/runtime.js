@@ -14,7 +14,7 @@
     if (typeof value === 'bigint') return String(value);
     if (typeof value === 'function' || typeof value === 'symbol') return undefined;
     // Game snapshots and presentation settings are already deep-frozen producers.
-    if (Object.isFrozen(value) && (value[immutableGameSnapshotBrand] === true || value.schemaVersion === 2 || value.schemaVersion === 3 || value.schemaVersion === 4)) return value;
+    if (Object.isFrozen(value) && (value[immutableGameSnapshotBrand] === true || value.schemaVersion === 2 || value.schemaVersion === 3 || value.schemaVersion === 4 || value.schemaVersion === 5)) return value;
     if (seen.has(value)) throw new TypeError('UX runtime snapshots must not contain cycles');
     seen.add(value);
     let copy;

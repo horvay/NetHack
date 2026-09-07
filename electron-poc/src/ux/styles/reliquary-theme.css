@@ -1,86 +1,112 @@
-/* ============================================================
-   OBSIDIAN RELIQUARY — full visual overhaul skin
-   Layout contracts stay intact; materials, type, and chrome go hard.
-   ============================================================ */
-
-/* ---- Global atmosphere ---- */
+/* Final material layer. Geometry remains owned by the domain styles. */
 html {
   background: var(--ux-color-canvas);
 }
 
 body.reliquary-skin {
-  position: relative;
   color: var(--ux-color-text);
+  background:
+    radial-gradient(circle at 14% 0%, rgb(116 82 38 / 0.1), transparent 28rem),
+    radial-gradient(circle at 88% 28%, rgb(42 83 72 / 0.08), transparent 34rem),
+    var(--ux-color-canvas);
   font-family: var(--ux-font-ui);
-  background:
-    radial-gradient(ellipse 90% 55% at 50% -8%, oklch(0.28 0.07 55 / 0.35), transparent 55%),
-    radial-gradient(ellipse 70% 50% at 100% 100%, oklch(0.2 0.06 265 / 0.45), transparent 50%),
-    radial-gradient(ellipse 60% 40% at 0% 80%, oklch(0.18 0.05 280 / 0.4), transparent 45%),
-    linear-gradient(180deg, oklch(0.13 0.03 268), var(--ux-color-canvas) 40%, oklch(0.09 0.03 260));
-  isolation: isolate;
 }
 
-.reliquary-atmosphere {
-  pointer-events: none;
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
+::selection {
+  color: var(--ux-color-text);
+  background: var(--ux-color-selection-fill);
 }
 
-.reliquary-vignette {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 85% 75% at 50% 45%, transparent 40%, oklch(0.05 0.03 265 / 0.55) 100%),
-    linear-gradient(180deg, oklch(0.08 0.03 265 / 0.35), transparent 18%, transparent 78%, oklch(0.05 0.03 265 / 0.55));
+* {
+  scrollbar-color: var(--ux-color-border-strong) var(--ux-color-well);
+  scrollbar-width: thin;
 }
 
-.reliquary-embers {
-  position: absolute;
-  inset: -10% 0 0;
-  background:
-    radial-gradient(1.5px 1.5px at 12% 28%, oklch(0.85 0.14 60 / 0.55), transparent 60%),
-    radial-gradient(1px 1px at 28% 72%, oklch(0.8 0.12 50 / 0.4), transparent 60%),
-    radial-gradient(1.5px 1.5px at 48% 18%, oklch(0.82 0.1 210 / 0.35), transparent 60%),
-    radial-gradient(1px 1px at 67% 55%, oklch(0.85 0.14 55 / 0.45), transparent 60%),
-    radial-gradient(1.5px 1.5px at 82% 33%, oklch(0.8 0.12 45 / 0.35), transparent 60%),
-    radial-gradient(1px 1px at 91% 78%, oklch(0.82 0.1 210 / 0.3), transparent 60%);
-  animation: none;
-  opacity: 0.45;
+input,
+textarea {
+  caret-color: var(--ux-color-focus);
 }
 
-.reliquary-grain {
-  position: absolute;
-  inset: 0;
-  background-image: var(--ux-noise);
-  background-size: 180px 180px;
-  opacity: 0.55;
-  mix-blend-mode: soft-light;
+input::placeholder,
+textarea::placeholder {
+  color: var(--ux-color-text-faint);
+  opacity: 1;
 }
 
-@keyframes reliquary-ember-drift {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(0, -28px, 0); }
+button {
+  border-color: var(--ux-color-border);
+  color: var(--ux-color-text);
+  background: var(--ux-gradient-metal);
+  box-shadow: var(--ux-shadow-keycap);
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.6);
 }
 
-body.reliquary-skin > header,
-body.reliquary-skin > main,
-body.reliquary-skin > #ux-overlay-roots,
-body.reliquary-skin > dialog {
-  position: relative;
-  z-index: 1;
+button:hover:not(:disabled) {
+  border-color: var(--ux-color-action);
+  background: linear-gradient(180deg, #414036 0%, #2b2c25 48%, #20241f 100%);
 }
 
-/* ---- Brand lockup ---- */
-.reliquary-header {
-  border-bottom: 1px solid color-mix(in oklch, var(--ux-color-action) 28%, var(--ux-color-border)) !important;
-  background:
-    linear-gradient(180deg, oklch(0.18 0.04 268 / 0.96), oklch(0.12 0.03 265 / 0.92)) !important;
+button:active:not(:disabled) {
   box-shadow:
-    inset 0 -1px 0 oklch(0.55 0.1 55 / 0.2),
-    0 12px 28px oklch(0.04 0.02 265 / 0.45) !important;
-  backdrop-filter: none;
+    inset 0 2px 4px rgb(0 0 0 / 0.55),
+    0 1px 2px rgb(0 0 0 / 0.24);
+}
+
+button.primary {
+  border-color: color-mix(in oklch, var(--ux-color-action) 78%, white);
+  color: var(--ux-color-action-ink);
+  background: var(--ux-gradient-primary);
+  box-shadow:
+    inset 0 1px 0 rgb(255 245 213 / 0.42),
+    inset 0 -1px 0 rgb(83 54 16 / 0.5),
+    0 3px 8px rgb(0 0 0 / 0.34);
+  text-shadow: 0 1px 0 rgb(255 239 190 / 0.25);
+}
+
+button.primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #f7dfa0 0%, #e5c77c 52%, #c7a258 100%);
+}
+
+button,
+input,
+select,
+textarea {
+  border-radius: var(--ux-radius-control);
+  font-size: inherit;
+}
+
+input:not([type='checkbox']):not([type='range']),
+select,
+textarea {
+  border-color: var(--ux-color-border);
+  color: var(--ux-color-text);
+  background: var(--ux-color-well);
+  box-shadow: var(--ux-shadow-well);
+}
+
+kbd,
+.ux-keycap {
+  padding: 0.15em 0.4em;
+  border: 1px solid var(--ux-color-border-strong);
+  border-radius: var(--ux-radius-socket);
+  color: color-mix(in oklch, var(--ux-color-text-muted) 82%, var(--ux-color-action));
+  background: var(--ux-gradient-metal);
+  box-shadow: var(--ux-shadow-keycap);
+  font-family: var(--ux-font-mono);
+}
+
+/* A forged header band keeps notices stable while giving the game a clear crest. */
+body.uxm02-shell-active > header {
+  height: 3.5rem;
+  min-height: 3.5rem;
+  padding: 0.5rem 1.25rem;
+  border-bottom: 1px solid color-mix(in oklch, var(--ux-color-action) 42%, var(--ux-color-border));
+  background:
+    linear-gradient(90deg, rgb(216 186 114 / 0.04), transparent 28%, transparent 72%, rgb(216 186 114 / 0.03)),
+    linear-gradient(180deg, #25261f 0%, #181b18 58%, #101411 100%);
+  box-shadow:
+    inset 0 -1px 0 rgb(0 0 0 / 0.72),
+    0 5px 14px rgb(0 0 0 / 0.28);
 }
 
 .brand-lockup {
@@ -91,893 +117,682 @@ body.reliquary-skin > dialog {
 }
 
 .brand-sigil {
-  flex: 0 0 auto;
-  width: 2.4rem;
-  height: 2.4rem;
-  border-radius: 0.3rem;
-  border: 1px solid color-mix(in oklch, var(--ux-color-action) 55%, transparent);
-  background:
-    radial-gradient(circle at 35% 30%, oklch(0.7 0.14 55 / 0.45), transparent 55%),
-    linear-gradient(145deg, oklch(0.28 0.04 270), oklch(0.14 0.03 265));
-  box-shadow:
-    inset 0 1px 0 oklch(0.9 0.08 90 / 0.2),
-    0 0 18px oklch(0.6 0.14 50 / 0.25);
   position: relative;
-}
-
-.brand-sigil::before,
-.brand-sigil::after {
-  content: "";
-  position: absolute;
-  inset: 22%;
-  border: 1.5px solid oklch(0.82 0.12 58 / 0.75);
-  border-radius: 0.15rem;
+  display: block;
+  width: 1.45rem;
+  height: 1.45rem;
+  border: 1px solid var(--ux-color-action);
+  border-radius: 0.18rem;
+  background: radial-gradient(circle, rgb(216 186 114 / 0.18), transparent 62%);
+  box-shadow:
+    inset 0 0 0 2px rgb(13 17 16 / 0.9),
+    0 2px 8px rgb(0 0 0 / 0.45);
   transform: rotate(45deg);
 }
 
 .brand-sigil::after {
-  inset: 32%;
-  border-color: oklch(0.78 0.1 210 / 0.65);
-  transform: rotate(0deg);
-  border-radius: 50%;
-}
-
-.brand-kicker {
-  margin: 0;
-  color: var(--ux-color-action);
-  font-family: var(--ux-font-display);
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-}
-
-body.reliquary-skin > header h1,
-.reliquary-header h1 {
-  margin: 0.05rem 0 0;
-  font-family: var(--ux-font-display) !important;
-  font-size: 1.55rem !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.08em !important;
-  color: oklch(0.95 0.03 90) !important;
-  text-shadow:
-    0 0 28px oklch(0.7 0.14 55 / 0.4),
-    0 1px 0 oklch(0.2 0.04 55 / 0.6);
-}
-
-body.reliquary-skin #paths {
-  margin: 0.15rem 0 0;
-  color: var(--ux-color-text-faint);
-  font-size: 0.68rem;
-  letter-spacing: 0.02em;
-}
-
-/* ---- Buttons: hammered metal ---- */
-body.reliquary-skin button {
-  border: 1px solid color-mix(in oklch, var(--ux-color-border) 80%, var(--ux-color-action)) !important;
-  border-radius: var(--ux-radius-control) !important;
-  color: var(--ux-color-text) !important;
-  background:
-    linear-gradient(180deg, oklch(0.26 0.035 270), oklch(0.16 0.03 265)) !important;
-  box-shadow: var(--ux-shadow-keycap);
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  transition:
-    transform var(--ux-motion-instant) var(--ux-motion-ease-out),
-    border-color var(--ux-motion-fast) var(--ux-motion-ease-out),
-    box-shadow var(--ux-motion-fast) var(--ux-motion-ease-out),
-    background var(--ux-motion-fast) var(--ux-motion-ease-out);
-}
-
-body.reliquary-skin button:hover:not(:disabled) {
-  border-color: color-mix(in oklch, var(--ux-color-action) 55%, var(--ux-color-border)) !important;
-  background:
-    linear-gradient(180deg, oklch(0.3 0.04 270), oklch(0.18 0.032 265)) !important;
-  box-shadow:
-    var(--ux-shadow-keycap),
-    0 0 14px oklch(0.6 0.12 55 / 0.18);
-}
-
-body.reliquary-skin button:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-body.reliquary-skin button.primary,
-body.reliquary-skin .dialog-actions button.primary,
-body.reliquary-skin #character-dialog button.primary {
-  color: var(--ux-color-action-ink) !important;
-  border-color: color-mix(in oklch, var(--ux-color-action) 70%, white) !important;
-  background: var(--ux-gradient-primary) !important;
-  box-shadow:
-    inset 0 1px 0 oklch(0.95 0.08 90 / 0.45),
-    inset 0 -1px 0 oklch(0.3 0.08 40 / 0.45),
-    0 0 20px oklch(0.65 0.15 55 / 0.3);
-  font-weight: 800;
-  text-shadow: 0 1px 0 oklch(0.95 0.05 90 / 0.25);
-}
-
-body.reliquary-skin button.primary:hover:not(:disabled) {
-  filter: brightness(1.06);
-  box-shadow:
-    inset 0 1px 0 oklch(0.95 0.08 90 / 0.5),
-    0 0 28px oklch(0.7 0.16 55 / 0.4);
-}
-
-body.reliquary-skin button:focus-visible,
-body.reliquary-skin input:focus-visible,
-body.reliquary-skin select:focus-visible,
-body.reliquary-skin textarea:focus-visible {
-  outline: 2px solid var(--ux-color-focus) !important;
-  outline-offset: 2px;
-  box-shadow: 0 0 0 4px oklch(0.8 0.1 95 / 0.18);
-}
-
-/* ---- Status HUD: ritual plaques ---- */
-body.uxm02-shell-active.reliquary-skin #stats-panel {
-  gap: 0.55rem;
-}
-
-body.uxm02-shell-active.reliquary-skin .ux-status-group,
-body.reliquary-skin .status-group {
-  border: 1px solid color-mix(in oklch, var(--ux-color-action) 22%, var(--ux-color-border)) !important;
-  border-radius: var(--ux-radius-overlay) !important;
-  background:
-    linear-gradient(160deg, oklch(0.2 0.04 268 / 0.9), oklch(0.13 0.03 262 / 0.85)) !important;
-  box-shadow:
-    inset 0 1px 0 oklch(0.85 0.06 90 / 0.08),
-    0 8px 18px oklch(0.04 0.02 265 / 0.35);
-  padding: 0.4rem 0.55rem !important;
-  position: relative;
-}
-
-body.uxm02-shell-active.reliquary-skin .ux-status-group::before {
-  content: "";
   position: absolute;
-  top: 0;
-  left: 0.6rem;
-  right: 0.6rem;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, oklch(0.75 0.12 55 / 0.45), transparent);
+  inset: 0.34rem;
+  border: 1px solid color-mix(in oklch, var(--ux-color-action) 78%, white);
+  content: '';
 }
 
-body.uxm02-shell-active.reliquary-skin .status-group-label,
-body.reliquary-skin .status-group-label {
-  color: var(--ux-color-action) !important;
-  font-family: var(--ux-font-display);
-  letter-spacing: 0.14em !important;
-}
-
-body.uxm02-shell-active.reliquary-skin .ux-status-chip,
-body.reliquary-skin .status-chip {
-  border-radius: 999px !important;
-  border: 1px solid color-mix(in oklch, var(--ux-color-border) 70%, transparent) !important;
-  background: oklch(0.12 0.03 265 / 0.65) !important;
-  box-shadow: inset 0 1px 0 oklch(0.8 0.05 90 / 0.06);
-}
-
-body.uxm02-shell-active.reliquary-skin .ux-status-chip strong {
+body.uxm02-shell-active > header h1 {
+  margin: 0;
   color: var(--ux-color-text);
+  font: 700 1.5rem/1 var(--ux-font-display);
+  letter-spacing: 0.015em;
+  text-transform: none;
+  text-shadow: 0 2px 5px rgb(0 0 0 / 0.7);
+}
+
+body.uxm02-shell-active main {
+  height: calc(100dvh - 3.5rem);
+}
+
+body.uxm02-shell-active #top-bar {
+  gap: 0;
+}
+
+#ux-player-notice-root:not(:has(.ux-player-notice:not([hidden]))) {
+  display: none;
+}
+
+body.uxm02-shell-active #stats-panel {
+  gap: 0.5rem;
+}
+
+body.uxm02-shell-active .ux-status-group {
+  padding: 0.25rem 0.6rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.uxm02-shell-active .ux-status-group + .ux-status-group {
+  border-left: 1px solid color-mix(in oklch, var(--ux-color-action) 24%, var(--ux-color-border));
+}
+
+body.uxm02-shell-active .status-group-label {
+  color: color-mix(in oklch, var(--ux-color-action) 68%, var(--ux-color-text-muted));
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+}
+
+body.uxm02-shell-active .ux-status-chip {
+  border-radius: var(--ux-radius-socket);
+  background: transparent;
+  box-shadow: none;
+  font-family: var(--ux-font-ui);
+  font-size: 0.8125rem;
   font-variant-numeric: tabular-nums;
 }
 
-/* HP / Pw as living meters */
-body.uxm02-shell-active.reliquary-skin .ux-status-chip[data-status-field='hp'],
-body.uxm02-shell-active.reliquary-skin .ux-status-chip[data-status-field='pw'],
-#ux-items-root .ux-status-chip[data-status-field='hp'],
-#ux-items-root .ux-status-chip[data-status-field='pw'] {
-  position: relative;
-  overflow: hidden;
-  padding-bottom: 0.55rem !important;
+body.uxm02-shell-active .ux-status-chip.warning {
+  background: color-mix(in srgb, var(--ux-color-warning) 12%, var(--ux-color-surface));
 }
 
-body.uxm02-shell-active.reliquary-skin .ux-status-chip[data-status-field='hp']::after,
-body.uxm02-shell-active.reliquary-skin .ux-status-chip[data-status-field='pw']::after,
-#ux-items-root .ux-status-chip[data-status-field='hp']::after,
-#ux-items-root .ux-status-chip[data-status-field='pw']::after {
-  content: "";
-  position: absolute;
-  left: 0.45rem;
-  right: 0.45rem;
-  bottom: 0.28rem;
-  height: 3px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--ux-color-blood), oklch(0.7 0.16 30));
-  box-shadow: 0 0 8px oklch(0.55 0.18 22 / 0.55);
+body.uxm02-shell-active .ux-status-chip.danger {
+  background: color-mix(in srgb, var(--ux-color-danger) 16%, var(--ux-color-surface));
 }
 
-body.uxm02-shell-active.reliquary-skin .ux-status-chip[data-status-field='pw']::after,
-#ux-items-root .ux-status-chip[data-status-field='pw']::after {
-  background: linear-gradient(90deg, oklch(0.45 0.14 250), var(--ux-color-ward));
-  box-shadow: 0 0 8px oklch(0.65 0.12 210 / 0.5);
+body.uxm02-shell-active #quick-actions {
+  gap: 0.5rem;
+  padding-block: 0.3rem;
+  border-bottom-color: color-mix(in oklch, var(--ux-color-action) 22%, var(--ux-color-border));
 }
 
-/* ---- Quick actions & context bar ---- */
-body.uxm02-shell-active.reliquary-skin #quick-actions {
-  gap: 0.4rem;
-  padding: 0.25rem 0;
-}
-
-body.uxm02-shell-active.reliquary-skin #quick-actions > button {
-  min-height: 2.15rem;
-  text-transform: none;
-}
-
-body.uxm02-shell-active.reliquary-skin #context-action-bar {
-  border: 1px solid color-mix(in oklch, var(--ux-color-action) 30%, var(--ux-color-border)) !important;
-  border-radius: var(--ux-radius-overlay) !important;
-  background:
-    linear-gradient(180deg, oklch(0.2 0.04 268 / 0.88), oklch(0.14 0.03 262 / 0.9)) !important;
-  box-shadow:
-    inset 0 1px 0 oklch(0.85 0.06 90 / 0.08),
-    0 10px 24px oklch(0.04 0.02 265 / 0.35);
-  padding: 0.45rem 0.55rem !important;
-}
-
-body.uxm02-shell-active.reliquary-skin #context-action-bar::before {
-  color: var(--ux-color-action) !important;
-  font-family: var(--ux-font-display);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-size: 0.62rem;
-}
-
-body.uxm02-shell-active.reliquary-skin #context-action-bar .context-action-button.primary-context {
-  box-shadow: var(--ux-shadow-ember);
-}
-
-/* ---- Map: framed reliquary viewport ---- */
-body.uxm02-shell-active.reliquary-skin #play-area {
-  position: relative;
-  border: 1px solid color-mix(in oklch, var(--ux-color-action) 35%, var(--ux-color-border)) !important;
-  border-radius: var(--ux-radius-overlay) !important;
-  background:
-    radial-gradient(ellipse 80% 70% at 50% 40%, oklch(0.16 0.04 265 / 0.5), oklch(0.08 0.03 260 / 0.95)),
-    var(--ux-color-well) !important;
-  box-shadow:
-    inset 0 0 0 1px oklch(0.5 0.08 55 / 0.15),
-    inset 0 0 40px oklch(0.05 0.02 265 / 0.55),
-    0 18px 40px oklch(0.04 0.02 265 / 0.5);
-  overflow: hidden;
-}
-
-body.uxm02-shell-active.reliquary-skin #play-area::before,
-body.uxm02-shell-active.reliquary-skin #play-area::after {
-  content: "";
-  position: absolute;
-  width: 1.1rem;
-  height: 1.1rem;
-  border: 2px solid oklch(0.78 0.13 55 / 0.75);
-  z-index: 2;
-  pointer-events: none;
-}
-
-body.uxm02-shell-active.reliquary-skin #play-area::before {
-  top: 0.45rem;
-  left: 0.45rem;
-  border-right: 0;
-  border-bottom: 0;
-}
-
-body.uxm02-shell-active.reliquary-skin #play-area::after {
-  top: 0.45rem;
-  right: 0.45rem;
-  border-left: 0;
-  border-bottom: 0;
-}
-
-body.uxm02-shell-active.reliquary-skin #game-grid {
-  border-radius: 0.2rem;
-  box-shadow: inset 0 0 30px oklch(0.05 0.02 265 / 0.35);
-}
-
-/* ---- Consequence ledger ---- */
-body.uxm02-shell-active.reliquary-skin #log-panel {
-  border: 1px solid color-mix(in oklch, var(--ux-color-action) 22%, var(--ux-color-border)) !important;
-  border-radius: var(--ux-radius-overlay) !important;
-  background:
-    linear-gradient(180deg, oklch(0.17 0.035 268 / 0.92), oklch(0.12 0.03 262 / 0.95)) !important;
-  box-shadow: var(--ux-shadow-plate);
-}
-
-body.uxm02-shell-active.reliquary-skin .log-heading {
-  border-bottom: 1px solid color-mix(in oklch, var(--ux-color-action) 20%, transparent);
-  padding-bottom: 0.35rem;
-}
-
-body.uxm02-shell-active.reliquary-skin .log-heading strong {
-  font-family: var(--ux-font-display);
-  letter-spacing: 0.04em;
+body.uxm02-shell-active #quick-actions > button,
+body.uxm02-shell-active > header button {
+  min-height: 2.5rem;
+  padding-inline: 1rem;
+  border-color: var(--ux-color-border);
   color: var(--ux-color-text);
-}
-
-body.uxm02-shell-active.reliquary-skin .log-heading span {
-  color: var(--ux-color-text-faint) !important;
-  font-size: 0.7rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-body.uxm02-shell-active.reliquary-skin #messages {
-  background: transparent !important;
-  font-family: var(--ux-font-mono);
-  font-size: 0.78rem;
-  line-height: 1.45;
-}
-
-body.reliquary-skin .ux-consequence-row {
-  border-left: 2px solid transparent;
-  padding-left: 0.4rem;
-  margin-left: -0.15rem;
-}
-
-body.reliquary-skin .ux-consequence-row[data-severity='warning'] {
-  border-left-color: var(--ux-color-warning);
-  background: linear-gradient(90deg, oklch(0.7 0.12 70 / 0.08), transparent 60%);
-}
-
-body.reliquary-skin .ux-consequence-row[data-severity='danger'] {
-  border-left-color: var(--ux-color-danger);
-  background: linear-gradient(90deg, oklch(0.55 0.18 22 / 0.12), transparent 60%);
-}
-
-body.reliquary-skin .ux-consequence-row[data-severity='success'] {
-  border-left-color: var(--ux-color-success);
-}
-
-/* Direction helper as runic pad */
-body.uxm02-shell-active.reliquary-skin #direction-helper {
-  border: 1px solid color-mix(in oklch, var(--ux-color-selection) 35%, var(--ux-color-border));
-  border-radius: var(--ux-radius-overlay);
-  background: oklch(0.12 0.035 265 / 0.9);
-  box-shadow: var(--ux-shadow-ward);
-}
-
-body.uxm02-shell-active.reliquary-skin #direction-helper .direction-pad-button {
-  border-radius: var(--ux-radius-control) !important;
-  font-weight: 800;
-}
-
-/* ---- Dialogs: stone tablets with real internal rhythm ---- */
-body.reliquary-skin dialog {
-  border: 1px solid color-mix(in oklch, var(--ux-color-action) 40%, var(--ux-color-border)) !important;
-  border-radius: var(--ux-radius-overlay) !important;
-  color: var(--ux-color-text) !important;
-  background: var(--ux-gradient-plate) !important;
-  box-shadow: var(--ux-shadow-plate), 0 0 60px oklch(0.05 0.03 265 / 0.55) !important;
-  padding: 0 !important;
-  overflow: hidden;
-}
-
-body.reliquary-skin dialog::backdrop {
-  background: var(--ux-scrim-overlay) !important;
-  backdrop-filter: blur(3px);
-}
-
-body.reliquary-skin dialog > form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 1.15rem 1.25rem 0.9rem !important;
-  min-height: 0;
-}
-
-body.reliquary-skin dialog h1,
-body.reliquary-skin dialog h2,
-body.reliquary-skin .intro-frame h2,
-body.reliquary-skin .character-dialog-title {
-  margin: 0 0 0.1rem !important;
-  font-family: var(--ux-font-display) !important;
-  letter-spacing: 0.03em;
-  color: var(--ux-color-text) !important;
-}
-
-body.reliquary-skin dialog p,
-body.reliquary-skin .modal-copy,
-body.reliquary-skin #interaction-prompt {
-  margin: 0;
-  color: var(--ux-color-text-muted);
-  line-height: 1.45;
-}
-
-body.reliquary-skin #interaction-prompt {
-  white-space: pre-line;
-  max-width: 62ch;
-}
-
-body.reliquary-skin .startup-kicker,
-body.reliquary-skin .ux-surface-kicker {
-  color: var(--ux-color-action) !important;
-  font-family: var(--ux-font-display);
-  letter-spacing: 0.18em !important;
-}
-
-body.reliquary-skin .startup-choice-frame,
-body.reliquary-skin .startup-choice-card,
-body.reliquary-skin .action-card {
-  border-color: color-mix(in oklch, var(--ux-color-action) 18%, var(--ux-color-border));
-}
-
-body.reliquary-skin .startup-choice-card {
-  background:
-    linear-gradient(160deg, oklch(0.2 0.04 268 / 0.75), oklch(0.14 0.03 262 / 0.8)) !important;
-  border-radius: var(--ux-radius-overlay);
-  box-shadow: inset 0 1px 0 oklch(0.85 0.05 90 / 0.08);
-}
-
-body.reliquary-skin .startup-choice-label {
-  color: var(--ux-color-action) !important;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-size: 0.66rem;
-}
-
-body.reliquary-skin .dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  margin: 0.55rem -1.25rem -0.9rem !important;
-  padding: 0.85rem 1.25rem !important;
-  border-top: 1px solid color-mix(in oklch, var(--ux-color-action) 22%, transparent);
-  background: oklch(0.12 0.03 265 / 0.72);
-}
-
-body.reliquary-skin #interaction-options {
-  display: grid;
-  gap: 0.45rem !important;
-  margin: 0.1rem 0 0.15rem;
-  padding: 0.1rem 0 0.15rem;
-}
-
-body.reliquary-skin .choice-button {
-  min-height: 2.85rem !important;
-  gap: 0.75rem !important;
-  padding: 0.7rem 0.85rem !important;
-  border: 1px solid color-mix(in oklch, var(--ux-color-border) 80%, var(--ux-color-action)) !important;
-  border-radius: var(--ux-radius-control) !important;
-  background:
-    linear-gradient(180deg, oklch(0.2 0.035 268 / 0.92), oklch(0.14 0.03 262 / 0.95)) !important;
-  box-shadow: inset 0 1px 0 oklch(0.85 0.05 90 / 0.06);
-}
-
-body.reliquary-skin .choice-button.context-choice {
-  grid-template-columns: minmax(9.5rem, 0.85fr) minmax(0, 1.35fr) !important;
-  column-gap: 1rem !important;
-  align-items: center;
-}
-
-body.reliquary-skin .choice-button.context-choice strong {
-  color: var(--ux-color-action) !important;
-  font-family: var(--ux-font-display);
-  letter-spacing: 0.02em;
-}
-
-body.reliquary-skin .choice-button.primary-context {
-  border-color: color-mix(in oklch, var(--ux-color-action) 55%, var(--ux-color-border)) !important;
-  background:
-    linear-gradient(180deg, oklch(0.28 0.05 60 / 0.28), oklch(0.16 0.03 262 / 0.95)) !important;
-  box-shadow:
-    inset 0 1px 0 oklch(0.85 0.08 70 / 0.12),
-    0 0 14px oklch(0.6 0.12 55 / 0.12);
-}
-
-body.reliquary-skin .choice-button:hover:not(:disabled) {
-  border-color: color-mix(in oklch, var(--ux-color-action) 45%, var(--ux-color-border)) !important;
-  background:
-    linear-gradient(180deg, oklch(0.24 0.04 268 / 0.95), oklch(0.16 0.03 262 / 0.98)) !important;
-}
-
-body.reliquary-skin #interaction-feedback:empty,
-body.reliquary-skin #interaction-panel-controls[hidden],
-body.reliquary-skin #interaction-text-row[hidden],
-body.reliquary-skin #interaction-context[hidden] {
-  display: none !important;
-}
-
-body.reliquary-skin #interaction-feedback:not(:empty) {
-  margin: 0;
-}
-
-body.reliquary-skin .startup-choice-frame {
-  padding: 0.15rem 0 0.35rem;
-}
-
-body.reliquary-skin #action-dialog-form {
-  gap: 0.85rem;
-}
-
-body.reliquary-skin .action-dialog-heading,
-body.reliquary-skin .action-dialog-grid {
-  padding-inline: 0;
-}
-
-/* ---- Inventory workspace: grimoire ---- */
-#ux-items-root.uxm-items-overlay {
-  background:
-    radial-gradient(ellipse 70% 55% at 50% 40%, oklch(0.18 0.05 265 / 0.35), oklch(0.05 0.03 265 / 0.88)) !important;
-  backdrop-filter: none;
-}
-
-#ux-items-root .uxm-items-workspace {
-  position: relative;
-  isolation: isolate;
-  border: 1px solid color-mix(in oklch, var(--ux-color-action) 42%, var(--ux-color-border)) !important;
-  border-radius: var(--ux-radius-overlay) !important;
-  background: var(--ux-gradient-plate) !important;
-  box-shadow: var(--ux-shadow-plate), 0 0 80px oklch(0.05 0.03 265 / 0.55) !important;
-  overflow: hidden;
-}
-
-#ux-items-root .uxm-items-topbar {
-  position: relative;
-  min-height: 3.4rem;
-  padding-block: 0.65rem !important;
-  background:
-    linear-gradient(180deg, oklch(0.24 0.04 268), oklch(0.16 0.03 265)) !important;
-  border-bottom: 1px solid color-mix(in oklch, var(--ux-color-action) 30%, transparent) !important;
-  box-shadow: inset 0 -1px 0 oklch(0.08 0.02 265 / 0.5);
-}
-
-#ux-items-root .uxm-items-topbar::after {
-  content: "";
-  position: absolute;
-  left: 8%;
-  right: 8%;
-  bottom: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, oklch(0.78 0.14 55 / 0.75), transparent);
-  box-shadow: 0 0 12px oklch(0.7 0.14 55 / 0.35);
-}
-
-#ux-items-root .uxm-workspace-kicker,
-#ux-items-root .uxm-pane-kicker,
-#ux-items-root .uxm-detail-kicker {
-  color: var(--ux-color-action) !important;
-  font-family: var(--ux-font-display);
-  letter-spacing: 0.16em !important;
-}
-
-#ux-items-root .uxm-items-topbar h1,
-#ux-items-root .uxm-pane-heading h2 {
-  font-family: var(--ux-font-display) !important;
-  letter-spacing: 0.03em;
-}
-
-#ux-items-root .uxm-items-topbar h1 {
-  font-size: 1.55rem !important;
-  text-shadow: 0 0 22px oklch(0.65 0.12 55 / 0.3);
-}
-
-#ux-items-root .uxm-equipment-pane {
-  background:
-    radial-gradient(ellipse 80% 50% at 50% 20%, oklch(0.28 0.05 55 / 0.12), transparent 55%),
-    linear-gradient(180deg, oklch(0.16 0.03 268), oklch(0.12 0.03 262)) !important;
-  border-right: 1px solid color-mix(in oklch, var(--ux-color-action) 18%, var(--ux-color-border)) !important;
-}
-
-#ux-items-root .uxm-inventory-pane {
-  background:
-    linear-gradient(180deg, oklch(0.15 0.03 268), oklch(0.12 0.028 262)) !important;
-}
-
-#ux-items-root .uxm-paper-doll-stage {
-  border: 1px solid color-mix(in oklch, var(--ux-color-action) 28%, var(--ux-color-border)) !important;
-  border-radius: var(--ux-radius-overlay) !important;
-  background:
-    radial-gradient(ellipse 70% 60% at 50% 45%, oklch(0.22 0.04 270 / 0.55), oklch(0.1 0.03 260 / 0.95)),
-    var(--ux-color-well) !important;
-  box-shadow:
-    var(--ux-shadow-well),
-    inset 0 0 40px oklch(0.45 0.08 55 / 0.08),
-    0 0 30px oklch(0.4 0.08 55 / 0.12) !important;
-}
-
-#ux-items-root .uxm-full-character {
-  filter:
-    drop-shadow(0 18px 24px oklch(0.04 0.02 265 / 0.65))
-    drop-shadow(0 0 18px oklch(0.55 0.1 55 / 0.18));
-}
-
-#ux-items-root .uxm-slot-group {
-  border: 1px solid color-mix(in oklch, var(--ux-color-action) 18%, var(--ux-color-border)) !important;
-  border-radius: var(--ux-radius-control) !important;
-  background: oklch(0.14 0.03 265 / 0.75) !important;
-  box-shadow: inset 0 1px 0 oklch(0.8 0.05 90 / 0.06);
-}
-
-#ux-items-root .uxm-slot-group h3 {
-  color: var(--ux-color-action) !important;
-  font-family: var(--ux-font-display);
-  letter-spacing: 0.12em !important;
-}
-
-#ux-items-root .uxm-slot-button {
-  border: 1px solid color-mix(in oklch, var(--ux-color-border) 80%, transparent) !important;
-  border-radius: var(--ux-radius-socket) !important;
-  background:
-    linear-gradient(180deg, oklch(0.2 0.03 268 / 0.9), oklch(0.13 0.03 262 / 0.95)) !important;
-  box-shadow: var(--ux-shadow-socket);
-}
-
-#ux-items-root .uxm-slot-button.is-equipped {
-  border-color: color-mix(in oklch, var(--ux-color-action) 45%, var(--ux-color-border)) !important;
-  box-shadow:
-    var(--ux-shadow-socket),
-    0 0 12px oklch(0.6 0.12 55 / 0.2);
-}
-
-#ux-items-root .uxm-slot-button.is-equipped .uxm-slot-value {
-  color: oklch(0.92 0.06 90) !important;
+  background: var(--ux-gradient-metal);
+  box-shadow: var(--ux-shadow-keycap);
   font-weight: 700;
 }
 
-#ux-items-root .uxm-slot-button.is-selected {
-  border-color: var(--ux-color-selection) !important;
+body.uxm02-shell-active #quick-actions > #open-actions {
+  border-color: color-mix(in oklch, var(--ux-color-action) 78%, white);
+  color: var(--ux-color-action-ink);
+  background: var(--ux-gradient-primary);
   box-shadow:
-    inset 0 0 0 1px var(--ux-color-selection),
-    var(--ux-shadow-ward);
+    inset 0 1px 0 rgb(255 245 213 / 0.4),
+    0 3px 8px rgb(0 0 0 / 0.32);
 }
 
-#ux-items-root .uxm-filter-button,
-#ux-items-root .uxm-items-tabs button {
-  border-radius: 999px !important;
-  border: 1px solid var(--ux-color-border) !important;
-  background: oklch(0.14 0.03 265 / 0.7) !important;
-  color: var(--ux-color-text-muted) !important;
+body.uxm02-shell-active .ux-command-entry-label {
+  display: none;
 }
 
-#ux-items-root .uxm-filter-button.is-selected,
-#ux-items-root .uxm-items-tabs button.is-selected {
-  color: var(--ux-color-action-ink) !important;
-  border-color: color-mix(in oklch, var(--ux-color-action) 60%, white) !important;
-  background: var(--ux-gradient-primary) !important;
-  box-shadow: 0 0 14px oklch(0.65 0.14 55 / 0.3);
-  font-weight: 800;
+body.uxm02-shell-active #context-action-bar {
+  padding: 0.48rem 0.5rem;
+  border: 1px solid color-mix(in oklch, var(--ux-color-action) 18%, var(--ux-color-border));
+  border-radius: var(--ux-radius-control);
+  background: linear-gradient(180deg, rgb(48 43 32 / 0.48), rgb(20 25 21 / 0.72));
+  box-shadow: inset 0 1px 0 rgb(242 232 208 / 0.035);
 }
 
-#ux-items-root .uxm-item-search input,
-#ux-items-root .uxm-inventory-list-wrap,
-#ux-items-root .uxm-recent-log-scroll {
-  border: 1px solid color-mix(in oklch, var(--ux-color-border) 85%, var(--ux-color-action)) !important;
-  border-radius: var(--ux-radius-control) !important;
-  background: oklch(0.1 0.03 260 / 0.85) !important;
-  box-shadow: var(--ux-shadow-well);
-  color: var(--ux-color-text);
-}
-
-#ux-items-root .uxm-item-row {
-  border-bottom: 1px solid oklch(0.3 0.03 268 / 0.45);
-  transition: background var(--ux-motion-fast) var(--ux-motion-ease-out);
-}
-
-#ux-items-root .uxm-item-row:hover {
-  background: linear-gradient(90deg, oklch(0.55 0.1 55 / 0.1), transparent 70%) !important;
-}
-
-#ux-items-root .uxm-item-row.is-selected {
-  background:
-    linear-gradient(90deg, oklch(0.55 0.1 210 / 0.18), oklch(0.3 0.05 220 / 0.08)) !important;
-  box-shadow: inset 3px 0 0 var(--ux-color-selection);
-  outline: 1px solid oklch(0.75 0.1 210 / 0.35);
-}
-
-#ux-items-root .uxm-item-selector {
-  border-radius: 0.2rem !important;
-  border: 1px solid color-mix(in oklch, var(--ux-color-action) 35%, var(--ux-color-border)) !important;
-  background: oklch(0.18 0.03 268) !important;
-  box-shadow: var(--ux-shadow-keycap);
-  font-family: var(--ux-font-mono);
-  font-weight: 800;
-  color: var(--ux-color-action);
-}
-
-#ux-items-root .uxm-item-row.is-selected .uxm-item-selector {
-  color: var(--ux-color-action-ink) !important;
-  background: var(--ux-gradient-primary) !important;
-  border-color: oklch(0.85 0.12 60) !important;
-}
-
-#ux-items-root .uxm-equipped-state {
-  color: var(--ux-color-action) !important;
+body.uxm02-shell-active #context-action-bar::before {
+  color: color-mix(in oklch, var(--ux-color-action) 72%, var(--ux-color-text-muted));
   letter-spacing: 0.1em;
-  font-size: 0.62rem;
-  font-weight: 800;
 }
 
-#ux-items-root .uxm-selection-rail,
-#ux-items-root .uxm-inventory-details {
-  position: relative;
-  border-top: 1px solid color-mix(in oklch, var(--ux-color-action) 22%, transparent) !important;
-  background:
-    linear-gradient(180deg, oklch(0.18 0.035 268 / 0.95), oklch(0.13 0.03 262 / 0.95)) !important;
-}
-
-#ux-items-root .uxm-detail-actions .uxm-action-primary {
-  box-shadow: var(--ux-shadow-ember) !important;
-}
-
-#ux-items-root .uxm-detail-actions .uxm-action-danger,
-#ux-items-root .uxm-item-context-menu button.is-dangerous {
-  border-color: color-mix(in oklch, var(--ux-color-danger) 55%, var(--ux-color-border)) !important;
-  color: oklch(0.9 0.08 25) !important;
-  background: linear-gradient(180deg, oklch(0.35 0.1 25), oklch(0.22 0.08 22)) !important;
-}
-
-#ux-items-root .uxm-action-key,
-body.reliquary-skin kbd,
-body.reliquary-skin .ux-keycap {
-  border: 1px solid color-mix(in oklch, var(--ux-color-border) 80%, var(--ux-color-action));
-  border-radius: 0.2rem;
-  background: linear-gradient(180deg, oklch(0.28 0.03 270), oklch(0.16 0.03 265));
-  box-shadow: var(--ux-shadow-keycap);
+body.uxm02-shell-active #context-action-bar .context-action-button {
+  border-color: transparent;
   color: var(--ux-color-text);
-  font-family: var(--ux-font-mono);
-  font-size: 0.72em;
-  padding: 0.1em 0.35em;
+  background: transparent;
+  box-shadow: none;
 }
 
-#ux-items-root .uxm-recent-log {
-  border: 1px solid color-mix(in oklch, var(--ux-color-action) 18%, var(--ux-color-border)) !important;
-  border-radius: var(--ux-radius-control) !important;
-  background: oklch(0.12 0.03 262 / 0.8) !important;
+body.uxm02-shell-active #context-action-bar .context-action-button.primary-context {
+  border-color: var(--ux-color-border);
+  color: var(--ux-color-action-hover);
+  background: rgb(216 186 114 / 0.07);
 }
 
-#ux-items-root .uxm-recent-log-heading h3 {
+body.uxm02-shell-active #context-action-bar .context-action-button:hover {
+  border-color: var(--ux-color-border-strong);
+  background: var(--ux-color-surface-raised);
+}
+
+/* The map is a dark aperture. Brass is reserved for its threshold and live state. */
+body.uxm02-shell-active #play-area {
+  border: 1px solid var(--ux-color-border-strong);
+  border-top-color: var(--ux-color-action);
+  border-radius: var(--ux-radius-control);
+  background: var(--ux-color-well);
+  box-shadow:
+    inset 0 0 2.5rem rgb(0 0 0 / 0.72),
+    0 8px 22px rgb(0 0 0 / 0.34);
+}
+
+body.uxm02-shell-active #game-grid {
+  background:
+    radial-gradient(ellipse 65% 62% at 50% 45%, rgb(104 90 57 / 0.12), transparent 74%),
+    var(--ux-color-well);
+  box-shadow: inset 0 0 2.25rem rgb(0 0 0 / 0.72);
+}
+
+body.uxm02-shell-active #game-grid:focus-visible {
+  outline-offset: -3px !important;
+}
+
+body.uxm02-shell-active #log-panel {
+  padding: 0.75rem;
+  border: 1px solid color-mix(in oklch, var(--ux-color-action) 16%, var(--ux-color-border));
+  border-radius: var(--ux-radius-control);
+  background:
+    linear-gradient(180deg, rgb(40 38 31 / 0.78), rgb(20 24 21 / 0.94));
+  box-shadow:
+    inset 0 1px 0 rgb(242 232 208 / 0.04),
+    0 5px 16px rgb(0 0 0 / 0.25);
+}
+
+body.uxm02-shell-active .log-heading {
+  border-bottom: 1px solid color-mix(in oklch, var(--ux-color-action) 18%, transparent);
   font-family: var(--ux-font-display);
-  color: var(--ux-color-action) !important;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.01em;
 }
 
-/* ---- Transfer panel (KEEP position:fixed from game-chrome) ---- */
-#container-transfer-panel {
-  isolation: isolate;
-  border: 1px solid color-mix(in oklch, var(--ux-color-action) 40%, var(--ux-color-border)) !important;
-  border-radius: var(--ux-radius-overlay) !important;
-  background: var(--ux-gradient-plate) !important;
-  box-shadow: var(--ux-shadow-plate), var(--ux-shadow-ember) !important;
+body.uxm02-shell-active .log-heading strong {
+  color: var(--ux-color-text);
+  font-size: 0.95rem;
+  font-weight: 700;
 }
 
-#container-transfer-panel .container-transfer-heading strong {
+body.uxm02-shell-active #log-side-rail {
+  overflow: auto;
+}
+
+body.uxm02-shell-active #log-side-rail > * {
+  flex-shrink: 0;
+}
+
+body.uxm02-shell-active .log-heading span {
+  color: var(--ux-color-text-faint);
+  font: 0.75rem/1.2 var(--ux-font-ui);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+body.uxm02-shell-active #messages {
+  background: transparent;
+  box-shadow: none;
+  font: 0.8125rem/1.55 var(--ux-font-mono);
+}
+
+/* Overlays use one stone-and-brass material with an opaque footer. */
+body.reliquary-skin dialog {
+  border: 1px solid var(--ux-color-border-strong);
+  border-top-color: color-mix(in oklch, var(--ux-color-action) 72%, var(--ux-color-border-strong));
+  border-radius: var(--ux-radius-overlay);
+  color: var(--ux-color-text);
+  background: var(--ux-gradient-plate);
+  box-shadow: var(--ux-shadow-plate);
+}
+
+body.reliquary-skin dialog::backdrop {
+  background: var(--ux-scrim-overlay);
+  backdrop-filter: none;
+}
+
+body.reliquary-skin dialog h1,
+body.reliquary-skin dialog h2 {
+  color: color-mix(in oklch, var(--ux-color-text) 90%, var(--ux-color-action));
+  font-family: var(--ux-font-display);
+  text-shadow: 0 2px 5px rgb(0 0 0 / 0.55);
+}
+
+body.reliquary-skin dialog p {
+  color: var(--ux-color-text-muted);
+}
+
+body.reliquary-skin .dialog-actions {
+  margin: 0;
+  padding: 1rem 1.5rem;
+  gap: 0.5rem;
+  border-top: 1px solid color-mix(in oklch, var(--ux-color-action) 24%, var(--ux-color-border));
+  background: #222720;
+  box-shadow: 0 -5px 16px rgb(0 0 0 / 0.18);
+}
+
+body.reliquary-skin .ux-surface-kicker,
+body.reliquary-skin .startup-kicker,
+body.reliquary-skin .startup-choice-label {
+  display: none;
+}
+
+.ux-surface-heading {
+  padding: 1.5rem;
+  border-bottom: 1px solid color-mix(in oklch, var(--ux-color-action) 22%, var(--ux-color-border));
+  background: var(--ux-gradient-banner);
+}
+
+.ux-surface-heading h2 {
+  font-size: 1.75rem;
+}
+
+.ux-surface-actions {
+  padding: 1rem 1.5rem;
+}
+
+.ux-character-sheet-content {
+  padding: 1.5rem;
+  gap: 1.5rem 2rem;
+}
+
+.ux-character-sheet-section h3 {
+  color: color-mix(in oklch, var(--ux-color-action) 68%, var(--ux-color-text-muted));
   font-family: var(--ux-font-display);
   letter-spacing: 0.03em;
 }
 
-#container-transfer-panel .container-pane {
-  border: 1px solid color-mix(in oklch, var(--ux-color-border) 80%, var(--ux-color-action)) !important;
-  border-radius: var(--ux-radius-control) !important;
-  background: oklch(0.12 0.03 262 / 0.75) !important;
-  box-shadow: var(--ux-shadow-well);
+.ux-history-row {
+  box-shadow: none;
 }
 
-#container-transfer-panel .container-item-row[aria-checked='true'] {
-  background: linear-gradient(90deg, oklch(0.55 0.1 210 / 0.2), transparent 75%) !important;
-  box-shadow: inset 3px 0 0 var(--ux-color-selection);
+.ux-history-row-text {
+  font-size: 0.8125rem;
+  line-height: 1.55;
 }
 
-#container-transfer-panel .container-transfer-footer {
-  position: relative;
+/* First run and lore read like a worn field folio, not a setup wizard. */
+#startup-choice-dialog {
+  width: min(40rem, calc(100vw - 2rem));
+  padding: 0;
 }
 
-/* ---- Notices & map tooltip ---- */
-#ux-player-notice,
-.ux-player-notice {
-  border: 1px solid color-mix(in oklch, var(--ux-color-action) 35%, var(--ux-color-border)) !important;
-  border-radius: var(--ux-radius-control) !important;
-  background: oklch(0.16 0.04 268 / 0.92) !important;
-  box-shadow: var(--ux-shadow-plate);
+#startup-choice-form {
+  padding: 0;
+  overflow: auto;
 }
 
-.map-tooltip {
-  border: 1px solid color-mix(in oklch, var(--ux-color-action) 40%, var(--ux-color-border)) !important;
-  border-radius: var(--ux-radius-control) !important;
-  background: oklch(0.14 0.035 268 / 0.95) !important;
-  box-shadow: var(--ux-shadow-plate), 0 0 20px oklch(0.5 0.1 55 / 0.2) !important;
-  backdrop-filter: none;
+body.reliquary-skin .startup-choice-frame {
+  padding: 2.5rem;
+  gap: 1.25rem;
 }
 
-/* ---- Corner ornaments on major plates ---- */
-#ux-items-root .uxm-items-workspace::before,
-#ux-items-root .uxm-items-workspace::after,
-#container-transfer-panel::before,
-#container-transfer-panel::after {
-  content: "";
-  position: absolute;
-  width: 0.95rem;
-  height: 0.95rem;
-  border: 2px solid oklch(0.78 0.13 55 / 0.7);
-  z-index: 3;
-  pointer-events: none;
+#startup-choice-title {
+  margin: 0;
+  color: var(--ux-color-text);
+  font: 700 2.5rem/1.15 var(--ux-font-display);
+  text-align: left;
+  text-shadow: 0 2px 6px rgb(0 0 0 / 0.62);
 }
 
-#ux-items-root .uxm-items-workspace::before,
-#container-transfer-panel::before {
-  top: 0.4rem;
-  left: 0.4rem;
-  border-right: 0;
-  border-bottom: 0;
+.startup-choice-summary {
+  max-width: 50ch;
+  margin: 0;
+  color: var(--ux-color-text-muted);
+  line-height: 1.6;
+  text-align: left;
 }
 
-#ux-items-root .uxm-items-workspace::after,
-#container-transfer-panel::after {
-  top: 0.4rem;
-  right: 0.4rem;
-  border-left: 0;
-  border-bottom: 0;
+.startup-choice-card {
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--ux-color-border);
+  border-radius: var(--ux-radius-control);
+  background: linear-gradient(180deg, rgb(51 49 40 / 0.72), rgb(27 31 26 / 0.78));
+  box-shadow: inset 0 1px 0 rgb(242 232 208 / 0.045);
 }
 
-#ux-items-root .uxm-selection-rail::before,
-#ux-items-root .uxm-selection-rail::after,
-#container-transfer-panel .container-transfer-footer::before,
-#container-transfer-panel .container-transfer-footer::after {
-  content: "";
-  position: absolute;
-  width: 0.85rem;
-  height: 0.85rem;
-  border: 2px solid oklch(0.78 0.13 55 / 0.55);
-  pointer-events: none;
+.startup-choice-card:hover,
+.startup-choice-card:focus-within {
+  border-color: var(--ux-color-action);
+  background: linear-gradient(180deg, rgb(63 58 44 / 0.84), rgb(31 34 28 / 0.88));
 }
 
-#ux-items-root .uxm-selection-rail::before,
-#container-transfer-panel .container-transfer-footer::before {
-  bottom: 0.35rem;
-  left: 0.35rem;
-  border-right: 0;
-  border-top: 0;
-}
-
-#ux-items-root .uxm-selection-rail::after,
-#container-transfer-panel .container-transfer-footer::after {
-  bottom: 0.35rem;
-  right: 0.35rem;
-  border-left: 0;
-  border-top: 0;
-}
-
-/* ---- Character creation / history surfaces ---- */
-.ux-history-dialog,
-.ux-character-sheet-dialog {
-  border-color: color-mix(in oklch, var(--ux-color-action) 35%, var(--ux-color-border)) !important;
-}
-
-.ux-history-dialog::backdrop,
-.ux-character-sheet-dialog::backdrop {
-  background: var(--ux-scrim-overlay) !important;
-}
-
-.ux-surface-heading h2 {
+.startup-choice-card strong {
+  color: var(--ux-color-text);
   font-family: var(--ux-font-display);
+  font-weight: 700;
 }
 
-.ux-history-row[data-selected='true'] {
-  border-color: var(--ux-color-selection) !important;
-  background: color-mix(in oklch, var(--ux-color-selection) 14%, var(--ux-color-surface)) !important;
+.startup-choice-card p {
+  line-height: 1.6;
 }
 
-/* ---- Settings grid ---- */
-body.reliquary-skin .settings-grid .settings-select-row,
-body.reliquary-skin .settings-grid label {
-  border-color: color-mix(in oklch, var(--ux-color-action) 18%, var(--ux-color-border));
-  background: oklch(0.15 0.03 268 / 0.65);
-  border-radius: var(--ux-radius-control);
+body.reliquary-skin .startup-choice-actions {
+  justify-content: flex-end;
 }
 
-body.reliquary-skin select,
-body.reliquary-skin input[type='text'],
-body.reliquary-skin input[type='number'],
-body.reliquary-skin textarea {
-  border: 1px solid color-mix(in oklch, var(--ux-color-border) 85%, var(--ux-color-action));
-  border-radius: var(--ux-radius-control);
-  background: oklch(0.12 0.03 262);
+#intro-dialog {
+  width: min(52rem, calc(100vw - 2rem));
+  padding: 0;
+}
+
+#intro-form {
+  padding: 0;
+}
+
+body.reliquary-skin .intro-frame {
+  padding: 2.5rem 3rem;
+  border: 0;
+  border-radius: 0;
+  background:
+    radial-gradient(circle at 50% 0%, rgb(216 186 114 / 0.07), transparent 28rem),
+    transparent;
+  box-shadow: none;
+}
+
+.intro-frame::before,
+.intro-frame::after {
+  content: none;
+}
+
+#intro-title {
+  margin: 0 0 1.5rem;
+  color: var(--ux-color-text);
+  font: 700 2.75rem/1.15 var(--ux-font-display);
+  text-align: left;
+}
+
+#intro-body {
+  max-width: 65ch;
+  color: var(--ux-color-text);
+  font: 1.125rem/1.75 var(--ux-font-display);
+}
+
+#intro-body p {
+  margin-bottom: 1rem;
   color: var(--ux-color-text);
 }
 
-/* ---- Reduced motion ---- */
-@media (prefers-reduced-motion: reduce) {
-  .reliquary-embers {
-    animation: none;
+#intro-body .intro-role-callout {
+  padding: 1rem 0 0;
+  border: 0;
+  border-top: 1px solid color-mix(in oklch, var(--ux-color-action) 34%, var(--ux-color-border));
+  border-radius: 0;
+  background: transparent;
+}
+
+.intro-objective {
+  justify-content: flex-start;
+  padding: 1rem 0 0;
+  gap: 0.75rem;
+  border: 0;
+  border-radius: 0;
+  color: var(--ux-color-action-hover);
+  background: transparent;
+}
+
+.intro-objective .objective-label {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: var(--ux-color-text-muted);
+  background: transparent;
+}
+
+/* Settings keeps one independent scroller and a fully opaque action footer. */
+body.reliquary-skin #settings-dialog {
+  width: min(56rem, calc(100vw - 2rem));
+  padding: 0;
+}
+
+body.reliquary-skin #settings-form {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  max-height: calc(100dvh - 3rem);
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+  scrollbar-gutter: auto;
+}
+
+#settings-title {
+  margin: 0;
+  padding: 1.5rem 1.5rem 0.5rem;
+  font: 700 1.9rem/1.2 var(--ux-font-display);
+}
+
+#settings-form > .modal-copy {
+  max-width: 70ch;
+  padding: 0 1.5rem 1.5rem;
+  color: var(--ux-color-text-muted);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+#settings-form .settings-groups {
+  min-height: 0;
+  padding: 0 1.5rem 1.5rem;
+  gap: 2rem;
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+
+#settings-form .settings-section {
+  padding: 1rem 1.1rem;
+  border: 1px solid color-mix(in oklch, var(--ux-color-action) 18%, var(--ux-color-border));
+  border-radius: var(--ux-radius-control);
+  background: rgb(9 13 12 / 0.36);
+}
+
+#settings-form .settings-section legend {
+  padding: 0 0.55rem;
+  color: var(--ux-color-action-hover);
+  font: 700 1.08rem/1.2 var(--ux-font-display);
+  letter-spacing: 0.01em;
+}
+
+#settings-form .settings-section > p {
+  margin-bottom: 1rem;
+  color: var(--ux-color-text-muted);
+  font-size: 0.8125rem;
+  line-height: 1.55;
+}
+
+#settings-form .settings-grid {
+  gap: 1.25rem 1.5rem;
+}
+
+#settings-form .settings-select-row,
+#settings-form .settings-range-row {
+  padding: 0;
+  gap: 0.5rem;
+  border: 0;
+  border-radius: 0;
+  color: var(--ux-color-text);
+  background: transparent;
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+
+#settings-form .settings-select-row select {
+  min-height: 2.75rem;
+  border-color: var(--ux-color-border);
+  color: var(--ux-color-text);
+  background: var(--ux-color-well);
+}
+
+#settings-form .settings-grid small {
+  color: var(--ux-color-text-muted);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.55;
+}
+
+#settings-form input[type='range'] {
+  accent-color: var(--ux-color-action);
+}
+
+#settings-form output {
+  border-color: var(--ux-color-border);
+  color: var(--ux-color-action-hover);
+  background: var(--ux-color-well);
+  box-shadow: var(--ux-shadow-socket);
+}
+
+#settings-form .dialog-actions {
+  position: static;
+  background: #222720;
+}
+
+/* Commands stay compact while section labels and key plates carry the world. */
+#action-dialog {
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+}
+
+#action-dialog-form {
+  padding: 1.5rem;
+  gap: 1.5rem;
+  overflow: auto;
+}
+
+.action-dialog-heading h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.75rem;
+}
+
+.action-dialog-grid {
+  max-height: none;
+  gap: 1.5rem;
+  overflow: visible;
+}
+
+#action-dialog :is(#item-actions, #system-actions, #repeat-actions, #movement-actions) {
+  padding: 1rem 0 0;
+  gap: 0.5rem;
+  border: 0;
+  border-top: 1px solid color-mix(in oklch, var(--ux-color-action) 28%, var(--ux-color-border));
+  border-radius: 0;
+  background: transparent;
+  font-size: 0.875rem;
+}
+
+#action-dialog :is(.item-actions-label, .system-actions-label, .movement-label),
+#repeat-actions label {
+  color: color-mix(in oklch, var(--ux-color-action) 62%, var(--ux-color-text-muted));
+  font-family: var(--ux-font-display);
+  font-weight: 700;
+}
+
+#action-dialog :is(#item-actions, #system-actions, #repeat-actions, #movement-actions) button {
+  min-height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+  border-color: var(--ux-color-border);
+  border-radius: var(--ux-radius-control);
+  color: var(--ux-color-text);
+  background: var(--ux-gradient-metal);
+  box-shadow: var(--ux-shadow-keycap);
+  font-size: 0.8125rem;
+  font-weight: 650;
+}
+
+#action-dialog #movement-actions .movement-mode.selected {
+  border-color: var(--ux-color-selection);
+  color: var(--ux-color-text);
+  background: var(--ux-color-selection-fill);
+}
+
+#action-dialog #movement-actions .movement-pad {
+  grid-template-columns: repeat(3, 2.5rem);
+  gap: 0.25rem;
+  margin-left: auto;
+}
+
+#action-dialog #movement-actions .movement-pad button,
+#action-dialog #movement-actions .movement-pad span {
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+}
+
+#repeat-actions input {
+  border-color: var(--ux-color-border);
+  color: var(--ux-color-text);
+  background: var(--ux-color-well);
+}
+
+#container-transfer-panel {
+  border-color: var(--ux-color-border-strong);
+  background: var(--ux-gradient-plate);
+}
+
+#container-transfer-panel .container-pane {
+  background: var(--ux-color-surface-muted);
+}
+
+#container-transfer-panel .container-item-row[aria-checked='true'] {
+  outline: 1px solid var(--ux-color-selection);
+  outline-offset: -1px;
+  background: var(--ux-color-selection-fill);
+  box-shadow: inset 3px 0 0 var(--ux-color-action);
+}
+
+.map-tooltip {
+  border-color: var(--ux-color-border-strong);
+  background: var(--ux-gradient-metal);
+  box-shadow: var(--ux-shadow-plate);
+}
+
+.ux-level-overview-dialog .ux-level-overview-heading {
+  border-bottom-color: color-mix(in oklch, var(--ux-color-action) 26%, var(--ux-color-border));
+  background: var(--ux-gradient-banner);
+}
+
+@media (max-width: 1050px), (max-height: 760px) {
+  body.uxm02-shell-active > header {
+    height: 3.25rem;
+    min-height: 3.25rem;
+    padding: 0.375rem 1rem;
+  }
+
+  body.uxm02-shell-active main {
+    height: calc(100dvh - 3.25rem);
+  }
+
+  body.uxm02-shell-active #quick-actions > button {
+    min-height: 2.25rem;
+    padding-inline: 0.75rem;
+  }
+
+  body.uxm02-shell-active .ux-status-group {
+    padding: 0.125rem 0.25rem;
+  }
+
+  #action-dialog-form {
+    padding: 1rem;
+  }
+
+  .action-dialog-grid {
+    gap: 1rem;
+  }
+
+  body.reliquary-skin .intro-frame {
+    padding: 1.5rem 2rem;
+  }
+
+  #intro-title {
+    font-size: 2rem;
+  }
+
+  #intro-body {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  #settings-form .settings-section {
+    padding: 0.85rem;
   }
 }
 
-body[data-ux-motion='reduced'] .reliquary-embers {
-  animation: none;
+@media (max-width: 700px) {
+  #settings-form .settings-grid-two,
+  .action-dialog-grid {
+    grid-template-columns: 1fr;
+  }
+
+  body.reliquary-skin .intro-frame {
+    padding: 1.25rem;
+  }
+
+  body.reliquary-skin .startup-choice-frame {
+    padding: 1.5rem;
+  }
 }

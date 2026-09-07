@@ -34,6 +34,8 @@ async function main() {
       const buttons = Array.from(helper.querySelectorAll('button'));
       const cells = Array.from(helper.querySelectorAll('.direction-pad > *'));
       const helperRect = rect(helper); const logRect = rect(log); const gridRect = rect(grid);
+      const padRect = rect(helper.querySelector('.direction-pad'));
+      const compactSquare = padRect.width <= 148 && padRect.height <= 148 && Math.abs(padRect.width - padRect.height) <= 4;
       const helperWithinViewport = helperRect.left >= 0 && helperRect.top >= 0 && helperRect.right <= innerWidth && helperRect.bottom <= innerHeight;
       const helperWithinLog = helperRect.left >= logRect.left && helperRect.top >= logRect.top && helperRect.right <= logRect.right + 1 && helperRect.bottom <= logRect.bottom + 1;
       const helperNotClipped = helper.scrollWidth <= helper.clientWidth + 1 && helper.scrollHeight <= helper.clientHeight + 1;
@@ -43,7 +45,7 @@ async function main() {
       const requiredMessageHeight = innerHeight <= 450 ? 50 : 72;
       return {
         viewport: { width: innerWidth, height: innerHeight },
-        helperRect, logRect, gridRect,
+        helperRect, padRect, logRect, gridRect,
         buttonCount: buttons.length,
         cellText,
         buttonLabels: buttons.map((b) => b.innerText.trim()),
@@ -58,11 +60,11 @@ async function main() {
         helperWithinViewport, helperWithinLog, helperNotClipped,
         requiredMessageHeight,
         logReadable: document.getElementById('messages').clientHeight >= requiredMessageHeight,
-        compactSquare: helperRect.width <= 144 && helperRect.height <= 160,
+        compactSquare,
         properCompassOrder: cellKeys.join('') === 'ykuh.lbjn',
         properCompassLabels: cellText.join('|') === '↖|↑|↗|←|·|→|↙|↓|↘',
         onlyArrowGlyphs,
-        pass: helperWithinViewport && helperWithinLog && helperNotClipped && gridRect.width >= innerWidth - 40 && buttons.length === 8 && cellKeys.join('') === 'ykuh.lbjn' && cellText.join('|') === '↖|↑|↗|←|·|→|↙|↓|↘' && onlyArrowGlyphs && document.getElementById('messages').clientHeight >= requiredMessageHeight && helperRect.width <= 144 && helperRect.height <= 160 && !helper.querySelector('#direction-helper-copy') && !/Esc|Choose a direction or map target|Dungeon remains playable|North|South|East|West|NW|NE|SW|SE/i.test(helper.innerText) && !buttons.some((button) => button.id === 'direction-helper-cancel' || /\bEsc\b/i.test(button.innerText.trim())),
+        pass: helperWithinViewport && helperWithinLog && helperNotClipped && gridRect.width >= innerWidth - 40 && buttons.length === 8 && cellKeys.join('') === 'ykuh.lbjn' && cellText.join('|') === '↖|↑|↗|←|·|→|↙|↓|↘' && onlyArrowGlyphs && document.getElementById('messages').clientHeight >= requiredMessageHeight && compactSquare && !helper.querySelector('#direction-helper-copy') && !/Esc|Choose a direction or map target|Dungeon remains playable|North|South|East|West|NW|NE|SW|SE/i.test(helper.innerText) && !buttons.some((button) => button.id === 'direction-helper-cancel' || /\bEsc\b/i.test(button.innerText.trim())),
       };
     })()`);
     metrics.defaultCompass = await page.evalValue(`(() => {
@@ -84,8 +86,8 @@ async function main() {
       return { walkSent, runSent, afterSecondDirection: t.sentInputs().join(''), armed, cancelled, disarmed };
     })()`);
     metrics.defaultCompassPass = metrics.defaultCompass.walkSent === 'l'
-      && metrics.defaultCompass.runSent === 'K'
-      && metrics.defaultCompass.afterSecondDirection === 'Ku'
+      && metrics.defaultCompass.runSent === 'gk'
+      && metrics.defaultCompass.afterSecondDirection === 'gku'
       && metrics.defaultCompass.armed.label === 'Go'
       && metrics.defaultCompass.armed.pressed === 'true'
       && metrics.defaultCompass.armed.selected

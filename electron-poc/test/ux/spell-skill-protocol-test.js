@@ -78,6 +78,26 @@ const invalidCases = [
 ];
 for (const event of invalidCases) assert.equal(Ui.validateEventEnvelope(event).ok, false, `invalid rows fail closed: ${JSON.stringify(event)}`);
 
+
+const initialAvailabilityView = GameView.createGameViewState();
+assert.equal(initialAvailabilityView.snapshot().knownSpellCount, 0, 'missing availability events leave the learned spell count at zero');
+let availability = Shim.normalizeRawShimEvent({ name: 'shim_spell_availability', knownSpellCount: 2, authoritative: true, source: 'num_spells' });
+assert.equal(availability.valid, true, availability.errors.join('; '));
+let availabilityResult = initialAvailabilityView.process(availability.event);
+assert.equal(availabilityResult.effects[0].type, 'spell-availability-changed');
+assert.equal(initialAvailabilityView.snapshot().knownSpellCount, 2, 'authoritative availability updates the learned spell count without a spell menu');
+availability = Shim.normalizeRawShimEvent({ name: 'shim_spell_availability', knownSpellCount: 0, authoritative: true, source: 'num_spells' });
+availabilityResult = initialAvailabilityView.process(availability.event);
+assert.equal(availabilityResult.effects[0].knownSpellCount, 0);
+assert.equal(initialAvailabilityView.snapshot().knownSpellCount, 0, 'losing all learned spells clears availability');
+assert.equal(GameView.createGameViewState().snapshot().knownSpellCount, 0, 'a fresh Game View resets spell availability');
+for (const malformed of [
+  { name: 'shim_spell_availability', authoritative: true },
+  { name: 'shim_spell_availability', knownSpellCount: -1, authoritative: true },
+  { name: 'shim_spell_availability', knownSpellCount: 1, authoritative: false },
+]) {
+  assert.equal(Shim.normalizeRawShimEvent(malformed).valid, false, `malformed availability fails closed: ${JSON.stringify(malformed)}`);
+}
 const view = GameView.createGameViewState();
 view.process({ name: 'shim_start_menu', window: 7, requestId: 'spell-menu-1', menuId: 'spell-menu-1', transactionId: 'spell-command-1', menuPurpose: 'spell.rows', owner: { kind: 'system', window: 7 }, lifecycleRevision: 1 });
 let result = view.process(spellEvent());

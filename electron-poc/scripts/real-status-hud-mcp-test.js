@@ -14,13 +14,14 @@ async function finishEvidence(page, qc, scenarioError) { await page.close().catc
 let outDir, evidencePage, evidenceQc, scenarioError
 
 const scenarioId = 'status/full-hud';
+let captureViewport = { width: 1440, height: 930, devicePixelRatio: 2 };
 const fullStatusOptions = '!tutorial,!autopickup,time,showscore,showexp,showvers,weaponstatus,armorstatus,terrainstatus,disclose:+i +a +v +g +c +o';
 
 
 
 
 async function evalExpr(cdp, expression) { const res = await cdp.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression }); if (res.exceptionDetails) throw new Error(JSON.stringify(res.exceptionDetails)); return res.result.value; }
-async function shot(cdp, name) { return evidencePage.screenshotEvidence(evidenceQc, path.basename(name, path.extname(name)), { classification: 'synthetic-fixture', viewport: { width: 1440, height: 930, devicePixelRatio: 2 }, state: path.basename(name, path.extname(name)) }); }
+async function shot(cdp, name) { return evidencePage.screenshotEvidence(evidenceQc, path.basename(name, path.extname(name)), { classification: 'synthetic-fixture', viewport: captureViewport, state: path.basename(name, path.extname(name)) }); }
 async function click(cdp, selector) { const box = await evalExpr(cdp, `(() => { const el = document.querySelector(${JSON.stringify(selector)}); el?.scrollIntoView?.({block:'center', inline:'center'}); const r = el?.getBoundingClientRect(); return r ? {x:r.left+r.width/2,y:r.top+r.height/2} : null; })()`); if (!box) throw new Error(`missing selector ${selector}`); await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: box.x, y: box.y, button: 'left', clickCount: 1 }); await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: box.x, y: box.y, button: 'left', clickCount: 1 }); }
 function assert(name, ok, detail = '') { if (!ok) throw new Error(`${name}${detail ? `: ${detail}` : ''}`); }
 async function state(cdp) { return evalExpr(cdp, `(() => ({ running: window.__nethackAutomation?.state?.().runningState?.running || false, seenShim: document.getElementById('shim-output')?.dataset?.seen || '', shim: document.getElementById('shim-output')?.innerText || '', body: document.body.innerText }))()`); }
@@ -28,7 +29,9 @@ async function start(cdp) {
   const result = await evalExpr(cdp, `(() => window.__nethackAutomation.startReplay({ playerSpec: '-uStatusVal-Val-Hum-Fem-Law', seed: '626262', nethackOptions: ${JSON.stringify(fullStatusOptions)} }))()`);
   if (!result?.ok) throw new Error(`startReplay failed: ${JSON.stringify(result)}`);
   await Harness.waitFor(async () => (await state(cdp)).running, 20000);
-  await evalExpr(cdp, `(() => { document.getElementById('intro-dialog')?.close?.('continue'); document.getElementById('document-dialog')?.close?.('close'); document.getElementById('game-grid')?.focus?.(); })()`);
+  await Harness.waitFor(async () => evalExpr(cdp, "Boolean(document.getElementById('intro-dialog')?.open)"), 10000);
+  await click(cdp, '#intro-continue');
+  await Harness.waitFor(async () => evalExpr(cdp, "!document.querySelector('dialog[open]')"), 5000);
 }
 async function hud(cdp) {
   return evalExpr(cdp, `(() => {
@@ -49,6 +52,9 @@ async function hud(cdp) {
             role: chip.dataset.statusRole || '',
             className: chip.className || '',
             animationName: style.animationName,
+            animationDuration: style.animationDuration,
+            animationIterations: style.animationIterationCount,
+            outlineColor: style.outlineColor,
             borderWidth: style.borderWidth,
             boxShadow: style.boxShadow,
           };
@@ -112,8 +118,10 @@ const compactScreenshot = await shot(cdp, '01-auto-status-hud.png');
 const carryAttention = byLabel(firstFields, 'Carry');
 assert('urgent Carry status has static and animated attention treatment', carryAttention?.role === 'urgent'
   && carryAttention.className.includes('ux-status-urgent')
-  && carryAttention.animationName === 'ux-status-attention-pulse'
-  && carryAttention.borderWidth === '2px'
+  && carryAttention.animationName === 'ux-direction-required-glow'
+  && carryAttention.animationDuration === '0.8s'
+  && carryAttention.animationIterations === '3'
+  && parseFloat(carryAttention.borderWidth) > 0
   && carryAttention.boxShadow !== 'none', JSON.stringify(carryAttention));
 const reducedMotionAttention = await evalExpr(cdp, `(() => {
   const previous = document.body.dataset.uxMotion || '';
@@ -125,7 +133,7 @@ const reducedMotionAttention = await evalExpr(cdp, `(() => {
   return result;
 })()`);
 assert('reduced-motion mode keeps static urgency while disabling pulse', reducedMotionAttention?.animationName === 'none'
-  && reducedMotionAttention.borderWidth === '2px'
+  && reducedMotionAttention.borderWidth === carryAttention.borderWidth
   && reducedMotionAttention.boxShadow !== 'none', JSON.stringify(reducedMotionAttention));
 
 await click(cdp, '#ux-character-button');
@@ -183,11 +191,43 @@ for (const label of ['Hunger', 'Senses']) {
   const warning = byLabel(fields(warningHud), label);
   assert(`${label} warning receives the urgent attention treatment`, warning?.role === 'urgent'
     && warning.className.includes('warning')
-    && warning.animationName === 'ux-status-attention-pulse'
-    && warning.borderWidth === '2px'
+    && warning.animationName === 'ux-direction-required-glow'
+    && warning.animationDuration === '0.8s'
+    && warning.animationIterations === '3'
+    && warning.outlineColor === carryAttention.outlineColor
+    && warning.borderWidth === carryAttention.borderWidth
     && warning.boxShadow !== 'none', JSON.stringify(warning));
 }
 const warningScreenshot = await shot(cdp, '04-hungry-blind-attention.png');
+assert('ordinary hero status does not receive adverse glow', byLabel(fields(warningHud), 'Hero')?.animationName !== 'ux-direction-required-glow');
+captureViewport = { width: 960, height: 720, devicePixelRatio: 1 };
+await cdp.send('Emulation.setDeviceMetricsOverride', { width: 960, height: 720, deviceScaleFactor: 1, mobile: false });
+await shot(cdp, '05-compact-hungry-blind-attention.png');
+await evalExpr(cdp, `(() => {
+  window.NetHackUxStatusPresentation.renderStatusPresentation(document.getElementById('stats-panel'), new Map([
+    [0, 'StatusVal the Stripling'], [17, 'Weak'],
+  ]), { documentRoot: document, density: 'compact', adaptive: true });
+})()`);
+const danger = byLabel(fields(await hud(cdp)), 'Hunger');
+assert('danger hunger uses the same bounded purple glow', danger?.className.includes('danger')
+  && danger.animationName === 'ux-direction-required-glow' && danger.animationDuration === '0.8s'
+  && danger.animationIterations === '3' && danger.outlineColor === carryAttention.outlineColor, JSON.stringify(danger));
+await cdp.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+const reducedDanger = byLabel(fields(await hud(cdp)), 'Hunger');
+assert('OS reduced motion retains purple urgency without animation', reducedDanger?.animationName === 'none'
+  && reducedDanger.outlineColor === carryAttention.outlineColor && reducedDanger.boxShadow !== 'none', JSON.stringify(reducedDanger));
+await shot(cdp, '06-compact-weak-reduced-motion.png');
+await cdp.send('Emulation.setEmulatedMedia', { features: [] });
+await evalExpr(cdp, `(() => {
+  window.NetHackUxStatusPresentation.renderStatusPresentation(document.getElementById('stats-panel'), new Map([
+    [0, 'StatusVal the Stripling'], [17, 'Satiated'],
+  ]), { documentRoot: document, density: 'compact', adaptive: true });
+})()`);
+const recovered = byLabel(fields(await hud(cdp)), 'Hunger');
+assert('satiation clears adverse glow and former blindness', recovered?.role === 'persistent'
+  && recovered.animationName !== 'ux-direction-required-glow'
+  && !fields(await hud(cdp)).some((field) => field.role === 'urgent'), JSON.stringify(recovered));
+await shot(cdp, '07-compact-satiated-no-attention.png');
 fs.writeFileSync(path.join(outDir, 'status-hud-debug.json'), JSON.stringify({ firstHud, characterSheet, detailedHud, afterHud, warningHud, timeBefore, timeAfter, screenshots: { compactScreenshot, characterScreenshot, updatedScreenshot, warningScreenshot } }, null, 2));
 
 ;

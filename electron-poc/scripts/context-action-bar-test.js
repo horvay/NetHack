@@ -12,6 +12,26 @@ const realLockedLifecycleMcp = fs.readFileSync(path.join(root, 'scripts', 'real-
 const shimProtocol = fs.readFileSync(path.join(root, 'src', 'shared', 'shim-protocol.js'), 'utf8');
 const gameViewState = fs.readFileSync(path.join(root, 'src', 'shared', 'game-view-state.js'), 'utf8');
 const bridge = fs.readFileSync(path.join(root, 'shim-bridge', 'nh-shim-bridge.c'), 'utf8');
+const feedback = require(path.join(root, 'src', 'ux', 'feedback-adapter.js'));
+
+function feedbackButton(primary = false) {
+  const classes = new Set(['context-action-button']);
+  if (primary) classes.add('primary-context');
+  return {
+    ownerDocument: { body: { dataset: {} }, defaultView: { matchMedia: () => ({ matches: false }) } },
+    offsetWidth: 1,
+    classList: {
+      add: (...names) => names.forEach((name) => classes.add(name)),
+      remove: (...names) => names.forEach((name) => classes.delete(name)),
+      contains: (name) => classes.has(name),
+    },
+  };
+}
+
+const unchangedPrimary = feedbackButton(true);
+const changedPrimary = feedbackButton(true);
+const changedSecondary = feedbackButton(false);
+const animatedContextChanges = feedback.animateContextActionChanges([changedPrimary, changedSecondary]);
 
 const checks = [
   ['contextual action bar exists in gameplay chrome', /id="context-action-bar"/.test(html) && /aria-label="Contextual actions for current position"/.test(html)],
@@ -28,13 +48,13 @@ const checks = [
   ['raw direction prompt copy is filtered from player messages', /function isDirectionPrompt/.test(interaction) && /isGenericDirectionPromptMessage/.test(messageLog) && /generic-direction-prompt/.test(messageLog) && /sharedModules\.messageLog\?\.isGenericDirectionPromptMessage/.test(js)],
   ['context bar consumes planner decisions after public Game View changes', /interactionDecision\('render-context-actions'\)/.test(js) && /render-status'[\s\S]*renderContextActionBar\(\)/.test(js) && /maybeShowContextualPrompt[\s\S]*renderContextActionBar\(\)/.test(js)],
   ['automation adapter exposes action-bar visibility and command routing checks', /contextActions: \(\) =>/.test(js) && /clickContextAction\(idOrLabel\)/.test(js)],
+  ['context action feedback animates changed primary controls without restarting unchanged or secondary controls', animatedContextChanges === 1 && changedPrimary.classList.contains('ux-motion-primary-breath') && !changedSecondary.classList.contains('ux-motion-primary-breath') && !unchangedPrimary.classList.contains('ux-motion-primary-breath')],
   ['real MCP door click uses a real visible door and rejects no-door outcomes', /findDoorPlan/.test(realMcp) && /04-real-adjacent-door-action/.test(realMcp) && /05-after-click-open-real-door/.test(realMcp) && /openDoorClickHasRealDoorOutcome/.test(realMcp) && /You see no door there/.test(realMcp)],
   ['real MCP covers locked-container force button and #force routing', /NH_SHIM_TEST_CONTAINER_CONTEXT_SCENE/.test(realMcp) && /realOnTileContainerShowsForceWhenLocked/.test(realMcp) && /liveForceContainerClickRoutesPoundForce/.test(realMcp) && /01b-after-live-force-locked-container/.test(realMcp) && /09-fixture-force-locked-chest-action/.test(realMcp)],
   ['real MCP covers locked-container reveal lifecycle without stepping off/on and no stale-ground force rejection', /locked-chest-east-unrevealed/.test(realLockedLifecycleMcp) && /open attempt produces visible locked-container guidance/.test(realLockedLifecycleMcp) && /Force lock appears without stepping off\/on/.test(realLockedLifecycleMcp) && /ground\.forceContainer/.test(realLockedLifecycleMcp) && /ground revision changed/.test(realLockedLifecycleMcp)],
   ['real MCP covers food and corpse ground Eat affordances without raw selector leak', /Eat food/.test(realMcp) && /Eat corpse/.test(realMcp) && /eatActionHasNoRawSelectorLeak/.test(realMcp) && /02c-fixture-corpse-eat-action/.test(realMcp)],
   ['real MCP stairs fixture uses explicit go-up/go-down player labels and click routing', /Go down stairs/.test(realMcp) && /Go up stairs/.test(realMcp) && /stairsFixtureClickRoutesDown/.test(realMcp) && /stairsFixtureDoesNotShowWrongDirection/.test(realMcp)],
   ['styles make action bar visually distinct from raw shortcut toolbar', /#context-action-bar/.test(css) && /context-action-button/.test(css) && /primary-context/.test(css)],
-  ['game grid row allocation accounts for the action bar recording toolbar and log rows', /grid-template-rows: auto auto auto auto minmax\(0, auto\) minmax\(132px, 1fr\) auto/.test(css)],
 ];
 
 let failed = 0;

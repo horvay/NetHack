@@ -53,6 +53,7 @@ async function state(cdp) { return evalExpr(cdp, `(() => ({
   status: document.getElementById('status')?.textContent || '',
   body: document.body.innerText,
   running: window.__nethackAutomation?.state?.().runningState?.running || false,
+  shimEvents: (window.__nethackPromptTest?.shimEvents?.() || []).map((entry) => entry?.event || entry?.raw || entry).filter(Boolean),
   seenShim: document.getElementById('shim-output')?.dataset?.seen || '',
   shim: document.getElementById('shim-output')?.innerText || '',
   heroCell: (() => { const el = document.querySelector('.tile-cell.hero, .tile-cell.player, .tile-cell[data-is-hero="true"]') || document.querySelector('.tile-cell[aria-label*="fountain" i]'); return el ? { text: el.textContent, aria: el.getAttribute('aria-label') || '', className: el.className, tileId: el.dataset.tileId || '', semanticName: el.dataset.semanticName || '' } : null; })()
@@ -64,7 +65,7 @@ async function start(cdp) {
   await Harness.waitFor(async () => evalExpr(cdp, `document.getElementById('character-dialog')?.open && !document.getElementById('confirm-character')?.disabled`), 7000);
   await evalExpr(cdp, `(() => { const input = document.getElementById('player-name'); input.value = 'TerrainTester'; input.dispatchEvent(new Event('input', { bubbles: true })); })()`);
   await click(cdp, '#confirm-character');
-  await Harness.waitFor(async () => { const s = await state(cdp); if (/bridge_test_scenario_failed/.test(`${s.seenShim}\n${s.shim}`)) throw new Error(s.shim); return s.running ? s : null; }, 20000).catch(async (error) => { const debug = await saveState(cdp, 'debug-start-timeout-state').catch(() => ({})); await shot(cdp, 'debug-start-timeout.png').catch(() => undefined); throw new Error(`${error.message}\n${JSON.stringify(debug).slice(0, 3000)}`); });
+  await Harness.waitFor(async () => { const s = await state(cdp); const failure = s.shimEvents.find((event) => event.name === 'bridge_test_scenario_failed'); if (failure) throw new Error(JSON.stringify(failure)); return s.running ? s : null; }, 20000).catch(async (error) => { const debug = await saveState(cdp, 'debug-start-timeout-state').catch(() => ({})); await shot(cdp, 'debug-start-timeout.png').catch(() => undefined); throw new Error(`${error.message}\n${JSON.stringify(debug).slice(0, 3000)}`); });
   const maybeIntro = await state(cdp);
   if (maybeIntro.dialogs.includes('intro-dialog')) await click(cdp, '#intro-continue');
   else if (/Go bravely|Book of Tyr/i.test(maybeIntro.body || '')) await pressSpace(cdp);
@@ -94,8 +95,8 @@ async function main() {
     await start(cdp);
     const actionId = isSink ? 'drink-sink' : 'drink-fountain';
     const terrainLabel = isSink ? 'sink' : 'fountain';
-    const loaded = await Harness.waitFor(async () => { const s = await state(cdp); const trace = `${s.seenShim}\n${s.shim}`; if (/bridge_test_scenario_failed|Too many hacks running now|Cannot get lock/i.test(trace)) throw new Error(trace); return /bridge_test_scenario_loaded/.test(trace) || s.actions?.buttons?.some((b) => b.id === actionId) ? s : null; }, 10000).catch(async (error) => { const debug = await saveState(cdp, 'debug-scenario-readiness-state').catch(() => ({})); await shot(cdp, 'debug-scenario-readiness.png').catch(() => undefined); throw new Error(`${error.message}\n${JSON.stringify(debug).slice(0, 3000)}`); });
-    assert('scenario loaded or exposed its fixture-specific context action', /bridge_test_scenario_loaded/.test(`${loaded.seenShim}\n${loaded.shim}`) || loaded.actions?.buttons?.some((b) => b.id === actionId), JSON.stringify(loaded.actions));
+    const loaded = await Harness.waitFor(async () => { const s = await state(cdp); const failure = s.shimEvents.find((event) => event.name === 'bridge_test_scenario_failed'); if (failure) throw new Error(JSON.stringify(failure)); const visibleRuntimeText = `${s.messages.join('\n')}\n${s.body}`; if (/Too many hacks running now|Cannot get lock/i.test(visibleRuntimeText)) throw new Error(visibleRuntimeText); return s.shimEvents.some((event) => event.name === 'bridge_test_scenario_loaded') || s.actions?.buttons?.some((b) => b.id === actionId) ? s : null; }, 10000).catch(async (error) => { const debug = await saveState(cdp, 'debug-scenario-readiness-state').catch(() => ({})); await shot(cdp, 'debug-scenario-readiness.png').catch(() => undefined); throw new Error(`${error.message}\n${JSON.stringify(debug).slice(0, 3000)}`); });
+    assert('scenario loaded or exposed its fixture-specific context action', loaded.shimEvents.some((event) => event.name === 'bridge_test_scenario_loaded') || loaded.actions?.buttons?.some((b) => b.id === actionId), JSON.stringify({ actions: loaded.actions, shimEvents: loaded.shimEvents.slice(-20) }));
     const ready = await Harness.waitFor(async () => { const s = await state(cdp); return s.actions?.buttons?.some((b) => b.id === actionId && new RegExp(`Drink from ${terrainLabel}`, 'i').test(b.text || '')) ? s : null; }, 10000).catch(async (error) => { const debug = await saveState(cdp, 'debug-before-drink-action-timeout-state').catch(() => ({})); await shot(cdp, 'debug-before-drink-action-timeout.png').catch(() => undefined); throw new Error(`${error.message}\n${JSON.stringify(debug).slice(0, 2000)}`); });
     const contextShot = await shot(cdp, `00-${terrainLabel}-drink-context-actions.png`);
     fs.writeFileSync(path.join(outDir, '00-before-drink-state.json'), JSON.stringify(ready, null, 2));
@@ -107,7 +108,7 @@ async function main() {
       if (sinkPrompt.prompt || sinkPrompt.dialog?.interactionOpen) await click(cdp, '#interaction-options .choice-button[data-key="y"]');
       afterDrink = await Harness.waitFor(async () => { const s = await state(cdp); return s.sent === 'qy' && s.messages.length > ready.messages.length ? s : null; }, 12000).catch(async (error) => { const debug = await saveState(cdp, 'debug-after-sink-confirm-state').catch(() => ({})); await shot(cdp, 'debug-after-sink-confirm.png').catch(() => undefined); throw new Error(`${error.message}\n${JSON.stringify(debug).slice(0, 3000)}`); });
     } else {
-      afterDrink = await Harness.waitFor(async () => { const s = await state(cdp); return s.sentUiProtocolCommands.some((command) => command.commandType === 'terrain.action' && command.payload?.action === 'drink' && command.payload?.terrain === 'fountain') && /shim_terrain_action_confirmed/.test(s.shim || '') ? s : null; }, 12000);
+      afterDrink = await Harness.waitFor(async () => { const s = await state(cdp); return s.sentUiProtocolCommands.some((command) => command.commandType === 'terrain.action' && command.payload?.action === 'drink' && command.payload?.terrain === 'fountain') && s.shimEvents.some((event) => event.name === 'shim_terrain_action_confirmed' && event.action === 'drink' && event.terrain === 'fountain') ? s : null; }, 12000);
     }
     const afterShot = await shot(cdp, `01-after-${terrainLabel}-drink.png`);
     fs.writeFileSync(path.join(outDir, '01-after-drink-state.json'), JSON.stringify(afterDrink, null, 2));
@@ -116,11 +117,13 @@ async function main() {
     } else {
       assert('drink route is recorded as direct terrain.action', afterDrink.sentUiProtocolCommands.some((command) => command.commandType === 'terrain.action' && command.payload?.action === 'drink' && command.payload?.terrain === 'fountain'), JSON.stringify(afterDrink.sentUiProtocolCommands));
       assert('direct terrain drink sends no raw #drink, q, or classic key fallback', afterDrink.sent === '', JSON.stringify({ sent: afterDrink.sent }));
-      assert('native bridge accepted direct terrain.action drink', /"name":"shim_terrain_action_accepted"[\s\S]*"action":"drink"/.test(afterDrink.shim || ''), (afterDrink.shim || '').slice(-3000));
-      assert('native bridge confirmed direct terrain.action drink', /"name":"shim_terrain_action_confirmed"[\s\S]*"action":"drink"/.test(afterDrink.shim || ''), (afterDrink.shim || '').slice(-3000));
-      assert('no Extended-command/menu answer for direct drink', !/bridge_extcmd_answer|bridge_menu_answer/i.test(afterDrink.shim || ''), (afterDrink.shim || '').slice(-3000));
+      assert('native bridge accepted direct terrain.action drink', afterDrink.shimEvents.some((event) => event.name === 'shim_terrain_action_accepted' && event.action === 'drink' && event.terrain === 'fountain'), JSON.stringify(afterDrink.shimEvents.slice(-40)));
+      assert('native bridge confirmed direct terrain.action drink', afterDrink.shimEvents.some((event) => event.name === 'shim_terrain_action_confirmed' && event.action === 'drink' && event.terrain === 'fountain'), JSON.stringify(afterDrink.shimEvents.slice(-40)));
+      assert('no Extended-command/menu answer for direct drink', !afterDrink.shimEvents.some((event) => event.name === 'bridge_extcmd_answer' || event.name === 'bridge_menu_answer'), JSON.stringify(afterDrink.shimEvents.slice(-40)));
     }
-    assert('evidence has no disorder/internal errors', !/Program in disorder|Please report these messages|TypeError|ReferenceError|Unhandled|bridge_test_scenario_failed/i.test(`${afterDrink.body || ''}\n${afterDrink.shim || ''}`), `${afterDrink.body || ''}\n${afterDrink.shim || ''}`.slice(-2000));
+    const scenarioFailure = afterDrink.shimEvents.find((event) => event.name === 'bridge_test_scenario_failed');
+    const visibleRuntimeText = `${afterDrink.messages.join('\n')}\n${afterDrink.body || ''}`;
+    assert('evidence has no disorder/internal errors', !scenarioFailure && !/Program in disorder|Please report these messages|TypeError|ReferenceError|Unhandled/i.test(visibleRuntimeText), JSON.stringify({ scenarioFailure, visibleRuntimeText: visibleRuntimeText.slice(-2000) }));
   } catch (error) {
     scenarioError = error;
   } finally {

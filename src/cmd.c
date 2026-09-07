@@ -437,6 +437,18 @@ cmdq_clear(int q)
 {
     struct _cmd_queue *tmp = gc.command_queue[q];
     struct _cmd_queue *tmp2;
+    boolean clears_equipment_change = FALSE;
+
+    if (q == CQ_CANNED) {
+        for (tmp2 = tmp; tmp2; tmp2 = tmp2->next)
+            if (tmp2->typ == CMDQ_EXTCMD && tmp2->ec_entry
+                && tmp2->ec_entry->ef_funct == doshimequipmentchange) {
+                clears_equipment_change = TRUE;
+                break;
+            }
+        if (clears_equipment_change)
+            equipment_change_canned_queue_cleared();
+    }
 
     while (tmp) {
         tmp2 = tmp->next;

@@ -17,7 +17,7 @@ function ok(name, condition) {
 
 const lockedDoorPattern = /\b(?:door|gateway)\b.*\b(?:locked|resists|stuck)\b/i;
 ok('locked-door fixture would trigger contextual prompt', fixture.some((event) => event.name === 'shim_putstr' && lockedDoorPattern.test(event.text)));
-ok('full contextual prompts and safe gameplay defaults persist in schema v4', /contextualPrompts: 'full'/.test(settingsStore) && /autopickup: 'gold'/.test(settingsStore) && /movement: 'classic'/.test(settingsStore) && /schemaVersion = 4/.test(settingsStore));
+ok('full contextual prompts and safe gameplay defaults persist in schema v5', /contextualPrompts: 'full'/.test(settingsStore) && /autopickup: 'gold'/.test(settingsStore) && /movement: 'classic'/.test(settingsStore) && /schemaVersion = 5/.test(settingsStore));
 ok('Close-up is the default map view', /map: Object\.freeze\(\{ mode: 'close'/.test(settingsStore));
 ok('settings are saved through the localStorage-backed settings store', /storage\.setItem\(storageKey, JSON\.stringify\(settings\)\)/.test(settingsStore) && /storage: window\.localStorage/.test(renderer));
 ok('autopickup and movement choices map to NetHack options', /settings\.autopickup === 'all'/.test(renderer) && /settings\.autopickup === 'gold'/.test(renderer) && /'pickup_types:\$'/.test(renderer) && /settings\.movement === 'numpad'/.test(renderer));

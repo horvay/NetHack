@@ -81,10 +81,15 @@ function assertGroundIncludes(text, expectedLabels, context = {}, selector = 110
     .map((event) => ({ text: event.text, selector: event.selector }));
   const route = actions.armorSwapRouteForItem(cloakOverSuitFixture.find((item) => /splint mail/i.test(item.text)), { items: cloakOverSuitFixture });
   assert.equal(route.ok, true);
-  assert.equal(route.command, 'TdTcWp');
+  assert.equal(route.command, 'Wp', 'layered body replacement exposes only the target wear selector; native wearArmor owns blocker removal and restoration');
   assert.deepEqual(route.takeOffSelectors, ['d', 'c']);
+  assert.equal(route.directEquipmentChange, true);
   assert.deepEqual(route.blockerTokens, ['blocked.armor.cloakOverBody', 'blocked.armor.slotOccupied']);
   assert(route.blockerLabels.some((label) => /cloak covers body armor/i.test(label)), 'armor route exposes player-facing cloak-over-body blocker label');
+  const wearAffordance = actions.itemActionAffordances(cloakOverSuitFixture.find((item) => /splint mail/i.test(item.text)), { items: cloakOverSuitFixture }).find((entry) => entry.id === 'item.wear');
+  const detailRoute = actions.routeInventoryAction(cloakOverSuitFixture.find((item) => /splint mail/i.test(item.text)), wearAffordance, { items: cloakOverSuitFixture });
+  assert.equal(detailRoute.directEquipmentChange, true, 'detail/action-menu wear uses the same native wearArmor transaction');
+  assert.equal(detailRoute.slot, 'armor-suit');
   assert.match(route.message, /cloak of protection.*ring mail.*splint mail/i);
 }
 {
@@ -95,8 +100,9 @@ function assertGroundIncludes(text, expectedLabels, context = {}, selector = 110
     .map((event) => ({ text: event.text, selector: event.selector }));
   const route = actions.armorSwapRouteForItem(shirtUnderSuitFixture.find((item) => /Hawaiian shirt/i.test(item.text)), { items: shirtUnderSuitFixture });
   assert.equal(route.ok, true);
-  assert.equal(route.command, 'TdTcTrWq');
+  assert.equal(route.command, 'Wq', 'layered shirt replacement exposes only the target wear selector; native wearArmor owns layer restoration');
   assert.deepEqual(route.takeOffSelectors, ['d', 'c', 'r']);
+  assert.equal(route.directEquipmentChange, true);
   assert(route.blockerTokens.includes('blocked.armor.bodyOverShirt'), 'shirt replacement exposes body-over-shirt blocker token');
   assert(route.blockerTokens.includes('blocked.armor.removeOuterFirst'), 'shirt replacement exposes public remove-outer-first token for outer layers');
   assert.equal(actions.armorSlotForItem('q - a Hawaiian shirt'), 'shirt');
@@ -111,8 +117,9 @@ function assertGroundIncludes(text, expectedLabels, context = {}, selector = 110
   ];
   const helmetRoute = actions.armorSwapRouteForItem(items.find((item) => /dwarvish iron helm/i.test(item.text)), { items });
   assert.equal(helmetRoute.ok, true);
-  assert.equal(helmetRoute.command, 'TmWn', 'helmet replacement must not remove worn cloak or suit body layers');
+  assert.equal(helmetRoute.command, 'Wn', 'helmet replacement delegates same-slot removal to native wearArmor without disturbing body layers');
   assert.deepEqual(helmetRoute.takeOffSelectors, ['m']);
+  assert.equal(helmetRoute.directEquipmentChange, true);
   const glovesAction = actions.primaryEquipmentActionForItem(items.find((item) => /leather gloves/i.test(item.text)), { items });
   assert.equal(glovesAction.command, 'Wo', 'new non-body armor with no same-slot item wears directly despite worn body layers');
 }

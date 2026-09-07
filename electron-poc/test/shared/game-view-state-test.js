@@ -408,4 +408,50 @@ assert.equal(freshReplacementSnapshot.mapRevision, 0, 'reset uses a fresh instan
 assert.equal(freshReplacementSnapshot.activePrompt, null, 'reset does not retain interaction ownership');
 assert.equal(dirtyBeforeReplacement.snapshot().activePrompt.requestId, 'reset-owned-prompt', 'reset replacement cannot mutate the discarded instance');
 
+const cursorOwnedHero = GameViewState.createGameViewState({ mapWidth: 6, mapHeight: 4 });
+cursorOwnedHero.process({ name: 'shim_create_nhwindow', return: 4, windowType: 3 });
+cursorOwnedHero.process({ name: 'shim_print_glyph', window: 4, x: 1, y: 1, char: '@', glyph: 725, actorId: 'hero', semanticKind: 'hero', semanticName: 'hero' });
+cursorOwnedHero.process({ name: 'shim_print_glyph', window: 4, x: 2, y: 1, char: '#', glyph: 4024, semanticKind: 'terrain', semanticName: 'cloud', semanticKnown: true });
+cursorOwnedHero.process({ name: 'shim_curs', window: 4, x: 2, y: 1, actorId: 'hero' });
+const cursorOwnedHeroSnapshot = cursorOwnedHero.snapshot();
+assert.equal(cursorOwnedHeroSnapshot.mapCells[1][2].actorId, 'hero', 'native cursor ownership carries hero identity onto an obscuring region glyph');
+assert.equal(cursorOwnedHeroSnapshot.mapCells[1][2].semanticName, 'cloud', 'native cursor ownership preserves truthful cloud terrain semantics');
+assert.notEqual(cursorOwnedHeroSnapshot.mapCells[1][1].actorId, 'hero', 'native cursor ownership removes stale hero identity from the previous square');
+cursorOwnedHero.process({ name: 'shim_curs', window: 4, x: 2, y: 1, actorId: 'hero' });
+cursorOwnedHero.process({ name: 'shim_curs', window: 4, x: 3, y: 1, actorId: 'hero' });
+const departedCloudSnapshot = cursorOwnedHero.snapshot();
+assert.equal(departedCloudSnapshot.mapCells[1][2].actorId, undefined, 'leaving native vapor removes cursor-projected hero identity');
+assert.equal(departedCloudSnapshot.mapCells[1][2].semanticName, 'cloud', 'leaving native vapor restores its primary cloud glyph instead of blanking it');
+cursorOwnedHero.process({ name: 'shim_curs', window: 4, x: 2, y: 1, actorId: 'hero' });
+cursorOwnedHero.process({ name: 'shim_curs', window: 4, x: 2, y: 1, actorId: 'hero' });
+cursorOwnedHero.process({ name: 'shim_print_glyph', window: 4, x: 4, y: 1, char: '@', glyph: 725, actorId: 'hero', semanticKind: 'hero', semanticName: 'hero' });
+const glyphDepartedCloudSnapshot = cursorOwnedHero.snapshot();
+assert.equal(glyphDepartedCloudSnapshot.mapCells[1][2].actorId, undefined, 'a later hero glyph removes cursor-projected identity from vapor');
+assert.equal(glyphDepartedCloudSnapshot.mapCells[1][2].semanticName, 'cloud', 'a later hero glyph also restores the primary cloud glyph');
+
+const longHistoryView = GameViewState.createGameViewState({ mapWidth: 2, mapHeight: 2 });
+let firstPublishedTransaction = null;
+let previousHistorySnapshot = null;
+for (let index = 0; index < 128; index += 1) {
+  const transactionId = `long-history-${index}`;
+  longHistoryView.process({ name: 'bridge_command', keycode: 'a'.charCodeAt(0), transactionId });
+  longHistoryView.process({ name: 'bridge_unsupported_command', transactionId });
+  const historySnapshot = longHistoryView.snapshot();
+  if (index === 0) firstPublishedTransaction = historySnapshot.commandTransactions.byId.get(transactionId);
+  else assert.strictEqual(historySnapshot.commandTransactions.byId.get('long-history-0'), firstPublishedTransaction, 'new snapshots reuse immutable historical transactions instead of recursively copying them');
+  if (previousHistorySnapshot) assert.notStrictEqual(historySnapshot.commandTransactions.byId, previousHistorySnapshot.commandTransactions.byId, 'a lifecycle update receives a new immutable history map');
+  previousHistorySnapshot = historySnapshot;
+}
+assert.equal(previousHistorySnapshot.commandTransactions.byId.size, 128, 'long sessions retain the complete command history');
+assert(Object.isFrozen(firstPublishedTransaction), 'published historical transactions are immutable');
+assert.throws(() => previousHistorySnapshot.commandTransactions.byId.clear(), /immutable command transaction history/, 'published command history rejects mutation');
+Map.prototype.set.call(previousHistorySnapshot.commandTransactions.byId, 'forged', {});
+assert.equal(previousHistorySnapshot.commandTransactions.byId.has('forged'), false, 'prototype mutation cannot alter published command history');
+longHistoryView.process({ name: 'shim_putstr', window: 1, text: 'History remains stable.' });
+const unrelatedPublicationSnapshot = longHistoryView.snapshot();
+assert.strictEqual(unrelatedPublicationSnapshot.commandTransactions.byId, previousHistorySnapshot.commandTransactions.byId, 'unrelated snapshots reuse the whole immutable command history without walking its entries');
+assert.strictEqual(unrelatedPublicationSnapshot.commandTransactions.byId.get('long-history-0'), firstPublishedTransaction, 'unrelated publication preserves historical transaction identity');
+
+
+
 console.log('game view state characterization OK');

@@ -90,6 +90,7 @@ const settingCloseRows = document.getElementById('setting-close-rows');
 const settingMinimapSize = document.getElementById('setting-minimap-size');
 const settingLogRatio = document.getElementById('setting-log-ratio');
 const settingLogRatioValue = document.getElementById('setting-log-ratio-value');
+const settingLogDefault = document.getElementById('setting-log-default');
 const settingAutopickup = document.getElementById('setting-autopickup');
 const settingMovement = document.getElementById('setting-movement');
 const settingContextualPrompts = document.getElementById('setting-contextual-prompts');
@@ -615,14 +616,6 @@ function showPlayerNotice(notice) {
   }
 }
 
-function showReadyNotice(id = 'state:your-turn') {
-  const current = uxNoticeService?.current?.();
-  if (current && ['warning', 'error'].includes(current.kind) && current.persistence !== 'transient') {
-    diagnosticEvent('interaction', 'notice.ready-suppressed-by-actionable-failure', { readyId: id, activeId: current.id, activeKind: current.kind });
-    return current;
-  }
-  return showPlayerNotice({ id, dedupeKey: id, kind: 'info', message: 'Your turn', source: 'prompt', persistence: 'until-state-change' });
-}
 
 const failureSurfaceState = new WeakMap();
 let lastContainerTransferInteractionSnapshot = null;
@@ -783,6 +776,12 @@ function showFailureNotice(input) {
   return presentation;
 }
 
+function renderCastQuickAction() {
+  const button = document.getElementById('cast-spell-button');
+  if (!button) return;
+  button.hidden = !(runningState.running && Number(gameViewSnapshot.knownSpellCount) > 0);
+}
+
 function setRunningState(state) {
   runningState = state || { running: false };
   const running = Boolean(runningState.running);
@@ -793,6 +792,7 @@ function setRunningState(state) {
   document.getElementById('shim-esc').hidden = !running;
   document.getElementById('stop').hidden = !running;
   renderContextActionBar();
+  renderCastQuickAction();
 }
 
 
@@ -1566,14 +1566,14 @@ const presentationSettingsStore = sharedModules.uxSettingsStore?.createSettingsS
   },
 });
 let userSettings = presentationSettingsStore?.load?.().settings || {
-  schemaVersion: 4,
+  schemaVersion: 5,
   contextualPrompts: 'full',
   autopickup: 'gold',
   movement: 'classic',
   hudDensity: 'compact',
   keyHints: 'contextual',
   map: { mode: 'close', closeRows: 9, minimapSize: 'medium', scale: 1, glyphOverlay: false, highContrast: false },
-  layout: { logRatio: 0.5 },
+  layout: { logRatio: null },
   motion: 'system',
   sound: { uiEnabled: false, gameFeedbackEnabled: false, volume: 0.5 },
 };
@@ -1767,7 +1767,12 @@ function resetSettings() {
 }
 
 function syncLogRatioOutput() {
-  if (settingLogRatioValue) settingLogRatioValue.value = `${Math.round(Number(settingLogRatio?.value || 50))}%`;
+  const usesDefault = settingLogRatio?.dataset.default === 'true';
+  if (settingLogRatioValue) settingLogRatioValue.value = usesDefault
+    ? '8 lines'
+    : `${Math.round(Number(settingLogRatio?.value || 50))}%`;
+  if (settingLogDefault) settingLogDefault.textContent = usesDefault ? 'Customize' : 'Use 8-line default';
+  if (settingLogRatio) settingLogRatio.disabled = usesDefault;
 }
 
 function syncSettingsForm() {
@@ -1775,7 +1780,13 @@ function syncSettingsForm() {
   if (settingMapMode) settingMapMode.value = ['full', 'follow', 'close'].includes(userSettings.map?.mode) ? userSettings.map.mode : 'close';
   if (settingCloseRows) settingCloseRows.value = String([7, 9, 11, 13, 15].includes(Number(userSettings.map?.closeRows)) ? Number(userSettings.map.closeRows) : 9);
   if (settingMinimapSize) settingMinimapSize.value = ['small', 'medium', 'large'].includes(userSettings.map?.minimapSize) ? userSettings.map.minimapSize : 'medium';
-  if (settingLogRatio) settingLogRatio.value = String(Math.round((userSettings.layout?.logRatio || 0.5) * 100));
+  if (settingLogRatio) {
+    const shellState = presentationShell()?.state?.();
+    const usesDefault = userSettings.layout?.logRatio == null;
+    const displayedRatio = usesDefault ? shellState?.effectiveLogRatio : userSettings.layout.logRatio;
+    settingLogRatio.value = String(Math.round((Number.isFinite(displayedRatio) ? displayedRatio : 0.5) * 100));
+    settingLogRatio.dataset.default = String(usesDefault);
+  }
   if (settingAutopickup) settingAutopickup.value = ['off', 'gold', 'all'].includes(userSettings.autopickup) ? userSettings.autopickup : 'gold';
   if (settingMovement) settingMovement.value = userSettings.movement === 'numpad' ? 'numpad' : 'classic';
   if (settingContextualPrompts) settingContextualPrompts.value = ['off', 'essential', 'full'].includes(userSettings.contextualPrompts) ? userSettings.contextualPrompts : 'full';
@@ -1792,7 +1803,7 @@ function settingsFromForm() {
       closeRows: [7, 9, 11, 13, 15].includes(Number(settingCloseRows?.value)) ? Number(settingCloseRows.value) : 9,
       minimapSize: ['small', 'medium', 'large'].includes(settingMinimapSize?.value) ? settingMinimapSize.value : 'medium',
     },
-    layout: { logRatio: Math.min(0.75, Math.max(0.2, Number(settingLogRatio?.value || 50) / 100)) },
+    layout: { logRatio: settingLogRatio?.dataset.default === 'true' ? null : Math.min(0.75, Math.max(0.2, Number(settingLogRatio?.value || 50) / 100)) },
     autopickup: ['off', 'gold', 'all'].includes(settingAutopickup?.value) ? settingAutopickup.value : 'gold',
     movement: settingMovement?.value === 'numpad' ? 'numpad' : 'classic',
     contextualPrompts: ['off', 'essential', 'full'].includes(settingContextualPrompts?.value) ? settingContextualPrompts.value : 'full',
@@ -1829,6 +1840,7 @@ function resetGameView() {
   closeContainerTransferPanel();
   gameView = sharedModules.gameViewState.createGameViewState({ mapWidth, mapHeight });
   gameViewSnapshot = gameView.snapshot();
+  renderCastQuickAction();
   lastRenderedGameViewMapRevision = gameViewSnapshot.mapRevision;
   publicTerrainLabelsByCoord.clear();
   publicTerrainLabelsDirty = true;
@@ -2814,23 +2826,60 @@ async function runContextAction(action) {
   gameGrid.focus({ preventScroll: true });
 }
 
-let contextActionBarSignature = '';
+const contextActionEntries = new Map();
 function renderContextActionBar() {
   if (!contextActionBar) return;
   const actions = interactionDecision('render-context-actions').contextActions;
-  contextActionBar.textContent = '';
+  let changedButtons = null;
+  let insertionPoint = contextActionBar.firstElementChild;
   for (const action of actions) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = `context-action-button${action.primary ? ' primary-context' : ''}`;
-    button.dataset.contextActionId = action.id;
-    button.textContent = action.label;
-    button.title = action.title;
-    button.addEventListener('click', () => runContextAction(action));
-    contextActionBar.appendChild(button);
+    let entry = contextActionEntries.get(action.id);
+    if (!entry) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'context-action-button';
+      button.dataset.contextActionId = action.id;
+      entry = { id: action.id, button, action: null };
+      button.addEventListener('click', () => {
+        if (contextActionEntries.get(entry.id) === entry && entry.action) runContextAction(entry.action);
+      });
+      contextActionEntries.set(action.id, entry);
+    }
+    const { button } = entry;
+    let visiblyChanged = !entry.action;
+    if (button.textContent !== action.label) {
+      button.textContent = action.label;
+      visiblyChanged = true;
+    }
+    const title = action.title || '';
+    if (button.title !== title) {
+      button.title = title;
+      visiblyChanged = true;
+    }
+    const primary = Boolean(action.primary);
+    if (button.classList.contains('primary-context') !== primary) {
+      button.classList.toggle('primary-context', primary);
+      visiblyChanged = true;
+    }
+    entry.action = action;
+    if (button !== insertionPoint) {
+      if (button.parentNode === contextActionBar) contextActionBar.moveBefore(button, insertionPoint);
+      else contextActionBar.insertBefore(button, insertionPoint);
+    }
+    insertionPoint = button.nextElementSibling;
+    if (visiblyChanged) (changedButtons ||= []).push(button);
   }
-  const feedback = globalThis.NetHackUxFeedback;
-  contextActionBarSignature = feedback?.animateContextActionBar?.(contextActionBar, contextActionBarSignature) || contextActionBarSignature;
+  while (insertionPoint) {
+    const obsolete = insertionPoint;
+    insertionPoint = obsolete.nextElementSibling;
+    const entry = contextActionEntries.get(obsolete.dataset.contextActionId);
+    if (entry?.button === obsolete) {
+      entry.action = null;
+      contextActionEntries.delete(obsolete.dataset.contextActionId);
+    }
+    obsolete.remove();
+  }
+  if (changedButtons) globalThis.NetHackUxFeedback?.animateContextActionChanges?.(changedButtons);
 }
 
 function showMapContextActionSheet(cellEl) {
@@ -4373,6 +4422,7 @@ function focusDirectionHelperButton(delta = 1) {
 }
 
 function renderDirectionHelper(query, { promptActive = true } = {}) {
+  directionHelper.dataset.directionRequired = String(promptActive);
   if (introDialog.open) return;
   if (promptActive && interactionDialog.open) closeInteractionDialog();
   directionHelper.hidden = false;
@@ -4671,7 +4721,6 @@ function renderPromptPanel() {
     hideDirectionHelper();
     promptPanel.hidden = true;
     promptPanel.textContent = 'No active prompt.';
-    if (runningState.running && !gameViewSnapshot.currentMenu?.awaitingSelection && !topmostEscapeLayer()) showReadyNotice(`state:your-turn:${gameViewSnapshot.commandTransactions?.revision || shimEventCount}`);
     return;
   }
   if (gameViewSnapshot.activePrompt.kind === 'read-only menu' || decision.owner.kind === 'menu') {
@@ -7099,6 +7148,7 @@ function summarizeTransferTransactions() {
 
 function refreshGameViewPresentation() {
   refreshGameViewSnapshot();
+  renderCastQuickAction();
   if (gameViewSnapshot.currentMenu && inventoryOverviewRequestActive() && isInventoryOverviewMenu(gameViewSnapshot.currentMenu) && gameViewSnapshot.activePrompt && sharedModules.interactionModel.isInventoryActionPrompt(gameViewSnapshot.activePrompt.query, gameViewSnapshot.activePrompt.choices)) {
     clearPromptOwnerState({ clearWorkflow: true });
   }
@@ -7287,8 +7337,12 @@ function applyGameViewEffects(effects) {
       diagnosticEvent('transaction', 'command.awaiting-core', { transactionId: item.transaction?.transactionId || '', semanticAction: item.transaction?.semanticAction || '' }, { transactionId: item.transaction?.transactionId || '' });
     }
     else if (item.type === 'command-transaction-completed') {
+      const transactionId = item.transaction?.transactionId || item.result?.transactionId || `revision-${gameViewSnapshot.commandTransactions?.revision || shimEventCount}`;
+      const ownerSnapshot = itemEquipmentOwner?.snapshot?.() || {};
+      const awaitsNativeEquipmentResult = ownerSnapshot.pendingAwaitNativeCompletion === true
+        && ownerSnapshot.pendingIntentId === transactionId;
       const uiProtocolCommand = item.transaction?.guiAction?.uiProtocol;
-      if (uiProtocolCommand?.commandId) createAndRecordCommandAck('command.completed', {
+      if (!awaitsNativeEquipmentResult && uiProtocolCommand?.commandId) createAndRecordCommandAck('command.completed', {
         commandId: uiProtocolCommand.commandId,
         commandType: uiProtocolCommand.commandType || 'action.execute',
         actionId: uiProtocolCommand.actionId || item.result?.actionId || item.transaction?.semanticActionId || '',
@@ -7299,15 +7353,18 @@ function applyGameViewEffects(effects) {
         executionSource: 'public-state-transaction',
         replayBehavior: 'replay executes recorded input events only',
       }, 'command-transaction');
-      const transactionId = item.transaction?.transactionId || item.result?.transactionId || `revision-${gameViewSnapshot.commandTransactions?.revision || shimEventCount}`;
       const semanticAction = String(item.transaction?.semanticAction || item.result?.action || 'command');
       const semanticActionId = String(item.result?.actionId || item.transaction?.semanticActionId || item.transaction?.guiAction?.actionId || '');
       const failed = item.result?.status === 'failure' || item.transaction?.status === 'rejected';
-      itemEquipmentOwner?.settle?.({
-        intentId: transactionId,
-        status: failed ? 'rejected' : 'completed',
-        reason: item.result?.reason || item.transaction?.reason || '',
-      });
+      if (!awaitsNativeEquipmentResult) {
+        itemEquipmentOwner?.settle?.({
+          intentId: transactionId,
+          status: failed ? 'rejected' : 'completed',
+          reason: item.result?.reason || item.transaction?.reason || '',
+        });
+      } else {
+        diagnosticEvent('transaction', 'equipment.awaiting-native-result', { transactionId, ignoredCompletionStatus: item.result?.status || item.transaction?.status || 'completed' }, { transactionId });
+      }
       const benignCancellation = failed && sharedModules.uxFailurePresentation?.isBenignCancellationRejection?.(item);
       if (benignCancellation) {
         diagnosticEvent('transaction', 'command.cancellation-rejection-suppressed', { reason: item.result?.reason || item.transaction?.reason || '', transactionId });
@@ -7318,12 +7375,13 @@ function applyGameViewEffects(effects) {
         diagnosticEvent('transaction', 'save.awaiting-process-ack', { transactionId, semanticActionId });
       } else if (/pick.?up/i.test(semanticAction)) {
         showPlayerNotice({ id: `command:${transactionId}:pickup`, kind: 'success', message: 'Item picked up', source: 'result', persistence: 'transient' });
-      } else {
-        showReadyNotice(`command:${transactionId}:complete`);
       }
     }
     else if (item.type === 'command-transaction-completion-rejected') {
-      itemEquipmentOwner?.settle?.({ intentId: item.transactionId || '', status: 'rejected', reason: item.reason || '' });
+      const ownerSnapshot = itemEquipmentOwner?.snapshot?.() || {};
+      if (!(ownerSnapshot.pendingAwaitNativeCompletion === true && ownerSnapshot.pendingIntentId === String(item.transactionId || ''))) {
+        itemEquipmentOwner?.settle?.({ intentId: item.transactionId || '', status: 'rejected', reason: item.reason || '' });
+      }
       if (pendingConfirmedSaveAction && (!item.transactionId || item.transactionId === pendingConfirmedSaveAction.transactionId)) pendingConfirmedSaveAction = null;
       const transferId = String(item.transactionId || item.event?.transactionId || item.rejection?.event?.transactionId || '');
       const transferOwned = Boolean(transferId && (
@@ -7492,7 +7550,6 @@ netHackAPI.onExit((exit) => {
 
 netHackAPI.onState((state) => {
   setRunningState(state);
-  if (state.running) showReadyNotice(`process:running:${state.runId || state.startedAt || 'current'}`);
 });
 
 function flushShimEvents() {
@@ -8258,7 +8315,6 @@ async function startShimRun({ playerSpec, character = null, seed = '', recording
   setStatus(result.ok ? (runKind === 'continue' ? 'previous game restored' : `dungeon running${currentRunConfig?.seed ? ` (seed ${currentRunConfig.seed})` : ''}`) : 'tile game failed to start');
   if (result.ok) {
     gameGrid.focus();
-    showReadyNotice(`run:${result.diagnostic?.runId || Date.now()}:ready`);
   } else showFailureNotice({ id: `run:start:${Date.now()}`, kind: 'recovery-failed', reason: result.message || 'game failed to start', diagnosticRef: result.diagnostic?.runId || '' });
   return result;
 }
@@ -8354,7 +8410,16 @@ document.getElementById('settings-button').addEventListener('click', () => {
   if (!settingsDialog.open) { uxFocusLayer?.prepareOpen?.(settingsDialog, document.getElementById('settings-button')); settingsDialog.showModal(); }
 });
 document.getElementById('settings-reset').addEventListener('click', resetSettings);
-settingLogRatio?.addEventListener('input', syncLogRatioOutput);
+settingLogRatio?.addEventListener('input', () => {
+  settingLogRatio.dataset.default = 'false';
+  syncLogRatioOutput();
+});
+settingLogDefault?.addEventListener('click', () => {
+  const usesDefault = settingLogRatio?.dataset.default === 'true';
+  settingLogRatio.dataset.default = String(!usesDefault);
+  syncLogRatioOutput();
+  if (usesDefault) settingLogRatio?.focus?.();
+});
 settingsForm.addEventListener('submit', (event) => {
   if (event.submitter?.id === 'settings-save') saveSettings(settingsFromForm());
 });
@@ -9019,6 +9084,11 @@ function equipmentChangePayloadForAction(action = {}, item = {}, route = {}) {
     ? Object.entries(sharedModules.equipmentSnapshotAdapter?.wornMasks || {}).find(([, mask]) => (wornMask & mask) !== 0)?.[0] || ''
     : '';
   const slotId = requestedSlotId || occupiedSlotId;
+  if ((actionId === 'item.swapArmor' || actionId === 'item.wear') && route?.directEquipmentChange === true) {
+    return Number.isInteger(itemId) && itemId > 0 && slotId.startsWith('armor.')
+      ? { action: 'wearArmor', itemId, slotId }
+      : null;
+  }
   if (actionId === 'item.takeOff' && ['armor.body', 'armor.cloak', 'armor.shirt'].includes(slotId)) return null;
   if (actionId === 'item.takeOff') return Number.isInteger(itemId) && itemId > 0 ? { action: 'takeOff', itemId, ...(slotId ? { slotId } : {}) } : null;
   if (actionId === 'item.remove.accessory') return Number.isInteger(itemId) && itemId > 0 ? { action: 'removeAccessory', itemId, ...(slotId ? { slotId } : {}) } : null;

@@ -11,6 +11,7 @@ const gameProcess = fs.readFileSync(path.join(root, 'src/main/game-process.js'),
 const preload = fs.readFileSync(path.join(root, 'src/preload.js'), 'utf8');
 const protocol = require('../src/shared/shim-protocol');
 const LaunchPolicy = require('../src/main/launch-policy');
+const packageJson = fs.readFileSync(path.join(root, 'package.json'), 'utf8');
 
 function listScenarioFiles(dir = scenarioRoot) {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -75,6 +76,8 @@ assert.ok(allmain.includes('electron_test_planned_accessible'), 'planned map/ter
 assert.ok(allmain.includes('electron_test_terrain_passable'), 'planned closed doors must be treated as impassable for placements');
 assert.ok(allmain.includes('unsupported monster typeId'), 'monster type IDs must fail closed');
 assert.ok(allmain.includes('unsupported terrain type'), 'terrain types must fail closed');
+assert.ok(allmain.includes('electron_test_parse_gas_clouds'), 'scenario loader must parse native gas cloud regions');
+assert.ok(allmain.includes('create_gas_cloud(x, y'), 'scenario loader must create gas clouds through the NetHack region implementation');
 assert.ok(allmain.includes('electron_test_parse_event_results'), 'event result forcing must use schema parser/validator support');
 assert.ok(allmain.includes('unsupported eventResults event/result'), 'event result forcing must fail closed for unsupported outcomes');
 assert.ok(allmain.includes('electron_test_consume_event_result'), 'fixture event result consumers must use a generic queue API');
@@ -91,6 +94,7 @@ assert.ok(bridge.includes('/electron-poc/test/scenarios/%s.json'), 'scenario IDs
 assert.ok(bridge.includes('scenario path is too long'), 'scenario ID path truncation must fail');
 assert.ok(bridge.includes('NH_TEST_PLAYGROUND'), 'bridge must support per-test playground/root override');
 assert.ok(bridge.includes('NETHACK_SEED requires NH_ELECTRON_TEST_FIXTURES build and runtime gate'), 'bridge must not honor deterministic seeds outside fixture gates');
+assert.match(packageJson, /make -C \.\.\/src WANT_LIBNH=1 CC='cc -DNH_ELECTRON_TEST_FIXTURES' libnh\.a/, 'fixture build must compile the NetHack core with NH_ELECTRON_TEST_FIXTURES, not only define it for the bridge translation unit');
 assert.equal(LaunchPolicy.launchEnv({ NETHACK_SEED: '123', NH_ELECTRON_CHOSEN_SEED: '123', NH_TEST_SCENARIO_ID: 'equipment/both-rings-occupied', NH_TEST_PLAYGROUND: '/tmp/nh', NH_TEST_FORCE_DOWNSTAIRS_UNDER_HERO: '1', KEEP_ME: 'yes' }).NETHACK_SEED, undefined, 'launch policy strips deterministic seed env by default');
 assert.equal(LaunchPolicy.launchEnv({ NETHACK_SEED: '123', NH_ELECTRON_CHOSEN_SEED: '123', NH_TEST_SCENARIO_ID: 'equipment/both-rings-occupied', NH_TEST_PLAYGROUND: '/tmp/nh', NH_TEST_FORCE_DOWNSTAIRS_UNDER_HERO: '1', KEEP_ME: 'yes' }).NH_TEST_SCENARIO_ID, undefined, 'launch policy strips fixture scenario env by default');
 assert.equal(LaunchPolicy.launchEnv({ NETHACK_SEED: '123', KEEP_ME: 'yes' }).KEEP_ME, 'yes', 'launch policy preserves ordinary runtime env');

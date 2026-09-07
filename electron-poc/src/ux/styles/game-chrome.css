@@ -287,6 +287,7 @@ body.uxm02-shell-active #direction-helper {
 #ux-items-root .uxm-items-workspace {
   border-radius: var(--ux-radius-overlay);
   overflow: hidden;
+  background: var(--ux-gradient-frame);
 }
 
 #ux-items-root .uxm-items-topbar {
@@ -700,8 +701,8 @@ body.uxm02-shell-active #direction-helper {
   transform: translate(-50%, -50%);
   border-radius: var(--ux-radius-overlay);
   color: var(--ux-color-text);
-  background: var(--ux-gradient-plate);
-  border: 1px solid color-mix(in oklch, var(--ux-color-action) 45%, var(--ux-color-border));
+  background: var(--ux-gradient-frame);
+  border: 1px solid color-mix(in oklch, var(--ux-color-action) 55%, var(--ux-color-border));
   box-shadow:
     var(--ux-shadow-plate),
     0 0 0 100vmax oklch(0.05 0.01 70 / 0.55);
@@ -767,11 +768,13 @@ body.uxm02-shell-active #direction-helper {
 
 /* ---- Dialogs / command surfaces ---- */
 dialog {
-  border: 1px solid color-mix(in oklch, var(--ux-color-action) 35%, var(--ux-color-border)) !important;
+  border: 1px solid color-mix(in oklch, var(--ux-color-action) 48%, var(--ux-color-border)) !important;
   border-radius: var(--ux-radius-overlay) !important;
-  background: var(--ux-gradient-plate) !important;
+  background: var(--ux-gradient-frame) !important;
   color: var(--ux-color-text) !important;
-  box-shadow: var(--ux-shadow-plate) !important;
+  box-shadow:
+    var(--ux-shadow-plate),
+    inset 0 0 0 1px rgb(242 232 208 / 0.035) !important;
 }
 
 dialog::backdrop {
@@ -810,16 +813,16 @@ body.uxm02-shell-active button,
   border-radius: var(--ux-radius-control);
 }
 
-/* Command palette / help if present */
+/* Command palette and help use the same engraved frame as other overlays. */
 #command-palette,
 .command-palette,
 #ux-command-palette,
 .ux-command-palette,
 #ux-help-center,
 .ux-help-center {
-  border: 1px solid color-mix(in oklch, var(--ux-color-action) 40%, var(--ux-color-border));
+  border: 1px solid color-mix(in oklch, var(--ux-color-action) 48%, var(--ux-color-border));
   border-radius: var(--ux-radius-overlay);
-  background: var(--ux-gradient-plate);
+  background: var(--ux-gradient-frame);
   box-shadow: var(--ux-shadow-plate);
 }
 
@@ -846,3 +849,214 @@ body.uxm02-shell-active button,
   }
 }
 
+
+/* ---- Discovery and menu finish ---- */
+.ux-command-palette-heading,
+.ux-help-heading,
+.ux-character-heading {
+  border-bottom-color: color-mix(in oklch, var(--ux-color-action) 28%, var(--ux-color-border));
+  background: var(--ux-gradient-banner);
+  box-shadow: inset 0 -1px 0 rgb(0 0 0 / 0.5);
+}
+
+.ux-command-palette-heading h2,
+.ux-help-heading h2,
+.ux-character-heading h2 {
+  color: color-mix(in oklch, var(--ux-color-text) 90%, var(--ux-color-action));
+  font-family: var(--ux-font-display);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 5px rgb(0 0 0 / 0.52);
+}
+
+.ux-command-search,
+.ux-help-search {
+  border-bottom: 1px solid color-mix(in oklch, var(--ux-color-action) 16%, var(--ux-color-border));
+  background: rgb(8 12 10 / 0.34);
+}
+
+.ux-command-search input,
+.ux-help-search input {
+  border-color: var(--ux-color-border-strong);
+  background: var(--ux-color-well);
+  box-shadow: var(--ux-shadow-well);
+}
+
+.ux-command-group h3,
+.ux-help-topic h3 {
+  color: color-mix(in oklch, var(--ux-color-action) 70%, var(--ux-color-text-muted));
+  font-family: var(--ux-font-display);
+  letter-spacing: 0.07em;
+}
+
+.ux-command-row {
+  border-bottom-color: color-mix(in oklch, var(--ux-color-border) 62%, transparent);
+}
+
+.ux-command-row:hover:not(:disabled) {
+  background:
+    linear-gradient(90deg, rgb(216 186 114 / 0.09), transparent 58%),
+    color-mix(in oklch, var(--ux-color-surface-raised) 58%, transparent);
+  box-shadow: inset 2px 0 0 color-mix(in oklch, var(--ux-color-action) 65%, transparent);
+}
+
+.ux-command-row[aria-selected='true'] {
+  border-color: color-mix(in oklch, var(--ux-color-selection) 72%, var(--ux-color-border));
+  background:
+    linear-gradient(90deg, rgb(134 187 176 / 0.12), transparent 68%),
+    var(--ux-color-selection-fill);
+  box-shadow:
+    inset 3px 0 0 var(--ux-color-selection),
+    inset 0 1px 0 rgb(242 232 208 / 0.04);
+}
+
+.ux-command-copy strong {
+  color: var(--ux-color-text);
+  font-weight: 700;
+}
+
+.ux-command-copy small {
+  color: var(--ux-color-text-muted);
+}
+
+.ux-help-tabs {
+  border-bottom-color: color-mix(in oklch, var(--ux-color-action) 22%, var(--ux-color-border));
+  background: rgb(8 12 10 / 0.28);
+}
+
+.ux-help-tabs button {
+  color: var(--ux-color-text-muted);
+}
+
+.ux-help-tabs button[aria-selected='true'] {
+  color: var(--ux-color-action-hover);
+  border-bottom-color: var(--ux-color-action);
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.7);
+}
+
+.ux-help-body,
+.ux-command-results {
+  background:
+    radial-gradient(circle at 50% 0%, rgb(216 186 114 / 0.035), transparent 24rem),
+    transparent;
+}
+
+
+.ux-item-context-menu,
+.inventory-context-menu,
+#ux-items-root .uxm-item-context-menu,
+#ux-items-root .uxm-native-followup {
+  border-top-color: color-mix(in oklch, var(--ux-color-action) 78%, var(--ux-color-border-strong));
+  background: var(--ux-gradient-plate);
+  box-shadow: var(--ux-shadow-plate);
+}
+
+/* The illustrated hero stays bright against a deeper alcove. */
+#ux-items-root .uxm-paper-doll-stage {
+  border-color: color-mix(in oklch, var(--ux-color-action) 28%, var(--ux-color-border-strong));
+  background:
+    radial-gradient(ellipse 42% 62% at 50% 42%, rgb(216 186 114 / 0.14), transparent 70%),
+    radial-gradient(ellipse 72% 50% at 50% 100%, rgb(0 0 0 / 0.66), transparent 62%),
+    linear-gradient(180deg, #181b17, #0b100e);
+  box-shadow:
+    inset 0 0 3rem rgb(0 0 0 / 0.55),
+    inset 0 1px 0 rgb(242 232 208 / 0.045);
+}
+
+#ux-items-root .uxm-full-character {
+  filter:
+    drop-shadow(0 16px 22px rgb(0 0 0 / 0.62))
+    drop-shadow(0 2px 5px rgb(216 186 114 / 0.12));
+}
+
+#ux-items-root .uxm-items-workspace {
+  animation: ux-reliquary-materialize var(--ux-motion-standard) var(--ux-motion-ease-out);
+}
+
+@keyframes ux-reliquary-materialize {
+  from {
+    filter: brightness(0.82) saturate(0.78);
+    box-shadow:
+      0 10px 28px rgb(0 0 0 / 0.38),
+      0 2px 7px rgb(0 0 0 / 0.25);
+  }
+  to {
+    filter: brightness(1) saturate(1);
+    box-shadow: var(--ux-shadow-plate);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #ux-items-root .uxm-items-workspace {
+    animation: none;
+  }
+}
+
+body[data-ux-motion='reduced'] #ux-items-root .uxm-items-workspace {
+  animation: none;
+}
+
+/* Engraved corners mark the dungeon aperture without covering its tiles. */
+body.uxm02-shell-active #play-area {
+  position: relative;
+  outline: 1px solid rgb(216 186 114 / 0.18);
+  outline-offset: 3px;
+}
+
+body.uxm02-shell-active #play-area::after {
+  position: absolute;
+  z-index: 5;
+  inset: 7px;
+  background:
+    linear-gradient(90deg, rgb(238 211 145 / 0.78), transparent) left top / 42px 2px no-repeat,
+    linear-gradient(180deg, rgb(238 211 145 / 0.78), transparent) left top / 2px 42px no-repeat,
+    linear-gradient(270deg, rgb(238 211 145 / 0.78), transparent) right top / 42px 2px no-repeat,
+    linear-gradient(180deg, rgb(238 211 145 / 0.78), transparent) right top / 2px 42px no-repeat,
+    linear-gradient(90deg, rgb(238 211 145 / 0.5), transparent) left bottom / 42px 2px no-repeat,
+    linear-gradient(0deg, rgb(238 211 145 / 0.5), transparent) left bottom / 2px 42px no-repeat,
+    linear-gradient(270deg, rgb(238 211 145 / 0.5), transparent) right bottom / 42px 2px no-repeat,
+    linear-gradient(0deg, rgb(238 211 145 / 0.5), transparent) right bottom / 2px 42px no-repeat;
+  content: '';
+  pointer-events: none;
+}
+
+.ux-command-palette-heading h2,
+.ux-help-heading h2,
+.ux-character-heading h2,
+#startup-choice-title,
+#intro-title,
+#settings-title {
+  font-size: clamp(1.75rem, 2.2vw, 2.2rem);
+  line-height: 1.08;
+}
+
+.ux-command-palette-heading h2::after,
+.ux-help-heading h2::after,
+.ux-character-heading h2::after,
+#startup-choice-title::after,
+#intro-title::after,
+#settings-title::after {
+  display: block;
+  width: 5.5rem;
+  height: 2px;
+  margin-top: 0.48rem;
+  background:
+    linear-gradient(90deg, var(--ux-color-action), rgb(216 186 114 / 0.2) 72%, transparent);
+  box-shadow: 0 1px 5px rgb(216 186 114 / 0.14);
+  content: '';
+}
+
+@media (max-width: 1050px), (max-height: 760px) {
+  body.uxm02-shell-active #play-area::after {
+    inset: 5px;
+  }
+
+  .ux-command-palette-heading h2,
+  .ux-help-heading h2,
+  .ux-character-heading h2,
+  #startup-choice-title,
+  #intro-title,
+  #settings-title {
+    font-size: 1.65rem;
+  }
+}

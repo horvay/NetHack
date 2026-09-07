@@ -22,16 +22,10 @@
     <link rel="stylesheet" href="./ux/styles/reliquary-theme.css" />
   </head>
   <body class="reliquary-skin">
-    <div class="reliquary-atmosphere" aria-hidden="true">
-      <div class="reliquary-vignette"></div>
-      <div class="reliquary-embers"></div>
-      <div class="reliquary-grain"></div>
-    </div>
     <header class="reliquary-header">
       <div class="brand-lockup">
         <span class="brand-sigil" aria-hidden="true"></span>
         <div>
-          <p class="brand-kicker">Dungeons of Doom</p>
           <h1>NetHack</h1>
           <p id="paths">Loading project paths…</p>
         </div>
@@ -63,6 +57,7 @@
         <div id="quick-actions" aria-label="Compact common NetHack actions">
           <button type="button" id="inventory-equipment-button" class="primary compact-action-button" data-command-key="i" title="Open the RPG hero equipment and carried inventory screen (keyboard shortcut: i)">Inventory / Equipment (i)</button>
           <button type="button" id="open-actions" class="primary compact-action-button" aria-haspopup="dialog" aria-controls="action-dialog">Use item / Actions</button>
+          <button type="button" id="cast-spell-button" data-command-key="Z" title="Cast a spell (Z)" hidden>Cast</button>
           <button type="button" data-command-key=",">Pick up</button>
           <button type="button" data-command-key="s">Search</button>
           <button type="button" data-command-key=".">Wait</button>
@@ -78,7 +73,7 @@
         </section>
         <div id="context-action-bar" aria-label="Contextual actions for current position"></div>
         <div id="play-area">
-          <div id="game-grid" data-testid="game-grid" aria-label="Tile NetHack full-level dungeon grid"></div>
+          <div id="game-grid" data-testid="game-grid" data-ux-focus-preserve-scroll aria-label="Tile NetHack full-level dungeon grid"></div>
           <section id="container-transfer-panel" class="container-transfer-panel" role="dialog" aria-modal="true" data-dialog-family="transfer" hidden></section>
           <div id="map-tooltip" class="map-tooltip" role="tooltip" hidden>
             <div id="map-tooltip-icon" class="map-tooltip-icon" aria-hidden="true"></div>
@@ -89,7 +84,7 @@
             <ul id="map-tooltip-contents" class="map-tooltip-contents" aria-label="Everything visible on this square"></ul>
           </div>
         </div>
-        <div id="map-log-resizer" class="map-log-resizer" role="separator" tabindex="0" aria-label="Resize map and message log" aria-orientation="horizontal" aria-controls="play-area log-panel" aria-valuemin="20" aria-valuemax="75" aria-valuenow="50" title="Drag to resize the map and message log. Use Up and Down arrows for keyboard resizing.">
+        <div id="map-log-resizer" class="map-log-resizer" role="separator" tabindex="0" aria-label="Resize map and message log" aria-orientation="horizontal" aria-controls="play-area log-panel" aria-valuemin="20" aria-valuemax="75" aria-valuenow="50" aria-valuetext="Default, eight message lines" title="Drag to resize the map and message log. Use Up and Down arrows for keyboard resizing.">
           <span aria-hidden="true"></span>
         </div>
         <section id="log-panel" aria-label="NetHack message log">
@@ -102,6 +97,7 @@
             <aside id="direction-helper" aria-label="Direction/action helper" hidden>
               <div class="direction-helper-heading">
                 <strong id="direction-helper-title">Choose direction</strong>
+                <span class="ux-direction-prompt-cue" aria-hidden="true">Pick a direction</span>
               </div>
               <div id="direction-helper-options" class="direction-pad"></div>
             </aside>
@@ -340,10 +336,11 @@
                 </select>
                 <small>Sets the size of the current-level Minimap in Close-up View. Medium is the default.</small>
               </label>
-              <label class="settings-range-row">Message log size
-                <span><input id="setting-log-ratio" type="range" min="20" max="75" step="1" aria-describedby="setting-log-ratio-help setting-log-ratio-value" /><output id="setting-log-ratio-value" for="setting-log-ratio">50%</output></span>
-                <small id="setting-log-ratio-help">Sets how much of the workspace the latest consequences occupy. You can still drag the divider during play.</small>
-              </label>
+              <div class="settings-range-row">
+                <label for="setting-log-ratio">Message log height</label>
+                <span><input id="setting-log-ratio" type="range" min="20" max="75" step="1" aria-describedby="setting-log-ratio-help setting-log-ratio-value" /><output id="setting-log-ratio-value" for="setting-log-ratio">8 lines</output><button id="setting-log-default" type="button">Customize</button></span>
+                <small id="setting-log-ratio-help">The default gives message text eight line heights and leaves the remaining workspace for the map. A custom slider or divider position is saved.</small>
+              </div>
               <label class="settings-select-row">Motion
                 <select id="setting-motion" aria-describedby="setting-motion-help">
                   <option value="system">System default</option>
@@ -441,9 +438,7 @@
     <dialog id="intro-dialog" class="intro-dialog" aria-labelledby="intro-title" data-testid="intro-dialog">
       <form method="dialog" id="intro-form">
         <div class="intro-frame">
-          <div class="intro-kicker">Chronicle of the Dungeons of Doom</div>
           <h2 id="intro-title">The Book of Tyr</h2>
-          <div class="intro-seal" aria-hidden="true">⚔</div>
           <div id="intro-body" class="intro-body" data-testid="intro-body"></div>
           <div class="intro-objective">
             <span class="objective-label">Quest</span>

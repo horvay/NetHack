@@ -30,6 +30,10 @@ async function state(driver) {
     dialogs: Array.from(document.querySelectorAll('dialog[open]')).map((dialog) => dialog.id),
     actions: window.__nethackPromptTest?.contextActions?.(),
     sent: window.__nethackPromptTest?.sentInputs?.().join('') || '',
+    containerSnapshotRejections: (window.__nethackPromptTest?.shimEvents?.() || [])
+      .map((entry) => entry?.event || entry?.raw || entry)
+      .filter((event) => event?.name === 'shim_container_snapshot_rejected')
+      .slice(-8),
     sentUiProtocolCommands: window.__nethackPromptTest?.sentUiProtocolCommands?.() || [],
     sentPayloads: window.__nethackPromptTest?.sentPayloads?.() || [],
     prompt: window.__nethackPromptTest?.prompt?.(),
@@ -47,6 +51,9 @@ async function state(driver) {
 
 function actionText(s) {
   return (s.actions?.buttons || []).map((button) => `${button.id}:${button.text}`).join('\n');
+}
+function lockedSnapshotRejection(s) {
+  return (s.containerSnapshotRejections || []).find((event) => event?.status === 'rejected' && event?.failureKind === 'locked');
 }
 async function shot(cdp, name) {
   const capture = await cdp.screenshotEvidence(cdp.qc, path.basename(name, path.extname(name)), { classification: 'synthetic-fixture', viewport: { width, height, zoomPercent: 100 }, state: name, viewSafeFormat: 'BMP', viewSafeScale: 0.25 });
@@ -101,7 +108,7 @@ async function main() {
     const afterOpen = await waitFor(async () => {
       const s = await state(cdp);
       const text = `${s.interaction?.title || ''}\n${s.interaction?.prompt || ''}\n${(s.interaction?.options || []).map((option) => option.text).join('\n')}`;
-      return /shim_container_snapshot_rejected/.test(s.shimTail || '') && /failureKind":"locked/.test(s.shimTail || '') && /Locked chest actions/i.test(text) && /Unlock with skeleton key/i.test(text) && /Close/i.test(text) && !s.container?.active ? s : null;
+      return lockedSnapshotRejection(s) && /Locked chest actions/i.test(text) && /Unlock with skeleton key/i.test(text) && /Close/i.test(text) && !s.container?.active ? s : null;
     }, 12000).catch(async (error) => {
       const debug = await state(cdp).catch(() => ({}));
       writeJson(outDir, 'debug-after-open-timeout-state.json', debug);
@@ -113,9 +120,11 @@ async function main() {
     
     const actionSheetText = `${afterOpen.interaction?.title || ''}\n${afterOpen.interaction?.prompt || ''}\n${(afterOpen.interaction?.options || []).map((option) => option.text).join('\n')}`;
     assert('Open container dispatches typed container.snapshot and no #loot fallback', afterOpen.sent === '' && afterOpen.sentUiProtocolCommands.some((command) => command.commandType === 'container.snapshot' && command.payload?.containerId > 0), JSON.stringify({ sent: afterOpen.sent, commands: afterOpen.sentUiProtocolCommands }));
-    assert('Bridge returns structured locked rejection', /shim_container_snapshot_rejected[^\n]*"failureKind":"locked"/.test(afterOpen.shimTail || ''), afterOpen.shimTail);
+    const lockedRejection = lockedSnapshotRejection(afterOpen);
+    assert('Bridge returns structured locked rejection', lockedRejection && lockedRejection.commandId === afterOpen.sentUiProtocolCommands.find((command) => command.commandType === 'container.snapshot')?.commandId, JSON.stringify({ rejection: lockedRejection, commands: afterOpen.sentUiProtocolCommands }));
     assert('Locked rejection closes the transfer panel and opens a player-facing action sheet', !afterOpen.container?.active && afterOpen.interaction?.interactionOpen && /Locked chest actions/i.test(actionSheetText), JSON.stringify({ container: afterOpen.container, interaction: afterOpen.interaction }));
-    assert('Action sheet names the available key path without offering an unavailable force path', /Unlock with skeleton key/i.test(actionSheetText) && !/Force (?:lock|with)/i.test(actionSheetText), actionSheetText);
+    const publicKey = afterOpen.inventory?.items?.find((item) => item.displayName === 'a skeleton key' && item.known?.identity === true && item.semanticName === 'skeleton key' && item.actionAffordances?.includes('apply'));
+    assert('Action sheet names the fixture-declared skeleton key path without offering an unavailable force path', publicKey && /Unlock with skeleton key/i.test(actionSheetText) && !/Force (?:lock|with)/i.test(actionSheetText), JSON.stringify({ publicKey, actionSheetText }));
     assert('Action sheet has a clear cancel path and no loading or timeout fallback', /Close|Cancel/i.test(actionSheetText) && !/Loading container contents|did not finish opening|normal NetHack flow/i.test(`${afterOpen.body}\n${actionSheetText}`), `${afterOpen.body}\n${actionSheetText}`);
     await cdp.click('#interaction-options .choice-button');
     const afterUnlock = await waitFor(async () => {

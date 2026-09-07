@@ -491,6 +491,9 @@
   function cellSignature(cell = {}) {
     return publicCopy([cell.ch, cell.backgroundGlyph, cell.semanticKind, cell.semanticName, cell.semanticAppearance, cell.backgroundSemanticKind, cell.backgroundSemanticName, cell.objectLayerSemanticKind, cell.objectLayerSemanticName, cell.objectLayerSemanticAppearance, ...cellTokens(cell)].join(' ')).toLowerCase();
   }
+  function isEngulfmentCell(cell = {}) {
+    return String(cell.semanticKind || '').toLowerCase() === 'engulfment';
+  }
   function cellHas(cell, token) { return cellTokens(cell).includes(token) || cellSignature(cell).includes(token); }
   function groundPileAt(gameView, cursor) {
     const piles = gameView?.groundPiles?.pilesByCoord;
@@ -509,8 +512,17 @@
     if (!pile && gameView.currentMenu?.suppressPicker && isGroundLookMenu(gameView.currentMenu)) for (const item of gameView.currentMenu.items || []) groundTexts.push(menuItemName(item));
     if (!groundTexts.length && /\b(?:object|food|corpse|item|container|chest|box|bag|sack)\b/.test(cellSignature(currentCell))) groundTexts.push(text(currentCell.objectLayerSemanticName || currentCell.semanticName || currentCell.semanticAppearance));
     const uniqueGroundTexts = [...new Set(groundTexts.filter(Boolean).map((value) => value.replace(/\s+/g, ' ').trim()))];
+    let engulfed = false;
+    for (let y = Math.max(0, cursor.y - 1); !engulfed && y <= Math.min((gameView.mapHeight || 21) - 1, cursor.y + 1); y += 1) {
+      for (let x = Math.max(0, cursor.x - 1); x <= Math.min((gameView.mapWidth || 80) - 1, cursor.x + 1); x += 1) {
+        if ((x !== cursor.x || y !== cursor.y) && isEngulfmentCell(gameView.mapCells?.[y]?.[x])) {
+          engulfed = true;
+          break;
+        }
+      }
+    }
     const terrainText = `${input.terrainLabel || ''} ${cellSignature(currentCell)}`.toLowerCase();
-    return { gameView, cursor, currentCell, pile, pileItems, groundTexts: uniqueGroundTexts, terrainText };
+    return { gameView, cursor, currentCell, pile, pileItems, groundTexts: uniqueGroundTexts, terrainText, engulfed };
   }
   function stairDirection(cell = {}) {
     const value = cellSignature(cell);
@@ -533,6 +545,7 @@
   function publicInventoryItems(gameView) { return gameView?.inventory?.orderedItems || gameView?.cachedInventoryChoices || []; }
   function selectorForItem(item) { return item?.letter || item?.selectorKey || selectorCharacter(item?.selector); }
   function actionsForCurrentSquare(input, facts) {
+    if (facts.engulfed) return [];
     const actions = [];
     const groundText = facts.groundTexts.join(' ');
     const groundTokens = new Set(facts.pileItems.flatMap((item) => item.actionAffordances || []));
@@ -567,6 +580,7 @@
     const direction = directionKeys[`${dx},${dy}`];
     if (!direction) return [];
     const cell = facts.gameView.mapCells?.[y]?.[x] || {};
+    if (isEngulfmentCell(cell)) return [];
     const signature = cellSignature(cell);
     const labelDirection = directionLabels[direction];
     const actions = [];

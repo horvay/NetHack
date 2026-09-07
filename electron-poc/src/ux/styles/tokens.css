@@ -1,36 +1,35 @@
 :root {
   color-scheme: dark;
 
-  /* Obsidian Reliquary — cold stone, copper ember, ward cyan */
-  --ux-color-canvas: oklch(0.11 0.028 265);
-  --ux-color-surface: oklch(0.155 0.03 268);
-  --ux-color-surface-raised: oklch(0.205 0.034 270);
-  --ux-color-surface-muted: oklch(0.135 0.026 262);
-  --ux-color-well: oklch(0.1 0.03 258);
-  --ux-color-plate-mid: oklch(0.19 0.032 268);
-  --ux-color-text: oklch(0.93 0.018 95);
-  --ux-color-text-muted: oklch(0.74 0.03 250);
-  --ux-color-text-faint: oklch(0.58 0.028 255);
-  --ux-color-border: oklch(0.36 0.04 270);
-  --ux-color-border-strong: oklch(0.48 0.055 55);
-  --ux-color-rule: oklch(0.62 0.1 55 / 0.45);
-  --ux-color-action: oklch(0.76 0.155 58);
-  --ux-color-action-hover: oklch(0.84 0.16 62);
-  --ux-color-action-ink: oklch(0.16 0.04 55);
-  --ux-color-focus: oklch(0.86 0.12 95);
-  --ux-color-selection: oklch(0.78 0.11 210);
-  --ux-color-selection-fill: oklch(0.32 0.06 220 / 0.45);
-  --ux-color-info: oklch(0.78 0.1 220);
-  --ux-color-success: oklch(0.74 0.13 150);
-  --ux-color-warning: oklch(0.82 0.14 70);
-  --ux-color-danger: oklch(0.66 0.2 22);
-  --ux-color-error: oklch(0.7 0.2 20);
-  --ux-color-ember: oklch(0.7 0.18 40);
-  --ux-color-ward: oklch(0.8 0.12 210);
-  --ux-color-blood: oklch(0.55 0.2 18);
-  --ux-color-moss: oklch(0.62 0.1 145);
+  /* Torch-warmed stone, old leather, vellum, and aged brass. */
+  --ux-color-canvas: #0d1110;
+  --ux-color-surface: #181b18;
+  --ux-color-surface-raised: #25251f;
+  --ux-color-surface-muted: #121714;
+  --ux-color-well: #090d0c;
+  --ux-color-plate-mid: #20211c;
+  --ux-color-text: #f2e8d0;
+  --ux-color-text-muted: #c8bda2;
+  --ux-color-text-faint: #a99f89;
+  --ux-color-border: #514936;
+  --ux-color-border-strong: #83704a;
+  --ux-color-rule: #6d5c3d;
+  --ux-color-action: #d8ba72;
+  --ux-color-action-hover: #eed391;
+  --ux-color-action-ink: #211b10;
+  --ux-color-focus: #f3d98d;
+  --ux-color-selection: #86bbb0;
+  --ux-color-selection-fill: #243d39;
+  --ux-color-info: #a9c9cf;
+  --ux-color-success: oklch(0.75 0.12 150);
+  --ux-color-warning: oklch(0.82 0.14 76);
+  --ux-color-danger: oklch(0.65 0.19 24);
+  --ux-color-error: oklch(0.7 0.19 22);
+  --ux-color-ember: oklch(0.69 0.16 43);
+  --ux-color-ward: oklch(0.79 0.11 210);
+  --ux-color-blood: oklch(0.52 0.18 22);
+  --ux-color-moss: oklch(0.6 0.09 145);
 
-  /* Type: carved display + clean UI + ledger mono */
   --ux-font-display: "Palatino Linotype", Palatino, "Book Antiqua", "Iowan Old Style", "Liberation Serif", "Noto Serif", Georgia, "Times New Roman", serif;
   --ux-font-ui: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --ux-font-product: var(--ux-font-ui);
@@ -43,9 +42,9 @@
   --ux-space-6: 1.5rem;
   --ux-space-8: 2rem;
 
-  --ux-radius-control: 0.2rem;
-  --ux-radius-overlay: 0.35rem;
-  --ux-radius-socket: 0.15rem;
+  --ux-radius-control: 0.3rem;
+  --ux-radius-overlay: 0.65rem;
+  --ux-radius-socket: 0.2rem;
 
   --ux-motion-instant: 90ms;
   --ux-motion-fast: 150ms;
@@ -59,43 +58,43 @@
   --ux-window-min-width: 960px;
   --ux-window-min-height: 720px;
 
-  /* Material recipes — carved stone, hammered copper, deep wells */
+  /* Material recipes stay shared so dungeon, menus, and equipment belong together. */
   --ux-shadow-plate:
-    inset 0 1px 0 oklch(0.85 0.06 90 / 0.12),
-    inset 0 0 0 1px oklch(0.05 0.02 265 / 0.75),
-    0 0 0 1px oklch(0.45 0.08 55 / 0.18),
-    0 22px 50px oklch(0.04 0.02 265 / 0.65);
+    0 18px 46px rgb(0 0 0 / 0.48),
+    0 3px 10px rgb(0 0 0 / 0.35);
   --ux-shadow-well:
-    inset 0 3px 14px oklch(0.04 0.02 260 / 0.75),
-    inset 0 0 0 1px oklch(0.5 0.08 55 / 0.12);
+    inset 0 1px 8px rgb(0 0 0 / 0.58),
+    inset 0 0 0 1px rgb(238 211 145 / 0.025);
   --ux-shadow-socket:
-    inset 0 2px 8px oklch(0.04 0.02 260 / 0.8),
-    inset 0 0 0 1px oklch(0.55 0.1 55 / 0.15);
+    inset 0 1px 5px rgb(0 0 0 / 0.62),
+    0 1px 0 rgb(238 211 145 / 0.08);
   --ux-shadow-keycap:
-    inset 0 1px 0 oklch(0.9 0.05 90 / 0.16),
-    inset 0 -1px 0 oklch(0.08 0.02 265 / 0.6),
-    0 1px 0 oklch(0.04 0.02 265 / 0.4);
-  --ux-shadow-ember:
-    0 0 18px oklch(0.65 0.16 50 / 0.35),
-    0 0 2px oklch(0.8 0.14 60 / 0.5);
-  --ux-shadow-ward:
-    0 0 16px oklch(0.7 0.12 210 / 0.35),
-    0 0 2px oklch(0.85 0.1 210 / 0.45);
+    inset 0 1px 0 rgb(255 241 204 / 0.12),
+    inset 0 -1px 0 rgb(0 0 0 / 0.55),
+    0 2px 5px rgb(0 0 0 / 0.28);
+  --ux-shadow-ember: 0 2px 12px oklch(0.69 0.16 43 / 0.24);
+  --ux-shadow-ward: 0 2px 12px oklch(0.79 0.11 210 / 0.2);
   --ux-gradient-plate:
-    radial-gradient(120% 90% at 50% -10%, oklch(0.32 0.05 55 / 0.28), transparent 55%),
-    radial-gradient(90% 70% at 100% 100%, oklch(0.28 0.05 265 / 0.35), transparent 50%),
-    linear-gradient(165deg, oklch(0.22 0.035 270), oklch(0.145 0.03 262));
+    radial-gradient(ellipse 90% 52% at 50% 0%, rgb(216 186 114 / 0.085), transparent 68%),
+    linear-gradient(155deg, #282a24 0%, #1b1e1a 48%, #111512 100%);
+  --ux-gradient-frame:
+    linear-gradient(90deg, rgb(238 211 145 / 0.78), rgb(131 112 74 / 0.2)) left 10px top 10px / 34px 1px no-repeat,
+    linear-gradient(180deg, rgb(238 211 145 / 0.78), rgb(131 112 74 / 0.2)) left 10px top 10px / 1px 34px no-repeat,
+    linear-gradient(270deg, rgb(238 211 145 / 0.78), rgb(131 112 74 / 0.2)) right 10px top 10px / 34px 1px no-repeat,
+    linear-gradient(180deg, rgb(238 211 145 / 0.78), rgb(131 112 74 / 0.2)) right 10px top 10px / 1px 34px no-repeat,
+    linear-gradient(90deg, rgb(238 211 145 / 0.58), rgb(131 112 74 / 0.16)) left 10px bottom 10px / 34px 1px no-repeat,
+    linear-gradient(0deg, rgb(238 211 145 / 0.58), rgb(131 112 74 / 0.16)) left 10px bottom 10px / 1px 34px no-repeat,
+    linear-gradient(270deg, rgb(238 211 145 / 0.58), rgb(131 112 74 / 0.16)) right 10px bottom 10px / 34px 1px no-repeat,
+    linear-gradient(0deg, rgb(238 211 145 / 0.58), rgb(131 112 74 / 0.16)) right 10px bottom 10px / 1px 34px no-repeat,
+    radial-gradient(ellipse 90% 52% at 50% 0%, rgb(216 186 114 / 0.1), transparent 68%),
+    linear-gradient(155deg, #292b25 0%, #1b1e1a 48%, #101411 100%);
   --ux-gradient-banner:
-    linear-gradient(180deg, oklch(0.24 0.04 268), oklch(0.16 0.03 265));
+    linear-gradient(180deg, #3a3529 0%, #25241e 48%, #171a17 100%);
   --ux-gradient-primary:
-    linear-gradient(180deg, oklch(0.86 0.15 62), oklch(0.62 0.15 48));
+    linear-gradient(180deg, #efd693 0%, #d8b96f 52%, #b9944d 100%);
   --ux-gradient-metal:
-    linear-gradient(180deg, oklch(0.28 0.03 270), oklch(0.16 0.028 265));
+    linear-gradient(180deg, #33342d 0%, #262820 48%, #1b201c 100%);
   --ux-gradient-ember:
-    radial-gradient(circle at 30% 20%, oklch(0.78 0.16 70 / 0.45), transparent 45%),
-    linear-gradient(180deg, oklch(0.55 0.14 45), oklch(0.35 0.12 35));
-  --ux-scrim-overlay:
-    radial-gradient(ellipse 75% 65% at 50% 40%, oklch(0.14 0.04 265 / 0.35), oklch(0.05 0.03 265 / 0.92));
-  --ux-noise:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.85 0 0 0 0 0.75 0 0 0 0 0.45 0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    linear-gradient(180deg, #4b2b1e 0%, #2a1b17 100%);
+  --ux-scrim-overlay: rgb(5 8 7 / 0.84);
 }

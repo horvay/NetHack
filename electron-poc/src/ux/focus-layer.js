@@ -45,6 +45,12 @@
     function diagnostic(type, detail = {}) {
       try { onDiagnostic(Object.freeze({ type, detail: Object.freeze({ ...detail }) })); } catch {}
     }
+    function focusAndReveal(target) {
+      target.focus({ preventScroll: true });
+      if (!target.hasAttribute?.('data-ux-focus-preserve-scroll')) {
+        target.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+      }
+    }
 
     function top() { return stack[stack.length - 1] || null; }
 
@@ -95,8 +101,7 @@
         return false;
       }
       if (!target.hasAttribute?.('tabindex') && /^(H1|H2|H3)$/.test(target.tagName || '')) target.tabIndex = -1;
-      target.focus({ preventScroll: true });
-      target.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+      focusAndReveal(target);
       diagnostic('focus.entered', { id: layer.id, targetId: target.id || '', targetRole: target.getAttribute?.('role') || target.tagName || '' });
       return true;
     }
@@ -159,8 +164,7 @@
         || domainFallback(layer, nextLayer)
         || mapFallback(layer);
       if (target) {
-        target.focus({ preventScroll: true });
-        target.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+        focusAndReveal(target);
         diagnostic('focus.restored', { id: layer.id, targetId: target.id || '', targetRole: target.getAttribute?.('role') || target.tagName || '', strategy: actualInvoker ? 'actual-invoker' : (target === replacementInvoker(layer, nextLayer) ? 'replacement-invoker' : (nextLayer && nextLayer.element?.contains?.(target) ? 'surviving-domain' : 'domain-or-map-fallback')) });
       } else diagnostic('focus.return-missing', { id: layer.id });
       return true;

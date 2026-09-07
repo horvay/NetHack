@@ -212,7 +212,7 @@
 .ux-map-detail-artwork {
   --tile-size: min(51vh, 500px);
   flex: 0 0 auto;
-  image-rendering: auto;
+  image-rendering: pixelated;
 }
 
 .ux-map-detail-artwork.tile-overlay { background-size: auto, cover, cover, auto; }
@@ -450,15 +450,20 @@ body[data-ux-minimap-size='large'] .ux-minimap-button { --ux-minimap-width: clam
   min-height: 0;
   padding: 1rem 1.25rem 1.25rem;
 }
+.ux-level-overview-map-stage {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
 .ux-level-overview-map {
-  --overview-tile-size: max(6px, min(calc((100vw - 26rem) / 80), calc((100vh - 12rem) / 21)));
+  --overview-tile-size: 6px;
   display: grid;
   grid-template-columns: repeat(var(--grid-cols, 80), var(--overview-tile-size));
   grid-auto-rows: var(--overview-tile-size);
-  align-self: start;
-  justify-self: center;
   width: max-content;
-  max-width: 100%;
+  height: max-content;
   padding: 0.45rem;
   overflow: hidden;
   border: 1px solid color-mix(in oklch, var(--ux-color-action) 28%, var(--ux-color-border));
@@ -542,11 +547,8 @@ body[data-ux-minimap-size='large'] .ux-minimap-button { --ux-minimap-width: clam
   .ux-level-overview-header { padding: 1rem 1.1rem 0.8rem; }
   .ux-level-overview-workspace {
     grid-template-columns: minmax(0, 1fr);
-    align-content: start;
-    overflow: auto;
-  }
-  .ux-level-overview-map {
-    --overview-tile-size: max(4px, min(calc((100vw - 4rem) / 80), calc((100vh - 20rem) / 21)));
+    grid-template-rows: minmax(0, 1fr) auto;
+    overflow: hidden;
   }
   .ux-level-overview-inspector {
     max-height: 12rem;

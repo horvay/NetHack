@@ -307,10 +307,11 @@
       ok: true,
       actionId: 'item.swapArmor',
       label: 'Change armor',
-      command: `${takeOffSelectors.map((selector) => `T${selector}`).join('')}W${key}`,
+      command: `W${key}`,
       takeOffSelector: takeOffSelectors[takeOffSelectors.length - 1] || '',
       takeOffSelectors,
       wearSelector: key,
+      directEquipmentChange: true,
       slot,
       blockerTokens: blockerInfo.blockerTokens,
       blockerLabels: blockerInfo.blockerLabels,
@@ -418,6 +419,12 @@
   function routeInventoryAction(item, affordance = {}, context = {}) {
     const actionId = affordance.id || affordance.actionId || '';
     if (actionId === 'item.putOn.ring') return routeRingPutOn(item, { ...context, targetRingHand: affordance.params?.targetRingHand || context.targetRingHand });
+    if (actionId === 'item.wear') {
+      const key = itemKey(item);
+      const slot = armorSlotForItem(item);
+      if (!key || !slot) return { ok: false, actionId, reason: 'That item has no safe native armor slot route.' };
+      return { ok: true, actionId, command: `W${key}`, directEquipmentChange: true, slot, label: affordance.label || 'Wear armor', message: `Wear ${cleanName(itemText(item) || 'armor')}.` };
+    }
     const keys = affordance.execution?.keys || affordance.command || affordance.keys || '';
     if (!keys) return { ok: false, actionId, reason: 'That action does not have a safe NetHack command route yet.' };
     if (actionId === 'item.rub') {
@@ -446,7 +453,7 @@
     const text = itemText(item);
     if (isEquipped(text)) return null;
     const armorSwap = armorSwapRouteForItem(item, context);
-    if (armorSwap?.ok) return { label: armorSwap.label, key: armorSwap.command[0], command: armorSwap.command, actionId: armorSwap.actionId, message: armorSwap.message, takeOffSelectors: armorSwap.takeOffSelectors || [armorSwap.takeOffSelector].filter(Boolean), slot: armorSwap.slot, blockerTokens: armorSwap.blockerTokens || [], blockerLabels: armorSwap.blockerLabels || [], reasonToken: armorSwap.reasonToken || '', reasonLabel: armorSwap.reasonLabel || '' };
+    if (armorSwap?.ok) return { label: armorSwap.label, key: armorSwap.command[0], command: armorSwap.command, actionId: armorSwap.actionId, message: armorSwap.message, takeOffSelectors: armorSwap.takeOffSelectors || [armorSwap.takeOffSelector].filter(Boolean), slot: armorSwap.slot, directEquipmentChange: true, blockerTokens: armorSwap.blockerTokens || [], blockerLabels: armorSwap.blockerLabels || [], reasonToken: armorSwap.reasonToken || '', reasonLabel: armorSwap.reasonLabel || '' };
     const actions = itemActionAffordances(item, context);
     const preferred = actions.find((a) => a.id === 'item.wear') || actions.find((a) => a.id === 'item.putOn.ring' || a.id === 'item.putOn.accessory') || actions.find((a) => a.id === 'item.quiver') || actions.find((a) => a.id === 'item.wield.mainHand');
     if (preferred?.enabled === false) return { label: preferred.label, key: '', command: '', actionId: preferred.id, enabled: false, disabledReason: preferred.disabledReason || '', disabledReasonToken: preferred.disabledReasonToken || '', disabledReasonLabel: preferred.disabledReasonLabel || preferred.disabledReason || '', blockerTokens: preferred.blockerTokens || [], blockerLabels: preferred.blockerLabels || [] };
@@ -463,7 +470,7 @@
         autoAnswerHand: route.autoAnswerHand,
       } : null;
     }
-    return { label: preferred.label.replace(/…/g, ''), key: preferred.execution.keys[0], command: preferred.execution.keys, actionId: preferred.id };
+    return { label: preferred.label.replace(/…/g, ''), key: preferred.execution.keys[0], command: preferred.execution.keys, actionId: preferred.id, ...(preferred.id === 'item.wear' ? { slot: armorSlotForItem(item), directEquipmentChange: true } : {}) };
   }
 
   function routeEquipmentDrop(item, slot, context = {}) {
@@ -497,7 +504,7 @@
       return { ok: false, actionId: 'item.quiver', reason: 'Only throwable/ammunition items can be dropped on the quiver slot.', reasonToken: blockerInfo.blockerToken, reasonLabel: blockerInfo.blockerLabel, blockerTokens: blockerInfo.blockerTokens, blockerLabels: blockerInfo.blockerLabels };
     }
     if (wearPatterns[id]) return (armorSlotForItem(item) === id || wearPatterns[id].test(text))
-      ? { ok: true, actionId: 'item.wear', command: `W${key}`, message: `Wear ${cleanName(text)} in ${label}.` }
+      ? { ok: true, actionId: 'item.wear', command: `W${key}`, directEquipmentChange: true, slot: id, message: `Wear ${cleanName(text)} in ${label}.` }
       : { ok: false, actionId: 'item.wear', reason: `That item does not match the ${label} slot.` };
     if (id === 'amulet') return (hasPublicActionToken(item, 'putOn.amulet') || /\bamulet\b/i.test(text)) ? { ok: true, actionId: 'item.putOn.accessory', command: `P${key}`, message: `Put on ${cleanName(text)}.` } : { ok: false, actionId: 'item.putOn.accessory', reason: 'Only amulets fit the amulet/neck slot.' };
     if (id === 'left-ring' || id === 'right-ring') return (hasPublicActionToken(item, 'putOn.ring') || hasRingTag(text)) ? routeRingPutOn(item, { ...context, targetRingHand: id === 'right-ring' ? 'r' : 'l' }) : { ok: false, actionId: 'item.putOn.ring', reason: 'Only wearable jewelry rings fit ring slots.' };

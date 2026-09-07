@@ -4203,7 +4203,9 @@ unmul(const char *msg_override)
         /* clear afternmv before calling it (to override the
            encumbrance hack for levitation--see weight_cap()) */
         ga.afternmv = (int (*)(void)) 0;
+        equipment_change_before_native_delay();
         (void) (*f)();
+        equipment_change_after_native_delay();
     }
 }
 

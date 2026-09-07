@@ -1,0 +1,45 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "monster/fog-vapor-engulfment",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current"
+  },
+  "level": {
+    "safeAreaAroundHero": 6,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none",
+    "map": {
+      "topLeft": { "dx": -2, "dy": -3 },
+      "rows": [
+        "-------------",
+        "|...........|",
+        "|...........|",
+        "|.@.........|",
+        "|...........|",
+        "|...........|",
+        "-------------"
+      ]
+    },
+    "gasClouds": [
+      { "at": "east", "size": 1, "damage": 0, "ttl": 200 },
+      { "at": "northeast", "size": 1, "damage": 0, "ttl": 200 },
+      { "at": "southeast", "size": 1, "damage": 0, "ttl": 200 },
+      { "at": { "dx": 2, "dy": -1 }, "size": 1, "damage": 0, "ttl": 200 },
+      { "at": { "dx": 2, "dy": 1 }, "size": 1, "damage": 0, "ttl": 200 },
+      { "at": { "dx": 3, "dy": -1 }, "size": 1, "damage": 0, "ttl": 200 },
+      { "at": { "dx": 3, "dy": 1 }, "size": 1, "damage": 0, "ttl": 200 }
+    ]
+  },
+  "ground": [],
+  "monsters": [
+    { "typeId": "FOG_CLOUD", "at": { "dx": 3, "dy": 0 }, "attitude": "hostile", "asleep": false, "hp": 8, "maxHp": 8 }
+  ],
+  "inventory": [],
+  "expectedPublicFacts": {
+    "monsterRows": ["fog cloud"],
+    "mapAffordances": ["harmless vapor cloud", "native engulfment"],
+    "messages": ["fog and vapor walkthrough fixture"]
+  }
+}

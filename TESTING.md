@@ -25,3 +25,7 @@ The command is authoritative because it performs all of the following as one fai
 The raw screenshot is the approval subject. Review-safe derivatives are convenience copies only; their provenance must bind them to the raw SHA-256 and reproduce the declared Pillow transform. Never overwrite a capture in place. A changed raw screenshot, derivative, assertion, run identity, or decision invalidates approval.
 
 Individual real scripts and scenario runbooks remain useful for diagnosis, but their capture-phase output is not acceptance evidence by itself. Do not claim terminal proof from an individual command, an old output directory, a synthetic-only test, or a `CAPTURED` manifest. Run the canonical command and include its exact run identities, manifests, reports, hashes, and inspection notes in the final response.
+
+## Native build consistency
+
+Both `build:shim` and `build:shim:test-fixtures` clean the complete core object set with `make -C ../src clean` before rebuilding `libnh.a`. Keep that full clean: Make does not track changes to `WANT_LIBNH` or compiler flags, and deleting selected object files can leave a mixed archive with missing native menu context or fixture hooks.

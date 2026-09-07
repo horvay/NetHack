@@ -7,7 +7,7 @@
     'shim_create_nhwindow', 'shim_clear_nhwindow', 'shim_print_glyph', 'shim_curs', 'shim_putstr', 'shim_raw_print', 'shim_raw_print_bold',
     'shim_start_menu', 'shim_add_menu', 'shim_end_menu', 'shim_select_menu', 'shim_display_nhwindow', 'shim_message_menu',
     'bridge_menu_answer', 'shim_yn_function', 'shim_getlin', 'bridge_command_prompt', 'bridge_direction_prompt', 'bridge_extcmd_catalog', 'shim_get_ext_cmd',
-    'bridge_prompt_answer', 'bridge_line_answer', 'bridge_extcmd_answer', 'bridge_direction_answer', 'shim_number_pad', 'shim_status_enablefield', 'shim_status_update',
+    'bridge_prompt_answer', 'bridge_line_answer', 'bridge_extcmd_answer', 'bridge_direction_answer', 'shim_number_pad', 'shim_status_enablefield', 'shim_status_update', 'shim_spell_availability',
     'shim_update_inventory', 'shim_ground_pile_snapshot', 'shim_ground_transfer_accepted', 'shim_ground_transfer_queued', 'shim_ground_transfer_confirmed', 'shim_ground_transfer_rejected', 'shim_terrain_action_accepted', 'shim_terrain_action_queued', 'shim_terrain_action_confirmed', 'shim_terrain_action_rejected', 'shim_container_contents_snapshot', 'shim_container_transfer_accepted', 'shim_container_transfer_queued', 'shim_container_transfer_confirmed', 'shim_container_transfer_rejected', 'shim_container_snapshot_accepted', 'shim_container_snapshot_queued', 'shim_container_snapshot_confirmed', 'shim_container_snapshot_rejected', 'shim_equipment_change_accepted', 'shim_equipment_change_queued', 'shim_equipment_change_confirmed', 'shim_equipment_change_rejected', 'bridge_command', 'bridge_input_queue_full', 'bridge_unsupported_command', 'bridge_semantic_followup_rejected',
     'bridge_ui_command_accepted', 'bridge_ui_command_rejected',
     'bridge_seed', 'bridge_seed_invalid', 'bridge_seed_ignored', 'bridge_start', 'bridge_exit', 'bridge_stdin_closed',
@@ -218,7 +218,7 @@
   const transferDirections = new Set(['ground-to-inventory', 'inventory-to-ground', 'container-to-inventory', 'inventory-to-container']);
   const terrainActions = new Set(['stairsDown', 'stairsUp', 'ladderUp', 'drink', 'dip']);
   const terrainKinds = new Set(['stairs.down', 'stairs.up', 'ladder.up', 'fountain']);
-  const equipmentActions = new Set(['takeOff', 'removeAccessory', 'wieldMain', 'quiver', 'clearQuiver', 'putOnRing']);
+  const equipmentActions = new Set(['takeOff', 'removeAccessory', 'wieldMain', 'quiver', 'clearQuiver', 'putOnRing', 'wearArmor']);
   const lifecycleFamilySpecs = Object.freeze({
     ground_transfer: Object.freeze({ commandType: 'ground.transfer', correlations: ['commandId', 'transactionId', 'transferId'], fields: ['itemId', 'direction', 'coord'] }),
     terrain_action: Object.freeze({ commandType: 'terrain.action', correlations: ['commandId', 'transactionId'], fields: ['action', 'terrain', 'coord', 'itemId'] }),
@@ -441,7 +441,7 @@
       }
       return out;
     },
-    shim_curs(event) { return { name: event.name, window: asInt(event.window), x: asInt(event.x), y: asInt(event.y) }; },
+    shim_curs(event) { return withField({ name: event.name, window: asInt(event.window), x: asInt(event.x), y: asInt(event.y) }, 'actorId', opaqueToken(event.actorId)); },
     shim_putstr(event) { return { name: event.name, window: asOptInt(event.window), text: asText(event.text), attr: event.attr }; },
     shim_raw_print(event) { return { name: event.name, text: asText(event.text) }; },
     shim_raw_print_bold(event) { return { name: event.name, text: asText(event.text) }; },
@@ -501,6 +501,12 @@
         return copyItemPresentationFields(out, item);
       });
       return copyPublicMetadata({ name: event.name, reason: asOptInt(event.reason), revision: asOptInt(event.revision ?? event.inventoryRevision), inventoryRevision: asOptInt(event.inventoryRevision ?? event.revision), equipmentRevision: asOptInt(event.equipmentRevision ?? event.revision ?? event.inventoryRevision), items }, event);
+    },
+    shim_spell_availability(event) {
+      assertExactIntegerField(event.knownSpellCount, 'shim_spell_availability.knownSpellCount');
+      if (event.knownSpellCount < 0) throw new TypeError('shim_spell_availability.knownSpellCount must be non-negative');
+      if (event.authoritative !== true) throw new TypeError('shim_spell_availability must be authoritative');
+      return { name: event.name, knownSpellCount: event.knownSpellCount, authoritative: true, source: asText(event.source || 'num_spells') };
     },
     shim_ground_pile_snapshot(event) {
       if (!Array.isArray(event.items)) throw new TypeError('shim_ground_pile_snapshot requires an items array');

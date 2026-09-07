@@ -1,0 +1,31 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "equipment/body-armor-swap-under-cloak",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current",
+    "role": "Valkyrie",
+    "race": "human",
+    "gender": "female",
+    "alignment": "lawful"
+  },
+  "level": {
+    "safeAreaAroundHero": 2,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    { "typeId": "SPLINT_MAIL", "beatitude": "uncursed", "beatitudeKnown": true, "equipped": "worn" },
+    { "typeId": "CLOAK_OF_PROTECTION", "beatitude": "uncursed", "beatitudeKnown": true, "equipped": "worn" },
+    { "typeId": "LEATHER_ARMOR", "beatitude": "uncursed", "beatitudeKnown": true }
+  ],
+  "expectedPublicFacts": {
+    "inventoryRows": ["splint mail", "cloak of protection", "leather armor"],
+    "equipmentRows": ["splint mail", "cloak"],
+    "status": ["Valkyrie", "female", "lawful"],
+    "messages": ["body armor swap under cloak"]
+  }
+}

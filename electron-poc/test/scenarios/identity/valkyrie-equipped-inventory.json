@@ -26,7 +26,7 @@
   ],
   "expectedPublicFacts": {
     "inventoryRows": ["blessed +1 long sword", "small shield", "leather armor", "12 arrows", "wand of digging"],
-    "equipmentRows": ["weapon", "wooden shield", "armor", "quiver"],
+    "equipmentRows": ["weapon", "small shield", "armor", "quiver"],
     "status": ["Valkyrie", "female", "lawful"],
     "messages": ["hermetic Valkyrie equipped inventory"]
   }

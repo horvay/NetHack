@@ -1,8 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
-const { spawn } = require('node:child_process');
-const electronBin = require('electron');
+const Harness = require('./lib/electron-test-harness');
 
 const root = path.resolve(__dirname, '..');
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'assets', 'tiles', 'manifest.json'), 'utf8'));
@@ -18,38 +17,12 @@ const fixtureAssetUrls = Object.freeze(Object.fromEntries([
   'towel', 'spellbook-class-icon', 'human-valkyrie-female-avatar',
 ].map((assetId) => [assetId, assetUrl(assetId)])));
 const outDir = process.env.NH_EQUIPMENT_SCREEN_OUT_DIR || path.join(root, 'test-output', 'equipment-screen-rpg');
-const port = Number(process.env.NH_EQUIPMENT_SCREEN_CDP_PORT || 9491);
+const requestedPort = process.env.NH_EQUIPMENT_SCREEN_CDP_PORT == null ? undefined : Number(process.env.NH_EQUIPMENT_SCREEN_CDP_PORT);
 const width = Number(process.env.NH_EQUIPMENT_SCREEN_WIDTH || 1440);
 const height = Number(process.env.NH_EQUIPMENT_SCREEN_HEIGHT || 1080);
-function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
-async function json(url) { const response = await fetch(url); if (!response.ok) throw new Error(`${response.status} ${url}`); return response.json(); }
-async function waitFor(fn, timeoutMs = 15000, stepMs = 100) {
-  const started = Date.now(); let lastError;
-  while (Date.now() - started < timeoutMs) {
-    try { const value = await fn(); if (value) return value; } catch (error) { lastError = error; }
-    await delay(stepMs);
-  }
-  throw lastError || new Error('timed out waiting');
-}
-async function connect(wsUrl) {
-  const ws = new WebSocket(wsUrl);
-  await new Promise((resolve, reject) => { ws.addEventListener('open', resolve, { once: true }); ws.addEventListener('error', reject, { once: true }); });
-  let id = 0; const pending = new Map();
-  ws.addEventListener('message', (event) => {
-    const message = JSON.parse(event.data);
-    if (!message.id || !pending.has(message.id)) return;
-    const promise = pending.get(message.id); pending.delete(message.id);
-    if (message.error) promise.reject(new Error(JSON.stringify(message.error))); else promise.resolve(message.result);
-  });
-  return {
-    send(method, params = {}) { const callId = ++id; ws.send(JSON.stringify({ id: callId, method, params })); return new Promise((resolve, reject) => pending.set(callId, { resolve, reject })); },
-    close() { ws.close(); },
-  };
-}
+const { delay } = Harness;
 async function evaluate(cdp, expression) {
-  const result = await cdp.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression });
-  if (result.exceptionDetails) throw new Error(JSON.stringify(result.exceptionDetails));
-  return result.result.value;
+  return cdp.evalCheckedValue(expression, { awaitPromise: true });
 }
 async function screenshot(cdp, name) {
   await evaluate(cdp, 'new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(resolve, 60))))');
@@ -73,15 +46,56 @@ async function layoutMetrics(cdp) {
     const pane = root.querySelector('.uxm-inventory-pane');
     const list = root.querySelector('.uxm-inventory-list-wrap');
     const rail = root.querySelector('.uxm-selection-rail');
+    const equipmentPane = root.querySelector('.uxm-equipment-pane');
+    const stage = root.querySelector('.uxm-paper-doll-stage');
+    const characterArea = root.querySelector('.uxm-character-safe-area');
+    const portrait = root.querySelector('.uxm-full-character img');
+    const leftRail = root.querySelector('.uxm-callout-left');
+    const rightRail = root.querySelector('.uxm-callout-right');
+    const slotNodes = Array.from(root.querySelectorAll('.uxm-slot-button'));
     const rect = (node) => { const box = node?.getBoundingClientRect(); return box ? { left: box.left, top: box.top, right: box.right, bottom: box.bottom, width: box.width, height: box.height } : null; };
+    const slotGroups = Array.from(root.querySelectorAll('.uxm-slot-group'));
+    const calloutZ = Number.parseInt(getComputedStyle(leftRail).zIndex, 10);
+    const characterZ = Number.parseInt(getComputedStyle(characterArea).zIndex, 10);
+    const slotCalloutsProtectLabels = slotGroups.every((group) => {
+      const background = getComputedStyle(group).backgroundColor;
+      return background !== 'transparent' && background !== 'rgba(0, 0, 0, 0)';
+    }) && calloutZ > characterZ;
     const paneBox = rect(pane); const listBox = rect(list); const railBox = rect(rail);
+    const equipmentPaneBox = rect(equipmentPane); const stageBox = rect(stage); const characterAreaBox = rect(characterArea);
+    const portraitBox = rect(portrait); const leftRailBox = rect(leftRail); const rightRailBox = rect(rightRail);
     const rows = Array.from(root.querySelectorAll('.uxm-item-row')).map((row) => ({ box: rect(row), text: row.innerText, icon: row.querySelector('.uxm-item-icon')?.dataset.iconSource || '', image: (() => { const image = row.querySelector('.uxm-item-icon img'); return image ? { src: image.currentSrc || image.src, naturalWidth: image.naturalWidth, naturalHeight: image.naturalHeight, box: rect(image) } : null; })() }));
-    const visibleRows = rows.filter((row) => row.box && listBox && row.box.top >= listBox.top - 0.5 && row.box.bottom <= listBox.bottom + 0.5);
+    const visibleRows = rows.filter((row) => {
+      if (!row.box || !listBox || row.box.height <= 0) return false;
+      const visibleHeight = Math.max(0, Math.min(row.box.bottom, listBox.bottom) - Math.max(row.box.top, listBox.top));
+      return visibleHeight / row.box.height >= 0.85;
+    });
     const visibleControls = Array.from(rail?.querySelectorAll(':scope > .uxm-selection-actions > button, :scope > .uxm-selection-actions > details > summary') || []).map((node) => ({ text: node.innerText, box: rect(node) }));
+    const slotButtons = slotNodes.map((node) => ({ slotId: node.dataset.slotId || '', label: node.querySelector('.uxm-slot-label')?.textContent?.trim() || '', value: node.querySelector('.uxm-slot-value')?.textContent?.trim() || '', box: rect(node) }));
+    const slotsWithinStageAndViewport = slotButtons.every(({ box }) => box && stageBox
+      && box.left >= stageBox.left - 0.5 && box.right <= stageBox.right + 0.5
+      && box.top >= stageBox.top - 0.5 && box.bottom <= stageBox.bottom + 0.5
+      && box.left >= -0.5 && box.right <= innerWidth + 0.5
+      && box.top >= -0.5 && box.bottom <= innerHeight + 0.5);
+    const priorFocus = document.activeElement;
+    const slotFocusResults = slotNodes.map((node) => { node.focus({ preventScroll: true }); return document.activeElement === node; });
+    priorFocus?.focus?.({ preventScroll: true });
     return {
       viewport: { width: innerWidth, height: innerHeight },
       workspace: rect(root.querySelector('.uxm-items-workspace')),
       pane: paneBox, list: listBox, rail: railBox,
+      equipmentPane: equipmentPaneBox, paperDoll: stageBox, characterArea: characterAreaBox, portrait: portraitBox,
+      calloutLeft: leftRailBox, calloutRight: rightRailBox, slotButtons,
+      slotCount: slotButtons.length,
+      slotsWithinStageAndViewport,
+      slotButtonsKeyboardReachable: slotFocusResults.every(Boolean),
+      railsFlankCharacter: Boolean(stageBox && leftRailBox && rightRailBox
+        && leftRailBox.left >= stageBox.left - 0.5
+        && rightRailBox.right <= stageBox.right + 0.5
+        && leftRailBox.right < rightRailBox.left
+        && leftRailBox.top < stageBox.bottom
+        && rightRailBox.top < stageBox.bottom),
+      slotCalloutsProtectLabels,
       rowCount: rows.length, visibleRowCount: visibleRows.length,
       resolvedIconCount: rows.filter((row) => row.icon === 'resolved' && row.image?.naturalWidth > 0 && row.image?.naturalHeight > 0).length,
       iconBoxes: rows.map((row) => row.image?.box).filter(Boolean),
@@ -100,19 +114,45 @@ async function layoutMetrics(cdp) {
     };
   })()`);
 }
+const REQUIRED_SLOT_IDS = Object.freeze([
+  'armor.helm', 'eyes', 'amulet', 'armor.cloak', 'armor.body', 'armor.shirt', 'armor.gloves',
+  'armor.boots', 'mainHand', 'offHand', 'armor.shield', 'ring.left', 'ring.right', 'quiver',
+]);
+function assertEquipmentLayout(label, metrics) {
+  const slotIds = new Set(metrics.slotButtons.map((slot) => slot.slotId));
+  const slotsAreReadable = metrics.slotButtons.every((slot) => slot.box?.width >= 90
+    && slot.box.height >= 29
+    && slot.label && slot.value);
+  const portraitIsProminent = metrics.portrait?.height >= 300
+    && metrics.paperDoll?.height > 0
+    && metrics.portrait.height >= metrics.paperDoll.height * 0.72;
+  assert(`${label} shows every equipment slot in the initial viewport`,
+    metrics.slotCount === REQUIRED_SLOT_IDS.length
+      && REQUIRED_SLOT_IDS.every((slotId) => slotIds.has(slotId))
+      && metrics.slotsWithinStageAndViewport,
+    JSON.stringify(metrics));
+  assert(`${label} keeps readable keyboard-usable callouts flanking a prominent full portrait`,
+    slotsAreReadable
+      && metrics.slotButtonsKeyboardReachable
+      && metrics.railsFlankCharacter
+      && metrics.slotCalloutsProtectLabels
+      && portraitIsProminent
+      && !metrics.rootHorizontalOverflow
+      && !metrics.documentHorizontalOverflow,
+    JSON.stringify(metrics));
+}
 
 async function main() {
-  fs.rmSync(outDir, { recursive: true, force: true }); fs.mkdirSync(outDir, { recursive: true });
-  const child = spawn(electronBin, ['.'], { cwd: root, env: { ...process.env, AI_ORG_ELECTRON_CDP_PORT: String(port), NH_ELECTRON_WINDOW_WIDTH: String(width), NH_ELECTRON_WINDOW_HEIGHT: String(height) }, stdio: ['ignore', 'pipe', 'pipe'] });
-  let cdp;
-  const cleanup = () => { try { cdp?.close(); } catch {} if (!child.killed) child.kill('SIGTERM'); };
-  process.on('exit', cleanup); child.stdout.on('data', (data) => process.stdout.write(data)); child.stderr.on('data', (data) => process.stderr.write(data));
+  fs.rmSync(outDir, { recursive: true, force: true });
+  const cdp = await Harness.createElectronBrowserDriver({
+    root,
+    ...(requestedPort == null ? {} : { port: requestedPort }),
+    width,
+    height,
+    outputDir: outDir,
+  });
   try {
-    const pages = await waitFor(async () => { const list = await json(`http://127.0.0.1:${port}/json/list`); return list.find((page) => page.type === 'page') ? list : null; }, 20000);
-    cdp = await connect((pages.find((page) => page.type === 'page') || pages[0]).webSocketDebuggerUrl);
-    await cdp.send('Page.enable'); await cdp.send('Runtime.enable');
-    await cdp.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
-    await waitFor(async () => evaluate(cdp, "document.readyState === 'complete' && !!window.NetHackUxEquipmentScreen?.controller && !!window.__nethackPromptTest"), 10000);
+    await cdp.waitForCheckedValue("!!window.NetHackUxEquipmentScreen?.controller && !!window.__nethackPromptTest", 10000);
 
     const opened = await evaluate(cdp, `(async () => {
       for (const dialog of document.querySelectorAll('dialog[open]')) dialog.close('test');
@@ -195,12 +235,10 @@ async function main() {
       stats: Array.from(document.querySelectorAll('#ux-items-root .uxm-items-status .ux-status-chip')).filter((chip) => chip.getClientRects().length && getComputedStyle(chip).display !== 'none').map((chip) => ({ field: chip.dataset.statusField, label: chip.querySelector('span')?.textContent || '', value: chip.querySelector('strong')?.textContent || '' })),
       overflow: window.NetHackUxEquipmentScreen.controller.snapshot().horizontalOverflow,
       log: (() => { const viewport = document.querySelector('#ux-items-root .uxm-recent-log-scroll'); const box = viewport?.getBoundingClientRect(); return { lines: Array.from(viewport?.querySelectorAll('li') || [], (line) => line.textContent), scrollable: Boolean(viewport && viewport.scrollHeight > viewport.clientHeight), atBottom: Boolean(viewport && viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight <= 1), clientHeight: box?.height || 0, scrollHeight: viewport?.scrollHeight || 0 }; })(),
-      workspaceAnimations: document.querySelector('#ux-items-root .uxm-items-workspace')?.getAnimations().map((animation) => animation.animationName) || [],
     }))()`);
     const layout1440 = await layoutMetrics(cdp);
     const firstShot = await screenshot(cdp, '01-many-items-1440x1080.png');
     assert('single item DOM owner', initialDom.ownerCount === 1 && !initialDom.legacyEquipmentShell && !initialDom.legacyDialogWriter, JSON.stringify(initialDom));
-    assert('workspace rerenders do not restart a child opacity animation', initialDom.workspaceAnimations.length === 0, JSON.stringify(initialDom.workspaceAnimations));
     assert('numeric selector and inventoryLetter are both routed', initialDom.rowSelectors.includes('a') && initialDom.rowSelectors.includes('b') && initialDom.rowSelectors.includes('c'), JSON.stringify(initialDom.rowSelectors));
     assert('equipment distinctions and empty slots render', /Main hand[\s\S]*spear/i.test(initialDom.body) && /Helmet[\s\S]*Empty/i.test(initialDom.body), initialDom.body);
     assert('1440x1080 inventory dominates the right column and shows at least ten rows', layout1440.listShare >= 0.62 && layout1440.visibleRowCount >= 10 && layout1440.listClientHeight >= 480, JSON.stringify(layout1440));
@@ -238,11 +276,28 @@ async function main() {
       && liveLog.atBottom, JSON.stringify(liveLog));
     const liveStatus = await evaluate(cdp, `(() => {
       const fixture = window.__itemOwnerFixture;
+      const workspaceBefore = document.querySelector('#ux-items-root .uxm-items-workspace');
+      const animationBefore = workspaceBefore?.getAnimations().find((animation) => animation.animationName === 'ux-reliquary-materialize') || null;
+      const beforeTime = Number(animationBefore?.currentTime || 0);
       const statusValues = fixture.freeze(fixture.statusValues.map(([field, value]) => fixture.freeze([field, field === 1 ? '19' : (field === 14 ? '1' : value)])));
       window.NetHackUxEquipmentScreen.controller.reconcile({ statusValues });
-      return Array.from(document.querySelectorAll('#ux-items-root .uxm-items-status .ux-status-chip')).filter((chip) => chip.getClientRects().length && getComputedStyle(chip).display !== 'none').map((chip) => ({ label: chip.querySelector('span')?.textContent || '', value: chip.querySelector('strong')?.textContent || '' }));
+      const workspaceAfter = document.querySelector('#ux-items-root .uxm-items-workspace');
+      const animationAfter = workspaceAfter?.getAnimations().find((animation) => animation.animationName === 'ux-reliquary-materialize') || null;
+      return {
+        stats: Array.from(document.querySelectorAll('#ux-items-root .uxm-items-status .ux-status-chip')).filter((chip) => chip.getClientRects().length && getComputedStyle(chip).display !== 'none').map((chip) => ({ label: chip.querySelector('span')?.textContent || '', value: chip.querySelector('strong')?.textContent || '' })),
+        animationContinuity: {
+          sameWorkspace: workspaceBefore === workspaceAfter,
+          sameAnimation: animationBefore === animationAfter,
+          beforeTime,
+          afterTime: Number(animationAfter?.currentTime || 0),
+          entranceFinished: !animationAfter,
+        },
+      };
     })()`);
-    assert('inventory header rerenders live equipment-sensitive status values', liveStatus.some((stat) => stat.label === 'Str' && stat.value === '19') && liveStatus.some((stat) => stat.label === 'AC' && stat.value === '1'), JSON.stringify(liveStatus));
+    assert('inventory header rerenders live equipment-sensitive status values', liveStatus.stats.some((stat) => stat.label === 'Str' && stat.value === '19') && liveStatus.stats.some((stat) => stat.label === 'AC' && stat.value === '1'), JSON.stringify(liveStatus));
+    assert('status rerender preserves or finishes the material entrance without restarting it', liveStatus.animationContinuity.sameWorkspace
+      && (liveStatus.animationContinuity.entranceFinished
+        || (liveStatus.animationContinuity.sameAnimation && liveStatus.animationContinuity.afterTime >= liveStatus.animationContinuity.beforeTime)), JSON.stringify(liveStatus.animationContinuity));
     const spellbookPrimary = await evaluate(cdp, `(() => {
       const row = document.querySelector('#ux-items-root .uxm-item-row[data-selector="p"]');
       row?.click();
@@ -252,6 +307,17 @@ async function main() {
     })()`);
     const spellbookShot = await screenshot(cdp, '01b-spellbook-read-primary-1440x1080.png');
     assert('spellbook reading is the visible primary action', /spellbook/i.test(spellbookPrimary.selected) && spellbookPrimary.actionId === 'item.study' && /study|read/i.test(spellbookPrimary.label), JSON.stringify(spellbookPrimary));
+
+    await setViewport(cdp, 1360, 920);
+    const equipment1360 = await layoutMetrics(cdp);
+    const equipment1360Shot = await screenshot(cdp, '02-equipment-slots-1360x920.png');
+
+    await setViewport(cdp, 960, 720);
+    const equipment960 = await layoutMetrics(cdp);
+    const equipment960Shot = await screenshot(cdp, '03-equipment-slots-960x720.png');
+    fs.writeFileSync(path.join(outDir, 'equipment-layout-metrics.json'), `${JSON.stringify({ equipment1360, equipment960 }, null, 2)}\n`);
+    assertEquipmentLayout('1360x920 equipment layout', equipment1360);
+    assertEquipmentLayout('960x720 equipment layout', equipment960);
 
 
     await setViewport(cdp, 1280, 900);
@@ -344,17 +410,26 @@ async function main() {
       owner.request({ kind: 'item-action', stableId: 'object:503', actionId: 'item.wear', inventoryRevision: 10 });
       const plannedIntent = fixture.intents.at(-1);
       owner.settle({ intentId: plannedIntent.intentId, accepted: true });
-      const inventory11 = fixture.freeze({ revision: 11, orderedItems: fixture.inventory.orderedItems });
-      const equipment11 = fixture.freeze({ revision: 11, inventoryRevision: 11, orderedSlots: fixture.equipment.orderedSlots });
+      const wornHelmet = fixture.freeze({ ...fixture.helmet, wornMask: 4, equippedState: 'worn', filterGroups: fixture.freeze(['equipped', 'armor']) });
+      const inventory11 = fixture.freeze({ revision: 11, orderedItems: fixture.freeze(fixture.inventory.orderedItems.map((item) => item.objectId === wornHelmet.objectId ? wornHelmet : item)) });
+      const equipment11 = fixture.freeze({
+        revision: 11,
+        inventoryRevision: 11,
+        orderedSlots: fixture.freeze(fixture.equipment.orderedSlots.map((slot) => slot.slotId === 'armor.helm'
+          ? fixture.freeze({ slotId: 'armor.helm', objectId: wornHelmet.objectId, publicStatus: 'occupied', blockedBy: fixture.freeze([]), item: wornHelmet })
+          : slot)),
+      });
       owner.reconcile({ inventory: inventory11, equipment: equipment11, interaction: null });
+      const awaitingNativeCompletion = owner.snapshot();
+      owner.settle({ intentId: plannedIntent.intentId, status: 'completed', message: 'You finish putting on the helmet.' });
       const completed = owner.snapshot();
       const conflict = fixture.freeze({ revision: 11, orderedItems: [fixture.spear, fixture.freeze({ ...fixture.potion, displayName: 'conflicting same revision' }), fixture.helmet] });
       const outcome = owner.reconcile({ inventory: conflict, equipment: equipment11 });
-      return { rejected, completed, outcome, diagnostics: owner.diagnostics().slice(-8) };
+      return { rejected, awaitingNativeCompletion, completed, outcome, diagnostics: owner.diagnostics().slice(-8) };
     })()`);
     assert('transport rejection is owned and visible', rejectionAndCompletion.rejected.pendingActionId === '' && /no longer active/i.test(rejectionAndCompletion.rejected.feedback), JSON.stringify(rejectionAndCompletion.rejected));
-    assert('new authoritative revision completes pending action', rejectionAndCompletion.completed.pendingActionId === '' && rejectionAndCompletion.completed.inventoryRevision === 11 && /complete/i.test(rejectionAndCompletion.completed.feedback), JSON.stringify(rejectionAndCompletion.completed));
-    assert('conflicting immutable revision is rejected', rejectionAndCompletion.outcome.inventoryAccepted === false && rejectionAndCompletion.diagnostics.some((entry) => entry.type === 'snapshot.inventory.rejected' && entry.detail.code === 'conflicting-revision'), JSON.stringify(rejectionAndCompletion));
+    assert('authoritative revisions wait for native direct-equipment completion', rejectionAndCompletion.awaitingNativeCompletion.pendingActionId === 'item.wear' && rejectionAndCompletion.awaitingNativeCompletion.pendingAwaitNativeCompletion === true, JSON.stringify(rejectionAndCompletion.awaitingNativeCompletion));
+    assert('native completion clears the pending action with its confirmed message', rejectionAndCompletion.completed.pendingActionId === '' && rejectionAndCompletion.completed.inventoryRevision === 11 && /finish putting on the helmet/i.test(rejectionAndCompletion.completed.feedback), JSON.stringify(rejectionAndCompletion.completed));
 
     await press(cdp, 'Escape', 'Escape'); await delay(80);
     const closed = await evaluate(cdp, `(() => ({ snapshot: window.NetHackUxEquipmentScreen.controller.snapshot(), activeId: document.activeElement?.id || '', mountText: document.getElementById('ux-items-root')?.textContent || '' }))()`);
@@ -500,12 +575,14 @@ async function main() {
 
     console.log(JSON.stringify({
       ok: true,
-      screenshots: [firstShot, spellbookShot, compactShot, secondShot, applyClosedShot, thirdShot, emptyShot],
-      layout: { baseline1360x920: { listHeight: 178, railHeight: 201, unusedWorkspaceHeight: 286, source: 'pre-change screenshot pixel inspection' }, after1440x1080: layout1440, after1280x900: layout1280 },
-      contracts: ['immutable revisions', 'raw canonical icon resolver input', 'resolved icon rows', 'responsive live stat ribbon', 'scrollable live recent log', '10+ visible rows at both requested viewports', 'shallow action rail', 'spellbook read primary action', 'keyboard More actions disclosure', 'numeric selector or inventoryLetter', 'action availability', 'stale rejection', 'exact native follow-up correlation', 'quaff/apply completion closes inventory', 'loading/error/empty states', 'focus/close', 'single DOM owner', 'Transfer Session precedence'],
+      screenshots: [firstShot, spellbookShot, equipment1360Shot, equipment960Shot, compactShot, secondShot, applyClosedShot, thirdShot, emptyShot],
+      layout: { after1440x1080: layout1440, equipment1360x920: equipment1360, equipment960x720: equipment960, after1280x900: layout1280 },
+      contracts: ['all equipment slots visible at 1360x920 and 960x720', 'side callouts flanking a prominent full portrait', 'keyboard-usable equipment slots', 'immutable revisions', 'raw canonical icon resolver input', 'resolved icon rows', 'responsive live stat ribbon', 'scrollable live recent log', '10+ visible rows at both requested inventory viewports', 'shallow action rail', 'spellbook read primary action', 'keyboard More actions disclosure', 'numeric selector or inventoryLetter', 'action availability', 'stale rejection', 'exact native follow-up correlation', 'quaff/apply completion closes inventory', 'loading/error/empty states', 'focus/close', 'single DOM owner', 'Transfer Session precedence'],
     }, null, 2));
 
-  } finally { cleanup(); }
+  } finally {
+    await cdp.close();
+  }
 }
 
 main().catch((error) => { console.error(error.stack || error); process.exitCode = 1; });
