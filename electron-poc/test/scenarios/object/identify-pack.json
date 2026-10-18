@@ -18,7 +18,8 @@
    "typeId": "SCR_IDENTIFY",
    "identityKnown": true,
    "beatitude": "uncursed",
-   "beatitudeKnown": true
+   "beatitudeKnown": true,
+   "quantity": 2
   },
   {
    "typeId": "POT_SPEED",

@@ -18,8 +18,7 @@ const MENUS := [
 		["record an annotation", "magic-mapping"]]],
 	["View which", "Show terrain", "See the level as you remember it, with things out of the way.", [
 		["known map without monsters, objects, and traps", "magic-mapping"], ["known map without monsters and objects", "arrow-trap"],
-		["known map without monsters", "large-box"], ["full map", "crystal-ball"], ["internal levl", "magic-mapping"],
-		["legacy", "magic-mapping"]]],
+		["known map without monsters", "large-box"], ["full map", "crystal-ball"], ["legend of base-36", "magic-mapping"]]],
 	["What do you want to look at", "Look at", "Pick what to look up.", [
 		["something on the map", "valid-position-marker"], ["something you're carrying", "pickup-action-icon", "Look up which item?"],
 		["something else", "lenses"], ["nearby monsters", "newt"], ["all monsters", "floating-eye"],
@@ -45,8 +44,15 @@ var _answered := false
 static func menu_for(request: Dictionary) -> Array:
 	var prompt := str(request.get("prompt", "")).strip_edges()
 	for menu in MENUS:
-		if prompt.begins_with(menu[0]):
-			return menu
+		if not prompt.begins_with(menu[0]):
+			continue
+		# Only NetHack's own rows: "What do you want to name?" is also the
+		# title of the pack list for naming one object.
+		for item in request.get("items", []):
+			var text := str(item.get("text", "")).strip_edges()
+			if int(item.get("selector", 0)) != 0 and text != "" and not (menu[3] as Array).any(func(pair: Array) -> bool: return text.begins_with(str(pair[0]))):
+				return []
+		return menu
 	return []
 
 
@@ -68,9 +74,12 @@ func setup(game_screen: GameScreen, p_request: Dictionary) -> void:
 				icon = pair[1]
 				then = pair[2] if pair.size() > 2 else ""
 				break
-		choices.append({"selector": char(selector), "text": text, "icon": icon, "then": then, "preselected": int(item.get("itemflags", 0)) & 0x1 != 0})
+		choices.append({"selector": char(selector), "text": text, "icon": icon, "then": then, "preselected": int(item.get("itemflags", 0)) & 0x1 != 0,
+			"group": char(int(item.get("groupAccelerator", 0))) if int(item.get("groupAccelerator", 0)) > 0 else ""})
 	_build()
-	add_footer_button("Cancel  Esc", _cancel)
+	var cancel := add_footer_button("Cancel  Esc", _cancel)
+	if not has_meta("safe_focus"):
+		set_meta("safe_focus", cancel)
 
 
 func _build() -> void:
@@ -88,8 +97,10 @@ func _build() -> void:
 		var button := _tile(choice, compact)
 		choice["button"] = button
 		grid.add_child(button)
-		if focus == null or bool(choice.preselected):
+		if bool(choice.preselected):
 			focus = button
+	# Only what NetHack preselected starts focused; otherwise Enter picks
+	# nothing, as in tty.
 	if focus:
 		set_meta("safe_focus", focus)
 
@@ -163,12 +174,22 @@ func handle_key(event: InputEventKey) -> bool:
 	if event.keycode == KEY_ESCAPE:
 		_cancel()
 		return true
-	# Enter and Space are the focused tile's (the preselected one at first).
+	# Enter on a tile picks it; with no tile focused it picks nothing (tty).
+	if event.keycode in [KEY_ENTER, KEY_KP_ENTER] and not get_viewport().gui_get_focus_owner() in choices.map(func(c: Dictionary) -> Variant: return c.get("button")):
+		_answered = true
+		screen.send_keys("\n")
+		close()
+		return true
 	if event.keycode in [KEY_ENTER, KEY_KP_ENTER, KEY_SPACE, KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN, KEY_TAB]:
 		return false
 	var typed := InputRouter.key_to_nethack(event)
 	for choice in choices:
 		if typed != "" and str(choice.selector) == typed:
+			_pick(choice)
+			return true
+	# NetHack's hidden keys for these menus ("/ y", "C n"…).
+	for choice in choices:
+		if typed != "" and str(choice.group) == typed:
 			_pick(choice)
 			return true
 	return true

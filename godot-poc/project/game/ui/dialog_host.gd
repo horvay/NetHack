@@ -277,20 +277,31 @@ func _on_request(request: Dictionary) -> void:
 				pending_target = Vector2i(-1, -1)
 				screen.state.note_target(cell)
 				screen.send_map_click(cell)
-			elif screen.state.messages.recent(3).any(func(m: Dictionary) -> bool: return str(m.get("text", "")) == "Where do you want to travel to?"):
+			elif _getpos_purpose(request) == "travel":
 				# _ travel: the places the hero knows on this level, one click
 				# each (NetHack's < > _ keys still jump the cursor).
-				_target_hint = GamepadRouter.hint("Travel where?  Click a spot, or pick a place:", "Travel where?  Pick a spot with the stick, or a place:")
+				_target_hint = GamepadRouter.hint("Travel where?  Click a spot, or pick a place:", "Travel where?  Pick a spot with the stick.")
 				var chips: Array = []
-				for place in travel_destinations().slice(0, 6):
+				var places := travel_destinations().slice(0, 6)
+				var seen := {}
+				for place in places:
+					seen[place[0]] = int(seen.get(place[0], 0)) + 1
+				for place in places:
 					var cell: Vector2i = place[1]
-					chips.append([place[0], func() -> void: screen.send_map_click(cell)])
+					var label := str(place[0])
+					if int(seen[label]) > 1:
+						# Two fountains: say which ("Fountain, 8 east").
+						label += ", " + _bearing(cell - screen.state.map.hero)
+					chips.append([label, func() -> void: screen.send_map_click(cell)])
 				chips.append([GamepadRouter.hint("Cancel  Esc", "Cancel  B"), char(27)])
 				_show_banner(_target_hint, chips)
-			elif screen.state.messages.recent(3).any(func(m: Dictionary) -> bool: return str(m.get("text", "")).begins_with("Showing known terrain")):
-				# #terrain: NetHack shows the level as remembered until a key.
-				_target_hint = GamepadRouter.hint("Showing the terrain you remember, with monsters and things out of the way.  Esc to return.",
-					"Showing the terrain you remember.  B to return.")
+			elif _getpos_purpose(request) == "terrain":
+				# #terrain: NetHack shows the level as remembered until a key;
+				# its own words say which view ("Showing known terrain and
+				# traps only...").
+				var said: Array = screen.state.messages.recent(3).filter(func(m: Dictionary) -> bool: return str(m.get("text", "")).begins_with("Showing ") and str(m.get("text", "")).ends_with(" only..."))
+				var view := str(said[-1].get("text", "")).trim_suffix("...") if not said.is_empty() else "Showing the terrain you remember"
+				_target_hint = GamepadRouter.hint("%s.  Esc to return." % view, "%s.  B to return." % view)
 				_show_banner(_target_hint, [[GamepadRouter.hint("Return  Esc", "Return  B"), char(27)]])
 			else:
 				_target_hint = GamepadRouter.hint("Choose a spot on the map.  Click it, or move the cursor with direction keys and press . or ,  —  Esc to cancel.",
@@ -415,6 +426,29 @@ func _show_banner(text: String, chips: Array = []) -> void:
 const TRAVEL_PLACES := {25: "Up stairs", 26: "Down stairs", 27: "Up ladder", 28: "Down ladder", 29: "Up stairs",
 	30: "Down stairs to another branch", 31: "Up ladder", 32: "Down ladder to another branch", 33: "Altar", 34: "Grave", 35: "Throne",
 	36: "Sink", 37: "Fountain", 65: "Magic portal"}
+
+
+## What NetHack's map target is for: the core's tag ("travel", "terrain"),
+## or for an older core NetHack's own line just before it.
+func _getpos_purpose(request: Dictionary) -> String:
+	var tagged := str((request.get("event", {}) as Dictionary).get("getposPurpose", ""))
+	if tagged != "":
+		return tagged
+	for m in screen.state.messages.recent(3):
+		var text := str(m.get("text", ""))
+		if text == "Where do you want to travel to?":
+			return "travel"
+		if text.begins_with("Showing ") and text.ends_with(" only..."):
+			return "terrain"
+	return ""
+
+
+## "8 east", "3 north-west": how far and which way, in squares.
+static func _bearing(delta: Vector2i) -> String:
+	var ns := "north" if delta.y < 0 else ("south" if delta.y > 0 else "")
+	var ew := "west" if delta.x < 0 else ("east" if delta.x > 0 else "")
+	var way := ns + ("-" if ns != "" and ew != "" else "") + ew
+	return "%d %s" % [maxi(absi(delta.x), absi(delta.y)), way]
 
 
 func travel_destinations() -> Array:

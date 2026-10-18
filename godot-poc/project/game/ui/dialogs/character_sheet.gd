@@ -70,6 +70,23 @@ func _identity_line() -> String:
 
 
 func _build() -> void:
+	if _section("background").is_empty() and _section("basics").is_empty() and _section("characteristics").is_empty():
+		# Magic enlightenment (a potion, wand or throne): only the sections
+		# NetHack wrote, nothing drawn from the status line.
+		var grid := GridContainer.new()
+		grid.columns = 2
+		grid.add_theme_constant_override("h_separation", 12)
+		grid.add_theme_constant_override("v_separation", 12)
+		var scroll := ScrollContainer.new()
+		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		scroll.custom_minimum_size = Vector2(0, 600)
+		scroll.add_child(grid)
+		body.add_child(scroll)
+		for section in sections:
+			var card := _card(str(section.heading) if str(section.heading) != "" else "Notes", section.lines)
+			card.custom_minimum_size = Vector2(590, 0)
+			grid.add_child(card)
+		return
 	var top := HBoxContainer.new()
 	top.add_theme_constant_override("separation", 16)
 	body.add_child(top)

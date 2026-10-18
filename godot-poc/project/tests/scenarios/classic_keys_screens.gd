@@ -5,8 +5,8 @@ extends Scenario
 ##      not NetHack's plain pickup list;
 ##   2. typed D (drop several) opens the same screen; two splint mails picked
 ##      in the pack column drop in one go;
-##   3. I opens the inventory screen and * the equipment screen, not
-##      NetHack's plain lists;
+##   3. * opens the equipment screen, not NetHack's plain list; I stays
+##      NetHack's own class menu (for Iu, Ix and the like);
 ##   4. * at "What do you want to drop?" lists the pack under that question,
 ##      not under "Choose".
 
@@ -46,7 +46,17 @@ func run() -> void:
 		await screenshot("drop-several")
 		await press(KEY_ESCAPE)
 		await get_tree().create_timer(0.3).timeout
-	for spec in [["I", "InventoryScreen"], ["*", "EquipmentScreen"]]:
+	# I stays NetHack's own (its class menu: u for the bill, x for used-up
+	# charges, B/U/C/X by blessing).
+	mark()
+	await type_text("I")
+	await wait_for_named("shim_select_menu")
+	await get_tree().create_timer(0.4).timeout
+	expect(str(game.state.request.get("prompt", "")).contains("inventory of"), "I asks NetHack's own question (%s)" % game.state.request.get("prompt", ""))
+	await screenshot("key-I")
+	await press(KEY_ESCAPE)
+	await get_tree().create_timer(0.4).timeout
+	for spec in [["*", "EquipmentScreen"]]:
 		await type_text(spec[0])
 		await get_tree().create_timer(0.5).timeout
 		var opened := game.dialogs.active

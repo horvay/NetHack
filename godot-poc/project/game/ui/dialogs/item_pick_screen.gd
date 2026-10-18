@@ -20,6 +20,8 @@ var _pending_count := ""
 var _detail: Label
 var _summary: Label
 var _answered := false
+var _cancel_button: Button
+var _has_hands := false
 
 
 ## True for a pick-one or pick-any menu whose every choice is an item in the
@@ -38,8 +40,8 @@ static func routes(p_request: Dictionary, state: GameState) -> bool:
 			return false
 	var choices := 0
 	for row in p_request.get("items", []):
-		if int(row.get("selector", 0)) == 0 or int(row.get("selector", 0)) == 45:
-			continue  # (headings; "-", bare hands or nothing, is a button)
+		if int(row.get("selector", 0)) == 0 or _is_extra(row, state):
+			continue  # (headings; "-" bare hands, force_invmenu's "*" / "?": buttons)
 		if pack_item(row, state).is_empty():
 			return false
 		choices += 1
@@ -60,6 +62,13 @@ static func pack_item(row: Dictionary, state: GameState) -> Dictionary:
 	return {}
 
 
+## A row that isn't a pack item but NetHack's own extra choice: "- (bare
+## hands)", and with force_invmenu "* - (list everything)", "? - (list likely
+## candidates)".
+static func _is_extra(row: Dictionary, state: GameState) -> bool:
+	return int(row.get("selector", 0)) in [45, 42, 63] and pack_item(row, state).is_empty()
+
+
 func setup(game_screen: GameScreen, p_request: Dictionary) -> void:
 	screen = game_screen
 	request = p_request
@@ -70,12 +79,12 @@ func setup(game_screen: GameScreen, p_request: Dictionary) -> void:
 		# NetHack titles the ? / * item list with nothing: the question it came
 		# from (or the choice before it) says what it's for.
 		var asked := screen.state.last_question().get_slice("[", 0).strip_edges()
-		if asked.to_lower().begins_with("what do you want to"):
-			title = asked
-		elif screen.state.next_menu_title != "":
+		if screen.state.next_menu_title != "":
 			title = screen.state.next_menu_title
+		elif asked.to_lower().begins_with("what do you want to"):
+			title = asked
 		else:
-			title = "Choose an item"
+			title = "Your pack"
 	screen.state.next_menu_title = ""
 	set_title(title, "Click an item or press its letter." if how == PICK_ONE else "Pick the items, then confirm.")
 	_build()
@@ -90,8 +99,13 @@ func setup(game_screen: GameScreen, p_request: Dictionary) -> void:
 		add_footer_button("Confirm  Enter", _confirm, true)
 		_update_summary()
 	else:
-		add_footer_button("Cancel  Esc", _cancel)
-	if not slots.is_empty():
+		_cancel_button = add_footer_button("Cancel  Esc", _cancel)
+	# Nothing is picked until the player picks: focus starts on Cancel (as
+	# NetHack's Enter with nothing chosen picks nothing). Arrows and the
+	# stick move into the grid.
+	if how == PICK_ONE:
+		set_meta("safe_focus", _cancel_button)
+	elif not slots.is_empty():
 		set_meta("safe_focus", slots[0])
 
 
@@ -106,13 +120,17 @@ func _build() -> void:
 			if text != "":
 				groups.append({"heading": text, "rows": []})
 			continue
-		if selector == 45:
-			# "- (bare hands)", "- (nothing)": a button of its own.
-			var words := str(row.get("text", "")).strip_edges()
-			add_footer_button("%s  -" % (words.substr(0, 1).to_upper() + words.substr(1)), func() -> void:
+		if _is_extra(row, screen.state):
+			# "- (bare hands)", "* - (list everything)"…: a button of its own
+			# (and its key).
+			var key := char(selector)
+			if key == "-":
+				_has_hands = true
+			var words := str(row.get("text", "")).strip_edges().trim_prefix("(").trim_suffix(")")
+			add_footer_button("%s  %s" % [words.substr(0, 1).to_upper() + words.substr(1), key], func() -> void:
 				if not _answered:
 					_answered = true
-					screen.send_keys("-")
+					screen.send_keys(key)
 					close())
 			continue
 		if groups.is_empty():
@@ -240,10 +258,21 @@ func handle_key(event: InputEventKey) -> bool:
 	if not event.pressed:
 		return true
 	if event.keycode == KEY_ESCAPE:
+		# Esc while typing a count drops the count only, as in tty.
+		if _pending_count != "":
+			_pending_count = ""
+			return true
 		_cancel()
 		return true
 	if event.keycode in [KEY_ENTER, KEY_KP_ENTER] and how == PICK_ANY:
 		_confirm()
+		return true
+	var focused := get_viewport().gui_get_focus_owner()
+	if event.keycode in [KEY_ENTER, KEY_KP_ENTER] and how == PICK_ONE and not (focused is InventorySlot and slots.has(focused as InventorySlot)):
+		# Enter with nothing chosen: nothing, as in tty (NetHack asks again).
+		_answered = true
+		screen.send_keys("\n")
+		close()
 		return true
 	# Space and arrows belong to the focused slot.
 	if event.keycode in [KEY_SPACE, KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN, KEY_TAB, KEY_ENTER, KEY_KP_ENTER]:
@@ -254,14 +283,27 @@ func handle_key(event: InputEventKey) -> bool:
 	if typed.is_valid_int():
 		_pending_count += typed
 		return true
+	if typed == "-" and _has_hands and how == PICK_ONE:
+		_answered = true
+		screen.send_keys("-")
+		close()
+		return true
 	for slot in slots:
 		if char(int(slot.item.get("selector", 0))) == typed:
-			_on_slot(slot)
+			if how == PICK_ANY and _pending_count != "" and slot.is_selected:
+				# A count before a picked item's letter sets its count (tty).
+				_toggle(slot, true)
+			else:
+				_on_slot(slot)
 			return true
 	# NetHack's menu shortcuts in pick-any menus: , all, - none.
-	if how == PICK_ANY and typed == ",":
+	# NetHack's menu keys in pick-any menus: , . all, - none, @ ~ invert.
+	if how == PICK_ANY and typed in [",", "."]:
 		for slot in slots:
 			_toggle(slot, true)
 	elif how == PICK_ANY and typed == "-":
 		_clear()
+	elif how == PICK_ANY and typed in ["@", "~"]:
+		for slot in slots:
+			_toggle(slot, not slot.is_selected)
 	return true

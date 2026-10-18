@@ -6,6 +6,7 @@ extends Scenario
 ##   4. / (look) answers by its letter: "something you're carrying" goes on
 ##      to NetHack's pack menu;
 ##   5. ? (NetHack's help) is compact tiles; a letter opens the page.
+##   6. NetHack's hidden keys work: / y, C n.
 
 
 func _wait_choice(title: String) -> ChoiceScreen:
@@ -27,12 +28,14 @@ func _wait_not_menu(what: String) -> void:
 
 
 func _back_to_prompt() -> void:
-	for i in 5:
+	# By state, not events: Esc only while something is open or asked.
+	for i in 12:
 		if game.state.is_waiting_for_command() and game.dialogs.active == null:
-			break
-		await press(KEY_ESCAPE)
+			return
+		if game.dialogs.active != null or not game.state.is_waiting_for_command():
+			await press(KEY_ESCAPE)
 		await get_tree().create_timer(0.3).timeout
-	await wait_for_command_prompt()
+	expect(game.state.is_waiting_for_command() and game.dialogs.active == null, "back at the command prompt")
 
 
 func run() -> void:
@@ -74,7 +77,7 @@ func run() -> void:
 		await screenshot("terrain-choices")
 		await press(KEY_ENTER)
 		await _wait_not_menu("Enter takes the preselected view")
-		expect(game.dialogs.banner_label.text.begins_with("Showing the terrain you remember"), "the banner says what the view is (%s)" % game.dialogs.banner_label.text)
+		expect(game.dialogs.banner_label.text.begins_with("Showing known terrain only"), "the banner says what the view is (%s)" % game.dialogs.banner_label.text)
 		await screenshot("terrain-view")
 	await _back_to_prompt()
 
@@ -116,4 +119,23 @@ func run() -> void:
 			await get_tree().create_timer(0.4).timeout
 			expect(game.dialogs.active != null and not game.dialogs.active is ChoiceScreen, "NetHack's page opens (%s)" % game.dialogs.active)
 			await screenshot("help-page")
+	await _back_to_prompt()
+
+	# 6. NetHack's hidden keys: / y is "something on the map", C n "the type
+	# of an object in inventory".
+	mark()
+	await press(KEY_SLASH, 47)
+	choice = await _wait_choice("Look at")
+	if choice != null:
+		await type_text("y")
+		await _wait_not_menu("/ y answers")
+		expect(str(game.state.request.get("kind", "")) == "map_target", "/ y goes to the map (%s)" % game.state.request.get("kind", ""))
+	await _back_to_prompt()
+	mark()
+	await press(KEY_C, 67, true)
+	choice = await _wait_choice("Name or call")
+	if choice != null:
+		await type_text("n")
+		var asked := await wait_for_event(func(e: Dictionary) -> bool: return str(e.get("query", "")).begins_with("What do you want to call"), "What do you want to call?")
+		expect(not asked.is_empty(), "C n asks what to call")
 	await _back_to_prompt()

@@ -17,7 +17,12 @@ var _tabs: TabContainer
 
 
 static func recognises(lines: Array) -> bool:
-	return not lines.is_empty() and str(lines[0].get("text", "")).strip_edges().begins_with("Discoveries")
+	if lines.is_empty():
+		return false
+	# \ "Discoveries, by order…"; ` "Discovered weapons…", or a class heading
+	# first ("Unique items or Relics", "Artifacts").
+	var first := str(lines[0].get("text", "")).strip_edges()
+	return first.begins_with("Discoveries") or first.begins_with("Discovered ") or first in ["Unique items or Relics", "Unique items", "Relics", "Artifacts"]
 
 
 func setup(game_screen: GameScreen, lines: Array) -> void:

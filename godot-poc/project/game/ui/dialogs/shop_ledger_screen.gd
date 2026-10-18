@@ -12,6 +12,8 @@ var screen: GameScreen
 var kind := ""  # "goods", "bill", "used"
 var groups: Array = []  # [{heading, rows: [{letter, name, price, each, free}]}]
 var total := -1
+var currency := "zm"
+var notes: Array = []  # NetHack's other lines ("(There are 2 more unpaid objects on the floor.)")
 
 
 static func kind_of(lines: Array) -> String:
@@ -22,11 +24,10 @@ static func kind_of(lines: Array) -> String:
 		return "goods"
 	if first.begins_with("Unpaid articles already used up"):
 		return "used"
-	# Iu: "Unpaid <class>" headings and a "* - Total:" row.
-	if first.begins_with("Unpaid "):
-		for line in lines:
-			if str(line.get("text", "")).strip_edges().begins_with("* - Total:"):
-				return "bill"
+	# Iu: a "* - Total:" row (class headings only with sortpack).
+	for line in lines:
+		if str(line.get("text", "")).strip_edges().begins_with("* - Total:"):
+			return "bill"
 	return ""
 
 
@@ -46,7 +47,7 @@ func setup(game_screen: GameScreen, lines: Array, p_kind: String) -> void:
 	_build()
 	if total >= 0:
 		var sum := Label.new()
-		sum.text = "Total  %d zm" % total
+		sum.text = "Total  %d %s" % [total, currency]
 		sum.add_theme_font_override("font", UiTheme.heading_font())
 		sum.add_theme_font_size_override("font_size", 20)
 		sum.add_theme_color_override("font_color", UiTheme.BAD if kind == "bill" and total > gold else UiTheme.GOLD)
@@ -62,38 +63,52 @@ func setup(game_screen: GameScreen, lines: Array, p_kind: String) -> void:
 
 
 func _parse(lines: Array) -> void:
-	var goods := RegEx.create_from_string("^(?:the contents of )?(.+), (?:(\\d+) \\S+?( each)?|no charge)$")
-	var billed := RegEx.create_from_string("^(.) - (.+?)\\s+(\\d+) \\S+$")
+	# The currency is NetHack's own word(s): "zorkmids", or while
+	# hallucinating "Altarian Dollars"…
+	var goods := RegEx.create_from_string("^(.+), (?:(\\d+) (.+?)( each)?|no charge)$")
+	var billed := RegEx.create_from_string("^(.) - (.+?)\\s+(\\d+) (.+)$")
 	var current: Dictionary = {}
 	# (The bill's first line is already a class heading; the others' a title.)
 	for line in (lines if kind == "bill" else lines.slice(1)):
 		var text := str(line.get("text", "")).strip_edges()
 		if text == "":
 			continue
+		if text.begins_with("("):
+			notes.append(text)
+			continue
 		if kind == "goods":
 			var g := goods.search(text)
 			if g == null:
+				notes.append(text)
 				continue
 			if current.is_empty():
 				current = {"heading": "", "rows": []}
 				groups.append(current)
+			if g.get_string(3) != "":
+				_currency(g.get_string(3))
 			(current.rows as Array).append({"letter": "", "name": g.get_string(1), "price": int(g.get_string(2)) if g.get_string(2) != "" else 0,
-				"each": g.get_string(3) != "", "free": g.get_string(2) == ""})
+				"each": g.get_string(4) != "", "free": g.get_string(2) == ""})
 			continue
 		var b := billed.search(text)
 		if b == null:
-			# A class heading ("Unpaid Weapons").
+			# A class heading ("Unpaid Weapons", "Unpaid Bagged/Boxed items").
 			current = {"heading": text.trim_prefix("Unpaid "), "rows": []}
 			groups.append(current)
 			continue
+		_currency(b.get_string(4))
 		if b.get_string(1) == "*":
 			total = int(b.get_string(3))
 			continue
 		if current.is_empty():
 			current = {"heading": "", "rows": []}
 			groups.append(current)
-		(current.rows as Array).append({"letter": b.get_string(1) if b.get_string(1) not in ["x", ">"] or kind != "used" else "",
+		(current.rows as Array).append({"letter": b.get_string(1) if b.get_string(1) not in ["x", ">"] else "",
 			"name": b.get_string(2), "price": int(b.get_string(3)), "each": false, "free": false})
+
+
+## "zorkmids" reads "zm"; any other currency NetHack names is kept as it is.
+func _currency(words: String) -> void:
+	currency = "zm" if words.begins_with("zorkmid") else words
 
 
 func _build() -> void:
@@ -117,6 +132,13 @@ func _build() -> void:
 		for row in group.rows:
 			column.add_child(_row(row))
 			count += 1
+	for text in notes:
+		var note := Label.new()
+		note.text = str(text)
+		note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		note.theme_type_variation = "CaptionLabel"
+		column.add_child(note)
+		count += 1
 	scroll.custom_minimum_size = Vector2(0, clampi(count * 58 + 10, 80, 600))
 
 
@@ -149,7 +171,7 @@ func _row(row: Dictionary) -> Control:
 	name.add_theme_color_override("font_color", UiTheme.INK)
 	line.add_child(name)
 	var price := Label.new()
-	price.text = "no charge" if bool(row.free) else ("%d zm%s" % [int(row.price), " each" if bool(row.each) else ""])
+	price.text = "no charge" if bool(row.free) else ("%d %s%s" % [int(row.price), currency, " each" if bool(row.each) else ""])
 	price.add_theme_font_override("font", UiTheme.bold_font())
 	price.add_theme_font_size_override("font_size", 18)
 	price.add_theme_color_override("font_color", UiTheme.INK_DIM if bool(row.free) else UiTheme.GOLD)

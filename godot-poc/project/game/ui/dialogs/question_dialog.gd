@@ -292,18 +292,15 @@ func handle_key(event: InputEventKey) -> bool:
 	return true
 
 
-## Before praying: what the hero can see of their own trouble, and when they
+## Before praying: the hero's hit points and current states, and when they
 ## last prayed (from the message log). Never the prayer timeout or luck.
 func _build_prayer_facts() -> void:
-	var troubles: Array = []
+	# Only facts the player can read anyway: no judgement of what NetHack
+	# counts as trouble (its thresholds are hidden and easy to misstate).
 	var status := screen.state.status
 	var hp := status.number(StatusModel.Field.HP)
 	var hp_max := status.number(StatusModel.Field.HPMAX)
-	if hp_max > 0 and (hp < 5 or hp * 7 < hp_max):
-		troubles.append("Hit points low (%d of %d)" % [hp, hp_max])
-	for effect in StatusEffects.current(status):
-		if effect.tier in ["deadly", "serious"]:
-			troubles.append(str(effect.label))
+	var states: Array = StatusEffects.current(status).map(func(effect: Dictionary) -> String: return str(effect.label))
 	var last := ""
 	var god := ""
 	var prayed := RegEx.create_from_string("(?i)you begin praying to (.+?)\\.")
@@ -316,14 +313,14 @@ func _build_prayer_facts() -> void:
 	box.name = "PrayerFacts"
 	box.add_theme_constant_override("separation", 4)
 	var lines: Array = []
-	lines.append(("Troubles you can see: " + ", ".join(troubles) + ".") if not troubles.is_empty() else "You see no trouble on yourself.")
+	lines.append("Hit points %d of %d%s" % [hp, hp_max, ("   ·   " + ", ".join(states)) if not states.is_empty() else ""])
 	lines.append(("You last prayed%s on %s." % [(" to " + god) if god != "" else "", last]) if last != "" else "You haven't prayed this game (as far as your log goes).")
 	for text in lines:
 		var label := Label.new()
 		label.text = text
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		label.add_theme_font_size_override("font_size", 17)
-		label.add_theme_color_override("font_color", UiTheme.BAD if text.begins_with("Troubles") else UiTheme.INK_DIM)
+		label.add_theme_color_override("font_color", UiTheme.INK_DIM)
 		box.add_child(label)
 	body.add_child(box)
 

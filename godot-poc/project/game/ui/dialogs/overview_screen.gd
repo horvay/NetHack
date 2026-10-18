@@ -53,8 +53,11 @@ func _parse(lines: Array) -> void:
 			level = {"depth": int(m.get_string(1)), "text": rest, "here": here, "details": []}
 			(branch.levels as Array).append(level)
 			continue
-		if not raw.begins_with(" ") and text.ends_with(":"):
-			branch = {"name": text.trim_suffix(":"), "levels": []}
+		# A branch heading: unindented ("The Dungeons of Doom:", or once two
+		# levels are known "The Gnomish Mines: levels 3 to 4"), or NetHack's
+		# heading attribute.
+		if not raw.begins_with(" ") and (text.contains(":") or int(line.get("attr", 0)) != 0):
+			branch = {"name": text.get_slice(":", 0).strip_edges(), "levels": []}
 			branches.append(branch)
 			level = {}
 			continue
@@ -143,6 +146,8 @@ func _level_row(level: Dictionary) -> Control:
 		icons.add_child(you)
 	if icons.get_child_count() > 0:
 		words.add_child(icons)
+	else:
+		icons.free()
 	for text in [str(level.text)] + (level.details as Array):
 		if str(text).strip_edges() == "":
 			continue

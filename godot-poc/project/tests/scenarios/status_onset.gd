@@ -7,7 +7,7 @@ extends Scenario
 ##      darkens around the middle;
 ##   3. drinking confusion while blind: a CONFUSED card queued behind any
 ##      other, and the view sways;
-##   4. #pray asks first and lists the troubles the hero can see (blind,
+##   4. #pray asks first and shows the hero's hit points and states (blind,
 ##      confused); No backs out.
 
 
@@ -60,7 +60,7 @@ func run() -> void:
 	var facts: Node = question.find_child("PrayerFacts", true, false) if question else null
 	var said := " ".join(facts.find_children("*", "Label", true, false).map(func(l: Label) -> String: return l.text)) if facts else ""
 	note("prayer facts: %s" % said)
-	expect(facts != null and said.contains("Blind") and said.contains("Confused"), "the pray question lists the troubles the hero can see")
+	expect(facts != null and said.contains("Blind") and said.contains("Confused"), "the pray question shows the hero's states, as plain facts")
 	await screenshot("pray-question")
 	await type_text("n")
 	await wait_for_command_prompt()

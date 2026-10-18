@@ -319,6 +319,9 @@ func _set_request(new_request: Dictionary) -> void:
 	var kind := str(new_request.get("kind", ""))
 	if kind == "yn":
 		_last_question = str(new_request.get("query", ""))
+	elif kind == "command":
+		# Only the question just asked titles NetHack's untitled ? / * list.
+		_last_question = ""
 	if kind == "map_target":
 		# Lines printed while the cursor moved describe the cursor cell.
 		if not _getpos_buffer.is_empty():

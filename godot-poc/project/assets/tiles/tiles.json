@@ -29,7 +29,7 @@
    "category": "full-source-monsters",
    "name": "acolyte",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "adornment": {
    "category": "full-source-objects",
@@ -256,7 +256,7 @@
    "category": "full-source-monsters",
    "name": "arch-lich",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "arch-priest": {
    "category": "full-source-monsters",
@@ -391,7 +391,7 @@
    "category": "full-source-monsters",
    "name": "baby orange dragon",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "baby-purple-worm": {
    "category": "full-source-monsters",
@@ -977,7 +977,7 @@
    "category": "full-source-monsters",
    "name": "captain",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "carnivorous-ape": {
    "category": "full-source-monsters",
@@ -1003,7 +1003,7 @@
    "category": "common-early-monsters",
    "name": "cave spider",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "caveman-role-avatar": {
    "category": "player-pets-identity",
@@ -1688,7 +1688,7 @@
    "category": "full-source-monsters",
    "name": "doppelganger",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "down-stairs": {
    "category": "terrain-features",
@@ -1793,7 +1793,7 @@
    "category": "full-source-monsters",
    "name": "dwarf zombie",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "dwarvish-cloak": {
    "category": "full-source-objects",
@@ -1865,7 +1865,7 @@
    "category": "full-source-monsters",
    "name": "earth elemental",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "ebony-wand": {
    "category": "objects-appearance",
@@ -1902,7 +1902,7 @@
    "category": "full-source-monsters",
    "name": "elf",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "elf-mummy": {
    "category": "full-source-monsters",
@@ -2691,19 +2691,19 @@
    "category": "common-early-monsters",
    "name": "giant ant",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "giant-bat": {
    "category": "full-source-monsters",
    "name": "giant bat",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "giant-beetle": {
    "category": "full-source-monsters",
    "name": "giant beetle",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "giant-eel": {
    "category": "full-source-monsters",
@@ -2752,7 +2752,7 @@
    "category": "full-source-monsters",
    "name": "glass golem",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "glass-piercer": {
    "category": "full-source-monsters",
@@ -2944,7 +2944,7 @@
    "category": "common-early-monsters",
    "name": "goblin",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "goblin-king": {
    "category": "full-source-monsters",
@@ -3131,7 +3131,7 @@
    "category": "common-early-monsters",
    "name": "green mold",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "green-slime": {
    "category": "full-source-monsters",
@@ -3161,7 +3161,7 @@
    "category": "full-source-monsters",
    "name": "guard",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "guardian-naga": {
    "category": "full-source-monsters",
@@ -3373,7 +3373,7 @@
    "category": "common-early-monsters",
    "name": "hill orc",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "hippocrates": {
    "category": "full-source-monsters",
@@ -3385,7 +3385,7 @@
    "category": "common-early-monsters",
    "name": "hobbit",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "hobgoblin": {
    "category": "common-early-monsters",
@@ -3702,7 +3702,7 @@
    "category": "full-source-monsters",
    "name": "ice devil",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "ice-troll": {
    "category": "full-source-monsters",
@@ -3714,7 +3714,7 @@
    "category": "full-source-monsters",
    "name": "ice vortex",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "identify": {
    "category": "full-source-objects",
@@ -3860,7 +3860,7 @@
    "category": "common-early-monsters",
    "name": "jackal",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "jade": {
    "category": "full-source-objects",
@@ -3994,7 +3994,7 @@
    "category": "common-early-monsters",
    "name": "killer bee",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "king-arthur": {
    "category": "full-source-monsters",
@@ -4006,7 +4006,7 @@
    "category": "common-early-monsters",
    "name": "kitten",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "kitten-pet": {
    "category": "player-pets-identity",
@@ -4076,7 +4076,7 @@
    "category": "full-source-monsters",
    "name": "Kop Kaptain",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "kop-lieutenant": {
    "category": "full-source-monsters",
@@ -4321,7 +4321,7 @@
    "category": "full-source-monsters",
    "name": "lieutenant",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "light": {
    "category": "full-source-objects",
@@ -4369,7 +4369,7 @@
    "category": "common-early-monsters",
    "name": "little dog",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "little-dog-pet": {
    "category": "player-pets-identity",
@@ -4903,7 +4903,7 @@
    "category": "full-source-monsters",
    "name": "Neferet the Green",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "newt": {
    "category": "common-early-monsters",
@@ -4927,7 +4927,7 @@
    "category": "full-source-monsters",
    "name": "Norn",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "nothing": {
    "category": "full-source-objects",
@@ -4956,7 +4956,7 @@
    "category": "common-early-monsters",
    "name": "nymph",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "oak-wand": {
    "category": "objects-appearance",
@@ -5211,7 +5211,7 @@
    "category": "common-early-monsters",
    "name": "orc shaman",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "orc-wizard-female-avatar": {
    "category": "player-combo-avatars",
@@ -5353,7 +5353,7 @@
    "category": "full-source-monsters",
    "name": "page",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "pancake": {
    "category": "full-source-objects",
@@ -5802,7 +5802,7 @@
    "category": "full-source-monsters",
    "name": "red dragon",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "red-dragon-scale-mail": {
    "category": "full-source-objects",
@@ -5916,7 +5916,7 @@
    "category": "common-early-monsters",
    "name": "rock piercer",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "rock-troll": {
    "category": "full-source-monsters",
@@ -6063,7 +6063,7 @@
    "category": "full-source-monsters",
    "name": "sandestin",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "sapphire": {
    "category": "full-source-objects",
@@ -6798,7 +6798,7 @@
    "category": "full-source-monsters",
    "name": "steam vortex",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "steel-ring": {
    "category": "objects-appearance",
@@ -7037,7 +7037,7 @@
    "category": "full-source-monsters",
    "name": "tiger",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "tiger-eye-ring": {
    "category": "objects-appearance",
@@ -7513,7 +7513,7 @@
    "category": "full-source-monsters",
    "name": "watchman",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "water": {
    "category": "full-source-objects",
@@ -7534,7 +7534,7 @@
    "category": "full-source-monsters",
    "name": "water elemental",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "water-moccasin": {
    "category": "full-source-monsters",
@@ -7606,7 +7606,7 @@
    "category": "full-source-monsters",
    "name": "werewolf",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "whistle": {
    "category": "objects-inventory",
@@ -7654,7 +7654,7 @@
    "category": "full-source-monsters",
    "name": "white unicorn",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "winged-gargoyle": {
    "category": "full-source-monsters",
@@ -7768,7 +7768,7 @@
    "category": "full-source-monsters",
    "name": "Woodland-elf",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "worm-tooth": {
    "category": "full-source-objects",
@@ -7878,7 +7878,7 @@
    "category": "full-source-monsters",
    "name": "wraith",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "wumpus": {
    "category": "full-source-monsters",
@@ -7953,7 +7953,7 @@
    "category": "common-early-monsters",
    "name": "yellow mold",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "yellow-potion": {
    "category": "objects-appearance",

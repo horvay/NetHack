@@ -6,6 +6,9 @@ extends Scenario
 ##   2. * at "What do you want to eat?": titled with the question, Esc backs
 ##      out;
 ##   3. ? at "What do you want to wield?": "- (bare hands)" is a button;
+##   4. Enter with nothing picked picks nothing (NetHack asks again);
+##   5. - at the wield list is bare hands;
+##   6. / i after another question keeps "Look up which item?";
 ##   (identify's pick-any grid: identify_pick).
 
 
@@ -18,12 +21,14 @@ func _wait_pick() -> ItemPickScreen:
 
 
 func _back_to_prompt() -> void:
-	for i in 5:
+	# By state, not events: Esc only while something is open or asked.
+	for i in 12:
 		if game.state.is_waiting_for_command() and game.dialogs.active == null:
-			break
-		await press(KEY_ESCAPE)
+			return
+		if game.dialogs.active != null or not game.state.is_waiting_for_command():
+			await press(KEY_ESCAPE)
 		await get_tree().create_timer(0.3).timeout
-	await wait_for_command_prompt()
+	expect(game.state.is_waiting_for_command() and game.dialogs.active == null, "back at the command prompt")
 
 
 func run() -> void:
@@ -74,4 +79,50 @@ func run() -> void:
 		expect(hands.size() == 1, "bare hands is a button")
 		await screenshot("wield-which-item")
 		await press(KEY_ESCAPE)
+	await _back_to_prompt()
+
+	# 4. Enter with nothing picked picks nothing (tty): NetHack asks again.
+	mark()
+	var turn := game.state.status.turn()
+	await type_text("e")
+	await get_tree().create_timer(0.5).timeout
+	# (* : with one thing to eat, ? names it in a line rather than a list.)
+	await type_text("*")
+	pick = await _wait_pick()
+	if expect(pick != null, "* at the eat question opens the item grid"):
+		await press(KEY_ENTER)
+		var asked := await wait_for_event(func(e: Dictionary) -> bool: return str(e.get("name", "")) == "shim_yn_function" and str(e.get("query", "")).begins_with("What do you want to eat"), "the eat question again")
+		expect(not asked.is_empty() and game.state.status.turn() == turn, "Enter picked nothing: the question is back, no turn passed")
+	await _back_to_prompt()
+
+	# 5. - at the wield list: bare hands.
+	mark()
+	await type_text("w")
+	await get_tree().create_timer(0.5).timeout
+	await type_text("?")
+	pick = await _wait_pick()
+	if expect(pick != null, "? at the wield question opens the item grid"):
+		await type_text("-")
+		await wait_for_command_prompt()
+		await get_tree().create_timer(0.4).timeout
+		var said := game.state.messages.recent(3).map(func(m: Dictionary) -> String: return str(m.get("text", "")))
+		expect(said.any(func(t: String) -> bool: return t.contains("empty handed") or t.contains("bare hand")), "- chose bare hands (%s)" % [said])
+	await _back_to_prompt()
+
+	# 6. After another question, / "something you're carrying" is still
+	# "Look up which item?".
+	mark()
+	await type_text("e")
+	await wait_for_event(func(e: Dictionary) -> bool: return str(e.get("query", "")).begins_with("What do you want to eat"), "the eat question")
+	await get_tree().create_timer(0.4).timeout
+	await press(KEY_ESCAPE)
+	await _back_to_prompt()
+	await press(KEY_SLASH, 47)
+	deadline = Time.get_ticks_msec() + 6000
+	while Time.get_ticks_msec() < deadline and not game.dialogs.active is ChoiceScreen:
+		await get_tree().process_frame
+	await get_tree().create_timer(0.3).timeout
+	await type_text("i")
+	pick = await _wait_pick()
+	expect(pick != null and pick.title_label.text == "Look up which item?", "the look title, not the old question (%s)" % (pick.title_label.text if pick else "none"))
 	await _back_to_prompt()

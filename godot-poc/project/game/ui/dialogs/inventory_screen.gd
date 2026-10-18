@@ -75,8 +75,11 @@ func setup(game_screen: GameScreen) -> void:
 	_grid.add_theme_constant_override("v_separation", 8)
 	scroll.add_child(_grid)
 	var legend := Label.new()
-	legend.text = "Band: where it is on you   ·   B / U / C: blessed, uncursed, cursed   ·   +2 / −1: enchantment   ·   Drag onto another to swap letters   ·   Right-click for every action"
+	legend.text = "Band: where it is on you   ·   B / U / C: blessed, uncursed, cursed   ·   +2 / −1: enchantment   ·   Drag to swap letters   ·   Right-click for every action"
 	legend.theme_type_variation = "CaptionLabel"
+	# (Wraps rather than widening the screen in a small window.)
+	legend.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	legend.custom_minimum_size = Vector2(200, 0)
 	middle.add_child(legend)
 	var detail_panel := PanelContainer.new()
 	detail_panel.custom_minimum_size = Vector2(420, 0)

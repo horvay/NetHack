@@ -1214,7 +1214,7 @@
         if (requestId && activeMenuForAnswer?.requestId && requestId !== activeMenuForAnswer.requestId) { rejectCommandFollowup(event, 'request id does not match active menu', effects); effects.push(staleEffect('menu-answer', event, 'request id does not match active menu')); return publication(appEvent, effects); }
         const closingReadOnlyMenu = state.currentMenu && !Number(state.currentMenu.how || 0);
         const answeringCurrentMenu = state.currentMenu && (event.window == null || state.currentMenu.window === event.window);
-        if (!event.return && !closingReadOnlyMenu && activeNonInventoryTransaction() && activeMenuForAnswer?.awaitingSelection && CommandTransactionModel?.failTransaction) {
+        if (!(Number(event.return) > 0) && !closingReadOnlyMenu && activeNonInventoryTransaction() && activeMenuForAnswer?.awaitingSelection && CommandTransactionModel?.failTransaction) {
           const failed = CommandTransactionModel.failTransaction(state.commandTransactions, { ...event, transactionId: activeMenuForAnswer.transactionId || state.activeTransactionId, name: 'bridge_menu_answer.cancelled' }, 'cancelled by player');
           state.commandTransactions = failed.state;
           if (failed.effect) effects.push(failed.effect);
@@ -1227,8 +1227,8 @@
           state.pendingMenuSelections.delete(event.window);
           state.menuLifecyclesByWindow.delete(event.window);
         }
-        if (answeringCurrentMenu || closingReadOnlyMenu || event.return) state.currentMenu = null;
-        effects.push(effect('close-interaction'), effect('render-prompt'), effect('render-menu'), effect('status', { text: event.return ? 'menu selection sent' : 'returned to map' }));
+        if (answeringCurrentMenu || closingReadOnlyMenu || Number(event.return) > 0) state.currentMenu = null;
+        effects.push(effect('close-interaction'), effect('render-prompt'), effect('render-menu'), effect('status', { text: Number(event.return) > 0 ? 'menu selection sent' : 'returned to map' }));
       } else if (event.name === 'shim_yn_function') {
         if (event.autoAnswered) {
           effects.push(effect('status', { text: event.autoAnswerReason === 'queued-ring-finger' ? 'ring finger auto-selected' : 'prompt auto-answered' }));

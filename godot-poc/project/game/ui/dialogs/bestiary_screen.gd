@@ -52,7 +52,7 @@ func setup(lines: Array, p_kind: String) -> void:
 
 func _parse(lines: Array) -> void:
 	var counted := RegEx.create_from_string("^(\\d+) (.+)$")
-	var times := RegEx.create_from_string("^(.+) \\((\\d+|twice|thrice|once) times?\\)$")
+	var times := RegEx.create_from_string("^(.+) \\((?:(\\d+) times|(once|twice|thrice))\\)$")
 	var current: Dictionary = {}
 	for line in lines.slice(1):
 		var raw := str(line.get("text", ""))
@@ -74,6 +74,7 @@ func _parse(lines: Array) -> void:
 		var name := text
 		var count := 1
 		var note := ""
+		var unique := text.begins_with("the ")
 		if text.ends_with("(extinct)"):
 			note = "extinct"
 			name = text.trim_suffix("(extinct)").strip_edges()
@@ -84,14 +85,14 @@ func _parse(lines: Array) -> void:
 		var t := times.search(name)
 		if t:
 			name = t.get_string(1)
-			var word := t.get_string(2)
-			count = {"once": 1, "twice": 2, "thrice": 3}.get(word, int(word))
+			count = int(t.get_string(2)) if t.get_string(2) != "" else int({"once": 1, "twice": 2, "thrice": 3}[t.get_string(3)])
+			unique = true
 		for article in ["the ", "an ", "a "]:
 			if name.begins_with(article):
 				name = name.substr(article.length())
 				break
 		var monster := name
-		if count > 1 or kind == "genocided":
+		if (count > 1 and not unique) or kind == "genocided":
 			monster = singular(name)
 		(current.entries as Array).append({"name": name, "count": count, "note": note, "monster": monster})
 

@@ -1,0 +1,35 @@
+{
+  "schema": "nethack-electron-test-scenario/v2",
+  "id": "special/mines-end-overview",
+  "phase": "after-special-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current",
+    "role": "Valkyrie",
+    "race": "human",
+    "gender": "female",
+    "alignment": "lawful",
+    "experienceLevel": 10,
+    "hp": 120,
+    "maxHp": 120,
+    "power": 20,
+    "maxPower": 20
+  },
+  "level": {
+    "safeAreaAroundHero": 2,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none",
+    "specialLevel": "minend"
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [],
+  "expectedPublicFacts": {
+    "status": [
+      "Valkyrie"
+    ],
+    "messages": [
+      "mines end overview fixture"
+    ]
+  }
+}

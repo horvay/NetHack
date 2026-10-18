@@ -182,6 +182,7 @@ typedef struct bridge_menu_item {
 typedef struct bridge_menu_entry {
     int window;
     int selector;
+    int group; /* NetHack's group accelerator (hidden key), 0 if none */
     unsigned itemflags;
     bridge_anything identifier;
     char text[256];
@@ -3776,6 +3777,12 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
         begin_prompt_lifecycle(prompt_purpose);
         emit_event_start(input_state == commandInp ? "bridge_command_prompt" : "bridge_direction_prompt");
         fputs(input_state == commandInp ? ",\"query\":\"Choose a command.\",\"choices\":\"\"" : ",\"query\":\"Choose a direction or map target.\",\"choices\":\"ykulnjbh.<>\"", stdout);
+        /* What a map target is for, from NetHack's own modes: _ travel, or
+         * #terrain's view (the front end needn't guess from messages). */
+        if (bridge_extended_events() && input_state == getposInp) {
+            if (iflags.getloc_travelmode) fputs(",\"getposPurpose\":\"travel\"", stdout);
+            else if (iflags.terrainmode) fputs(",\"getposPurpose\":\"terrain\"", stdout);
+        }
         emit_prompt_lifecycle_metadata(prompt_purpose, "opened");
         emit_event_end();
         int queue_before = 0, queue_after = 0;
@@ -4122,7 +4129,10 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
             if (menu_list) *menu_list = selected;
             for (;;) {
                 int ch = pop_key_blocking_with_status(&answer_queue_before, &answer_queue_after);
-                if (ch == 27) { result = 0; break; }
+                /* Esc cancels the menu (-1), as tty: callers tell it apart
+                 * from "nothing picked" (identify stops; getobj says
+                 * "Never mind."). */
+                if (ch == 27) { result = -1; break; }
                 if (ch == '\r' || ch == '\n' || ch == ' ') break;
                 if (isdigit((unsigned char) ch)) {
                     if (pending_count < 0) pending_count = 0;
@@ -4148,6 +4158,29 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
                     continue;
                 }
                 bridge_menu_entry *entry = find_menu_selector(win, ch);
+                if (!entry && selected) {
+                    /* A group accelerator (NetHack's hidden keys: "/ y",
+                     * "C n", lootabc's "/ ?"): every row with it, as tty;
+                     * a pick-one menu takes the first. */
+                    int grouped = 0;
+                    for (int gi = 0; gi < menu_entry_count && result < MAX_BRIDGE_MENU_ITEMS; ++gi) {
+                        bridge_menu_entry *g = &menu_entries[gi];
+                        if (g->window != win || g->group != ch || !g->selector) continue;
+                        selected[result].item = g->identifier;
+                        selected[result].count = -1L;
+                        selected[result].itemflags = g->itemflags;
+                        if (selected_len + 1 < (int) sizeof selected_keys) selected_keys[selected_len++] = (char) g->selector;
+                        result++;
+                        chosen = g->selector;
+                        grouped = 1;
+                        if (how == 1) break;
+                    }
+                    if (grouped) {
+                        pending_count = -1L;
+                        if (how == 1) break;
+                        continue;
+                    }
+                }
                 if (entry && selected && result < MAX_BRIDGE_MENU_ITEMS) {
                     selected[result].item = entry->identifier;
                     selected[result].count = pending_count > 0 ? pending_count : -1L;
@@ -4159,7 +4192,7 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
                     if (how == 1) break;
                 }
             }
-            if (result == 0 && selected) { free(selected); if (menu_list) *menu_list = NULL; }
+            if (result <= 0 && selected) { free(selected); if (menu_list) *menu_list = NULL; }
         } else {
             /* PICK_NONE/read-only menu: keep it visible until an explicit key. */
             (void) pop_key_blocking_with_status(&answer_queue_before, &answer_queue_after);
@@ -4305,7 +4338,7 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
         else { buf[0] = ' '; }
         json_escape(stdout, buf); fputs("\"", stdout);
     } else if (!strcmp(name, "shim_add_menu")) {
-        int win = va_int_arg(&ap); const glyph_info *mgi = va_arg(ap, const glyph_info *); void *identifier = va_ptr_arg(&ap); int ch = va_int_arg(&ap); (void)va_int_arg(&ap); int attr = va_int_arg(&ap); int clr = va_int_arg(&ap); const char *str = va_string_arg(&ap); unsigned itemflags = (unsigned) va_int_arg(&ap);
+        int win = va_int_arg(&ap); const glyph_info *mgi = va_arg(ap, const glyph_info *); void *identifier = va_ptr_arg(&ap); int ch = va_int_arg(&ap); int gch = va_int_arg(&ap); int attr = va_int_arg(&ap); int clr = va_int_arg(&ap); const char *str = va_string_arg(&ap); unsigned itemflags = (unsigned) va_int_arg(&ap);
         bridge_anything copied_identifier;
         memset(&copied_identifier, 0, sizeof copied_identifier);
         if (identifier) memcpy(&copied_identifier, identifier, sizeof copied_identifier);
@@ -4315,6 +4348,7 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
             memset(entry, 0, sizeof *entry);
             entry->window = win;
             entry->selector = ch;
+            entry->group = gch;
             entry->itemflags = itemflags;
             entry->identifier = copied_identifier;
             if (str) snprintf(entry->text, sizeof entry->text, "%s", str);
@@ -4322,6 +4356,7 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
         int glyph = mgi ? mgi->glyph : NO_GLYPH;
         fprintf(stdout, ",\"window\":%d,\"selector\":%d,\"attr\":%d,\"color\":%d,\"itemflags\":%u",
                 win, ch, attr, clr, itemflags);
+        if (gch) fprintf(stdout, ",\"groupAccelerator\":%d", gch);
         bridge_menu_lifecycle *ctx = find_menu_lifecycle(win);
         struct obj *public_obj = find_known_object_ptr((const struct obj *) copied_identifier.a_void);
         if (!public_obj && ctx && !strncmp(ctx->purpose, "inventory.", 10))

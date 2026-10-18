@@ -5,7 +5,7 @@ extends Scenario
 ## inspection by eye (ASSET_GENERATION.md: check new art in game). Each
 ## monster must resolve to the art named after it.
 
-const FIXTURES := ["art/monsters-1", "art/monsters-2", "art/monsters-3", "art/monsters-4", "art/objects-1", "art/objects-2"]
+const FIXTURES := ["art/monsters-1", "art/monsters-2", "art/monsters-3", "art/monsters-4", "art/monsters-5", "art/monsters-6", "art/objects-1", "art/objects-2"]
 
 
 func run() -> void:

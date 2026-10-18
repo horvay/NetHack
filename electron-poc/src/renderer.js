@@ -7880,7 +7880,7 @@ function handleShimEvent(event) {
   }
   const activePanelTransfer = transferSession.snapshot().pending;
   if (activePanelTransfer && ['bridge_menu_answer', 'bridge_prompt_answer', 'bridge_line_answer'].includes(rawEvent.name)) {
-    const cancelled = (rawEvent.name === 'bridge_menu_answer' && !Number(rawEvent.return || 0) && !rawEvent.answer && !rawEvent.selection)
+    const cancelled = (rawEvent.name === 'bridge_menu_answer' && !(Number(rawEvent.return || 0) > 0) && !rawEvent.answer && !rawEvent.selection)
       || rawEvent.cancelled === true
       || Number(rawEvent.keycode) === 27
       || rawEvent.answer === '\u001b'
@@ -7937,7 +7937,7 @@ function handleShimEvent(event) {
     const answeredWithEsc = rawEvent.cancelled === true || Number(rawEvent.keycode) === 27 || rawEvent.answer === '\u001b' || rawEvent.key === '\u001b';
     if (answeredWithEsc) clearPromptOwnerState({ clearWorkflow: true });
   }
-  if (rawEvent.name === 'bridge_menu_answer' && !Number(rawEvent.return || 0)) clearWorkflowContext();
+  if (rawEvent.name === 'bridge_menu_answer' && !(Number(rawEvent.return || 0) > 0)) clearWorkflowContext(); // (-1: Esc, cancelled)
   if (rawEvent.name === 'bridge_command' && shopPaymentUiStatus.phase === 'idle') setStatus('command accepted');
   if (rawEvent.name === 'shim_raw_print' || rawEvent.name === 'shim_putstr') {
     const message = String(rawEvent.text || '').trim();

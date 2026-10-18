@@ -1,7 +1,8 @@
 extends Scenario
 ## Reading a scroll of identify (fixture: unidentified potions, a ring, a
 ## wand, gems): "What would you like to identify first?" is a pick-any item
-## grid (ItemPickScreen); a click picks, Confirm identifies.
+## grid (ItemPickScreen); a click picks, Confirm identifies; Esc on the
+## second scroll's grid declines at once.
 
 
 func _wait_pick() -> ItemPickScreen:
@@ -13,12 +14,14 @@ func _wait_pick() -> ItemPickScreen:
 
 
 func _back_to_prompt() -> void:
-	for i in 5:
+	# By state, not events: Esc only while something is open or asked.
+	for i in 12:
 		if game.state.is_waiting_for_command() and game.dialogs.active == null:
-			break
-		await press(KEY_ESCAPE)
+			return
+		if game.dialogs.active != null or not game.state.is_waiting_for_command():
+			await press(KEY_ESCAPE)
 		await get_tree().create_timer(0.3).timeout
-	await wait_for_command_prompt()
+	expect(game.state.is_waiting_for_command() and game.dialogs.active == null, "back at the command prompt")
 
 
 func run() -> void:
@@ -46,6 +49,22 @@ func run() -> void:
 	await get_tree().create_timer(0.8).timeout
 	var said := game.state.messages.recent(6).map(func(m: Dictionary) -> String: return str(m.get("text", "")))
 	note("identified: %s (was %s)" % [said, before])
-	expect(not game.dialogs.active is ItemPickScreen or (game.dialogs.active as ItemPickScreen).title_label.text.contains("next"), "Confirm answers")
+	expect(said.any(func(t: String) -> bool: return t.contains("potion of")), "Confirm identifies the picked potion (%s)" % [said])
 	await _back_to_prompt()
 	await screenshot("identified")
+
+	# The second scroll: Esc on the grid declines, as tty (no "Choose an item;
+	# use ESC to decline." nagging), back at the command prompt.
+	mark()
+	await type_text("r")
+	await get_tree().create_timer(0.5).timeout
+	await type_text(char(int(scroll[0].get("selector", 0))))
+	var again := await _wait_pick()
+	if again != null:
+		await press(KEY_ESCAPE)
+		await wait_for_command_prompt()
+		await get_tree().create_timer(0.4).timeout
+		var lines := game.state.messages.recent(4).map(func(m: Dictionary) -> String: return str(m.get("text", "")))
+		expect(not lines.any(func(t: String) -> bool: return t.begins_with("Choose an item")) and not game.dialogs.active is ItemPickScreen, "Esc declines at once (%s)" % [lines])
+	else:
+		note("the second scroll identified everything at once")

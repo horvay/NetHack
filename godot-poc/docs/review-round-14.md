@@ -346,3 +346,29 @@ What happens:
 - #vanquished folds plurals into one card per species with ×N (`bestiary/01`).
 - Travel offers the stairs as a one-click destination (`travel_picker/01`).
 - `C` shows its six choices with art and NetHack's own words and letters (`choice_menus/01`).
+
+---
+
+## Status (fix pass, 2026-10-18)
+
+| Finding | Status |
+|---|---|
+| H1 Enter picks the first item | Fixed: pick-one grids and choice tiles start on Cancel (or NetHack's preselected tile); Enter with nothing focused sends `\n`, so NetHack asks again (`item_picks` 4) |
+| M1 Esc is "nothing picked" | Fixed in the bridge: Esc returns -1 as tty. Electron's four `!return` checks now read `return > 0`. Identify is declined at once (`identify_pick`), `e *` Esc says "Never mind." |
+| M2 ^O branch headings | Fixed: any unindented non-level line (or NetHack's heading attribute) is a branch, named before ": levels"; an orphaned icon row no longer leaks (`overview_branches`, Mines' End fixture) |
+| M3 old question as title | Fixed: `next_menu_title` wins; the last question is forgotten at the command prompt (`item_picks` 6) |
+| M4 group accelerators | Fixed: the bridge keeps each row's accelerator (`groupAccelerator`) and its select loop accepts it as tty; ChoiceScreen answers it (`choice_menus` 6: `/ y`, `C n`) |
+| M5 `-` for bare hands | Fixed (`item_picks` 5) |
+| M6 prayer card | Fixed: plain facts only (HP x of y, current states, last prayer), no trouble judgement, neutral colour |
+| M7 `I` | Fixed: `I` is NetHack's again (class menu, `u`, `x`, B/U/C/X); "Your bill" stays in the inventory (`classic_keys_screens`). Bagged-unpaid detection still open (needs a bridge field) |
+| L1 twice/thrice | Fixed |
+| L2 ledger parsing | Fixed: currency words kept, "the contents of" kept, bill recognised by its Total row, other lines as notes |
+| L3 enlightenment sheet | Fixed: portrait, tiles and bars only when NetHack wrote those sections |
+| L4 `` ` `` codex | Fixed: "Discovered …" and the unique/artifact headings open it |
+| L5 terrain/travel | Fixed: banner uses NetHack's "Showing … only" line; repeated travel chips say how far and which way; the pad hint no longer offers chips it can't reach |
+| L6 option-dependent menus | Fixed: force_invmenu's `*`/`?` rows are buttons; ChoiceScreen requires its own rows ("What do you want to name?" for one object falls through); untitled lists say "Your pack" |
+| L7 pick-any keys | Fixed: count on a picked item sets the count, `.` all, `@`/`~` invert, Esc drops a pending count |
+| L8 tags instead of text | Open: route on `getposPurpose` / document purposes from the core |
+| L9 duplication, tests | Partly: dead "legacy" row gone, identify asserts the identification; new tests cover H1, M1–M5. DocumentCard base still open |
+
+Electron: `test:architecture` and `menu-metadata-comparison-test.js` fail with and without these changes (stale tests from 2026-09).
