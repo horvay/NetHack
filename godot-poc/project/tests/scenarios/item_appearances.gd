@@ -19,6 +19,13 @@ func run() -> void:
 	var potion: Array = art.filter(func(a: Array) -> bool: return str(a[0]).contains("potion of healing"))
 	note("healing: %s / %s" % [book, potion])
 	expect(not book.is_empty() and not potion.is_empty() and book[0][1] != potion[0][1], "the spellbook of healing doesn't borrow the potion's art")
+	# Unidentified potions, rings, wands, amulets and spellbooks: art for
+	# their appearance, never the class icon.
+	var magic: Array = art.filter(func(a: Array) -> bool: return RegEx.create_from_string("potion|ring|wand|amulet|spellbook").search(str(a[0])) != null and not str(a[0]).contains("of healing"))
+	note("appearances: %s" % [magic])
+	# (The texture-named spellbooks — shining, glittering… — are still being
+	# regenerated; until then a spellbook may show the class icon.)
+	expect(magic.size() >= 8 and not magic.any(func(a: Array) -> bool: return str(a[1]).contains("class-icon") and not str(a[0]).contains("spellbook")), "each unidentified potion, ring, wand, amulet and spellbook has its appearance's art")
 	var stones: Array = art.filter(func(a: Array) -> bool: return str(a[0]).contains("gem") or str(a[0]).contains("stone"))
 	var greens: Array = art.filter(func(a: Array) -> bool: return str(a[0]).contains("green"))
 	expect(greens.size() == 2 and greens[0][1] == greens[1][1] and str(greens[0][1]).contains("green"), "the emerald and the green glass look alike, and green (%s)" % [greens])

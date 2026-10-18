@@ -1840,8 +1840,13 @@
   "regen": {
    "background": "green-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a checkered cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a black and white checkerboard-patterned cover, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "cloth-spellbook",
@@ -1857,8 +1862,13 @@
   "regen": {
    "background": "green-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a cloth cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a soft dark red woven cloth cover with visible fabric weave, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "copper-spellbook",
@@ -1874,8 +1884,13 @@
   "regen": {
    "background": "green-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a copper cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a cover plated in shiny orange copper metal with rivets, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "cyan-spellbook",
@@ -1959,8 +1974,13 @@
   "regen": {
    "background": "green-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a dog eared cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a pale tan cover with its corners bent and folded over, pages sticking out, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "dull-spellbook",
@@ -1976,8 +1996,13 @@
   "regen": {
    "background": "green-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a dull cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a flat, faded gray-brown matte cover with no shine, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "dusty-spellbook",
@@ -1993,8 +2018,13 @@
   "regen": {
    "background": "green-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a dusty cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a cover coated in pale gray dust with finger streaks, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "glittering-spellbook",
@@ -2010,8 +2040,13 @@
   "regen": {
    "background": "green-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a glittering cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a deep violet cover sprinkled with bright sparkling glitter, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "gold-spellbook",
@@ -2027,8 +2062,13 @@
   "regen": {
    "background": "green-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a gold cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a cover of bright polished gold, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "gray-spellbook",
@@ -2061,8 +2101,13 @@
   "regen": {
    "background": "green-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a hardcover cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a stiff thick navy blue hardcover with a square spine, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "indigo-spellbook",
@@ -2095,8 +2140,13 @@
   "regen": {
    "background": "green-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a leathery cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a cracked dark brown leather cover with stitched edges, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "light-blue-spellbook",
@@ -2178,10 +2228,15 @@
   "severity": "high",
   "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
   "regen": {
-   "background": "green-key",
+   "background": "magenta-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a mottled cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a cover blotched with green and brown mottled patches, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "orange-spellbook",
@@ -2214,8 +2269,13 @@
   "regen": {
    "background": "green-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a parchment cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a cream yellowed parchment cover with ink smudges, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "pink-spellbook",
@@ -2246,10 +2306,15 @@
   "severity": "high",
   "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
   "regen": {
-   "background": "green-key",
+   "background": "magenta-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a plaid cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a red and green tartan plaid cloth cover, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "plain-spellbook",
@@ -2265,8 +2330,13 @@
   "regen": {
    "background": "green-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a plain cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a simple undecorated light gray cover, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "purple-spellbook",
@@ -2299,8 +2369,13 @@
   "regen": {
    "background": "green-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a ragged cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a torn ragged brown cover with frayed edges and loose threads, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "red-spellbook",
@@ -2333,8 +2408,13 @@
   "regen": {
    "background": "green-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a shining cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a gleaming white cover giving off soft rays of light, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "silver-spellbook",
@@ -2350,8 +2430,13 @@
   "regen": {
    "background": "green-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a silver cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a cover of bright polished silver metal, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "stained-spellbook",
@@ -2367,8 +2452,13 @@
   "regen": {
    "background": "green-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a stained cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a beige cover with dark brown stains and splotches, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "tan-spellbook",
@@ -2384,8 +2474,13 @@
   "regen": {
    "background": "green-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a tan cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a plain light tan leather cover, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "thick-spellbook",
@@ -2399,10 +2494,15 @@
   "severity": "high",
   "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
   "regen": {
-   "background": "green-key",
+   "background": "magenta-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a thick cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a very thick, fat tome with a dark green cover, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "thin-spellbook",
@@ -2418,8 +2518,13 @@
   "regen": {
    "background": "green-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a thin cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a very thin slim booklet with a light blue cover, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "turquoise-spellbook",
@@ -2452,8 +2557,13 @@
   "regen": {
    "background": "green-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a vellum cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a smooth pale ivory vellum cover, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "velvet-spellbook",
@@ -2469,8 +2579,13 @@
   "regen": {
    "background": "green-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a velvet cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a plush deep crimson velvet cover, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "violet-spellbook",
@@ -2520,8 +2635,13 @@
   "regen": {
    "background": "green-key",
    "use_reference": false,
-   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a wrinkled cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-  }
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a crumpled wrinkled pale orange cover, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7
+  ]
  },
  {
   "id": "yellow-spellbook",

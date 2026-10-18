@@ -45,6 +45,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
   },
+  "agate-ring": {
+   "category": "objects-appearance",
+   "name": "agate ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "aggravate-monster": {
    "category": "full-source-objects",
    "name": "aggravate monster",
@@ -91,6 +97,12 @@
    "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
+  },
+  "aluminum-wand": {
+   "category": "objects-appearance",
+   "name": "aluminum wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "amber": {
    "category": "full-source-objects",
@@ -343,7 +355,7 @@
    "category": "full-source-monsters",
    "name": "baby blue dragon",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "baby-crocodile": {
    "category": "full-source-monsters",
@@ -436,6 +448,12 @@
    "name": "balrog",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "balsa-wand": {
+   "category": "objects-appearance",
+   "name": "balsa wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "baluchitherium": {
    "category": "full-source-monsters",
@@ -613,12 +631,24 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
   },
+  "black-onyx-ring": {
+   "category": "objects-appearance",
+   "name": "black onyx ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "black-opal": {
    "category": "full-source-objects",
    "name": "black opal",
    "objectClasses": "*",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "black-potion": {
+   "category": "objects-appearance",
+   "name": "black potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "black-pudding": {
    "category": "full-source-monsters",
@@ -795,6 +825,24 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem_back.json",
    "workflowLabel": "transparent-targeted-followup-polish"
   },
+  "brass-ring": {
+   "category": "objects-appearance",
+   "name": "brass ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "brass-wand": {
+   "category": "objects-appearance",
+   "name": "brass wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "brilliant-blue-potion": {
+   "category": "objects-appearance",
+   "name": "brilliant blue potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "broadsword": {
    "category": "full-source-objects",
    "name": "broadsword",
@@ -815,17 +863,41 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem_back.json",
    "workflowLabel": "godot-audit-regen-qwen"
   },
+  "bronze-ring": {
+   "category": "objects-appearance",
+   "name": "bronze ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "bronze-spellbook": {
+   "category": "objects-appearance",
+   "name": "bronze spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "brown-mold": {
    "category": "common-early-monsters",
    "name": "brown mold",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
   },
+  "brown-potion": {
+   "category": "objects-appearance",
+   "name": "brown potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "brown-pudding": {
    "category": "full-source-monsters",
    "name": "brown pudding",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "bubbly-potion": {
+   "category": "objects-appearance",
+   "name": "bubbly potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "bugbear": {
    "category": "common-early-monsters",
@@ -894,6 +966,12 @@
    "objectClasses": "%",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "canvas-spellbook": {
+   "category": "objects-appearance",
+   "name": "canvas spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "captain": {
    "category": "full-source-monsters",
@@ -1033,6 +1111,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem_back.json",
    "workflowLabel": "transparent-targeted-followup-polish"
   },
+  "circular-amulet": {
+   "category": "objects-appearance",
+   "name": "circular amulet",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "citrine": {
    "category": "full-source-objects",
    "name": "citrine",
@@ -1052,6 +1136,18 @@
    "name": "clay golem",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "clay-ring": {
+   "category": "objects-appearance",
+   "name": "clay ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "clear-potion": {
+   "category": "objects-appearance",
+   "name": "clear potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "cloak": {
    "category": "objects-inventory",
@@ -1098,6 +1194,12 @@
    "name": "Cloud",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "cloudy-potion": {
+   "category": "objects-appearance",
+   "name": "cloudy potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "clove-of-garlic": {
    "category": "full-source-objects",
@@ -1147,6 +1249,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
   },
+  "concave-amulet": {
+   "category": "objects-appearance",
+   "name": "concave amulet",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "cone-of-cold": {
    "category": "full-source-objects",
    "name": "cone of cold",
@@ -1181,6 +1289,24 @@
    "objectClasses": "!",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "copper-ring": {
+   "category": "objects-appearance",
+   "name": "copper ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "copper-wand": {
+   "category": "objects-appearance",
+   "name": "copper wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "coral-ring": {
+   "category": "objects-appearance",
+   "name": "coral ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "cornuthaum": {
    "category": "full-source-objects",
@@ -1292,6 +1418,18 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "godot-audit-regen-qwen"
   },
+  "crystal-wand": {
+   "category": "objects-appearance",
+   "name": "crystal wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "cubical-amulet": {
+   "category": "objects-appearance",
+   "name": "cubical amulet",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "cure-blindness": {
    "category": "full-source-objects",
    "name": "cure blindness",
@@ -1312,6 +1450,24 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
   },
+  "curved-wand": {
+   "category": "objects-appearance",
+   "name": "curved wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "cyan-potion": {
+   "category": "objects-appearance",
+   "name": "cyan potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "cyan-spellbook": {
+   "category": "objects-appearance",
+   "name": "cyan spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "cyclops": {
    "category": "full-source-monsters",
    "name": "Cyclops",
@@ -1325,17 +1481,47 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
   },
+  "dark-blue-spellbook": {
+   "category": "objects-appearance",
+   "name": "dark blue spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "dark-brown-spellbook": {
+   "category": "objects-appearance",
+   "name": "dark brown spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "dark-corridor": {
    "category": "terrain-features",
    "name": "Dark corridor",
    "workflow": "asset-generation/workflows/krea2_basic.json",
    "workflowLabel": "provisional-terrain-room-regeneration-approved-install"
   },
+  "dark-green-potion": {
+   "category": "objects-appearance",
+   "name": "dark green potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "dark-green-spellbook": {
+   "category": "objects-appearance",
+   "name": "dark green spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "dark-one": {
    "category": "full-source-monsters",
    "name": "Dark One",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "dark-potion": {
+   "category": "objects-appearance",
+   "name": "dark potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "dark-room-floor": {
    "category": "terrain-features",
@@ -1430,6 +1616,12 @@
    "objectClasses": "*",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "diamond-ring": {
+   "category": "objects-appearance",
+   "name": "diamond ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "dig": {
    "category": "full-source-objects",
@@ -1675,6 +1867,18 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
   },
+  "ebony-wand": {
+   "category": "objects-appearance",
+   "name": "ebony wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "effervescent-potion": {
+   "category": "objects-appearance",
+   "name": "effervescent potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "egg": {
    "category": "objects-inventory",
    "name": "Egg",
@@ -1858,6 +2062,18 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
   },
+  "emerald-potion": {
+   "category": "objects-appearance",
+   "name": "emerald potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "emerald-ring": {
+   "category": "objects-appearance",
+   "name": "emerald ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "enchant-armor": {
    "category": "full-source-objects",
    "name": "enchant armor",
@@ -1879,6 +2095,12 @@
    "name": "energy vortex",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "engagement-ring": {
+   "category": "objects-appearance",
+   "name": "engagement ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "engraving": {
    "category": "terrain-features",
@@ -2063,6 +2285,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem_back.json",
    "workflowLabel": "transparent-targeted-followup-polish"
   },
+  "fizzy-potion": {
+   "category": "objects-appearance",
+   "name": "fizzy potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "flail": {
    "category": "objects-inventory",
    "name": "Flail",
@@ -2174,6 +2402,12 @@
    "category": "full-source-monsters",
    "name": "forest centaur",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "forked-wand": {
+   "category": "objects-appearance",
+   "name": "forked wand",
+   "workflow": "qwen-b70",
    "workflowLabel": "godot-audit-regen-qwen"
   },
   "fortune-cookie": {
@@ -2528,6 +2762,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
   },
+  "glass-wand": {
+   "category": "objects-appearance",
+   "name": "glass wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "glob-of-black-pudding": {
    "category": "full-source-objects",
    "name": "glob of black pudding",
@@ -2758,6 +2998,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "visual-qa-cleanup-transparent-semantic-v1"
   },
+  "gold-ring": {
+   "category": "objects-appearance",
+   "name": "gold ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "golden-naga": {
    "category": "full-source-monsters",
    "name": "golden naga",
@@ -2770,11 +3016,23 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
   },
+  "golden-potion": {
+   "category": "objects-appearance",
+   "name": "golden potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "grand-master": {
    "category": "full-source-monsters",
    "name": "Grand Master",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "granite-ring": {
+   "category": "objects-appearance",
+   "name": "granite ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "grappling-hook": {
    "category": "full-source-objects",
@@ -2837,7 +3095,7 @@
    "category": "full-source-monsters",
    "name": "green dragon",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "green-dragon-scale-mail": {
    "category": "full-source-objects",
@@ -2944,7 +3202,7 @@
    "category": "ui-status-overlays",
    "name": "Hallucination badge",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "hapax-legomenon": {
    "category": "full-source-objects",
@@ -3065,6 +3323,18 @@
    "name": "Hero avatar",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "hexagonal-amulet": {
+   "category": "objects-appearance",
+   "name": "hexagonal amulet",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "hexagonal-wand": {
+   "category": "objects-appearance",
+   "name": "hexagonal wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "hezrou": {
    "category": "full-source-monsters",
@@ -3399,7 +3669,7 @@
    "category": "ui-status-overlays",
    "name": "Hunger badge",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "hunter": {
    "category": "full-source-monsters",
@@ -3494,6 +3764,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
   },
+  "iridium-wand": {
+   "category": "objects-appearance",
+   "name": "iridium wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "iron-bars": {
    "category": "terrain-features",
    "name": "Iron bars",
@@ -3520,6 +3796,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "godot-audit-regen-qwen"
   },
+  "iron-ring": {
+   "category": "objects-appearance",
+   "name": "iron ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "iron-shoes": {
    "category": "full-source-objects",
    "name": "iron shoes",
@@ -3528,6 +3810,18 @@
    "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
+  },
+  "iron-wand": {
+   "category": "objects-appearance",
+   "name": "iron wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "ivory-ring": {
+   "category": "objects-appearance",
+   "name": "ivory ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "ixoth": {
    "category": "full-source-monsters",
@@ -3565,6 +3859,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
   },
+  "jade-ring": {
+   "category": "objects-appearance",
+   "name": "jade ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "jaguar": {
    "category": "full-source-monsters",
    "name": "jaguar",
@@ -3601,6 +3901,12 @@
    "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
+  },
+  "jeweled-wand": {
+   "category": "objects-appearance",
+   "name": "jeweled wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "juiblex": {
    "category": "full-source-monsters",
@@ -4077,6 +4383,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
   },
+  "long-wand": {
+   "category": "objects-appearance",
+   "name": "long wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "long-worm": {
    "category": "full-source-monsters",
    "name": "long worm",
@@ -4167,6 +4479,12 @@
    "objectClasses": ")",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "magenta-potion": {
+   "category": "objects-appearance",
+   "name": "magenta potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "magic-flute": {
    "category": "full-source-objects",
@@ -4278,6 +4596,18 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "godot-audit-regen-qwen"
   },
+  "maple-wand": {
+   "category": "objects-appearance",
+   "name": "maple wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "marble-wand": {
+   "category": "objects-appearance",
+   "name": "marble wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "marilith": {
    "category": "full-source-monsters",
    "name": "marilith",
@@ -4369,6 +4699,12 @@
    "workflow": "asset-generation/workflows/krea2_basic.json",
    "workflowLabel": "opaque-terrain-coherent-restart"
   },
+  "milky-potion": {
+   "category": "objects-appearance",
+   "name": "milky potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "mind-flayer": {
    "category": "full-source-monsters",
    "name": "mind flayer",
@@ -4445,6 +4781,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
   },
+  "moonstone-ring": {
+   "category": "objects-appearance",
+   "name": "moonstone ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "mordor-orc": {
    "category": "full-source-monsters",
    "name": "Mordor orc",
@@ -4490,6 +4832,12 @@
    "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
+  },
+  "murky-potion": {
+   "category": "objects-appearance",
+   "name": "murky potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "nalfeshnee": {
    "category": "full-source-monsters",
@@ -4574,6 +4922,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
   },
+  "oak-wand": {
+   "category": "objects-appearance",
+   "name": "oak wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "object-detection": {
    "category": "full-source-objects",
    "name": "object detection",
@@ -4596,6 +4950,12 @@
    "category": "full-source-monsters",
    "name": "ochre jelly",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "octagonal-amulet": {
+   "category": "objects-appearance",
+   "name": "octagonal amulet",
+   "workflow": "qwen-b70",
    "workflowLabel": "godot-audit-regen-qwen"
   },
   "ogre": {
@@ -4654,6 +5014,12 @@
    "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
+  },
+  "opal-ring": {
+   "category": "objects-appearance",
+   "name": "opal ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "open-door-action-icon": {
    "category": "ui-status-overlays",
@@ -4720,6 +5086,12 @@
    "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
+  },
+  "orange-potion": {
+   "category": "objects-appearance",
+   "name": "orange potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "orc": {
    "category": "full-source-monsters",
@@ -4923,6 +5295,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
   },
+  "oval-amulet": {
+   "category": "objects-appearance",
+   "name": "oval amulet",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "owlbear": {
    "category": "full-source-monsters",
    "name": "owlbear",
@@ -4981,11 +5359,23 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
   },
+  "pearl-ring": {
+   "category": "objects-appearance",
+   "name": "pearl ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "pelias": {
    "category": "full-source-monsters",
    "name": "Pelias",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "perforated-amulet": {
+   "category": "objects-appearance",
+   "name": "perforated amulet",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "pestilence": {
    "category": "full-source-monsters",
@@ -5011,6 +5401,18 @@
    "name": "Pickup action icon",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "pine-wand": {
+   "category": "objects-appearance",
+   "name": "pine wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "pink-potion": {
+   "category": "objects-appearance",
+   "name": "pink potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "piranha": {
    "category": "full-source-monsters",
@@ -5050,6 +5452,12 @@
    "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
+  },
+  "platinum-wand": {
+   "category": "objects-appearance",
+   "name": "platinum wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "poison-cloud": {
    "category": "terrain-features",
@@ -5183,12 +5591,24 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
   },
+  "puce-potion": {
+   "category": "objects-appearance",
+   "name": "puce potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "punishment": {
    "category": "full-source-objects",
    "name": "punishment",
    "objectClasses": "?",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-scroll-followup-regeneration"
+  },
+  "purple-red-potion": {
+   "category": "objects-appearance",
+   "name": "purple-red potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "purple-worm": {
    "category": "full-source-monsters",
@@ -5197,6 +5617,12 @@
    "smooth": true,
    "workflow": "PIL alpha-bbox recenter/scale review fix; no generative model",
    "workflowLabel": "transparent-second-pass-provisional-candidate"
+  },
+  "pyramidal-amulet": {
+   "category": "objects-appearance",
+   "name": "pyramidal amulet",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "pyrolisk": {
    "category": "full-source-monsters",
@@ -5354,6 +5780,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
   },
+  "redwood-wand": {
+   "category": "objects-appearance",
+   "name": "redwood wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "regeneration": {
    "category": "full-source-objects",
    "name": "regeneration",
@@ -5486,6 +5918,24 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
   },
+  "ruby-potion": {
+   "category": "objects-appearance",
+   "name": "ruby potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "ruby-ring": {
+   "category": "objects-appearance",
+   "name": "ruby ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "runed-wand": {
+   "category": "objects-appearance",
+   "name": "runed wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "runesword": {
    "category": "full-source-objects",
    "name": "runesword",
@@ -5557,6 +6007,12 @@
    "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
+  },
+  "sapphire-ring": {
+   "category": "objects-appearance",
+   "name": "sapphire ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "sasquatch": {
    "category": "full-source-monsters",
@@ -5800,6 +6256,12 @@
    "workflow": "deterministic small-tile semantic pixel-art follow-up generator; source prompt logged; transparent alpha cutout",
    "workflowLabel": "two-asset-followup-deterministic-pixel-art"
   },
+  "shiny-ring": {
+   "category": "objects-appearance",
+   "name": "shiny ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "shock-resistance": {
    "category": "full-source-objects",
    "name": "shock resistance",
@@ -5829,6 +6291,12 @@
    "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
+  },
+  "short-wand": {
+   "category": "objects-appearance",
+   "name": "short wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "shrieker": {
    "category": "common-early-monsters",
@@ -5882,7 +6350,7 @@
    "category": "full-source-monsters",
    "name": "silver dragon",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "silver-dragon-scale-mail": {
    "category": "full-source-objects",
@@ -5909,6 +6377,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-weapon-audit-followup"
   },
+  "silver-ring": {
+   "category": "objects-appearance",
+   "name": "silver ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "silver-saber": {
    "category": "full-source-objects",
    "name": "silver saber",
@@ -5926,6 +6400,12 @@
    "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
+  },
+  "silver-wand": {
+   "category": "objects-appearance",
+   "name": "silver wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "sink": {
    "category": "terrain-features",
@@ -5945,6 +6425,12 @@
    "objectClasses": "(",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "sky-blue-potion": {
+   "category": "objects-appearance",
+   "name": "sky blue potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "sleep": {
    "category": "full-source-objects",
@@ -6018,6 +6504,12 @@
    "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
+  },
+  "smoky-potion": {
+   "category": "objects-appearance",
+   "name": "smoky potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "snake": {
    "category": "full-source-monsters",
@@ -6104,10 +6596,22 @@
    "workflow": "PIL alpha-bbox recenter/scale review fix; no generative model",
    "workflowLabel": "transparent-second-pass-provisional-candidate"
   },
+  "spherical-amulet": {
+   "category": "objects-appearance",
+   "name": "spherical amulet",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "spiked-pit": {
    "category": "traps-hazards",
    "name": "Spiked pit",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "spiked-wand": {
+   "category": "objects-appearance",
+   "name": "spiked wand",
+   "workflow": "qwen-b70",
    "workflowLabel": "godot-audit-regen-qwen"
   },
   "splash-of-acid-venom": {
@@ -6145,6 +6649,12 @@
    "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
+  },
+  "square-amulet": {
+   "category": "objects-appearance",
+   "name": "square amulet",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "squeaky-board": {
    "category": "traps-hazards",
@@ -6211,6 +6721,18 @@
    "name": "steam vortex",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "steel-ring": {
+   "category": "objects-appearance",
+   "name": "steel ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "steel-wand": {
+   "category": "objects-appearance",
+   "name": "steel wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "stethoscope": {
    "category": "objects-inventory",
@@ -6321,6 +6843,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
   },
+  "swirly-potion": {
+   "category": "objects-appearance",
+   "name": "swirly potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "t-shirt": {
    "category": "full-source-objects",
    "name": "T-shirt",
@@ -6415,6 +6943,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent"
   },
+  "tiger-eye-ring": {
+   "category": "objects-appearance",
+   "name": "tiger eye ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "tin": {
    "category": "objects-inventory",
    "name": "Tin",
@@ -6427,6 +6961,12 @@
    "name": "tin opener",
    "objectClasses": "(",
    "workflow": "asset-generation/workflows/krea2_basic_rem_back.json",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "tin-wand": {
+   "category": "objects-appearance",
+   "name": "tin wand",
+   "workflow": "qwen-b70",
    "workflowLabel": "godot-audit-regen-qwen"
   },
   "tin-whistle": {
@@ -6482,6 +7022,12 @@
    "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
+  },
+  "topaz-ring": {
+   "category": "objects-appearance",
+   "name": "topaz ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "touchstone": {
    "category": "objects-inventory",
@@ -6541,6 +7087,12 @@
    "workflow": "asset-generation/workflows/krea2_basic.json",
    "workflowLabel": "opaque-terrain-coherent-restart"
   },
+  "triangular-amulet": {
+   "category": "objects-appearance",
+   "name": "triangular amulet",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "trident": {
    "category": "full-source-objects",
    "name": "trident",
@@ -6590,6 +7142,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
   },
+  "twisted-ring": {
+   "category": "objects-appearance",
+   "name": "twisted ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "two-handed-sword": {
    "category": "full-source-objects",
    "name": "two-handed sword",
@@ -6637,6 +7195,12 @@
    "category": "terrain-features",
    "name": "Up stairs",
    "workflow": "asset-generation/workflows/krea2_basic.json",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "uranium-wand": {
+   "category": "objects-appearance",
+   "name": "uranium wand",
+   "workflow": "qwen-b70",
    "workflowLabel": "godot-audit-regen-qwen"
   },
   "uruk-hai": {
@@ -6801,10 +7365,8 @@
   "warg": {
    "category": "full-source-monsters",
    "name": "warg",
-   "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-review-candidate"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "warhorse": {
    "category": "full-source-monsters",
@@ -6962,6 +7524,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
   },
+  "white-potion": {
+   "category": "objects-appearance",
+   "name": "white potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "white-unicorn": {
    "category": "full-source-monsters",
    "name": "white unicorn",
@@ -6984,6 +7552,12 @@
    "category": "full-source-monsters",
    "name": "winter wolf cub",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "wire-ring": {
+   "category": "objects-appearance",
+   "name": "wire ring",
+   "workflow": "qwen-b70",
    "workflowLabel": "godot-audit-regen-qwen"
   },
   "wishing": {
@@ -7063,6 +7637,12 @@
    "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
+  },
+  "wooden-ring": {
+   "category": "objects-appearance",
+   "name": "wooden ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "woodland-elf": {
    "category": "full-source-monsters",
@@ -7249,6 +7829,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
   },
+  "yellow-potion": {
+   "category": "objects-appearance",
+   "name": "yellow potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "yeti": {
    "category": "full-source-monsters",
    "name": "yeti",
@@ -7271,6 +7857,12 @@
    "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-second-pass-provisional-candidate"
+  },
+  "zinc-wand": {
+   "category": "objects-appearance",
+   "name": "zinc wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "zlorfik": {
    "category": "full-source-objects",

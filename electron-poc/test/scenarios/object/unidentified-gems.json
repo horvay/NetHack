@@ -49,6 +49,38 @@
   {
    "typeId": "POT_HEALING",
    "identityKnown": true
+  },
+  {
+   "typeId": "POT_SPEED",
+   "identityKnown": false
+  },
+  {
+   "typeId": "POT_SLEEPING",
+   "identityKnown": false
+  },
+  {
+   "typeId": "RIN_TELEPORTATION",
+   "identityKnown": false
+  },
+  {
+   "typeId": "RIN_STEALTH",
+   "identityKnown": false
+  },
+  {
+   "typeId": "WAN_DIGGING",
+   "identityKnown": false
+  },
+  {
+   "typeId": "WAN_LIGHT",
+   "identityKnown": false
+  },
+  {
+   "typeId": "AMULET_OF_ESP",
+   "identityKnown": false
+  },
+  {
+   "typeId": "SPE_SLEEP",
+   "identityKnown": false
   }
  ],
  "expectedPublicFacts": {
