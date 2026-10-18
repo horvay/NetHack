@@ -146,6 +146,12 @@ func retire() -> void:
 		pad.set_process_input(false)
 		pad.set_process(false)
 	world.visible = false
+	# Overlays on their own layers (the danger alert and red glow, the hurt
+	# vignette...) don't follow the HUD: hide them so the end screen reads clean.
+	for layer in find_children("*", "CanvasLayer", true, false):
+		(layer as CanvasLayer).visible = false
+	if danger:
+		danger.process_mode = Node.PROCESS_MODE_DISABLED
 
 
 ## Saves the run with NetHack's own S command; true if a save was started.

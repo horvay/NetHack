@@ -1,0 +1,65 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "monster/death-by-ants",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current",
+    "hp": 3,
+    "maxHp": 40
+  },
+  "level": {
+    "safeAreaAroundHero": 4,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none",
+    "terrain": [
+      {
+        "at": "east",
+        "type": "floor"
+      },
+      {
+        "at": "west",
+        "type": "floor"
+      }
+    ]
+  },
+  "ground": [],
+  "monsters": [
+    {
+      "typeId": "SOLDIER_ANT",
+      "at": "east",
+      "attitude": "hostile",
+      "asleep": false,
+      "hp": 60,
+      "maxHp": 60
+    },
+    {
+      "typeId": "SOLDIER_ANT",
+      "at": "west",
+      "attitude": "hostile",
+      "asleep": false,
+      "hp": 60,
+      "maxHp": 60
+    }
+  ],
+  "inventory": [
+    {
+      "typeId": "LONG_SWORD",
+      "equipped": "wielded"
+    }
+  ],
+  "expectedPublicFacts": {
+    "monsterRows": [
+      "soldier ant"
+    ],
+    "mapAffordances": [
+      "visible hostile monster"
+    ],
+    "inventoryRows": [
+      "long sword"
+    ],
+    "messages": [
+      "visible monster fixture"
+    ]
+  }
+}

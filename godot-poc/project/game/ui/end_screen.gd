@@ -258,12 +258,9 @@ func _epitaph(info: Dictionary) -> String:
 	var where := (" at " + _state.level_name(true)) if _state else (" at depth %d" % int(info.depth) if info.has("depth") else "")
 	var when := ", after %d turns" % int(info.moves) if info.has("moves") else ""
 	if how < 10 and killer != "":
-		var format := int(info.get("killerFormat", 1))
-		var prefix := "Killed by " if format == 1 else ("Killed by " if format == 0 else "")
-		var article := ""
-		if format == 0:
-			article = "an " if killer.substr(0, 1).to_lower() in ["a", "e", "i", "o", "u"] else "a "
-		return "%s%s%s%s%s." % [prefix, article, killer, where, when]
+		# NetHack's own words for the death ("killed by a warg girl",
+		# "choked on a lichen corpse"), as its tombstone gives them.
+		return "%s%s%s%s." % [killer.substr(0, 1).to_upper(), killer.substr(1), where, when]
 	return "%s %s%s%s." % [(_state.character.get("name", "The hero") if _state else "The hero"), HOW_WORDS.get(how, "fell"), where, when]
 
 
