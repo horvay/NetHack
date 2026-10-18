@@ -41,6 +41,8 @@ func setup(game_screen: GameScreen, p_request: Dictionary) -> void:
 		title_label.add_theme_font_size_override("font_size", 24)
 		title_label.add_theme_color_override("font_color", UiTheme.INK)
 		center.offset_top = 260
+		if parsed.question.to_lower().contains("want to pray"):
+			_build_prayer_facts()
 		_build_choices()
 	var cancel: Button = null
 	# Cancel only when no answer already says "no" (Esc still cancels).
@@ -288,3 +290,40 @@ func handle_key(event: InputEventKey) -> bool:
 	if choices.has(text) or text in ["?", "*", "-"]:
 		close()
 	return true
+
+
+## Before praying: what the hero can see of their own trouble, and when they
+## last prayed (from the message log). Never the prayer timeout or luck.
+func _build_prayer_facts() -> void:
+	var troubles: Array = []
+	var status := screen.state.status
+	var hp := status.number(StatusModel.Field.HP)
+	var hp_max := status.number(StatusModel.Field.HPMAX)
+	if hp_max > 0 and (hp < 5 or hp * 7 < hp_max):
+		troubles.append("Hit points low (%d of %d)" % [hp, hp_max])
+	for effect in StatusEffects.current(status):
+		if effect.tier in ["deadly", "serious"]:
+			troubles.append(str(effect.label))
+	var last := ""
+	var god := ""
+	var prayed := RegEx.create_from_string("(?i)you begin praying to (.+?)\\.")
+	for entry in screen.state.messages.entries:
+		var m := prayed.search(str(entry.get("text", "")))
+		if m:
+			god = m.get_string(1)
+			last = "turn %d" % int(entry.get("turn", 0))
+	var box := VBoxContainer.new()
+	box.name = "PrayerFacts"
+	box.add_theme_constant_override("separation", 4)
+	var lines: Array = []
+	lines.append(("Troubles you can see: " + ", ".join(troubles) + ".") if not troubles.is_empty() else "You see no trouble on yourself.")
+	lines.append(("You last prayed%s on %s." % [(" to " + god) if god != "" else "", last]) if last != "" else "You haven't prayed this game (as far as your log goes).")
+	for text in lines:
+		var label := Label.new()
+		label.text = text
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.add_theme_font_size_override("font_size", 17)
+		label.add_theme_color_override("font_color", UiTheme.BAD if text.begins_with("Troubles") else UiTheme.INK_DIM)
+		box.add_child(label)
+	body.add_child(box)
+

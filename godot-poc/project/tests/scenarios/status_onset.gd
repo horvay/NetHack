@@ -6,7 +6,9 @@ extends Scenario
 ##   2. drinking blindness: a BLIND card, an orange pulsing badge, and the map
 ##      darkens around the middle;
 ##   3. drinking confusion while blind: a CONFUSED card queued behind any
-##      other, and the view sways.
+##      other, and the view sways;
+##   4. #pray asks first and lists the troubles the hero can see (blind,
+##      confused); No backs out.
 
 
 func run() -> void:
@@ -49,6 +51,19 @@ func run() -> void:
 	note("badges: %s" % [_badges()])
 	expect(_badges().has("Confused") and _badges().has("Blind") and _badges().has("Hungry"), "all three badges show")
 
+
+	mark()
+	game.send_keys("#pray\n")
+	await wait_for_event(func(e: Dictionary) -> bool: return e.get("name") == "shim_yn_function" and str(e.get("query", "")).to_lower().contains("pray"), "are you sure you want to pray")
+	await get_tree().create_timer(0.3).timeout
+	var question := game.dialogs.active as QuestionDialog
+	var facts: Node = question.find_child("PrayerFacts", true, false) if question else null
+	var said := " ".join(facts.find_children("*", "Label", true, false).map(func(l: Label) -> String: return l.text)) if facts else ""
+	note("prayer facts: %s" % said)
+	expect(facts != null and said.contains("Blind") and said.contains("Confused"), "the pray question lists the troubles the hero can see")
+	await screenshot("pray-question")
+	await type_text("n")
+	await wait_for_command_prompt()
 
 func _quaff(letter: String) -> void:
 	if letter == "":
