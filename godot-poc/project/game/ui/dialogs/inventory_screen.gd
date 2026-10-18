@@ -75,7 +75,7 @@ func setup(game_screen: GameScreen) -> void:
 	_grid.add_theme_constant_override("v_separation", 8)
 	scroll.add_child(_grid)
 	var legend := Label.new()
-	legend.text = "Band: where it is on you   ·   B / U / C: blessed, uncursed, cursed   ·   +2 / −1: enchantment   ·   Right-click for every action"
+	legend.text = "Band: where it is on you   ·   B / U / C: blessed, uncursed, cursed   ·   +2 / −1: enchantment   ·   Drag onto another to swap letters   ·   Right-click for every action"
 	legend.theme_type_variation = "CaptionLabel"
 	middle.add_child(legend)
 	var detail_panel := PanelContainer.new()
@@ -211,6 +211,10 @@ func _rebuild() -> void:
 	for item in items:
 		var slot := InventorySlot.new()
 		slot.setup(item, screen.state)
+		# Drag one item onto another: NetHack's #adjust moves (or swaps) the
+		# letter. Gold keeps its $.
+		slot.reorderable = str(item.get("publicClass", "")) != "coin"
+		slot.reorder_requested.connect(_adjust)
 		slot.pressed.connect(_select.bind(item))
 		slot.activated.connect(func(_s: InventorySlot) -> void: _use_primary())
 		slot.gui_input.connect(func(event: InputEvent) -> void:
@@ -518,6 +522,19 @@ func _run(action: Dictionary) -> void:
 		add_child(confirm)
 		return
 	_execute(action)
+
+
+## NetHack's #adjust: from_item takes to_item's letter (they swap when it's
+## taken), then the inventory opens again.
+func _adjust(from_item: Dictionary, to_item: Dictionary) -> void:
+	if not screen.state.is_waiting_for_command():
+		screen.hud.feed.flash_notice("Finish the current prompt first.")
+		return
+	var from := char(int(from_item.get("selector", 0)))
+	var to := char(int(to_item.get("selector", 0)))
+	close()
+	screen.input_router.send_sequence("#adjust\n", [{"kind": "item", "keys": from}, {"kind": "yn", "keys": to}],
+		screen.input_router.open_when_ready.bind("inventory"))  # (not a lambda: this screen is freed by then)
 
 
 func _execute(action: Dictionary) -> void:

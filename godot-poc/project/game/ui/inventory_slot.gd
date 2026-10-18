@@ -5,6 +5,11 @@ extends Button
 ## wielded or in use a band naming where ("Body", "Left ring", "Quiver").
 
 signal activated(slot: InventorySlot)
+## Another slot was dropped on this one (NetHack's #adjust: move or swap
+## their letters). Only where reordering is offered (reorderable).
+signal reorder_requested(from_item: Dictionary, to_item: Dictionary)
+
+var reorderable := false
 
 const SIZE := 92.0
 
@@ -24,6 +29,29 @@ func setup(p_item: Dictionary, p_state: GameState) -> void:
 	var place := ItemText.equip_place(item)
 	tooltip_text = ItemText.display_name(item) + (("\n" + str(place.where)) if not place.is_empty() else "")
 	flat = true
+
+
+func _get_drag_data(_at: Vector2) -> Variant:
+	if not reorderable:
+		return null
+	var preview := TextureRect.new()
+	preview.texture = ItemText.icon(item, state)
+	preview.custom_minimum_size = Vector2(56, 56)
+	preview.size = Vector2(56, 56)
+	preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	preview.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	preview.modulate.a = 0.85
+	set_drag_preview(preview)
+	return {"inventory_slot": item}
+
+
+func _can_drop_data(_at: Vector2, data: Variant) -> bool:
+	return reorderable and data is Dictionary and (data as Dictionary).has("inventory_slot") \
+		and int((data.inventory_slot as Dictionary).get("selector", 0)) != int(item.get("selector", 0))
+
+
+func _drop_data(_at: Vector2, data: Variant) -> void:
+	reorder_requested.emit(data.inventory_slot, item)
 
 
 func _gui_input(event: InputEvent) -> void:

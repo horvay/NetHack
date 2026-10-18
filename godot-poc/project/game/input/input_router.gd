@@ -111,6 +111,17 @@ var _count_pending := false
 var _open_when_ready := ""
 
 
+## Opens a panel ("inventory") as soon as NetHack is back at the command
+## prompt (at once if it already is).
+func open_when_ready(name: String) -> void:
+	# (Up to two seconds: a closing question may still hold the input.)
+	for i in 120:
+		if screen.state.is_waiting_for_command() and not screen.dialogs.owns_input():
+			open_ui(name)
+			return
+		await get_tree().process_frame
+
+
 func _note_count(text: String) -> void:
 	if screen.state.number_pad:
 		# Under number_pad digits move; counts start with n ("n20s").

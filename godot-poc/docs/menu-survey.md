@@ -177,4 +177,5 @@ All additive, public, and gated by `NH_BRIDGE_EXTENDED` where Electron's output 
 | 19 | Options | Done: OptionsScreen (`options_page`) |
 | 25 | `?` help | Done: ChoiceScreen tiles; pages show via the new `display_file` (`choice_menus`) |
 | 24 | Oracle | Done: parchment (`oracle`); quest texts have no fixed opening and stay in the reader |
-| 22, 26, 27, 29, 30 | #adjust, loot/tip choosers, `A` category, minor | Open (`A`'s item step already uses ItemPickScreen) |
+| 22 | #adjust | Done: drag a slot onto another (`adjust_drag`) |
+| 26, 27, 29, 30 | loot/tip choosers, `A` category, minor | Open (`A`'s item step already uses ItemPickScreen) |
