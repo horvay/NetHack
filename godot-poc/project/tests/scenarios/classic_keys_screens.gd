@@ -5,7 +5,9 @@ extends Scenario
 ##      not NetHack's plain pickup list;
 ##   2. typed D (drop several) opens the same screen; two splint mails picked
 ##      in the pack column drop in one go;
-##   3. * at "What do you want to drop?" lists the pack under that question,
+##   3. I opens the inventory screen and * the equipment screen, not
+##      NetHack's plain lists;
+##   4. * at "What do you want to drop?" lists the pack under that question,
 ##      not under "Choose".
 
 
@@ -42,6 +44,14 @@ func run() -> void:
 			await get_tree().process_frame
 		expect(game.state.map.pile(game.state.map.hero).size() == on_floor + 2, "the two splint mails were dropped (%d -> %d)" % [on_floor, game.state.map.pile(game.state.map.hero).size()])
 		await screenshot("drop-several")
+		await press(KEY_ESCAPE)
+		await get_tree().create_timer(0.3).timeout
+	for spec in [["I", "InventoryScreen"], ["*", "EquipmentScreen"]]:
+		await type_text(spec[0])
+		await get_tree().create_timer(0.5).timeout
+		var opened := game.dialogs.active
+		expect(opened != null and opened.get_script() != null and str(opened.get_script().get_global_name()) == spec[1], "%s opens the %s (%s)" % [spec[0], spec[1], opened])
+		await screenshot("key-%s" % ("I" if spec[0] == "I" else "star"))
 		await press(KEY_ESCAPE)
 		await get_tree().create_timer(0.3).timeout
 	mark()

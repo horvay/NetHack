@@ -215,12 +215,14 @@ func _on_request(request: Dictionary) -> void:
 			_show(dialog)
 		"menu":
 			if _is_document(request):
-				var reader := TextWindowDialog.new()
-				reader.set_meta("request_dialog", true)
 				var lines := []
 				for item in request.get("items", []):
 					lines.append({"text": str(item.get("text", "")), "attr": int(item.get("attr", 0))})
-				reader.setup({"lines": lines})
+				var reader: ModalCard = _document_screen(lines)
+				if reader == null:
+					reader = TextWindowDialog.new()
+					(reader as TextWindowDialog).setup({"lines": lines})
+				reader.set_meta("request_dialog", true)
 				# NetHack waits for a key to dismiss a read-only menu.
 				reader.closed.connect(func() -> void:
 					if screen.state.request.get("kind") == "menu":
@@ -277,9 +279,34 @@ func _on_text_window(window: Dictionary) -> void:
 	if owns_input():
 		_queued_windows.append(window)
 		return
-	var dialog := TextWindowDialog.new()
-	dialog.setup(window)
+	var dialog: ModalCard = _document_screen(window.get("lines", []))
+	if dialog == null:
+		dialog = TextWindowDialog.new()
+		(dialog as TextWindowDialog).setup(window)
 	_show(dialog)
+
+
+## NetHack's documents with a screen of their own, recognised by their text
+## (^X attributes…); null: the plain reader.
+func _document_screen(lines: Array) -> ModalCard:
+	if CharacterSheet.recognises(lines):
+		var sheet := CharacterSheet.new()
+		sheet.setup(screen, lines)
+		return sheet
+	if CodexScreen.recognises(lines):
+		var codex := CodexScreen.new()
+		codex.setup(screen, lines)
+		return codex
+	if OverviewScreen.recognises(lines):
+		var overview := OverviewScreen.new()
+		overview.setup(screen, lines)
+		return overview
+	var record := RecordScreen.kind_of(lines)
+	if record != "":
+		var doc := RecordScreen.new()
+		doc.setup(lines, record)
+		return doc
+	return null
 
 
 # --- banner ----------------------------------------------------------------------

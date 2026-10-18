@@ -81,6 +81,13 @@ func _handle_key(event: InputEventKey) -> void:
 		if str(screen.state.request.get("kind", "")) == "busy":
 			_open_when_ready = "inventory"
 			return
+	if not _count_pending and screen.state.is_waiting_for_command() and text in ["I", "*", "[", "=", "\"", "(", ")"]:
+		# NetHack's information lists: I (inventory by type) opens the
+		# inventory screen, whose tabs are the types; * and the worn-item
+		# keys ([ = " ( )) the equipment screen.
+		cancel_automation()
+		open_ui("inventory" if text == "I" else "equipment")
+		return
 	if text == "D" and not _count_pending and screen.state.is_waiting_for_command():
 		# Drop several: the same floor-and-pack screen (NetHack's own D in
 		# a shop, where dropping is selling).

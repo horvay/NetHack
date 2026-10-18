@@ -168,25 +168,14 @@ func run() -> void:
 	await press(KEY_X, 0, false, true)
 	await wait_for_named("shim_select_menu")
 	await get_tree().process_frame
-	expect(game.dialogs.active is TextWindowDialog, "classic Ctrl+X shows the character sheet as a document")
+	await get_tree().create_timer(0.3).timeout
+	expect(game.dialogs.active is CharacterSheet, "classic Ctrl+X shows the character sheet")
 	await screenshot("character-sheet")
-	var sheet := game.dialogs.active as TextWindowDialog
+	var sheet := game.dialogs.active as CharacterSheet
 	await press(KEY_SHIFT, 0, true)
-	expect(game.dialogs.active == sheet and is_instance_valid(sheet), "Shift alone does not dismiss the text")
-	if sheet._search:
-		await press(KEY_SLASH, "/".unicode_at(0))
-		expect(sheet._search.has_focus(), "/ opens the text search")
-		await type_text("wisdom")
-		for i in 4:
-			await get_tree().process_frame
-		expect(sheet._current >= 0 and sheet._lines[sheet._current].to_lower().contains("wisdom"), "the search finds the wisdom line")
-		expect(sheet._text.text.contains("[bgcolor="), "and highlights it")
-		await screenshot("character-sheet-search")
-		await press(KEY_ESCAPE)
-		expect(is_instance_valid(sheet) and not sheet._search.has_focus(), "Esc leaves the search box first")
-	else:
-		note("character sheet too short for a search box (%d lines)" % sheet._lines.size())
+	expect(game.dialogs.active == sheet and is_instance_valid(sheet), "Shift alone does not dismiss the sheet")
 	await press(KEY_ESCAPE)
+	await wait_for_command_prompt()
 
 	await type_text("i")
 	var inventory := game.dialogs.active as InventoryScreen
