@@ -43,32 +43,6 @@ const NAME_FEATURES := {
 
 
 ## Returns {kind: Kind, cmap: int (-1 if unknown)} for what lies under the cell.
-## The bridge's names for what lies under a creature or the hero
-## (backgroundSemanticName, from nh-shim-bridge.c's cmap name table), as
-## NetHack's cmap index: the square is classified exactly as it is when
-## nobody stands on it.
-const BACKGROUND_CMAPS := {
-	"stone": 0, "vertical wall": 1, "horizontal wall": 2, "top left corner wall": 3,
-	"top right corner wall": 4, "bottom left corner wall": 5, "bottom right corner wall": 6, "cross wall": 7,
-	"tee up wall": 8, "tee down wall": 9, "tee left wall": 10, "tee right wall": 11,
-	"no door": 12, "vertical open door": 13, "horizontal open door": 14, "vertical closed door": 15,
-	"horizontal closed door": 16, "iron bars": 17, "tree": 18, "floor of a room": 19,
-	"dark part of a room": 20, "engraving in a room": 21, "dark corridor": 22, "lit corridor": 23,
-	"engraving in a corridor": 24, "up stairs": 25, "down stairs": 26, "up ladder": 27,
-	"down ladder": 28, "branch staircase up": 29, "branch staircase down": 30, "branch ladder up": 31,
-	"branch ladder down": 32, "altar": 33, "grave": 34, "throne": 35,
-	"sink": 36, "fountain": 37, "pool": 38, "ice": 39,
-	"molten lava": 40, "wall of lava": 41, "vertical open drawbridge": 42, "horizontal open drawbridge": 43,
-	"vertical closed drawbridge": 44, "horizontal closed drawbridge": 45, "air": 46, "cloud": 47,
-	"water": 48, "arrow trap": 49, "dart trap": 50, "falling rock trap": 51,
-	"squeaky board": 52, "bear trap": 53, "land mine": 54, "rolling boulder trap": 55,
-	"sleeping gas trap": 56, "rust trap": 57, "fire trap": 58, "pit": 59,
-	"spiked pit": 60, "hole": 61, "trap door": 62, "teleportation trap": 63,
-	"level teleporter": 64, "magic portal": 65, "web": 66, "statue trap": 67,
-	"magic trap": 68, "anti magic trap": 69, "polymorph trap": 70,
-}
-
-
 static func classify(cell: Dictionary) -> Dictionary:
 	if cell.is_empty():
 		return {"kind": Kind.NONE, "cmap": -1}
@@ -81,9 +55,8 @@ static func classify(cell: Dictionary) -> Dictionary:
 			return {"kind": _kind_from_background(cell, Kind.FLOOR), "cmap": cmap}
 		return {"kind": _kind_from_background(cell, Kind.FLOOR), "cmap": cmap}
 	# Someone (or something) stands here: the terrain under them. The bridge
-	# sends its cmap index (backgroundCmap, extended mode); the name table is
-	# the fallback for a core built before it did.
-	var under := int(cell.get("backgroundCmap", BACKGROUND_CMAPS.get(str(cell.get("backgroundSemanticName", "")).to_lower(), -1)))
+	# sends its cmap index (backgroundCmap, extended mode).
+	var under := int(cell.get("backgroundCmap", -1))
 	if under >= 0:
 		if CMAP_KINDS.has(under):
 			return {"kind": CMAP_KINDS[under], "cmap": under}
