@@ -1843,33 +1843,29 @@
    "category": "player-combo-avatars",
    "name": "Dwarf Archeologist Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "dwarf-archeologist-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Dwarf Archeologist Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "dwarf-caveman-female-avatar": {
    "category": "player-combo-avatars",
    "name": "Dwarf Caveman Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "dwarf-caveman-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Dwarf Caveman Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "dwarf-mummy": {
    "category": "full-source-monsters",
@@ -1887,9 +1883,8 @@
    "category": "player-combo-avatars",
    "name": "Dwarf Valkyrie Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "dwarf-zombie": {
    "category": "full-source-monsters",
@@ -2022,49 +2017,43 @@
    "category": "player-combo-avatars",
    "name": "Elf Priest Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "elf-priest-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Elf Priest Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "elf-ranger-female-avatar": {
    "category": "player-combo-avatars",
    "name": "Elf Ranger Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "elf-ranger-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Elf Ranger Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "elf-wizard-female-avatar": {
    "category": "player-combo-avatars",
    "name": "Elf Wizard Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "elf-wizard-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Elf Wizard Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "elf-zombie": {
    "category": "full-source-monsters",
@@ -2970,49 +2959,43 @@
    "category": "player-combo-avatars",
    "name": "Gnome Archeologist Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "gnome-archeologist-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Gnome Archeologist Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "gnome-caveman-female-avatar": {
    "category": "player-combo-avatars",
    "name": "Gnome Caveman Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "gnome-caveman-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Gnome Caveman Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "gnome-healer-female-avatar": {
    "category": "player-combo-avatars",
    "name": "Gnome Healer Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "gnome-healer-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Gnome Healer Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "gnome-mummy": {
    "category": "full-source-monsters",
@@ -3030,33 +3013,29 @@
    "category": "player-combo-avatars",
    "name": "Gnome Ranger Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "gnome-ranger-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Gnome Ranger Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "gnome-wizard-female-avatar": {
    "category": "player-combo-avatars",
    "name": "Gnome Wizard Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "gnome-wizard-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Gnome Wizard Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "gnome-zombie": {
    "category": "full-source-monsters",
@@ -3602,97 +3581,85 @@
    "category": "player-combo-avatars",
    "name": "Human Archeologist Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-archeologist-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Archeologist Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-barbarian-female-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Barbarian Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-barbarian-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Barbarian Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-caveman-female-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Caveman Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-caveman-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Caveman Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-healer-female-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Healer Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-healer-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Healer Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-knight-female-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Knight Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-knight-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Knight Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-monk-female-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Monk Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-monk-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Monk Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-mummy": {
    "category": "full-source-monsters",
@@ -3710,105 +3677,92 @@
    "category": "player-combo-avatars",
    "name": "Human Priest Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-priest-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Priest Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-ranger-female-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Ranger Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-ranger-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Ranger Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-rogue-female-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Rogue Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-rogue-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Rogue Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-samurai-female-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Samurai Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-samurai-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Samurai Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-tourist-female-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Tourist Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-tourist-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Tourist Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-valkyrie-female-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Valkyrie Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-wizard-female-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Wizard Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-wizard-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Human Wizard Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "human-zombie": {
    "category": "full-source-monsters",
@@ -5401,17 +5355,15 @@
    "category": "player-combo-avatars",
    "name": "Orc Barbarian Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "orc-barbarian-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Orc Barbarian Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "orc-captain": {
    "category": "full-source-monsters",
@@ -5435,33 +5387,29 @@
    "category": "player-combo-avatars",
    "name": "Orc Ranger Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "orc-ranger-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Orc Ranger Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "orc-rogue-female-avatar": {
    "category": "player-combo-avatars",
    "name": "Orc Rogue Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "orc-rogue-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Orc Rogue Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "orc-shaman": {
    "category": "common-early-monsters",
@@ -5473,17 +5421,15 @@
    "category": "player-combo-avatars",
    "name": "Orc Wizard Female avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "orc-wizard-male-avatar": {
    "category": "player-combo-avatars",
    "name": "Orc Wizard Male avatar",
    "portrait": true,
-   "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-player-combo-avatar"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "orc-zombie": {
    "category": "full-source-monsters",
