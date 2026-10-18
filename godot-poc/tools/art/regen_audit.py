@@ -82,7 +82,13 @@ def prompt_of(e):
             p += " On a solid magenta background."
     elif matte_of(e) == GREEN and "solid green background" not in p:
         p += " On a solid green background."
-    if e["regen"].get("use_reference"):
+    if e["regen"].get("use_reference") and e.get("category") == "player-combo-avatars":
+        # Image 1 is the hero's painted portrait: keep who it is (face, hair,
+        # colours, gear), redraw it as a map sprite, so portrait and sprite
+        # are the same person.
+        p = p + (" Keep the character's face, hair, colours and equipment from image 1, but draw it as crisp "
+                 "chunky pixel art, not a painting.")
+    elif e["regen"].get("use_reference"):
         p = "Edit image 1, the current game tile. " + p + (" Keep the chunky pixel-art style and outline weight of "
                                                            "image 1, but fix what is wrong.")
     return p

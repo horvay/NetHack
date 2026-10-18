@@ -1,5 +1,5 @@
 class_name OverviewScreen
-extends ModalCard
+extends DocumentCard
 ## NetHack's dungeon overview (^O, #overview) as a map of the hero's journey:
 ## a column per branch (Dungeons of Doom, Gnomish Mines…), a row per level
 ## the hero has been to, its features as icons (shops, temples and altars,
@@ -158,10 +158,3 @@ func _level_row(level: Dictionary) -> Control:
 		label.add_theme_color_override("font_color", UiTheme.INK)
 		words.add_child(label)
 	return panel
-
-
-func handle_key(event: InputEventKey) -> bool:
-	# (Shift, Ctrl and the like alone don't count as a key.)
-	if event.pressed and not event.echo and not event.keycode in [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]:
-		close()
-	return true

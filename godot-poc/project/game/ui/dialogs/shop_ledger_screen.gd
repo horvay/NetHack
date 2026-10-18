@@ -1,5 +1,5 @@
 class_name ShopLedgerScreen
-extends ModalCard
+extends DocumentCard
 ## NetHack's shop lists as a ledger, each row the item's art, NetHack's name
 ## for it and its price in gold:
 ##   - "Fine goods for sale:" (#chat beside goods): the price of each;
@@ -200,7 +200,4 @@ func handle_key(event: InputEventKey) -> bool:
 		close()
 		screen.send_keys("p")
 		return true
-	# (Shift, Ctrl and the like alone don't count as a key.)
-	if event.pressed and not event.echo and not event.keycode in [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]:
-		close()
-	return true
+	return super(event)

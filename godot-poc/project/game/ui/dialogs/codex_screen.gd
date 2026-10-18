@@ -1,5 +1,5 @@
 class_name CodexScreen
-extends ModalCard
+extends DocumentCard
 ## NetHack's discoveries (\ and `) as a codex: one tab per object class,
 ## each discovery a card with its art, its name and the appearance it is
 ## known by ("runed dagger"), a mark for what the hero knew from the start
@@ -148,7 +148,4 @@ func handle_key(event: InputEventKey) -> bool:
 		var step := -1 if event.keycode == KEY_LEFT or event.shift_pressed else 1
 		_tabs.current_tab = wrapi(_tabs.current_tab + step, 0, _tabs.get_tab_count())
 		return true
-	# (Shift, Ctrl and the like alone don't count as a key.)
-	if event.pressed and not event.echo and not event.keycode in [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]:
-		close()
-	return true
+	return super(event)

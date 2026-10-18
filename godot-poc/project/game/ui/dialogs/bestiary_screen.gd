@@ -1,5 +1,5 @@
 class_name BestiaryScreen
-extends ModalCard
+extends DocumentCard
 ## NetHack's #vanquished and #genocided lists as a bestiary: a card per
 ## species with its tile, NetHack's name for it and how many fell (×N);
 ## NetHack's class headings when it sorts by class; genocided or extinct
@@ -180,10 +180,3 @@ func _card(entry: Dictionary) -> Control:
 		count.add_theme_color_override("font_color", UiTheme.GOLD)
 		line.add_child(count)
 	return panel
-
-
-func handle_key(event: InputEventKey) -> bool:
-	# (Shift, Ctrl and the like alone don't count as a key.)
-	if event.pressed and not event.echo and not event.keycode in [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]:
-		close()
-	return true

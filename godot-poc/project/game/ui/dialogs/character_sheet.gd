@@ -1,5 +1,5 @@
 class_name CharacterSheet
-extends ModalCard
+extends DocumentCard
 ## NetHack's ^X (attributes) as a character sheet: the hero's portrait and
 ## NetHack's own one-line identity, the gods, the basics as tiles (HP,
 ## energy, armor class, gold), the six characteristics as bars, and every
@@ -245,11 +245,3 @@ func _characteristics() -> Control:
 		row.add_child(value)
 		column.add_child(row)
 	return panel
-
-
-func handle_key(event: InputEventKey) -> bool:
-	# Any key closes it, as NetHack's window.
-	# (Shift, Ctrl and the like alone don't count as a key.)
-	if event.pressed and not event.echo and not event.keycode in [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]:
-		close()
-	return true

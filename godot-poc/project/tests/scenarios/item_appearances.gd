@@ -23,10 +23,7 @@ func run() -> void:
 	# their appearance, never the class icon.
 	var magic: Array = art.filter(func(a: Array) -> bool: return RegEx.create_from_string("potion|ring|wand|amulet|spellbook").search(str(a[0])) != null and not str(a[0]).contains("of healing"))
 	note("appearances: %s" % [magic])
-	# (Twelve texture-named spellbooks — shining, plaid, vellum… — are being
-	# regenerated with rewritten prompts; until then they may show the icon.)
-	var pending := RegEx.create_from_string("(leathery|mottled|plaid|plain|ragged|shining|stained|thick|thin|vellum|velvet|wrinkled) spellbook")
-	expect(magic.size() >= 8 and not magic.any(func(a: Array) -> bool: return str(a[1]).contains("class-icon") and pending.search(str(a[0])) == null), "each unidentified potion, ring, wand, amulet and spellbook has its appearance's art")
+	expect(magic.size() >= 8 and not magic.any(func(a: Array) -> bool: return str(a[1]).contains("class-icon")), "each unidentified potion, ring, wand, amulet and spellbook has its appearance's art")
 	var stones: Array = art.filter(func(a: Array) -> bool: return str(a[0]).contains("gem") or str(a[0]).contains("stone"))
 	var greens: Array = art.filter(func(a: Array) -> bool: return str(a[0]).contains("green"))
 	expect(greens.size() == 2 and greens[0][1] == greens[1][1] and str(greens[0][1]).contains("green"), "the emerald and the green glass look alike, and green (%s)" % [greens])

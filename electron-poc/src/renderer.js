@@ -3190,7 +3190,10 @@ function itemEquipmentTransferOwnerSignal() {
 function itemEquipmentAvatar() {
   const avatar = currentPlayerAvatarTile();
   if (!avatar.tile?.installedPath) return Object.freeze({ src: '', alt: 'Hero' });
-  const src = tileUrl(avatar.tile).replace(/^url\(["']?/, '').replace(/["']?\)$/, '');
+  let src = tileUrl(avatar.tile).replace(/^url\(["']?/, '').replace(/["']?\)$/, '');
+  // The map shows the hero's pixel sprite; the full-size figure is the
+  // painted portrait kept beside it (player-combo-portraits/).
+  if (avatar.tile.categorySlug === 'player-combo-avatars') src = src.replace('/player-combo-avatars/', '/player-combo-portraits/');
   return Object.freeze({ src, alt: avatar.tile.name || 'Hero' });
 }
 

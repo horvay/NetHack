@@ -1,5 +1,5 @@
 class_name RecordScreen
-extends ModalCard
+extends DocumentCard
 ## Three of NetHack's documents, each styled for what it is, with NetHack's
 ## own words:
 ##   - conduct (#conduct): each voluntary challenge a medal;
@@ -158,10 +158,3 @@ func _parchment(lines: Array) -> void:
 	text.add_theme_font_size_override("font_size", 21)
 	text.add_theme_color_override("font_color", Color("3a2a14"))
 	parchment.add_child(text)
-
-
-func handle_key(event: InputEventKey) -> bool:
-	# (Shift, Ctrl and the like alone don't count as a key.)
-	if event.pressed and not event.echo and not event.keycode in [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]:
-		close()
-	return true

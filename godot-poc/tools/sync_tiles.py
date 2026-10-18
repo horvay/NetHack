@@ -51,7 +51,15 @@ def main() -> int:
             # The NetHack object classes this name exists in ("=" ring, "!"
             # potion…): the resolver won't use the art for another class.
             entry["objectClasses"] = asset["objectClasses"]
-        if image.size == (MAP_SIZE, MAP_SIZE):
+        # A hero's painted portrait kept beside its pixel map sprite
+        # (player-combo-portraits/<id>.png): the sprite on the map, the
+        # painting on the hero card and character sheet.
+        painting = src.parent.parent / "player-combo-portraits" / f"{asset_id}.png"
+        if image.size == (MAP_SIZE, MAP_SIZE) and painting.is_file():
+            shutil.copyfile(src, OUT / f"{asset_id}.png")
+            fit_square(Image.open(painting).convert("RGBA"), 0.04).resize((PORTRAIT_SIZE, PORTRAIT_SIZE), Image.Resampling.LANCZOS).save(OUT / f"{asset_id}.portrait.png")
+            entry["portrait"] = True
+        elif image.size == (MAP_SIZE, MAP_SIZE):
             shutil.copyfile(src, OUT / f"{asset_id}.png")
         else:
             # Large painted art (hero avatars): a cropped 64 px map sprite drawn
