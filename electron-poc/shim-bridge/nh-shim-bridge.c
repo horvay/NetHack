@@ -21,6 +21,18 @@
  * safe semantic decoding.  This bridge still only emits compact JSON; it no
  * longer relies on local struct guesses for glyph_info or condition masks. */
 #include "hack.h"
+/* The NetHack library is built with DLB (its data files, the help pages
+ * among them, live in the nhdat archive); the hosts that compile this file
+ * may not pass -DDLB, so declare the library's real dlb functions here. */
+#ifndef DLB
+#define DLB
+#define BRIDGE_DEFINED_DLB
+#endif
+#include "dlb.h"
+#ifdef BRIDGE_DEFINED_DLB
+#undef DLB
+#undef BRIDGE_DEFINED_DLB
+#endif
 #include "func_tab.h"
 #include "objclass.h"
 
@@ -3670,9 +3682,52 @@ static void queue_active_direct_command(void) {
     }
 }
 
+/* NetHack's help files (help, hh, opthelp, history, license…) through
+ * display_file: read like tty does and shown as an ordinary text window, so
+ * each front end's reader shows them (the shim had no display_file). */
+static void bridge_display_file(const char *fname, int complain) {
+    dlb *f;
+    char line[BUFSZ], expanded[BUFSZ];
+    winid win;
+
+    if (!fname || !*fname) return;
+    f = dlb_fopen(fname, RDTMODE);
+    if (!f) {
+        if (complain) pline("Cannot open \"%s\".", fname);
+        return;
+    }
+    win = create_nhwindow(NHW_TEXT);
+    while (dlb_fgets(line, (int) sizeof line, f)) {
+        size_t out = 0;
+        for (const char *p = line; *p && *p != '\n' && *p != '\r' && out < sizeof expanded - 9; ++p) {
+            if (*p == '\t') {
+                do expanded[out++] = ' '; while (out % 8);
+            } else {
+                expanded[out++] = *p;
+            }
+        }
+        expanded[out] = '\0';
+        putstr(win, 0, expanded);
+    }
+    (void) dlb_fclose(f);
+    display_nhwindow(win, FALSE);
+    destroy_nhwindow(win);
+}
+
 static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
+
+    if (!strcmp(name, "shim_display_file")) {
+        const char *fname = va_string_arg(&ap);
+        int complain = va_int_arg(&ap);
+        emit_event_start(name);
+        fputs(",\"file\":\"", stdout); json_escape(stdout, fname ? fname : ""); fputs("\"", stdout);
+        emit_event_end();
+        va_end(ap);
+        bridge_display_file(fname, complain);
+        return;
+    }
 
     if (!strcmp(name, "shim_nhgetch") && ret_ptr) {
         emit_live_inventory_event(-1);

@@ -38,6 +38,7 @@ static var _body: Font
 static var _body_bold: Font
 static var _body_italic: Font
 static var _theme: Theme
+static var _mono: Font
 
 
 static func heading_font() -> Font:
@@ -59,6 +60,13 @@ static func bold_font() -> Font:
 	if _body_bold == null:
 		_body_bold = load("res://assets/fonts/AlegreyaSans-Bold.ttf")
 	return _body_bold
+
+
+## For NetHack's texts laid out in columns (its help files): Noto Sans Mono.
+static func mono_font() -> Font:
+	if _mono == null:
+		_mono = load("res://assets/fonts/NotoSansMono-Regular.ttf")
+	return _mono
 
 
 static func italic_font() -> Font:

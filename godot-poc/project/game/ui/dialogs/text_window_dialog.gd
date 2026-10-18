@@ -8,9 +8,16 @@ extends ModalCard
 func setup(window: Dictionary) -> void:
 	var lines: Array = window.get("lines", [])
 	var longest := 0
+	# Laid out in columns (spaces inside lines, as NetHack's help files):
+	# a monospace font keeps them lined up.
+	var gaps := RegEx.create_from_string("\\S {2,}\\S")
+	var columned := 0
 	for line in lines:
 		longest = maxi(longest, str(line.get("text", "")).length())
-	card_width = clampf(longest * 10.5 + 80.0, 460.0, 980.0)
+		if gaps.search(str(line.get("text", ""))) != null:
+			columned += 1
+	var mono := columned >= 3 and columned * 5 >= lines.size()
+	card_width = clampf(longest * (11.5 if mono else 10.5) + 80.0, 460.0, 1100.0 if mono else 980.0)
 	var title := ""
 	var start := 0
 	# A leading non-empty line becomes the title when the text has a heading.
@@ -39,8 +46,8 @@ func setup(window: Dictionary) -> void:
 	text.bbcode_enabled = true
 	text.fit_content = true
 	text.custom_minimum_size = Vector2(card_width - 60.0, 0)
-	text.add_theme_font_override("normal_font", UiTheme.body_font())
-	text.add_theme_font_size_override("normal_font_size", 19)
+	text.add_theme_font_override("normal_font", UiTheme.mono_font() if mono else UiTheme.body_font())
+	text.add_theme_font_size_override("normal_font_size", 17 if mono else 19)
 	text.add_theme_color_override("default_color", UiTheme.INK)
 	var content := PackedStringArray()
 	for i in range(start, lines.size()):

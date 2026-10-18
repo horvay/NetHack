@@ -4,7 +4,8 @@ extends Scenario
 ##   2. clicking "a monster" goes on to NetHack's own map target;
 ##   3. #terrain preselects the first view; Enter takes it;
 ##   4. / (look) answers by its letter: "something you're carrying" goes on
-##      to NetHack's pack menu.
+##      to NetHack's pack menu;
+##   5. ? (NetHack's help) is compact tiles; a letter opens the page.
 
 
 func _wait_choice(title: String) -> ChoiceScreen:
@@ -26,8 +27,8 @@ func _wait_not_menu(what: String) -> void:
 
 
 func _back_to_prompt() -> void:
-	for i in 3:
-		if game.state.is_waiting_for_command():
+	for i in 5:
+		if game.state.is_waiting_for_command() and game.dialogs.active == null:
 			break
 		await press(KEY_ESCAPE)
 		await get_tree().create_timer(0.3).timeout
@@ -95,4 +96,24 @@ func run() -> void:
 			await get_tree().create_timer(0.4).timeout
 			expect(str(game.state.request.get("prompt", "")) != before and not game.dialogs.active is ChoiceScreen, "its letter answers: NetHack goes on to the pack (%s)" % game.state.request.get("prompt", ""))
 			await screenshot("look-carrying")
+	await _back_to_prompt()
+
+	# 5. ? NetHack's help: compact tiles; a pick opens NetHack's page.
+	mark()
+	await type_text("?")
+	choice = await _wait_choice("NetHack's help")
+	if choice != null:
+		note("help: %d choices" % choice.choices.size())
+		expect(choice.choices.size() >= 12 and choice.choices.all(func(c: Dictionary) -> bool: return str(c.icon) != ""), "every help page has a tile with art")
+		await screenshot("help-choices")
+		var commands: Array = choice.choices.filter(func(c: Dictionary) -> bool: return str(c.text).begins_with("List of game commands"))
+		if expect(not commands.is_empty(), "List of game commands is offered"):
+			var letter := str(commands[0].selector)
+			await press(OS.find_keycode_from_string(letter.to_upper()), letter.unicode_at(0))
+			var deadline := Time.get_ticks_msec() + 6000
+			while Time.get_ticks_msec() < deadline and (game.dialogs.active == null or game.dialogs.active is ChoiceScreen):
+				await get_tree().process_frame
+			await get_tree().create_timer(0.4).timeout
+			expect(game.dialogs.active != null and not game.dialogs.active is ChoiceScreen, "NetHack's page opens (%s)" % game.dialogs.active)
+			await screenshot("help-page")
 	await _back_to_prompt()

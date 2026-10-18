@@ -4,7 +4,8 @@ extends ModalCard
 ## its art and NetHack's own words:
 ##   - #name / C "What do you want to name?";
 ##   - #terrain "View which?";
-##   - / "What do you want to look at:".
+##   - / "What do you want to look at:";
+##   - ? "Select one item:", NetHack's help.
 ## A click or the row's letter answers, as in NetHack; Enter takes the
 ## highlighted (preselected) choice; Esc cancels.
 
@@ -24,6 +25,14 @@ const MENUS := [
 		["something else", "lenses"], ["nearby monsters", "newt"], ["all monsters", "floating-eye"],
 		["nearby objects", "large-box"], ["all objects", "gem-class-icon"], ["nearby traps", "arrow-trap"],
 		["all seen or remembered traps", "arrow-trap"], ["nearby engravings", "engraving"], ["all seen or remembered engravings", "engraving"]]],
+	["Select one item", "NetHack's help", "NetHack's own guides and lists.  (F1 is this game's quick help.)", [
+		["About NetHack", "crystal-ball"], ["Long description", "spellbook-class-icon"], ["List of game commands", "scroll-class-icon"],
+		["Concise history", "parchment-spellbook"], ["Info on a character", "lenses"], ["Info on what a given key", "magic-marker"],
+		["List of game options", "tool-class-icon"], ["Longer explanation of game options", "spellbook-class-icon"],
+		["Using the", "tool-class-icon"], ["Full list of keyboard", "scroll-class-icon"], ["List of extended", "scroll-class-icon"],
+		["List menu control", "movement-hint-icon"], ["Description of NetHack's command line", "blank-paper"],
+		["The NetHack license", "blank-paper"], ["Support information", "crystal-ball"], ["List of wizard-mode", "wand-class-icon"],
+		["", "tool-class-icon"]]],
 ]
 
 var screen: GameScreen
@@ -65,14 +74,18 @@ func setup(game_screen: GameScreen, p_request: Dictionary) -> void:
 
 
 func _build() -> void:
+	# Long menus (NetHack's help) get smaller tiles, four across.
+	var compact := choices.size() > 12
+	if compact:
+		card_width = 1180.0
 	var grid := GridContainer.new()
-	grid.columns = 3 if choices.size() != 4 else 2
+	grid.columns = 4 if compact else (3 if choices.size() != 4 else 2)
 	grid.add_theme_constant_override("h_separation", 12)
 	grid.add_theme_constant_override("v_separation", 12)
 	body.add_child(grid)
 	var focus: Button = null
 	for choice in choices:
-		var button := _tile(choice)
+		var button := _tile(choice, compact)
 		choice["button"] = button
 		grid.add_child(button)
 		if focus == null or bool(choice.preselected):
@@ -81,10 +94,10 @@ func _build() -> void:
 		set_meta("safe_focus", focus)
 
 
-func _tile(choice: Dictionary) -> Button:
+func _tile(choice: Dictionary, compact := false) -> Button:
 	var button := Button.new()
 	button.name = "Choice_%s" % choice.selector
-	button.custom_minimum_size = Vector2(264, 150)
+	button.custom_minimum_size = Vector2(270, 108) if compact else Vector2(264, 150)
 	button.focus_mode = Control.FOCUS_ALL
 	button.tooltip_text = str(choice.text)
 	var lit := bool(choice.preselected)
@@ -102,7 +115,7 @@ func _tile(choice: Dictionary) -> Button:
 	var resolver := TileResolver.shared()
 	if str(choice.icon) != "" and resolver.has_asset(str(choice.icon)):
 		var icon := TextureRect.new()
-		icon.custom_minimum_size = Vector2(0, 64)
+		icon.custom_minimum_size = Vector2(0, 40 if compact else 64)
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST

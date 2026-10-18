@@ -1672,6 +1672,10 @@ Saving (`S` / `#save`) works through the normal prompts.
 
 ---
 
+### 7.x `shim_display_file` (NetHack's help files)
+
+`{"name":"shim_display_file","fmt":"vsb","file":"hh"}`, emitted in every mode. The shim had no `display_file`, so NetHack's help pages (`help`, `hh`, `opthelp`, `history`, `license`…) showed nothing. The bridge now reads the file through NetHack's dlb archive, like tty, and shows it as an ordinary text window: `shim_create_nhwindow` (type 3, NHW_TEXT), one `shim_putstr` per line (tabs expanded to 8 columns), `shim_display_nhwindow`, `shim_destroy_nhwindow`. A file that can't be opened gives NetHack's `Cannot open "<file>".` when it asked to complain. Both front ends show it with their text reader; Godot switches to a monospace font for text laid out in columns.
+
 ## 8. How Electron consumes the stream (for parity)
 
 From `src/main/game-process.js`, `src/shared/shim-protocol.js`,

@@ -175,4 +175,5 @@ All additive, public, and gated by `NH_BRIDGE_EXTENDED` where Electron's output 
 | 20 | #vanquished / #genocided | Done: BestiaryScreen (`bestiary`) |
 | 23 | Travel | Done: destination chips on the travel banner (`travel_picker`) |
 | 19 | Options | Done: OptionsScreen (`options_page`) |
-| 22, 24–27, 29, 30 | #adjust, quest/Oracle, help, loot/tip choosers, `A` category, minor | Open (`A`'s item step already uses ItemPickScreen) |
+| 25 | `?` help | Done: ChoiceScreen tiles; pages show via the new `display_file` (`choice_menus`) |
+| 22, 24, 26, 27, 29, 30 | #adjust, quest/Oracle, loot/tip choosers, `A` category, minor | Open (`A`'s item step already uses ItemPickScreen) |
