@@ -156,3 +156,22 @@ All additive, public, and gated by `NH_BRIDGE_EXTENDED` where Electron's output 
 5. The getobj verb tag.
 6. Typed shop bill rows.
 7. Option rows.
+
+## Status (2026-10-18)
+
+| # | Menu | Status |
+|---|---|---|
+| 1 | `,` pick up | Done: ContainerScreen ground mode (`open_ground`) |
+| 2, 3, 28 | Cast, spellbook, sort | Done: SpellsScreen (school from the bridge) |
+| 4, 8, 15 | Item menus (`?`/`*`, identify, take off) | Done: ItemPickScreen (`item_picks`, `identify_pick`); `I`/`*` keys open InventoryScreen/EquipmentScreen |
+| 5 | `D` drop several | Done: ContainerScreen drop mode (`open_ground(true)`) |
+| 6, 21 | Discoveries | Done: CodexScreen (text parse) |
+| 7 | Overview | Done: OverviewScreen (text parse) |
+| 9, 14, 16 | #name, `/` look, #terrain | Done: ChoiceScreen tiles; #terrain banner (`choice_menus`) |
+| 10 | Pray | Done: prayer facts on the question card |
+| 11 | ^X | Done: CharacterSheet |
+| 12, 17, 18 | Lore, conduct, chronicle | Done: RecordScreen |
+| 13 | Shop lists | In progress: ShopLedgerScreen |
+| 20 | #vanquished / #genocided | Done: BestiaryScreen (`bestiary`) |
+| 23 | Travel | Done: destination chips on the travel banner (`travel_picker`) |
+| 19, 22, 24–27, 29, 30 | Options, #adjust, quest/Oracle, help, loot/tip choosers, `A` category, minor | Open |

@@ -61,9 +61,10 @@ func run() -> void:
 	await type_text("*")
 	await wait_for_named("shim_select_menu")
 	await get_tree().create_timer(0.3).timeout
-	var menu := game.dialogs.active as MenuDialog
+	# The pack list is the item grid, titled with the question.
+	var menu := game.dialogs.active as ItemPickScreen
 	note("title: %s" % (menu.title_label.text if menu else "none"))
-	expect(menu != null and menu.title_label.text.to_lower().contains("drop"), "the list keeps the question as its title (%s)" % (menu.title_label.text if menu else game.dialogs.active))
+	expect(menu != null and menu.title_label.text.to_lower().contains("drop"), "the list is the item grid and keeps the question as its title (%s)" % (menu.title_label.text if menu else game.dialogs.active))
 	await screenshot("drop-star-list")
 	# Esc closes the list and returns to the question (as in tty); Esc again
 	# cancels the drop.

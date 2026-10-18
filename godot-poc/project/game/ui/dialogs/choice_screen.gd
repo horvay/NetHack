@@ -8,7 +8,8 @@ extends ModalCard
 ## A click or the row's letter answers, as in NetHack; Enter takes the
 ## highlighted (preselected) choice; Esc cancels.
 
-## Per menu: [prompt prefix, title, subtitle, [[row text prefix, icon id], ...]].
+## Per menu: [prompt prefix, title, subtitle, [[row text prefix, icon id
+## (, title of the item menu NetHack opens next)], ...]].
 const MENUS := [
 	["What do you want to name", "Name or call", "Give a name to one thing, or call a whole kind of thing something.", [
 		["a monster", "newt"], ["a particular object", "pickup-action-icon"], ["the type of an object in inventory", "potion-class-icon"],
@@ -19,7 +20,7 @@ const MENUS := [
 		["known map without monsters", "large-box"], ["full map", "crystal-ball"], ["internal levl", "magic-mapping"],
 		["legacy", "magic-mapping"]]],
 	["What do you want to look at", "Look at", "Pick what to look up.", [
-		["something on the map", "valid-position-marker"], ["something you're carrying", "pickup-action-icon"],
+		["something on the map", "valid-position-marker"], ["something you're carrying", "pickup-action-icon", "Look up which item?"],
 		["something else", "lenses"], ["nearby monsters", "newt"], ["all monsters", "floating-eye"],
 		["nearby objects", "large-box"], ["all objects", "gem-class-icon"], ["nearby traps", "arrow-trap"],
 		["all seen or remembered traps", "arrow-trap"], ["nearby engravings", "engraving"], ["all seen or remembered engravings", "engraving"]]],
@@ -52,11 +53,13 @@ func setup(game_screen: GameScreen, p_request: Dictionary) -> void:
 		if selector == 0 or text == "":
 			continue
 		var icon := ""
+		var then := ""
 		for pair in menu[3]:
 			if text.begins_with(pair[0]):
 				icon = pair[1]
+				then = pair[2] if pair.size() > 2 else ""
 				break
-		choices.append({"selector": char(selector), "text": text, "icon": icon, "preselected": int(item.get("itemflags", 0)) & 0x1 != 0})
+		choices.append({"selector": char(selector), "text": text, "icon": icon, "then": then, "preselected": int(item.get("itemflags", 0)) & 0x1 != 0})
 	_build()
 	add_footer_button("Cancel  Esc", _cancel)
 
@@ -129,6 +132,7 @@ func _pick(choice: Dictionary) -> void:
 	if _answered:
 		return
 	_answered = true
+	screen.state.next_menu_title = str(choice.then)
 	screen.send_keys(str(choice.selector))
 	close()
 

@@ -197,6 +197,15 @@ func _on_request(request: Dictionary) -> void:
 		skills.setup(screen, request, screen.state.magic_rows[str(request.get("menu_id", ""))])
 		_show(skills)
 		return
+	if kind == "command":
+		screen.state.next_menu_title = ""
+	if kind == "menu" and ItemPickScreen.routes(request, screen.state):
+		# A menu of items from the pack: the inventory's item grid.
+		var pick := ItemPickScreen.new()
+		pick.set_meta("request_dialog", true)
+		pick.setup(screen, request)
+		_show(pick)
+		return
 	if kind == "menu" and not ChoiceScreen.menu_for(request).is_empty():
 		# #name, #terrain, / look: their choices as tiles.
 		var choice := ChoiceScreen.new()
@@ -261,6 +270,16 @@ func _on_request(request: Dictionary) -> void:
 				pending_target = Vector2i(-1, -1)
 				screen.state.note_target(cell)
 				screen.send_map_click(cell)
+			elif screen.state.messages.recent(3).any(func(m: Dictionary) -> bool: return str(m.get("text", "")) == "Where do you want to travel to?"):
+				# _ travel: the places the hero knows on this level, one click
+				# each (NetHack's < > _ keys still jump the cursor).
+				_target_hint = GamepadRouter.hint("Travel where?  Click a spot, or pick a place:", "Travel where?  Pick a spot with the stick, or a place:")
+				var chips: Array = []
+				for place in travel_destinations().slice(0, 6):
+					var cell: Vector2i = place[1]
+					chips.append([place[0], func() -> void: screen.send_map_click(cell)])
+				chips.append([GamepadRouter.hint("Cancel  Esc", "Cancel  B"), char(27)])
+				_show_banner(_target_hint, chips)
 			elif screen.state.messages.recent(3).any(func(m: Dictionary) -> bool: return str(m.get("text", "")).begins_with("Showing known terrain")):
 				# #terrain: NetHack shows the level as remembered until a key.
 				_target_hint = GamepadRouter.hint("Showing the terrain you remember, with monsters and things out of the way.  Esc to return.",
@@ -313,6 +332,11 @@ func _document_screen(lines: Array) -> ModalCard:
 		var overview := OverviewScreen.new()
 		overview.setup(screen, lines)
 		return overview
+	var beasts := BestiaryScreen.kind_of(lines)
+	if beasts != "":
+		var bestiary := BestiaryScreen.new()
+		bestiary.setup(lines, beasts)
+		return bestiary
 	var record := RecordScreen.kind_of(lines)
 	if record != "":
 		var doc := RecordScreen.new()
@@ -356,12 +380,15 @@ func _show_banner(text: String, chips: Array = []) -> void:
 		button.text = chip[0]
 		button.focus_mode = Control.FOCUS_NONE
 		button.custom_minimum_size = Vector2(0, 36)
-		var keys: String = chip[1]
-		button.pressed.connect(func() -> void:
-			if keys == char(27):
-				screen.send_keycode(27)
-			else:
-				screen.send_keys(keys))
+		if chip[1] is Callable:
+			button.pressed.connect(chip[1])
+		else:
+			var keys: String = chip[1]
+			button.pressed.connect(func() -> void:
+				if keys == char(27):
+					screen.send_keycode(27)
+				else:
+					screen.send_keys(keys))
 		banner_chips.add_child(button)
 	banner.visible = true
 	banner.reset_size()
@@ -369,6 +396,28 @@ func _show_banner(text: String, chips: Array = []) -> void:
 	banner.offset_right = banner.size.x / 2.0
 	banner.modulate.a = 0.0
 	banner.create_tween().tween_property(banner, "modulate:a", 1.0, 0.15)
+
+
+## Where the hero can travel on this level, nearest first: [label, cell]
+## for each stair, ladder, altar, throne, fountain, sink and grave seen.
+const TRAVEL_PLACES := {25: "Up stairs", 26: "Down stairs", 27: "Up ladder", 28: "Down ladder", 29: "Up stairs",
+	30: "Down stairs to another branch", 31: "Up ladder", 32: "Down ladder to another branch", 33: "Altar", 34: "Grave", 35: "Throne",
+	36: "Sink", 37: "Fountain", 65: "Magic portal"}
+
+
+func travel_destinations() -> Array:
+	var found: Array = []
+	var map := screen.state.map
+	for y in MapModel.HEIGHT:
+		for x in MapModel.WIDTH:
+			var pos := Vector2i(x, y)
+			if pos == map.hero or not map.is_explored(pos):
+				continue
+			var cmap := int(Terrain.classify(map.cell(pos)).get("cmap", -1))
+			if TRAVEL_PLACES.has(cmap):
+				found.append([TRAVEL_PLACES[cmap], pos, (pos - map.hero).length_squared()])
+	found.sort_custom(func(a: Array, b: Array) -> bool: return a[2] < b[2])
+	return found
 
 
 func _hide_banner() -> void:

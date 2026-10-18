@@ -1,0 +1,53 @@
+{
+ "schema": "nethack-electron-test-scenario/v1",
+ "id": "object/identify-pack",
+ "phase": "after-level-and-hero-before-first-draw",
+ "hero": {
+  "placement": "current"
+ },
+ "level": {
+  "safeAreaAroundHero": 2,
+  "lit": true,
+  "suppressAdjacentMonsters": true,
+  "pet": "none"
+ },
+ "ground": [],
+ "monsters": [],
+ "inventory": [
+  {
+   "typeId": "SCR_IDENTIFY",
+   "identityKnown": true,
+   "beatitude": "uncursed",
+   "beatitudeKnown": true
+  },
+  {
+   "typeId": "POT_SPEED",
+   "identityKnown": false
+  },
+  {
+   "typeId": "POT_SLEEPING",
+   "identityKnown": false
+  },
+  {
+   "typeId": "RIN_STEALTH",
+   "identityKnown": false
+  },
+  {
+   "typeId": "WAN_LIGHT",
+   "identityKnown": false
+  },
+  {
+   "typeId": "EMERALD",
+   "identityKnown": false
+  },
+  {
+   "typeId": "RUBY",
+   "identityKnown": false
+  }
+ ],
+ "expectedPublicFacts": {
+  "messages": [
+   "unidentified gems, a gray stone, a looking glass, healing book and potion"
+  ]
+ }
+}

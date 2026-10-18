@@ -50,6 +50,9 @@ enum WindowType { MESSAGE = 1, STATUS = 2, MAP = 3, MENU = 4, TEXT = 5, PERMINVE
 var map := MapModel.new()
 var status := StatusModel.new()
 var messages := MessageLog.new()
+## A title for the next item menu NetHack leaves untitled, from the choice
+## that led to it ("Look up which item?"); cleared at the command prompt.
+var next_menu_title := ""
 var inventory: Array = []
 var inventory_revision := 0
 var extcmd_catalog: Array = []
