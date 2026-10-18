@@ -197,6 +197,13 @@ func _on_request(request: Dictionary) -> void:
 		skills.setup(screen, request, screen.state.magic_rows[str(request.get("menu_id", ""))])
 		_show(skills)
 		return
+	if kind == "menu" and not ChoiceScreen.menu_for(request).is_empty():
+		# #name, #terrain, / look: their choices as tiles.
+		var choice := ChoiceScreen.new()
+		choice.set_meta("request_dialog", true)
+		choice.setup(screen, request)
+		_show(choice)
+		return
 	match kind:
 		"yn":
 			var dialog := QuestionDialog.new()
@@ -254,6 +261,11 @@ func _on_request(request: Dictionary) -> void:
 				pending_target = Vector2i(-1, -1)
 				screen.state.note_target(cell)
 				screen.send_map_click(cell)
+			elif screen.state.messages.recent(3).any(func(m: Dictionary) -> bool: return str(m.get("text", "")).begins_with("Showing known terrain")):
+				# #terrain: NetHack shows the level as remembered until a key.
+				_target_hint = GamepadRouter.hint("Showing the terrain you remember, with monsters and things out of the way.  Esc to return.",
+					"Showing the terrain you remember.  B to return.")
+				_show_banner(_target_hint, [[GamepadRouter.hint("Return  Esc", "Return  B"), char(27)]])
 			else:
 				_target_hint = GamepadRouter.hint("Choose a spot on the map.  Click it, or move the cursor with direction keys and press . or ,  —  Esc to cancel.",
 					"Choose a spot on the map.  Move with the stick, A to pick it  —  B to cancel.")

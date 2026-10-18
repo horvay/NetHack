@@ -233,3 +233,4 @@ The parity checklist is the feature set of `../electron-poc/src/ux` and `../elec
   - A NetHack default answer is marked with a warm fill and a "default" caption; gold borders mean focus only. The options menu has no "Select all".
   - Doors are a front-view family matching the 3/4 brick walls, after Greg's "Terrible door". Godot draws the closed and the two open doors; doorways and broken doors render as floor gaps, so `broken-door` and `no-door-doorway` are for Electron's tile view and tooltips (Electron draws its map doors with CSS).
 
+  - NetHack's small pick-one menus (#name/C "What do you want to name?", #terrain "View which?", / "What do you want to look at:") are ChoiceScreen tiles: art, NetHack's own row text, the row's letter. A click or the letter answers; Enter takes the preselected row; Esc cancels. The #terrain view gets its own banner ("Showing the terrain you remember… Esc to return") instead of the map-target one (`choice_menus`).
