@@ -2610,6 +2610,7 @@ electron_test_parse_level(const char **pp,
             electron_json_require_unique(&seen, 0x40U, scenario->id, key);
             value = electron_json_parse_string(pp, scenario->id);
             if (strcmp(value, "soko1") && strcmp(value, "medusa")
+                && strcmp(value, "oracle")
                 && strcmp(value, "castle") && strcmp(value, "valley")
                 && strcmp(value, "juiblex") && strcmp(value, "baalz")
                 && strcmp(value, "asmodeus") && strcmp(value, "orcus")

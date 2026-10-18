@@ -1,0 +1,71 @@
+{
+  "schema": "nethack-electron-test-scenario/v2",
+  "id": "special/oracle-consultation",
+  "phase": "after-special-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "near-monster",
+    "placementTarget": "ORACLE",
+    "placementDistance": 1,
+    "wakePlacementTarget": false,
+    "role": "Valkyrie",
+    "race": "human",
+    "gender": "female",
+    "alignment": "lawful",
+    "intrinsics": [],
+    "experienceLevel": 1,
+    "hp": 60,
+    "maxHp": 60,
+    "power": 10,
+    "maxPower": 10
+  },
+  "level": {
+    "safeAreaAroundHero": 1,
+    "lit": true,
+    "suppressAdjacentMonsters": false,
+    "pet": "none",
+    "specialLevel": "oracle"
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    {
+      "typeId": "GOLD_PIECE",
+      "quantity": 99
+    },
+    {
+      "typeId": "GOLD_PIECE",
+      "quantity": 99
+    },
+    {
+      "typeId": "GOLD_PIECE",
+      "quantity": 99
+    },
+    {
+      "typeId": "GOLD_PIECE",
+      "quantity": 99
+    },
+    {
+      "typeId": "GOLD_PIECE",
+      "quantity": 99
+    },
+    {
+      "typeId": "GOLD_PIECE",
+      "quantity": 99
+    },
+    {
+      "typeId": "GOLD_PIECE",
+      "quantity": 99
+    }
+  ],
+  "expectedPublicFacts": {
+    "monsterRows": [
+      "Oracle"
+    ],
+    "status": [
+      "Valkyrie"
+    ],
+    "messages": [
+      "oracle consultation fixture"
+    ]
+  }
+}

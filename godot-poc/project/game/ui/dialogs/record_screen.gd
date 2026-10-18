@@ -4,7 +4,8 @@ extends ModalCard
 ## own words:
 ##   - conduct (#conduct): each voluntary challenge a medal;
 ##   - chronicle (#chronicle): a timeline of the run, turn by turn;
-##   - lore (the opening "It is written in the Book of …"): a parchment.
+##   - lore (the opening "It is written in the Book of …"): a parchment;
+##   - an Oracle consultation: NetHack's opening line, then the parchment.
 ## Any key closes it, as NetHack's window.
 
 var kind := ""  # "conduct", "chronicle", "lore"
@@ -21,6 +22,8 @@ static func kind_of(lines: Array) -> String:
 		return "chronicle"
 	if first.begins_with("It is written in the Book of"):
 		return "lore"
+	if first.begins_with("The Oracle ") and first.ends_with(":"):
+		return "oracle"
 	return ""
 
 
@@ -33,7 +36,13 @@ func setup(lines: Array, p_kind: String) -> void:
 			_chronicle(lines)
 		"lore":
 			_lore(lines)
-	var close_button := add_footer_button("Continue  Esc" if kind == "lore" else "Close  Esc", close)
+		"oracle":
+			# NetHack's own opening line ("The Oracle meditates for a moment
+			# and then intones:") above the consultation's parchment.
+			card_width = 860.0
+			set_title("The Oracle", str(lines[0].get("text", "")).strip_edges())
+			_parchment(lines.slice(1))
+	var close_button := add_footer_button("Continue  Esc" if kind in ["lore", "oracle"] else "Close  Esc", close)
 	set_meta("safe_focus", close_button)
 
 
@@ -116,6 +125,10 @@ func _lore(lines: Array) -> void:
 	card_width = 860.0
 	set_title("")
 	title_label.visible = false
+	_parchment(lines)
+
+
+func _parchment(lines: Array) -> void:
 	var parchment := PanelContainer.new()
 	var style := UiTheme.panel_style(Color("e9dcb8"), Color("8a6a3a"), 6, 3, 0)
 	style.content_margin_left = 48
