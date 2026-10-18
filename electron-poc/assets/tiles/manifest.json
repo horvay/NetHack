@@ -9301,13 +9301,13 @@
       "why": "Condition",
       "artDirection": "A green face or medical warning cross with sickly tint. It should differ from poison by using face or cross language.",
       "renderingNotes": "Badge overlay in status strip. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of Sick badge: A green face or medical warning cross with sickly tint. It should differ from poison by using face or cross language. Visible positive color palette: bone-white with warm gray shadows, ivory highlights, and pale gold edge accents. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game status effect icon in the style of a fantasy game asset: a green sickly face with a thermometer, a bold simple symbol filling the frame, saturated colors, thick dark outline, readable at 24 pixels, centered with a clear margin, on a solid magenta background.",
       "outputPath": "asset-generation/outputs/ui-status-overlays/sick-badge.png",
       "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/sick-badge.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent-rmbg-coherent-restart",
-      "completedAt": "2026-06-29T19:53:59Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:02Z",
       "coherentRestartAt": "2026-06-29T19:53:59Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -9318,11 +9318,28 @@
           32,
           32
         ],
-        "transparentPixels": 352,
-        "semiTransparentPixels": 61,
-        "opaquePixels": 611,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.6982
+        "transparentPixels": 498,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 526,
+        "greenishVisiblePixels": 7,
+        "nonTransparentRatio": 0.5137
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent-rmbg-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of Sick badge: A green face or medical warning cross with sickly tint. It should differ from poison by using face or cross language. Visible positive color palette: bone-white with warm gray shadows, ivory highlights, and pale gold edge accents. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/ui-status-overlays/sick-badge.png"
+      },
+      "previousSha256": null,
+      "sha256": "683be69b54cc0677a852fe3bab75dac3754fc9f0a70ad0f678790950278ffac2",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).) on the B70 with Qwen Image 2.1, seed 42, via godot-poc/tools/art/regen_audit.py; magenta matte (green subject) keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 42,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:02Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/ui-status-overlays/sick-badge.png"
       }
     },
     {
@@ -53884,6 +53901,930 @@
         "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
         "installedAt": "2026-10-18T06:59:09Z",
         "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/zinc-wand.png"
+      }
+    },
+    {
+      "id": "gray-spellbook",
+      "name": "gray spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/gray-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/gray-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/gray-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "95546707cebc775470a3c04ac5362dda8385b4df0510e817e31e1b9d536c8b67",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 536,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 488,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4766
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a gray cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:00Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:00Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/gray-spellbook.png"
+      }
+    },
+    {
+      "id": "indigo-spellbook",
+      "name": "indigo spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/indigo-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/indigo-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/indigo-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "19f437f73783f5b3675c27307a47eaba2a59b20b8c64b6f05e992862d104ca6f",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 529,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 495,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4834
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a indigo cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:00Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:00Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/indigo-spellbook.png"
+      }
+    },
+    {
+      "id": "light-blue-spellbook",
+      "name": "light blue spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/light-blue-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/light-blue-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/light-blue-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "ababc531bec18c344837757661b3dd3d304fd3d568e699bf19bac3c78e1c52f2",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 514,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 510,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.498
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a light blue cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:00Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:00Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/light-blue-spellbook.png"
+      }
+    },
+    {
+      "id": "light-brown-spellbook",
+      "name": "light brown spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/light-brown-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/light-brown-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/light-brown-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "5e0266da7ecfdbe5f6cb7119090dec71aba7e1b06cdc24ed1d17fc7c8ca79936",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 534,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 490,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4785
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a light brown cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:00Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:00Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/light-brown-spellbook.png"
+      }
+    },
+    {
+      "id": "light-green-spellbook",
+      "name": "light green spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/light-green-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/light-green-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/light-green-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "e7d2f51f74802d5ffcb9e1871fc26b8f2fce4b10e60fb75264d1549cbeaf7f7f",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 513,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 511,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.499
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a light green cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:00Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; magenta matte (green subject) keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:00Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/light-green-spellbook.png"
+      }
+    },
+    {
+      "id": "magenta-spellbook",
+      "name": "magenta spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/magenta-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/magenta-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/magenta-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "af7158409cb11f88a2eb33b747156b836728a4b8619eedd8512b8e36a82cdf86",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 532,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 492,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4805
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a magenta cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:00Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:00Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/magenta-spellbook.png"
+      }
+    },
+    {
+      "id": "orange-spellbook",
+      "name": "orange spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/orange-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/orange-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/orange-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "3d29c3565f281637728a6adc36dc09684fc493de63b93566b85907a51365870f",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 535,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 489,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4775
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a orange cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:01Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:01Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/orange-spellbook.png"
+      }
+    },
+    {
+      "id": "parchment-spellbook",
+      "name": "parchment spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/parchment-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/parchment-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/parchment-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "4d9755bed7665fae840026f476a2348a792ffb7707c4785d710e6e4221fc710b",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 522,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 502,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4902
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a cream yellowed parchment cover with ink smudges, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:01Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:01Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/parchment-spellbook.png"
+      }
+    },
+    {
+      "id": "pink-spellbook",
+      "name": "pink spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/pink-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/pink-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/pink-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "09ab173878b53b39930739a99fa5bc90bd1f32a79170608f972466290b4dcf0a",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 536,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 488,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4766
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a pink cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:01Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:01Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/pink-spellbook.png"
+      }
+    },
+    {
+      "id": "purple-spellbook",
+      "name": "purple spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/purple-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/purple-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/purple-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "40928b6b28d43edb773900c0168a93ac5f29ef9a923eeba61650416e9c557091",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 535,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 489,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4775
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a purple cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:01Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:01Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/purple-spellbook.png"
+      }
+    },
+    {
+      "id": "red-spellbook",
+      "name": "red spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/red-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/red-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/red-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "34e926c731ffcc482ac050831e6cbb737a53640a14464de635068822f8fec26d",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 545,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 479,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4678
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a red cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:01Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:01Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/red-spellbook.png"
+      }
+    },
+    {
+      "id": "silver-spellbook",
+      "name": "silver spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/silver-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/silver-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/silver-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "55d753697c597416b967a06a360e0b95f547a488d78d98c92022dc88d505502f",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 533,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 491,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4795
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a cover of bright polished silver metal, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:01Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:01Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/silver-spellbook.png"
+      }
+    },
+    {
+      "id": "tan-spellbook",
+      "name": "tan spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/tan-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/tan-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/tan-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "3dbc74156d8899e2f6e9ec3f71313cd70fc2f66325b92591f584e3e54d848271",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 533,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 491,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4795
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a plain light tan leather cover, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:01Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:01Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/tan-spellbook.png"
+      }
+    },
+    {
+      "id": "turquoise-spellbook",
+      "name": "turquoise spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/turquoise-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/turquoise-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/turquoise-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "31afd03dea8afc98900d5c236d4474ca3046e86314fe4c2b92592576a9e386ac",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 529,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 495,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4834
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a turquoise cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:01Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:01Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/turquoise-spellbook.png"
+      }
+    },
+    {
+      "id": "violet-spellbook",
+      "name": "violet spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/violet-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/violet-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/violet-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "8ad569762a465752c6b8e584644be5082db338aaab893b78556b32969651735f",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 534,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 490,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4785
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a violet cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:01Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:01Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/violet-spellbook.png"
+      }
+    },
+    {
+      "id": "white-spellbook",
+      "name": "white spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/white-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/white-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/white-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "df25ebfe56a8766c0dce2895f523384743adf12afd2274b36f817aae70add18b",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 492,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 532,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.5195
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a white cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:02Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:02Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/white-spellbook.png"
+      }
+    },
+    {
+      "id": "yellow-spellbook",
+      "name": "yellow spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/yellow-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/yellow-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/yellow-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "e425d56db9b67772ab1f20f2728cef764e9114afcf6b7cf40755b9186d403626",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 615,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 409,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.3994
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a yellow cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:02Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 42, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 42,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:02Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/yellow-spellbook.png"
+      }
+    },
+    {
+      "id": "sliming-badge",
+      "name": "Sliming badge",
+      "category": "UI, status, and overlays",
+      "categorySlug": "ui-status-overlays",
+      "priority": "P1",
+      "glyph": "",
+      "why": "Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).",
+      "outputPath": "asset-generation/outputs/ui-status-overlays/sliming-badge.png",
+      "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/sliming-badge.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/ui-status-overlays/sliming-badge.png"
+      },
+      "previousSha256": null,
+      "sha256": "84f5988911187e9c05c92ccc34aad95d588977a0dd659c200429153a8e276509",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 556,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 468,
+        "greenishVisiblePixels": 89,
+        "nonTransparentRatio": 0.457
+      },
+      "prompt": "A pixel art game status effect icon in the style of a fantasy game asset: a dripping green slime blob, a bold simple symbol filling the frame, saturated colors, thick dark outline, readable at 24 pixels, centered with a clear margin, on a solid magenta background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:02Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; magenta matte (green subject) keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:02Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/ui-status-overlays/sliming-badge.png"
+      }
+    },
+    {
+      "id": "stoning-badge",
+      "name": "Stoning badge",
+      "category": "UI, status, and overlays",
+      "categorySlug": "ui-status-overlays",
+      "priority": "P1",
+      "glyph": "",
+      "why": "Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).",
+      "outputPath": "asset-generation/outputs/ui-status-overlays/stoning-badge.png",
+      "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/stoning-badge.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/ui-status-overlays/stoning-badge.png"
+      },
+      "previousSha256": null,
+      "sha256": "3c0f6317d14b4c584deaad2ef6ceb79a2b139aab82b835c857c4a00c4260b6b0",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 609,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 415,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4053
+      },
+      "prompt": "A pixel art game status effect icon in the style of a fantasy game asset: a gray stone hand cracking into rock, a bold simple symbol filling the frame, saturated colors, thick dark outline, readable at 24 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:02Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:02Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/ui-status-overlays/stoning-badge.png"
+      }
+    },
+    {
+      "id": "strangled-badge",
+      "name": "Strangled badge",
+      "category": "UI, status, and overlays",
+      "categorySlug": "ui-status-overlays",
+      "priority": "P1",
+      "glyph": "",
+      "why": "Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).",
+      "outputPath": "asset-generation/outputs/ui-status-overlays/strangled-badge.png",
+      "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/strangled-badge.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/ui-status-overlays/strangled-badge.png"
+      },
+      "previousSha256": null,
+      "sha256": "09750f1a010cbfbb5be46ed8d2d120b973b91f3e46f13328a11a693c9ad8b0f3",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 418,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 606,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.5918
+      },
+      "prompt": "A pixel art game status effect icon in the style of a fantasy game asset: a throat with a tight rope noose, red tones, a bold simple symbol filling the frame, saturated colors, thick dark outline, readable at 24 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:02Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).) on the B70 with Qwen Image 2.1, seed 42, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 42,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:02Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/ui-status-overlays/strangled-badge.png"
+      }
+    },
+    {
+      "id": "trapped-badge",
+      "name": "Trapped badge",
+      "category": "UI, status, and overlays",
+      "categorySlug": "ui-status-overlays",
+      "priority": "P1",
+      "glyph": "",
+      "why": "Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).",
+      "outputPath": "asset-generation/outputs/ui-status-overlays/trapped-badge.png",
+      "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/trapped-badge.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/ui-status-overlays/trapped-badge.png"
+      },
+      "previousSha256": null,
+      "sha256": "59343d08704a5946db72d6fd19c4b975e6bbc73bc7565284290bdc43dc1f8d65",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 616,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 408,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.3984
+      },
+      "prompt": "A pixel art game status effect icon in the style of a fantasy game asset: a steel bear trap with closed jaws, a bold simple symbol filling the frame, saturated colors, thick dark outline, readable at 24 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:02Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:02Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/ui-status-overlays/trapped-badge.png"
+      }
+    },
+    {
+      "id": "wounded-legs-badge",
+      "name": "Wounded legs badge",
+      "category": "UI, status, and overlays",
+      "categorySlug": "ui-status-overlays",
+      "priority": "P1",
+      "glyph": "",
+      "why": "Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).",
+      "outputPath": "asset-generation/outputs/ui-status-overlays/wounded-legs-badge.png",
+      "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/wounded-legs-badge.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/ui-status-overlays/wounded-legs-badge.png"
+      },
+      "previousSha256": null,
+      "sha256": "9c6fb393e16edb8e04523f589fe670587e88442d68d5e316e245716a4d3b2b5c",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 561,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 463,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4521
+      },
+      "prompt": "A pixel art game status effect icon in the style of a fantasy game asset: a leg with a red bandage, a bold simple symbol filling the frame, saturated colors, thick dark outline, readable at 24 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T07:20:02Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).) on the B70 with Qwen Image 2.1, seed 7, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 7,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T07:20:02Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/ui-status-overlays/wounded-legs-badge.png"
       }
     }
   ]

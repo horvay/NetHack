@@ -3079,6 +3079,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "godot-audit-regen-qwen"
   },
+  "gray-spellbook": {
+   "category": "objects-appearance",
+   "name": "gray spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "gray-stone": {
    "category": "objects-inventory",
    "name": "Gray stone",
@@ -3749,6 +3755,12 @@
    "workflow": "PIL alpha-bbox recenter/scale review fix; no generative model",
    "workflowLabel": "transparent-second-pass-provisional-candidate"
   },
+  "indigo-spellbook": {
+   "category": "objects-appearance",
+   "name": "indigo spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "inventory-selected-item-highlight": {
    "category": "ui-status-overlays",
    "name": "Inventory selected item highlight",
@@ -4320,6 +4332,24 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
   },
+  "light-blue-spellbook": {
+   "category": "objects-appearance",
+   "name": "light blue spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "light-brown-spellbook": {
+   "category": "objects-appearance",
+   "name": "light brown spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "light-green-spellbook": {
+   "category": "objects-appearance",
+   "name": "light green spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "lightning": {
    "category": "full-source-objects",
    "name": "lightning",
@@ -4483,6 +4513,12 @@
   "magenta-potion": {
    "category": "objects-appearance",
    "name": "magenta potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "magenta-spellbook": {
+   "category": "objects-appearance",
+   "name": "magenta spellbook",
    "workflow": "qwen-b70",
    "workflowLabel": "godot-audit-regen-qwen"
   },
@@ -5093,6 +5129,12 @@
    "workflow": "qwen-b70",
    "workflowLabel": "godot-audit-regen-qwen"
   },
+  "orange-spellbook": {
+   "category": "objects-appearance",
+   "name": "orange spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "orc": {
    "category": "full-source-monsters",
    "name": "orc",
@@ -5343,6 +5385,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
   },
+  "parchment-spellbook": {
+   "category": "objects-appearance",
+   "name": "parchment spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "partisan": {
    "category": "full-source-objects",
    "name": "partisan",
@@ -5411,6 +5459,12 @@
   "pink-potion": {
    "category": "objects-appearance",
    "name": "pink potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "pink-spellbook": {
+   "category": "objects-appearance",
+   "name": "pink spellbook",
    "workflow": "qwen-b70",
    "workflowLabel": "godot-audit-regen-qwen"
   },
@@ -5610,6 +5664,12 @@
    "workflow": "qwen-b70",
    "workflowLabel": "godot-audit-regen-qwen"
   },
+  "purple-spellbook": {
+   "category": "objects-appearance",
+   "name": "purple spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "purple-worm": {
    "category": "full-source-monsters",
    "name": "purple worm",
@@ -5779,6 +5839,12 @@
    "name": "red naga hatchling",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "red-spellbook": {
+   "category": "objects-appearance",
+   "name": "red spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "redwood-wand": {
    "category": "objects-appearance",
@@ -6317,7 +6383,7 @@
    "category": "ui-status-overlays",
    "name": "Sick badge",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "sickness": {
    "category": "full-source-objects",
@@ -6401,6 +6467,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
   },
+  "silver-spellbook": {
+   "category": "objects-appearance",
+   "name": "silver spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "silver-wand": {
    "category": "objects-appearance",
    "name": "silver wand",
@@ -6464,6 +6536,12 @@
    "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
+  },
+  "sliming-badge": {
+   "category": "ui-status-overlays",
+   "name": "Sliming badge",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "sling": {
    "category": "objects-inventory",
@@ -6778,6 +6856,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
   },
+  "stoning-badge": {
+   "category": "ui-status-overlays",
+   "name": "Stoning badge",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "storm-giant": {
    "category": "full-source-monsters",
    "name": "storm giant",
@@ -6791,6 +6875,12 @@
    "smooth": true,
    "workflow": "deterministic sibling-consistent pixel-art follow-up generator; source prompt logged; transparent alpha cutout",
    "workflowLabel": "questionable-followup-provisional-deterministic-pixel-art"
+  },
+  "strangled-badge": {
+   "category": "ui-status-overlays",
+   "name": "Strangled badge",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "straw-golem": {
    "category": "common-early-monsters",
@@ -6873,6 +6963,12 @@
    "objectClasses": "?",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-scroll-followup-regeneration"
+  },
+  "tan-spellbook": {
+   "category": "objects-appearance",
+   "name": "tan spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "teleport-away": {
    "category": "full-source-objects",
@@ -7063,6 +7159,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "godot-audit-regen-qwen"
   },
+  "trapped-badge": {
+   "category": "ui-status-overlays",
+   "name": "Trapped badge",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "trapped-chest-marker": {
    "category": "traps-hazards",
    "name": "Trapped chest marker",
@@ -7141,6 +7243,12 @@
    "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
+  },
+  "turquoise-spellbook": {
+   "category": "objects-appearance",
+   "name": "turquoise spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "twisted-ring": {
    "category": "objects-appearance",
@@ -7277,6 +7385,12 @@
    "name": "violet fungus",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "violet-spellbook": {
+   "category": "objects-appearance",
+   "name": "violet spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "vlad-the-impaler": {
    "category": "full-source-monsters",
@@ -7530,6 +7644,12 @@
    "workflow": "qwen-b70",
    "workflowLabel": "godot-audit-regen-qwen"
   },
+  "white-spellbook": {
+   "category": "objects-appearance",
+   "name": "white spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "white-unicorn": {
    "category": "full-source-monsters",
    "name": "white unicorn",
@@ -7748,6 +7868,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
   },
+  "wounded-legs-badge": {
+   "category": "ui-status-overlays",
+   "name": "Wounded legs badge",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "wraith": {
    "category": "full-source-monsters",
    "name": "wraith",
@@ -7832,6 +7958,12 @@
   "yellow-potion": {
    "category": "objects-appearance",
    "name": "yellow potion",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "yellow-spellbook": {
+   "category": "objects-appearance",
+   "name": "yellow spellbook",
    "workflow": "qwen-b70",
    "workflowLabel": "godot-audit-regen-qwen"
   },

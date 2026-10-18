@@ -1,951 +1,951 @@
 [
-  {
-    "id": "tourist",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/tourist.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Chibi kid with a big head and thick cream sticker outline, dressed in red and blue; tourists are white (HI_DOMESTIC) and should look like a grown adult traveller.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a tourist: a soft, sunburned middle-aged human traveller in three-quarter view, bright white short-sleeved shirt with a faint floral print, cream shorts, white sun hat, an expensive camera on a strap around the neck and a fat purse of gold in one hand, nervous wide-eyed expression, white clothing clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "dwarf-mummy",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/dwarf-mummy.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Cartoon bald goggled dwarf in beige with a thick cream sticker outline; reads as a friendly miner, not a red-coloured undead mummy.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a dwarf mummy: a short, broad, stocky undead dwarf wrapped head to toe in rust-red burial bandages with deep crimson shading, a stiff braided beard poking out between the wrappings, faint glowing eye slits, arms stretched forward, shambling pose, red wrappings clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "homunculus",
-    "category": "common-early-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/homunculus.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Cute purple dragon-cat with a cream sticker outline; a NetHack homunculus is a small green winged imp.",
-    "regen": {
-      "background": "magenta-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a homunculus: a small hunched imp-like creature with dark green scaly skin, leathery green bat wings spread, long thin tail, sharp fangs, beady amber eyes, clawed hands, crouched ready to bite, green clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
-    }
-  },
-  {
-    "id": "jellyfish",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/jellyfish.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Pastel pink-and-teal jellyfish with a cream sticker outline; NetHack jellyfish are blue.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a jellyfish: a deep blue translucent bell-shaped body with bright blue glowing rim and pale blue inner folds, long trailing blue stinging tentacles drifting below, three-quarter view, blue clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "winged-gargoyle",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/winged-gargoyle.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Orange-brown dragon shape with a thick cream sticker outline; winged gargoyles are magenta (HI_LORD) stone demons.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a winged gargoyle: a hunched demonic creature of living stone, magenta-violet stone skin with deep purple shading and pink highlights, large spread stony bat wings, curved horns, heavy claws, crouched three-quarter pose, magenta clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "queen-bee",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/queen-bee.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Orange-brown bee with a thick cream sticker outline; the queen bee is magenta (HI_LORD) and should read as a large elongated queen.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a queen bee: a giant elongated bee in side view with a long tapering abdomen banded magenta and deep purple, glossy violet thorax, translucent pale wings, large dark stinger, magenta clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "rothe",
-    "category": "common-early-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/rothe.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Orange lion-bull hybrid with a thick cream sticker outline; a rothe is a squat shaggy brown ox-like beast.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a rothe: a low, heavy, shaggy musk-ox-like underground beast in three-quarter view, thick brown fur with darker brown shading, short curved horns, open mouth showing sharp teeth, small fierce eyes, charging stance, brown clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "shopkeeper",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/shopkeeper.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Bald cartoon man in a brown vest with a thick cream sticker outline; shopkeepers are white (HI_DOMESTIC).",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a shopkeeper: a stout, stern middle-aged human merchant in three-quarter view, white linen tunic and long cream apron, white headscarf, a heavy coin purse on the belt and a wand held ready in one hand, suspicious glare, white clothing clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "pyrolisk",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/pyrolisk.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Red-brown demon blob with a thick cream sticker outline; a pyrolisk is a red cockatrice-like bird-reptile.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a pyrolisk: a cockatrice-like creature in side view with a rooster's head, comb and wattle, crimson red feathers and red scales, scaly serpentine tail, glowing orange fiery eyes, red clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "nymph",
-    "category": "common-early-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/nymph.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Chibi green-haired anime girl with a thick cream sticker outline; reads as a cute doll, not a thieving nymph.",
-    "regen": {
-      "background": "magenta-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a nymph: a slender graceful fey woman in three-quarter view with long flowing dark green hair, a sheer green leaf-woven shift, pale skin, sly smile, holding a stolen gold ring in one hand, green clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
-    }
-  },
-  {
-    "id": "green-mold",
-    "category": "common-early-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/green-mold.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Glossy green bubble cluster with a cream sticker outline; reads as grapes or slime, not a mold patch.",
-    "regen": {
-      "background": "magenta-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a green mold: a flat sprawling patch of fuzzy green mold on stone with bulbous lumpy growths, bright green highlights and glistening drops of acid, three-quarter view, green clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
-    }
-  },
-  {
-    "id": "gnome",
-    "category": "common-early-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/gnome.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Garden-ornament gnome with a red pointy hat, white beard and cream sticker outline; Greg: \"gnomes look terrible\". NetHack gnomes are brown underground humanoids.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a gnome: a small, wiry, bearded underground humanoid in three-quarter view, brown leather jerkin and brown hooded cowl, bushy brown beard, big nose, sharp eyes, holding a pick-axe in one hand, crouched alert pose, brown clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "red-dragon",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/red-dragon.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Orange-brown, small and rounded with a thick cream sticker outline; reads as a cartoon baby, not a huge red adult dragon.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a red dragon: a huge adult dragon in three-quarter view with crimson red scales, darker red wing membranes spread wide, long horned head, a plume of fire curling from its jaws, red clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "nurse",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/nurse.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Cartoon old nurse in a teal dress with a cream sticker outline; nurses are white (HI_DOMESTIC).",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a nurse: a human healer in three-quarter view in a long white dress, white apron and white cap, bare empty hands reaching forward, calm stern face, white clothing clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "displacer-beast",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/displacer-beast.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Red-brown horned demon blob with a cream sticker outline; a displacer beast is a blue six-legged panther with shoulder tentacles.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a displacer beast: a sleek panther-like feline in side view with dark blue fur and bright blue highlights, six legs, two long whip-like tentacles sprouting from its shoulders tipped with spiked pads, a faint shimmering blue afterglow along its outline, blue clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "housecat",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/housecat.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Dark green cat silhouette with a green sticker outline; housecats are white (HI_DOMESTIC).",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a housecat: an adult domestic cat in side view, white fur with cream shading, alert upright ears, long tail curled, amber eyes, poised to pounce, white clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "werewolf",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/werewolf.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Brown cartoon beast with a cream sticker outline; the werewolf tile (@ form in the manifest) should be an orange (CLR_ORANGE) feral man.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a werewolf in human form: a hunched, feral, wild-eyed man in three-quarter view with shaggy orange hair and thick orange sideburns, ragged orange-brown tunic, clawed hands, wolfish yellow eyes and bared fangs, half-snarling, orange clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "giant-bat",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/giant-bat.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Brown bat with a thick cream sticker outline; giant bats are red.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a giant bat: a large bat with wings spread wide, dark red fur and crimson wing membranes, bared fangs, glowing eyes, erratic swooping pose, red clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "sandestin",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/sandestin.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Iridescent rainbow swirl with no body; a sandestin is a gray shapeshifting demon.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a sandestin: a tall gaunt shapeshifting demon in three-quarter view with smooth gray skin and silver highlights, a blank masklike face, long clawed arms, the lower half of its body melting into shifting gray smoke and half-formed shapes, gray clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "baby-orange-dragon",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/baby-orange-dragon.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Brown cartoon dragonling with a thick cream sticker outline; baby orange dragons are bright orange.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a baby orange dragon: a young dragon in side view with bright orange scales, pale orange belly plates, stubby horns, small undeveloped wings, long tail, fierce crouch, orange clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "steam-vortex",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/steam-vortex.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Gray-beige smoke swirl with a cream sticker edge; steam vortices are blue.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a steam vortex: a whirling funnel of scalding steam, swirling blue vapor with bright blue and white steam highlights, hot droplets spraying from the spin, blue clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "cave-spider",
-    "category": "common-early-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/cave-spider.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Black spider with a thick cream sticker outline; cave spiders are small and gray.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a cave spider: a small spider in three-quarter view with a gray carapace and silver highlights, eight thin gray legs, cluster of tiny dark eyes, gray clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "guard",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/guard.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Blue-armored guard with a thick cream sticker outline that clashes with the rest of the set.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a vault guard: a stern human guard in three-quarter view in blue enameled plate armor and a blue tabard, steel helmet, holding a polearm upright, blue clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "grid-bug",
-    "category": "common-early-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/grid-bug.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Blue jewel beetle with a cream sticker outline; grid bugs are small magenta electric bugs.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a grid bug: a small boxy insect made of square segments, magenta-purple glowing carapace with bright violet electric sparks crackling along its stiff legs, magenta clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "water-elemental",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/water-elemental.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Ragged blue wave shape with a noisy pale sticker fringe; inconsistent with the cleaner outlined set.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a water elemental: a towering surging humanoid of churning deep blue water in three-quarter view, white foam crests, arms of crashing waves, glowing pale blue eyes, blue clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "hill-giant",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/hill-giant.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Red-orange cartoon brute with a cream sticker outline; hill giants are cyan.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a hill giant: a huge brutish humanoid in three-quarter view wearing rough cyan-dyed hides and a teal tunic, bald head, heavy jaw, swinging a big wooden club, cyan clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "mordor-orc",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/mordor-orc.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Green-skinned cartoon orc with a cream sticker outline; Mordor orcs are blue.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a Mordor orc: a lean snarling orc soldier in three-quarter view in dark blue iron armor and blue scale mail, blue shield, curved scimitar, gray skin, yellow eyes, blue clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "goblin",
-    "category": "common-early-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/goblin.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Green-skinned cartoon goblin with a cream sticker outline; NetHack goblins are gray.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a goblin: a small scrawny orc in three-quarter view with gray skin, ragged gray leather armor, long pointed ears, crude orcish dagger, sneering yellow eyes, gray clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "giant-beetle",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/giant-beetle.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Silver-gray beetle with a cream sticker outline; giant beetles are black.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a giant beetle: a huge glossy black beetle in three-quarter view with a domed black shell and deep blue-black sheen, heavy mandibles, six black legs, black clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "woodland-elf",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/woodland-elf.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Chibi elf in green and brown with a thick cream sticker outline; looks cute rather than a serious elf warrior.",
-    "regen": {
-      "background": "magenta-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a Woodland-elf: a slender tall elf warrior in three-quarter view with pointed ears, green hooded cloak and green leather tunic, long brown hair, elven short sword and elven bow, alert stance, green clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
-    }
-  },
-  {
-    "id": "iguana",
-    "category": "common-early-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/iguana.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Bright green cartoon lizard with a cream sticker outline; NetHack iguanas are brown.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: an iguana: a lizard in side view with brown scales and tan belly, a row of spines along its back, dewlap under its chin, long tail, brown clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "hobbit",
-    "category": "common-early-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/hobbit.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Chibi hobbit head and shoulders only with a cream sticker outline; no body or feet visible.",
-    "regen": {
-      "background": "magenta-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a hobbit: a small stout halfling in three-quarter view with curly brown hair, green waistcoat and green cloak, bare hairy feet, an elven dagger in hand, wary expression, green clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
-    }
-  },
-  {
-    "id": "kop-kaptain",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/kop-kaptain.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Navy-uniformed cartoon cop with a cream sticker outline; Kop Kaptains are magenta (HI_LORD).",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a Kop Kaptain: a portly police captain in three-quarter view in a magenta-purple uniform with gold buttons and gold braid, tall magenta custodian helmet, bushy moustache, wooden club raised, magenta clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "lieutenant",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/lieutenant.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Blue and white knight with a cream sticker outline; lieutenants are green.",
-    "regen": {
-      "background": "magenta-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a lieutenant: a human military officer in three-quarter view in green tunic over chainmail, green cloak, steel helmet with green plume, sword drawn, green clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
-    }
-  },
-  {
-    "id": "rock-piercer",
-    "category": "common-early-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/rock-piercer.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Gray-blue hook-shaped shell with a cream sticker outline; reads as a claw, not a stalactite creature.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a rock piercer: a stalactite-shaped creature hanging point-down, gray stony conical shell with rough rock texture and silver highlights, small eyes and a toothy mouth near its wide base, gray clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "little-dog",
-    "category": "common-early-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/little-dog.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Cute tan cartoon puppy with a cream sticker outline; little dogs are white (HI_DOMESTIC).",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a little dog: a small terrier in side view, white fur with cream shading, alert ears, leather collar, tail up, white clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "arch-lich",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/arch-lich.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Dark robed figure with cyan magic and a pale sticker edge; arch-liches are magenta (HI_LORD).",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: an arch-lich: a skeletal undead sorcerer-king in three-quarter view in flowing magenta and deep purple robes, gold crown, grinning skull face with glowing eyes, bony hand raising crackling magenta magic, magenta clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "djinni",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/djinni.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Blue-teal genie with a sticker edge; NetHack djinn are yellow.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a djinni: a muscular genie in three-quarter view with golden-yellow skin, yellow turban and sash, lower body trailing into a swirling yellow smoke tail, scimitar in hand, yellow clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "norn",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/norn.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Pale white-teal robed figure with a sticker edge; the Norn is magenta (HI_LORD).",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: the Norn: a tall stern seeress of fate in three-quarter view in long magenta and violet robes, silver hair, holding a tall staff, regal pose, magenta clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "lemure",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/lemure.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Green horned worm with a cream sticker outline; lemures are brown shapeless blobs of flesh.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a lemure: a shapeless blob of melting brown flesh with a vaguely humanoid head and dripping arms, oozing up from the floor, dull mindless eyes, brown clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "fire-vortex",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/fire-vortex.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Gray tornado with a sticker edge; fire vortices are yellow fire.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a fire vortex: a whirling tornado of roaring flame, bright yellow fire with orange highlights and flying sparks, yellow clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "killer-bee",
-    "category": "common-early-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/killer-bee.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Cute round bee with a thick cream sticker outline; killer bees should look aggressive.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a killer bee: a large aggressive bee in side view, bright yellow and black banded abdomen, large venomous stinger, translucent wings, flying attack pose, yellow clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "kitten",
-    "category": "common-early-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/kitten.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Cute orange cartoon kitten with a cream sticker outline; kittens are white (HI_DOMESTIC).",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a kitten: a young cat in side view, white fur with cream shading, large ears, alert eyes, playful pounce, white clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "giant-spider",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/giant-spider.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Red-brown spider with a cream sticker outline; giant spiders are magenta.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a giant spider: a huge hairy spider in three-quarter view, magenta-purple carapace and legs with violet highlights, dripping venomous fangs, magenta clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "jackal",
-    "category": "common-early-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/jackal.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Front-facing cute tan fox with a cream sticker outline; reads as a pet, not a scavenger.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a jackal: a lean scavenging canine in side view, brown fur with tan belly, large pointed ears, bushy tail, snarling teeth, brown clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "page",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/page.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Chibi boy in a blue tunic with a thick cream sticker outline; pages are white (HI_DOMESTIC).",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a page: a young squire in three-quarter view in a white tabard over chainmail, white cloak, short sword and small shield, earnest stance, white clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "earth-elemental",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/earth-elemental.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Mossy brown rock figure with a cream sticker outline; inconsistent with the set.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: an earth elemental: a hulking humanoid made of packed brown earth and boulders in three-quarter view, rocky fists, cracked stone, brown clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "jaguar",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/jaguar.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Sitting white cat with a gold sticker outline; jaguars are brown spotted big cats.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a jaguar: a powerful big cat in side view, golden-brown fur with dark brown rosette spots, muscular, crouched ready to pounce, brown clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "elf",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/elf.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Chibi gray-haired elf in green and brown with a cream sticker outline; the elf is white (HI_DOMESTIC).",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: an elf: a slender pointed-eared elf in three-quarter view in white and silver cloak and tunic, long pale hair, elven short sword raised, white clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "acolyte",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/acolyte.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Purple-robed figure with a torch and a sticker edge; acolytes are white (HI_DOMESTIC).",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: an acolyte: a young human temple attendant in three-quarter view in white robes with a cream hood, holding a mace, white clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "doppelganger",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/doppelganger.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Teal and purple figure with a noisy sticker edge; doppelgangers are white (HI_DOMESTIC).",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a doppelganger: a pale featureless humanoid in three-quarter view in plain white garb, its face and one arm mid-transformation into another shape, white clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "white-unicorn",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/white-unicorn.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Cute white unicorn with a thick cream sticker outline; reads as a toy.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a white unicorn: a proud horse-like creature in side view with a white coat, silver-white mane and tail, single spiral horn, rearing, white clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "orc-shaman",
-    "category": "common-early-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/orc-shaman.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Messy multicolour green and purple cluster with no readable figure; orc shamans are bright blue (HI_ZAP).",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: an orc shaman: an orc spellcaster in three-quarter view in bright blue robes and hood, gray skin, bone fetishes, crackling bright blue magic in one raised hand, bright blue clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "glass-golem",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/glass-golem.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Pale clear golem with a cream sticker outline; should be clearly cyan.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a glass golem: a humanoid construct of translucent cyan glass panes and crystal in three-quarter view, sharp faceted edges, bright cyan highlights, cyan clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "yellow-mold",
-    "category": "common-early-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/yellow-mold.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Yellow flower or cookie shape with a cream sticker outline; reads as an item, not a mold.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a yellow mold: a flat sprawling patch of fuzzy yellow mold on stone with lumpy growths and powdery yellow spore puffs, yellow clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "dwarf-zombie",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/dwarf-zombie.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Brown-orange zombie with a cream sticker outline; dwarf zombies are red.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a dwarf zombie: a short stocky undead dwarf in three-quarter view, rotting gray-red flesh, tattered red tunic and rusty red-tinged armor, matted beard, arms outstretched, red clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "wraith",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/wraith.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Gray hooded ghost with a sticker edge; wraiths are black.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a wraith: a hooded black spectral figure in tattered black shroud with dark blue-black highlights, glowing pale eyes, wispy tail instead of legs, black clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "hill-orc",
-    "category": "common-early-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/hill-orc.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Green-skinned cartoon orc with a cream sticker outline; hill orcs are yellow.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a hill orc: a stocky orc in three-quarter view in yellow-ochre leather armor and a yellow tabard, gray-brown skin, spear raised, yellow clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "captain",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/captain.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Red and gold spartan with a cream sticker outline; captains are blue.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a captain: a veteran human soldier officer in three-quarter view in blue enameled plate armor, blue plumed helmet, sword and shield, blue clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "watchman",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/watchman.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Gray-blue guard with a cream sticker outline; inconsistent with the set.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a watchman: a town guard in three-quarter view in gray chainmail and gray tabard, steel helmet, polearm held upright, gray clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "tiger",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/tiger.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Brown-orange tiger with a cream sticker outline; tigers are yellow.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a tiger: a big cat in side view, golden-yellow fur with black stripes, muscular, crouched ready to pounce, yellow clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "giant-ant",
-    "category": "common-early-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/giant-ant.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Brown spider-like ant with a cream sticker outline; reads as a spider.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a giant ant: a large ant in side view, brown segmented body, large mandibles, six legs, brown clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "neferet-the-green",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/neferet-the-green.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Chibi green-robed sorceress with a cream sticker outline; looks cute.",
-    "regen": {
-      "background": "magenta-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: Neferet the Green: a stately elder sorceress in three-quarter view in flowing emerald-green robes and green hood, staff with a glowing green orb, green clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
-    }
-  },
-  {
-    "id": "ice-vortex",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/ice-vortex.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Blue-white swirl with a cream sticker outline; should be clearly cyan.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: an ice vortex: a whirling funnel of sleet and ice shards, cyan and white, cyan clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "orc-captain",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/orc-captain.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Gray blocky pixel blob; orc-captains are magenta (HI_LORD).",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: an orc-captain: a big armored orc chieftain in three-quarter view in magenta-purple plate armor, horned helm, gray skin, huge axe, magenta clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "ice-devil",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/ice-devil.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Blue spiky insect with a cream sticker outline; ice devils are white.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: an ice devil: a tall insectoid devil in three-quarter view with frost-white chitinous body, ice-white spikes, long tail with stinger, pale blue highlights, white clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "hell-hound",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/hell-hound.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Brown dog sitting with a cream sticker outline; hell hounds are red.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a hell hound: a large muscular hound in side view with dark red fur and orange flame highlights, fiery mane along its back, glowing yellow eyes, flames pouring from its open jaws, red clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "air-elemental",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/air-elemental.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Pale wispy shape with a sticker edge; faint and hard to read.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: an air elemental: a whirling humanoid made of cyan wind currents and swirling air in three-quarter view, faint face, cyan clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "leprechaun",
-    "category": "common-early-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/leprechaun.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Chibi leprechaun with a cream sticker outline; looks cute.",
-    "regen": {
-      "background": "magenta-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a leprechaun: a small wiry fey man in three-quarter view in green coat and tall green hat, red beard, holding gold coins, sly grin, green clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
-    }
-  },
-  {
-    "id": "demilich",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/demilich.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Skull with purple and blue magic; demiliches are red.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a demilich: a skeletal undead sorcerer in three-quarter view in tattered red robes, skull with glowing eyes, bony hand raised with crackling red magic, red clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "soldier",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/soldier.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Dark chibi soldier with a cream sticker outline; soldiers are gray.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a soldier: a human soldier in three-quarter view in gray chainmail, steel helm, spear and shield, gray clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "arch-priest",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/arch-priest.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Purple and gold priest with a sticker edge; the Arch Priest is white.",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: the Arch Priest: an elderly high priest in three-quarter view in white and gold vestments, tall white mitre, ornate staff, white clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
-  },
-  {
-    "id": "twoflower",
-    "category": "full-source-monsters",
-    "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/twoflower.png",
-    "problem": "inconsistent",
-    "severity": "high",
-    "what_is_wrong": "Cartoon tourist with a straw hat in orange and red with a sticker edge; Twoflower is white (HI_DOMESTIC).",
-    "regen": {
-      "background": "green-key",
-      "use_reference": false,
-      "prompt": "A pixel art game sprite in the style of a fantasy game asset: Twoflower: a small bespectacled tourist in three-quarter view in a bright white shirt with a faint floral print, white sun hat, camera on a strap, white clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
-    }
+ {
+  "id": "gnome",
+  "category": "common-early-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/gnome.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Garden-ornament gnome with a red pointy hat, white beard and cream sticker outline; Greg: \"gnomes look terrible\". NetHack gnomes are brown underground humanoids.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a gnome: a small, wiry, bearded underground humanoid in three-quarter view, brown leather jerkin and brown hooded cowl, bushy brown beard, big nose, sharp eyes, holding a pick-axe in one hand, crouched alert pose, brown clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
   }
+ },
+ {
+  "id": "tourist",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/tourist.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Chibi kid with a big head and thick cream sticker outline, dressed in red and blue; tourists are white (HI_DOMESTIC) and should look like a grown adult traveller.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a tourist: a soft, sunburned middle-aged human traveller in three-quarter view, bright white short-sleeved shirt with a faint floral print, cream shorts, white sun hat, an expensive camera on a strap around the neck and a fat purse of gold in one hand, nervous wide-eyed expression, white clothing clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "dwarf-mummy",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/dwarf-mummy.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Cartoon bald goggled dwarf in beige with a thick cream sticker outline; reads as a friendly miner, not a red-coloured undead mummy.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a dwarf mummy: a short, broad, stocky undead dwarf wrapped head to toe in rust-red burial bandages with deep crimson shading, a stiff braided beard poking out between the wrappings, faint glowing eye slits, arms stretched forward, shambling pose, red wrappings clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "homunculus",
+  "category": "common-early-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/homunculus.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Cute purple dragon-cat with a cream sticker outline; a NetHack homunculus is a small green winged imp.",
+  "regen": {
+   "background": "magenta-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a homunculus: a small hunched imp-like creature with dark green scaly skin, leathery green bat wings spread, long thin tail, sharp fangs, beady amber eyes, clawed hands, crouched ready to bite, green clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
+  }
+ },
+ {
+  "id": "jellyfish",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/jellyfish.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Pastel pink-and-teal jellyfish with a cream sticker outline; NetHack jellyfish are blue.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a jellyfish: a deep blue translucent bell-shaped body with bright blue glowing rim and pale blue inner folds, long trailing blue stinging tentacles drifting below, three-quarter view, blue clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "winged-gargoyle",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/winged-gargoyle.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Orange-brown dragon shape with a thick cream sticker outline; winged gargoyles are magenta (HI_LORD) stone demons.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a winged gargoyle: a hunched demonic creature of living stone, magenta-violet stone skin with deep purple shading and pink highlights, large spread stony bat wings, curved horns, heavy claws, crouched three-quarter pose, magenta clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "queen-bee",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/queen-bee.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Orange-brown bee with a thick cream sticker outline; the queen bee is magenta (HI_LORD) and should read as a large elongated queen.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a queen bee: a giant elongated bee in side view with a long tapering abdomen banded magenta and deep purple, glossy violet thorax, translucent pale wings, large dark stinger, magenta clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "rothe",
+  "category": "common-early-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/rothe.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Orange lion-bull hybrid with a thick cream sticker outline; a rothe is a squat shaggy brown ox-like beast.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a rothe: a low, heavy, shaggy musk-ox-like underground beast in three-quarter view, thick brown fur with darker brown shading, short curved horns, open mouth showing sharp teeth, small fierce eyes, charging stance, brown clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "shopkeeper",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/shopkeeper.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Bald cartoon man in a brown vest with a thick cream sticker outline; shopkeepers are white (HI_DOMESTIC).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a shopkeeper: a stout, stern middle-aged human merchant in three-quarter view, white linen tunic and long cream apron, white headscarf, a heavy coin purse on the belt and a wand held ready in one hand, suspicious glare, white clothing clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "pyrolisk",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/pyrolisk.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Red-brown demon blob with a thick cream sticker outline; a pyrolisk is a red cockatrice-like bird-reptile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a pyrolisk: a cockatrice-like creature in side view with a rooster's head, comb and wattle, crimson red feathers and red scales, scaly serpentine tail, glowing orange fiery eyes, red clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "nymph",
+  "category": "common-early-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/nymph.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Chibi green-haired anime girl with a thick cream sticker outline; reads as a cute doll, not a thieving nymph.",
+  "regen": {
+   "background": "magenta-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a nymph: a slender graceful fey woman in three-quarter view with long flowing dark green hair, a sheer green leaf-woven shift, pale skin, sly smile, holding a stolen gold ring in one hand, green clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
+  }
+ },
+ {
+  "id": "green-mold",
+  "category": "common-early-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/green-mold.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Glossy green bubble cluster with a cream sticker outline; reads as grapes or slime, not a mold patch.",
+  "regen": {
+   "background": "magenta-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a green mold: a flat sprawling patch of fuzzy green mold on stone with bulbous lumpy growths, bright green highlights and glistening drops of acid, three-quarter view, green clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
+  }
+ },
+ {
+  "id": "red-dragon",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/red-dragon.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Orange-brown, small and rounded with a thick cream sticker outline; reads as a cartoon baby, not a huge red adult dragon.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a red dragon: a huge adult dragon in three-quarter view with crimson red scales, darker red wing membranes spread wide, long horned head, a plume of fire curling from its jaws, red clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "nurse",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/nurse.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Cartoon old nurse in a teal dress with a cream sticker outline; nurses are white (HI_DOMESTIC).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a nurse: a human healer in three-quarter view in a long white dress, white apron and white cap, bare empty hands reaching forward, calm stern face, white clothing clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "displacer-beast",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/displacer-beast.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Red-brown horned demon blob with a cream sticker outline; a displacer beast is a blue six-legged panther with shoulder tentacles.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a displacer beast: a sleek panther-like feline in side view with dark blue fur and bright blue highlights, six legs, two long whip-like tentacles sprouting from its shoulders tipped with spiked pads, a faint shimmering blue afterglow along its outline, blue clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "housecat",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/housecat.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Dark green cat silhouette with a green sticker outline; housecats are white (HI_DOMESTIC).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a housecat: an adult domestic cat in side view, white fur with cream shading, alert upright ears, long tail curled, amber eyes, poised to pounce, white clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "werewolf",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/werewolf.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Brown cartoon beast with a cream sticker outline; the werewolf tile (@ form in the manifest) should be an orange (CLR_ORANGE) feral man.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a werewolf in human form: a hunched, feral, wild-eyed man in three-quarter view with shaggy orange hair and thick orange sideburns, ragged orange-brown tunic, clawed hands, wolfish yellow eyes and bared fangs, half-snarling, orange clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "giant-bat",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/giant-bat.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Brown bat with a thick cream sticker outline; giant bats are red.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a giant bat: a large bat with wings spread wide, dark red fur and crimson wing membranes, bared fangs, glowing eyes, erratic swooping pose, red clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "sandestin",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/sandestin.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Iridescent rainbow swirl with no body; a sandestin is a gray shapeshifting demon.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a sandestin: a tall gaunt shapeshifting demon in three-quarter view with smooth gray skin and silver highlights, a blank masklike face, long clawed arms, the lower half of its body melting into shifting gray smoke and half-formed shapes, gray clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "baby-orange-dragon",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/baby-orange-dragon.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Brown cartoon dragonling with a thick cream sticker outline; baby orange dragons are bright orange.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a baby orange dragon: a young dragon in side view with bright orange scales, pale orange belly plates, stubby horns, small undeveloped wings, long tail, fierce crouch, orange clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "steam-vortex",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/steam-vortex.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Gray-beige smoke swirl with a cream sticker edge; steam vortices are blue.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a steam vortex: a whirling funnel of scalding steam, swirling blue vapor with bright blue and white steam highlights, hot droplets spraying from the spin, blue clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cave-spider",
+  "category": "common-early-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/cave-spider.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Black spider with a thick cream sticker outline; cave spiders are small and gray.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a cave spider: a small spider in three-quarter view with a gray carapace and silver highlights, eight thin gray legs, cluster of tiny dark eyes, gray clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "guard",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/guard.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Blue-armored guard with a thick cream sticker outline that clashes with the rest of the set.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a vault guard: a stern human guard in three-quarter view in blue enameled plate armor and a blue tabard, steel helmet, holding a polearm upright, blue clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "grid-bug",
+  "category": "common-early-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/grid-bug.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Blue jewel beetle with a cream sticker outline; grid bugs are small magenta electric bugs.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a grid bug: a small boxy insect made of square segments, magenta-purple glowing carapace with bright violet electric sparks crackling along its stiff legs, magenta clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "water-elemental",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/water-elemental.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Ragged blue wave shape with a noisy pale sticker fringe; inconsistent with the cleaner outlined set.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a water elemental: a towering surging humanoid of churning deep blue water in three-quarter view, white foam crests, arms of crashing waves, glowing pale blue eyes, blue clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "hill-giant",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/hill-giant.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Red-orange cartoon brute with a cream sticker outline; hill giants are cyan.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a hill giant: a huge brutish humanoid in three-quarter view wearing rough cyan-dyed hides and a teal tunic, bald head, heavy jaw, swinging a big wooden club, cyan clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "mordor-orc",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/mordor-orc.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Green-skinned cartoon orc with a cream sticker outline; Mordor orcs are blue.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a Mordor orc: a lean snarling orc soldier in three-quarter view in dark blue iron armor and blue scale mail, blue shield, curved scimitar, gray skin, yellow eyes, blue clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "goblin",
+  "category": "common-early-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/goblin.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Green-skinned cartoon goblin with a cream sticker outline; NetHack goblins are gray.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a goblin: a small scrawny orc in three-quarter view with gray skin, ragged gray leather armor, long pointed ears, crude orcish dagger, sneering yellow eyes, gray clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "giant-beetle",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/giant-beetle.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Silver-gray beetle with a cream sticker outline; giant beetles are black.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a giant beetle: a huge glossy black beetle in three-quarter view with a domed black shell and deep blue-black sheen, heavy mandibles, six black legs, black clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "woodland-elf",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/woodland-elf.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Chibi elf in green and brown with a thick cream sticker outline; looks cute rather than a serious elf warrior.",
+  "regen": {
+   "background": "magenta-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a Woodland-elf: a slender tall elf warrior in three-quarter view with pointed ears, green hooded cloak and green leather tunic, long brown hair, elven short sword and elven bow, alert stance, green clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
+  }
+ },
+ {
+  "id": "iguana",
+  "category": "common-early-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/iguana.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Bright green cartoon lizard with a cream sticker outline; NetHack iguanas are brown.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: an iguana: a lizard in side view with brown scales and tan belly, a row of spines along its back, dewlap under its chin, long tail, brown clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "hobbit",
+  "category": "common-early-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/hobbit.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Chibi hobbit head and shoulders only with a cream sticker outline; no body or feet visible.",
+  "regen": {
+   "background": "magenta-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a hobbit: a small stout halfling in three-quarter view with curly brown hair, green waistcoat and green cloak, bare hairy feet, an elven dagger in hand, wary expression, green clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
+  }
+ },
+ {
+  "id": "kop-kaptain",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/kop-kaptain.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Navy-uniformed cartoon cop with a cream sticker outline; Kop Kaptains are magenta (HI_LORD).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a Kop Kaptain: a portly police captain in three-quarter view in a magenta-purple uniform with gold buttons and gold braid, tall magenta custodian helmet, bushy moustache, wooden club raised, magenta clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "lieutenant",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/lieutenant.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Blue and white knight with a cream sticker outline; lieutenants are green.",
+  "regen": {
+   "background": "magenta-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a lieutenant: a human military officer in three-quarter view in green tunic over chainmail, green cloak, steel helmet with green plume, sword drawn, green clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
+  }
+ },
+ {
+  "id": "rock-piercer",
+  "category": "common-early-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/rock-piercer.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Gray-blue hook-shaped shell with a cream sticker outline; reads as a claw, not a stalactite creature.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a rock piercer: a stalactite-shaped creature hanging point-down, gray stony conical shell with rough rock texture and silver highlights, small eyes and a toothy mouth near its wide base, gray clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "little-dog",
+  "category": "common-early-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/little-dog.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Cute tan cartoon puppy with a cream sticker outline; little dogs are white (HI_DOMESTIC).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a little dog: a small terrier in side view, white fur with cream shading, alert ears, leather collar, tail up, white clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "arch-lich",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/arch-lich.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Dark robed figure with cyan magic and a pale sticker edge; arch-liches are magenta (HI_LORD).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: an arch-lich: a skeletal undead sorcerer-king in three-quarter view in flowing magenta and deep purple robes, gold crown, grinning skull face with glowing eyes, bony hand raising crackling magenta magic, magenta clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "djinni",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/djinni.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Blue-teal genie with a sticker edge; NetHack djinn are yellow.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a djinni: a muscular genie in three-quarter view with golden-yellow skin, yellow turban and sash, lower body trailing into a swirling yellow smoke tail, scimitar in hand, yellow clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "norn",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/norn.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Pale white-teal robed figure with a sticker edge; the Norn is magenta (HI_LORD).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: the Norn: a tall stern seeress of fate in three-quarter view in long magenta and violet robes, silver hair, holding a tall staff, regal pose, magenta clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "lemure",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/lemure.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Green horned worm with a cream sticker outline; lemures are brown shapeless blobs of flesh.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a lemure: a shapeless blob of melting brown flesh with a vaguely humanoid head and dripping arms, oozing up from the floor, dull mindless eyes, brown clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "fire-vortex",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/fire-vortex.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Gray tornado with a sticker edge; fire vortices are yellow fire.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a fire vortex: a whirling tornado of roaring flame, bright yellow fire with orange highlights and flying sparks, yellow clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "killer-bee",
+  "category": "common-early-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/killer-bee.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Cute round bee with a thick cream sticker outline; killer bees should look aggressive.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a killer bee: a large aggressive bee in side view, bright yellow and black banded abdomen, large venomous stinger, translucent wings, flying attack pose, yellow clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "kitten",
+  "category": "common-early-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/kitten.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Cute orange cartoon kitten with a cream sticker outline; kittens are white (HI_DOMESTIC).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a kitten: a young cat in side view, white fur with cream shading, large ears, alert eyes, playful pounce, white clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "giant-spider",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/giant-spider.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Red-brown spider with a cream sticker outline; giant spiders are magenta.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a giant spider: a huge hairy spider in three-quarter view, magenta-purple carapace and legs with violet highlights, dripping venomous fangs, magenta clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "jackal",
+  "category": "common-early-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/jackal.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Front-facing cute tan fox with a cream sticker outline; reads as a pet, not a scavenger.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a jackal: a lean scavenging canine in side view, brown fur with tan belly, large pointed ears, bushy tail, snarling teeth, brown clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "page",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/page.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Chibi boy in a blue tunic with a thick cream sticker outline; pages are white (HI_DOMESTIC).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a page: a young squire in three-quarter view in a white tabard over chainmail, white cloak, short sword and small shield, earnest stance, white clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "earth-elemental",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/earth-elemental.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Mossy brown rock figure with a cream sticker outline; inconsistent with the set.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: an earth elemental: a hulking humanoid made of packed brown earth and boulders in three-quarter view, rocky fists, cracked stone, brown clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "jaguar",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/jaguar.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Sitting white cat with a gold sticker outline; jaguars are brown spotted big cats.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a jaguar: a powerful big cat in side view, golden-brown fur with dark brown rosette spots, muscular, crouched ready to pounce, brown clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "elf",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/elf.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Chibi gray-haired elf in green and brown with a cream sticker outline; the elf is white (HI_DOMESTIC).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: an elf: a slender pointed-eared elf in three-quarter view in white and silver cloak and tunic, long pale hair, elven short sword raised, white clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "acolyte",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/acolyte.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Purple-robed figure with a torch and a sticker edge; acolytes are white (HI_DOMESTIC).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: an acolyte: a young human temple attendant in three-quarter view in white robes with a cream hood, holding a mace, white clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "doppelganger",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/doppelganger.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Teal and purple figure with a noisy sticker edge; doppelgangers are white (HI_DOMESTIC).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a doppelganger: a pale featureless humanoid in three-quarter view in plain white garb, its face and one arm mid-transformation into another shape, white clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "white-unicorn",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/white-unicorn.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Cute white unicorn with a thick cream sticker outline; reads as a toy.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a white unicorn: a proud horse-like creature in side view with a white coat, silver-white mane and tail, single spiral horn, rearing, white clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "orc-shaman",
+  "category": "common-early-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/orc-shaman.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Messy multicolour green and purple cluster with no readable figure; orc shamans are bright blue (HI_ZAP).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: an orc shaman: an orc spellcaster in three-quarter view in bright blue robes and hood, gray skin, bone fetishes, crackling bright blue magic in one raised hand, bright blue clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "glass-golem",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/glass-golem.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Pale clear golem with a cream sticker outline; should be clearly cyan.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a glass golem: a humanoid construct of translucent cyan glass panes and crystal in three-quarter view, sharp faceted edges, bright cyan highlights, cyan clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "yellow-mold",
+  "category": "common-early-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/yellow-mold.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Yellow flower or cookie shape with a cream sticker outline; reads as an item, not a mold.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a yellow mold: a flat sprawling patch of fuzzy yellow mold on stone with lumpy growths and powdery yellow spore puffs, yellow clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "dwarf-zombie",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/dwarf-zombie.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Brown-orange zombie with a cream sticker outline; dwarf zombies are red.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a dwarf zombie: a short stocky undead dwarf in three-quarter view, rotting gray-red flesh, tattered red tunic and rusty red-tinged armor, matted beard, arms outstretched, red clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "wraith",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/wraith.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Gray hooded ghost with a sticker edge; wraiths are black.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a wraith: a hooded black spectral figure in tattered black shroud with dark blue-black highlights, glowing pale eyes, wispy tail instead of legs, black clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "hill-orc",
+  "category": "common-early-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/hill-orc.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Green-skinned cartoon orc with a cream sticker outline; hill orcs are yellow.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a hill orc: a stocky orc in three-quarter view in yellow-ochre leather armor and a yellow tabard, gray-brown skin, spear raised, yellow clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "captain",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/captain.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Red and gold spartan with a cream sticker outline; captains are blue.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a captain: a veteran human soldier officer in three-quarter view in blue enameled plate armor, blue plumed helmet, sword and shield, blue clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "watchman",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/watchman.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Gray-blue guard with a cream sticker outline; inconsistent with the set.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a watchman: a town guard in three-quarter view in gray chainmail and gray tabard, steel helmet, polearm held upright, gray clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "tiger",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/tiger.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Brown-orange tiger with a cream sticker outline; tigers are yellow.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a tiger: a big cat in side view, golden-yellow fur with black stripes, muscular, crouched ready to pounce, yellow clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "giant-ant",
+  "category": "common-early-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/giant-ant.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Brown spider-like ant with a cream sticker outline; reads as a spider.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a giant ant: a large ant in side view, brown segmented body, large mandibles, six legs, brown clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "neferet-the-green",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/neferet-the-green.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Chibi green-robed sorceress with a cream sticker outline; looks cute.",
+  "regen": {
+   "background": "magenta-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: Neferet the Green: a stately elder sorceress in three-quarter view in flowing emerald-green robes and green hood, staff with a glowing green orb, green clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
+  }
+ },
+ {
+  "id": "ice-vortex",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/ice-vortex.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Blue-white swirl with a cream sticker outline; should be clearly cyan.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: an ice vortex: a whirling funnel of sleet and ice shards, cyan and white, cyan clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "orc-captain",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/orc-captain.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Gray blocky pixel blob; orc-captains are magenta (HI_LORD).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: an orc-captain: a big armored orc chieftain in three-quarter view in magenta-purple plate armor, horned helm, gray skin, huge axe, magenta clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "ice-devil",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/ice-devil.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Blue spiky insect with a cream sticker outline; ice devils are white.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: an ice devil: a tall insectoid devil in three-quarter view with frost-white chitinous body, ice-white spikes, long tail with stinger, pale blue highlights, white clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "hell-hound",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/hell-hound.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Brown dog sitting with a cream sticker outline; hell hounds are red.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a hell hound: a large muscular hound in side view with dark red fur and orange flame highlights, fiery mane along its back, glowing yellow eyes, flames pouring from its open jaws, red clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "air-elemental",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/air-elemental.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Pale wispy shape with a sticker edge; faint and hard to read.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: an air elemental: a whirling humanoid made of cyan wind currents and swirling air in three-quarter view, faint face, cyan clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "leprechaun",
+  "category": "common-early-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/leprechaun.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Chibi leprechaun with a cream sticker outline; looks cute.",
+  "regen": {
+   "background": "magenta-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a leprechaun: a small wiry fey man in three-quarter view in green coat and tall green hat, red beard, holding gold coins, sly grin, green clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
+  }
+ },
+ {
+  "id": "demilich",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/demilich.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Skull with purple and blue magic; demiliches are red.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a demilich: a skeletal undead sorcerer in three-quarter view in tattered red robes, skull with glowing eyes, bony hand raised with crackling red magic, red clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "soldier",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/soldier.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Dark chibi soldier with a cream sticker outline; soldiers are gray.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a soldier: a human soldier in three-quarter view in gray chainmail, steel helm, spear and shield, gray clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "arch-priest",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/arch-priest.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Purple and gold priest with a sticker edge; the Arch Priest is white.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: the Arch Priest: an elderly high priest in three-quarter view in white and gold vestments, tall white mitre, ornate staff, white clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "twoflower",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/twoflower.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Cartoon tourist with a straw hat in orange and red with a sticker edge; Twoflower is white (HI_DOMESTIC).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: Twoflower: a small bespectacled tourist in three-quarter view in a bright white shirt with a faint floral print, white sun hat, camera on a strap, white clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ }
 ]
