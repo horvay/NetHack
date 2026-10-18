@@ -1269,7 +1269,8 @@
         const requestId = explicitRequestId(event);
         if (state.activePrompt?.requestId && !requestId) { rejectCommandFollowup(event, 'missing request id for active prompt', effects); effects.push(staleEffect('prompt-answer', event, 'missing request id for active prompt')); return publication(appEvent, effects); }
         if (requestId && state.activePrompt?.requestId && requestId !== state.activePrompt.requestId) { rejectCommandFollowup(event, 'request id does not match active prompt', effects); effects.push(staleEffect('prompt-answer', event, 'request id does not match active prompt')); return publication(appEvent, effects); }
-        const cancelled = Number(event.keycode) === 27 || String(event.value || '') === '\u001b' || (event.name === 'bridge_line_answer' && activeNonInventoryTransaction() && String(event.value || '') === '');
+        // (The bridge maps Esc as tty does and says so with cancelled:true.)
+        const cancelled = event.cancelled === true || Number(event.keycode) === 27 || String(event.value || '') === '\u001b' || (event.name === 'bridge_line_answer' && activeNonInventoryTransaction() && String(event.value || '') === '');
         if (cancelled && activeNonInventoryTransaction() && CommandTransactionModel?.failTransaction) {
           const failed = CommandTransactionModel.failTransaction(state.commandTransactions, { ...event, transactionId: state.activePrompt.transactionId || state.activeTransactionId, name: `${event.name}.cancelled` }, 'cancelled by player');
           state.commandTransactions = failed.state;

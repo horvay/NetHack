@@ -1,0 +1,18 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "status/fainting-hunger",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": { "placement": "current", "role": "Valkyrie", "race": "human", "gender": "female", "alignment": "lawful", "nutrition": -5 },
+  "level": { "safeAreaAroundHero": 2, "lit": true, "suppressAdjacentMonsters": true, "pet": "none" },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    { "typeId": "LONG_SWORD", "identityKnown": true, "equipped": "wielded" },
+    { "typeId": "FOOD_RATION", "identityKnown": true }
+  ],
+  "expectedPublicFacts": {
+    "inventoryRows": ["long sword", "food ration"],
+    "status": ["Fainting"],
+    "messages": ["a hero fainting from hunger with a food ration, for the danger alert"]
+  }
+}

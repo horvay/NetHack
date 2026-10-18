@@ -1,0 +1,18 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "object/wand-of-wishing",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": { "placement": "current", "role": "Valkyrie", "race": "human", "gender": "female", "alignment": "lawful" },
+  "level": { "safeAreaAroundHero": 2, "lit": true, "suppressAdjacentMonsters": true, "pet": "none" },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    { "typeId": "LONG_SWORD", "identityKnown": true, "beatitudeKnown": true, "beatitude": "uncursed", "equipped": "wielded" },
+    { "typeId": "WAN_WISHING", "identityKnown": true, "beatitudeKnown": true, "beatitude": "uncursed" }
+  ],
+  "expectedPublicFacts": {
+    "inventoryRows": ["long sword", "wand of wishing"],
+    "messages": ["zapping the wand opens the wish prompt"],
+    "status": ["HP"]
+  }
+}

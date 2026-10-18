@@ -1,0 +1,54 @@
+{
+ "schema": "nethack-electron-test-scenario/v1",
+ "id": "container/two-bags-of-holding",
+ "phase": "after-level-and-hero-before-first-draw",
+ "hero": {
+  "placement": "current",
+  "hp": 60,
+  "maxHp": 60
+ },
+ "level": {
+  "safeAreaAroundHero": 2,
+  "lit": true,
+  "suppressAdjacentMonsters": true,
+  "pet": "none"
+ },
+ "ground": [],
+ "monsters": [],
+ "inventory": [
+  {
+   "typeId": "BAG_OF_HOLDING",
+   "beatitude": "uncursed",
+   "beatitudeKnown": false,
+   "locked": false,
+   "trap": "none",
+   "contents": [
+    {
+     "typeId": "APPLE",
+     "beatitude": "uncursed",
+     "identityKnown": true,
+     "beatitudeKnown": true
+    },
+    {
+     "typeId": "DAGGER",
+     "beatitude": "uncursed",
+     "identityKnown": true,
+     "beatitudeKnown": true
+    }
+   ]
+  },
+  {
+   "typeId": "BAG_OF_HOLDING",
+   "beatitude": "uncursed",
+   "beatitudeKnown": false,
+   "locked": false,
+   "trap": "none",
+   "contents": []
+  }
+ ],
+ "expectedPublicFacts": {
+  "messages": [
+   "two unidentified bags of holding: putting one into the other blows it up"
+  ]
+ }
+}

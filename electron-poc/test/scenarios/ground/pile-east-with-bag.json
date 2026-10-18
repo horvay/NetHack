@@ -1,0 +1,74 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "ground/pile-east-with-bag",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current"
+  },
+  "level": {
+    "safeAreaAroundHero": 2,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none",
+    "terrain": [
+      {
+        "at": "east",
+        "type": "floor"
+      },
+      {
+        "at": "south",
+        "type": "floor"
+      }
+    ]
+  },
+  "ground": [
+    {
+      "at": "east",
+      "object": {
+        "typeId": "DAGGER",
+        "quantity": 5
+      }
+    },
+    {
+      "at": "east",
+      "object": {
+        "typeId": "ARROW",
+        "quantity": 11
+      }
+    },
+    {
+      "at": "east",
+      "object": {
+        "typeId": "APPLE"
+      }
+    },
+    {
+      "at": "east",
+      "object": {
+        "typeId": "BAG_OF_HOLDING",
+        "locked": false,
+        "trap": "none",
+        "contents": []
+      }
+    },
+    {
+      "at": "south",
+      "object": {
+        "typeId": "APPLE"
+      }
+    }
+  ],
+  "monsters": [],
+  "inventory": [],
+  "expectedPublicFacts": {
+    "groundRows": [
+      "daggers",
+      "arrows",
+      "apple",
+      "bag"
+    ],
+    "messages": [
+      "a pile east of the hero (with an unidentified bag of holding) and a single apple south"
+    ]
+  }
+}

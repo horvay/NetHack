@@ -1,0 +1,22 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "monster/visible-newt-east",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": { "placement": "current" },
+  "level": {
+    "safeAreaAroundHero": 3,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none",
+    "terrain": [{ "at": "east", "type": "floor" }]
+  },
+  "ground": [],
+  "monsters": [
+    { "typeId": "NEWT", "at": "east", "attitude": "hostile", "asleep": true, "hp": 2, "maxHp": 2 }
+  ],
+  "inventory": [],
+  "expectedPublicFacts": {
+    "mapAffordances": ["newt east"],
+    "messages": ["a sleeping newt beside the hero, for monster tile checks"]
+  }
+}

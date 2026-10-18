@@ -1,0 +1,299 @@
+{
+ "schema": "nethack-electron-test-scenario/v1",
+ "id": "art/monsters-3",
+ "phase": "after-level-and-hero-before-first-draw",
+ "hero": {
+  "placement": "current"
+ },
+ "level": {
+  "safeAreaAroundHero": 3,
+  "lit": true,
+  "suppressAdjacentMonsters": false,
+  "pet": "none",
+  "terrain": [
+   {
+    "at": {
+     "dx": -3,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -2,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -1,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 0,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 1,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 2,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 3,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -3,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -2,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -1,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 0,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 1,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 2,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 3,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -3,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -2,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -1,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 1,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 2,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 3,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -3,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -2,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -1,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 0,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 1,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 2,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 3,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -3,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -2,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -1,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 0,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 1,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 2,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 3,
+     "dy": 2
+    },
+    "type": "floor"
+   }
+  ]
+ },
+ "ground": [],
+ "monsters": [
+  {
+   "typeId": "WATER_NYMPH",
+   "at": {
+    "dx": -3,
+    "dy": -2
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "WOLF",
+   "at": {
+    "dx": -2,
+    "dy": -2
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "WOOD_NYMPH",
+   "at": {
+    "dx": -1,
+    "dy": -2
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "XAN",
+   "at": {
+    "dx": 0,
+    "dy": -2
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  }
+ ],
+ "inventory": [],
+ "expectedPublicFacts": {
+  "messages": [
+   "art gallery: newly generated tiles around the hero"
+  ]
+ }
+}

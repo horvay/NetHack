@@ -474,7 +474,13 @@
     bridge_direction_prompt(event) { return copyPublicMetadata({ name: event.name, query: asText(event.query), choices: asText(event.choices || 'ykulnjbh.<>') }, event); },
     bridge_extcmd_catalog(event) { return copyPublicMetadata({ name: event.name, commands: Array.isArray(event.commands) ? event.commands : [] }, event); },
     shim_get_ext_cmd(event) { return copyPublicMetadata({ name: event.name }, event); },
-    bridge_prompt_answer(event) { validateAnswerIngress(event, 'bridge_prompt_answer', ['keycode']); return copyPublicMetadata(copyAnswerFields({ name: event.name }, event, ['keycode', 'value', 'key', 'answer']), event); },
+    bridge_prompt_answer(event) {
+      validateAnswerIngress(event, 'bridge_prompt_answer', ['keycode']);
+      const normalized = copyPublicMetadata(copyAnswerFields({ name: event.name }, event, ['keycode', 'value', 'key', 'answer']), event);
+      // The bridge mapped an Esc as tty does (q, else n, else the default).
+      if (event.cancelled === true) normalized.cancelled = true;
+      return normalized;
+    },
     bridge_line_answer(event) { validateAnswerIngress(event, 'bridge_line_answer'); return copyPublicMetadata(copyAnswerFields({ name: event.name }, event, ['value', 'answer', 'key']), event); },
     bridge_extcmd_answer(event) { validateAnswerIngress(event, 'bridge_extcmd_answer', ['return']); return copyPublicMetadata(copyAnswerFields({ name: event.name }, event, ['return', 'value', 'command', 'answer', 'key']), event); },
     bridge_direction_answer(event) { validateAnswerIngress(event, 'bridge_direction_answer', ['keycode']); return copyPublicMetadata(copyAnswerFields({ name: event.name }, event, ['keycode']), event); },

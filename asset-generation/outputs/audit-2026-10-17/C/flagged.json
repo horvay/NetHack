@@ -1,0 +1,1575 @@
+[
+ {
+  "id": "abra-ka-dabra",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/abra-ka-dabra.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Unidentified scroll label art is drawn as an ornate jeweled spellbook; the resolver shows it for every unread 'scroll labeled ABRA KA DABRA', so it misleads and can hint at a fake identity.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single rolled parchment scroll lying diagonally, cream and tan paper with warm brown shading, dark wooden rod ends, a few rows of dark brown ink squiggles suggesting unreadable runes (no letters), a wax seal colored crimson and a ribbon colored gold; an ordinary mundane scroll with no glow, no magic effect and no picture on it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "ashpd-sodalg",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/ashpd-sodalg.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Unidentified scroll label art is drawn as a gray-and-purple spellbook; the resolver shows it for every unread 'scroll labeled ASHPD SODALG', so it misleads and can hint at a fake identity.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single rolled parchment scroll lying diagonally, cream and tan paper with warm brown shading, dark wooden rod ends, a few rows of dark brown ink squiggles suggesting unreadable runes (no letters), a wax seal colored royal blue and a ribbon colored silver-gray; an ordinary mundane scroll with no glow, no magic effect and no picture on it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "eiris-sazun-idisi",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/eiris-sazun-idisi.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Unidentified scroll label art is drawn as a navy spellbook with a green matte fringe; the resolver shows it for every unread 'scroll labeled EIRIS SAZUN IDISI', so it misleads and can hint at a fake identity.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single rolled parchment scroll lying diagonally, cream and tan paper with warm brown shading, dark wooden rod ends, a few rows of dark brown ink squiggles suggesting unreadable runes (no letters), a wax seal colored dark green and a ribbon colored tan; an ordinary mundane scroll with no glow, no magic effect and no picture on it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "garven-deh",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/garven-deh.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Unidentified scroll label art is drawn as a teal ornate spellbook; the resolver shows it for every unread 'scroll labeled GARVEN DEH', so it misleads and can hint at a fake identity.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single rolled parchment scroll lying diagonally, cream and tan paper with warm brown shading, dark wooden rod ends, a few rows of dark brown ink squiggles suggesting unreadable runes (no letters), a wax seal colored orange and a ribbon colored brown; an ordinary mundane scroll with no glow, no magic effect and no picture on it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "hapax-legomenon",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/hapax-legomenon.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Unidentified scroll label art is drawn as a purple spellbook; the resolver shows it for every unread 'scroll labeled HAPAX LEGOMENON', so it misleads and can hint at a fake identity.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single rolled parchment scroll lying diagonally, cream and tan paper with warm brown shading, dark wooden rod ends, a few rows of dark brown ink squiggles suggesting unreadable runes (no letters), a wax seal colored purple and a ribbon colored cream; an ordinary mundane scroll with no glow, no magic effect and no picture on it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "etaoin-shrdlu",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/etaoin-shrdlu.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Unidentified scroll label art is drawn as a brown spellbook with green edge fringe; the resolver shows it for every unread 'scroll labeled ETAOIN SHRDLU', so it misleads and can hint at a fake identity.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single rolled parchment scroll lying diagonally, cream and tan paper with warm brown shading, dark wooden rod ends, a few rows of dark brown ink squiggles suggesting unreadable runes (no letters), a wax seal colored black and a ribbon colored red; an ordinary mundane scroll with no glow, no magic effect and no picture on it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "foobie-bletch",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/foobie-bletch.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Unidentified scroll label art is drawn as a bomb/ornament with a fuse, not a scroll; the resolver shows it for every unread 'scroll labeled FOOBIE BLETCH', so it misleads and can hint at a fake identity.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single rolled parchment scroll lying diagonally, cream and tan paper with warm brown shading, dark wooden rod ends, a few rows of dark brown ink squiggles suggesting unreadable runes (no letters), a wax seal colored teal and a ribbon colored orange; an ordinary mundane scroll with no glow, no magic effect and no picture on it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "ghoti",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/ghoti.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Unidentified scroll label art is drawn as a fish (the 'ghoti' pun), which is not a scroll at all; the resolver shows it for every unread 'scroll labeled GHOTI', so it misleads and can hint at a fake identity.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single rolled parchment scroll lying diagonally, cream and tan paper with warm brown shading, dark wooden rod ends, a few rows of dark brown ink squiggles suggesting unreadable runes (no letters), a wax seal colored yellow and a ribbon colored blue; an ordinary mundane scroll with no glow, no magic effect and no picture on it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "gnik-sisi-vle",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/gnik-sisi-vle.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Unidentified scroll label art is drawn as a mechanical gear/compass, not a scroll; the resolver shows it for every unread 'scroll labeled GNIK SISI VLE', so it misleads and can hint at a fake identity.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single rolled parchment scroll lying diagonally, cream and tan paper with warm brown shading, dark wooden rod ends, a few rows of dark brown ink squiggles suggesting unreadable runes (no letters), a wax seal colored white and a ribbon colored purple; an ordinary mundane scroll with no glow, no magic effect and no picture on it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "ko-bate",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/ko-bate.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Unidentified scroll label art is drawn as two crossed sticks, not a scroll; the resolver shows it for every unread 'scroll labeled KO BATE', so it misleads and can hint at a fake identity.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single rolled parchment scroll lying diagonally, cream and tan paper with warm brown shading, dark wooden rod ends, a few rows of dark brown ink squiggles suggesting unreadable runes (no letters), a wax seal colored pink and a ribbon colored green-gray; an ordinary mundane scroll with no glow, no magic effect and no picture on it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "mapiro-mahama-diromat",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/mapiro-mahama-diromat.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Unidentified scroll label art is drawn as an open book, not a rolled scroll; the resolver shows it for every unread 'scroll labeled MAPIRO MAHAMA DIROMAT', so it misleads and can hint at a fake identity.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single rolled parchment scroll lying diagonally, cream and tan paper with warm brown shading, dark wooden rod ends, a few rows of dark brown ink squiggles suggesting unreadable runes (no letters), a wax seal colored brown and a ribbon colored crimson; an ordinary mundane scroll with no glow, no magic effect and no picture on it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "phol-ende-wodan",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/phol-ende-wodan.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Unidentified scroll label art is drawn as a chain/rope piece with a gem, not a scroll; the resolver shows it for every unread 'scroll labeled PHOL ENDE WODAN', so it misleads and can hint at a fake identity.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single rolled parchment scroll lying diagonally, cream and tan paper with warm brown shading, dark wooden rod ends, a few rows of dark brown ink squiggles suggesting unreadable runes (no letters), a wax seal colored silver and a ribbon colored dark blue; an ordinary mundane scroll with no glow, no magic effect and no picture on it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "strc-prst-skrz-krk",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/strc-prst-skrz-krk.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Unidentified scroll label art is drawn as a purple crystal-and-bones relic, not a scroll; the resolver shows it for every unread 'scroll labeled STRC PRST SKRZ KRK', so it misleads and can hint at a fake identity.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single rolled parchment scroll lying diagonally, cream and tan paper with warm brown shading, dark wooden rod ends, a few rows of dark brown ink squiggles suggesting unreadable runes (no letters), a wax seal colored magenta and a ribbon colored yellow; an ordinary mundane scroll with no glow, no magic effect and no picture on it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "vas-corp-bet-mani",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/vas-corp-bet-mani.png",
+  "problem": "vector",
+  "severity": "high",
+  "what_is_wrong": "Unidentified scroll label art is flat vector skull inside a red capsule; not a scroll and reads as a poison/death icon; the resolver shows it for every unread 'scroll labeled VAS CORP BET MANI', so it misleads and can hint at a fake identity.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single rolled parchment scroll lying diagonally, cream and tan paper with warm brown shading, dark wooden rod ends, a few rows of dark brown ink squiggles suggesting unreadable runes (no letters), a wax seal colored gray and a ribbon colored orange; an ordinary mundane scroll with no glow, no magic effect and no picture on it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "xor-ota",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/xor-ota.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Unidentified scroll label art is drawn as a green-gem wand/scepter, not a scroll; the resolver shows it for every unread 'scroll labeled XOR OTA', so it misleads and can hint at a fake identity.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single rolled parchment scroll lying diagonally, cream and tan paper with warm brown shading, dark wooden rod ends, a few rows of dark brown ink squiggles suggesting unreadable runes (no letters), a wax seal colored light blue and a ribbon colored red; an ordinary mundane scroll with no glow, no magic effect and no picture on it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "lorem-ipsum",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/lorem-ipsum.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Scroll label drawn as a flat square parchment card in a cyan/purple UI-like frame; reads as a UI panel, not a rolled scroll like its sibling labels.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single rolled parchment scroll lying diagonally, cream and tan paper with warm brown shading, dark wooden rod ends, a few rows of dark brown ink squiggles suggesting unreadable runes (no letters), a wax seal colored teal and a ribbon colored gold; an ordinary mundane scroll with no glow, no magic effect and no picture on it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "fnord",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/fnord.png",
+  "problem": "inconsistent",
+  "severity": "low",
+  "what_is_wrong": "Scroll label has a purple/cyan magic glow and twisted book-like shape; an unidentified label should look like a plain scroll like read-me/temov.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset: Redraw the scroll as a plain rolled cream parchment scroll with dark wooden rod ends, ink squiggles and a dark-red wax seal; remove the purple and cyan glow so it looks mundane. Keep the same chunky pixel-art style, shading and outline weight as image 1. Clean bold dark outline with no colored halo, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "ring-class-icon",
+  "category": "objects-inventory",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/ring-class-icon.png",
+  "problem": "unclear",
+  "severity": "high",
+  "what_is_wrong": "Generic ring icon (shown for every unidentified ring) reads as a lumpy gold bag or blob; no visible ring hole.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single finger ring seen at three-quarter view with a clear open center hole, a polished gold band with bright yellow highlights, set with one round emerald-green gem on top. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "tool-class-icon",
+  "category": "objects-inventory",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/tool-class-icon.png",
+  "problem": "unclear",
+  "severity": "medium",
+  "what_is_wrong": "Generic tool icon is a muddy pile of wrench, cogs and wheels; nothing reads at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a crossed steel pick-axe and a brown leather pouch with a brass buckle, silver-gray metal with white edge shine and warm brown wood handle, simple bold shapes. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "whistle",
+  "category": "objects-inventory",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/whistle.png",
+  "problem": "unclear",
+  "severity": "high",
+  "what_is_wrong": "Generic 'whistle' appearance (all unidentified whistles) is an unreadable gold/red/green gadget with a green matte fringe.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a small metal pea whistle with a round chamber and short mouthpiece on a little ring loop, bright silver-gray metal with white highlights and a red cord. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "rare-amulet-variant",
+  "category": "objects-inventory",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/rare-amulet-variant.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Amulet fallback is drawn as a gray glass bottle/flask, reads as a potion.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a pendant amulet on a short gold chain, oval silver setting holding a deep blue gemstone with white sparkle. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "elven-arrow",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/elven-arrow.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Arrow is wrapped in a bright lime-green halo left over from the green matte.",
+  "regen": {
+   "background": "magenta-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset: Redraw the elven arrow with a pale wooden shaft, silver leaf-shaped head and pale gold and white fletching, with no green outline or halo. Keep the same chunky pixel-art style, shading and outline weight as image 1. Clean bold dark outline with no colored halo, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
+  }
+ },
+ {
+  "id": "elven-bow",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/elven-bow.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "The space between bow and string is filled with flat green matte; the bow reads as a green leaf.",
+  "regen": {
+   "background": "magenta-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: an elegant curved elven longbow drawn diagonally, pale ash wood with gold leaf inlay and a thin white string, empty transparent space between bow and string. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
+  }
+ },
+ {
+  "id": "dart",
+  "category": "objects-inventory",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/dart.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "Flat programmer-art arrow (22 colors, no shading); looks like a full arrow rather than a short throwing dart.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a short stubby throwing dart, steel needle point, chunky brass barrel and three bright red feather flights, drawn small and diagonal. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "lance",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/lance.png",
+  "problem": "unclear",
+  "severity": "medium",
+  "what_is_wrong": "Lance is a hair-thin, low-contrast stick that almost vanishes at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a jousting lance drawn diagonally, long tapered red-and-white striped wooden shaft with a large steel bell-shaped hand guard and a steel tip. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "yumi",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/yumi.png",
+  "problem": "unclear",
+  "severity": "medium",
+  "what_is_wrong": "Yumi is a faint hairline outline of a bow with no outline weight; disappears on the floor.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a tall asymmetric Japanese longbow, black lacquered wood with red wrapping and gold accents, bright white string, bold thick limbs. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "quarterstaff",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/quarterstaff.png",
+  "problem": "vector",
+  "severity": "low",
+  "what_is_wrong": "Flat brown log with minimal detail; weaker and flatter than the rest of the weapon set.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset: Redraw the quarterstaff as a long oak staff with iron end caps and a leather grip wrap in the middle, warm brown wood with light grain highlights. Keep the same chunky pixel-art style, shading and outline weight as image 1. Clean bold dark outline with no colored halo, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "mace",
+  "category": "objects-inventory",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/mace.png",
+  "problem": "unclear",
+  "severity": "medium",
+  "what_is_wrong": "Mace head is a pale bone-white cog shape with a tiny handle; reads like a gear or ankh.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a flanged iron mace drawn diagonally, dark steel head with six raised flanges and bright silver highlights, brown leather-wrapped wooden handle. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "sling",
+  "category": "objects-inventory",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/sling.png",
+  "problem": "unclear",
+  "severity": "low",
+  "what_is_wrong": "Sling is a loose brown loop that reads as a rope or belt.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a leather sling with a wide tan leather pouch holding a gray stone, and two brown cords trailing out. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "force-bolt",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/force-bolt.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Spellbook of force bolt is drawn as a brass telescope/cannon with a blue orb.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, crimson leather cover, cream page block on the side, brass corner caps and clasp, with a small raised white-blue starburst bolt emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "bronze-plate-mail",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/bronze-plate-mail.png",
+  "problem": "vector",
+  "severity": "high",
+  "what_is_wrong": "Flat 8-color programmer-art breastplate with no shading; looks like a barrel next to the painted armor set.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a bronze plate mail cuirass with shoulder plates, warm orange-bronze metal with gold highlights and dark brown shading, rivets along the edges. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "crystal-plate-mail",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/crystal-plate-mail.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Crystal plate mail is drawn as a loose faceted gem; players will read it as a gem.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a suit of plate armor cuirass with shoulder plates made of translucent pale-blue crystal, white facet highlights and light cyan edges. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "dwarvish-mithril-coat",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/dwarvish-mithril-coat.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Mithril coat is drawn as a brown/gold crossbow-like contraption with a green fringe; nothing reads as body armor.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a dwarvish mithril chain-mail shirt with short sleeves, bright silver-white rings with pale blue sheen, a sturdy brown leather belt. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "elven-mithril-coat",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/elven-mithril-coat.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Elven mithril coat is drawn as an axe/tool with green fringe, not a shirt of mail.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: an elegant elven mithril-coat shirt of fine chain mail with long sleeves, gleaming silver-white with pale blue highlights and gold leaf trim at the collar. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cornuthaum",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cornuthaum.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Cornuthaum (tall wizard hat) is drawn as a jeweled gadget/drill with green fringe.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a tall pointed conical wizard hat with a wide brim, deep blue cloth with gold star and moon patterns and bright cyan highlights. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "dunce-cap",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/dunce-cap.png",
+  "problem": "unclear",
+  "severity": "medium",
+  "what_is_wrong": "Dunce cap is a dark muddy bell shape; does not read as a tall pointed cone.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a tall narrow pointed paper cone cap, cream-white paper with a few bold red stripes spiralling up, no brim. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cloak-of-displacement",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cloak-of-displacement.png",
+  "problem": "duplicate",
+  "severity": "high",
+  "what_is_wrong": "One of six near-identical noisy gray-metal crumpled cloaks; reads as crushed foil and players cannot tell the cloaks apart.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a hooded cloak in shimmering violet with ghostly offset afterimage edges, spread flat and drawn as a clear cloak silhouette with hood at top and wide flowing hem, soft cloth folds with light highlights. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cloak-of-invisibility",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cloak-of-invisibility.png",
+  "problem": "duplicate",
+  "severity": "high",
+  "what_is_wrong": "One of six near-identical noisy gray-metal crumpled cloaks; reads as crushed foil and players cannot tell the cloaks apart.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a hooded cloak in pale silver-gray with translucent fading lower hem, spread flat and drawn as a clear cloak silhouette with hood at top and wide flowing hem, soft cloth folds with light highlights. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cloak-of-magic-resistance",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cloak-of-magic-resistance.png",
+  "problem": "duplicate",
+  "severity": "high",
+  "what_is_wrong": "One of six near-identical noisy gray-metal crumpled cloaks; reads as crushed foil and players cannot tell the cloaks apart.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a hooded cloak in deep crimson with gold rune-trim border, spread flat and drawn as a clear cloak silhouette with hood at top and wide flowing hem, soft cloth folds with light highlights. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cloak-of-protection",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cloak-of-protection.png",
+  "problem": "duplicate",
+  "severity": "high",
+  "what_is_wrong": "One of six near-identical noisy gray-metal crumpled cloaks; reads as crushed foil and players cannot tell the cloaks apart.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a hooded cloak in royal blue with a white shield clasp, spread flat and drawn as a clear cloak silhouette with hood at top and wide flowing hem, soft cloth folds with light highlights. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "dwarvish-cloak",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/dwarvish-cloak.png",
+  "problem": "duplicate",
+  "severity": "high",
+  "what_is_wrong": "One of six near-identical noisy gray-metal crumpled cloaks; reads as crushed foil and players cannot tell the cloaks apart.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a short hooded cloak in earthy brown wool with a bronze clasp, spread flat and drawn as a clear cloak silhouette with hood at top and wide flowing hem, soft cloth folds with light highlights. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "elven-cloak",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/elven-cloak.png",
+  "problem": "duplicate",
+  "severity": "high",
+  "what_is_wrong": "One of six near-identical noisy gray-metal crumpled cloaks; reads as crushed foil and players cannot tell the cloaks apart.",
+  "regen": {
+   "background": "magenta-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a hooded cloak in leaf green with silver leaf clasp, spread flat and drawn as a clear cloak silhouette with hood at top and wide flowing hem, soft cloth folds with light highlights. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
+  }
+ },
+ {
+  "id": "elven-boots",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/elven-boots.png",
+  "problem": "unclear",
+  "severity": "low",
+  "what_is_wrong": "Noisy crumpled metallic texture like the cloaks; reads as scrap rather than soft boots.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a pair of soft knee-high elven boots, supple gray-green leather with silver leaf buckles and light highlights. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "shimmering-dragon-scales",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/shimmering-dragon-scales.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "Flat candy-colored pebbles in a dark disc; reads as a bowl of sweets, flatter than the other dragon scales.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset: Redraw the shimmering dragon scales as a pile of overlapping dragon scales with iridescent shifting colors from teal to violet to gold, each scale shaded and edged like the other dragon scale tiles. Keep the same chunky pixel-art style, shading and outline weight as image 1. Clean bold dark outline with no colored halo, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "black-dragon-scales",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/black-dragon-scales.png",
+  "problem": "unclear",
+  "severity": "low",
+  "what_is_wrong": "Near-black spiky blob with almost no highlight; disappears on dark floor.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset: Redraw the black dragon scales with strong violet and silver rim highlights on each scale edge so the pile reads on dark stone. Keep the same chunky pixel-art style, shading and outline weight as image 1. Clean bold dark outline with no colored halo, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "shield-of-drain-resistance",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/shield-of-drain-resistance.png",
+  "problem": "duplicate",
+  "severity": "medium",
+  "what_is_wrong": "Drawn as a double-bladed axe head; nearly identical to shield-of-reflection and shield-of-shock-resistance.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a round wooden shield with dark oak planks, an iron rim and a large dark-red teardrop emblem in the center. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "shield-of-shock-resistance",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/shield-of-shock-resistance.png",
+  "problem": "duplicate",
+  "severity": "low",
+  "what_is_wrong": "Same blue kite shield with white star as shield-of-reflection; the two are indistinguishable.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a kite shield with a steel rim, deep blue face and a bright yellow zigzag lightning-bolt emblem. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "mail",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/mail.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "'mail' in NetHack is the scroll of mail, but this is a chain-mail shirt (duplicate of chain-mail).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a sealed paper letter envelope with a bright red wax seal, cream paper with a brown string tie. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "destroy-armor",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/destroy-armor.png",
+  "problem": "vector",
+  "severity": "high",
+  "what_is_wrong": "Flat vector icon: gray rounded rectangle with a red diagonal slash; not a scroll and not pixel-art.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single rolled parchment scroll lying diagonally, cream and tan paper with warm brown shading, dark wooden rod ends, a few rows of dark brown ink squiggles suggesting unreadable runes (no letters), a wax seal colored black and a ribbon colored dark gray; a small cracked breastplate doodle in faded red ink on the paper. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "enchant-armor",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/enchant-armor.png",
+  "problem": "vector",
+  "severity": "high",
+  "what_is_wrong": "Flat vector blue rectangle with yellow plus signs; reads as a UI badge, not a scroll.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single rolled parchment scroll lying diagonally, cream and tan paper with warm brown shading, dark wooden rod ends, a few rows of dark brown ink squiggles suggesting unreadable runes (no letters), a wax seal colored blue and a ribbon colored gold; a faint gold shimmer around a tiny shield doodle on the paper. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "magic-mapping",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/magic-mapping.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "Flat yellow rounded card with a cyan line; vector-looking and unlike the parchment scrolls.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset: Redraw the scroll as a rolled cream parchment scroll with brown shading and wooden rod ends, showing a small brown-ink dungeon map with a blue dot. Keep the same chunky pixel-art style, shading and outline weight as image 1. Clean bold dark outline with no colored halo, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "stinking-cloud",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/stinking-cloud.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Scroll of stinking cloud is a brown potato/meat lump.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single rolled parchment scroll lying diagonally, cream and tan paper with warm brown shading, dark wooden rod ends, a few rows of dark brown ink squiggles suggesting unreadable runes (no letters), a wax seal colored olive and a ribbon colored yellow-brown; a wisp of sickly yellow-olive smoke curling from the paper. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "amnesia",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/amnesia.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Scroll of amnesia is drawn as a cloudy potion flask.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single rolled parchment scroll lying diagonally, cream and tan paper with warm brown shading, dark wooden rod ends, a few rows of dark brown ink squiggles suggesting unreadable runes (no letters), a wax seal colored pale violet and a ribbon colored gray; the ink fading away into pale gray mist. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "scare-monster",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/scare-monster.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Scroll of scare monster is drawn as a tribal skull mask creature; looks like a monster on the map.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single rolled parchment scroll lying diagonally, cream and tan paper with warm brown shading, dark wooden rod ends, a few rows of dark brown ink squiggles suggesting unreadable runes (no letters), a wax seal colored black and a ribbon colored red; a small red-ink scary face sigil on the paper. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "gold-detection",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/gold-detection.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Scroll of gold detection is drawn as a golden key/wand.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single rolled parchment scroll lying diagonally, cream and tan paper with warm brown shading, dark wooden rod ends, a few rows of dark brown ink squiggles suggesting unreadable runes (no letters), a wax seal colored gold and a ribbon colored yellow; a tiny stack of gold coins drawn in gold ink on the paper. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "fire-resistance",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/fire-resistance.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Ring of fire resistance is drawn as a sealed scroll.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single finger ring seen at three-quarter view with a clear open center hole, a polished copper-red band, set with a fiery orange gem with a white highlight. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "teleport-control",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/teleport-control.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Ring of teleport control is drawn as a parchment scroll.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single finger ring seen at three-quarter view with a clear open center hole, a polished silver band with engraved swirls, set with a deep violet gem with a white sparkle. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "lightning",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/lightning.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Wand of lightning is drawn as a glowing parchment sheet.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single slender magic wand lying diagonally, dark iron shaft with a curved bend, with a bright yellow-white crystal tip and a tiny crackle of yellow lightning at the tip; clearly a thin straight wand, not a staff, key or tool. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "fireball",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/fireball.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Spellbook of fireball is drawn as a sealed scroll identical to scroll of fire.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, burnt orange leather cover, cream page block on the side, brass corner caps and clasp, with a small raised bright orange fireball emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "chain-lightning",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/chain-lightning.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Spellbook of chain lightning is drawn as a scroll (with a green edge fringe).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, dark blue leather cover, cream page block on the side, brass corner caps and clasp, with a small raised yellow forked lightning bolt emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "detect-food",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/detect-food.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Spellbook of detect food is drawn as a scroll.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, cyan leather cover, cream page block on the side, brass corner caps and clasp, with a small raised small red apple emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "detect-monsters",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/detect-monsters.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Spellbook of detect monsters is drawn as a scroll.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, dark green leather cover, cream page block on the side, brass corner caps and clasp, with a small raised silver eye emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "detect-treasure",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/detect-treasure.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Spellbook of detect treasure is drawn as a scroll.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, dark brown leather cover, cream page block on the side, brass corner caps and clasp, with a small raised gold coin emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "detect-unseen",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/detect-unseen.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Spellbook of detect unseen is drawn as a scroll.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, gray leather cover, cream page block on the side, brass corner caps and clasp, with a small raised white half-open eye emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "teleport-away",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/teleport-away.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Spellbook of teleport away is drawn as a scroll.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, violet leather cover, cream page block on the side, brass corner caps and clasp, with a small raised white spiral emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cone-of-cold",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cone-of-cold.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Spellbook of cone of cold is drawn as a wand.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, pale blue leather cover, cream page block on the side, brass corner caps and clasp, with a small raised white snowflake emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "dig",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/dig.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Spellbook of dig is drawn as a crystal wand (near-identical to wand of digging).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, earthy brown leather cover, cream page block on the side, brass corner caps and clasp, with a small raised silver pick-axe emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "drain-life",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/drain-life.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Spellbook of drain life is drawn as a wand, almost identical to the digging wand.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, black leather cover, cream page block on the side, brass corner caps and clasp, with a small raised dark red drop emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "haste-self",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/haste-self.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Spellbook of haste self is drawn as a key/wand.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, yellow leather cover, cream page block on the side, brass corner caps and clasp, with a small raised white winged boot emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "jumping",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/jumping.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Spellbook of jumping is drawn as a boot on a spring.",
+  "regen": {
+   "background": "magenta-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, light green leather cover, cream page block on the side, brass corner caps and clasp, with a small raised white upward arrow emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
+  }
+ },
+ {
+  "id": "knock",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/knock.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Spellbook of knock is drawn as a jeweled ring/door knocker.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, pink leather cover, cream page block on the side, brass corner caps and clasp, with a small raised brass door knocker ring emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "turn-undead",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/turn-undead.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Spellbook of turn undead is drawn as a wrench-like tool.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, copper-brown leather cover, cream page block on the side, brass corner caps and clasp, with a small raised white skull with a gold ankh emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "wizard-lock",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/wizard-lock.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Spellbook of wizard lock is drawn as a key.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, dark green leather cover, cream page block on the side, brass corner caps and clasp, with a small raised silver padlock emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "freeze-sphere",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/freeze-sphere.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Spellbook of freeze sphere is drawn as a crystal ball/orb.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, white-blue leather cover, cream page block on the side, brass corner caps and clasp, with a small raised frosty blue sphere emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "stone-to-flesh",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/stone-to-flesh.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Spellbook of stone to flesh is drawn as a gray rock (reads as a gray stone).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, stone-gray leather cover, cream page block on the side, brass corner caps and clasp, with a small raised pink heart emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cure-blindness",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cure-blindness.png",
+  "problem": "unclear",
+  "severity": "medium",
+  "what_is_wrong": "Book with a jumble of potion bottles on top; cluttered and reads as neither a spellbook nor a potion.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, yellow leather cover, cream page block on the side, brass corner caps and clasp, with a small raised open white eye emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cure-sickness",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cure-sickness.png",
+  "problem": "unclear",
+  "severity": "medium",
+  "what_is_wrong": "Same cluttered book-plus-potions jumble as cure-blindness; the two are near-duplicates.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, indigo leather cover, cream page block on the side, brass corner caps and clasp, with a small raised green leaf emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "book-of-the-dead",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/book-of-the-dead.png",
+  "problem": "duplicate",
+  "severity": "medium",
+  "what_is_wrong": "The unique Book of the Dead looks exactly like the generic spellbook (same red/navy book), with a green edge fringe.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed ancient tome bound in cracked black leather with a bone-white skull on the cover, bone corner caps, dark red page edges and a faint purple glow. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cause-fear",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cause-fear.png",
+  "problem": "duplicate",
+  "severity": "low",
+  "what_is_wrong": "Identical red/navy spellbook art shared by cause-fear, charm-monster, confuse-monster, create-familiar and flame-sphere; identified books can't be told apart.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, light blue leather cover, cream page block on the side, brass corner caps and clasp, with a small raised white screaming face emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "charm-monster",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/charm-monster.png",
+  "problem": "duplicate",
+  "severity": "low",
+  "what_is_wrong": "Identical red/navy spellbook art shared by cause-fear, charm-monster, confuse-monster, create-familiar and flame-sphere; identified books can't be told apart.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, magenta leather cover, cream page block on the side, brass corner caps and clasp, with a small raised pink heart emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "confuse-monster",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/confuse-monster.png",
+  "problem": "duplicate",
+  "severity": "low",
+  "what_is_wrong": "Identical red/navy spellbook art shared by cause-fear, charm-monster, confuse-monster, create-familiar and flame-sphere; identified books can't be told apart.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, orange leather cover, cream page block on the side, brass corner caps and clasp, with a small raised yellow spiral emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "create-familiar",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/create-familiar.png",
+  "problem": "duplicate",
+  "severity": "low",
+  "what_is_wrong": "Identical red/navy spellbook art shared by cause-fear, charm-monster, confuse-monster, create-familiar and flame-sphere; identified books can't be told apart.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, glittering silver leather cover, cream page block on the side, brass corner caps and clasp, with a small raised small white cat face emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "flame-sphere",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/flame-sphere.png",
+  "problem": "duplicate",
+  "severity": "low",
+  "what_is_wrong": "Identical red/navy spellbook art shared by cause-fear, charm-monster, confuse-monster, create-familiar and flame-sphere; identified books can't be told apart.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed thick leather spellbook seen at three-quarter view, dark red leather cover, cream page block on the side, brass corner caps and clasp, with a small raised orange flame ball emblem on the cover clearly visible, no letters or title. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "enlightenment",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/enlightenment.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Potion of enlightenment is drawn as a spellbook with potions on it.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a round-bellied glass potion flask with a cork stopper, filled with glowing pale gold liquid with soft white sparkles, white glass highlight on the shoulder. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "gain-constitution",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/gain-constitution.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Ring of gain constitution is drawn as an orange potion.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single finger ring seen at three-quarter view with a clear open center hole, a sturdy bronze band, set with a round orange-red gem. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "gain-strength",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/gain-strength.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Ring of gain strength is drawn as a flaming red potion.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single finger ring seen at three-quarter view with a clear open center hole, a thick iron band with a raised fist engraving, set with a red ruby-like gem. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "polymorph-control",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/polymorph-control.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Ring of polymorph control is drawn as a green potion with a ring orbit.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single finger ring seen at three-quarter view with a clear open center hole, a twisted silver band, set with a multi-colored opal-like gem with pink and teal flecks. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "aggravate-monster",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/aggravate-monster.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Ring of aggravate monster is drawn as a red monster figure/potion; reads as a creature on the map.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single finger ring seen at three-quarter view with a clear open center hole, a dark iron band, set with an angry blood-red gem with orange highlight. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "speed-monster",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/speed-monster.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Wand of speed monster is drawn as a fiery potion flask.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single slender magic wand lying diagonally, polished light oak shaft with brass bands, with a bright yellow crystal tip and three short white speed lines trailing behind it; clearly a thin straight wand, not a staff, key or tool. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "make-invisible",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/make-invisible.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Wand of make invisible is drawn as a potion bottle.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single slender magic wand lying diagonally, pale glassy silver shaft, with a clear crystal tip and its far end fading to translucent; clearly a thin straight wand, not a staff, key or tool. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "nothing",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/nothing.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Wand of nothing is drawn as an empty soap bubble.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single slender magic wand lying diagonally, plain unpolished gray-brown wooden shaft, with a dull gray stone tip and no glow; clearly a thin straight wand, not a staff, key or tool. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "secret-door-detection",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/secret-door-detection.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Wand of secret door detection is drawn as a stone doorway with a cyan portal.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single slender magic wand lying diagonally, dark walnut shaft with silver bands, with a glowing teal crystal tip and a small silver keyhole engraving near the grip; clearly a thin straight wand, not a staff, key or tool. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "stasis",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/stasis.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Wand of stasis is drawn as a hammer.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single slender magic wand lying diagonally, pale blue-gray shaft, with a frozen clock-face crystal in cyan tip and tiny white frost sparkles; clearly a thin straight wand, not a staff, key or tool. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cancellation",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cancellation.png",
+  "problem": "vector",
+  "severity": "high",
+  "what_is_wrong": "Flat vector 'no' sign (purple circle, red slash, white plus); not a wand and not pixel art.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single slender magic wand lying diagonally, dark ebony shaft with silver bands, with a pale lavender crystal tip and a faint white ring of light around the tip; clearly a thin straight wand, not a staff, key or tool. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cold",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cold.png",
+  "problem": "vector",
+  "severity": "high",
+  "what_is_wrong": "Flat vector cyan snowflake with no wand at all.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single slender magic wand lying diagonally, frosted white birch shaft with silver bands, with a icy pale-blue crystal tip and a few white frost sparkles; clearly a thin straight wand, not a staff, key or tool. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "wand-of-magic-missile",
+  "category": "objects-inventory",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/wand-of-magic-missile.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Wand has a thick lime-green outline from the matte.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset: Redraw the wand with a dark wooden shaft, blue crystal butt and violet crystal tip, with a clean dark outline and no green halo. Keep the same chunky pixel-art style, shading and outline weight as image 1. Clean bold dark outline with no colored halo, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "wand-of-slow-monster",
+  "category": "objects-inventory",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/wand-of-slow-monster.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Busy wand with a teal ring and a strong green matte fringe.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset: Redraw the wand with a dark wooden shaft and violet crystal tip with one teal ring around it, with a clean dark outline and no green halo. Keep the same chunky pixel-art style, shading and outline weight as image 1. Clean bold dark outline with no colored halo, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "wand-of-create-monster",
+  "category": "objects-inventory",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/wand-of-create-monster.png",
+  "problem": "unclear",
+  "severity": "low",
+  "what_is_wrong": "Thin spindly wand lost under oversized pale sparkles; low contrast at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset: Redraw the wand thicker and bolder with a dark wooden shaft, green crystal butt and a bright white-gold star tip, with fewer, smaller sparkles. Keep the same chunky pixel-art style, shading and outline weight as image 1. Clean bold dark outline with no colored halo, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "drum-of-earthquake",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/drum-of-earthquake.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drum of earthquake is drawn as a sealed scroll with arrows, plus green fringe.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a round hand drum with a tan leather drumhead, dark red wooden body with brass tacks and rope lacing, and small brown crack lines radiating from it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "fire-horn",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/fire-horn.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Fire horn is drawn as a parchment scroll.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a curved animal horn musical instrument, ivory-cream horn with bright orange-red flame patterns and brass bands at the mouthpiece and bell. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "tin-opener",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/tin-opener.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Tiny flat tin opener sitting on a baked semi-transparent dark speckled background square (34% faint-alpha pixels), visible as a gray card.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a handheld tin opener with a hooked steel blade and a red wooden handle, silver metal with white highlights. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "tinning-kit",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/tinning-kit.png",
+  "problem": "unclear",
+  "severity": "medium",
+  "what_is_wrong": "Jumble of tin can, scissors and blue gadget; does not read as one object.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a small open wooden box kit holding a silver tin can and a steel knife, warm brown wood with brass corners. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "magic-whistle",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/magic-whistle.png",
+  "problem": "unclear",
+  "severity": "medium",
+  "what_is_wrong": "Blue-ringed gadget with no clear whistle shape.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a small metal pea whistle with a round chamber, mouthpiece and ring loop, bright silver with a faint violet magical shimmer. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "blindfold",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/blindfold.png",
+  "problem": "vector",
+  "severity": "high",
+  "what_is_wrong": "Flat 4-color near-black blob with a gray outline; unreadable on the dark floor.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a folded black cloth blindfold with two long trailing tie ends, charcoal cloth with light gray fold highlights and a thin silver trim. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "credit-card",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/credit-card.png",
+  "problem": "vector",
+  "severity": "high",
+  "what_is_wrong": "Flat 7-color yellow block that reads as a gold bar.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a small rectangular plastic credit card at an angle, bright blue face with a gold chip square and white stripe, rounded corners. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "grappling-hook",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/grappling-hook.png",
+  "problem": "vector",
+  "severity": "high",
+  "what_is_wrong": "Flat 6-color programmer-art hook and brown stick; not painted like the tileset.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: an iron grappling hook with three curved claws and a coil of brown rope attached, dark steel with silver highlights. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "crystal-ball",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/crystal-ball.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "Flat vector circle on a stand, and the orb is semi-transparent so its color changes with the floor.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a crystal ball on a small ornate brass stand, fully opaque glossy pale-blue glass orb with white highlight and violet inner swirl. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "beartrap",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/beartrap.png",
+  "problem": "vector",
+  "severity": "low",
+  "what_is_wrong": "Harsh flat black-and-white jaws with a gray handle; flatter than the painted tools.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset: Redraw the bear trap as a steel jaw trap with serrated teeth, dark iron with silver highlights and a rusty brown chain, shaded like the other tools. Keep the same chunky pixel-art style, shading and outline weight as image 1. Clean bold dark outline with no colored halo, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "can-of-grease",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/can-of-grease.png",
+  "problem": "inconsistent",
+  "severity": "low",
+  "what_is_wrong": "Green matte fringe around the can.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset: Redraw the can of grease with a clean dark outline and no green fringe. Keep the same chunky pixel-art style, shading and outline weight as image 1. Clean bold dark outline with no colored halo, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "bugle",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/bugle.png",
+  "problem": "inconsistent",
+  "severity": "low",
+  "what_is_wrong": "Green matte fringe around the bugle.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset: Redraw the brass bugle with a clean dark outline and no green fringe. Keep the same chunky pixel-art style, shading and outline weight as image 1. Clean bold dark outline with no colored halo, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "bell-of-opening",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/bell-of-opening.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Thick lime-green glow/matte around the silver bell; reads as green halo not magic.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset: Redraw the bell of opening as a silver hand bell with gold trim and a soft white-gold glow, no green halo. Keep the same chunky pixel-art style, shading and outline weight as image 1. Clean bold dark outline with no colored halo, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "corpse",
+  "category": "objects-inventory",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/corpse.png",
+  "problem": "unclear",
+  "severity": "high",
+  "what_is_wrong": "Generic corpse fallback is an unreadable jumble of dark brown shapes and small skulls.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a generic creature carcass lying on its side, tan-brown furry body with pale bone ribs showing and a dark red patch, simple clear silhouette. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "eucalyptus-leaf",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/eucalyptus-leaf.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Eucalyptus leaf is a red-and-gold horn/candy shape, not a leaf.",
+  "regen": {
+   "background": "magenta-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single long curved eucalyptus leaf, silvery blue-green with a pale midrib and light highlights. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
+  }
+ },
+ {
+  "id": "c-ration",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/c-ration.png",
+  "problem": "duplicate",
+  "severity": "medium",
+  "what_is_wrong": "Looks like a wrapped candy and is near-identical to cram-ration and candy-bar.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a small olive-drab military ration tin can with a key on top and a cream label band. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cram-ration",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cram-ration.png",
+  "problem": "duplicate",
+  "severity": "medium",
+  "what_is_wrong": "Wrapped-candy look, near-identical to c-ration and candy-bar.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a dense square block of pale tan cram bread wrapped in brown paper and tied with twine. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "enormous-meatball",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/enormous-meatball.png",
+  "problem": "unclear",
+  "severity": "low",
+  "what_is_wrong": "Reads as a cracked bread loaf or box rather than a huge round meatball.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a huge round meatball, dark reddish-brown with browned crust highlights and flecks of green herbs, sitting in a little red sauce. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "glob-of-gray-ooze",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/glob-of-gray-ooze.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Glob of gray ooze is drawn as a mace/club.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a round wobbly glob of gray ooze, slate gray slime with lighter gray highlights and a glossy wet shine. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "glob-of-green-slime",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/glob-of-green-slime.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Glob of green slime is drawn as a green orb on a stick (a rattle or wand).",
+  "regen": {
+   "background": "magenta-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a round wobbly glob of green slime, bright lime-green with yellow-green highlights and a glossy wet shine. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
+  }
+ },
+ {
+  "id": "splash-of-acid-venom",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/splash-of-acid-venom.png",
+  "problem": "vector",
+  "severity": "high",
+  "what_is_wrong": "Flat vector lime-green blobs and a dark slab; clip-art look.",
+  "regen": {
+   "background": "magenta-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a splash of acid venom, a glossy yellow-green liquid splat with droplets and small bubbles, bright highlights. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
+  }
+ },
+ {
+  "id": "splash-of-blinding-venom",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/splash-of-blinding-venom.png",
+  "problem": "vector",
+  "severity": "high",
+  "what_is_wrong": "Flat vector yellow star; reads as a UI sparkle, not venom.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a splash of blinding venom, a glossy milky-white and pale yellow liquid splat with droplets and bright highlights. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "rock",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/rock.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Rock is drawn as a cut faceted gem with a green base; rocks are very common and should be plain stones.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a small plain rough rock, medium gray stone with lighter gray top highlights and dark gray cracks, irregular round shape. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ }
+]

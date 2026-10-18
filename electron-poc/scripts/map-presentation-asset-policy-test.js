@@ -59,17 +59,25 @@ assert('empty doorway tooltip uses no-door-doorway CSS terrain rather than open-
 
 const ironSkullCap = model({ ch: '[', glyph: 3579, semanticKind: 'object', semanticName: 'orcish helm', semanticKnown: false, semanticAppearance: 'iron skull cap' });
 const ironSkullCapTooltip = MapPresentation.tooltipInfoForCell({ ch: '[', glyph: 3579, semanticKind: 'object', semanticName: 'orcish helm', semanticKnown: false, semanticAppearance: 'iron skull cap' }, 30, 16, { tileMapConfig: tileMap, tileAssetsById, cells: [[{ ch: '[' }]] });
-assert('unidentified iron skull cap uses helmet public-appearance art, not broad armor/shield fallback or hidden orcish identity', ironSkullCap.assetId === 'helmet' && ironSkullCap.classes.includes('terrain-floor') && /helmet\.png/.test(ironSkullCap.backgroundImage || ironSkullCap.tileImage || '') && /Iron Skull Cap/i.test(ironSkullCap.ariaLabel || '') && ironSkullCapTooltip.title === 'Iron Skull Cap' && ironSkullCapTooltip.assetId === 'helmet' && !/armor-class-icon|shield|orcish-helm/i.test(`${ironSkullCap.assetId} ${ironSkullCap.backgroundImage || ''} ${ironSkullCap.tileImage || ''} ${ironSkullCap.ariaLabel || ''} ${ironSkullCapTooltip.description}`), JSON.stringify({ ironSkullCap, ironSkullCapTooltip }));
+// "iron skull cap" is never shuffled: every one is an orcish helm, so its
+// art shows only what the hero sees. The name must stay hidden.
+assert('unidentified iron skull cap uses specific helmet art (its fixed appearance), never the broad armor/shield fallback, and its text never names the hidden identity', ['helmet', 'orcish-helm'].includes(ironSkullCap.assetId) && /Iron Skull Cap/i.test(ironSkullCap.ariaLabel || '') && ironSkullCapTooltip.title === 'Iron Skull Cap' && !/armor-class-icon|shield/i.test(ironSkullCap.assetId) && !/orcish/i.test(`${ironSkullCap.ariaLabel || ''} ${ironSkullCapTooltip.title} ${ironSkullCapTooltip.description}`), JSON.stringify({ assetId: ironSkullCap.assetId, aria: ironSkullCap.ariaLabel, tooltip: ironSkullCapTooltip.title }));
 
 const crudeDagger = model({ ch: ')', glyph: 3484, semanticKind: 'object', semanticName: 'orcish dagger', semanticKnown: false, semanticAppearance: 'crude dagger' });
 const crudeDaggerTooltip = MapPresentation.tooltipInfoForCell({ ch: ')', glyph: 3484, semanticKind: 'object', semanticName: 'orcish dagger', semanticKnown: false, semanticAppearance: 'crude dagger' }, 23, 13, { tileMapConfig: tileMap, tileAssetsById, cells: [[{ ch: ')' }]] });
 assert('unidentified crude dagger uses crude/orcish-dagger public-appearance art without diagnostic or hidden identity copy', crudeDagger.assetId === 'orcish-dagger' && crudeDagger.classes.includes('terrain-floor') && /orcish-dagger\.png/.test(crudeDagger.backgroundImage || crudeDagger.tileImage || '') && /Crude Dagger/i.test(crudeDagger.ariaLabel || '') && crudeDaggerTooltip.title === 'Crude Dagger' && crudeDaggerTooltip.assetId === 'orcish-dagger' && !/glyph|map 23,13|Objects and inventory|weapon-class-icon|Full source objects|orcish dagger/i.test(`${crudeDagger.ariaLabel || ''} ${crudeDaggerTooltip.title || ''} ${crudeDaggerTooltip.description || ''}`), JSON.stringify({ crudeDagger, crudeDaggerTooltip }));
 
+// Fixed appearances (never shuffled) may show their item's art, as crude
+// dagger does above; shuffled ones (plumed helmet, tattered cape, old gloves,
+// combat boots: reshuffled every game) only the subclass art or their own
+// appearance tile, never an identified item's.
 const publicArmorAppearances = [
-  ['leather hat', 'helmet'], ['hard hat', 'helmet'], ['conical hat', 'helmet'], ['crystal helmet', 'helmet'], ['plumed helmet', 'helmet'], ['etched helmet', 'helmet'], ['crested helmet', 'helmet'], ['visored helmet', 'helmet'],
-  ['wooden shield', 'shield'], ['large round shield', 'shield'], ['tattered cape', 'cloak'], ['old gloves', 'gloves'], ['combat boots', 'boots'], ['crude ring mail', 'orcish-ring-mail'], ['crude chain mail', 'chain-mail'],
-].map(([appearance, expected]) => [appearance, expected, model({ ch: '[', semanticKind: 'object', semanticName: appearance, semanticKnown: false, semanticAppearance: appearance })]);
-assert('representative unidentified armor appearances resolve to subclass/appearance art instead of one broad armor icon', publicArmorAppearances.every(([appearance, expected, view]) => view.assetId === expected), JSON.stringify(publicArmorAppearances));
+  ['leather hat', ['helmet', 'elven-leather-helm']], ['hard hat', ['helmet', 'dwarvish-iron-helm']], ['conical hat', ['helmet', 'conical-hat']], ['crystal helmet', ['helmet', 'helm-of-brilliance']],
+  ['plumed helmet', ['helmet', 'plumed-helmet']], ['etched helmet', ['helmet', 'etched-helmet']], ['crested helmet', ['helmet', 'crested-helmet']], ['visored helmet', ['helmet', 'visored-helmet']],
+  ['wooden shield', ['shield', 'small-shield']], ['large round shield', ['shield', 'dwarvish-roundshield']], ['tattered cape', ['cloak', 'tattered-cape']], ['old gloves', ['gloves', 'old-gloves']], ['combat boots', ['boots', 'combat-boots']],
+  ['crude ring mail', ['orcish-ring-mail']], ['crude chain mail', ['chain-mail', 'orcish-chain-mail']],
+].map(([appearance, allowed]) => [appearance, allowed, model({ ch: '[', semanticKind: 'object', semanticName: appearance, semanticKnown: false, semanticAppearance: appearance })]);
+assert('representative unidentified armor appearances resolve to subclass/appearance art instead of one broad armor icon', publicArmorAppearances.every(([appearance, allowed, view]) => allowed.includes(view.assetId)), JSON.stringify(publicArmorAppearances.map(([a, allowed, v]) => [a, allowed, v.assetId])));
 
 const thinSpellbook = model({ ch: '+', glyph: 3854, semanticKind: 'object', semanticName: 'jumping', semanticKnown: false, semanticAppearance: 'thin' });
 assert('unidentified thin spellbook uses public spellbook appearance art instead of closed-door char fallback or hidden jumping art', thinSpellbook.assetId === 'spellbook-class-icon' && thinSpellbook.classes.includes('terrain-floor') && /spellbook-class-icon\.png/.test(thinSpellbook.backgroundImage || thinSpellbook.tileImage || '') && /thin spellbook/i.test(thinSpellbook.ariaLabel || '') && !/closed-door|jumping/i.test(`${thinSpellbook.assetId} ${thinSpellbook.backgroundImage || ''} ${thinSpellbook.tileImage || ''} ${thinSpellbook.ariaLabel || ''}`), JSON.stringify(thinSpellbook));
@@ -167,4 +175,16 @@ assert('monster over object uses the same terrain<object<actor layer order', jac
 const jackalOverChestTooltip = MapPresentation.tooltipInfoForCell(jackalOverChestCell, 0, 0, { tileMapConfig: tileMap, tileAssetsById, cells: [[jackalOverChestCell]] });
 assert('monster/object tooltip lists monster, object, and terrain instead of only the top layer', /Jackal/i.test(jackalOverChestTooltip.title) && jackalOverChestTooltip.contents.map((entry) => `${entry.label}:${entry.kind}`).join('|') === 'Jackal:Monster|Chest:Object|Floor Of A Room:Floor', JSON.stringify(jackalOverChestTooltip));
 
-console.log(JSON.stringify({ pass: true, assertions: 41 }, null, 2));
+const grayStone = model({ ch: '*', semanticKind: 'object', semanticKnown: false, semanticAppearance: 'gray stone' });
+assert('an unidentified gray stone (luckstone, loadstone, touchstone or flint) uses the dull gray-stone art, not the gem icon', grayStone.assetId === 'gray-stone' && /gray-stone\.png/.test(grayStone.backgroundImage || grayStone.tileImage || ''), JSON.stringify(grayStone));
+const grayStoneBare = model({ ch: '*', semanticKind: 'object', semanticKnown: false, semanticAppearance: 'gray' });
+assert('a bare "gray" gem-class appearance is a gray stone too', grayStoneBare.assetId === 'gray-stone', JSON.stringify(grayStoneBare));
+const greenGem = model({ ch: '*', semanticKind: 'object', semanticKnown: false, semanticAppearance: 'green' });
+assert('an unidentified green gem shows a green gem (the coloured glass art), not the generic gem icon', greenGem.assetId === 'worthless-piece-of-green-glass', JSON.stringify(greenGem));
+const brownGem = model({ ch: '*', semanticKind: 'object', semanticKnown: false, semanticAppearance: 'yellowish brown gem' });
+assert('a two-word gem colour resolves too', brownGem.assetId === 'worthless-piece-of-yellowish-brown-glass', JSON.stringify(brownGem));
+
+const healingBook = model({ ch: '+', semanticKind: 'object', semanticKnown: true, semanticName: 'healing' });
+assert('a spellbook of healing never shows the potion of healing art: the class-qualified tile, else the class icon', !['healing'].includes(healingBook.assetId) || /\+/.test(String(tileAssetsById.get(healingBook.assetId)?.objectClasses || '+')), JSON.stringify(healingBook));
+
+console.log(JSON.stringify({ pass: true, assertions: 46 }, null, 2));

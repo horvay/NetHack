@@ -248,6 +248,16 @@
     const kind = String(semanticKind || '').toLowerCase();
     if (kind && kind !== 'object' && kind !== 'item') return undefined;
     const normalized = normalizeCell(cell);
+    // Luckstone, loadstone, touchstone and flint all look like "a gray
+    // stone" until identified: a dull pebble, not the sparkly gem icon.
+    if (normalized.ch === '*' && /^gr[ae]y( stone)?$/i.test(String(name || '').trim()) && tileAssetsById.has('gray-stone')) return 'gray-stone';
+    // An unidentified gem looks like its colour ("green gem": an emerald or
+    // green glass alike); the coloured glass tiles are plain cut gems.
+    if (normalized.ch === '*') {
+      const colour = String(name || '').trim().toLowerCase().replace(/ gems?$/, '');
+      const gemArt = `worthless-piece-of-${colour.replace(/ /g, '-')}-glass`;
+      if (['white', 'red', 'orange', 'yellow', 'yellowish brown', 'green', 'blue', 'violet', 'black'].includes(colour) && tileAssetsById.has(gemArt)) return gemArt;
+    }
     const classNoun = publicAppearanceClassNounForCell({ ...normalized, semanticKind });
     const visibleAppearanceName = classNoun ? appendClassNounToAppearance(name, classNoun) : String(name || '').trim();
     // NetHack often reports public magical-object appearances as bare adjectives
@@ -285,6 +295,19 @@
     if (String(normalized.semanticKind || '').toLowerCase() !== 'engulfment') return undefined;
     return assetIdForSemanticName(normalized.semanticName, 'monster', tileMapConfig, tileAssetsById);
   }
+  // Object art drawn for another class is never used: a name can be a ring
+  // and a potion ("levitation"), and the tile shows one of them. The art for
+  // this class is "<name>-<noun>" ("levitation-ring"); none: skip it.
+  const objectClassNouns = Object.freeze({ '!': 'potion', '=': 'ring', '/': 'wand', '"': 'amulet', '+': 'spellbook', '?': 'scroll', ')': 'weapon', '[': 'armor', '(': 'tool', '%': 'food', '*': 'gem' });
+  function classCheckedAssetId(id, cell, tileAssetsById) {
+    if (!id || !tileAssetsById.has(id)) return id;
+    const classes = String(tileAssetsById.get(id)?.objectClasses || '');
+    const kind = String(cell.semanticKind || '').toLowerCase();
+    const noun = objectClassNouns[cell.ch];
+    if (!classes || !noun || (kind && kind !== 'object' && kind !== 'item') || classes.includes(cell.ch)) return id;
+    const qualified = `${id}-${noun}`;
+    return tileAssetsById.has(qualified) ? qualified : undefined;
+  }
   function mappedAssetIdForCell(cell, { tileMapConfig = defaultTileMapConfig, tileAssetsById = new Map(), playerCharacter } = {}) {
     const normalized = normalizeCell(cell);
     if (normalized.ch === ' ' && normalized.assetId == null && normalized.glyph == null && !normalized.semanticKind && !normalized.semanticName && !normalized.semanticAppearance) return undefined;
@@ -306,8 +329,8 @@
     const unknownAppearanceName = normalized.semanticKnown === false ? (normalized.semanticAppearance || (semanticNameIsVisibleScrollLabel ? normalized.semanticName : undefined)) : undefined;
     const hidesSemanticName = normalized.semanticKnown === false;
     const unknownAppearanceId = unknownAppearanceName ? (scrollLabelAppearanceAssetId(unknownAppearanceName, tileAssetsById) || publicAppearanceAssetId(unknownAppearanceName, normalized.semanticKind, tileMapConfig, tileAssetsById, normalized) || appearanceClassFallbackAssetId(unknownAppearanceName, normalized.semanticKind, tileAssetsById, normalized)) : undefined;
-    const knownOrDisplayNameId = hidesSemanticName ? undefined : semanticNameId;
-    const secondaryAppearanceId = hidesSemanticName ? undefined : semanticAppearanceId;
+    const knownOrDisplayNameId = hidesSemanticName ? undefined : classCheckedAssetId(semanticNameId, normalized, tileAssetsById);
+    const secondaryAppearanceId = hidesSemanticName ? undefined : classCheckedAssetId(semanticAppearanceId, normalized, tileAssetsById);
     const engulfmentId = engulfmentAssetId(normalized, tileMapConfig, tileAssetsById);
     // Upstream fixture/runtime events may carry an explicit assetId.  For unknown
     // objects, do not let that precomputed id bypass public-appearance safeguards
@@ -320,7 +343,7 @@
       return explicitSpecificAvatarId || comboAvatarId || roleAvatarId || semanticPlayerAvatarId || explicitPlayerAvatarId || tileMapConfig.glyphNumber?.[String(normalized.glyph)] || tileMapConfig.semanticKind?.[semanticKind] || tileMapConfig.char?.[normalized.ch] || defaultTileMapConfig.char[normalized.ch];
     }
     if (semanticKind === 'engulfment') return engulfmentId;
-    return petStateId || explicitAssetId || unknownAppearanceId || semanticSubjectId || knownOrDisplayNameId || secondaryAppearanceId || corpseFallbackId || statueFallbackId || cmapGlyphId || classFallbackId || tileMapConfig.glyphNumber?.[String(normalized.glyph)]
+    return petStateId || explicitAssetId || unknownAppearanceId || semanticSubjectId || knownOrDisplayNameId || secondaryAppearanceId || corpseFallbackId || statueFallbackId || cmapGlyphId || classFallbackId || classCheckedAssetId(tileMapConfig.glyphNumber?.[String(normalized.glyph)], normalized, tileAssetsById)
       || tileMapConfig.semanticKind?.[semanticKind]
       || (nonPlayerAtSign ? undefined : (tileMapConfig.char?.[normalized.ch] || defaultTileMapConfig.char[normalized.ch]));
   }

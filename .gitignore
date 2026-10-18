@@ -136,3 +136,10 @@ electron-poc/assets/tiles/generated/*-backup-*/
 
 # Employee run reports are preserved by AI Org outside the repository
 employee-result*.md
+# Art pipeline working files (raw candidates, contact sheets, backups of
+# replaced tiles): local only; the installed tiles, manifest and tracker are
+# tracked.
+asset-generation/outputs/godot-regen/
+asset-generation/outputs/audit-*/**/*.png
+asset-generation/backups/
+.agent-browser-electron.json

@@ -1,0 +1,1804 @@
+[
+ {
+  "id": "athame",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/athame.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/athame.png",
+  "name": "athame",
+  "glyph": ")",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Right class (a dagger), but it is a stubby generic dagger with nothing of a ritual athame's look.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: an athame, a ritual double-edged dagger with a straight polished steel blade, a black wooden hilt, and a small ornate silver crossguard, pointing diagonally upward. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "bardiche",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/bardiche.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/bardiche.png",
+  "name": "bardiche",
+  "glyph": ")",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Right class (a polearm), but the head reads as a generic axe on a vine-wrapped stick rather than a bardiche's long crescent blade.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a bardiche, a long wooden polearm held diagonally with a large crescent-shaped steel axe blade fixed to the upper shaft at two points. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "blank-paper-spellbook",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/blank-paper-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-identified/blank-paper-spellbook.png",
+  "name": "blank paper (spellbook)",
+  "glyph": "+",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the spellbook version of the shared name 'blank paper', so it needs its own spellbook tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a plain pale cream cloth cover, the cover decorated with nothing at all, a clean unmarked cover with simple plain brass corners and crisp white page edges. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "blank-paper-scroll",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/blank-paper-scroll.png",
+  "outputPath": "asset-generation/outputs/objects-identified/blank-paper-scroll.png",
+  "name": "blank paper (scroll)",
+  "glyph": "?",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the scroll version of the shared name 'blank paper', so it needs its own scroll tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a rolled parchment scroll with plain pale cream paper, tied with a simple undyed string and a small plain gray wax seal, clean and unadorned. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cancellation-spellbook",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/cancellation-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-identified/cancellation-spellbook.png",
+  "name": "cancellation (spellbook)",
+  "glyph": "+",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the spellbook version of the shared name 'cancellation', so it needs its own spellbook tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a slate gray cover, the cover decorated with a silver ring emblem with a dark empty void in its center, faded dull sparkles drifting away from it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cancellation-wand",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/cancellation-wand.png",
+  "outputPath": "asset-generation/outputs/objects-identified/cancellation-wand.png",
+  "name": "cancellation (wand)",
+  "glyph": "/",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the wand version of the shared name 'cancellation', so it needs its own wand tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a straight magic wand held diagonally, made of pale ivory and tipped with a dark gray void sphere, faded dull sparkles dying around the tip. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cause-fear",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cause-fear.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/cause-fear.png",
+  "name": "cause fear",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Right class (a spellbook), but it is the same generic dark blue gem-studded book as several other spellbooks, with nothing that suggests fear.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a deep purple leather cover, the cover decorated with a pale ghostly screaming face emblem with wide hollow eyes and wisps of white mist. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "chain-lightning",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/chain-lightning.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/chain-lightning.png",
+  "name": "chain lightning",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a rolled parchment scroll instead of a spellbook.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a dark navy leather cover, the cover decorated with a bright yellow forked lightning bolt emblem that branches into a chain of linked sparks. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "charm-monster",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/charm-monster.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/charm-monster.png",
+  "name": "charm monster",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Right class (a spellbook), but it is the same generic dark blue gem-studded book as several other spellbooks, with nothing that suggests charming.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a rose pink leather cover, the cover decorated with a shining golden heart emblem with small pink sparkles around it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "chrysoberyl",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/chrysoberyl.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/chrysoberyl.png",
+  "name": "chrysoberyl",
+  "glyph": "*",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Right class (a yellow gem) and reads clearly; a stray dark patch sits at the lower left edge.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a chrysoberyl gemstone, a cushion-cut golden yellow gem with a silky cat's-eye band of light across its face. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "clairvoyance",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/clairvoyance.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/clairvoyance.png",
+  "name": "clairvoyance",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Right class (a spellbook), but it is the same generic dark blue gem-studded book as several other spellbooks, with nothing that suggests far-seeing.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a midnight blue cover with silver trim, the cover decorated with a small glowing crystal ball emblem with a pale blue light inside. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cone-of-cold",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cone-of-cold.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/cone-of-cold.png",
+  "name": "cone of cold",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a wand or scepter tipped with a rainbow crystal instead of a spellbook.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a icy pale blue cover rimmed with white frost, the cover decorated with a large white six-pointed snowflake emblem. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "confuse-monster-spellbook",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/confuse-monster-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-identified/confuse-monster-spellbook.png",
+  "name": "confuse monster (spellbook)",
+  "glyph": "+",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the spellbook version of the shared name 'confuse monster', so it needs its own spellbook tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a bright orange cover, the cover decorated with a dizzy purple spiral swirl emblem with small yellow stars circling it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "confuse-monster-scroll",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/confuse-monster-scroll.png",
+  "outputPath": "asset-generation/outputs/objects-identified/confuse-monster-scroll.png",
+  "name": "confuse monster (scroll)",
+  "glyph": "?",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the scroll version of the shared name 'confuse monster', so it needs its own scroll tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a rolled parchment scroll with a purple wax seal stamped with an orange spiral, and a faint swirling purple haze around it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "create-familiar",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/create-familiar.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/create-familiar.png",
+  "name": "create familiar",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Right class (a spellbook), but it is the same generic dark blue gem-studded book as several other spellbooks, with nothing that suggests a familiar.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a warm tan leather cover, the cover decorated with a sitting black cat silhouette emblem with bright yellow eyes. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "create-monster-spellbook",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/create-monster-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-identified/create-monster-spellbook.png",
+  "name": "create monster (spellbook)",
+  "glyph": "+",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the spellbook version of the shared name 'create monster', so it needs its own spellbook tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a dark crimson-brown leather cover, the cover decorated with a snarling horned monster head emblem with sharp fangs, embossed in bronze. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "create-monster-wand",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/create-monster-wand.png",
+  "outputPath": "asset-generation/outputs/objects-identified/create-monster-wand.png",
+  "name": "create monster (wand)",
+  "glyph": "/",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the wand version of the shared name 'create monster', so it needs its own wand tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a straight magic wand held diagonally, made of maple wood and tipped with a small carved red monster claw. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "create-monster-scroll",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/create-monster-scroll.png",
+  "outputPath": "asset-generation/outputs/objects-identified/create-monster-scroll.png",
+  "name": "create monster (scroll)",
+  "glyph": "?",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the scroll version of the shared name 'create monster', so it needs its own scroll tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a rolled parchment scroll with a crimson wax seal stamped with three claw marks, and small red sparks rising from it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cure-blindness",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cure-blindness.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/cure-blindness.png",
+  "name": "cure blindness",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Right class (a spellbook), but the book is buried under a clutter of potions and gems, so it reads as a pile of loot rather than one clear book.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a soft white leather cover, the cover decorated with a golden open eye emblem with a bright white sparkle of restored sight. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cure-sickness",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cure-sickness.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/cure-sickness.png",
+  "name": "cure sickness",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Right class (a spellbook), but the book is buried under a clutter of potions and orbs, so it reads as a pile of loot rather than one clear book.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a amber orange cover, the cover decorated with a white mortar and pestle emblem with a small rising wisp of healing steam. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "dented-pot",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/dented-pot.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/dented-pot.png",
+  "name": "dented pot",
+  "glyph": "[",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a blurry, unreadable bundle that looks like a bag or kettle rather than a dented pot helmet.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a dented pot worn as a helmet, a battered iron cooking pot with a stubby side handle and several clear dents in its rim and sides, shown upside down. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "detect-food",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/detect-food.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/detect-food.png",
+  "name": "detect food",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a rolled parchment scroll instead of a spellbook.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a mustard yellow cover, the cover decorated with a red apple and roasted drumstick emblem. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "detect-monsters",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/detect-monsters.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/detect-monsters.png",
+  "name": "detect monsters",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a rolled parchment scroll instead of a spellbook.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a black leather cover, the cover decorated with a ring of small glowing red monster eyes around a central bronze circle. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "detect-treasure",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/detect-treasure.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/detect-treasure.png",
+  "name": "detect treasure",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a rolled parchment scroll instead of a spellbook.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a royal blue cover, the cover decorated with a small gold treasure chest emblem overflowing with shining coins. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "detect-unseen",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/detect-unseen.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/detect-unseen.png",
+  "name": "detect unseen",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a rolled parchment scroll instead of a spellbook.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a dark charcoal gray cover, the cover decorated with a golden eye emblem casting a beam that reveals a faint dotted ghostly figure. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "dig",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/dig.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/dig.png",
+  "name": "dig",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a wand tipped with a rainbow crystal instead of a spellbook.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a earthy brown leather cover, the cover decorated with an iron pickaxe emblem over a small pile of brown rubble. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "drain-life",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/drain-life.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/drain-life.png",
+  "name": "drain life",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a wand tipped with a rainbow crystal instead of a spellbook.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a dark maroon leather cover, the cover decorated with a withered black hand emblem drawing glowing crimson droplets upward. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "dwarvish-mattock",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/dwarvish-mattock.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/dwarvish-mattock.png",
+  "name": "dwarvish mattock",
+  "glyph": ")",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Right class (a weapon), but it reads as a hammer-pick hybrid rather than a dwarvish mattock's broad digging blade.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a dwarvish mattock, a heavy two-handed broad pick with a thick wooden haft and a wide flat iron adze blade on one side, held diagonally. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "enchant-weapon",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/enchant-weapon.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/enchant-weapon.png",
+  "name": "enchant weapon",
+  "glyph": "?",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Right class (a scroll), but it is the same generic parchment-and-red-seal design as the misdrawn spellbook tiles, with nothing that suggests weapons.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a rolled parchment scroll with a silver-blue wax seal stamped with a small sword, and a bright blue magical glow along its edges. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "enlightenment-potion",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/enlightenment-potion.png",
+  "outputPath": "asset-generation/outputs/objects-identified/enlightenment-potion.png",
+  "name": "enlightenment (potion)",
+  "glyph": "!",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the potion version of the shared name 'enlightenment', so it needs its own potion tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with radiant white-gold liquid that shines with rays of light and tiny star sparkles. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "enlightenment-wand",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/enlightenment-wand.png",
+  "outputPath": "asset-generation/outputs/objects-identified/enlightenment-wand.png",
+  "name": "enlightenment (wand)",
+  "glyph": "/",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the wand version of the shared name 'enlightenment', so it needs its own wand tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a straight magic wand held diagonally, made of clear crystal and tipped with a radiant golden star shining rays of light. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "extra-healing-potion",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/extra-healing-potion.png",
+  "outputPath": "asset-generation/outputs/objects-identified/extra-healing-potion.png",
+  "name": "extra healing (potion)",
+  "glyph": "!",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the potion version of the shared name 'extra healing', so it needs its own potion tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with vivid deep pink-red liquid, larger and brighter, with a strong white healing glow and plus-shaped sparkles. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "extra-healing-spellbook",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/extra-healing-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-identified/extra-healing-spellbook.png",
+  "name": "extra healing (spellbook)",
+  "glyph": "+",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the spellbook version of the shared name 'extra healing', so it needs its own spellbook tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a bright white leather cover with gold trim, the cover decorated with a large radiant red cross emblem surrounded by golden rays of light. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "finger-of-death",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/finger-of-death.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/finger-of-death.png",
+  "name": "finger of death",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Right class (a spellbook), but it is the same generic dark gem-studded book as several other spellbooks, with nothing that suggests death.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a pitch black leather cover, the cover decorated with a bony skeletal pointing finger emblem glowing with violet light. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "fire-wand",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/fire-wand.png",
+  "outputPath": "asset-generation/outputs/objects-identified/fire-wand.png",
+  "name": "fire (wand)",
+  "glyph": "/",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the wand version of the shared name 'fire', so it needs its own wand tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a straight magic wand held diagonally, made of red lacquered wood and tipped with a bright orange flame. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "fire-scroll",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/fire-scroll.png",
+  "outputPath": "asset-generation/outputs/objects-identified/fire-scroll.png",
+  "name": "fire (scroll)",
+  "glyph": "?",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the scroll version of the shared name 'fire', so it needs its own scroll tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a rolled parchment scroll with singed blackened edges, a red wax seal, and small orange flames licking along the parchment. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "fire-resistance",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/fire-resistance.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/fire-resistance.png",
+  "name": "fire resistance",
+  "glyph": "=",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a rolled parchment scroll instead of a ring.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a finger ring seen at an angle, a copper band set with a deep orange-red stone ringed by tiny engraved flames, a cool blue shimmer around the stone. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "fireball",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/fireball.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/fireball.png",
+  "name": "fireball",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a rolled parchment scroll instead of a spellbook.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a red leather cover, the cover decorated with a bursting orange and yellow fireball explosion emblem. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "flame-sphere",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/flame-sphere.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/flame-sphere.png",
+  "name": "flame sphere",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Right class (a spellbook), but it is a plain generic dark book with nothing that suggests a sphere of fire.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a charcoal gray cover, the cover decorated with a round glowing orange orb of fire emblem ringed by a thin circle of flame. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "food-detection",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/food-detection.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/food-detection.png",
+  "name": "food detection",
+  "glyph": "?",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Right class (a scroll), but the tile is blurry and smudged, and nothing on it suggests food.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a rolled parchment scroll with a mustard yellow wax seal stamped with a little apple, and a small roasted drumstick tucked under the tie. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "force-bolt",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/force-bolt.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/force-bolt.png",
+  "name": "force bolt",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a wand or spyglass with a blue spark instead of a spellbook.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a steel gray cover, the cover decorated with a bright blue starburst impact emblem with sharp radiating streaks. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "freeze-sphere",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/freeze-sphere.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/freeze-sphere.png",
+  "name": "freeze sphere",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a floating icy orb instead of a spellbook.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a deep navy blue cover, the cover decorated with a glowing pale cyan sphere of ice emblem with frost cracks across it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "gain-constitution",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/gain-constitution.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/gain-constitution.png",
+  "name": "gain constitution",
+  "glyph": "=",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a heart-shaped potion bottle instead of a ring.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a finger ring seen at an angle, a sturdy gold band set with a deep red heart-shaped garnet. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "gain-strength",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/gain-strength.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/gain-strength.png",
+  "name": "gain strength",
+  "glyph": "=",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a red potion flask instead of a ring.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a finger ring seen at an angle, a broad heavy bronze band engraved with flexing arm motifs, set with a square-cut orange topaz. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "glob-of-black-pudding",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/glob-of-black-pudding.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/glob-of-black-pudding.png",
+  "name": "glob of black pudding",
+  "glyph": "%",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a round black bomb or flask with a cap rather than a glob of pudding.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a glob of black pudding, a shiny wobbling blob of glossy black ooze with oily purple highlights, spreading slightly at the base. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "glob-of-brown-pudding",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/glob-of-brown-pudding.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/glob-of-brown-pudding.png",
+  "name": "glob of brown pudding",
+  "glyph": "%",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Right class and reads as a brown blob, though its shape resembles a sack; flagged for review.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a glob of brown pudding, a lumpy wobbling blob of glossy brown ooze with lighter tan highlights. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "glob-of-gray-ooze",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/glob-of-gray-ooze.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/glob-of-gray-ooze.png",
+  "name": "glob of gray ooze",
+  "glyph": "%",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a mace or club with a gray head instead of a glob of ooze.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a glob of gray ooze, a dripping wobbling blob of translucent gray slime with pale silver highlights. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "glob-of-green-slime",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/glob-of-green-slime.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/glob-of-green-slime.png",
+  "name": "glob of green slime",
+  "glyph": "%",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a wand or mace with a green orb instead of a glob of slime.",
+  "regen": {
+   "background": "magenta-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a glob of green slime, a dripping wobbling blob of glossy bright green slime with lighter highlights. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
+  }
+ },
+ {
+  "id": "gold-detection",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/gold-detection.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/gold-detection.png",
+  "name": "gold detection",
+  "glyph": "?",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a blurry golden key or wand instead of a scroll.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a rolled parchment scroll with a shining gold wax seal, and a few gold coins and gold sparkles around it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "haste-self",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/haste-self.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/haste-self.png",
+  "name": "haste self",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a golden key or wand instead of a spellbook.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a bright yellow cover, the cover decorated with a white winged boot emblem with motion streaks behind it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "healing-potion",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/healing-potion.png",
+  "outputPath": "asset-generation/outputs/objects-identified/healing-potion.png",
+  "name": "healing (potion)",
+  "glyph": "!",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the potion version of the shared name 'healing', so it needs its own potion tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with warm red liquid with a soft gentle glow. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "healing-spellbook",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/healing-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-identified/healing-spellbook.png",
+  "name": "healing (spellbook)",
+  "glyph": "+",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the spellbook version of the shared name 'healing', so it needs its own spellbook tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a soft sky blue cover, the cover decorated with a single red heart emblem with a gentle warm glow. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "identify-spellbook",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/identify-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-identified/identify-spellbook.png",
+  "name": "identify (spellbook)",
+  "glyph": "+",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the spellbook version of the shared name 'identify', so it needs its own spellbook tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a light tan leather cover, the cover decorated with a silver magnifying glass emblem with a shining lens. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "identify-scroll",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/identify-scroll.png",
+  "outputPath": "asset-generation/outputs/objects-identified/identify-scroll.png",
+  "name": "identify (scroll)",
+  "glyph": "?",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the scroll version of the shared name 'identify', so it needs its own scroll tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a rolled parchment scroll with a light blue wax seal stamped with a small magnifying glass. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "invisibility-potion",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/invisibility-potion.png",
+  "outputPath": "asset-generation/outputs/objects-identified/invisibility-potion.png",
+  "name": "invisibility (potion)",
+  "glyph": "!",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the potion version of the shared name 'invisibility', so it needs its own potion tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with clear, almost invisible shimmering liquid, the glass itself faint and ghostly with a few silver sparkles. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "invisibility-spellbook",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/invisibility-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-identified/invisibility-spellbook.png",
+  "name": "invisibility (spellbook)",
+  "glyph": "+",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the spellbook version of the shared name 'invisibility', so it needs its own spellbook tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a pale lavender cover that fades toward translucency at its edges, the cover decorated with an empty hollow hooded cloak emblem. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "invisibility-ring",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/invisibility-ring.png",
+  "outputPath": "asset-generation/outputs/objects-identified/invisibility-ring.png",
+  "name": "invisibility (ring)",
+  "glyph": "=",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the ring version of the shared name 'invisibility', so it needs its own ring tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a finger ring seen at an angle, a thin silver band set with a clear glass-like stone that fades into transparency, with a faint shimmer. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "iron-shoes",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/iron-shoes.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/iron-shoes.png",
+  "name": "iron shoes",
+  "glyph": "[",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Right class (footwear), but they read as dark leather shoes rather than heavy iron shoes.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of iron shoes, heavy riveted gray iron plated shoes with thick soles. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "jumping",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/jumping.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/jumping.png",
+  "name": "jumping",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a coiled spring gadget with a green flame instead of a spellbook.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a orange cover, the cover decorated with a coiled silver spring emblem under a white upward leaping arc arrow. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "knock",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/knock.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/knock.png",
+  "name": "knock",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a door knocker ring on a plate instead of a spellbook.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a oak brown leather cover, the cover decorated with an open golden padlock emblem with its shackle swung free. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "levitation-potion",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/levitation-potion.png",
+  "outputPath": "asset-generation/outputs/objects-identified/levitation-potion.png",
+  "name": "levitation (potion)",
+  "glyph": "!",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the potion version of the shared name 'levitation', so it needs its own potion tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with pale sky blue liquid with rising bubbles, the flask floating on two tiny white feathered wings. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "levitation-spellbook",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/levitation-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-identified/levitation-spellbook.png",
+  "name": "levitation (spellbook)",
+  "glyph": "+",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the spellbook version of the shared name 'levitation', so it needs its own spellbook tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a sky blue cover, the cover decorated with a white feather emblem floating above two small puffy clouds. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "levitation-ring",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/levitation-ring.png",
+  "outputPath": "asset-generation/outputs/objects-identified/levitation-ring.png",
+  "name": "levitation (ring)",
+  "glyph": "=",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the ring version of the shared name 'levitation', so it needs its own ring tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a finger ring seen at an angle, a silver band set with a sky blue stone flanked by two small white wings. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "light-spellbook",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/light-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-identified/light-spellbook.png",
+  "name": "light (spellbook)",
+  "glyph": "+",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the spellbook version of the shared name 'light', so it needs its own spellbook tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a cream and gold cover, the cover decorated with a radiant golden sun emblem with bright beams. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "light-wand",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/light-wand.png",
+  "outputPath": "asset-generation/outputs/objects-identified/light-wand.png",
+  "name": "light (wand)",
+  "glyph": "/",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the wand version of the shared name 'light', so it needs its own wand tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a straight magic wand held diagonally, made of brass and tipped with a glowing white-yellow crystal that shines like a small sun. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "light-scroll",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/light-scroll.png",
+  "outputPath": "asset-generation/outputs/objects-identified/light-scroll.png",
+  "name": "light (scroll)",
+  "glyph": "?",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the scroll version of the shared name 'light', so it needs its own scroll tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a rolled parchment scroll with a pale yellow wax seal stamped with a sun, the whole scroll glowing with soft warm white light. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "lightning",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/lightning.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/lightning.png",
+  "name": "lightning",
+  "glyph": "/",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a book with lightning crackling around it instead of a wand.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a straight magic wand held diagonally, made of steel and tipped with forked bright yellow lightning crackling from the tip. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "magic-mapping-spellbook",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/magic-mapping-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-identified/magic-mapping-spellbook.png",
+  "name": "magic mapping (spellbook)",
+  "glyph": "+",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the spellbook version of the shared name 'magic mapping', so it needs its own spellbook tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a parchment tan cover, the cover decorated with a brown ink dungeon floor plan emblem of rooms and corridors with a small compass rose. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "magic-mapping-scroll",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/magic-mapping-scroll.png",
+  "outputPath": "asset-generation/outputs/objects-identified/magic-mapping-scroll.png",
+  "name": "magic mapping (scroll)",
+  "glyph": "?",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the scroll version of the shared name 'magic mapping', so it needs its own scroll tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a rolled parchment scroll with one end partly unrolled to show a brown ink dungeon map of rooms and corridors, and a blue wax seal. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "magic-missile-spellbook",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/magic-missile-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-identified/magic-missile-spellbook.png",
+  "name": "magic missile (spellbook)",
+  "glyph": "+",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the spellbook version of the shared name 'magic missile', so it needs its own spellbook tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a royal purple cover, the cover decorated with three glowing magenta and blue arrow-shaped energy bolts emblem. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "magic-missile-wand",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/magic-missile-wand.png",
+  "outputPath": "asset-generation/outputs/objects-identified/magic-missile-wand.png",
+  "name": "magic missile (wand)",
+  "glyph": "/",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the wand version of the shared name 'magic missile', so it needs its own wand tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a straight magic wand held diagonally, made of dark purple wood and tipped with a glowing magenta crystal firing small arrow-shaped energy bolts. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "mail",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/mail.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/mail.png",
+  "name": "mail",
+  "glyph": "?",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a chain mail shirt (armor) instead of the scroll of mail, which is a delivered letter.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a rolled parchment letter tied with brown twine, with a red wax seal and a small square postage stamp with a serrated edge stuck to it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "make-invisible",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/make-invisible.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/make-invisible.png",
+  "name": "make invisible",
+  "glyph": "/",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a potion flask instead of a wand.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a straight magic wand held diagonally, made of white marble whose upper half fades into transparency, with faint silver sparkles. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "nothing",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/nothing.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/nothing.png",
+  "name": "nothing",
+  "glyph": "/",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a clear soap bubble instead of a wand.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a straight magic wand held diagonally, a plain unadorned light oak stick with a simple rounded tip, dull and ordinary. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "polymorph-potion",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/polymorph-potion.png",
+  "outputPath": "asset-generation/outputs/objects-identified/polymorph-potion.png",
+  "name": "polymorph (potion)",
+  "glyph": "!",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the potion version of the shared name 'polymorph', so it needs its own potion tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with swirling rainbow liquid that shifts between purple, orange and blue. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "polymorph-spellbook",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/polymorph-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-identified/polymorph-spellbook.png",
+  "name": "polymorph (spellbook)",
+  "glyph": "+",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the spellbook version of the shared name 'polymorph', so it needs its own spellbook tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a shimmering cover swirled with purple, orange and blue, the cover decorated with a silver moth emerging from a cocoon emblem. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "polymorph-wand",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/polymorph-wand.png",
+  "outputPath": "asset-generation/outputs/objects-identified/polymorph-wand.png",
+  "name": "polymorph (wand)",
+  "glyph": "/",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the wand version of the shared name 'polymorph', so it needs its own wand tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a straight magic wand held diagonally, wrapped in spiraling rainbow bands of purple, orange and blue and tipped with an iridescent opal. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "polymorph-ring",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/polymorph-ring.png",
+  "outputPath": "asset-generation/outputs/objects-identified/polymorph-ring.png",
+  "name": "polymorph (ring)",
+  "glyph": "=",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the ring version of the shared name 'polymorph', so it needs its own ring tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a finger ring seen at an angle, a twisted band of mixed metals set with a loose iridescent opal shifting between purple, orange and blue. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "polymorph-control",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/polymorph-control.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/polymorph-control.png",
+  "name": "polymorph control",
+  "glyph": "=",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a swirling purple potion flask instead of a ring.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a finger ring seen at an angle, a platinum band set with a rainbow opal held tightly inside a small gold cage setting. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "protection-spellbook",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/protection-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-identified/protection-spellbook.png",
+  "name": "protection (spellbook)",
+  "glyph": "+",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the spellbook version of the shared name 'protection', so it needs its own spellbook tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a steel blue cover, the cover decorated with a golden kite shield emblem with a soft white glow. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "protection-ring",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/protection-ring.png",
+  "outputPath": "asset-generation/outputs/objects-identified/protection-ring.png",
+  "name": "protection (ring)",
+  "glyph": "=",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the ring version of the shared name 'protection', so it needs its own ring tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a finger ring seen at an angle, a polished steel band set with a shield-shaped blue sapphire. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "remove-curse-spellbook",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/remove-curse-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-identified/remove-curse-spellbook.png",
+  "name": "remove curse (spellbook)",
+  "glyph": "+",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the spellbook version of the shared name 'remove curse', so it needs its own spellbook tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a ivory white cover, the cover decorated with a broken black chain emblem with golden holy light bursting between the links. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "remove-curse-scroll",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/remove-curse-scroll.png",
+  "outputPath": "asset-generation/outputs/objects-identified/remove-curse-scroll.png",
+  "name": "remove curse (scroll)",
+  "glyph": "?",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the scroll version of the shared name 'remove curse', so it needs its own scroll tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a rolled parchment scroll with a gold wax seal, broken black chain links falling away from it, and a soft holy white glow. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "restore-ability-potion",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/restore-ability-potion.png",
+  "outputPath": "asset-generation/outputs/objects-identified/restore-ability-potion.png",
+  "name": "restore ability (potion)",
+  "glyph": "!",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the potion version of the shared name 'restore ability', so it needs its own potion tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with bright sapphire blue liquid with sparkling white stars inside. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "restore-ability-spellbook",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/restore-ability-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-identified/restore-ability-spellbook.png",
+  "name": "restore ability (spellbook)",
+  "glyph": "+",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the spellbook version of the shared name 'restore ability', so it needs its own spellbook tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a deep blue cover, the cover decorated with a golden star emblem framed by a gold laurel wreath. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "rubber-hose",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/rubber-hose.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/rubber-hose.png",
+  "name": "rubber hose",
+  "glyph": ")",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a stubby club or flashlight instead of a rubber hose.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a rubber hose, a coiled length of glossy black rubber tubing with a short brass ring fitting on one end. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "scalpel",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/scalpel.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/scalpel.png",
+  "name": "scalpel",
+  "glyph": ")",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Right class, but it reads as a spoon or spatula rather than a scalpel.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a scalpel, a small surgical knife with a slim flat steel handle and a tiny sharp curved blade, held diagonally. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "secret-door-detection",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/secret-door-detection.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/secret-door-detection.png",
+  "name": "secret door detection",
+  "glyph": "/",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a stone doorway instead of a wand.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a straight magic wand held diagonally, made of dark wood and tipped with a golden keyhole-shaped crystal shining a beam of light. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "see-invisible-potion",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/see-invisible-potion.png",
+  "outputPath": "asset-generation/outputs/objects-identified/see-invisible-potion.png",
+  "name": "see invisible (potion)",
+  "glyph": "!",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the potion version of the shared name 'see invisible', so it needs its own potion tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with pale cyan liquid with a bright eye-shaped glint reflected on the glass. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "see-invisible-ring",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/see-invisible-ring.png",
+  "outputPath": "asset-generation/outputs/objects-identified/see-invisible-ring.png",
+  "name": "see invisible (ring)",
+  "glyph": "=",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the ring version of the shared name 'see invisible', so it needs its own ring tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a finger ring seen at an angle, a gold band set with a cyan stone carved in the shape of an open eye. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "sleep-spellbook",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/sleep-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-identified/sleep-spellbook.png",
+  "name": "sleep (spellbook)",
+  "glyph": "+",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the spellbook version of the shared name 'sleep', so it needs its own spellbook tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a deep indigo cover, the cover decorated with a silver crescent moon emblem with small twinkling stars. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "sleep-wand",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/sleep-wand.png",
+  "outputPath": "asset-generation/outputs/objects-identified/sleep-wand.png",
+  "name": "sleep (wand)",
+  "glyph": "/",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the wand version of the shared name 'sleep', so it needs its own wand tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a straight magic wand held diagonally, made of deep indigo wood and tipped with a silver crescent moon, small drifting stars around it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "slow-monster-spellbook",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/slow-monster-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-identified/slow-monster-spellbook.png",
+  "name": "slow monster (spellbook)",
+  "glyph": "+",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the spellbook version of the shared name 'slow monster', so it needs its own spellbook tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a muted brown cover, the cover decorated with a curled snail shell emblem in bronze. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "slow-monster-wand",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/slow-monster-wand.png",
+  "outputPath": "asset-generation/outputs/objects-identified/slow-monster-wand.png",
+  "name": "slow monster (wand)",
+  "glyph": "/",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the wand version of the shared name 'slow monster', so it needs its own wand tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a straight magic wand held diagonally, made of dark brown wood and tipped with a bronze snail shell spiral. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "speed-monster",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/speed-monster.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/speed-monster.png",
+  "name": "speed monster",
+  "glyph": "/",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as an orange potion flask instead of a wand.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a straight magic wand held diagonally, made of brass with tiny wings at the tip and bright yellow motion streaks trailing behind it. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "stasis",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/stasis.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/stasis.png",
+  "name": "stasis",
+  "glyph": "/",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a stubby club or hammer instead of a wand.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a straight magic wand held diagonally, made of polished redwood and tipped with a small golden hourglass inside a frozen pale blue glow. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "stiletto",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/stiletto.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/stiletto.png",
+  "name": "stiletto",
+  "glyph": ")",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Right class, but it is drawn as a long thin sword rather than a short stiletto dagger.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a stiletto, a short slim dagger with a narrow needle-pointed steel blade and a small dark crossguard, held diagonally. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "stone-to-flesh",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/stone-to-flesh.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/stone-to-flesh.png",
+  "name": "stone to flesh",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a gray stone block or cube instead of a spellbook.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a rough gray stone-textured cover, the cover decorated with a warm pink heart emblem breaking out of cracked stone. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "teleport-away",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/teleport-away.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/teleport-away.png",
+  "name": "teleport away",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a parchment scroll with a purple sigil instead of a spellbook.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a violet cover, the cover decorated with a swirling purple portal vortex emblem with small white sparkles. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "teleport-control",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/teleport-control.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/teleport-control.png",
+  "name": "teleport control",
+  "glyph": "=",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a parchment scroll with a purple sigil instead of a ring.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a finger ring seen at an angle, a gold band set with a violet amethyst encircled by an engraved compass rose. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "teleportation-wand",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/teleportation-wand.png",
+  "outputPath": "asset-generation/outputs/objects-identified/teleportation-wand.png",
+  "name": "teleportation (wand)",
+  "glyph": "/",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the wand version of the shared name 'teleportation', so it needs its own wand tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a straight magic wand held diagonally, made of violet wood and tipped with a swirling purple portal vortex. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "teleportation-ring",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/teleportation-ring.png",
+  "outputPath": "asset-generation/outputs/objects-identified/teleportation-ring.png",
+  "name": "teleportation (ring)",
+  "glyph": "=",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the ring version of the shared name 'teleportation', so it needs its own ring tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a finger ring seen at an angle, a silver band set with a violet stone surrounded by swirling purple portal sparkles. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "teleportation-scroll",
+  "category": "objects-identified",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/teleportation-scroll.png",
+  "outputPath": "asset-generation/outputs/objects-identified/teleportation-scroll.png",
+  "name": "teleportation (scroll)",
+  "glyph": "?",
+  "new": true,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "No tile exists yet for the scroll version of the shared name 'teleportation', so it needs its own scroll tile.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a rolled parchment scroll with a violet wax seal, and swirling purple portal sparkles circling the scroll. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "tin-whistle",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/tin-whistle.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/tin-whistle.png",
+  "name": "tin whistle",
+  "glyph": "(",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Right class, but the sparkles make it read like a magic wand rather than a plain tin whistle.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a tin whistle, a small plain dull silver metal whistle with a mouthpiece and a round body, simple and ordinary. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "turn-undead",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/turn-undead.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/turn-undead.png",
+  "name": "turn undead",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a club or hammer instead of a spellbook.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a white cover with gold trim, the cover decorated with a radiant golden ankh emblem shining holy light. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "wizard-lock",
+  "category": "full-source-objects",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/wizard-lock.png",
+  "outputPath": "asset-generation/outputs/full-source-objects/wizard-lock.png",
+  "name": "wizard lock",
+  "glyph": "+",
+  "new": false,
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Drawn as a key instead of a spellbook.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with brass corners and a dark blue cover, the cover decorated with a closed padlock emblem glowing with violet magic. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ }
+]

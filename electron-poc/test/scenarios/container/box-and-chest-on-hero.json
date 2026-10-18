@@ -1,0 +1,18 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "container/box-and-chest-on-hero",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": { "placement": "current" },
+  "level": { "safeAreaAroundHero": 2, "lit": true, "suppressAdjacentMonsters": true, "pet": "none" },
+  "ground": [
+    { "at": "hero", "object": { "typeId": "LARGE_BOX", "locked": false, "trap": "none", "contents": [
+      { "typeId": "SCR_IDENTIFY", "beatitude": "uncursed", "identityKnown": true, "beatitudeKnown": true },
+      { "typeId": "FOOD_RATION", "beatitude": "uncursed", "identityKnown": true, "beatitudeKnown": true },
+      { "typeId": "DAGGER", "beatitude": "uncursed", "identityKnown": true, "beatitudeKnown": true } ] } },
+    { "at": "hero", "object": { "typeId": "CHEST", "locked": false, "trap": "none", "contents": [
+      { "typeId": "APPLE", "beatitude": "uncursed", "identityKnown": true, "beatitudeKnown": true } ] } }
+  ],
+  "monsters": [],
+  "inventory": [],
+  "expectedPublicFacts": { "messages": ["a large box and a chest on the hero's square"] }
+}

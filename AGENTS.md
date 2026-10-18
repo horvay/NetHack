@@ -6,6 +6,7 @@ Keep this file short. Detailed project rules live in the linked documents below.
 
 - Testing and screenshot QA: [`TESTING.md`](./TESTING.md)
 - Asset generation and transparency QA: [`ASSET_GENERATION.md`](./ASSET_GENERATION.md)
+- Godot front end (`godot-poc/`): vision, art, UX, architecture, deep-path testing, roadmap: [`godot-poc/BIBLE.md`](./godot-poc/BIBLE.md)
 
 ## Core expectations
 

@@ -1,0 +1,333 @@
+{
+ "schema": "nethack-electron-test-scenario/v1",
+ "id": "art/objects-2",
+ "phase": "after-level-and-hero-before-first-draw",
+ "hero": {
+  "placement": "current"
+ },
+ "level": {
+  "safeAreaAroundHero": 3,
+  "lit": true,
+  "suppressAdjacentMonsters": true,
+  "pet": "none",
+  "terrain": [
+   {
+    "at": {
+     "dx": -3,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -2,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -1,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 0,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 1,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 2,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 3,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -3,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -2,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -1,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 0,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 1,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 2,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 3,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -3,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -2,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -1,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 1,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 2,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 3,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -3,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -2,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -1,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 0,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 1,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 2,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 3,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -3,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -2,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -1,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 0,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 1,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 2,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 3,
+     "dy": 2
+    },
+    "type": "floor"
+   }
+  ]
+ },
+ "ground": [
+  {
+   "at": {
+    "dx": -3,
+    "dy": -2
+   },
+   "object": {
+    "typeId": "SCARE_MONSTER",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": -2,
+    "dy": -2
+   },
+   "object": {
+    "typeId": "STINKING_CLOUD",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": -1,
+    "dy": -2
+   },
+   "object": {
+    "typeId": "TIN_OPENER",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": 0,
+    "dy": -2
+   },
+   "object": {
+    "typeId": "WHISTLE",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": 1,
+    "dy": -2
+   },
+   "object": {
+    "typeId": "ROCK",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": 2,
+    "dy": -2
+   },
+   "object": {
+    "typeId": "SPLASH_OF_ACID_VENOM",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": 3,
+    "dy": -2
+   },
+   "object": {
+    "typeId": "SPLASH_OF_BLINDING_VENOM",
+    "identityKnown": true
+   }
+  }
+ ],
+ "monsters": [],
+ "inventory": [],
+ "expectedPublicFacts": {
+  "messages": [
+   "art gallery: newly generated object tiles around the hero"
+  ]
+ }
+}

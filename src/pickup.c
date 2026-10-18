@@ -2569,6 +2569,10 @@ struct container_transfer_request_state {
     boolean pending;
     unsigned int container_id;
     unsigned int item_id;
+    /* Further stacks moved by the same command, in the same turn, as
+       NetHack's own loot menu moves several (container_transfer_add_item). */
+    unsigned int more_ids[256];
+    int more_count;
     char direction[32];
     char transaction_id[96];
 };
@@ -2625,6 +2629,15 @@ static struct ground_transfer_request_state g_ground_transfer_request;
 static struct ground_transfer_result_state g_ground_transfer_result;
 
 staticfn struct obj *inventory_obj_by_id(unsigned int);
+/* Containers NetHack's own #loot or apply opened (use_container ran: the
+   cat, a cursed bag's losses and the confusion rolls are done) since the
+   hero's last command other than a direct container command. The direct
+   commands accept them as one open session, the way one tty #loot moves
+   things in and out; the next ordinary command ends the session
+   (direct_container_note_command). */
+static unsigned int direct_opened_ids[8];
+static boolean direct_opened_confused[8]; /* confused when it was opened */
+static int direct_opened_count;
 staticfn struct obj *floor_obj_by_id_at(unsigned int, int, int);
 staticfn boolean direct_container_common_checks(unsigned int, boolean,
                                                struct obj **, char *, size_t);
@@ -2753,12 +2766,48 @@ container_transfer_set_request(unsigned int container_id, unsigned int item_id,
     g_container_transfer_request.pending = TRUE;
     g_container_transfer_request.container_id = container_id;
     g_container_transfer_request.item_id = item_id;
+    g_container_transfer_request.more_count = 0;
     Snprintf(g_container_transfer_request.direction,
              sizeof g_container_transfer_request.direction, "%s",
              direction ? direction : "container-to-inventory");
     Snprintf(g_container_transfer_request.transaction_id,
              sizeof g_container_transfer_request.transaction_id, "%s",
              transaction_id ? transaction_id : "");
+}
+
+/* One more stack for the pending transfer (same container and direction). */
+void
+container_transfer_add_item(unsigned int item_id)
+{
+    if (item_id && g_container_transfer_request.more_count
+                       < (int) SIZE(g_container_transfer_request.more_ids))
+        g_container_transfer_request.more_ids[g_container_transfer_request.more_count++] = item_id;
+}
+
+/* Called before every command: anything but a direct container command
+   ends the open session (see direct_opened_ids). */
+void
+direct_container_note_command(int (*fn)(void))
+{
+    if (fn != doshimcontainertransfer && fn != doshimcontainersnapshot)
+        direct_opened_count = 0;
+}
+
+staticfn int
+direct_container_opened_index(unsigned int id)
+{
+    int i;
+
+    for (i = 0; i < direct_opened_count; i++)
+        if (direct_opened_ids[i] == id)
+            return i;
+    return -1;
+}
+
+staticfn boolean
+direct_container_was_opened(unsigned int id)
+{
+    return direct_container_opened_index(id) >= 0;
 }
 
 boolean
@@ -2944,6 +2993,7 @@ direct_container_common_checks(unsigned int container_id,
                                char *reason, size_t reason_size)
 {
     struct obj *container;
+    boolean held = FALSE, just_opened;
 
     if (container_out)
         *container_out = (struct obj *) 0;
@@ -2955,36 +3005,56 @@ direct_container_common_checks(unsigned int container_id,
         Snprintf(reason, reason_size, "%s", "hero is carrying too much to loot directly");
         return FALSE;
     }
-    if (Confusion) {
-        Snprintf(reason, reason_size, "%s", "confused heroes must use the normal NetHack loot flow");
-        return FALSE;
-    }
-    if (u.uswallow || u.uburied) {
-        Snprintf(reason, reason_size, "%s", "hero cannot access floor containers right now");
-        return FALSE;
-    }
     if (!u_handsy()) {
         Snprintf(reason, reason_size, "%s", "hero cannot manipulate containers right now");
         return FALSE;
     }
-    if (!able_to_loot(u.ux, u.uy, TRUE)) {
-        Snprintf(reason, reason_size, "%s", "hero cannot loot at the current square");
-        return FALSE;
-    }
-    if (direct_container_blind_cockatrice_floor()) {
-        Snprintf(reason, reason_size, "%s", "blind cockatrice-feel checks require the normal NetHack loot flow");
-        return FALSE;
-    }
     container = floor_container_by_id(container_id);
     if (!container) {
-        Snprintf(reason, reason_size, "%s", "container is no longer at the hero's square");
+        /* A container the hero carries (applied from the pack). */
+        container = inventory_obj_by_id(container_id);
+        if (container && (!Is_container(container) || container->where != OBJ_INVENT))
+            container = (struct obj *) 0;
+        held = container != 0;
+    }
+    if (!container) {
+        Snprintf(reason, reason_size, "%s", "container is no longer at the hero's square or in the pack");
         return FALSE;
     }
-    if (container->where != OBJ_FLOOR || container->ox != u.ux
-        || container->oy != u.uy) {
-        Snprintf(reason, reason_size, "%s", "container location is stale");
+    just_opened = direct_container_was_opened(container->o_id);
+    /* Confusion only matters to #loot itself (src: doloot_core); once
+       NetHack has opened the container it changes nothing. */
+    if (Confusion && !just_opened) {
+        Snprintf(reason, reason_size, "%s", "confused heroes must use the normal NetHack loot flow");
         return FALSE;
     }
+    /* The session spans turns; one tty #loot doesn't. A hero confused since
+       the open goes back through #loot, which rolls confusion's effects. */
+    if (Confusion && just_opened
+        && !direct_opened_confused[direct_container_opened_index(container->o_id)]) {
+        Snprintf(reason, reason_size, "%s", "hero became confused since opening it: use the normal NetHack loot flow");
+        return FALSE;
+    }
+    if (!held) {
+        if (u.uswallow || u.uburied) {
+            Snprintf(reason, reason_size, "%s", "hero cannot access floor containers right now");
+            return FALSE;
+        }
+        if (!able_to_loot(u.ux, u.uy, TRUE)) {
+            Snprintf(reason, reason_size, "%s", "hero cannot loot at the current square");
+            return FALSE;
+        }
+        if (direct_container_blind_cockatrice_floor()) {
+            Snprintf(reason, reason_size, "%s", "blind cockatrice-feel checks require the normal NetHack loot flow");
+            return FALSE;
+        }
+        if (container->where != OBJ_FLOOR || container->ox != u.ux
+            || container->oy != u.uy) {
+            Snprintf(reason, reason_size, "%s", "container location is stale");
+            return FALSE;
+        }
+    }
+
     if (container->olocked) {
         Snprintf(reason, reason_size, "%s", "container is locked");
         return FALSE;
@@ -3001,11 +3071,13 @@ direct_container_common_checks(unsigned int container_id,
         Snprintf(reason, reason_size, "%s", "container contents have not been legitimately observed");
         return FALSE;
     }
+    /* (Once opened, observe_quantum_cat has made it an ordinary box.) */
     if (SchroedingersBox(container)) {
         Snprintf(reason, reason_size, "%s", "Schroedinger boxes require the normal NetHack loot flow");
         return FALSE;
     }
-    if (Is_mbag(container) && container->cursed && Has_contents(container)) {
+    /* A cursed bag's losses are rolled by use_container, once per open. */
+    if (Is_mbag(container) && container->cursed && Has_contents(container) && !just_opened) {
         Snprintf(reason, reason_size, "%s", "cursed magic bags require the normal NetHack loot flow");
         return FALSE;
     }
@@ -3276,52 +3348,89 @@ doshimcontainertransfer(void)
         return ECMD_OK;
     }
 
-    if (taking_out) {
-        obj = contained_obj_by_id(container, g_container_transfer_request.item_id);
-        if (!obj || obj->where != OBJ_CONTAINED || obj->ocontainer != container) {
-            container_transfer_finish(FALSE, "item is no longer in the selected container");
-            return ECMD_OK;
-        }
-        if (obj->oartifact) {
-            container_transfer_finish(FALSE, "artifacts require the normal NetHack loot flow");
-            return ECMD_OK;
-        }
-        if (!u_safe_from_fatal_corpse(obj, st_all)) {
-            container_transfer_finish(FALSE, "fatal corpse touch checks require the normal NetHack loot flow");
-            return ECMD_OK;
-        }
-        if (!direct_container_can_lift_all(obj, container, reason, sizeof reason)) {
-            container_transfer_finish(FALSE, reason[0] ? reason : "hero cannot carry the selected item directly");
-            return ECMD_OK;
-        }
-    } else {
-        obj = inventory_obj_by_id(g_container_transfer_request.item_id);
-        if (!obj || obj->where != OBJ_INVENT) {
-            container_transfer_finish(FALSE, "item is no longer in the hero inventory");
-            return ECMD_OK;
-        }
-    }
+    {
+        unsigned int ids[1 + SIZE(g_container_transfer_request.more_ids)];
+        int n = 0, i, moved = 0, refused = 0, attempted = 0;
+        boolean gone = FALSE;
+        char first_refusal[BUFSZ];
 
-    gp.pickup_encumbrance = 0;
-    gs.sellobj_first = TRUE;
-    gc.current_container = container;
-    res = taking_out ? out_container(obj) : in_container(obj);
-    if (gc.current_container)
-        gc.current_container->cknown = 1;
-    update_inventory();
-    newsym(u.ux, u.uy);
-    sellobj_state(SELL_NORMAL);
-    gc.current_container = (struct obj *) 0;
+        first_refusal[0] = '\0';
+        ids[n++] = g_container_transfer_request.item_id;
+        for (i = 0; i < g_container_transfer_request.more_count; i++)
+            ids[n++] = g_container_transfer_request.more_ids[i];
 
-    if (res == 1) {
-        container_transfer_finish(TRUE, taking_out
-                                      ? "container item taken out"
-                                      : "inventory item put in container");
-        return ECMD_TIME;
+        gp.pickup_encumbrance = 0;
+        gs.sellobj_first = TRUE;
+        for (i = 0; i < n; i++) {
+            const char *why = (const char *) 0;
+
+            reason[0] = '\0';
+            if (taking_out) {
+                obj = contained_obj_by_id(container, ids[i]);
+                if (!obj || obj->where != OBJ_CONTAINED || obj->ocontainer != container)
+                    why = "item is no longer in the selected container";
+                else if (obj->oartifact)
+                    why = "artifacts require the normal NetHack loot flow";
+                else if (!u_safe_from_fatal_corpse(obj, st_all))
+                    why = "fatal corpse touch checks require the normal NetHack loot flow";
+                else if (!direct_container_can_lift_all(obj, container, reason, sizeof reason))
+                    why = reason[0] ? reason : "hero cannot carry the selected item directly";
+            } else {
+                obj = inventory_obj_by_id(ids[i]);
+                if (!obj || obj->where != OBJ_INVENT)
+                    why = "item is no longer in the hero inventory";
+            }
+            if (why) {
+                if (!refused++)
+                    Strcpy(first_refusal, why);
+                continue;
+            }
+            gc.current_container = container;
+            attempted++;
+            res = taking_out ? out_container(obj) : in_container(obj);
+            /* A bag of holding blown up by what went in deletes itself
+               (do_boh_explosion) and clears current_container. */
+            if (res < 0 && !gc.current_container)
+                gone = TRUE;
+            if (res == 1)
+                moved++;
+            else if (!refused++)
+                Strcpy(first_refusal, res < 0 ? "NetHack stopped the container transfer"
+                                              : "NetHack did not move the selected item");
+            if (res < 0)
+                break;
+        }
+        if (gc.current_container)
+            gc.current_container->cknown = 1;
+        update_inventory();
+        newsym(u.ux, u.uy);
+        sellobj_state(SELL_NORMAL);
+        gc.current_container = (struct obj *) 0;
+
+        if (gone) {
+            /* NetHack's turn was spent (the explosion), as in tty. */
+            Snprintf(reason, sizeof reason, "%d of %d moved; the container is gone", moved, n);
+            container_transfer_finish(moved ? TRUE : FALSE, reason);
+            return ECMD_TIME;
+        }
+        if (moved) {
+            if (!refused)
+                container_transfer_finish(TRUE, n > 1 ? (taking_out ? "container items taken out"
+                                                                    : "inventory items put in container")
+                                                      : (taking_out ? "container item taken out"
+                                                                    : "inventory item put in container"));
+            else {
+                Snprintf(reason, sizeof reason, "%d of %d moved; %s", moved, n, first_refusal);
+                container_transfer_finish(TRUE, reason);
+            }
+            return ECMD_TIME; /* one turn, however many moved */
+        }
+        container_transfer_finish(FALSE, first_refusal[0] ? first_refusal
+                                                         : "NetHack did not move the selected item");
+        /* NetHack tried and said no ("You cannot fit the large box into the
+           sack."): a turn, as tty's menu_loot spends one for any pick. */
+        return attempted ? ECMD_TIME : ECMD_OK;
     }
-    container_transfer_finish(FALSE, res < 0 ? "NetHack stopped the container transfer"
-                                             : "NetHack did not move the selected item");
-    return ECMD_OK;
 }
 
 /* Returns: -1 to stop, 1 item was inserted, 0 item was not inserted. */
@@ -3784,6 +3893,11 @@ use_container(
     }
 
     gc.current_container = obj; /* for use by in/out_container */
+    if (!direct_container_was_opened(obj->o_id)
+        && direct_opened_count < (int) SIZE(direct_opened_ids)) {
+        direct_opened_confused[direct_opened_count] = Confusion ? TRUE : FALSE;
+        direct_opened_ids[direct_opened_count++] = obj->o_id;
+    }
     /*
      * From here on out, all early returns go through 'containerdone:'.
      */

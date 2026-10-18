@@ -1,0 +1,1861 @@
+[
+ {
+  "id": "open-vertical-door",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/open-vertical-door.png",
+  "problem": "unclear",
+  "severity": "high",
+  "what_is_wrong": "Reads as a brown plank lying on a stone floor; there are no jambs, no visible gap and nothing says 'doorway in a vertical wall'.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: an open wooden door in a vertical (north-south) dungeon wall seen from above: cool gray stone wall blocks fill the top and bottom thirds of the tile as door jambs, the middle third is a clear passable gap showing slate floor, and a brown oak door leaf with brass hinges is hinged on the upper jamb and swung open into the room so it sticks out sideways, perpendicular to the wall, so the doorway is plainly open, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "open-horizontal-door",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/open-horizontal-door.png",
+  "problem": "unclear",
+  "severity": "high",
+  "what_is_wrong": "Flat gray blocks with two tiny orange dashes; nothing reads as a door or a passable doorway.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: an open wooden door in a horizontal (east-west) dungeon wall seen from above: cool gray stone wall blocks fill the left and right thirds of the tile as door jambs, the middle third is a clear passable gap showing slate floor, and a brown oak door leaf with brass hinges is hinged on the left jamb and swung open into the room so it points downward, perpendicular to the wall, so the doorway is plainly open, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "closed-door",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/closed-door.png",
+  "problem": "vector",
+  "severity": "high",
+  "what_is_wrong": "Flat orange rectangle with three black lines and a yellow square; a geometric placeholder with no wood grain, shading or wall context.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a closed heavy wooden dungeon door set into a cool gray stone wall seen from above, the door fills the doorway between two stone jambs, warm brown oak planks with visible grain, dark iron bands and a bright brass ring handle, solid and clearly blocking, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "broken-door",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/broken-door.png",
+  "problem": "unclear",
+  "severity": "high",
+  "what_is_wrong": "Three brown blobs and a yellow dot on dark gray; reads as scattered bread or debris, not a smashed door in a doorway.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a broken dungeon doorway seen from above: two cool gray stone jambs with a passable slate floor gap between them, splintered brown oak door planks and a bent iron hinge lying scattered across the threshold, jagged pale wood splinters, clearly a smashed door, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "no-door-doorway",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/no-door-doorway.png",
+  "problem": "vector",
+  "severity": "high",
+  "what_is_wrong": "Almost blank dark-gray square with one faint bar; it is indistinguishable from floor and never reads as an opening in a wall.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: an empty doorway with no door seen from above: two cool gray stone jamb blocks at the ends of the tile with warm edge highlights, a worn stone threshold strip, and slate floor visible through the wide passable gap in the middle, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "room-floor",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/room-floor.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "Flat single-color gray square with one dot; a placeholder with no stone texture (Electron draws it everywhere).",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a lit dungeon room floor of large worn slate flagstones, muted neutral gray with subtle warm highlights, faint cracks and seams, low contrast so creatures and items stand out, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "dark-room-floor",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/dark-room-floor.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "Flat near-black square; a placeholder with no texture and barely distinguishable from unexplored stone.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: an unlit dungeon room floor of large slate flagstones in dim blue-black shadow, flagstone seams still faintly visible in cool gray, low contrast, clearly floor but dark, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "lit-corridor",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/lit-corridor.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "Flat gray square with a single gray bar; does not read as a dug tunnel or corridor.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a rough dungeon corridor floor of packed earth and small scattered gray pebbles, muted brown-gray, slightly darker toward the edges, reads as a dug tunnel rather than a room, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "dark-corridor",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/dark-corridor.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "Flat near-black square with a faint bar; placeholder with no tunnel texture.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a dim dungeon corridor floor of packed earth and small pebbles in deep blue-gray shadow, faint pebble highlights, darker than the lit corridor, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "vertical-wall",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/vertical-wall.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "A flat gray bar with two black lines, drawn like a UI icon rather than stone masonry.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a vertical (north-south) dungeon stone wall seen from above, a thick band of cool gray cut-stone blocks running top to bottom through the center of the tile with warm torchlit edge highlights and dark mortar lines, dark shadow on both sides, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "horizontal-wall",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/horizontal-wall.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "A flat gray bar with two vertical lines; reads as a UI slider, not a stone wall.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a horizontal (east-west) dungeon stone wall seen from the front, a band of cool gray cut-stone bricks spanning the tile left to right with warm top-edge highlights and dark mortar lines, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "wall-corner",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/wall-corner.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Flat geometric L-shape, and one fixed orientation is mapped to all four NetHack corners, so three of them point the wrong way.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a dungeon stone wall corner seen from above, two thick bands of cool gray cut-stone blocks meeting in an L joint (one arm going right, one arm going down) with warm edge highlights and mortar lines; needs four rotated variants for the four NetHack corners, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "wall-tee-junction",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/wall-tee-junction.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Flat geometric T-shape in a single orientation mapped to all four tee walls and crosswalls, so most junctions draw wrong.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a dungeon stone wall T-junction seen from above, thick bands of cool gray cut-stone blocks joining from left, right and below with warm edge highlights and mortar lines; needs four rotated variants for the NetHack tee walls, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "generic-wall-fallback",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/generic-wall-fallback.png",
+  "problem": "vector",
+  "severity": "low",
+  "what_is_wrong": "Flat light-gray square with a plus sign; looks like a UI button rather than a stone block.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a solid block of dungeon wall masonry seen from above, cool gray cut stones with warm highlights and dark mortar, filling the tile, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "up-stairs",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/up-stairs.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "Flat stacked gray rectangles; geometric placeholder (Godot paints its own stairs, Electron still uses this).",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a stone staircase going up seen from above, cool gray stone steps rising toward the top of the tile and getting brighter, a warm light glow at the top step, set in slate floor, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "down-stairs",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/down-stairs.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "Flat inverted stack of gray rectangles; geometric placeholder with no depth.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a stone staircase going down into darkness seen from above, cool gray steps descending and getting darker toward a black opening, set in slate floor, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "ladder-up",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/ladder-up.png",
+  "problem": "vector",
+  "severity": "low",
+  "what_is_wrong": "Flat orange-brown ladder icon with a gray triangle; clip-art look.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a wooden ladder leaning up through a square hole in the ceiling seen from above, warm brown rails and rungs with light shading, pale light coming from above, on slate floor, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "ladder-down",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/ladder-down.png",
+  "problem": "vector",
+  "severity": "low",
+  "what_is_wrong": "Flat orange-brown ladder icon with a dark triangle; clip-art look.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a wooden ladder going down into a dark square hole in the floor seen from above, warm brown rails and rungs, black depths below, slate floor around the hole, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "branch-stairs-up",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/branch-stairs-up.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "Flat cyan stacked bars; geometric placeholder for the Mines/Sokoban branch stairs a player sees every game.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a stone staircase going up seen from above, cool gray steps rising with a teal-green glowing rune carved on the top step marking a side branch, set in slate floor, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "branch-stairs-down",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/branch-stairs-down.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "Flat cyan inverted bars; geometric placeholder for the Gnomish Mines entrance stairs.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a stone staircase going down into darkness seen from above, cool gray steps with a teal-green glowing rune carved on the top step marking a side branch, black opening at the bottom, set in slate floor, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "branch-ladder-up",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/branch-ladder-up.png",
+  "problem": "vector",
+  "severity": "low",
+  "what_is_wrong": "Flat cyan ladder icon; clip-art look.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a wooden ladder going up through a ceiling hole seen from above, warm brown rails with a teal-green glowing rune on the top rung marking a side branch, slate floor, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "branch-ladder-down",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/branch-ladder-down.png",
+  "problem": "vector",
+  "severity": "low",
+  "what_is_wrong": "Flat cyan ladder icon; clip-art look.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a wooden ladder going down into a dark floor hole seen from above, warm brown rails with a teal-green glowing rune on the top rung marking a side branch, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "engraving",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/engraving.png",
+  "problem": "unclear",
+  "severity": "high",
+  "what_is_wrong": "Pale gray squiggles that read as a pile of bones or a brick fragment, not as writing scratched into the floor.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a slate dungeon floor tile with rough runic letters scratched into the stone, the carved lines pale and bright against the gray floor with tiny dust specks, clearly writing on the floor, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "iron-bars",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/iron-bars.png",
+  "problem": "vector",
+  "severity": "low",
+  "what_is_wrong": "Flat gray grid lines on dark gray; looks like a UI grid rather than a heavy iron grate.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a row of heavy dark iron bars seen from above set into slate floor, thick rusted black-iron vertical bars with cool steel highlights and rivets at the crossbar, gaps between bars showing floor, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "drawbridge",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/drawbridge.png",
+  "problem": "vector",
+  "severity": "low",
+  "what_is_wrong": "Flat orange crate-like rectangle; reads as a closed door or box, not a castle drawbridge.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a lowered castle drawbridge seen from above, broad heavy brown timber planks spanning a dark moat with thick iron chains and iron bands at the edges, reads as a bridge, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "magic-portal",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/magic-portal.png",
+  "problem": "vector",
+  "severity": "low",
+  "what_is_wrong": "Flat purple ring; geometric placeholder.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a shimmering magic portal on a slate floor seen from above, a swirling violet and cyan oval vortex with bright white sparkles at its center and a faint glow on the surrounding stones, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "pool-water",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/pool-water.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Green swampy water; NetHack pools are blue, and green reads as slime or acid.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a pool of deep blue water seen from above, rich blue with lighter cyan wave highlights and small white glints, tiles seamlessly as open water, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "moat-water",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/moat-water.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Dark pool with an orange rocky border baked into the tile, so adjacent moat squares form a grid of separate puddles (also the '}' fallback).",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: deep dark blue moat water seen from above with slow ripples and cyan highlights, no border, edge to edge so neighbouring tiles join into one body of water, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "sea-water",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/sea-water.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "Flat blue and teal horizontal stripes; geometric placeholder used for the water on Medusa's level.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: open sea water seen from above, deep teal-blue with rolling wave crests in lighter cyan and small white foam flecks, tiles seamlessly, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "water-wall",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/water-wall.png",
+  "problem": "unclear",
+  "severity": "low",
+  "what_is_wrong": "Pale crumpled-paper texture that reads as rock or ice, not a wall of water.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a solid wall of churning water seen from above, deep blue with bright cyan crest lines and white bubbles, swirling currents, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "ice",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/ice.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "A pale blue diamond inside an orange brick frame; the baked frame looks like a badge and will not tile into an ice field.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a frozen ice floor seen from above, pale blue-white ice with crisp diagonal white shine streaks and faint cracks, no border, tiles seamlessly, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "lava",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/lava.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "A red rock icon inside a stone frame; reads as a framed badge, not a molten lava field, and will not tile.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: molten lava seen from above, glowing orange and yellow liquid rock with dark red-black crusted plates and bright cracks, no border, tiles seamlessly, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "tree",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/tree.png",
+  "problem": "unclear",
+  "severity": "medium",
+  "what_is_wrong": "Blurry upscaled green and brown blob with no shape; reads as a smudge rather than a tree.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single leafy tree seen from slightly above on a dark grass tile, round bright green canopy with lighter leaf clusters, a short brown trunk visible below, clear outline, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "grave",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/grave.png",
+  "problem": "unclear",
+  "severity": "low",
+  "what_is_wrong": "Cracked dark headstone without a mound reads as a hooded figure or boulder at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the grave as a rounded light gray headstone with a small carved cross, standing upright behind a low brown earth burial mound, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "sink",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/sink.png",
+  "problem": "unclear",
+  "severity": "low",
+  "what_is_wrong": "Brown bucket-like shape with a tap reads as a barrel or coffee pot rather than NetHack's kitchen sink.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a small stone kitchen sink basin seen from slightly above, light gray stone basin with a curved brass faucet and a little blue water inside, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "cloud",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/cloud.png",
+  "problem": "vector",
+  "severity": "low",
+  "what_is_wrong": "Flat two-tone gray blob with no shading; clip-art cloud.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a soft fluffy gray-blue cloud puff filling most of the tile, white highlights on top and cool blue-gray shading underneath, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "poison-cloud",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/poison-cloud.png",
+  "problem": "unclear",
+  "severity": "medium",
+  "what_is_wrong": "Three dark green balls read as a clover or broccoli, not a drifting gas cloud.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a drifting cloud of toxic gas, swirling translucent lime and yellow-green vapor puffs with darker green cores and a few bubbles, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "zap-beam",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/zap-beam.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Only one diagonal lightning bolt, yet it is used for both slant directions and the dig beam, so left-slant rays draw the wrong way.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a straight diagonal magic ray from the bottom-left corner to the top-right corner, bright white core with a glowing cyan outer beam, even width, no arrowhead; needs a mirrored variant for the other diagonal, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "beam-east",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/beam-east.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "Flat cyan bar with an arrowhead pointing right; NetHack rays are directionless lines, so a ray going the other way shows a backwards arrow.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a straight horizontal magic ray crossing the whole tile edge to edge, bright white core inside a glowing cyan beam with soft light falloff, even width, no arrowhead, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "beam-north",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/beam-north.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "Flat cyan bar with an arrowhead pointing top; NetHack rays are directionless lines, so a ray going the other way shows a backwards arrow.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a straight vertical magic ray crossing the whole tile edge to edge, bright white core inside a glowing cyan beam with soft light falloff, even width, no arrowhead, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "beam-south",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/beam-south.png",
+  "problem": "vector",
+  "severity": "low",
+  "what_is_wrong": "Flat cyan bar with an arrowhead; clip-art look (only reachable through a semantic name, so rarely shown).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a straight vertical magic ray crossing the whole tile edge to edge, bright white core inside a glowing cyan beam, even width, no arrowhead, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "beam-west",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/beam-west.png",
+  "problem": "vector",
+  "severity": "low",
+  "what_is_wrong": "Flat cyan bar with an arrowhead; clip-art look (only reachable through a semantic name, so rarely shown).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a straight horizontal magic ray crossing the whole tile edge to edge, bright white core inside a glowing cyan beam, even width, no arrowhead, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "boom-east",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/boom-east.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Shows a flaming fireball, but boom-left/right are NetHack's thrown-boomerang glyphs, so a thrown boomerang draws as a fireball.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a spinning wooden boomerang in flight, curved brown-tan V-shaped boomerang with lighter wood highlights and short white motion arcs around it, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "boom-west",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/boom-west.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Shows a flaming fireball, but boom-left/right are NetHack's thrown-boomerang glyphs, so a thrown boomerang draws as a fireball.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a spinning wooden boomerang in flight, curved brown-tan V-shaped boomerang with lighter wood highlights and short white motion arcs around it, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "boom-north",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/boom-north.png",
+  "problem": "wrong",
+  "severity": "low",
+  "what_is_wrong": "Shows a flaming fireball, but boom-left/right are NetHack's thrown-boomerang glyphs, so a thrown boomerang draws as a fireball.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a spinning wooden boomerang in flight, curved brown-tan V-shaped boomerang with lighter wood highlights and short white motion arcs around it, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "boom-south",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/boom-south.png",
+  "problem": "wrong",
+  "severity": "low",
+  "what_is_wrong": "Shows a flaming fireball, but boom-left/right are NetHack's thrown-boomerang glyphs, so a thrown boomerang draws as a fireball.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a spinning wooden boomerang in flight, curved brown-tan V-shaped boomerang with lighter wood highlights and short white motion arcs around it, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "shield-effect",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/shield-effect.png",
+  "problem": "unclear",
+  "severity": "medium",
+  "what_is_wrong": "An orange orb in a white ring reads as a gem or button, not NetHack's magic-resistance shield sparkle, and it hides the hero.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a ring of bright magical sparkles, small white and pale gold four-point stars arranged in a circle with a faint golden glow, empty center, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "valid-position-marker",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/valid-position-marker.png",
+  "problem": "unclear",
+  "severity": "medium",
+  "what_is_wrong": "Purple and gold checkmark that reads as a sword or wand lying on the floor rather than a position marker.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a glowing green target marker, four bright green corner brackets around an empty center with a soft lime glow, thin and light, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "mines-floor",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/mines-floor.png",
+  "problem": "vector",
+  "severity": "low",
+  "what_is_wrong": "Flat geometric placeholder with 2-6 colors (not referenced by the tile map today).",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a rough Gnomish Mines cave floor of uneven brown-gray rock with small glinting gold and copper ore flecks, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "mines-wall",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/mines-wall.png",
+  "problem": "vector",
+  "severity": "low",
+  "what_is_wrong": "Flat geometric placeholder with 2-6 colors (not referenced by the tile map today).",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a jagged Gnomish Mines rock wall face, faceted gray-brown stone with warm highlights and dark crevices, clearly blocking, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "mines-corner",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/mines-corner.png",
+  "problem": "vector",
+  "severity": "low",
+  "what_is_wrong": "Flat geometric placeholder with 2-6 colors (not referenced by the tile map today).",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a jagged Gnomish Mines rock wall corner, two arms of faceted gray-brown rock meeting in an L joint, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "sokoban-floor",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/sokoban-floor.png",
+  "problem": "vector",
+  "severity": "low",
+  "what_is_wrong": "Flat geometric placeholder with 2-6 colors (not referenced by the tile map today).",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a tidy Sokoban puzzle room floor of square polished slate flagstones in a neat grid, low contrast, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "sokoban-wall",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/sokoban-wall.png",
+  "problem": "vector",
+  "severity": "low",
+  "what_is_wrong": "Flat geometric placeholder with 2-6 colors (not referenced by the tile map today).",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a tidy Sokoban puzzle room wall of smooth even cool gray stone blocks with straight edges and warm highlights, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "sokoban-goal",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/sokoban-goal.png",
+  "problem": "vector",
+  "severity": "low",
+  "what_is_wrong": "Flat geometric placeholder with 2-6 colors (not referenced by the tile map today).",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a Sokoban floor flagstone with a faint golden target circle inlaid in it, low contrast so a boulder on top stays readable, top-down tile filling the whole square edge to edge so it tiles seamlessly, tileset palette of muted slate floors, cool gray stone walls with warm highlights and brown/brass doors, hand-shaded pixel art with soft lighting, readable at 32 pixels"
+  }
+ },
+ {
+  "id": "dart-trap",
+  "category": "traps-hazards",
+  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/dart-trap.png",
+  "problem": "vector",
+  "severity": "high",
+  "what_is_wrong": "A flat beige square outline with a red arrow; obvious clip-art placeholder for a common early trap.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a dart trap on the floor: a small dark slit in a gray stone floor plate with a short silver dart with red feather fletching shooting out of it, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "trap-door",
+  "category": "traps-hazards",
+  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/trap-door.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Reads as a closed wooden chest or crate, not a hatch in the floor.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a wooden trap door hatch set flush into the floor seen from above, square brown plank hatch with iron hinges, one edge tipped open to reveal a black drop below, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "bear-trap",
+  "category": "traps-hazards",
+  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/bear-trap.png",
+  "problem": "unclear",
+  "severity": "medium",
+  "what_is_wrong": "Brown jagged ring reads as a crown at game size.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: an open steel bear trap seen from above, two semicircular jaws lined with sharp silver teeth, gray steel with cool highlights, a round trigger plate in the middle, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "spiked-pit",
+  "category": "traps-hazards",
+  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/spiked-pit.png",
+  "problem": "unclear",
+  "severity": "medium",
+  "what_is_wrong": "White rectangular teeth in a ring read as piano keys or a comb, not spikes.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a dark pit in the floor seen from above with a rough brown earth rim, several sharp pointed wooden stakes with pale tips sticking up from the black bottom, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "falling-rock-trap",
+  "category": "traps-hazards",
+  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/falling-rock-trap.png",
+  "problem": "unclear",
+  "severity": "medium",
+  "what_is_wrong": "Gray triangular rock shape reads as a seated stone statue; no sense of a rock dropping from above.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a falling rock trap: a chunky gray boulder falling with white motion streaks toward a cracked stone floor plate, small pebbles and dust below, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "rolling-boulder-trap",
+  "category": "traps-hazards",
+  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/rolling-boulder-trap.png",
+  "problem": "unclear",
+  "severity": "medium",
+  "what_is_wrong": "Purple sphere reads as a crystal ball; NetHack boulders are gray.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a large round gray stone boulder rolling to the right with white motion lines behind it and a small pressure plate under it, cool gray rock with warm highlights, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "pit",
+  "category": "traps-hazards",
+  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/pit.png",
+  "problem": "vector",
+  "severity": "low",
+  "what_is_wrong": "Flat brown ring around a black disc; geometric look compared with the painted traps.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw a pit in the floor seen from above, irregular rough brown earth rim with small stones, dark shaded sides falling into a black bottom, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "level-teleporter",
+  "category": "traps-hazards",
+  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/level-teleporter.png",
+  "problem": "unclear",
+  "severity": "low",
+  "what_is_wrong": "Flat gray spiral reads as a snail shell; not clearly a stronger teleport trap.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a level teleporter rune on the floor: a glowing magenta and violet spiral rune circle with a small downward arrow mark in its center and bright sparkle dots, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "land-mine",
+  "category": "traps-hazards",
+  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/land-mine.png",
+  "problem": "inconsistent",
+  "severity": "low",
+  "what_is_wrong": "Teal matte smear left in the lower-right corner; otherwise acceptable.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the land mine with the green-teal smear in the lower right removed, keep the purple disc and red button, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "web",
+  "category": "traps-hazards",
+  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/web.png",
+  "problem": "inconsistent",
+  "severity": "low",
+  "what_is_wrong": "Drawn as a brown square card with a web inside, unlike the other cut-out traps.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a white spider web spanning the tile, thick radial strands and a spiral of silk, pale gray-white with soft highlights, no background card, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "trapped-door-marker",
+  "category": "traps-hazards",
+  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/trapped-door-marker.png",
+  "problem": "wrong",
+  "severity": "low",
+  "what_is_wrong": "A full door tile with a red triangle, not a small corner warning badge; unused today.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a small red triangular warning badge with a white exclamation point, tiny, placed in the top-right corner of an empty tile, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "trapped-chest-marker",
+  "category": "traps-hazards",
+  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/trapped-chest-marker.png",
+  "problem": "wrong",
+  "severity": "low",
+  "what_is_wrong": "A full purple chest with a red badge, not an overlay marker; unused today.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a small red triangular warning badge with a white exclamation point, tiny, placed in the top-right corner of an empty tile, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "glyph-debug-overlay",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/glyph-debug-overlay.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Plain gray square, yet the tile map uses it for NetHack's 'remembered unseen monster' (I) and warning glyphs, so they show as a blank block.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a translucent pale gray ghostly silhouette of a crouching creature with a large white question mark, faint and semi transparent, meaning an unseen monster, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "message-log-panel",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/message-log-panel.png",
+  "problem": "vector",
+  "severity": "low",
+  "what_is_wrong": "Flat black panel with gray dashes and no alpha (512 RGB); placeholder, unused by either front end.",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a dark slate stone UI panel with a thin bronze border and subtle inner shadow, empty, fantasy RPG interface frame, hand-shaded pixel art"
+  }
+ },
+ {
+  "id": "health-bar",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/health-bar.png",
+  "problem": "vector",
+  "severity": "low",
+  "what_is_wrong": "Flat red bar on a striped dark background; placeholder, unused.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a horizontal health bar with a small red heart icon on the left, a dark bronze frame and a glossy red fill, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "power-bar",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/power-bar.png",
+  "problem": "inconsistent",
+  "severity": "low",
+  "what_is_wrong": "Ornate orange frame around a thin blue bar; style does not pair with the health bar and the bar is tiny; unused.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a horizontal mana bar with a small blue spark icon on the left, a dark bronze frame matching a health bar, and a glossy blue fill, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "hunger-badge",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/hunger-badge.png",
+  "problem": "unclear",
+  "severity": "low",
+  "what_is_wrong": "Reads as a boot or sock, not a stomach or ration; unused.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a small round status badge showing a cracked bread loaf and a yellow warning ring, warm brown bread with yellow highlights, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "blind-badge",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/blind-badge.png",
+  "problem": "unclear",
+  "severity": "low",
+  "what_is_wrong": "Purple shape with a slash reads as a star, not a crossed-out eye; unused.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a small round status badge showing a white eye crossed out by a thick red diagonal slash, on a dark circle, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "stunned-badge",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/stunned-badge.png",
+  "problem": "unclear",
+  "severity": "low",
+  "what_is_wrong": "Orange star with a red keyhole; no dazed head, and dark green edge pixels; unused.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a small status badge showing a simple head silhouette with three yellow stars circling above it, dazed, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "hallucination-badge",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/hallucination-badge.png",
+  "problem": "wrong",
+  "severity": "low",
+  "what_is_wrong": "Plain brown-orange disc; the requested rainbow swirl is missing and it has green fringe; unused.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a small round status badge with a rainbow spiral swirl in red, orange, yellow, green, blue and violet around a white eye, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "poisoned-badge",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/poisoned-badge.png",
+  "problem": "inconsistent",
+  "severity": "low",
+  "what_is_wrong": "Brown droplet with a faint skull plus dark green matte fringe; reads as dirt rather than poison; unused.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a small status badge showing a bright green poison droplet with a white skull on it, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "inventory-selected-item-highlight",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/inventory-selected-item-highlight.png",
+  "problem": "wrong",
+  "severity": "low",
+  "what_is_wrong": "A filled orange and red icon that would cover the item, not a highlight frame; unused.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a thin glowing gold rounded-rectangle outline frame, empty transparent center, soft warm glow, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "movement-hint-icon",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/movement-hint-icon.png",
+  "problem": "unclear",
+  "severity": "low",
+  "what_is_wrong": "A silver plus sign reads as a healing cross, not a movement pad; unused.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a four-way direction pad icon with four bright gold arrows pointing up, down, left and right around a small center dot, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "open-door-action-icon",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/open-door-action-icon.png",
+  "problem": "unclear",
+  "severity": "low",
+  "what_is_wrong": "A pale box with an arrow; does not read as a door being opened; unused.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a small brown wooden door swung half open with a gold curved arrow showing it opening, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "cursor-indicator",
+  "category": "player-pets-identity",
+  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/cursor-indicator.png",
+  "problem": "wrong",
+  "severity": "low",
+  "what_is_wrong": "A mouse pointer arrow with green edge pixels; the cursor overlay should be a ring around the tile; unused.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a thin bright gold square ring of corner brackets framing the whole tile, empty transparent center, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "kitten-pet",
+  "category": "player-pets-identity",
+  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/kitten-pet.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Orange tabby; NetHack's kitten is white, so it clashes with the game's own description and colors.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw a small white kitten sitting, white fur with pale gray shading, pink ears and nose, bright eyes, a small red collar, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "little-dog-pet",
+  "category": "player-pets-identity",
+  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/little-dog-pet.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Dark gray and black dog; NetHack's little dog is white, and the dark coat also blends into the floor.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw a small white dog standing, white fur with soft gray shading, brown eyes and black nose, raised tail, a small red collar, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "ranger-role-avatar",
+  "category": "player-pets-identity",
+  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/ranger-role-avatar.png",
+  "problem": "unclear",
+  "severity": "medium",
+  "what_is_wrong": "A big green rectangle with a face; the bow is unreadable and the figure looks like a shield or door.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a small hooded ranger hero in a forest green cloak and brown leather, holding a large curved wooden longbow with a quiver of white-fletched arrows on the back, full body standing, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "valkyrie-role-avatar",
+  "category": "player-pets-identity",
+  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/valkyrie-role-avatar.png",
+  "problem": "unclear",
+  "severity": "medium",
+  "what_is_wrong": "Thin broken figure with a spear and wings; the body disappears at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a small sturdy valkyrie hero with a silver winged helmet, blond braids, blue tunic over silver mail, a round wooden shield and a long sword, full body standing, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "healer-role-avatar",
+  "category": "player-pets-identity",
+  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/healer-role-avatar.png",
+  "problem": "inconsistent",
+  "severity": "low",
+  "what_is_wrong": "Pale green matte halo around the outline (leftover green-key fringe); the figure itself is fine.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the healer with the pale green halo around the outline replaced by a clean dark outline, keep the figure and colors, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "priest-role-avatar",
+  "category": "player-pets-identity",
+  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/priest-role-avatar.png",
+  "problem": "inconsistent",
+  "severity": "low",
+  "what_is_wrong": "Pale green matte halo around the outline (leftover green-key fringe); the figure itself is fine.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the priest with the pale green halo around the outline replaced by a clean dark outline, keep the figure and colors, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "priestess-role-avatar",
+  "category": "player-pets-identity",
+  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/priestess-role-avatar.png",
+  "problem": "inconsistent",
+  "severity": "low",
+  "what_is_wrong": "Pale green matte halo around the outline (leftover green-key fringe); the figure itself is fine.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the priestess with the pale green halo around the outline replaced by a clean dark outline, keep the figure and colors, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "wizard-role-avatar",
+  "category": "player-pets-identity",
+  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/wizard-role-avatar.png",
+  "problem": "inconsistent",
+  "severity": "low",
+  "what_is_wrong": "Pale green matte halo around the outline (leftover green-key fringe); the figure itself is fine.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the wizard with the pale green halo around the outline replaced by a clean dark outline, keep the figure and colors, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "elf-player-variant",
+  "category": "player-pets-identity",
+  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/elf-player-variant.png",
+  "problem": "inconsistent",
+  "severity": "low",
+  "what_is_wrong": "Pale green matte halo around the outline (leftover green-key fringe); the figure itself is fine.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the elf hero with the pale green halo around the outline replaced by a clean dark outline, keep the figure and colors, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "orc-player-variant",
+  "category": "player-pets-identity",
+  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/orc-player-variant.png",
+  "problem": "inconsistent",
+  "severity": "low",
+  "what_is_wrong": "Pale green matte halo around the outline (leftover green-key fringe); the figure itself is fine.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the orc hero with the pale green halo around the outline replaced by a clean dark outline, keep the figure and colors, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "dwarf-archeologist-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-archeologist-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female short stocky dwarf with a broad build and thick braided copper hair, dressed as an archeologist in a tan fedora, khaki shirt and brown leather jacket, holding a pick-axe. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "dwarf-archeologist-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-archeologist-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male short stocky dwarf with a broad build and a big braided red-brown beard, dressed as an archeologist in a tan fedora, khaki shirt and brown leather jacket, holding a pick-axe. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "dwarf-caveman-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-caveman-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female short stocky dwarf with a broad build and thick braided copper hair, dressed as a cave dweller in a tan fur tunic, holding a big wooden club. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "dwarf-caveman-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-caveman-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male short stocky dwarf with a broad build and a big braided red-brown beard, dressed as a cave dweller in a tan fur tunic, holding a big wooden club. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "dwarf-valkyrie-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-valkyrie-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female short stocky dwarf with a broad build and thick braided copper hair, dressed as a valkyrie with a silver winged helmet, blue tunic over silver mail, a round wooden shield and a long sword. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "elf-priest-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-priest-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female tall slim elf with long pointed ears and long golden hair, dressed as a priest in a white and gold robe holding a mace, a glowing gold holy symbol on the chest. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "elf-priest-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-priest-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male tall slim elf with long pointed ears and long silver-blond hair, dressed as a priest in a white and gold robe holding a mace, a glowing gold holy symbol on the chest. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "elf-ranger-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-ranger-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female tall slim elf with long pointed ears and long golden hair, dressed as a ranger in a bright forest-green hooded cloak and brown leather, holding a large curved longbow. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "elf-ranger-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-ranger-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male tall slim elf with long pointed ears and long silver-blond hair, dressed as a ranger in a bright forest-green hooded cloak and brown leather, holding a large curved longbow. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "elf-wizard-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-wizard-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female tall slim elf with long pointed ears and long golden hair, dressed as a wizard in a deep blue robe and tall pointed hat with silver stars, holding a staff with a glowing violet tip. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "elf-wizard-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-wizard-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male tall slim elf with long pointed ears and long silver-blond hair, dressed as a wizard in a deep blue robe and tall pointed hat with silver stars, holding a staff with a glowing violet tip. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "gnome-archeologist-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-archeologist-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female very small gnome with a big round nose and curly chestnut hair, dressed as an archeologist in a tan fedora, khaki shirt and brown leather jacket, holding a pick-axe. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "gnome-archeologist-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-archeologist-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male very small gnome with a big round nose and a white beard, dressed as an archeologist in a tan fedora, khaki shirt and brown leather jacket, holding a pick-axe. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "gnome-caveman-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-caveman-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female very small gnome with a big round nose and curly chestnut hair, dressed as a cave dweller in a tan fur tunic, holding a big wooden club. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "gnome-caveman-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-caveman-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male very small gnome with a big round nose and a white beard, dressed as a cave dweller in a tan fur tunic, holding a big wooden club. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "gnome-healer-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-healer-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female very small gnome with a big round nose and curly chestnut hair, dressed as a healer in white and pale green robes with a stethoscope, holding a wooden quarterstaff. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "gnome-healer-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-healer-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male very small gnome with a big round nose and a white beard, dressed as a healer in white and pale green robes with a stethoscope, holding a wooden quarterstaff. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "gnome-ranger-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-ranger-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female very small gnome with a big round nose and curly chestnut hair, dressed as a ranger in a bright forest-green hooded cloak and brown leather, holding a large curved longbow. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "gnome-ranger-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-ranger-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male very small gnome with a big round nose and a white beard, dressed as a ranger in a bright forest-green hooded cloak and brown leather, holding a large curved longbow. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "gnome-wizard-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-wizard-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female very small gnome with a big round nose and curly chestnut hair, dressed as a wizard in a deep blue robe and tall pointed hat with silver stars, holding a staff with a glowing violet tip. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "gnome-wizard-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-wizard-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male very small gnome with a big round nose and a white beard, dressed as a wizard in a deep blue robe and tall pointed hat with silver stars, holding a staff with a glowing violet tip. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-archeologist-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-archeologist-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female human with long auburn hair, dressed as an archeologist in a tan fedora, khaki shirt and brown leather jacket, holding a pick-axe. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-archeologist-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-archeologist-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male human with short brown hair, dressed as an archeologist in a tan fedora, khaki shirt and brown leather jacket, holding a pick-axe. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-barbarian-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-barbarian-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female human with long auburn hair, dressed as a barbarian with bare muscular arms, gray fur cloak and ring mail, holding a huge two-handed sword. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-barbarian-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-barbarian-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male human with short brown hair, dressed as a barbarian with bare muscular arms, gray fur cloak and ring mail, holding a huge two-handed sword. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-caveman-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-caveman-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female human with long auburn hair, dressed as a cave dweller in a tan fur tunic, holding a big wooden club. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-caveman-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-caveman-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male human with short brown hair, dressed as a cave dweller in a tan fur tunic, holding a big wooden club. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-healer-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-healer-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female human with long auburn hair, dressed as a healer in white and pale green robes with a stethoscope, holding a wooden quarterstaff. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-healer-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-healer-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male human with short brown hair, dressed as a healer in white and pale green robes with a stethoscope, holding a wooden quarterstaff. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-knight-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-knight-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female human with long auburn hair, dressed as a knight in shining silver plate armor with a blue tabard, a long sword and a kite shield. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-knight-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-knight-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male human with short brown hair, dressed as a knight in shining silver plate armor with a blue tabard, a long sword and a kite shield. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-monk-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-monk-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female human with long auburn hair, dressed as a monk in a saffron orange robe with a brown sash, bare fists raised. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-monk-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-monk-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male human with short brown hair, dressed as a monk in a saffron orange robe with a brown sash, bare fists raised. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-priest-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-priest-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female human with long auburn hair, dressed as a priest in a white and gold robe holding a mace, a glowing gold holy symbol on the chest. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-priest-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-priest-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male human with short brown hair, dressed as a priest in a white and gold robe holding a mace, a glowing gold holy symbol on the chest. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-ranger-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-ranger-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female human with long auburn hair, dressed as a ranger in a bright forest-green hooded cloak and brown leather, holding a large curved longbow. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-ranger-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-ranger-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male human with short brown hair, dressed as a ranger in a bright forest-green hooded cloak and brown leather, holding a large curved longbow. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-rogue-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-rogue-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset, and it nearly vanishes as a dark blob.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female human with long auburn hair, dressed as a rogue in charcoal leather with a crimson sash and hood, silver daggers with bright edge highlights, pale skin lit by rim light. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-rogue-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-rogue-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset, and it nearly vanishes as a dark blob.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male human with short brown hair, dressed as a rogue in charcoal leather with a crimson sash and hood, silver daggers with bright edge highlights, pale skin lit by rim light. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-samurai-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-samurai-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female human with long auburn hair, dressed as a samurai in crimson and black lacquered armor with gold trim, holding a curved katana. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-samurai-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-samurai-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male human with short brown hair, dressed as a samurai in crimson and black lacquered armor with gold trim, holding a curved katana. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-tourist-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-tourist-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female human with long auburn hair, dressed as a tourist in a bright Hawaiian shirt with red and yellow flowers, shorts, a camera on a strap. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-tourist-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-tourist-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male human with short brown hair, dressed as a tourist in a bright Hawaiian shirt with red and yellow flowers, shorts, a camera on a strap. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-valkyrie-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-valkyrie-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female human with long auburn hair, dressed as a valkyrie with a silver winged helmet, blue tunic over silver mail, a round wooden shield and a long sword. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-wizard-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-wizard-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female human with long auburn hair, dressed as a wizard in a deep blue robe and tall pointed hat with silver stars, holding a staff with a glowing violet tip. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "human-wizard-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-wizard-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male human with short brown hair, dressed as a wizard in a deep blue robe and tall pointed hat with silver stars, holding a staff with a glowing violet tip. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "orc-barbarian-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-barbarian-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset, and it nearly vanishes as a dark blob.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female orc with green skin, small white tusks and black braided hair, dressed as a barbarian with bare muscular arms, gray fur cloak and ring mail, holding a huge two-handed sword. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "orc-barbarian-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-barbarian-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset, and it nearly vanishes as a dark blob.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male orc with green skin, small white tusks and a black topknot, dressed as a barbarian with bare muscular arms, gray fur cloak and ring mail, holding a huge two-handed sword. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "orc-ranger-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-ranger-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset, and it nearly vanishes as a dark blob.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female orc with green skin, small white tusks and black braided hair, dressed as a ranger in a bright forest-green hooded cloak and brown leather, holding a large curved longbow. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "orc-ranger-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-ranger-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset, and it nearly vanishes as a dark blob.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male orc with green skin, small white tusks and a black topknot, dressed as a ranger in a bright forest-green hooded cloak and brown leather, holding a large curved longbow. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "orc-rogue-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-rogue-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset, and it nearly vanishes as a dark blob.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female orc with green skin, small white tusks and black braided hair, dressed as a rogue in charcoal leather with a crimson sash and hood, silver daggers with bright edge highlights, pale skin lit by rim light. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "orc-rogue-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-rogue-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset, and it nearly vanishes as a dark blob.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male orc with green skin, small white tusks and a black topknot, dressed as a rogue in charcoal leather with a crimson sash and hood, silver daggers with bright edge highlights, pale skin lit by rim light. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "orc-wizard-female-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-wizard-female-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a female orc with green skin, small white tusks and black braided hair, dressed as a wizard in a deep blue robe and tall pointed hat with silver stars, holding a staff with a glowing violet tip. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ },
+ {
+  "id": "orc-wizard-male-avatar",
+  "category": "player-combo-avatars",
+  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-wizard-male-avatar.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": true,
+   "prompt": "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the same character as a chunky full-body pixel art hero sprite: a male orc with green skin, small white tusks and a black topknot, dressed as a wizard in a deep blue robe and tall pointed hat with silver stars, holding a staff with a glowing violet tip. Big head, clear silhouette, bright readable colors with light rim highlights, lit from the upper left, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  }
+ }
+]

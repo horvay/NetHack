@@ -1,0 +1,9 @@
+[configuration]
+
+entry_symbol = "nethack_library_init"
+compatibility_minimum = "4.5"
+reloadable = false
+
+[libraries]
+
+linux.x86_64 = "res://bin/libnethack_gdext.so"

@@ -1,0 +1,503 @@
+{
+ "schema": "nethack-electron-test-scenario/v1",
+ "id": "art/objects-1",
+ "phase": "after-level-and-hero-before-first-draw",
+ "hero": {
+  "placement": "current"
+ },
+ "level": {
+  "safeAreaAroundHero": 3,
+  "lit": true,
+  "suppressAdjacentMonsters": true,
+  "pet": "none",
+  "terrain": [
+   {
+    "at": {
+     "dx": -3,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -2,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -1,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 0,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 1,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 2,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 3,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -3,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -2,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -1,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 0,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 1,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 2,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 3,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -3,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -2,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -1,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 1,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 2,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 3,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -3,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -2,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -1,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 0,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 1,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 2,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 3,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -3,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -2,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -1,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 0,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 1,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 2,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 3,
+     "dy": 2
+    },
+    "type": "floor"
+   }
+  ]
+ },
+ "ground": [
+  {
+   "at": {
+    "dx": -3,
+    "dy": -2
+   },
+   "object": {
+    "typeId": "AGGRAVATE_MONSTER",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": -2,
+    "dy": -2
+   },
+   "object": {
+    "typeId": "AMNESIA",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": -1,
+    "dy": -2
+   },
+   "object": {
+    "typeId": "BLINDFOLD",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": 0,
+    "dy": -2
+   },
+   "object": {
+    "typeId": "BRONZE_PLATE_MAIL",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": 1,
+    "dy": -2
+   },
+   "object": {
+    "typeId": "CANCELLATION",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": 2,
+    "dy": -2
+   },
+   "object": {
+    "typeId": "CLOAK_OF_DISPLACEMENT",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": 3,
+    "dy": -2
+   },
+   "object": {
+    "typeId": "CLOAK_OF_INVISIBILITY",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": -3,
+    "dy": -1
+   },
+   "object": {
+    "typeId": "CLOAK_OF_MAGIC_RESISTANCE",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": -2,
+    "dy": -1
+   },
+   "object": {
+    "typeId": "CLOAK_OF_PROTECTION",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": -1,
+    "dy": -1
+   },
+   "object": {
+    "typeId": "COLD",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": 0,
+    "dy": -1
+   },
+   "object": {
+    "typeId": "CORNUTHAUM",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": 1,
+    "dy": -1
+   },
+   "object": {
+    "typeId": "CREDIT_CARD",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": 2,
+    "dy": -1
+   },
+   "object": {
+    "typeId": "CRYSTAL_PLATE_MAIL",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": 3,
+    "dy": -1
+   },
+   "object": {
+    "typeId": "DESTROY_ARMOR",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": -3,
+    "dy": 0
+   },
+   "object": {
+    "typeId": "DRUM_OF_EARTHQUAKE",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": -2,
+    "dy": 0
+   },
+   "object": {
+    "typeId": "DWARVISH_CLOAK",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": -1,
+    "dy": 0
+   },
+   "object": {
+    "typeId": "DWARVISH_MITHRIL_COAT",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": 1,
+    "dy": 0
+   },
+   "object": {
+    "typeId": "ELVEN_ARROW",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": 2,
+    "dy": 0
+   },
+   "object": {
+    "typeId": "ELVEN_BOW",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": 3,
+    "dy": 0
+   },
+   "object": {
+    "typeId": "ELVEN_CLOAK",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": -3,
+    "dy": 1
+   },
+   "object": {
+    "typeId": "ELVEN_MITHRIL_COAT",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": -2,
+    "dy": 1
+   },
+   "object": {
+    "typeId": "ENCHANT_ARMOR",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": -1,
+    "dy": 1
+   },
+   "object": {
+    "typeId": "FIRE_HORN",
+    "identityKnown": true
+   }
+  },
+  {
+   "at": {
+    "dx": 0,
+    "dy": 1
+   },
+   "object": {
+    "typeId": "GRAPPLING_HOOK",
+    "identityKnown": true
+   }
+  }
+ ],
+ "monsters": [],
+ "inventory": [],
+ "expectedPublicFacts": {
+  "messages": [
+   "art gallery: newly generated object tiles around the hero"
+  ]
+ }
+}

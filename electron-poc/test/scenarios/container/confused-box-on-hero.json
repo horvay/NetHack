@@ -1,0 +1,15 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "container/confused-box-on-hero",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": { "placement": "current", "confused": 200 },
+  "level": { "safeAreaAroundHero": 2, "lit": true, "suppressAdjacentMonsters": true, "pet": "none" },
+  "ground": [
+    { "at": "hero", "object": { "typeId": "LARGE_BOX", "locked": false, "trap": "none", "contents": [
+      { "typeId": "SCR_IDENTIFY", "beatitude": "uncursed", "identityKnown": true, "beatitudeKnown": true },
+      { "typeId": "FOOD_RATION", "beatitude": "uncursed", "identityKnown": true, "beatitudeKnown": true } ] } }
+  ],
+  "monsters": [],
+  "inventory": [],
+  "expectedPublicFacts": { "messages": ["a confused hero on a large box"] }
+}

@@ -1,0 +1,15 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "object/ring-to-put-on",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": { "placement": "current" },
+  "level": { "safeAreaAroundHero": 2, "lit": true, "suppressAdjacentMonsters": true, "pet": "none" },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    { "typeId": "RIN_ADORNMENT", "identityKnown": true, "beatitudeKnown": true, "beatitude": "uncursed" }
+  ],
+  "expectedPublicFacts": {
+    "messages": ["one uncursed ring of adornment, both hands free: P asks which ring-finger"]
+  }
+}

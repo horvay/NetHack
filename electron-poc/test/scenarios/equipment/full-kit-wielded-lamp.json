@@ -1,0 +1,111 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "equipment/full-kit-wielded-lamp",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current",
+    "role": "Valkyrie",
+    "race": "human",
+    "gender": "female",
+    "alignment": "lawful"
+  },
+  "level": {
+    "safeAreaAroundHero": 2,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    {
+      "typeId": "OIL_LAMP",
+      "identityKnown": true,
+      "beatitudeKnown": true,
+      "beatitude": "uncursed"
+    },
+    {
+      "typeId": "HELMET",
+      "identityKnown": true,
+      "equipped": "worn"
+    },
+    {
+      "typeId": "LEATHER_CLOAK",
+      "identityKnown": true,
+      "equipped": "worn"
+    },
+    {
+      "typeId": "CHAIN_MAIL",
+      "identityKnown": true,
+      "equipped": "worn"
+    },
+    {
+      "typeId": "T_SHIRT",
+      "identityKnown": true,
+      "equipped": "worn"
+    },
+    {
+      "typeId": "LOW_BOOTS",
+      "identityKnown": true,
+      "equipped": "worn"
+    },
+    {
+      "typeId": "SMALL_SHIELD",
+      "identityKnown": true,
+      "equipped": "worn"
+    },
+    {
+      "typeId": "RIN_PROTECTION",
+      "identityKnown": true,
+      "equipped": "left-ring"
+    },
+    {
+      "typeId": "RIN_ADORNMENT",
+      "identityKnown": true,
+      "equipped": "right-ring"
+    },
+    {
+      "typeId": "AMULET_OF_REFLECTION",
+      "identityKnown": true,
+      "equipped": "worn"
+    },
+    {
+      "typeId": "ARROW",
+      "identityKnown": true,
+      "quantity": 10,
+      "equipped": "quivered"
+    },
+    {
+      "typeId": "LONG_SWORD",
+      "identityKnown": true,
+      "beatitude": "cursed",
+      "beatitudeKnown": true,
+      "enchantment": -1
+    },
+    {
+      "typeId": "FOOD_RATION",
+      "beatitude": "blessed",
+      "beatitudeKnown": true
+    }
+  ],
+  "expectedPublicFacts": {
+    "inventoryRows": [
+      "oil lamp",
+      "helmet",
+      "leather cloak",
+      "chain mail",
+      "T-shirt",
+      "low boots",
+      "small shield",
+      "ring of protection",
+      "ring of adornment",
+      "amulet of reflection",
+      "arrows",
+      "long sword",
+      "food ration"
+    ],
+    "messages": [
+      "a hero wearing something in nearly every slot, with an oil lamp to wield: where each item is must be readable in the inventory"
+    ]
+  }
+}

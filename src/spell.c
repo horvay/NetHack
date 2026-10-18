@@ -2137,6 +2137,9 @@ dospellmenu(
         shim_native_spell_row(tmpwin, spellname(splnum), spellet(splnum),
                               spellev(splnum), SPELL_LEV_PW(spellev(splnum)),
                               100 - percent_success(splnum), retentionbuf);
+        /* the school, as the menu's "Category" column shows it */
+        shim_native_spell_row_school(tmpwin,
+                              spelltypemnemonic(spell_skilltype(spellid(splnum))));
 #endif
     }
 #ifdef SHIM_GRAPHICS

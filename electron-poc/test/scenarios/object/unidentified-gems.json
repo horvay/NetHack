@@ -1,0 +1,59 @@
+{
+ "schema": "nethack-electron-test-scenario/v1",
+ "id": "object/unidentified-gems",
+ "phase": "after-level-and-hero-before-first-draw",
+ "hero": {
+  "placement": "current"
+ },
+ "level": {
+  "safeAreaAroundHero": 2,
+  "lit": true,
+  "suppressAdjacentMonsters": true,
+  "pet": "none"
+ },
+ "ground": [],
+ "monsters": [],
+ "inventory": [
+  {
+   "typeId": "EMERALD",
+   "identityKnown": false
+  },
+  {
+   "typeId": "WORTHLESS_PIECE_OF_GREEN_GLASS",
+   "identityKnown": false
+  },
+  {
+   "typeId": "RUBY",
+   "identityKnown": false
+  },
+  {
+   "typeId": "SAPPHIRE",
+   "identityKnown": false
+  },
+  {
+   "typeId": "CITRINE",
+   "identityKnown": false
+  },
+  {
+   "typeId": "LUCKSTONE",
+   "identityKnown": false
+  },
+  {
+   "typeId": "MIRROR",
+   "identityKnown": false
+  },
+  {
+   "typeId": "SPE_HEALING",
+   "identityKnown": true
+  },
+  {
+   "typeId": "POT_HEALING",
+   "identityKnown": true
+  }
+ ],
+ "expectedPublicFacts": {
+  "messages": [
+   "unidentified gems, a gray stone, a looking glass, healing book and potion"
+  ]
+ }
+}

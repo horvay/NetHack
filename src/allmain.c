@@ -989,6 +989,12 @@ struct electron_test_scenario_v1 {
     int experience_level;
     boolean hp_present;
     int hp, maxhp;
+    boolean nutrition_present;
+    int nutrition;
+    boolean confused_present; /* the hero starts confused (turns) */
+    int confused_turns;
+    boolean skill_ready_present; /* a skill one step from "more confident" */
+    char skill_ready[64];
     boolean power_present;
     int power, maxpower;
     boolean amulet_wish_complete;
@@ -1267,6 +1273,22 @@ electron_json_expect_string_value(const char **pp, const char *id,
         electron_json_fail(id, message);
 }
 
+/* A NetHack name against a fixture id: case-blind, with spaces and
+   hyphens written as underscores ("Uruk-hai" matches "URUK_HAI"). */
+staticfn boolean
+electron_test_name_matches(const char *name, const char *id)
+{
+    if (!name || !id)
+        return FALSE;
+    for (; *name && *id; ++name, ++id) {
+        char a = (*name == ' ' || *name == '-') ? '_' : highc(*name);
+
+        if (a != *id)
+            return FALSE;
+    }
+    return !*name && !*id;
+}
+
 staticfn int
 electron_test_type_id_from_string(const char *type_id)
 {
@@ -1320,9 +1342,11 @@ electron_test_type_id_from_string(const char *type_id)
     if (!strcmp(type_id, "WAN_DIGGING")) return WAN_DIGGING;
     if (!strcmp(type_id, "WAN_MAGIC_MISSILE")) return WAN_MAGIC_MISSILE;
     if (!strcmp(type_id, "WAN_STRIKING")) return WAN_STRIKING;
+    if (!strcmp(type_id, "WAN_WISHING")) return WAN_WISHING;
     if (!strcmp(type_id, "RIN_PROTECTION")) return RIN_PROTECTION;
     if (!strcmp(type_id, "RIN_ADORNMENT")) return RIN_ADORNMENT;
     if (!strcmp(type_id, "AMULET_OF_REFLECTION")) return AMULET_OF_REFLECTION;
+    if (!strcmp(type_id, "AMULET_OF_LIFE_SAVING")) return AMULET_OF_LIFE_SAVING;
     if (!strcmp(type_id, "RUBY")) return RUBY;
     if (!strcmp(type_id, "CITRINE")) return CITRINE;
     if (!strcmp(type_id, "CHRYSOBERYL")) return CHRYSOBERYL;
@@ -1338,6 +1362,36 @@ electron_test_type_id_from_string(const char *type_id)
     if (!strcmp(type_id, "CANDELABRUM_OF_INVOCATION")) return CANDELABRUM_OF_INVOCATION;
     if (!strcmp(type_id, "BELL_OF_OPENING")) return BELL_OF_OPENING;
     if (!strcmp(type_id, "SPE_BOOK_OF_THE_DEAD")) return SPE_BOOK_OF_THE_DEAD;
+    {
+        /* Any other object by its actual name ("CRYSTAL_PLATE_MAIL"), or
+           by its appearance this game ("ABRA_KA_DABRA": the scroll that
+           label is on after the shuffle). */
+        int i;
+        /* NetHack's own prefixes pick the class: SPE_HEALING is the
+           spellbook, POT_HEALING the potion. */
+        static const struct { const char *prefix; char oclass; } classed[] = {
+            { "SPE_", SPBOOK_CLASS }, { "POT_", POTION_CLASS }, { "RIN_", RING_CLASS },
+            { "WAN_", WAND_CLASS }, { "SCR_", SCROLL_CLASS }, { "AMULET_OF_", AMULET_CLASS },
+        };
+
+        for (i = 0; i < SIZE(classed); ++i) {
+            size_t len = strlen(classed[i].prefix);
+            int j;
+
+            if (strncmp(type_id, classed[i].prefix, len))
+                continue;
+            for (j = 1; j < NUM_OBJECTS; ++j)
+                if (objects[j].oc_class == classed[i].oclass
+                    && electron_test_name_matches(OBJ_NAME(objects[j]), type_id + len))
+                    return j;
+        }
+        for (i = 1; i < NUM_OBJECTS; ++i)
+            if (electron_test_name_matches(OBJ_NAME(objects[i]), type_id))
+                return i;
+        for (i = 1; i < NUM_OBJECTS; ++i)
+            if (electron_test_name_matches(OBJ_DESCR(objects[i]), type_id))
+                return i;
+    }
     return STRANGE_OBJECT;
 }
 
@@ -1365,6 +1419,19 @@ electron_test_monster_id_from_string(const char *monster_id)
     if (!strcmp(monster_id, "MEDUSA")) return PM_MEDUSA;
     if (!strcmp(monster_id, "WIZARD_OF_YENDOR")) return PM_WIZARD_OF_YENDOR;
     if (!strcmp(monster_id, "NORN")) return PM_NORN;
+    {
+        /* Any other monster by its name, spaces and hyphens written as
+           underscores: "BLUE_JELLY", "URUK_HAI". */
+        int mndx;
+
+        for (mndx = LOW_PM; mndx < NUMMONS; ++mndx) {
+            int g;
+
+            for (g = MALE; g < NUM_MGENDERS; ++g)
+                if (electron_test_name_matches(mons[mndx].pmnames[g], monster_id))
+                    return mndx;
+        }
+    }
     return NON_PM;
 }
 
@@ -1419,7 +1486,8 @@ electron_test_terrain_type_from_string(const char *type_id, int *door_mask, int 
     if (!strcmp(type_id, "door-none") || !strcmp(type_id, "doorway")) { *door_mask = D_NODOOR; return DOOR; }
     if (!strcmp(type_id, "door-open")) { *door_mask = D_ISOPEN; return DOOR; }
     if (!strcmp(type_id, "door-closed")) { *door_mask = D_CLOSED; return DOOR; }
-    if (!strcmp(type_id, "door-locked")) { *door_mask = D_CLOSED | D_LOCKED; return DOOR; }
+    /* NetHack marks a locked door D_LOCKED alone (D_CLOSED means "closed, unlocked"). */
+    if (!strcmp(type_id, "door-locked")) { *door_mask = D_LOCKED; return DOOR; }
     if (!strcmp(type_id, "stairs-up")) return STAIRS;
     if (!strcmp(type_id, "stairs-down")) return STAIRS;
     if (!strcmp(type_id, "ladder-up")) return LADDER;
@@ -1738,11 +1806,11 @@ electron_test_parse_object_spec(const char **pp,
         if (spec->quantity_present && spec->quantity != 1L)
             electron_json_fail(scenario->id,
                                "container quantity must be omitted or 1");
-        if (spec->identity_known_present || spec->appearance_known_present
-            || spec->beatitude_known_present
-            || spec->beatitude != ELECTRON_TEST_BEATITUDE_UNSET)
+        /* beatitude and beatitudeKnown are allowed (a cursed bag of
+           holding the hero doesn't know is cursed). */
+        if (spec->identity_known_present || spec->appearance_known_present)
             electron_json_fail(scenario->id,
-                               "identityKnown/appearanceKnown/beatitudeKnown/beatitude are not supported for containers");
+                               "identityKnown/appearanceKnown are not supported for containers");
         if (spec->equip_state != ELECTRON_TEST_EQUIP_NONE)
             electron_json_fail(scenario->id,
                                "containers cannot be equipped");
@@ -2004,7 +2072,8 @@ electron_test_parse_inventory(const char **pp,
         if (scenario->inventory_count >= ELECTRON_TEST_MAX_INVENTORY)
             electron_json_fail(scenario->id, "inventory array is too large");
         scenario->inventory[scenario->inventory_count++] =
-            electron_test_parse_object_spec(pp, scenario, FALSE, TRUE, TRUE);
+            /* A carried container may hold things (a sack in the pack). */
+            electron_test_parse_object_spec(pp, scenario, TRUE, TRUE, TRUE);
         if (electron_json_consume_char(pp, ']'))
             break;
         electron_json_expect_char(pp, ',', scenario->id,
@@ -2142,6 +2211,36 @@ electron_test_parse_hero(const char **pp,
                 electron_json_fail(scenario->id, "hero hp is out of range");
             scenario->hp_present = TRUE;
             scenario->hp = (int) value;
+        } else if (!strcmp(key, "nutrition")) {
+            /* How fed the hero is (u.uhunger): below 0 is Fainting, below
+             * 50 Weak, below 150 Hungry. A v1 field (status UI tests). */
+            long value;
+            electron_json_require_unique(&seen, 0x400000U, scenario->id, key);
+            value = electron_json_parse_int(pp, scenario->id);
+            if (value < -50L || value > 2000L)
+                electron_json_fail(scenario->id, "hero nutrition is out of range");
+            scenario->nutrition_present = TRUE;
+            scenario->nutrition = (int) value;
+        } else if (!strcmp(key, "skillReady")) {
+            /* A skill (NetHack's name, "long sword") the hero can advance:
+             * its practice is brought one short, then NetHack's own
+             * use_skill crosses the line and says "You feel more confident
+             * in your weapon skills." */
+            char *value;
+            electron_json_require_unique(&seen, 0x1000000U, scenario->id, key);
+            value = electron_json_parse_string(pp, scenario->id);
+            Snprintf(scenario->skill_ready, sizeof scenario->skill_ready, "%s", value);
+            free(value);
+            scenario->skill_ready_present = TRUE;
+        } else if (!strcmp(key, "confused")) {
+            /* Turns of confusion the hero starts with (make_confused). */
+            long value;
+            electron_json_require_unique(&seen, 0x800000U, scenario->id, key);
+            value = electron_json_parse_int(pp, scenario->id);
+            if (value < 1L || value > 1000L)
+                electron_json_fail(scenario->id, "hero confused turns are out of range");
+            scenario->confused_present = TRUE;
+            scenario->confused_turns = (int) value;
         } else if (!strcmp(key, "maxHp")) {
             long value;
             electron_json_require_unique(&seen, 0x200U, scenario->id, key);
@@ -2208,7 +2307,9 @@ electron_test_parse_hero(const char **pp,
         electron_json_expect_char(pp, ',', scenario->id,
                                   "expected ',' between hero fields");
     }
-    if ((seen & (0x002U | 0x004U | 0x080U | 0x100U | 0x200U
+    /* (hp and maxHp, 0x100/0x200, are allowed in v1 too: a v1 test of
+       something that hurts needs a hero who survives it.) */
+    if ((seen & (0x002U | 0x004U | 0x080U
                  | 0x400U | 0x800U | 0x1000U | 0x2000U | 0x4000U
                  | 0x8000U)) != 0U
         || scenario->hero_placement >= ELECTRON_TEST_HERO_NEAR_MONSTER)
@@ -3279,6 +3380,7 @@ electron_test_apply_hero(const struct electron_test_scenario_v1 *scenario)
     u_on_newpos(x, y);
     newsym(oldx, oldy);
     newsym(u.ux, u.uy);
+    gv.vision_full_recalc = 1;
 }
 
 staticfn void
@@ -3291,6 +3393,26 @@ electron_test_apply_hero_state(const struct electron_test_scenario_v1 *scenario)
     if (scenario->hp_present) {
         u.uhpmax = scenario->maxhp;
         u.uhp = scenario->hp;
+    }
+    if (scenario->nutrition_present) {
+        u.uhunger = scenario->nutrition;
+        newuhs(FALSE);
+        disp.botl = TRUE;
+    }
+    if (scenario->confused_present)
+        make_confused((long) scenario->confused_turns, FALSE);
+    if (scenario->skill_ready_present) {
+        int sk;
+
+        for (sk = 1; sk < P_NUM_SKILLS; ++sk)
+            if (!strcmpi(skill_name(sk), scenario->skill_ready))
+                break;
+        if (sk >= P_NUM_SKILLS || P_RESTRICTED(sk))
+            electron_test_fixture_fail(scenario->id, "skillReady names no skill the hero can train");
+        if (u.weapon_slots < 1)
+            u.weapon_slots = 1;
+        P_ADVANCE(sk) = practice_needed_to_advance(P_SKILL(sk)) - 1;
+        use_skill(sk, 1);
     }
     if (scenario->power_present) {
         u.uenmax = scenario->maxpower;
@@ -3598,8 +3720,12 @@ electron_test_make_object(const struct electron_test_scenario_v1 *scenario,
     struct obj *obj;
     int i;
 
+    /* A container holds just the fixture's contents (init would add
+       NetHack's random ones). */
     obj = at_location ? mksobj_at(spec->type_id, x, y, FALSE, FALSE)
-                      : mksobj(spec->type_id, TRUE, FALSE);
+                      : mksobj(spec->type_id,
+                               !electron_test_is_container_type(spec->type_id),
+                               FALSE);
     if (!obj)
         electron_test_fixture_fail(scenario->id, "failed to create scenario object");
     if (spec->corpse_monster_present)
@@ -4168,6 +4294,8 @@ maybe_setup_electron_shop_payment_test_scene(void)
     oldy = u.uy;
     u_on_newpos(px, py);
     newsym(oldx, oldy);
+    /* The hero moved after vision was computed: see from the new spot. */
+    gv.vision_full_recalc = 1;
     check_special_room(FALSE);
 
     /* Keep the fixture's purchasing power explicit and deterministic. */

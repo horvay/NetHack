@@ -7631,7 +7631,11 @@ function handleShimEvent(event) {
     let responseFieldsAgree = true;
     if (rawEvent.name === 'bridge_prompt_answer') {
       const responseValues = [];
-      if (hasOwn('keycode')) {
+      if (responseEvent.cancelled === true) {
+        // The bridge maps Esc as tty does (q, else n, else the default,
+        // which may be 0): this answer is the acknowledgement of an Esc.
+        responseValues.push('\u001b');
+      } else if (hasOwn('keycode')) {
         if (typeof responseEvent.keycode === 'number' && Number.isInteger(responseEvent.keycode) && responseEvent.keycode > 0 && responseEvent.keycode <= 255) responseValues.push(String.fromCharCode(responseEvent.keycode));
         else responseFieldsAgree = false;
       }
@@ -7877,6 +7881,7 @@ function handleShimEvent(event) {
   const activePanelTransfer = transferSession.snapshot().pending;
   if (activePanelTransfer && ['bridge_menu_answer', 'bridge_prompt_answer', 'bridge_line_answer'].includes(rawEvent.name)) {
     const cancelled = (rawEvent.name === 'bridge_menu_answer' && !Number(rawEvent.return || 0) && !rawEvent.answer && !rawEvent.selection)
+      || rawEvent.cancelled === true
       || Number(rawEvent.keycode) === 27
       || rawEvent.answer === '\u001b'
       || rawEvent.key === '\u001b';
@@ -7929,7 +7934,7 @@ function handleShimEvent(event) {
   }
   if (rawEvent.name === 'bridge_extcmd_answer' && activeWorkflowContext) delete activeWorkflowContext.submittedExtendedCommand;
   if (rawEvent.name === 'bridge_prompt_answer') {
-    const answeredWithEsc = Number(rawEvent.keycode) === 27 || rawEvent.answer === '\u001b' || rawEvent.key === '\u001b';
+    const answeredWithEsc = rawEvent.cancelled === true || Number(rawEvent.keycode) === 27 || rawEvent.answer === '\u001b' || rawEvent.key === '\u001b';
     if (answeredWithEsc) clearPromptOwnerState({ clearWorkflow: true });
   }
   if (rawEvent.name === 'bridge_menu_answer' && !Number(rawEvent.return || 0)) clearWorkflowContext();

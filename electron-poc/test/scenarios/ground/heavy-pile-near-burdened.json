@@ -1,0 +1,77 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "ground/heavy-pile-near-burdened",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current",
+    "role": "Valkyrie",
+    "race": "human",
+    "gender": "female",
+    "alignment": "lawful"
+  },
+  "level": {
+    "safeAreaAroundHero": 2,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [
+    {
+      "at": "hero",
+      "object": {
+        "typeId": "DAGGER",
+        "identityKnown": true
+      }
+    },
+    {
+      "at": "hero",
+      "object": {
+        "typeId": "SPLINT_MAIL",
+        "identityKnown": true
+      }
+    },
+    {
+      "at": "hero",
+      "object": {
+        "typeId": "SPLINT_MAIL",
+        "identityKnown": true
+      }
+    },
+    {
+      "at": "hero",
+      "object": {
+        "typeId": "SPLINT_MAIL",
+        "identityKnown": true
+      }
+    }
+  ],
+  "monsters": [],
+  "inventory": [
+    {
+      "typeId": "LONG_SWORD",
+      "identityKnown": true,
+      "equipped": "wielded"
+    },
+    {
+      "typeId": "SPLINT_MAIL",
+      "identityKnown": true
+    },
+    {
+      "typeId": "SPLINT_MAIL",
+      "identityKnown": true
+    },
+    {
+      "typeId": "SPLINT_MAIL",
+      "identityKnown": true
+    }
+  ],
+  "expectedPublicFacts": {
+    "groundRows": [
+      "dagger",
+      "splint mail"
+    ],
+    "messages": [
+      "a heavily loaded hero: lifting all three splint mails would strain them, so NetHack asks"
+    ]
+  }
+}

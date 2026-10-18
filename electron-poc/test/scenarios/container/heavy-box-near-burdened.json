@@ -1,0 +1,21 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "container/heavy-box-near-burdened",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": { "placement": "current", "role": "Valkyrie", "race": "human", "gender": "female", "alignment": "lawful" },
+  "level": { "safeAreaAroundHero": 2, "lit": true, "suppressAdjacentMonsters": true, "pet": "none" },
+  "ground": [
+    { "at": "hero", "object": { "typeId": "LARGE_BOX", "locked": false, "trap": "none", "contents": [
+      { "typeId": "DAGGER", "beatitude": "uncursed", "identityKnown": true, "beatitudeKnown": true },
+      { "typeId": "SPLINT_MAIL", "identityKnown": true },
+      { "typeId": "SPLINT_MAIL", "identityKnown": true } ] } }
+  ],
+  "monsters": [],
+  "inventory": [
+    { "typeId": "LONG_SWORD", "identityKnown": true, "equipped": "wielded" },
+    { "typeId": "SPLINT_MAIL", "identityKnown": true },
+    { "typeId": "SPLINT_MAIL", "identityKnown": true },
+    { "typeId": "SPLINT_MAIL", "identityKnown": true }
+  ],
+  "expectedPublicFacts": { "messages": ["a heavily loaded hero on a box holding a dagger and two splint mails"] }
+}

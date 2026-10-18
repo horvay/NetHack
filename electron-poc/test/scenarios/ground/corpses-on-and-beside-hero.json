@@ -1,0 +1,17 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "ground/corpses-on-and-beside-hero",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": { "placement": "current" },
+  "level": { "safeAreaAroundHero": 2, "lit": true, "suppressAdjacentMonsters": true, "pet": "none", "terrain": [{ "at": "east", "type": "floor" }] },
+  "ground": [
+    { "at": "hero", "object": { "typeId": "CORPSE", "corpseMonsterTypeId": "JACKAL" } },
+    { "at": "east", "object": { "typeId": "CORPSE", "corpseMonsterTypeId": "JACKAL" } }
+  ],
+  "monsters": [],
+  "inventory": [],
+  "expectedPublicFacts": {
+    "groundRows": ["jackal corpse"],
+    "messages": ["the same corpse under the hero and beside her, for drawing checks"]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "container/carried-cursed-bag-of-holding",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": { "placement": "current" },
+  "level": { "safeAreaAroundHero": 2, "lit": true, "suppressAdjacentMonsters": true, "pet": "none" },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    { "typeId": "BAG_OF_HOLDING", "beatitude": "cursed", "beatitudeKnown": false, "locked": false, "trap": "none", "contents": [
+      { "typeId": "APPLE", "beatitude": "uncursed", "identityKnown": true, "beatitudeKnown": true },
+      { "typeId": "FOOD_RATION", "beatitude": "uncursed", "identityKnown": true, "beatitudeKnown": true },
+      { "typeId": "DAGGER", "beatitude": "uncursed", "identityKnown": true, "beatitudeKnown": true },
+      { "typeId": "KNIFE", "beatitude": "uncursed", "identityKnown": true, "beatitudeKnown": true },
+      { "typeId": "ARROW", "beatitude": "uncursed", "identityKnown": true, "beatitudeKnown": true },
+      { "typeId": "TRIPE_RATION", "beatitude": "uncursed", "identityKnown": true, "beatitudeKnown": true } ] }
+  ],
+  "expectedPublicFacts": { "messages": ["a carried cursed bag of holding with six small things, not known to be cursed"] }
+}

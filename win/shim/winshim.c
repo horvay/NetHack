@@ -180,6 +180,14 @@ VDECLCB(shim_native_skill_row,
     "visissib", A2P window, P2V name, A2P identifier, P2V current_rank,
     P2V next_rank, A2P next_cost, A2P can_advance)
 VDECLCB(shim_native_skill_rows_ready, (winid window), "vi", A2P window)
+/* The row just sent: its group heading ("Weapon Skills"), and NetHack's own
+   marks: "*" could advance with more slots, "#" at its maximum. */
+VDECLCB(shim_native_skill_row_extra,
+    (winid window, const char *group, int could_advance, int peaked),
+    "visii", A2P window, P2V group, A2P could_advance, A2P peaked)
+VDECLCB(shim_native_skill_slots, (winid window, int slots), "vii", A2P window, A2P slots)
+/* The spell row just sent: its school ("attack", "healing"…). */
+VDECLCB(shim_native_spell_row_school, (winid window, const char *school), "vis", A2P window, P2V school)
 DECLCB(int, shim_nhgetch,(void), "i")
 DECLCB(int, shim_nh_poskey,(coordxy *x, coordxy *y, int *mod), "ippp", P2V x, P2V y, P2V mod)
 VDECLCB(shim_nhbell,(void), "v")

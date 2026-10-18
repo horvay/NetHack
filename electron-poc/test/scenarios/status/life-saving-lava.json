@@ -1,0 +1,57 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "status/life-saving-lava",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current",
+    "role": "Valkyrie",
+    "race": "human",
+    "gender": "female",
+    "alignment": "lawful"
+  },
+  "level": {
+    "safeAreaAroundHero": 3,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none",
+    "terrain": [
+      {
+        "at": "east",
+        "type": "lava"
+      }
+    ]
+  },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    {
+      "typeId": "LONG_SWORD",
+      "identityKnown": true,
+      "beatitudeKnown": true,
+      "beatitude": "uncursed",
+      "equipped": "wielded"
+    },
+    {
+      "typeId": "AMULET_OF_LIFE_SAVING",
+      "identityKnown": true,
+      "beatitudeKnown": true,
+      "beatitude": "uncursed",
+      "equipped": "worn"
+    }
+  ],
+  "expectedPublicFacts": {
+    "inventoryRows": [
+      "long sword",
+      "amulet of life saving"
+    ],
+    "mapAffordances": [
+      "lava east"
+    ],
+    "messages": [
+      "stepping into the lava kills the hero; the amulet saves them"
+    ],
+    "status": [
+      "HP"
+    ]
+  }
+}

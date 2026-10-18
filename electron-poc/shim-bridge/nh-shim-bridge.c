@@ -45,6 +45,7 @@ extern void ground_transfer_set_request(unsigned int, const char *, int, int, co
 extern boolean ground_transfer_result_available(void);
 extern void ground_transfer_take_result(boolean *, unsigned int *, int *, int *, char *, size_t, char *, size_t, char *, size_t);
 extern void container_transfer_set_request(unsigned int, unsigned int, const char *, const char *);
+extern void container_transfer_add_item(unsigned int);
 extern boolean container_transfer_result_available(void);
 extern void container_transfer_take_result(boolean *, unsigned int *, unsigned int *, char *, size_t, char *, size_t, char *, size_t);
 extern void container_snapshot_set_request(unsigned int, const char *);
@@ -120,6 +121,7 @@ typedef struct bridge_public_spell_row {
     int level;
     int pw_cost;
     int failure;
+    char school[32]; /* "attack", "healing"… (extended mode) */
 } bridge_public_spell_row;
 
 typedef struct bridge_public_skill_row {
@@ -129,7 +131,11 @@ typedef struct bridge_public_skill_row {
     int identifier;
     int next_cost;
     int can_advance;
+    char group[48];     /* NetHack's heading: "Weapon Skills"… */
+    int could_advance;  /* "*": would advance with more skill slots */
+    int peaked;         /* "#": at its maximum */
 } bridge_public_skill_row;
+static int pending_skill_slots = -1;
 
 #define MAX_BRIDGE_MAGIC_ROWS 64
 static bridge_public_spell_row pending_spell_rows[MAX_BRIDGE_MAGIC_ROWS];
@@ -552,12 +558,19 @@ static void finish_direct_command(bridge_direct_command_family family) {
         memset(&direct_command_arbitration, 0, sizeof direct_command_arbitration);
 }
 
+static int bridge_extended_events(void);
+
 static int is_safe_playable_key(int ch) {
     /* Accept only explicit user-supplied keys.  Printable NetHack commands,
      * ESC, TAB, CR/LF, backspace, and NetHack's Ctrl-D kick command are safe
      * because the bridge never synthesizes follow-up answers; prompts block
      * until the UI sends another key.  Keep this as a narrow allow-list so a
-     * terminal EOT/stdin close cannot become a buffered game command. */
+     * terminal EOT/stdin close cannot become a buffered game command.
+     * Extended clients (Godot) send only explicit key events, so they also get
+     * NetHack's classic control (^A ^P ^R ^T ^X ...) and meta (M-x) commands;
+     * ^C and ^Z stay refused. */
+    if (bridge_extended_events() && ch > 0 && ch < 256 && ch != 3 && ch != 26)
+        return 1;
     return ch == 4 || ch == 27 || ch == '\t' || ch == '\r' || ch == '\n' || ch == 8 || ch == 127
         || (ch >= 32 && ch <= 126);
 }
@@ -847,6 +860,36 @@ static int json_direct_object_field(const char *object, const char *field, const
     return 1;
 }
 
+/* An optional array of unsigned integers ("moreItemIds":[12,15]). Returns
+ * the count, 0 when absent, -1 when malformed. */
+static int json_direct_uint_array_field(const char *object, const char *field, unsigned int *out, int max, char *reason, size_t reasonsz) {
+    const char *vs = NULL, *ve = NULL;
+    int count = 0, n = 0;
+    if (!json_direct_field(object, field, &vs, &ve, &count)) return 0;
+    if (count > 1 || !vs || *vs != '[') {
+        if (reason && reasonsz) snprintf(reason, reasonsz, "%s must be one array of unsigned integers", field);
+        return -1;
+    }
+    const char *p = vs + 1;
+    for (;;) {
+        while (p < ve && (isspace((unsigned char)*p) || *p == ',')) ++p;
+        if (p >= ve || *p == ']') break;
+        if (!isdigit((unsigned char)*p) || n >= max) {
+            if (reason && reasonsz) snprintf(reason, reasonsz, "%s must hold at most %d unsigned integers", field, max);
+            return -1;
+        }
+        char *end = NULL;
+        unsigned long value = strtoul(p, &end, 10);
+        if (!end || end == p || value == 0 || value > UINT_MAX) {
+            if (reason && reasonsz) snprintf(reason, reasonsz, "%s must hold non-zero unsigned integers", field);
+            return -1;
+        }
+        out[n++] = (unsigned int)value;
+        p = end;
+    }
+    return n;
+}
+
 static int json_direct_uint_field(const char *object, const char *field, unsigned int *out, char *reason, size_t reasonsz) {
     if (out) *out = 0U;
     const char *vs = NULL, *ve = NULL;
@@ -963,6 +1006,66 @@ static void emit_spell_availability_event(void) {
     emit_event_end();
 }
 
+/* Extended events are additive data for clients that opt in with
+ * NH_BRIDGE_EXTENDED=1 (the Godot front end).  Electron never sets it, so its
+ * event stream is unchanged. */
+static int bridge_extended_events(void) {
+    static int enabled = -1;
+    if (enabled < 0) {
+        const char *value = getenv("NH_BRIDGE_EXTENDED");
+        enabled = value && !strcmp(value, "1");
+    }
+    return enabled;
+}
+
+/* One digit per map cell, row-major over ROWNO x COLNO: bit 0 = the hero can
+ * see the cell now, bit 1 = the cell is lit (reported only for cells the hero
+ * sees or has seen, so unexplored lighting is never revealed).  Sent only
+ * when it changes. */
+static void emit_vision_event(void) {
+    static char last_cells[ROWNO * COLNO + 1];
+    static int last_depth = -9999;
+    static int last_place = -1;
+    char cells[ROWNO * COLNO + 1];
+    int index = 0;
+
+    if (!bridge_extended_events() || !program_state.in_moveloop) return;
+    for (int y = 0; y < ROWNO; ++y) {
+        for (int x = 0; x < COLNO; ++x) {
+            int value = 0;
+            if (isok(x, y)) {
+                boolean seen_now = cansee(x, y);
+                if (seen_now) {
+                    value |= 1;
+                    /* What the hero sees lit now, including carried light. */
+                    if (levl[x][y].lit || templit(x, y)) value |= 2;
+                } else if (levl[x][y].waslit) {
+                    /* Out of sight: only what the hero remembers. */
+                    value |= 2;
+                }
+            }
+            cells[index++] = (char) ('0' + value);
+        }
+    }
+    cells[index] = '\0';
+    int current_depth = depth(&u.uz);
+    int place = ((int) u.uz.dnum << 16) | ((int) u.uz.dlevel << 1) | (Blind ? 1 : 0);
+    if (current_depth == last_depth && place == last_place && !strcmp(cells, last_cells)) return;
+    memcpy(last_cells, cells, sizeof cells);
+    last_depth = current_depth;
+    last_place = place;
+
+    emit_event_start("bridge_vision");
+    fprintf(stdout, ",\"width\":%d,\"height\":%d,\"depth\":%d,\"dnum\":%d,\"dlevel\":%d,\"blind\":%s,\"cells\":\"%s\"",
+            COLNO, ROWNO, current_depth, (int) u.uz.dnum, (int) u.uz.dlevel,
+            Blind ? "true" : "false", cells);
+    /* The branch the hero is in ("The Gnomish Mines"), for level labels. */
+    fputs(",\"dungeon\":\"", stdout);
+    json_escape(stdout, svd.dungeons[u.uz.dnum].dname);
+    fputs("\"", stdout);
+    emit_event_end();
+}
+
 static void emit_authoritative_magic_rows(const char *kind, int window) {
     bridge_menu_lifecycle *ctx = find_menu_lifecycle(window);
     int is_spell = !strcmp(kind, "spell");
@@ -994,6 +1097,7 @@ static void emit_authoritative_magic_rows(const char *kind, int window) {
             if (row->selector >= 32 && row->selector <= 126) { char selector[2] = { (char) row->selector, '\0' }; fputs(",\"selector\":\"", stdout); json_escape(stdout, selector); fputs("\"", stdout); }
             fprintf(stdout, ",\"level\":%d,\"pwCost\":%d,\"failure\":%d", row->level, row->pw_cost, row->failure);
             if (row->status[0]) { fputs(",\"status\":\"", stdout); json_escape(stdout, row->status); fputs("\"", stdout); }
+            if (bridge_extended_events() && row->school[0]) { fputs(",\"school\":\"", stdout); json_escape(stdout, row->school); fputs("\"", stdout); }
             fputc('}', stdout);
         } else {
             bridge_public_skill_row *row = &pending_skill_rows[i];
@@ -1003,12 +1107,21 @@ static void emit_authoritative_magic_rows(const char *kind, int window) {
             fputs(",\"currentRank\":\"", stdout); json_escape(stdout, row->current_rank); fputs("\"", stdout);
             if (row->can_advance && row->next_rank[0]) { fputs(",\"nextRank\":\"", stdout); json_escape(stdout, row->next_rank); fputs("\"", stdout); }
             if (row->can_advance && row->next_cost > 0) fprintf(stdout, ",\"nextCost\":%d", row->next_cost);
-            fprintf(stdout, ",\"canAdvance\":%s}", row->can_advance ? "true" : "false");
+            fprintf(stdout, ",\"canAdvance\":%s", row->can_advance ? "true" : "false");
+            if (bridge_extended_events()) {
+                fputs(",\"group\":\"", stdout); json_escape(stdout, row->group); fputs("\"", stdout);
+                fprintf(stdout, ",\"couldAdvance\":%s,\"peaked\":%s", row->could_advance ? "true" : "false", row->peaked ? "true" : "false");
+            }
+            fputc('}', stdout);
         }
     }
-    fputs("]}}\n", stdout);
+    fputs("]", stdout);
+    if (!is_spell && bridge_extended_events() && pending_skill_slots >= 0)
+        fprintf(stdout, ",\"slots\":%d", pending_skill_slots);
+    fputs("}}\n", stdout);
     fflush(stdout);
     bridge_mutex_unlock(&out_mu);
+    if (!is_spell) pending_skill_slots = -1;
     if (is_spell) { pending_spell_row_count = 0; pending_spell_rows_window = -1; }
     else { pending_skill_row_count = 0; pending_skill_rows_window = -1; }
 }
@@ -1184,6 +1297,36 @@ static void push_key_with_metadata(int ch, const bridge_gui_action_metadata *met
 
 static void push_key(int ch) {
     push_key_with_metadata(ch, NULL);
+}
+
+/* Map clicks (extended clients only): {"type":"map-click","x":X,"y":Y,
+ * "button":1|2}.  A click travels through the key queue as one encoded int
+ * and is decoded by nh_poskey into NetHack's own mouse coordinates, so
+ * click-to-travel and getpos picking use NetHack's logic.  Clicks are only
+ * accepted while NetHack reads a command or a map position, so they can
+ * never be misread as a menu or yes/no answer. */
+#define BRIDGE_CLICK_FLAG 0x40000000
+static void handle_map_click_line(const char *line) {
+    int x = extract_json_int_field(line, "x", -1);
+    int y = extract_json_int_field(line, "y", -1);
+    int button = extract_json_int_field(line, "button", 1);
+    int input_state = (int) program_state.input_state;
+    int accepted = 0;
+    if (bridge_extended_events() && isok(x, y) && (button == 1 || button == 2)
+        && (input_state == commandInp || input_state == getposInp)) {
+        bridge_mutex_lock(&in_mu);
+        int next = (pending_tail + 1) % 1024;
+        if (next != pending_head) {
+            pending_keys[pending_tail] = BRIDGE_CLICK_FLAG | (button << 16) | (y << 8) | x;
+            pending_tail = next;
+            accepted = 1;
+            bridge_condition_signal(&in_cv);
+        }
+        bridge_mutex_unlock(&in_mu);
+    }
+    emit_event_start(accepted ? "bridge_map_click_accepted" : "bridge_map_click_rejected");
+    fprintf(stdout, ",\"x\":%d,\"y\":%d,\"button\":%d,\"inputState\":%d", x, y, button, input_state);
+    emit_event_end();
 }
 
 static int extract_json_string_field_after(const char *line, const char *anchor, const char *field, char *out, size_t outsz) {
@@ -1458,6 +1601,11 @@ static void handle_container_transfer_line(const char *line) {
     if (json_direct_uint_field(payload_obj, "containerId", &container_id, reason, sizeof reason) < 0
         || json_direct_uint_field(payload_obj, "itemId", &item_id, reason, sizeof reason) < 0) { emit_container_transfer_rejected_dir(command_id, transaction_id, transfer_id, direction, reason); return; }
     if (json_direct_field_count(command_obj, "containerId") || json_direct_field_count(command_obj, "itemId")) { emit_container_transfer_rejected_dir(command_id, transaction_id, transfer_id, direction, "containerId and itemId must be payload fields only"); return; }
+    /* Further stacks for the same direction, moved in the same command and
+     * turn as NetHack's own loot menu moves several. */
+    unsigned int more_ids[256];
+    int more_count = json_direct_uint_array_field(payload_obj, "moreItemIds", more_ids, 256, reason, sizeof reason);
+    if (more_count < 0) { emit_container_transfer_rejected_dir(command_id, transaction_id, transfer_id, direction, reason); return; }
     if (strcmp(protocol, "nethack-electron-ui/v2")) { emit_container_transfer_rejected_dir(command_id, transaction_id, transfer_id, direction, "protocol must be nethack-electron-ui/v2"); return; }
     if (!command_id[0]) { emit_container_transfer_rejected_dir(command_id, transaction_id, transfer_id, direction, "container.transfer requires commandId"); return; }
     if (strcmp(command_type, "container.transfer")) { emit_container_transfer_rejected_dir(command_id, transaction_id, transfer_id, direction, "commandType must be container.transfer"); return; }
@@ -1480,6 +1628,8 @@ static void handle_container_transfer_line(const char *line) {
     snprintf(active_container_transfer.session_id, sizeof active_container_transfer.session_id, "%s", session_id);
     snprintf(active_transaction_id, sizeof active_transaction_id, "%s", active_container_transfer.transfer_id);
     container_transfer_set_request(active_container_transfer.container_id, active_container_transfer.item_id, active_container_transfer.direction, active_transaction_id);
+    for (int i = 0; i < more_count; ++i)
+        container_transfer_add_item(more_ids[i]);
     emit_active_direct_command_lifecycle_start(
         BRIDGE_DIRECT_COMMAND_CONTAINER_TRANSFER, "accepted", NULL);
     fputs(",\"transferId\":\"", stdout); json_escape(stdout, active_container_transfer.transfer_id); fputs("\"", stdout);
@@ -1974,19 +2124,27 @@ static void handle_ui_command_line(const char *line) {
     }
 }
 
+/* Only nh_poskey can take a map click; anywhere else a queued click is
+ * dropped, so it can never be read as a key (its low byte is a column). */
+static int click_pop_allowed = 0;
+
 static int pop_key_blocking_with_status(int *queued_before, int *queued_after) {
     bridge_mutex_lock(&in_mu);
-    while (pending_head == pending_tail) {
-        /* Do not synthesize ESC on EOF.  A detached/stdin-closed shim used to
-         * feed ESC forever, making NetHack spin and look like it was
-         * repeatedly restarting.  Electron keeps stdin open and sends explicit
-         * JSON key events; if stdin closes, wait quietly for SIGTERM/cleanup.
-         */
-        bridge_condition_wait(&in_cv, &in_mu);
+    int ch;
+    for (;;) {
+        while (pending_head == pending_tail) {
+            /* Do not synthesize ESC on EOF.  A detached/stdin-closed shim used to
+             * feed ESC forever, making NetHack spin and look like it was
+             * repeatedly restarting.  Electron keeps stdin open and sends explicit
+             * JSON key events; if stdin closes, wait quietly for SIGTERM/cleanup.
+             */
+            bridge_condition_wait(&in_cv, &in_mu);
+        }
+        if (queued_before) *queued_before = (pending_tail - pending_head + 1024) % 1024;
+        ch = pending_keys[pending_head];
+        pending_head = (pending_head + 1) % 1024;
+        if (!(ch & BRIDGE_CLICK_FLAG) || click_pop_allowed) break;
     }
-    if (queued_before) *queued_before = (pending_tail - pending_head + 1024) % 1024;
-    int ch = pending_keys[pending_head];
-    pending_head = (pending_head + 1) % 1024;
     if (queued_after) *queued_after = (pending_tail - pending_head + 1024) % 1024;
     bridge_mutex_unlock(&in_mu);
     return ch;
@@ -2000,6 +2158,8 @@ static int try_pop_matching_key(const char *choices) {
     int ch = 0;
     int accepted = 0;
     bridge_mutex_lock(&in_mu);
+    while (pending_head != pending_tail && (pending_keys[pending_head] & BRIDGE_CLICK_FLAG))
+        pending_head = (pending_head + 1) % 1024;
     if (pending_head != pending_tail) {
         ch = pending_keys[pending_head];
         if (ch == '\r') ch = '\n';
@@ -2052,6 +2212,10 @@ static void stdin_thread(void *unused) {
         }
         if (!strcmp(input_type, "terrain-action")) {
             handle_terrain_action_line(line);
+            continue;
+        }
+        if (!strcmp(input_type, "map-click")) {
+            handle_map_click_line(line);
             continue;
         }
         bridge_gui_action_metadata meta;
@@ -2746,6 +2910,51 @@ static int public_ground_object_count_at(int x, int y) {
     return count;
 }
 
+/* Extended (Godot) mode: a cheap fingerprint of the hero square's seen
+ * objects (ids and quantities), so a pickup, drop or theft there sends a
+ * fresh pile even though the square is never reprinted (its glyph stays
+ * the hero). Electron's event stream is unchanged. */
+static unsigned long hero_pile_signature(int x, int y) {
+    unsigned long sig = 1469598103UL;
+    struct obj *otmp;
+    if (!isok(x, y)) return 0;
+    for (otmp = svl.level.objects[x][y]; otmp; otmp = otmp->nexthere) {
+        if (!otmp->dknown) continue;
+        sig = (sig ^ (unsigned long) otmp->o_id) * 16777619UL;
+        sig = (sig ^ (unsigned long) otmp->quan) * 16777619UL;
+    }
+    return sig;
+}
+
+static int hero_pile_x = -1, hero_pile_y = -1, hero_pile_level = -1;
+static int godot_menu_style_checked;
+static unsigned long hero_pile_sig;
+
+static int should_emit_ground_pile_snapshot_at(int x, int y);
+static void emit_ground_pile_snapshot_event(int window, int x, int y);
+
+/* Extended mode: report the hero square's pile when it changed since the
+ * last check. Runs at the top of each turn and again at the command wait,
+ * so changes during the monsters' turn (a missile landing underfoot, a
+ * slippery weapon dropped) show before the player's next command. */
+static void check_hero_pile_change(void) {
+    unsigned long sig;
+    int level;
+    if (!bridge_extended_events() || !isok(u.ux, u.uy)) return;
+    sig = hero_pile_signature(u.ux, u.uy);
+    level = (int) ledger_no(&u.uz);
+    if (u.ux == hero_pile_x && u.uy == hero_pile_y && level == hero_pile_level && sig != hero_pile_sig) {
+        /* Report it even when now empty (a window clear may have forgotten
+         * that a pile was reported here). */
+        ground_pile_snapshot_known[u.ux][u.uy] = 1;
+        emit_ground_pile_snapshot_event(WIN_MAP, u.ux, u.uy);
+    }
+    hero_pile_x = u.ux;
+    hero_pile_y = u.uy;
+    hero_pile_level = level;
+    hero_pile_sig = sig;
+}
+
 static int should_emit_ground_pile_snapshot_at(int x, int y) {
     if (!isok(x, y)) return 0;
     return public_ground_object_count_at(x, y) > 0 || ground_pile_snapshot_known[x][y];
@@ -2957,11 +3166,24 @@ static void emit_public_item_presentation_fields(const struct obj *otmp) {
     }
 }
 
+/* A container's type name as the hero knows it: "bag" until a sack, oilskin
+ * sack, bag of holding or bag of tricks is identified. */
+static const char *public_container_name(int otyp) {
+    const char *name = OBJ_NAME(objects[otyp]);
+    const char *descr = OBJ_DESCR(objects[otyp]);
+    if (!objects[otyp].oc_name_known && descr && *descr)
+        return descr;
+    return name;
+}
+
 static void emit_public_ground_display_name(char *buf, size_t bufsz, struct obj *otmp, int glyph) {
     if (!buf || !bufsz) return;
     buf[0] = '\0';
     if (otmp && Is_container(otmp)) {
-        const char *base = OBJ_NAME(objects[otmp->otyp]);
+        /* The type's name only once the hero knows it: an unidentified
+         * sack, oilskin sack, bag of holding or bag of tricks is "a bag",
+         * as NetHack itself shows it (no spoilers). */
+        const char *base = public_container_name(otmp->otyp);
         Snprintf(buf, bufsz, "%s%s", (otmp->quan == 1L) ? "a " : "", base ? base : "container");
         return;
     }
@@ -3050,9 +3272,13 @@ static struct obj *find_inventory_object_for_classic_menu(int selector, int glyp
     return NULL;
 }
 
+/* A container on the hero's square, or one the hero carries (the engine's
+ * direct container commands accept both). */
 static struct obj *floor_container_by_public_id(unsigned int container_id) {
-    if (!isok(u.ux, u.uy)) return NULL;
-    for (struct obj *otmp = svl.level.objects[u.ux][u.uy]; otmp; otmp = otmp->nexthere)
+    if (isok(u.ux, u.uy))
+        for (struct obj *otmp = svl.level.objects[u.ux][u.uy]; otmp; otmp = otmp->nexthere)
+            if (Is_container(otmp) && otmp->o_id == container_id) return otmp;
+    for (struct obj *otmp = gi.invent; otmp; otmp = otmp->nobj)
         if (Is_container(otmp) && otmp->o_id == container_id) return otmp;
     return NULL;
 }
@@ -3084,7 +3310,7 @@ static void emit_container_item_json(struct obj *otmp) {
 static void emit_container_contents_snapshot_for(struct obj *container, const char *session_id, const char *transaction_id) {
     if (!container || !Is_container(container) || !container->cknown) return;
     unsigned long revision = ++container_contents_revision;
-    const char *base = OBJ_NAME(objects[container->otyp]);
+    const char *base = public_container_name(container->otyp);
     char fallback_session[96];
     snprintf(fallback_session, sizeof fallback_session, "container-%u", container->o_id);
     emit_event_start("shim_container_contents_snapshot");
@@ -3197,6 +3423,12 @@ static void emit_print_glyph_fields(int win, int x, int y, const glyph_info *gi,
         json_escape(stdout, background_char);
         fputs("\"", stdout);
     }
+    /* Extended mode: the terrain under a creature or object as NetHack's
+     * cmap index (doors, traps, engravings… drawn as when nothing is there). */
+    if (bridge_extended_events() && has_background_glyph && glyph_is_cmap(background_glyph))
+        fprintf(stdout, ",\"backgroundCmap\":%d", glyph_to_cmap(background_glyph));
+    else if (bridge_extended_events() && has_background_glyph && glyph_is_trap(background_glyph))
+        fprintf(stdout, ",\"backgroundCmap\":%d", trap_to_defsym(glyph_to_trap(background_glyph)));
     if (glyph_is_cmap(glyph)) fprintf(stdout, ",\"cmapIndex\":%d", glyph_to_cmap(glyph));
     fputs(",\"semanticKind\":\"", stdout);
     json_escape(stdout, hero_cell ? "hero" : glyph_semantic_kind(glyph));
@@ -3212,7 +3444,17 @@ static void emit_print_glyph_fields(int win, int x, int y, const glyph_info *gi,
         fputs(",\"actorId\":\"hero\"", stdout);
     } else if (isok(x, y) && glyph_is_monster(glyph)) {
         struct monst *actor = m_at((coordxy) x, (coordxy) y);
-        if (actor) fprintf(stdout, ",\"actorId\":\"monster-%u\"", actor->m_id);
+        /* Extended clients get one actor per creature: a long worm's tail
+         * segments share its m_id, so only the head carries the actorId. */
+        if (actor && bridge_extended_events() && (actor->mx != x || actor->my != y)) {
+            /* While hallucinating the segment shows as some random monster:
+             * calling it a tail would say what it really is. */
+            if (Hallucination)
+                fprintf(stdout, ",\"actorId\":\"segment-%d-%d\"", x, y);
+            else
+                fputs(",\"actorRole\":\"tail\"", stdout);
+        }
+        else if (actor) fprintf(stdout, ",\"actorId\":\"monster-%u\"", actor->m_id);
     }
     emit_object_layer_fields_at(glyph, x, y);
     if (should_emit_ground_pile_snapshot_at(x, y)) fputs(",\"groundPileSnapshotAuthoritative\":true", stdout);
@@ -3435,6 +3677,12 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
     if (!strcmp(name, "shim_nhgetch") && ret_ptr) {
         emit_live_inventory_event(-1);
         emit_spell_availability_event();
+        emit_vision_event();
+        if (bridge_extended_events()) {
+            emit_event_start("bridge_key_wait");
+            fprintf(stdout, ",\"inputState\":%d", (int) program_state.input_state);
+            emit_event_end();
+        }
         int queue_before = 0, queue_after = 0;
         int ch = pop_key_blocking_with_status(&queue_before, &queue_after);
         if (ch == 0) queue_active_direct_command();
@@ -3447,9 +3695,25 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
         return;
     }
     if (!strcmp(name, "shim_nh_poskey") && ret_ptr) {
+        if (program_state.input_state == commandInp)
+            check_hero_pile_change();
+        if (bridge_extended_events() && !godot_menu_style_checked) {
+            /* A restored save keeps the menu style it was made with (an
+             * Electron or tty save may use traditional menus); Godot's
+             * screens answer NetHack's menus, so a game starts with full
+             * menus. Once per game: a later O change is the player's.
+             * (Space needs nothing here: its binding follows the starting
+             * rest_on_space option, and restoring doesn't change it.) */
+            godot_menu_style_checked = 1;
+            if (flags.menu_style != MENU_FULL)
+                flags.menu_style = MENU_FULL;
+        }
         emit_live_inventory_event(-2);
         emit_spell_availability_event();
-        (void) va_ptr_arg(&ap); (void) va_ptr_arg(&ap); (void) va_ptr_arg(&ap);
+        emit_vision_event();
+        coordxy *click_x = (coordxy *) va_ptr_arg(&ap);
+        coordxy *click_y = (coordxy *) va_ptr_arg(&ap);
+        int *click_mod = (int *) va_ptr_arg(&ap);
         const int input_state = program_state.input_state;
         const char *prompt_purpose = input_state == commandInp ? "prompt.command"
             : (input_state == getposInp ? "prompt.mapTarget"
@@ -3460,8 +3724,15 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
         emit_prompt_lifecycle_metadata(prompt_purpose, "opened");
         emit_event_end();
         int queue_before = 0, queue_after = 0;
+        click_pop_allowed = 1;
         int ch = pop_key_blocking_with_status(&queue_before, &queue_after);
-        if (ch == 0 && input_state == commandInp) queue_active_direct_command();
+        click_pop_allowed = 0;
+        if (ch & BRIDGE_CLICK_FLAG) {
+            if (click_x) *click_x = (coordxy) (ch & 0xFF);
+            if (click_y) *click_y = (coordxy) ((ch >> 8) & 0xFF);
+            if (click_mod) *click_mod = (ch >> 16) & 0xFF;
+            ch = 0;
+        } else if (ch == 0 && input_state == commandInp) queue_active_direct_command();
         *(int *)ret_ptr = ch;
         emit_event_start(name);
         fputs(",\"fmt\":\"", stdout); json_escape(stdout, fmt ? fmt : ""); fputs("\"", stdout);
@@ -3548,6 +3819,35 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
         va_end(ap);
         return;
     }
+    if (!strcmp(name, "shim_native_spell_row_school")) {
+        int window = va_int_arg(&ap);
+        const char *school = va_string_arg(&ap);
+        if (pending_spell_rows_window == window && pending_spell_row_count > 0)
+            snprintf(pending_spell_rows[pending_spell_row_count - 1].school,
+                     sizeof pending_spell_rows[0].school, "%s", school ? school : "");
+        va_end(ap);
+        return;
+    }
+    if (!strcmp(name, "shim_native_skill_row_extra")) {
+        int window = va_int_arg(&ap);
+        const char *group = va_string_arg(&ap);
+        int could = va_int_arg(&ap);
+        int peaked = va_int_arg(&ap);
+        if (pending_skill_rows_window == window && pending_skill_row_count > 0) {
+            bridge_public_skill_row *row = &pending_skill_rows[pending_skill_row_count - 1];
+            snprintf(row->group, sizeof row->group, "%s", group ? group : "");
+            row->could_advance = could != 0;
+            row->peaked = peaked != 0;
+        }
+        va_end(ap);
+        return;
+    }
+    if (!strcmp(name, "shim_native_skill_slots")) {
+        (void) va_int_arg(&ap);
+        pending_skill_slots = va_int_arg(&ap);
+        va_end(ap);
+        return;
+    }
     if (!strcmp(name, "shim_native_skill_rows_ready")) {
         int window = va_int_arg(&ap);
         emit_authoritative_magic_rows("skill", window);
@@ -3558,6 +3858,7 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
     if (!strcmp(name, "shim_get_nh_event")) {
         if (isok(u.ux, u.uy) && public_ground_object_count_at(u.ux, u.uy) > 0 && !ground_pile_snapshot_known[u.ux][u.uy])
             emit_ground_pile_snapshot_event(WIN_MAP, u.ux, u.uy);
+        check_hero_pile_change();
         maybe_emit_ground_transfer_result();
         maybe_emit_container_transfer_result();
         maybe_emit_container_snapshot_result();
@@ -3572,6 +3873,12 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
          * top-level ui-command routes such as ground.dipIntoTerrain. */
         clear_active_transaction();
     }
+
+    /* Every blocking wait, not only command waits, sees current vision
+     * (e.g. after "You are blinded by the flash!" at a question). */
+    if (!strcmp(name, "shim_yn_function") || !strcmp(name, "shim_getlin")
+        || !strcmp(name, "shim_select_menu") || !strcmp(name, "shim_get_ext_cmd"))
+        emit_vision_event();
 
     emit_event_start(name);
     fputs(",\"fmt\":\"", stdout); json_escape(stdout, fmt ? fmt : ""); fputs("\"", stdout);
@@ -3669,17 +3976,34 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
             return;
         }
         fputs(",\"query\":\"", stdout); json_escape(stdout, query); fputs("\",\"choices\":\"", stdout); json_escape(stdout, resp); fputs("\"", stdout);
+        /* The answer Enter or Space gives (the bracketed letter in NetHack's
+         * "[ynq] (n)"), so a front end can show and honour it. */
+        if (bridge_extended_events() && def > 0 && def < 128) {
+            char defbuf[2] = { (char) def, 0 };
+            fputs(",\"default\":\"", stdout); json_escape(stdout, defbuf); fputs("\"", stdout);
+        }
         emit_prompt_lifecycle_metadata(prompt_purpose, "opened");
         emit_event_end();
+        int cancelled = 0;
         do {
             ch = pop_key_blocking();
             if (ch == '\r') ch = '\n';
-            if (ch == 27) break;
+            if (ch == 27) {
+                cancelled = 1;
+                /* As tty does (win/tty/topl.c): Esc means q, else n, else the
+                 * default. Returned raw, an Esc NetHack didn't offer ("Which
+                 * ring-finger, Right or Left? [rl]") is "Program in disorder". */
+                if (resp && *resp && !strchr(resp, 27))
+                    ch = strchr(resp, 'q') ? 'q' : strchr(resp, 'n') ? 'n' : def;
+                break;
+            }
             if ((ch == '\n' || ch == ' ') && def) { ch = def; break; }
         } while (resp && *resp && !strchr(resp, ch));
         *(char *)ret_ptr = (char) ch;
         emit_event_start("bridge_prompt_answer");
         fprintf(stdout, ",\"keycode\":%d", ch);
+        /* Esc, mapped as tty maps it: the client sent a cancel. */
+        if (cancelled) fputs(",\"cancelled\":true", stdout);
         emit_prompt_lifecycle_metadata(prompt_purpose, "answered");
         emit_event_end();
         clear_prompt_lifecycle();
@@ -3894,6 +4218,11 @@ static void shim_cb(const char *name, void *ret_ptr, const char *fmt, ...) {
         fprintf(stdout, ",\"glyphFlags\":%u", gi ? gi->gm.glyphflags : 0U);
         if (has_background_glyph) emit_public_glyph_field("backgroundGlyph", background_glyph);
         else fputs(",\"backgroundGlyph\":-1", stdout);
+        /* Extended mode: the terrain under a creature or object as NetHack's
+         * own cmap index, so the front end draws the square exactly as it
+         * does when nothing stands on it (doors, traps, engravings…). */
+        if (bridge_extended_events() && has_background_glyph && glyph_is_cmap(background_glyph))
+            fprintf(stdout, ",\"backgroundCmap\":%d", glyph_to_cmap(background_glyph));
         if (glyph_is_cmap(glyph)) fprintf(stdout, ",\"cmapIndex\":%d", glyph_to_cmap(glyph));
         fputs(",\"semanticKind\":\"", stdout);
         json_escape(stdout, glyph_semantic_kind(glyph));

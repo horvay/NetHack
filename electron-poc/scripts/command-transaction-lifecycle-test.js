@@ -98,3 +98,16 @@ const repeatCompletedFailure = process(failView, { name: 'bridge_input_queue_ful
 assert(repeatCompletedFailure.effects.some((effect) => effect.type === 'command-transaction-completion-rejected'), 'failure cannot overwrite an already failed/completed transaction');
 
 console.log('command-transaction-lifecycle-test PASS');
+
+// Esc at a question without q or n ("Which ring-finger, Right or Left?
+// [rl]"): the bridge maps it as tty does (here to 0) and marks the answer
+// cancelled; the transaction must still fail as cancelled by the player.
+{
+  const ringView = GameViewState.createGameViewState({ mapWidth: 80, mapHeight: 21 });
+  process(ringView, { name: 'bridge_command', keycode: '#'.charCodeAt(0), transactionId: 'txn-ring-1' });
+  process(ringView, { name: 'shim_yn_function', query: 'Which ring-finger, Right or Left?', choices: 'rl', requestId: 'req-ring-finger', transactionId: 'txn-ring-1' });
+  const answered = process(ringView, { name: 'bridge_prompt_answer', keycode: 0, cancelled: true, requestId: 'req-ring-finger', transactionId: 'txn-ring-1' });
+  const failed = answered.effects.find((effect) => /command-transaction-(failed|completed)/.test(effect.type));
+  assert(failed && /cancelled by player/.test(JSON.stringify(failed)), `a mapped Esc (cancelled:true) fails the transaction as cancelled by player: ${JSON.stringify(answered.effects.map((e) => e.type))}`);
+}
+

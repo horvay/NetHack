@@ -1,0 +1,5 @@
+.tools/
+extension/build/
+project/.godot/
+project/bin/*.so
+test-output/

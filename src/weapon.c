@@ -1313,9 +1313,13 @@ add_skills_to_menu(winid win, boolean selectable, boolean speedy)
                                       : (const char *) 0,
                                   advanceable ? slots_required(i) : -1,
                                   advanceable);
+            shim_native_skill_row_extra(win, skill_ranges[pass].name,
+                                        !advanceable && could_advance(i),
+                                        peaked_skill(i));
 #endif
         }
 #ifdef SHIM_GRAPHICS
+    shim_native_skill_slots(win, u.weapon_slots);
     shim_native_skill_rows_ready(win);
 #endif
 }

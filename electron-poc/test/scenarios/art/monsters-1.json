@@ -1,0 +1,461 @@
+{
+ "schema": "nethack-electron-test-scenario/v1",
+ "id": "art/monsters-1",
+ "phase": "after-level-and-hero-before-first-draw",
+ "hero": {
+  "placement": "current"
+ },
+ "level": {
+  "safeAreaAroundHero": 3,
+  "lit": true,
+  "suppressAdjacentMonsters": false,
+  "pet": "none",
+  "terrain": [
+   {
+    "at": {
+     "dx": -3,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -2,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -1,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 0,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 1,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 2,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 3,
+     "dy": -2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -3,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -2,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -1,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 0,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 1,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 2,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 3,
+     "dy": -1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -3,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -2,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -1,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 1,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 2,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 3,
+     "dy": 0
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -3,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -2,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -1,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 0,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 1,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 2,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 3,
+     "dy": 1
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -3,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -2,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": -1,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 0,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 1,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 2,
+     "dy": 2
+    },
+    "type": "floor"
+   },
+   {
+    "at": {
+     "dx": 3,
+     "dy": 2
+    },
+    "type": "floor"
+   }
+  ]
+ },
+ "ground": [],
+ "monsters": [
+  {
+   "typeId": "ACID_BLOB",
+   "at": {
+    "dx": -3,
+    "dy": -2
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "ALEAX",
+   "at": {
+    "dx": -2,
+    "dy": -2
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "ANGEL",
+   "at": {
+    "dx": -1,
+    "dy": -2
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "ARCHON",
+   "at": {
+    "dx": 0,
+    "dy": -2
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "BABY_BLACK_DRAGON",
+   "at": {
+    "dx": 1,
+    "dy": -2
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "BABY_GOLD_DRAGON",
+   "at": {
+    "dx": 2,
+    "dy": -2
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "BABY_GRAY_DRAGON",
+   "at": {
+    "dx": 3,
+    "dy": -2
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "BABY_GREEN_DRAGON",
+   "at": {
+    "dx": -3,
+    "dy": -1
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "BABY_RED_DRAGON",
+   "at": {
+    "dx": -2,
+    "dy": -1
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "BABY_SILVER_DRAGON",
+   "at": {
+    "dx": 0,
+    "dy": -1
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "BABY_YELLOW_DRAGON",
+   "at": {
+    "dx": 1,
+    "dy": -1
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "BLACK_LIGHT",
+   "at": {
+    "dx": 2,
+    "dy": -1
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "BLUE_DRAGON",
+   "at": {
+    "dx": 3,
+    "dy": -1
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "BLUE_JELLY",
+   "at": {
+    "dx": -3,
+    "dy": 0
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "CENTIPEDE",
+   "at": {
+    "dx": -2,
+    "dy": 0
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "COUATL",
+   "at": {
+    "dx": 1,
+    "dy": 0
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "COYOTE",
+   "at": {
+    "dx": 2,
+    "dy": 0
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "ETTIN",
+   "at": {
+    "dx": 3,
+    "dy": 0
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "FLOATING_EYE",
+   "at": {
+    "dx": -3,
+    "dy": 1
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "FOG_CLOUD",
+   "at": {
+    "dx": -2,
+    "dy": 1
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "FOREST_CENTAUR",
+   "at": {
+    "dx": -1,
+    "dy": 1
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  },
+  {
+   "typeId": "FREEZING_SPHERE",
+   "at": {
+    "dx": 0,
+    "dy": 1
+   },
+   "attitude": "peaceful",
+   "asleep": true
+  }
+ ],
+ "inventory": [],
+ "expectedPublicFacts": {
+  "messages": [
+   "art gallery: newly generated tiles around the hero"
+  ]
+ }
+}

@@ -181,6 +181,21 @@ nhmain(int argc, char *argv[])
 #ifdef __linux__
     check_linux_console();
 #endif
+    /* The rc-file switches that src/earlyarg.c handles for the tty main
+     * (which this main never calls): -no-nethackrc reads /dev/null instead
+     * of ~/.nethackrc; -nethackrc=FILE / --nethackrc=FILE names one. Set
+     * after early_init(), which resets gc. Used by the Godot front end. */
+    {
+        int i;
+        for (i = 1; i < argc; i++) {
+            const char *arg = argv[i];
+            if (!strcmp(arg, "-no-nethackrc") || !strcmp(arg, "--no-nethackrc")) {
+                gc.cmdline_rcfile = dupstr("/dev/null");
+            } else if (!strncmp(arg, "-nethackrc=", 11) || !strncmp(arg, "--nethackrc=", 12)) {
+                gc.cmdline_rcfile = dupstr(strchr(arg, '=') + 1);
+            }
+        }
+    }
     initoptions();
 #ifdef PANICTRACE
     ARGV0 = gh.hname; /* save for possible stack trace */

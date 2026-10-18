@@ -1,0 +1,3431 @@
+[
+ {
+  "id": "gray-stone",
+  "category": "objects-inventory",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/gray-stone.png",
+  "outputPath": "asset-generation/outputs/objects-inventory/gray-stone.png",
+  "name": "Gray stone",
+  "glyph": "*",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No tile existed: an unidentified luckstone, loadstone, touchstone or flint showed nothing (glyph withheld), then the sparkly gem icon. Greg: 'so grey you can't even see it'.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single smooth rounded river stone, a plain flat oval pebble seen at a slight angle, medium slate gray with light silver-gray highlights on top, a soft white specular glint, darker charcoal gray shading underneath, subtle speckles. Bold clean dark outline, chunky readable silhouette filling most of the frame, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "closed-door",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/closed-door.png",
+  "problem": "vector",
+  "severity": "high",
+  "what_is_wrong": "Flat orange rectangle with three black lines and a yellow square; a geometric placeholder with no wood grain, shading or wall context. Redesigned as a front-view door family that matches Godot's 3/4 brick walls (Greg: 'Terrible door').",
+  "seeds": [
+   42,
+   8,
+   7,
+   3,
+   99
+  ],
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game tile in the style of a fantasy game asset: a closed heavy arched wooden dungeon door seen from the front, filling almost the entire tile, only a thin cool gray stone frame at the very edges, warm brown oak planks with vertical grain, two black iron straps across it, a round brass ring handle on the right, a rounded arch at the top. Flat front view as in a 3/4 top-down pixel art dungeon game where walls are drawn as gray stone brick faces. Bold clean dark outlines, strong contrast, readable at 32 pixels, the subject fills the whole square tile edge to edge, opaque, no surroundings, no text."
+  }
+ },
+ {
+  "id": "open-horizontal-door",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/open-horizontal-door.png",
+  "problem": "unclear",
+  "severity": "high",
+  "what_is_wrong": "Flat gray blocks with two tiny orange dashes; nothing reads as a door or a passable doorway. Redesigned as a front-view door family that matches Godot's 3/4 brick walls (Greg: 'Terrible door').",
+  "seeds": [
+   42,
+   8,
+   7,
+   3,
+   99
+  ],
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game tile in the style of a fantasy game asset: an open dungeon doorway seen from the front, a cool gray stone arch framing a tall opening, through the opening a warm lit tan stone floor leading away into soft shadow, the brown wooden door leaf swung wide open and standing against the right side of the opening seen at an angle, clearly an open passage you can walk through. Flat front view as in a 3/4 top-down pixel art dungeon game where walls are drawn as gray stone brick faces. Bold clean dark outlines, strong contrast, readable at 32 pixels, the subject fills the whole square tile edge to edge, opaque, no surroundings, no text."
+  }
+ },
+ {
+  "id": "open-vertical-door",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/open-vertical-door.png",
+  "problem": "unclear",
+  "severity": "high",
+  "what_is_wrong": "Reads as a brown plank lying on a stone floor; there are no jambs, no visible gap and nothing says 'doorway in a vertical wall'. Redesigned as a front-view door family that matches Godot's 3/4 brick walls (Greg: 'Terrible door').",
+  "seeds": [
+   42,
+   8,
+   7,
+   3,
+   99
+  ],
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game tile in the style of a fantasy game asset: an open dungeon doorway seen from the front, a cool gray stone arch framing a tall opening, through the opening a warm lit tan stone floor leading away into soft shadow, the brown wooden door leaf swung wide open and standing against the left side of the opening seen at an angle, clearly an open passage you can walk through. Flat front view as in a 3/4 top-down pixel art dungeon game where walls are drawn as gray stone brick faces. Bold clean dark outlines, strong contrast, readable at 32 pixels, the subject fills the whole square tile edge to edge, opaque, no surroundings, no text."
+  }
+ },
+ {
+  "id": "broken-door",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/broken-door.png",
+  "problem": "unclear",
+  "severity": "high",
+  "what_is_wrong": "Three brown blobs and a yellow dot on dark gray; reads as scattered bread or debris, not a smashed door in a doorway. Redesigned as a front-view door family that matches Godot's 3/4 brick walls (Greg: 'Terrible door').",
+  "seeds": [
+   42,
+   8,
+   7,
+   3,
+   99
+  ],
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game tile in the style of a fantasy game asset: a broken dungeon doorway seen from the front, a cool gray stone arch framing a tall opening with warm lit tan floor through it, jagged splintered brown wooden planks still hanging from one bent black iron hinge on the left, splinters on the threshold, clearly smashed open and passable. Flat front view as in a 3/4 top-down pixel art dungeon game where walls are drawn as gray stone brick faces. Bold clean dark outlines, strong contrast, readable at 32 pixels, the subject fills the whole square tile edge to edge, opaque, no surroundings, no text."
+  }
+ },
+ {
+  "id": "no-door-doorway",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/no-door-doorway.png",
+  "problem": "vector",
+  "severity": "high",
+  "what_is_wrong": "Almost blank dark-gray square with one faint bar; it is indistinguishable from floor and never reads as an opening in a wall. Redesigned as a front-view door family that matches Godot's 3/4 brick walls (Greg: 'Terrible door').",
+  "seeds": [
+   42,
+   8,
+   7,
+   3,
+   99
+  ],
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game tile in the style of a fantasy game asset: an empty doorway with no door seen from the front, a cool gray stone arch with warm highlights framing a tall opening, a worn stone threshold, warm lit tan floor visible through the opening leading away into soft shadow, clearly an open passage. Flat front view as in a 3/4 top-down pixel art dungeon game where walls are drawn as gray stone brick faces. Bold clean dark outlines, strong contrast, readable at 32 pixels, the subject fills the whole square tile edge to edge, opaque, no surroundings, no text."
+  }
+ },
+ {
+  "id": "baby-blue-dragon",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/baby-blue-dragon.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is purple but should be blue. (A reference edit kept the old purple in every try: generated fresh.)",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a baby blue dragon: small chubby dragon with bright blue scales, cyan highlights, small wings, pale belly. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "green-dragon",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/green-dragon.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is purple but should be green. (A reference edit kept the old purple in every try: generated fresh.)",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a green dragon: a large dragon with emerald-green scales, lime highlights, spread wings, green poison gas at its mouth. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "silver-dragon",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/silver-dragon.png",
+  "problem": "wrong",
+  "severity": "high",
+  "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is purple but should be bright silver-cyan. (A reference edit kept the old purple in every try: generated fresh.)",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a silver dragon: a large dragon with mirror-bright silver scales and pale cyan highlights, spread wings. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "warg",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/warg.png",
+  "problem": "inconsistent",
+  "severity": "high",
+  "what_is_wrong": "Installed as a 1024x1024 painterly image instead of a 32x32 pixel tile; downscaled it turns into a soft smudge with no outline. Reads as a dark smudge. (First tries drew only a head.)",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a warg: the whole body of a huge black wolf standing on all four legs in side view, head to tail with charcoal fur and silver-gray rim highlights, glowing red eyes, massive open jaws with white fangs exaggerated. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "engraving",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/engraving.png",
+  "problem": "unclear",
+  "severity": "high",
+  "what_is_wrong": "Pale gray squiggles that read as a pile of bones or a brick fragment, not as writing scratched into the floor. Redone as a transparent overlay: Godot paints its own floor under it.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: two short lines of pale glowing runic letters scratched into nothing but the air, thin bright ivory strokes with a faint warm glow, like writing traced in dust, the letters alone with no floor, no stone and no frame, filling the middle of the frame, readable at 32 pixels, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "black-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/black-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/black-potion.png",
+  "name": "black potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with inky black liquid with a faint violet sheen, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "brilliant-blue-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/brilliant-blue-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/brilliant-blue-potion.png",
+  "name": "brilliant blue potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with brilliant saturated blue glowing liquid, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "brown-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/brown-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/brown-potion.png",
+  "name": "brown potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with muddy brown liquid, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "bubbly-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/bubbly-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/bubbly-potion.png",
+  "name": "bubbly potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with clear pale liquid full of rising bubbles, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "clear-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/clear-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/clear-potion.png",
+  "name": "clear potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with perfectly clear water-like liquid, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cloudy-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/cloudy-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/cloudy-potion.png",
+  "name": "cloudy potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with cloudy grayish-white liquid, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cyan-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/cyan-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/cyan-potion.png",
+  "name": "cyan potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with bright cyan liquid, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "dark-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/dark-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/dark-potion.png",
+  "name": "dark potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with very dark smoky liquid with dim highlights, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "dark-green-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/dark-green-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/dark-green-potion.png",
+  "name": "dark green potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with deep dark green liquid, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "effervescent-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/effervescent-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/effervescent-potion.png",
+  "name": "effervescent potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with sparkling fizzing pale gold liquid with bright sparkles, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "emerald-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/emerald-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/emerald-potion.png",
+  "name": "emerald potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with emerald green jewel-toned liquid, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "fizzy-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/fizzy-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/fizzy-potion.png",
+  "name": "fizzy potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with fizzing light green-yellow liquid with tiny bubbles, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "golden-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/golden-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/golden-potion.png",
+  "name": "golden potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with shimmering golden liquid, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "magenta-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/magenta-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/magenta-potion.png",
+  "name": "magenta potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with vivid magenta liquid, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "milky-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/milky-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/milky-potion.png",
+  "name": "milky potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with opaque milky white liquid, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "murky-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/murky-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/murky-potion.png",
+  "name": "murky potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with murky olive-brown liquid with sediment, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "orange-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/orange-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/orange-potion.png",
+  "name": "orange potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with bright orange liquid, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "pink-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/pink-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/pink-potion.png",
+  "name": "pink potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with soft pink liquid, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "puce-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/puce-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/puce-potion.png",
+  "name": "puce potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with puce, a brownish purple-pink liquid, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "purple-red-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/purple-red-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/purple-red-potion.png",
+  "name": "purple-red potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with deep purple-red wine-colored liquid, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "ruby-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/ruby-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/ruby-potion.png",
+  "name": "ruby potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with ruby red jewel-toned liquid, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "sky-blue-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/sky-blue-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/sky-blue-potion.png",
+  "name": "sky blue potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with light sky blue liquid, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "smoky-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/smoky-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/smoky-potion.png",
+  "name": "smoky potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with gray liquid with wisps of smoke curling inside, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "swirly-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/swirly-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/swirly-potion.png",
+  "name": "swirly potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with swirling rainbow-colored liquid in spirals, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "white-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/white-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/white-potion.png",
+  "name": "white potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with bright white liquid, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "yellow-potion",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/yellow-potion.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/yellow-potion.png",
+  "name": "yellow potion",
+  "glyph": "!",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small round glass potion flask with a cork stopper, filled with bright lemon yellow liquid, glass highlights Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "agate-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/agate-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/agate-ring.png",
+  "name": "agate ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a gold ring set with a banded orange-brown agate gemstone, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "black-onyx-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/black-onyx-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/black-onyx-ring.png",
+  "name": "black onyx ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a gold ring set with a glossy black onyx gemstone, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "brass-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/brass-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/brass-ring.png",
+  "name": "brass ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a plain brass ring with a warm yellow metal band, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "bronze-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/bronze-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/bronze-ring.png",
+  "name": "bronze ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a plain bronze ring, reddish-brown metal, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "clay-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/clay-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/clay-ring.png",
+  "name": "clay ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a rough reddish clay ring, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "copper-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/copper-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/copper-ring.png",
+  "name": "copper ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a plain copper ring, orange-pink metal, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "coral-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/coral-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/coral-ring.png",
+  "name": "coral ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a gold ring set with a pink-orange coral gemstone, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "diamond-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/diamond-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/diamond-ring.png",
+  "name": "diamond ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a gold ring set with a sparkling clear diamond gemstone, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "emerald-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/emerald-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/emerald-ring.png",
+  "name": "emerald ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a gold ring set with a green emerald gemstone, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "engagement-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/engagement-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/engagement-ring.png",
+  "name": "engagement ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a gold engagement ring with a single sparkling diamond solitaire, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "gold-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/gold-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/gold-ring.png",
+  "name": "gold ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a plain polished gold ring, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "granite-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/granite-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/granite-ring.png",
+  "name": "granite ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a speckled gray granite stone ring, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "iron-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/iron-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/iron-ring.png",
+  "name": "iron ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a dark gray iron ring, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "ivory-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/ivory-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/ivory-ring.png",
+  "name": "ivory ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a creamy ivory ring, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "jade-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/jade-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/jade-ring.png",
+  "name": "jade ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a gold ring set with a pale green jade gemstone, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "moonstone-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/moonstone-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/moonstone-ring.png",
+  "name": "moonstone ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a gold ring set with a milky blue-white moonstone gemstone, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "opal-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/opal-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/opal-ring.png",
+  "name": "opal ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a gold ring set with a iridescent white opal gemstone, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "pearl-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/pearl-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/pearl-ring.png",
+  "name": "pearl ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a gold ring set with a lustrous white pearl gemstone, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "ruby-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/ruby-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/ruby-ring.png",
+  "name": "ruby ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a gold ring set with a red ruby gemstone, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "sapphire-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/sapphire-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/sapphire-ring.png",
+  "name": "sapphire ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a gold ring set with a deep blue sapphire gemstone, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "shiny-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/shiny-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/shiny-ring.png",
+  "name": "shiny ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a very shiny polished silver ring with bright glints, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "silver-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/silver-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/silver-ring.png",
+  "name": "silver ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a plain silver ring, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "steel-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/steel-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/steel-ring.png",
+  "name": "steel ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a blue-gray steel ring, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "tiger-eye-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/tiger-eye-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/tiger-eye-ring.png",
+  "name": "tiger eye ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a gold ring set with a golden-brown striped tiger eye gemstone, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "topaz-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/topaz-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/topaz-ring.png",
+  "name": "topaz ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a gold ring set with a golden yellow topaz gemstone, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "twisted-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/twisted-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/twisted-ring.png",
+  "name": "twisted ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a twisted rope-like metal ring, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "wire-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/wire-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/wire-ring.png",
+  "name": "wire ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a ring of coiled thin wire, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "wooden-ring",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/wooden-ring.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/wooden-ring.png",
+  "name": "wooden ring",
+  "glyph": "=",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a carved light wooden ring, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "aluminum-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/aluminum-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/aluminum-wand.png",
+  "name": "aluminum wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a light silvery aluminum wand, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "balsa-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/balsa-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/balsa-wand.png",
+  "name": "balsa wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pale tan balsa wood wand, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "brass-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/brass-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/brass-wand.png",
+  "name": "brass wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a brass wand, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "copper-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/copper-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/copper-wand.png",
+  "name": "copper wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a copper wand, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "crystal-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/crystal-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/crystal-wand.png",
+  "name": "crystal wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a clear crystal wand, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "curved-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/curved-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/curved-wand.png",
+  "name": "curved wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a curved dark wooden wand, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "ebony-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/ebony-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/ebony-wand.png",
+  "name": "ebony wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a black ebony wood wand, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "forked-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/forked-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/forked-wand.png",
+  "name": "forked wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a wand forked into two prongs at the tip, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "glass-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/glass-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/glass-wand.png",
+  "name": "glass wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pale blue glass wand, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "hexagonal-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/hexagonal-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/hexagonal-wand.png",
+  "name": "hexagonal wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a six-sided hexagonal metal wand, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "iridium-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/iridium-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/iridium-wand.png",
+  "name": "iridium wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a silvery iridium wand with a faint rainbow sheen, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "iron-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/iron-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/iron-wand.png",
+  "name": "iron wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a dark iron wand, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "jeweled-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/jeweled-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/jeweled-wand.png",
+  "name": "jeweled wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a gold wand set with colorful jewels, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "long-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/long-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/long-wand.png",
+  "name": "long wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a very long thin dark wooden wand, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "maple-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/maple-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/maple-wand.png",
+  "name": "maple wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a light maple wood wand, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "marble-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/marble-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/marble-wand.png",
+  "name": "marble wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a white veined marble wand, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "oak-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/oak-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/oak-wand.png",
+  "name": "oak wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a sturdy brown oak wand, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "pine-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/pine-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/pine-wand.png",
+  "name": "pine wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pale yellow pine wood wand, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "platinum-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/platinum-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/platinum-wand.png",
+  "name": "platinum wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a bright white platinum wand, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "redwood-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/redwood-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/redwood-wand.png",
+  "name": "redwood wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a reddish redwood wand, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "runed-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/runed-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/runed-wand.png",
+  "name": "runed wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a wand carved with glowing runes, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "short-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/short-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/short-wand.png",
+  "name": "short wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a short stubby wooden wand, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "silver-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/silver-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/silver-wand.png",
+  "name": "silver wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a silver wand, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "spiked-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/spiked-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/spiked-wand.png",
+  "name": "spiked wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a dark wand covered in small spikes, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "steel-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/steel-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/steel-wand.png",
+  "name": "steel wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a blue-gray steel wand, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "tin-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/tin-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/tin-wand.png",
+  "name": "tin wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a dull gray tin wand, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "uranium-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/uranium-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/uranium-wand.png",
+  "name": "uranium wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a dull green-gray uranium wand with a faint green glow, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "zinc-wand",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/zinc-wand.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/zinc-wand.png",
+  "name": "zinc wand",
+  "glyph": "/",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pale bluish-gray zinc wand, a straight magic wand held diagonally Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "circular-amulet",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/circular-amulet.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/circular-amulet.png",
+  "name": "circular amulet",
+  "glyph": "\"",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a round circular pendant amulet of polished metal hanging from a fine chain Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "concave-amulet",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/concave-amulet.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/concave-amulet.png",
+  "name": "concave amulet",
+  "glyph": "\"",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a concave dish-shaped pendant amulet of polished metal hanging from a fine chain Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cubical-amulet",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/cubical-amulet.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/cubical-amulet.png",
+  "name": "cubical amulet",
+  "glyph": "\"",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a small cube-shaped pendant amulet of polished metal hanging from a fine chain Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "hexagonal-amulet",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/hexagonal-amulet.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/hexagonal-amulet.png",
+  "name": "hexagonal amulet",
+  "glyph": "\"",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a six-sided hexagonal pendant amulet of polished metal hanging from a fine chain Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "octagonal-amulet",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/octagonal-amulet.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/octagonal-amulet.png",
+  "name": "octagonal amulet",
+  "glyph": "\"",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: an eight-sided octagonal pendant amulet of polished metal hanging from a fine chain Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "oval-amulet",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/oval-amulet.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/oval-amulet.png",
+  "name": "oval amulet",
+  "glyph": "\"",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: an oval pendant amulet of polished metal hanging from a fine chain Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "perforated-amulet",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/perforated-amulet.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/perforated-amulet.png",
+  "name": "perforated amulet",
+  "glyph": "\"",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a round pendant pierced with many small holes amulet of polished metal hanging from a fine chain Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "pyramidal-amulet",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/pyramidal-amulet.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/pyramidal-amulet.png",
+  "name": "pyramidal amulet",
+  "glyph": "\"",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pyramid-shaped pendant amulet of polished metal hanging from a fine chain Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "spherical-amulet",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/spherical-amulet.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/spherical-amulet.png",
+  "name": "spherical amulet",
+  "glyph": "\"",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a spherical ball pendant amulet of polished metal hanging from a fine chain Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "square-amulet",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/square-amulet.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/square-amulet.png",
+  "name": "square amulet",
+  "glyph": "\"",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a flat square pendant amulet of polished metal hanging from a fine chain Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "triangular-amulet",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/triangular-amulet.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/triangular-amulet.png",
+  "name": "triangular amulet",
+  "glyph": "\"",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a flat triangular pendant amulet of polished metal hanging from a fine chain Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "bronze-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/bronze-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/bronze-spellbook.png",
+  "name": "bronze spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a bronze cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "canvas-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/canvas-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/canvas-spellbook.png",
+  "name": "canvas spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a canvas cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "checkered-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/checkered-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/checkered-spellbook.png",
+  "name": "checkered spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a checkered cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cloth-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/cloth-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/cloth-spellbook.png",
+  "name": "cloth spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a cloth cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "copper-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/copper-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/copper-spellbook.png",
+  "name": "copper spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a copper cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "cyan-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/cyan-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/cyan-spellbook.png",
+  "name": "cyan spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a cyan cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "dark-blue-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/dark-blue-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/dark-blue-spellbook.png",
+  "name": "dark blue spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a dark blue cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "dark-brown-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/dark-brown-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/dark-brown-spellbook.png",
+  "name": "dark brown spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a dark brown cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "dark-green-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/dark-green-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/dark-green-spellbook.png",
+  "name": "dark green spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a dark green cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "dog-eared-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/dog-eared-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/dog-eared-spellbook.png",
+  "name": "dog eared spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a dog eared cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "dull-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/dull-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/dull-spellbook.png",
+  "name": "dull spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a dull cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "dusty-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/dusty-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/dusty-spellbook.png",
+  "name": "dusty spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a dusty cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "glittering-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/glittering-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/glittering-spellbook.png",
+  "name": "glittering spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a glittering cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "gold-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/gold-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/gold-spellbook.png",
+  "name": "gold spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a gold cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "gray-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/gray-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/gray-spellbook.png",
+  "name": "gray spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a gray cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "hardcover-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/hardcover-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/hardcover-spellbook.png",
+  "name": "hardcover spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a hardcover cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "indigo-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/indigo-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/indigo-spellbook.png",
+  "name": "indigo spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a indigo cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "leathery-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/leathery-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/leathery-spellbook.png",
+  "name": "leathery spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a leathery cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "light-blue-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/light-blue-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/light-blue-spellbook.png",
+  "name": "light blue spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a light blue cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "light-brown-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/light-brown-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/light-brown-spellbook.png",
+  "name": "light brown spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a light brown cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "light-green-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/light-green-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/light-green-spellbook.png",
+  "name": "light green spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a light green cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "magenta-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/magenta-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/magenta-spellbook.png",
+  "name": "magenta spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a magenta cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "mottled-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/mottled-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/mottled-spellbook.png",
+  "name": "mottled spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a mottled cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "orange-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/orange-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/orange-spellbook.png",
+  "name": "orange spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a orange cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "parchment-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/parchment-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/parchment-spellbook.png",
+  "name": "parchment spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a parchment cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "pink-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/pink-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/pink-spellbook.png",
+  "name": "pink spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a pink cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "plaid-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/plaid-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/plaid-spellbook.png",
+  "name": "plaid spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a plaid cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "plain-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/plain-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/plain-spellbook.png",
+  "name": "plain spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a plain cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "purple-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/purple-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/purple-spellbook.png",
+  "name": "purple spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a purple cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "ragged-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/ragged-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/ragged-spellbook.png",
+  "name": "ragged spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a ragged cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "red-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/red-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/red-spellbook.png",
+  "name": "red spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a red cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "shining-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/shining-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/shining-spellbook.png",
+  "name": "shining spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a shining cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "silver-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/silver-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/silver-spellbook.png",
+  "name": "silver spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a silver cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "stained-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/stained-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/stained-spellbook.png",
+  "name": "stained spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a stained cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "tan-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/tan-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/tan-spellbook.png",
+  "name": "tan spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a tan cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "thick-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/thick-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/thick-spellbook.png",
+  "name": "thick spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a thick cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "thin-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/thin-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/thin-spellbook.png",
+  "name": "thin spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a thin cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "turquoise-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/turquoise-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/turquoise-spellbook.png",
+  "name": "turquoise spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a turquoise cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "vellum-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/vellum-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/vellum-spellbook.png",
+  "name": "vellum spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a vellum cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "velvet-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/velvet-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/velvet-spellbook.png",
+  "name": "velvet spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a velvet cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "violet-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/violet-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/violet-spellbook.png",
+  "name": "violet spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a violet cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "white-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/white-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/white-spellbook.png",
+  "name": "white spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a white cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "wrinkled-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/wrinkled-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/wrinkled-spellbook.png",
+  "name": "wrinkled spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a wrinkled cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "yellow-spellbook",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/yellow-spellbook.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/yellow-spellbook.png",
+  "name": "yellow spellbook",
+  "glyph": "+",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a yellow cover, brass corner fittings, seen at an angle Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "hunger-badge",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/hunger-badge.png",
+  "outputPath": "asset-generation/outputs/ui-status-overlays/hunger-badge.png",
+  "name": "Hunger badge",
+  "glyph": "",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game status effect icon in the style of a fantasy game asset: an empty clay bowl with a fork and spoon crossed over it, warm orange tones, a bold simple symbol filling the frame, saturated colors, thick dark outline, readable at 24 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "hallucination-badge",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/hallucination-badge.png",
+  "outputPath": "asset-generation/outputs/ui-status-overlays/hallucination-badge.png",
+  "name": "Hallucination badge",
+  "glyph": "",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game status effect icon in the style of a fantasy game asset: a swirling psychedelic rainbow eye, a bold simple symbol filling the frame, saturated colors, thick dark outline, readable at 24 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "sick-badge",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/sick-badge.png",
+  "outputPath": "asset-generation/outputs/ui-status-overlays/sick-badge.png",
+  "name": "Sick badge",
+  "glyph": "",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game status effect icon in the style of a fantasy game asset: a green sickly face with a thermometer, a bold simple symbol filling the frame, saturated colors, thick dark outline, readable at 24 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "stoning-badge",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/stoning-badge.png",
+  "outputPath": "asset-generation/outputs/ui-status-overlays/stoning-badge.png",
+  "name": "Stoning badge",
+  "glyph": "",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game status effect icon in the style of a fantasy game asset: a gray stone hand cracking into rock, a bold simple symbol filling the frame, saturated colors, thick dark outline, readable at 24 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "sliming-badge",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/sliming-badge.png",
+  "outputPath": "asset-generation/outputs/ui-status-overlays/sliming-badge.png",
+  "name": "Sliming badge",
+  "glyph": "",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game status effect icon in the style of a fantasy game asset: a dripping green slime blob, a bold simple symbol filling the frame, saturated colors, thick dark outline, readable at 24 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "strangled-badge",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/strangled-badge.png",
+  "outputPath": "asset-generation/outputs/ui-status-overlays/strangled-badge.png",
+  "name": "Strangled badge",
+  "glyph": "",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game status effect icon in the style of a fantasy game asset: a throat with a tight rope noose, red tones, a bold simple symbol filling the frame, saturated colors, thick dark outline, readable at 24 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "trapped-badge",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/trapped-badge.png",
+  "outputPath": "asset-generation/outputs/ui-status-overlays/trapped-badge.png",
+  "name": "Trapped badge",
+  "glyph": "",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game status effect icon in the style of a fantasy game asset: a steel bear trap with closed jaws, a bold simple symbol filling the frame, saturated colors, thick dark outline, readable at 24 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "deaf-badge",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/deaf-badge.png",
+  "outputPath": "asset-generation/outputs/ui-status-overlays/deaf-badge.png",
+  "name": "Deaf badge",
+  "glyph": "",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game status effect icon in the style of a fantasy game asset: an ear crossed out with a red slash, a bold simple symbol filling the frame, saturated colors, thick dark outline, readable at 24 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "wounded-legs-badge",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/wounded-legs-badge.png",
+  "outputPath": "asset-generation/outputs/ui-status-overlays/wounded-legs-badge.png",
+  "name": "Wounded legs badge",
+  "glyph": "",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game status effect icon in the style of a fantasy game asset: a leg with a red bandage, a bold simple symbol filling the frame, saturated colors, thick dark outline, readable at 24 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "slippery-badge",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/slippery-badge.png",
+  "outputPath": "asset-generation/outputs/ui-status-overlays/slippery-badge.png",
+  "name": "Slippery badge",
+  "glyph": "",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game status effect icon in the style of a fantasy game asset: a hand dripping with glossy oil, a bold simple symbol filling the frame, saturated colors, thick dark outline, readable at 24 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "paralyzed-badge",
+  "category": "ui-status-overlays",
+  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/paralyzed-badge.png",
+  "outputPath": "asset-generation/outputs/ui-status-overlays/paralyzed-badge.png",
+  "name": "Paralyzed badge",
+  "glyph": "",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game status effect icon in the style of a fantasy game asset: a figure frozen inside a pale blue block of ice, a bold simple symbol filling the frame, saturated colors, thick dark outline, readable at 24 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "black-dragon",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/black-dragon.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is light silver-gray but should be black. (A reference edit changed too little: generated fresh.)",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a black dragon: a large dragon with charcoal-black scales, violet rim light and silver edge highlights, spread wings, glowing red eyes. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "dingo",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/dingo.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Gray-blue dog; dingo is yellow. (A reference edit changed too little: generated fresh.)",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a dingo: a lean wild dog with sandy yellow fur, cream chest, upright ears, amber eyes. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "jaguar",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/jaguar.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "White cat, near-identical to panther and large cat; jaguar is brown with rosettes. (A reference edit changed too little: generated fresh.)",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a jaguar: a powerful golden-brown big cat with black rosette spots exaggerated, cream belly, yellow eyes. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "purple-worm",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/purple-worm.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Installed as a 512x512 painterly image instead of a 32x32 pixel tile; downscaled it turns into a soft smudge with no outline. Soft and outline-free next to the pixel tiles. (A reference edit changed too little: generated fresh.)",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a purple worm: an enormous purple segmented worm rearing up with a huge round toothy maw exaggerated, magenta highlights. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "winter-wolf",
+  "category": "full-source-monsters",
+  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/winter-wolf.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Cream wolf with no icy cue; winter wolves are cyan. (A reference edit changed too little: generated fresh.)",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a winter wolf: a large wolf with icy cyan-white fur, pale blue highlights, frosty breath from its jaws exaggerated. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "ice",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/ice.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "A pale blue diamond inside an orange brick frame; the baked frame looks like a badge and will not tile into an ice field. (First tries still had baked frames: redone as a seamless texture.)",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game tile in the style of a fantasy game asset: a seamless top-down texture of smooth pale blue ice with faint white cracks and frosty highlights, the texture runs edge to edge and wraps seamlessly so tiles join without seams, no border, no frame, no rim, no vignette, no objects, flat even lighting, readable at 32 pixels."
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "lava",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/lava.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "A red rock icon inside a stone frame; reads as a framed badge, not a molten lava field, and will not tile. (First tries still had baked frames: redone as a seamless texture.)",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game tile in the style of a fantasy game asset: a seamless top-down texture of glowing molten lava, bright orange and yellow cracks between dark red-black crust, the texture runs edge to edge and wraps seamlessly so tiles join without seams, no border, no frame, no rim, no vignette, no objects, flat even lighting, readable at 32 pixels."
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "dark-corridor",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/dark-corridor.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "Flat near-black square with a faint bar; placeholder with no tunnel texture. (First tries still had baked frames: redone as a seamless texture.)",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game tile in the style of a fantasy game asset: a seamless top-down texture of a dim dark gray-blue packed earth and rubble dungeon corridor floor, the texture runs edge to edge and wraps seamlessly so tiles join without seams, no border, no frame, no rim, no vignette, no objects, flat even lighting, readable at 32 pixels."
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "dark-room-floor",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/dark-room-floor.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "Flat near-black square; a placeholder with no texture and barely distinguishable from unexplored stone. (First tries still had baked frames: redone as a seamless texture.)",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game tile in the style of a fantasy game asset: a seamless top-down texture of dim dark slate flagstone dungeon floor in shadow, the texture runs edge to edge and wraps seamlessly so tiles join without seams, no border, no frame, no rim, no vignette, no objects, flat even lighting, readable at 32 pixels."
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "lit-corridor",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/lit-corridor.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "Flat gray square with a single gray bar; does not read as a dug tunnel or corridor. (First tries had baked frames: redone as a seamless texture.)",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game tile in the style of a fantasy game asset: a seamless top-down texture of a lit warm tan packed earth and rubble dungeon corridor floor, the texture runs edge to edge and wraps seamlessly so tiles join without seams, no border, no frame, no rim, no vignette, no objects, flat even lighting, readable at 32 pixels."
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "moat-water",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/moat-water.png",
+  "problem": "inconsistent",
+  "severity": "medium",
+  "what_is_wrong": "Dark pool with an orange rocky border baked into the tile, so adjacent moat squares form a grid of separate puddles (also the '}' fallback). (First tries had baked frames: redone as a seamless texture.)",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game tile in the style of a fantasy game asset: a seamless top-down texture of deep dark blue moat water with gentle ripples, the texture runs edge to edge and wraps seamlessly so tiles join without seams, no border, no frame, no rim, no vignette, no objects, flat even lighting, readable at 32 pixels."
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "pool-water",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/pool-water.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Green swampy water; NetHack pools are blue, and green reads as slime or acid. (First tries had baked frames: redone as a seamless texture.)",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game tile in the style of a fantasy game asset: a seamless top-down texture of clear blue pool water with soft ripples and highlights, the texture runs edge to edge and wraps seamlessly so tiles join without seams, no border, no frame, no rim, no vignette, no objects, flat even lighting, readable at 32 pixels."
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "room-floor",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/room-floor.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "Flat single-color gray square with one dot; a placeholder with no stone texture (Electron draws it everywhere). (First tries had baked frames: redone as a seamless texture.)",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game tile in the style of a fantasy game asset: a seamless top-down texture of lit warm gray slate flagstone dungeon floor, the texture runs edge to edge and wraps seamlessly so tiles join without seams, no border, no frame, no rim, no vignette, no objects, flat even lighting, readable at 32 pixels."
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "sea-water",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/sea-water.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "Flat blue and teal horizontal stripes; geometric placeholder used for the water on Medusa's level. (First tries had baked frames: redone as a seamless texture.)",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game tile in the style of a fantasy game asset: a seamless top-down texture of dark blue-green sea water with small rolling waves, the texture runs edge to edge and wraps seamlessly so tiles join without seams, no border, no frame, no rim, no vignette, no objects, flat even lighting, readable at 32 pixels."
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "vertical-wall",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/vertical-wall.png",
+  "problem": "vector",
+  "severity": "medium",
+  "what_is_wrong": "A flat gray bar with two black lines, drawn like a UI icon rather than stone masonry. (First tries had baked frames: redone as a seamless texture.)",
+  "regen": {
+   "background": "opaque",
+   "use_reference": false,
+   "prompt": "A pixel art game tile in the style of a fantasy game asset: a seamless texture of cool gray dungeon stone brick wall seen from above, bricks running top to bottom, the texture runs edge to edge and wraps seamlessly so tiles join without seams, no border, no frame, no rim, no vignette, no objects, flat even lighting, readable at 32 pixels."
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "tree",
+  "category": "terrain-features",
+  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/tree.png",
+  "problem": "unclear",
+  "severity": "medium",
+  "what_is_wrong": "Blurry upscaled green and brown blob with no shape; reads as a smudge rather than a tree. (Redone as a cut-out sprite: Godot draws it over its own floor.)",
+  "regen": {
+   "background": "magenta-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single leafy green tree seen from a top-down three-quarter view, round lush canopy with light green highlights and a short brown trunk, a soft shadow at its base, readable at 32 pixels. Bold clean dark outline, centered with a clear margin, on a solid magenta background."
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "bear-trap",
+  "category": "traps-hazards",
+  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/bear-trap.png",
+  "problem": "unclear",
+  "severity": "medium",
+  "what_is_wrong": "Brown jagged ring reads as a crown at game size. (First tries read as a wheel: clearer prompt.)",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: an open steel bear trap seen from above at an angle, two curved jaws lined with big serrated teeth spread wide open, a round pressure plate in the middle and a short chain, dark iron with bright steel highlights, readable at 32 pixels. Bold clean dark outline, centered with a clear margin, on a solid green background."
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "kitten-pet",
+  "category": "player-pets-identity",
+  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/kitten-pet.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Orange tabby; NetHack's kitten is white, so it clashes with the game's own description and colors. (A reference edit changed too little: generated fresh.)",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a small white kitten sitting, white fur with pale gray shading, pink ears and nose, bright eyes, a small red collar, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "little-dog-pet",
+  "category": "player-pets-identity",
+  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/little-dog-pet.png",
+  "problem": "wrong",
+  "severity": "medium",
+  "what_is_wrong": "Dark gray and black dog; NetHack's little dog is white, and the dark coat also blends into the floor. (A reference edit changed too little: generated fresh.)",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset: a small white dog standing, white fur with soft gray shading, brown eyes and black nose, raised tail, a small red collar, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background"
+  },
+  "seeds": [
+   42,
+   8,
+   7,
+   3
+  ]
+ },
+ {
+  "id": "plumed-helmet",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/plumed-helmet.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/plumed-helmet.png",
+  "name": "plumed helmet",
+  "glyph": "[",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a steel helmet with a tall red feather plume on top Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "etched-helmet",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/etched-helmet.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/etched-helmet.png",
+  "name": "etched helmet",
+  "glyph": "[",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a steel helmet covered in fine etched swirling engravings Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "crested-helmet",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/crested-helmet.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/crested-helmet.png",
+  "name": "crested helmet",
+  "glyph": "[",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a steel helmet with a raised metal crest running front to back Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "visored-helmet",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/visored-helmet.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/visored-helmet.png",
+  "name": "visored helmet",
+  "glyph": "[",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a steel helmet with a closed slotted visor over the face Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "old-gloves",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/old-gloves.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/old-gloves.png",
+  "name": "old gloves",
+  "glyph": "[",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of worn, patched brown leather gloves Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "padded-gloves",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/padded-gloves.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/padded-gloves.png",
+  "name": "padded gloves",
+  "glyph": "[",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of thick quilted padded tan gloves Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "riding-gloves",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/riding-gloves.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/riding-gloves.png",
+  "name": "riding gloves",
+  "glyph": "[",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of long dark brown leather riding gloves with flared cuffs Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "fencing-gloves",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/fencing-gloves.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/fencing-gloves.png",
+  "name": "fencing gloves",
+  "glyph": "[",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of slim white fencing gloves Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "tattered-cape",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/tattered-cape.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/tattered-cape.png",
+  "name": "tattered cape",
+  "glyph": "[",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a ragged torn short gray-brown cape with frayed edges Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "opera-cloak",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/opera-cloak.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/opera-cloak.png",
+  "name": "opera cloak",
+  "glyph": "[",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: an elegant long black opera cloak with red silk lining Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "ornamental-cope",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/ornamental-cope.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/ornamental-cope.png",
+  "name": "ornamental cope",
+  "glyph": "[",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a richly embroidered gold and crimson ceremonial cope Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "piece-of-cloth",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/piece-of-cloth.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/piece-of-cloth.png",
+  "name": "piece of cloth",
+  "glyph": "[",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a plain folded piece of pale blue cloth Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "combat-boots",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/combat-boots.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/combat-boots.png",
+  "name": "combat boots",
+  "glyph": "[",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of sturdy black laced combat boots Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "jungle-boots",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/jungle-boots.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/jungle-boots.png",
+  "name": "jungle boots",
+  "glyph": "[",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+  "regen": {
+   "background": "magenta-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of olive canvas and leather jungle boots Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background."
+  }
+ },
+ {
+  "id": "hiking-boots",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/hiking-boots.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/hiking-boots.png",
+  "name": "hiking boots",
+  "glyph": "[",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of brown laced hiking boots with thick soles Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "mud-boots",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/mud-boots.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/mud-boots.png",
+  "name": "mud boots",
+  "glyph": "[",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of mud-caked brown rubbery boots Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "buckled-boots",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/buckled-boots.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/buckled-boots.png",
+  "name": "buckled boots",
+  "glyph": "[",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of brown leather boots with brass buckles Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "riding-boots",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/riding-boots.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/riding-boots.png",
+  "name": "riding boots",
+  "glyph": "[",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of tall polished black riding boots Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "snow-boots",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/snow-boots.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/snow-boots.png",
+  "name": "snow boots",
+  "glyph": "[",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of white fur-lined snow boots Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ },
+ {
+  "id": "conical-hat",
+  "category": "objects-appearance",
+  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/conical-hat.png",
+  "outputPath": "asset-generation/outputs/objects-appearance/conical-hat.png",
+  "name": "conical hat",
+  "glyph": "[",
+  "new": true,
+  "problem": "missing",
+  "severity": "high",
+  "what_is_wrong": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+  "regen": {
+   "background": "green-key",
+   "use_reference": false,
+   "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a tall plain pointed conical hat of dark blue felt Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background."
+  }
+ }
+]

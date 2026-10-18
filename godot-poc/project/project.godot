@@ -1,0 +1,31 @@
+; Engine configuration file.
+config_version=5
+
+[application]
+
+config/name="NetHack"
+config/features=PackedStringArray("4.7")
+run/main_scene="res://main.tscn"
+
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/canvas_textures/default_texture_filter=0
+
+[debug]
+
+gdscript/warnings/inference_on_variant=1
+
+[gui]
+
+# Focus rings only for keyboard and pad focus, not mouse clicks.
+common/show_focus_state_on_pointer_event=false

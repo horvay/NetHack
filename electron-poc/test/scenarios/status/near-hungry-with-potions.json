@@ -1,0 +1,14 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "status/near-hungry-with-potions",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": { "placement": "current", "nutrition": 153 },
+  "level": { "safeAreaAroundHero": 2, "lit": true, "suppressAdjacentMonsters": true, "pet": "none" },
+  "ground": [],
+  "monsters": [],
+  "inventory": [
+    { "typeId": "BLINDNESS", "identityKnown": true, "beatitudeKnown": true, "beatitude": "uncursed" },
+    { "typeId": "CONFUSION", "identityKnown": true, "beatitudeKnown": true, "beatitude": "uncursed" }
+  ],
+  "expectedPublicFacts": { "messages": ["a hero a few turns from Hungry, with a potion of blindness and one of confusion"] }
+}

@@ -1,5 +1,5 @@
 {
-  "auditedAt": "2026-07-10T02:08:45.989Z",
+  "auditedAt": "2026-10-18T01:07:43.165Z",
   "auditedIds": [
     "engraving",
     "sink",
@@ -328,5 +328,7 @@
       "tileUrl": "url('../assets/tiles/generated/full-source-objects/death-object.png?v=74acb6b8819ed30f7d67')"
     }
   ],
-  "errors": []
+  "errors": [
+    "unidentified crude dagger should select the crude/orcish dagger public-appearance art, not crossed weapon fallback or visible hidden identity: {\"model\":{\"assetId\":\"orcish-dagger\",\"ariaLabel\":\"crude dagger over dungeon floor\",\"backgroundImage\":\"\",\"tileImage\":\"url('../assets/tiles/generated/full-source-objects/orcish-dagger.png?v=289e2bab98723d340052')\"},\"tooltip\":{\"title\":\"Crude Dagger\",\"assetId\":\"orcish-dagger\",\"description\":\"Object\"}}"
+  ]
 }

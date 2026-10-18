@@ -1031,6 +1031,9 @@ extern void shim_native_spell_rows_ready(winid);
 extern void shim_native_skill_row(winid, const char *, int, const char *,
                                   const char *, int, boolean);
 extern void shim_native_skill_rows_ready(winid);
+extern void shim_native_skill_row_extra(winid, const char *, int, int);
+extern void shim_native_spell_row_school(winid, const char *);
+extern void shim_native_skill_slots(winid, int);
 #endif
 extern void container_contents(struct obj *, boolean, boolean, boolean);
 ATTRNORETURN extern void nh_terminate(int) NORETURN;
@@ -2510,6 +2513,8 @@ extern void ground_transfer_set_request(unsigned int, const char *, int, int, co
 extern boolean ground_transfer_result_available(void);
 extern void ground_transfer_take_result(boolean *, unsigned int *, int *, int *, char *, size_t, char *, size_t, char *, size_t);
 extern void container_transfer_set_request(unsigned int, unsigned int, const char *, const char *);
+extern void container_transfer_add_item(unsigned int);
+extern void direct_container_note_command(int (*)(void));
 extern boolean container_transfer_result_available(void);
 extern void container_transfer_take_result(boolean *, unsigned int *, unsigned int *, char *, size_t, char *, size_t, char *, size_t);
 extern void container_snapshot_set_request(unsigned int, const char *);

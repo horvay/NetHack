@@ -1,0 +1,28 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "container/single-class-mixed-buc-box-on-hero",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": { "placement": "current" },
+  "level": { "safeAreaAroundHero": 2, "lit": true, "suppressAdjacentMonsters": true, "pet": "none" },
+  "ground": [
+    {
+      "at": "hero",
+      "object": {
+        "typeId": "LARGE_BOX",
+        "locked": false,
+        "trap": "none",
+        "contents": [
+          { "typeId": "SCR_IDENTIFY", "beatitude": "uncursed", "identityKnown": true, "beatitudeKnown": true },
+          { "typeId": "SCR_REMOVE_CURSE", "beatitude": "uncursed", "identityKnown": false, "beatitudeKnown": false }
+        ]
+      }
+    }
+  ],
+  "monsters": [],
+  "inventory": [],
+  "expectedPublicFacts": {
+    "contextActions": ["open-container"],
+    "containerRows": ["uncursed scroll of identify", "scroll"],
+    "messages": ["one class of item with mixed blessed/cursed knowledge: NetHack's category menu has no All types row"]
+  }
+}

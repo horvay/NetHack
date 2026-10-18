@@ -3783,6 +3783,7 @@ rhack(int key)
                 if ((tlist->flags & CMD_INSANE) != 0)
                     iflags.sanity_no_check = iflags.sanity_check;
 
+                direct_container_note_command(func);
                 res = (*func)(); /* perform the command */
                 /* if 'func' is doextcmd(), 'tlist' is for Cmd.commands['#']
                    rather than for the command that doextcmd() just ran;
