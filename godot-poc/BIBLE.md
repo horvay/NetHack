@@ -251,3 +251,6 @@ The parity checklist is the feature set of `../electron-poc/src/ux` and `../elec
   - Themes are whole pieces (Music 3 writes openings and endings, not loops): when a take ends another take follows. Several takes per theme make the playlist.
   - The bridge's `bridge_vision` carries `level` (the special level's prototype), `room` and `wizardTower`.
   - Music volume is its own setting and bus.
+  - Every take is checked before it ships (`tools/music/post.py`, results in `asset-generation/outputs/music/qa.json`): long enough, not silent, not clipped, and no words. Music 3 sometimes sings despite "fully instrumental" (10 of 86 takes did). WhisperX `small` screens each take on the CPU; a segment of 4+ real words at a speaking pace is re-checked with `large-v3`, and the take is rejected only if that also hears a phrase. Whisper's stock phantoms over music ("Music playing", "you", "Thank you." stretched over half a minute) don't count. `generate.py --replace` replaces rejected takes with new seeds.
+  - Stingers are the first 4.5–9 s of a 30 s generation (level up 4.5, artifact 5, prayer and branch 6, death 7, ascension 9), faded out.
+  - To drop a take by ear: add its stem (e.g. `mines-calm-t2-s9104`) to `asset-generation/outputs/music/rejected.txt`, run `post.py`, then `generate.py --replace` for a new one. 75 takes, 73 MB of MP3.

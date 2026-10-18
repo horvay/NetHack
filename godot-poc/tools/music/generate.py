@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
 """Writes the game's music with MiniMax Music 3 on the B70 (xpu_music3).
 
-    generate.py [track-id ...]     all tracks when none given
+    generate.py [track-id ...]            all tracks when none given
+    generate.py --replace [track-id ...]  then replace rejected takes
 
 One process per take, each under `b70-lease` so other B70 jobs can run
 between takes. Takes that already have a WAV are skipped; delete one to
-regenerate it. Raw WAVs, captions and logs go to
+regenerate it. A take post.py rejected (qa.json) or listed in rejected.txt
+doesn't count: the track gets another take with a new seed, up to
+MAX_EXTRA more. Raw WAVs, captions and logs go to
 asset-generation/outputs/music/raw/ (not in git); post.py turns them into
 the game's MP3s.
 """
 from __future__ import annotations
 
+import json
+import os
 import subprocess
 import sys
 import time
@@ -23,6 +28,9 @@ import tracks  # noqa: E402
 
 REPO = HERE.parents[2]
 RAW = REPO / "asset-generation" / "outputs" / "music" / "raw"
+QA = RAW.parent / "qa.json"
+REJECTED = RAW.parent / "rejected.txt"
+MAX_EXTRA = 3
 TOOL = Path.home() / "ai/stable-diffusion.cpp-b70-native/xpu_sdpa/xpu_music3"
 
 
@@ -49,8 +57,11 @@ def generate(track: dict, take: int) -> None:
     lyrics.write_text(tracks.lyrics(track))
     started = time.time()
     with open(stem.with_suffix(".log"), "w") as log:
+        # NETHACK_MUSIC_LEASED=1: the caller already holds the B70 lease for
+        # the whole batch (a nested lease would wait on itself).
+        lease = [] if os.environ.get("NETHACK_MUSIC_LEASED") == "1" else ["b70-lease", "run", "nethack-music", "--"]
         code = subprocess.call(
-            ["b70-lease", "run", "nethack-music", "--", str(TOOL),
+            [*lease, str(TOOL),
              "--caption-file", str(caption), "--lyrics-file", str(lyrics),
              "--seconds", str(track["seconds"]), "--seed", str(seed_for(track["id"], take)), "--out", str(out)],
             stdout=log, stderr=subprocess.STDOUT)
@@ -61,10 +72,34 @@ def generate(track: dict, take: int) -> None:
     print(f"{out.name}: {wav_seconds(out):.1f}s in {time.time() - started:.0f}s", flush=True)
 
 
+def usable(track: dict, take: int) -> bool | None:
+    """Whether a generated take passed post.py's checks (None: not checked)."""
+    qa = json.loads(QA.read_text()) if QA.exists() else {}
+    rejected = set(REJECTED.read_text().split()) if REJECTED.exists() else set()
+    stem = take_path(track, take).stem
+    if stem in rejected:
+        return False
+    if stem not in qa:
+        return None
+    return not qa[stem]["problem"]
+
+
 def main() -> None:
     RAW.mkdir(parents=True, exist_ok=True)
-    wanted = sys.argv[1:]
-    todo = [t for t in tracks.TRACKS if not wanted or t["id"] in wanted]
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    todo = [t for t in tracks.TRACKS if not args or t["id"] in args]
+    if "--replace" in sys.argv:
+        # Replace the takes post.py rejected with new seeds.
+        for track in todo:
+            take = 1
+            good = 0
+            while good < track["takes"] and take <= track["takes"] + MAX_EXTRA:
+                generate(track, take)
+                if usable(track, take) is None:
+                    subprocess.call([sys.executable, str(HERE / "post.py")], stdout=subprocess.DEVNULL)
+                good += 1 if usable(track, take) else 0
+                take += 1
+        return
     # First take of everything, then the second takes: the game has a full
     # set early.
     for take in range(1, max(t["takes"] for t in todo) + 1):

@@ -45,6 +45,16 @@ func run() -> void:
 	await press(KEY_ESCAPE)
 	await _settle()
 	expect(music.wanted == "dungeon-calm", "the first level plays the calm dungeon theme (%s)" % music.wanted)
+	# When a take ends, the theme goes on with another take.
+	if music.library.get("dungeon-calm", []).size() > 1:
+		await get_tree().create_timer(3.5).timeout
+		var player: AudioStreamPlayer = music._players[music._active]
+		var before: String = player.stream.resource_path
+		player.seek(player.stream.get_length() - 0.5)
+		var deadline := Time.get_ticks_msec() + 5000
+		while Time.get_ticks_msec() < deadline and player.stream.resource_path == before:
+			await get_tree().process_frame
+		expect(player.playing and player.stream.resource_path != before, "after %s ends another take plays (%s)" % [before.get_file(), player.stream.resource_path])
 	music.stingers.clear()
 	mark()
 	game.send_keys("q")

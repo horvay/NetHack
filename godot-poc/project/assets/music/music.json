@@ -1,0 +1,167 @@
+{
+ "tracks": {
+  "ascension": [
+   "ascension/2.mp3",
+   "ascension/3.mp3"
+  ],
+  "astral": [
+   "astral/1.mp3",
+   "astral/2.mp3"
+  ],
+  "bigroom": [
+   "bigroom/1.mp3",
+   "bigroom/2.mp3"
+  ],
+  "castle": [
+   "castle/1.mp3",
+   "castle/2.mp3"
+  ],
+  "death": [
+   "death/1.mp3",
+   "death/2.mp3"
+  ],
+  "depths-calm": [
+   "depths-calm/1.mp3",
+   "depths-calm/2.mp3"
+  ],
+  "depths-tense": [
+   "depths-tense/1.mp3",
+   "depths-tense/3.mp3"
+  ],
+  "dungeon-calm": [
+   "dungeon-calm/1.mp3",
+   "dungeon-calm/2.mp3"
+  ],
+  "dungeon-tense": [
+   "dungeon-tense/1.mp3",
+   "dungeon-tense/2.mp3"
+  ],
+  "gehennom-calm": [
+   "gehennom-calm/1.mp3",
+   "gehennom-calm/2.mp3"
+  ],
+  "gehennom-tense": [
+   "gehennom-tense/1.mp3",
+   "gehennom-tense/3.mp3"
+  ],
+  "ludios": [
+   "ludios/1.mp3",
+   "ludios/2.mp3"
+  ],
+  "medusa": [
+   "medusa/1.mp3",
+   "medusa/2.mp3"
+  ],
+  "mines-calm": [
+   "mines-calm/1.mp3",
+   "mines-calm/2.mp3"
+  ],
+  "mines-tense": [
+   "mines-tense/2.mp3",
+   "mines-tense/4.mp3"
+  ],
+  "minetown": [
+   "minetown/1.mp3",
+   "minetown/2.mp3"
+  ],
+  "oracle": [
+   "oracle/1.mp3",
+   "oracle/2.mp3"
+  ],
+  "planes": [
+   "planes/1.mp3",
+   "planes/2.mp3"
+  ],
+  "quest-arc": [
+   "quest-arc/1.mp3"
+  ],
+  "quest-bar": [
+   "quest-bar/1.mp3"
+  ],
+  "quest-cav": [
+   "quest-cav/1.mp3"
+  ],
+  "quest-hea": [
+   "quest-hea/1.mp3"
+  ],
+  "quest-kni": [
+   "quest-kni/3.mp3"
+  ],
+  "quest-mon": [
+   "quest-mon/1.mp3"
+  ],
+  "quest-pri": [
+   "quest-pri/1.mp3"
+  ],
+  "quest-ran": [
+   "quest-ran/1.mp3"
+  ],
+  "quest-rog": [
+   "quest-rog/2.mp3"
+  ],
+  "quest-sam": [
+   "quest-sam/1.mp3"
+  ],
+  "quest-tou": [
+   "quest-tou/1.mp3"
+  ],
+  "quest-val": [
+   "quest-val/1.mp3"
+  ],
+  "quest-wiz": [
+   "quest-wiz/1.mp3"
+  ],
+  "shop": [
+   "shop/1.mp3",
+   "shop/2.mp3"
+  ],
+  "sokoban": [
+   "sokoban/1.mp3",
+   "sokoban/2.mp3"
+  ],
+  "sting-artifact": [
+   "sting-artifact/1.mp3",
+   "sting-artifact/2.mp3"
+  ],
+  "sting-ascend": [
+   "sting-ascend/1.mp3",
+   "sting-ascend/2.mp3"
+  ],
+  "sting-branch": [
+   "sting-branch/1.mp3",
+   "sting-branch/2.mp3"
+  ],
+  "sting-death": [
+   "sting-death/1.mp3",
+   "sting-death/2.mp3"
+  ],
+  "sting-levelup": [
+   "sting-levelup/3.mp3",
+   "sting-levelup/4.mp3"
+  ],
+  "sting-prayer": [
+   "sting-prayer/1.mp3",
+   "sting-prayer/2.mp3"
+  ],
+  "temple": [
+   "temple/1.mp3",
+   "temple/2.mp3"
+  ],
+  "throne": [
+   "throne/1.mp3",
+   "throne/2.mp3"
+  ],
+  "title": [
+   "title/1.mp3",
+   "title/3.mp3"
+  ],
+  "vlad": [
+   "vlad/1.mp3",
+   "vlad/2.mp3"
+  ],
+  "wizard-tower": [
+   "wizard-tower/1.mp3",
+   "wizard-tower/2.mp3"
+  ]
+ }
+}

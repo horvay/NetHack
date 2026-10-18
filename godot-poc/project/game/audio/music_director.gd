@@ -310,7 +310,7 @@ func _start(player: AudioStreamPlayer, id: String, fade: float) -> void:
 
 
 func _fade(player: AudioStreamPlayer, to_db: float, seconds: float, stop_after: bool) -> void:
-	var previous: Variant = player.get_meta("fade", null)
+	var previous: Variant = player.get_meta("fade") if player.has_meta("fade") else null
 	if previous is Tween and (previous as Tween).is_valid():
 		(previous as Tween).kill()
 	var tween := create_tween()

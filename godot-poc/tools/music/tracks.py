@@ -105,8 +105,9 @@ def tense(id, bpm, key, scale, genre, mood, scene, sonics, lead, layer, drums, t
 STINGER_SECTIONS = [("intro", "The whole cue happens here, in the first seconds, then it rings out."), ("outro", "Silence after a long natural decay.")]
 
 
-def stinger(id, bpm, key, scale, genre, what, instruments):
-    return {"id": id, "kind": "stinger", "takes": 2, "seconds": 30, "bpm": bpm, "key": key, "scale": scale, "genre": genre,
+def stinger(id, bpm, key, scale, genre, what, instruments, cut):
+    """cut: how many seconds of the start the game keeps."""
+    return {"id": id, "kind": "stinger", "takes": 2, "seconds": 30, "cut": cut, "bpm": bpm, "key": key, "scale": scale, "genre": genre,
             "mood": f"{what} It is over almost at once, then rings out.",
             "scene": "A short musical cue in a fantasy video game, a few seconds long. Not a song.",
             "sonics": "Close, clear, short reverb tail.", "never": NEVER,
@@ -262,17 +263,17 @@ TRACKS = [
      "never": NEVER},
     # --- Stingers --------------------------------------------------------------
     stinger("sting-levelup", 120, "C", "major", "Fantasy fanfare",
-            "A short bright rising flourish of success.", "a harp glissando and a soft horn call"),
+            "A short bright rising flourish of success.", "a harp glissando and a soft horn call", 4.5),
     stinger("sting-artifact", 80, "E", "major", "Mystical fantasy cue",
-            "A shimmering, wondrous discovery.", "bells, celesta and a high string chord"),
+            "A shimmering, wondrous discovery.", "bells, celesta and a high string chord", 5),
     stinger("sting-prayer", 60, "F", "major", "Sacred cue",
-            "A warm holy answer from above.", "a soft organ chord and a wordless choir-like pad"),
+            "A warm holy answer from above.", "a soft organ chord and a wordless choir-like pad", 6),
     stinger("sting-branch", 70, "D", "minor", "Dark fantasy cue",
-            "Entering somewhere new and unknown.", "a low horn and a deep gong"),
+            "Entering somewhere new and unknown.", "a low horn and a deep gong", 6),
     stinger("sting-death", 50, "A", "minor", "Tragic cue",
-            "A heavy falling chord of doom.", "low strings and a deep bell"),
+            "A heavy falling chord of doom.", "low strings and a deep bell", 7),
     stinger("sting-ascend", 90, "C", "major", "Triumphant cue",
-            "A radiant swelling chord of glory.", "a full orchestra and bells"),
+            "A radiant swelling chord of glory.", "a full orchestra and bells", 9),
 ]
 
 BY_ID = {t["id"]: t for t in TRACKS}
