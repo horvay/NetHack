@@ -90,8 +90,9 @@ godot-poc/
   project/game/world/       WorldView: procedural terrain, liquids, actors, fog shader, effects, camera
   project/game/ui/          HUD, dialogs, screens; UiTheme is the one source of fonts, colors, styles
   project/game/input/       InputRouter (keys, mouse), GamepadRouter, CellActions, ItemActions, CommandCatalog
-  project/game/audio/       SoundBank (synthesized effects + NetHack's CC clips), AudioDirector
+  project/game/audio/       SoundBank (synthesized effects + NetHack's CC clips), AudioDirector, MusicDirector (App-owned)
   project/assets/           tiles (tools/sync_tiles.py), sounds (tools/sync_sounds.py), fonts (OFL), manual.txt (tools/clean_guidebook.py)
+  project/assets/music/     MiniMax Music 3 MP3s + music.json (tools/music: tracks.py captions, generate.py on the B70, post.py checks and encodes)
   docs/bridge-protocol.md   the bridge's full event and input reference
   project/tests/scenarios/  deep-path scenarios, one file each, base class tests/support/scenario.gd
   tests/run.sh              runs scenarios: tests/run.sh [name ...]; imports, compiles every script, renders on a private Xvfb (:97) with dummy audio
@@ -244,3 +245,9 @@ The parity checklist is the feature set of `../electron-poc/src/ux` and `../elec
   - Reordering the pack: drag one inventory slot onto another and NetHack's #adjust gives it that letter (swapping them); the inventory opens again afterwards (`adjust_drag`). Gold keeps its $.
   - Round 14 (`docs/review-round-14.md`): Enter with nothing picked picks nothing and Esc cancels NetHack's menus (-1, as tty, in the bridge, so identify can be declined and `?` lists back out); NetHack's hidden menu keys (`/ y`, `C n`) work; `I` is NetHack's own again (Iu, Ix); the prayer card shows facts, never "troubles".
   - Hero art (Greg, 2026-10-18: "combined"): the painted race/role/gender art is the hero's portrait (HUD card, character sheet, Electron's full figure), kept in `player-combo-portraits/`; the map shows a 32 px pixel sprite of the same hero, redrawn from the painting so the two match. `sync_tiles.py` builds `.portrait.png` from the kept painting.
+- **2026-10-18** Music (Greg: "do all 1-6"). MiniMax Music 3 on the B70 (`xpu_music3`, native SYCL, under `b70-lease`), instrumental only, MP3 to save room:
+  - Captions follow Music 3's trained format (Global Metadata with the genre in Basic Attributes, Vocal Details, Arrangement, bare section tags as lyrics) and list what to leave out, or dungeon music turns into a trailer. `tools/music/tracks.py` holds all 44 tracks.
+  - `MusicDirector` (owned by App): a theme for each area (dungeon and the depths below 12, Mines, Minetown, Sokoban, Oracle, Big Room, Ludios, Medusa, Castle, Gehennom, the Wizard's tower, Vlad's, the Planes, Astral, a quest home per role); calm while exploring, tense while a hostile is within 6 squares in sight (calm again 7 s after), crossfaded; shops, temples and throne rooms (rooms NetHack announces on entry) have themes while calm; stingers for a level gained, a prayer answered, an artifact's name in the pack, a new branch, death, ascension; title, tombstone and ascension pieces. It ducks 8 dB under NetHack's windows. A missing track falls back to the area's, then the dungeon's.
+  - Themes are whole pieces (Music 3 writes openings and endings, not loops): when a take ends another take follows. Several takes per theme make the playlist.
+  - The bridge's `bridge_vision` carries `level` (the special level's prototype), `room` and `wizardTower`.
+  - Music volume is its own setting and bus.

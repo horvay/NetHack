@@ -1039,7 +1039,9 @@ static void emit_vision_event(void) {
     static char last_cells[ROWNO * COLNO + 1];
     static int last_depth = -9999;
     static int last_place = -1;
+    static const char *last_room = "";
     char cells[ROWNO * COLNO + 1];
+    const char *room = "";
     int index = 0;
 
     if (!bridge_extended_events() || !program_state.in_moveloop) return;
@@ -1063,10 +1065,20 @@ static void emit_vision_event(void) {
     cells[index] = '\0';
     int current_depth = depth(&u.uz);
     int place = ((int) u.uz.dnum << 16) | ((int) u.uz.dlevel << 1) | (Blind ? 1 : 0);
-    if (current_depth == last_depth && place == last_place && !strcmp(cells, last_cells)) return;
+    /* The announced special room the hero stands in (NetHack says "Welcome
+     * to ...'s store", "You enter an opulent throne room!" on entry). */
+    for (const char *r = u.urooms; *r; ++r) {
+        int rtype = svr.rooms[*r - ROOMOFFSET].rtype;
+        if (rtype >= SHOPBASE) room = "shop";
+        else if (rtype == TEMPLE) room = "temple";
+        else if (rtype == COURT) room = "throne";
+        if (*room) break;
+    }
+    if (current_depth == last_depth && place == last_place && room == last_room && !strcmp(cells, last_cells)) return;
     memcpy(last_cells, cells, sizeof cells);
     last_depth = current_depth;
     last_place = place;
+    last_room = room;
 
     emit_event_start("bridge_vision");
     fprintf(stdout, ",\"width\":%d,\"height\":%d,\"depth\":%d,\"dnum\":%d,\"dlevel\":%d,\"blind\":%s,\"cells\":\"%s\"",
@@ -1075,6 +1087,18 @@ static void emit_vision_event(void) {
     /* The branch the hero is in ("The Gnomish Mines"), for level labels. */
     fputs(",\"dungeon\":\"", stdout);
     json_escape(stdout, svd.dungeons[u.uz.dnum].dname);
+    fputs("\"", stdout);
+    /* The special level's prototype ("minetn", "oracle", "medusa"...), and
+     * whether the hero is inside the Wizard's tower: for area music. */
+    {
+        s_level *special = Is_special(&u.uz);
+        fputs(",\"level\":\"", stdout);
+        json_escape(stdout, special ? special->proto : "");
+        fputs("\"", stdout);
+        fprintf(stdout, ",\"wizardTower\":%s", In_W_tower(u.ux, u.uy, &u.uz) ? "true" : "false");
+    }
+    fputs(",\"room\":\"", stdout);
+    json_escape(stdout, room);
     fputs("\"", stdout);
     emit_event_end();
 }

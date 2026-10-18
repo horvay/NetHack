@@ -10,6 +10,7 @@ var session: NetHackSession
 var game: GameScreen
 var title: Node
 var settings := Settings.load_or_default()
+var music: MusicDirector
 
 static var instance: App
 
@@ -35,6 +36,9 @@ func _ready() -> void:
 	session.name = "NetHackSession"
 	add_child(session)
 	session.game_ended.connect(_on_session_ended)
+	music = MusicDirector.new()
+	music.settings = settings
+	add_child(music)
 	if not OS.get_cmdline_user_args().has("--no-title") and not Engine.is_editor_hint():
 		if get_tree().current_scene == self:
 			show_title()
@@ -46,6 +50,8 @@ func show_title() -> void:
 	title.name = "Title"
 	add_child(title)
 	title.setup(self)
+	music.unfollow()
+	music.play("title")
 	if settings.load_error != "" and title.status_label.text == "":
 		title.status_label.text = settings.load_error
 
@@ -123,6 +129,7 @@ func start_game(spec: String, seed := "", options := "") -> GameScreen:
 			ERR_FILE_BAD_PATH: "The game data folder could not be opened."}.get(error, "NetHack could not start (%s)." % error_string(error))
 		title.status_label.text = why
 		return null
+	music.follow(game)
 	game_started.emit(game)
 	return game
 

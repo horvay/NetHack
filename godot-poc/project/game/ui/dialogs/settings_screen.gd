@@ -85,6 +85,10 @@ func setup(game_screen: GameScreen) -> void:
 	_list.add_child(_slider("Volume", 0, 100, int(settings.master_volume * 100), func(v: float) -> void:
 		settings.master_volume = v / 100.0
 		AudioServer.set_bus_volume_db(0, linear_to_db(maxf(settings.master_volume, 0.0001))), "%d%%"))
+	_list.add_child(_slider("Music", 0, 100, int(settings.music_volume * 100), func(v: float) -> void:
+		settings.music_volume = v / 100.0
+		if App.instance and App.instance.music:
+			App.instance.music.apply_settings(), "%d%%"))
 	_list.add_child(_toggle("Game sounds (fights, steps, the dungeon)", settings.game_sounds, func(on: bool) -> void: settings.game_sounds = on))
 	_list.add_child(_toggle("Interface sounds (clicks, panels)", settings.interface_sounds, func(on: bool) -> void: settings.interface_sounds = on))
 	_list.add_child(_heading("Advanced — NetHack options for your next new game"))

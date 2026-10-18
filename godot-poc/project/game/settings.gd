@@ -10,6 +10,7 @@ var number_pad := false
 var reduced_motion := false
 var screen_shake := true
 var master_volume := 0.7
+var music_volume := 0.6
 var default_zoom := 4
 var show_key_hints := true
 var confirm_dangerous := true
@@ -62,6 +63,7 @@ static func load_or_default() -> Settings:
 		settings.ascii_overlay = file.get_value("display", "ascii_overlay", settings.ascii_overlay)
 		settings.high_contrast = file.get_value("display", "high_contrast", settings.high_contrast)
 		settings.master_volume = file.get_value("audio", "master_volume", settings.master_volume)
+		settings.music_volume = file.get_value("audio", "music_volume", settings.music_volume)
 		settings.ui_scale = file.get_value("display", "ui_scale", settings.ui_scale)
 		settings.detailed_status = file.get_value("display", "detailed_status", settings.detailed_status)
 		settings.keep_diagnostics = file.get_value("advanced", "keep_diagnostics", settings.keep_diagnostics)
@@ -94,6 +96,7 @@ func save() -> bool:
 	file.set_value("display", "ascii_overlay", ascii_overlay)
 	file.set_value("display", "high_contrast", high_contrast)
 	file.set_value("audio", "master_volume", master_volume)
+	file.set_value("audio", "music_volume", music_volume)
 	file.set_value("display", "ui_scale", ui_scale)
 	file.set_value("display", "detailed_status", detailed_status)
 	file.set_value("advanced", "keep_diagnostics", keep_diagnostics)

@@ -1,0 +1,51 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "object/gain-level-and-named-sword",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current",
+    "hp": 30,
+    "maxHp": 30
+  },
+  "level": {
+    "safeAreaAroundHero": 3,
+    "lit": true,
+    "suppressAdjacentMonsters": true,
+    "pet": "none"
+  },
+  "ground": [
+    {
+      "at": "hero",
+      "object": {
+        "typeId": "LONG_SWORD",
+        "identityKnown": true,
+        "beatitudeKnown": true,
+        "beatitude": "uncursed",
+        "individualName": "Excalibur"
+      }
+    }
+  ],
+  "monsters": [],
+  "inventory": [
+    {
+      "typeId": "POT_GAIN_LEVEL",
+      "identityKnown": true,
+      "beatitudeKnown": true,
+      "beatitude": "uncursed"
+    }
+  ],
+  "expectedPublicFacts": {
+    "monsterRows": [
+      "none"
+    ],
+    "mapAffordances": [
+      "object under hero"
+    ],
+    "inventoryRows": [
+      "potion of gain level"
+    ],
+    "messages": [
+      "object fixture"
+    ]
+  }
+}

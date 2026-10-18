@@ -25,6 +25,12 @@ var dnum := 0
 ## The branch's name, e.g. "The Gnomish Mines" (bridge_vision, extended).
 var dungeon := ""
 var dlevel := 0
+## The special level's prototype ("minetn", "oracle", "medusa"...; "" for
+## an ordinary level), the announced room the hero is in ("shop",
+## "temple", "throne" or ""), and whether the hero is in the Wizard's tower.
+var level := ""
+var room := ""
+var wizard_tower := false
 var blind := false
 
 
@@ -89,6 +95,9 @@ func apply_vision(event: Dictionary) -> bool:
 	vision_revision += 1
 	blind = event.get("blind", false) == true
 	dungeon = str(event.get("dungeon", dungeon))
+	level = str(event.get("level", level))
+	room = str(event.get("room", room))
+	wizard_tower = event.get("wizardTower", wizard_tower) == true
 	var new_depth := int(event.get("depth", depth))
 	var new_dnum := int(event.get("dnum", dnum))
 	var new_dlevel := int(event.get("dlevel", dlevel))

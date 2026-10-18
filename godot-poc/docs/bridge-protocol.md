@@ -1725,7 +1725,7 @@ Sent before `nh_poskey` and `nhgetch` waits, only while the game loop is
 running, and only when the vision grid or depth changed.
 
 ```json
-{"type":"shim-event","name":"bridge_vision","width":80,"height":21,"depth":2,"dnum":0,"dlevel":2,"blind":false,"cells":"0000…(1680 digits)…","dungeon":"The Dungeons of Doom"}
+{"type":"shim-event","name":"bridge_vision","width":80,"height":21,"depth":2,"dnum":0,"dlevel":2,"blind":false,"cells":"0000…(1680 digits)…","dungeon":"The Dungeons of Doom","level":"oracle","wizardTower":false,"room":""}
 ```
 
 - **`cells`:** one digit per square, row-major (`index = y*80 + x`). The
@@ -1742,8 +1742,14 @@ running, and only when the vision grid or depth changed.
 - **`blind`:** whether the hero is blind.
 - **`dungeon`:** the branch's name (`"The Gnomish Mines"`), for level
   labels.
-- The event is re-sent whenever the cells, the level identity or blindness
-  change.
+- **`level`:** the special level's prototype (`"minetn"`, `"oracle"`,
+  `"medusa"`, `"castle"`, `"astral"`...), `""` on an ordinary level.
+- **`wizardTower`:** whether the hero is inside the Wizard's tower.
+- **`room`:** the announced room the hero stands in: `"shop"`, `"temple"`,
+  `"throne"`, or `""`. NetHack names these rooms on entry, so they give
+  nothing away. Used for the music.
+- The event is re-sent whenever the cells, the level identity, blindness or
+  the room change.
 
 ### 9.2 `bridge_key_wait`
 

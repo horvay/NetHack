@@ -60,6 +60,12 @@ func setup(p_app: App, summary: Dictionary) -> void:
 	# game screen stops taking input.
 	if is_instance_valid(app.game):
 		app.game.retire()
+	# The tombstone's lament, the ascension's glory; quiet for the rest.
+	if app.music:
+		app.music.unfollow()
+		if outcome == "ascended":
+			app.music.sting("sting-ascend")
+		app.music.play({"died": "death", "ascended": "ascension"}.get(outcome, ""))
 	var root := Control.new()
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.theme = UiTheme.theme()
