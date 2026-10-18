@@ -4026,13 +4026,13 @@
       "why": "Normally generated monster likely in first few dungeon levels or edge cases.",
       "artDirection": "A symbolic grid bug tile with one exaggerated identifying feature and a clean outline. It should be readable as glyph class x at small size, prioritizing silhouette and color over anatomical realism.",
       "renderingNotes": "Normally generated early candidate by level or difficulty extraction; exact spawn rules still come from NetHack. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of grid bug: A symbolic grid bug tile with one exaggerated identifying feature and a clean outline. It should be readable as glyph class x at small size, prioritizing silhouette and color over anatomical realism. Visible positive color palette: electric blue grid bug with cyan body plates, yellow spark nodes, and white-blue glow.. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette, readable at 32px and 16px, high contrast on a dark dungeon floor, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a grid bug: a small boxy insect made of square segments, magenta-purple glowing carapace with bright violet electric sparks crackling along its stiff legs, magenta clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
       "outputPath": "asset-generation/outputs/common-early-monsters/grid-bug.png",
       "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/grid-bug.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent-rmbg-coherent-restart",
-      "completedAt": "2026-06-29T14:32:23Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:07:26Z",
       "coherentRestartAt": "2026-06-29T14:32:23Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -4043,11 +4043,28 @@
           32,
           32
         ],
-        "transparentPixels": 548,
-        "semiTransparentPixels": 330,
-        "opaquePixels": 146,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.5605
+        "transparentPixels": 724,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 300,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.293
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent-rmbg-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of grid bug: A symbolic grid bug tile with one exaggerated identifying feature and a clean outline. It should be readable as glyph class x at small size, prioritizing silhouette and color over anatomical realism. Visible positive color palette: electric blue grid bug with cyan body plates, yellow spark nodes, and white-blue glow.. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette, readable at 32px and 16px, high contrast on a dark dungeon floor, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/common-early-monsters/grid-bug.png"
+      },
+      "previousSha256": null,
+      "sha256": "efa268c951c9f1fca20d1660a5016e652a9fd1e497af8543412169e69d67264a",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: Blue jewel beetle with a cream sticker outline; grid bugs are small magenta electric bugs.) on the B70 with Qwen Image 2.1, seed 7, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 7,
+        "audit": "asset-generation/outputs/audit-2026-10-17/E/flagged.json",
+        "installedAt": "2026-10-18T08:07:26Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/common-early-monsters/grid-bug.png"
       }
     },
     {
@@ -4186,13 +4203,13 @@
       "why": "Normally generated monster likely in first few dungeon levels or edge cases.",
       "artDirection": "A symbolic iguana tile with one exaggerated identifying feature and a clean outline. It should be readable as glyph class : at small size, prioritizing silhouette and color over anatomical realism.",
       "renderingNotes": "Normally generated early candidate by level or difficulty extraction; exact spawn rules still come from NetHack. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of iguana: A symbolic iguana tile with one exaggerated identifying feature and a clean outline. It should be readable as glyph class : at small size, prioritizing silhouette and color over anatomical realism. Visible positive color palette: leaf-green iguana with yellow crest, cream belly, and turquoise edge highlights.. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clear transparent margin, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: an iguana: a lizard in side view with brown scales and tan belly, a row of spines along its back, dewlap under its chin, long tail, brown clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
       "outputPath": "asset-generation/outputs/common-early-monsters/iguana.png",
       "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/iguana.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent-rmbg-coherent-restart",
-      "completedAt": "2026-06-29T14:42:11Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:07:26Z",
       "coherentRestartAt": "2026-06-29T14:42:11Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -4203,11 +4220,28 @@
           32,
           32
         ],
-        "transparentPixels": 354,
-        "semiTransparentPixels": 53,
-        "opaquePixels": 617,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.7031
+        "transparentPixels": 861,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 163,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.1592
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent-rmbg-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of iguana: A symbolic iguana tile with one exaggerated identifying feature and a clean outline. It should be readable as glyph class : at small size, prioritizing silhouette and color over anatomical realism. Visible positive color palette: leaf-green iguana with yellow crest, cream belly, and turquoise edge highlights.. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clear transparent margin, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/common-early-monsters/iguana.png"
+      },
+      "previousSha256": null,
+      "sha256": "7868b05db83a721049a5fc40d3c0c42197c77cc7b940f147cffbf1d3da53744d",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: Bright green cartoon lizard with a cream sticker outline; NetHack iguanas are brown.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/E/flagged.json",
+        "installedAt": "2026-10-18T08:07:26Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/common-early-monsters/iguana.png"
       }
     },
     {
@@ -4400,13 +4434,13 @@
       "why": "Normally generated monster likely in first few dungeon levels or edge cases.",
       "artDirection": "A symbolic gnome tile with one exaggerated identifying feature and a clean outline. It should be readable as glyph class G at small size, prioritizing silhouette and color over anatomical realism.",
       "renderingNotes": "Normally generated early candidate by level or difficulty extraction; exact spawn rules still come from NetHack. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of gnome: A symbolic gnome tile with one exaggerated identifying feature and a clean outline. It should be readable as glyph class G at small size, prioritizing silhouette and color over anatomical realism. Visible positive color palette: rosy-cheeked gnome with red cap, blue tunic, tan boots, and warm cream highlights.. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette, readable at 32px and 16px, high contrast on a dark dungeon floor, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a gnome: a small, wiry, bearded underground humanoid in three-quarter view, brown leather jerkin and brown hooded cowl, bushy brown beard, big nose, sharp eyes, holding a pick-axe in one hand, crouched alert pose, brown clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
       "outputPath": "asset-generation/outputs/common-early-monsters/gnome.png",
       "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/gnome.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent-rmbg-coherent-restart",
-      "completedAt": "2026-06-29T14:30:06Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:07:26Z",
       "coherentRestartAt": "2026-06-29T14:30:06Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -4417,11 +4451,28 @@
           32,
           32
         ],
-        "transparentPixels": 530,
-        "semiTransparentPixels": 51,
-        "opaquePixels": 443,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.5156
+        "transparentPixels": 603,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 421,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4111
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent-rmbg-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of gnome: A symbolic gnome tile with one exaggerated identifying feature and a clean outline. It should be readable as glyph class G at small size, prioritizing silhouette and color over anatomical realism. Visible positive color palette: rosy-cheeked gnome with red cap, blue tunic, tan boots, and warm cream highlights.. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette, readable at 32px and 16px, high contrast on a dark dungeon floor, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/common-early-monsters/gnome.png"
+      },
+      "previousSha256": null,
+      "sha256": "e9e1cf23041544c792699c002dfc7201c0680bbdfead80d9242532a4cf63d733",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: Garden-ornament gnome with a red pointy hat, white beard and cream sticker outline; Greg: \"gnomes look terrible\". NetHack gnomes are brown underground humanoids.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/E/flagged.json",
+        "installedAt": "2026-10-18T08:07:26Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/common-early-monsters/gnome.png"
       }
     },
     {
@@ -4757,13 +4808,13 @@
       "why": "Normally generated monster likely in first few dungeon levels or edge cases.",
       "artDirection": "A symbolic homunculus tile with one exaggerated identifying feature and a clean outline. It should be readable as glyph class i at small size, prioritizing silhouette and color over anatomical realism.",
       "renderingNotes": "Normally generated early candidate by level or difficulty extraction; exact spawn rules still come from NetHack. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of homunculus: A symbolic homunculus tile with one exaggerated identifying feature and a clean outline. It should be readable as glyph class i at small size, prioritizing silhouette and color over anatomical realism. Visible positive color palette: violet-blue homunculus with lavender wings, pink ears, and pale cyan magical highlights.. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette, readable at 32px and 16px, high contrast on a dark dungeon floor, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a homunculus: a small hunched imp-like creature with dark green scaly skin, leathery green bat wings spread, long thin tail, sharp fangs, beady amber eyes, clawed hands, crouched ready to bite, green clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background.",
       "outputPath": "asset-generation/outputs/common-early-monsters/homunculus.png",
       "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/homunculus.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent-rmbg-coherent-restart",
-      "completedAt": "2026-06-29T14:34:46Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:07:26Z",
       "coherentRestartAt": "2026-06-29T14:34:46Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -4774,11 +4825,28 @@
           32,
           32
         ],
-        "transparentPixels": 364,
-        "semiTransparentPixels": 109,
-        "opaquePixels": 551,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.7041
+        "transparentPixels": 703,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 321,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.3135
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent-rmbg-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of homunculus: A symbolic homunculus tile with one exaggerated identifying feature and a clean outline. It should be readable as glyph class i at small size, prioritizing silhouette and color over anatomical realism. Visible positive color palette: violet-blue homunculus with lavender wings, pink ears, and pale cyan magical highlights.. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette, readable at 32px and 16px, high contrast on a dark dungeon floor, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/common-early-monsters/homunculus.png"
+      },
+      "previousSha256": null,
+      "sha256": "e693a0eb0235a8e1746dba3a13cf2beff8407f37c780c61f51d7437bff1830da",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: Cute purple dragon-cat with a cream sticker outline; a NetHack homunculus is a small green winged imp.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; magenta matte (green subject) keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/E/flagged.json",
+        "installedAt": "2026-10-18T08:07:26Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/common-early-monsters/homunculus.png"
       }
     },
     {
@@ -4961,13 +5029,13 @@
       "why": "Normally generated monster likely in first few dungeon levels or edge cases.",
       "artDirection": "A symbolic rothe tile with one exaggerated identifying feature and a clean outline. It should be readable as glyph class q at small size, prioritizing silhouette and color over anatomical realism.",
       "renderingNotes": "Normally generated early candidate by level or difficulty extraction; exact spawn rules still come from NetHack. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of rothe: A symbolic rothe tile with one exaggerated identifying feature and a clean outline. It should be readable as glyph class q at small size, prioritizing silhouette and color over anatomical realism. Visible positive color palette: shaggy rust-brown rothe beast with cream horns, tan muzzle, dark auburn mane, and warm gold highlights.. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clear transparent margin, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a rothe: a low, heavy, shaggy musk-ox-like underground beast in three-quarter view, thick brown fur with darker brown shading, short curved horns, open mouth showing sharp teeth, small fierce eyes, charging stance, brown clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
       "outputPath": "asset-generation/outputs/common-early-monsters/rothe.png",
       "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/rothe.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent-rmbg-coherent-restart",
-      "completedAt": "2026-06-29T14:58:25Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:07:26Z",
       "coherentRestartAt": "2026-06-29T14:58:25Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -4978,11 +5046,28 @@
           32,
           32
         ],
-        "transparentPixels": 408,
-        "semiTransparentPixels": 45,
-        "opaquePixels": 571,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.6426
+        "transparentPixels": 547,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 477,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4658
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent-rmbg-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of rothe: A symbolic rothe tile with one exaggerated identifying feature and a clean outline. It should be readable as glyph class q at small size, prioritizing silhouette and color over anatomical realism. Visible positive color palette: shaggy rust-brown rothe beast with cream horns, tan muzzle, dark auburn mane, and warm gold highlights.. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clear transparent margin, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/common-early-monsters/rothe.png"
+      },
+      "previousSha256": null,
+      "sha256": "ad9f3937ab6150e846e43f2e61843766c251159f2828a1c9b8536cbc52051475",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: Orange lion-bull hybrid with a thick cream sticker outline; a rothe is a squat shaggy brown ox-like beast.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/E/flagged.json",
+        "installedAt": "2026-10-18T08:07:26Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/common-early-monsters/rothe.png"
       }
     },
     {
@@ -11832,13 +11917,13 @@
       "why": "Source-derived full NetHack monster backlog asset installed to close dedicated tile coverage.",
       "artDirection": "Deterministic 32x32 silhouette sprite for NetHack monster queen bee; species/class shape keyed from source glyph 'a', with no text/initial badge.",
       "renderingNotes": "Upgraded from placeholder initial badge to readable silhouette art; manifest id/path preserved. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of queen bee: Deterministic 32x32 silhouette sprite for NetHack monster queen bee; species/class shape keyed from source glyph 'a', with no text/initial badge. Visible positive color palette: rust red and copper with orange highlights, brass accents, and warm cream edge pixels. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a queen bee: a giant elongated bee in side view with a long tapering abdomen banded magenta and deep purple, glossy violet thorax, translucent pale wings, large dark stinger, magenta clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
       "outputPath": "asset-generation/outputs/full-source-monsters/queen-bee.png",
       "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/queen-bee.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent-rmbg-coherent-restart",
-      "completedAt": "2026-06-29T19:58:04Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:07:25Z",
       "coherentRestartAt": "2026-06-29T19:58:04Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -11849,11 +11934,28 @@
           32,
           32
         ],
-        "transparentPixels": 427,
-        "semiTransparentPixels": 89,
-        "opaquePixels": 508,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.6562
+        "transparentPixels": 781,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 243,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.2373
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent-rmbg-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of queen bee: Deterministic 32x32 silhouette sprite for NetHack monster queen bee; species/class shape keyed from source glyph 'a', with no text/initial badge. Visible positive color palette: rust red and copper with orange highlights, brass accents, and warm cream edge pixels. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/queen-bee.png"
+      },
+      "previousSha256": null,
+      "sha256": "386a4436959bdf5725399c48371f9eff0e1c8337974032cec1e15e03a97ceedd",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: Orange-brown bee with a thick cream sticker outline; the queen bee is magenta (HI_LORD) and should read as a large elongated queen.) on the B70 with Qwen Image 2.1, seed 7, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 7,
+        "audit": "asset-generation/outputs/audit-2026-10-17/E/flagged.json",
+        "installedAt": "2026-10-18T08:07:25Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/queen-bee.png"
       }
     },
     {
@@ -12019,13 +12121,13 @@
       "why": "Source-derived full NetHack monster backlog asset installed to close dedicated tile coverage.",
       "artDirection": "Deterministic 32x32 silhouette sprite for NetHack monster pyrolisk; species/class shape keyed from source glyph 'c', with no text/initial badge.",
       "renderingNotes": "Upgraded from placeholder initial badge to readable silhouette art; manifest id/path preserved. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of pyrolisk: Deterministic 32x32 silhouette sprite for NetHack monster pyrolisk; species/class shape keyed from source glyph 'c', with no text/initial badge. Visible positive color palette: rust red and copper with orange highlights, brass accents, and warm cream edge pixels. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a pyrolisk: a cockatrice-like creature in side view with a rooster's head, comb and wattle, crimson red feathers and red scales, scaly serpentine tail, glowing orange fiery eyes, red clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
       "outputPath": "asset-generation/outputs/full-source-monsters/pyrolisk.png",
       "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/pyrolisk.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent-rmbg-coherent-restart",
-      "completedAt": "2026-06-29T20:00:57Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:07:25Z",
       "coherentRestartAt": "2026-06-29T20:00:57Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -12036,11 +12138,28 @@
           32,
           32
         ],
-        "transparentPixels": 294,
-        "semiTransparentPixels": 72,
-        "opaquePixels": 658,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.7559
+        "transparentPixels": 713,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 311,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.3037
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent-rmbg-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of pyrolisk: Deterministic 32x32 silhouette sprite for NetHack monster pyrolisk; species/class shape keyed from source glyph 'c', with no text/initial badge. Visible positive color palette: rust red and copper with orange highlights, brass accents, and warm cream edge pixels. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/pyrolisk.png"
+      },
+      "previousSha256": null,
+      "sha256": "09dfcb3f0def200dd8edab36be66ffd293ecbee3cd02016fc8c9e8b612e0fc93",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: Red-brown demon blob with a thick cream sticker outline; a pyrolisk is a red cockatrice-like bird-reptile.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/E/flagged.json",
+        "installedAt": "2026-10-18T08:07:25Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/pyrolisk.png"
       }
     },
     {
@@ -13223,13 +13342,13 @@
       "why": "Source-derived full NetHack monster backlog asset installed to close dedicated tile coverage.",
       "artDirection": "Deterministic 32x32 silhouette sprite for NetHack monster lemure; species/class shape keyed from source glyph 'i', with no text/initial badge.",
       "renderingNotes": "Upgraded from placeholder initial badge to readable silhouette art; manifest id/path preserved. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of lemure: Deterministic 32x32 silhouette sprite for NetHack monster lemure; species/class shape keyed from source glyph 'i', with no text/initial badge. Visible positive color palette: emerald green with lime highlights, mint edge glow, and yellow-green accents. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a lemure: a shapeless blob of melting brown flesh with a vaguely humanoid head and dripping arms, oozing up from the floor, dull mindless eyes, brown clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
       "outputPath": "asset-generation/outputs/full-source-monsters/lemure.png",
       "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/lemure.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent",
-      "completedAt": "2026-06-29T20:34:13Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:07:25Z",
       "coherentRestartAt": "2026-06-29T20:34:13Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -13240,11 +13359,28 @@
           32,
           32
         ],
-        "transparentPixels": 395,
-        "semiTransparentPixels": 116,
-        "opaquePixels": 513,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.667
+        "transparentPixels": 753,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 271,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.2646
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of lemure: Deterministic 32x32 silhouette sprite for NetHack monster lemure; species/class shape keyed from source glyph 'i', with no text/initial badge. Visible positive color palette: emerald green with lime highlights, mint edge glow, and yellow-green accents. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/lemure.png"
+      },
+      "previousSha256": null,
+      "sha256": "a4a899496e75e488ad8f5540d025a62d057318ac546ba525f0d42ad4adc5ce39",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: Green horned worm with a cream sticker outline; lemures are brown shapeless blobs of flesh.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/E/flagged.json",
+        "installedAt": "2026-10-18T08:07:25Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/lemure.png"
       }
     },
     {
@@ -13839,13 +13975,13 @@
       "why": "Source-derived full NetHack monster backlog asset installed to close dedicated tile coverage.",
       "artDirection": "Deterministic 32x32 silhouette sprite for NetHack monster Mordor orc; species/class shape keyed from source glyph 'o', with no text/initial badge.",
       "renderingNotes": "Upgraded from placeholder initial badge to readable silhouette art; manifest id/path preserved. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of Mordor orc: Deterministic 32x32 silhouette sprite for NetHack monster Mordor orc; species/class shape keyed from source glyph 'o', with no text/initial badge. Visible positive color palette: emerald green with lime highlights, mint edge glow, and yellow-green accents. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a Mordor orc: a lean snarling orc soldier in three-quarter view in dark blue iron armor and blue scale mail, blue shield, curved scimitar, gray skin, yellow eyes, blue clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
       "outputPath": "asset-generation/outputs/full-source-monsters/mordor-orc.png",
       "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/mordor-orc.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent",
-      "completedAt": "2026-06-29T20:41:58Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:07:25Z",
       "coherentRestartAt": "2026-06-29T20:41:58Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -13856,11 +13992,28 @@
           32,
           32
         ],
-        "transparentPixels": 418,
-        "semiTransparentPixels": 90,
-        "opaquePixels": 516,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.6543
+        "transparentPixels": 564,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 460,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4492
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of Mordor orc: Deterministic 32x32 silhouette sprite for NetHack monster Mordor orc; species/class shape keyed from source glyph 'o', with no text/initial badge. Visible positive color palette: emerald green with lime highlights, mint edge glow, and yellow-green accents. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/mordor-orc.png"
+      },
+      "previousSha256": null,
+      "sha256": "91880ccc13fa2a60b308be5089e42ee257dbcb8bee54d192d9192b667e297982",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: Green-skinned cartoon orc with a cream sticker outline; Mordor orcs are blue.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/E/flagged.json",
+        "installedAt": "2026-10-18T08:07:25Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/mordor-orc.png"
       }
     },
     {
@@ -13924,13 +14077,13 @@
       "why": "Source-derived full NetHack monster backlog asset installed to close dedicated tile coverage.",
       "artDirection": "Deterministic 32x32 silhouette sprite for NetHack monster orc-captain; species/class shape keyed from source glyph 'o', with no text/initial badge.",
       "renderingNotes": "Upgraded from placeholder initial badge to readable silhouette art; manifest id/path preserved. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of orc-captain: Deterministic 32x32 silhouette sprite for NetHack monster orc-captain; species/class shape keyed from source glyph 'o', with no text/initial badge. Visible positive color palette: cool gray with silver-blue rim light, pale highlights, and blue-violet shadows. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: an orc-captain: a big armored orc chieftain in three-quarter view in magenta-purple plate armor, horned helm, gray skin, huge axe, magenta clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
       "outputPath": "asset-generation/outputs/full-source-monsters/orc-captain.png",
       "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/orc-captain.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent",
-      "completedAt": "2026-06-29T20:43:11Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:07:25Z",
       "coherentRestartAt": "2026-06-29T20:43:11Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -13941,11 +14094,28 @@
           32,
           32
         ],
-        "transparentPixels": 340,
-        "semiTransparentPixels": 97,
-        "opaquePixels": 587,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.7188
+        "transparentPixels": 534,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 490,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4785
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of orc-captain: Deterministic 32x32 silhouette sprite for NetHack monster orc-captain; species/class shape keyed from source glyph 'o', with no text/initial badge. Visible positive color palette: cool gray with silver-blue rim light, pale highlights, and blue-violet shadows. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/orc-captain.png"
+      },
+      "previousSha256": null,
+      "sha256": "5ea5fab4f0518ee6ea83e2c757e0e4252bbbae07d6ca1cd7edd5189654a58a5d",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: Gray blocky pixel blob; orc-captains are magenta (HI_LORD).) on the B70 with Qwen Image 2.1, seed 7, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 7,
+        "audit": "asset-generation/outputs/audit-2026-10-17/E/flagged.json",
+        "installedAt": "2026-10-18T08:07:25Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/orc-captain.png"
       }
     },
     {
@@ -14349,13 +14519,13 @@
       "why": "Source-derived full NetHack monster backlog asset installed to close dedicated tile coverage.",
       "artDirection": "Deterministic 32x32 silhouette sprite for NetHack monster giant spider; species/class shape keyed from source glyph 's', with no text/initial badge.",
       "renderingNotes": "Upgraded from placeholder initial badge to readable silhouette art; manifest id/path preserved. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. 50-up actual-size review fix: increased silhouette/rim contrast for 16px map readability while preserving transparency.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of giant spider: Deterministic 32x32 silhouette sprite for NetHack monster giant spider; species/class shape keyed from source glyph 's', with no text/initial badge. Visible positive color palette: rust red and copper with orange highlights, brass accents, and warm cream edge pixels. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a giant spider: a huge hairy spider in three-quarter view, magenta-purple carapace and legs with violet highlights, dripping venomous fangs, magenta clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
       "outputPath": "asset-generation/outputs/full-source-monsters/giant-spider.png",
       "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/giant-spider.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent-rmbg-coherent-restart",
-      "completedAt": "2026-06-29T17:48:02Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:07:24Z",
       "coherentRestartAt": "2026-06-29T17:48:02Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -14366,11 +14536,28 @@
           32,
           32
         ],
-        "transparentPixels": 403,
-        "semiTransparentPixels": 105,
-        "opaquePixels": 516,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.6348
+        "transparentPixels": 743,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 281,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.2744
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent-rmbg-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of giant spider: Deterministic 32x32 silhouette sprite for NetHack monster giant spider; species/class shape keyed from source glyph 's', with no text/initial badge. Visible positive color palette: rust red and copper with orange highlights, brass accents, and warm cream edge pixels. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/giant-spider.png"
+      },
+      "previousSha256": null,
+      "sha256": "e120b9c94d237bc517e6bdab7738795b2ee83233b20f7be9e76978877088ed84",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: Red-brown spider with a cream sticker outline; giant spiders are magenta.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/E/flagged.json",
+        "installedAt": "2026-10-18T08:07:24Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/giant-spider.png"
       }
     },
     {
@@ -14791,13 +14978,13 @@
       "why": "Source-derived full NetHack monster backlog asset installed to close dedicated tile coverage.",
       "artDirection": "Deterministic 32x32 silhouette sprite for NetHack monster fire vortex; species/class shape keyed from source glyph 'v', with no text/initial badge.",
       "renderingNotes": "Upgraded from placeholder initial badge to readable silhouette art; manifest id/path preserved. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of fire vortex: Deterministic 32x32 silhouette sprite for NetHack monster fire vortex; species/class shape keyed from source glyph 'v', with no text/initial badge. Visible positive color palette: cool gray with silver-blue rim light, pale highlights, and blue-violet shadows. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a fire vortex: a whirling tornado of roaring flame, bright yellow fire with orange highlights and flying sparks, yellow clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
       "outputPath": "asset-generation/outputs/full-source-monsters/fire-vortex.png",
       "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/fire-vortex.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent-rmbg-coherent-restart",
-      "completedAt": "2026-06-29T17:55:11Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:07:24Z",
       "coherentRestartAt": "2026-06-29T17:55:11Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -14808,11 +14995,28 @@
           32,
           32
         ],
-        "transparentPixels": 466,
-        "semiTransparentPixels": 70,
-        "opaquePixels": 488,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.5996
+        "transparentPixels": 545,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 479,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4678
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent-rmbg-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of fire vortex: Deterministic 32x32 silhouette sprite for NetHack monster fire vortex; species/class shape keyed from source glyph 'v', with no text/initial badge. Visible positive color palette: cool gray with silver-blue rim light, pale highlights, and blue-violet shadows. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/fire-vortex.png"
+      },
+      "previousSha256": null,
+      "sha256": "a76ba918b1c5b0fa682c0438bcd45e5a6731db199874474d6f11775207635d5c",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: Gray tornado with a sticker edge; fire vortices are yellow fire.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/E/flagged.json",
+        "installedAt": "2026-10-18T08:07:24Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/fire-vortex.png"
       }
     },
     {
@@ -17155,13 +17359,13 @@
       "why": "Source-derived full NetHack monster backlog asset installed to close dedicated tile coverage.",
       "artDirection": "Deterministic 32x32 silhouette sprite for NetHack monster hill giant; species/class shape keyed from source glyph 'H', with no text/initial badge.",
       "renderingNotes": "Upgraded from placeholder initial badge to readable silhouette art; manifest id/path preserved. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of hill giant: Deterministic 32x32 silhouette sprite for NetHack monster hill giant; species/class shape keyed from source glyph 'H', with no text/initial badge. Visible positive color palette: rust red and copper with orange highlights, brass accents, and warm cream edge pixels. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a hill giant: a huge brutish humanoid in three-quarter view wearing rough cyan-dyed hides and a teal tunic, bald head, heavy jaw, swinging a big wooden club, cyan clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background.",
       "outputPath": "asset-generation/outputs/full-source-monsters/hill-giant.png",
       "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/hill-giant.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent",
-      "completedAt": "2026-06-29T21:14:13Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:07:24Z",
       "coherentRestartAt": "2026-06-29T21:14:13Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -17172,11 +17376,28 @@
           32,
           32
         ],
-        "transparentPixels": 400,
-        "semiTransparentPixels": 115,
-        "opaquePixels": 509,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.6611
+        "transparentPixels": 667,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 357,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.3486
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of hill giant: Deterministic 32x32 silhouette sprite for NetHack monster hill giant; species/class shape keyed from source glyph 'H', with no text/initial badge. Visible positive color palette: rust red and copper with orange highlights, brass accents, and warm cream edge pixels. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/hill-giant.png"
+      },
+      "previousSha256": null,
+      "sha256": "8bc194124c3628b84a06cbee199241273424cb43ec37d841ce0b765627ef8272",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: Red-orange cartoon brute with a cream sticker outline; hill giants are cyan.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; magenta matte (green subject) keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/E/flagged.json",
+        "installedAt": "2026-10-18T08:07:24Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/hill-giant.png"
       }
     },
     {
@@ -17868,13 +18089,13 @@
       "why": "Source-derived full NetHack monster backlog asset installed to close dedicated tile coverage.",
       "artDirection": "Deterministic 32x32 silhouette sprite for NetHack monster dwarf mummy; species/class shape keyed from source glyph 'M', with no text/initial badge.",
       "renderingNotes": "Upgraded from placeholder initial badge to readable silhouette art; manifest id/path preserved. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of dwarf mummy: a wrapped dwarf mummy mummy with linen bandages, visible creature silhouette, glowing eyes, and ancient tomb dust Visible positive color palette: compact ivory-bandaged dwarf mummy with copper beard showing, tan linen wraps, blue ghost eyes, and cream edge highlights. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, draw the concrete creature or object only; do not draw literal glyph marks, alphabet letters, punctuation symbols, initial badges, or placeholder class marks, no text, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a dwarf mummy: a short, broad, stocky undead dwarf wrapped head to toe in rust-red burial bandages with deep crimson shading, a stiff braided beard poking out between the wrappings, faint glowing eye slits, arms stretched forward, shambling pose, red wrappings clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
       "outputPath": "asset-generation/outputs/full-source-monsters/dwarf-mummy.png",
       "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/dwarf-mummy.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent-rmbg-coherent-restart",
-      "completedAt": "2026-06-30T01:33:03Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:07:24Z",
       "coherentRestartAt": "2026-06-30T01:33:03Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -17885,11 +18106,28 @@
           32,
           32
         ],
-        "transparentPixels": 395,
-        "semiTransparentPixels": 44,
-        "opaquePixels": 585,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.6553
+        "transparentPixels": 642,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 382,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.373
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent-rmbg-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of dwarf mummy: a wrapped dwarf mummy mummy with linen bandages, visible creature silhouette, glowing eyes, and ancient tomb dust Visible positive color palette: compact ivory-bandaged dwarf mummy with copper beard showing, tan linen wraps, blue ghost eyes, and cream edge highlights. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, draw the concrete creature or object only; do not draw literal glyph marks, alphabet letters, punctuation symbols, initial badges, or placeholder class marks, no text, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/dwarf-mummy.png"
+      },
+      "previousSha256": null,
+      "sha256": "7e4886fa8984c7abaa14d7a3c15a7b12f3cee1bc7ea4adfd03a6d491b3b42744",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: Cartoon bald goggled dwarf in beige with a thick cream sticker outline; reads as a friendly miner, not a red-coloured undead mummy.) on the B70 with Qwen Image 2.1, seed 7, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 7,
+        "audit": "asset-generation/outputs/audit-2026-10-17/E/flagged.json",
+        "installedAt": "2026-10-18T08:07:24Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/dwarf-mummy.png"
       }
     },
     {
@@ -20991,13 +21229,13 @@
       "why": "Source-derived full NetHack monster backlog asset installed to close dedicated tile coverage.",
       "artDirection": "Deterministic 32x32 silhouette sprite for NetHack monster shopkeeper; species/class shape keyed from source glyph '@', with no text/initial badge.",
       "renderingNotes": "Upgraded from placeholder initial badge to readable silhouette art; manifest id/path preserved. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of shopkeeper: a friendly fantasy shopkeeper humanoid merchant with apron, coin pouch, tiny ledger book, upright pose, moustache, and market-stall trader silhouette Visible positive color palette: warm tan face, burgundy vest, cream shirt, brown apron, brass coin pouch, and gold counter-trade highlights. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, draw the concrete creature or object only; do not draw literal glyph marks, alphabet letters, punctuation symbols, initial badges, or placeholder class marks, no text, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a shopkeeper: a stout, stern middle-aged human merchant in three-quarter view, white linen tunic and long cream apron, white headscarf, a heavy coin purse on the belt and a wand held ready in one hand, suspicious glare, white clothing clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
       "outputPath": "asset-generation/outputs/full-source-monsters/shopkeeper.png",
       "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/shopkeeper.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent-rmbg-coherent-restart",
-      "completedAt": "2026-06-30T02:48:50Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:07:25Z",
       "coherentRestartAt": "2026-06-30T02:48:50Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -21008,11 +21246,11 @@
           32,
           32
         ],
-        "transparentPixels": 455,
-        "semiTransparentPixels": 60,
-        "opaquePixels": 509,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.6035
+        "transparentPixels": 685,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 339,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.3311
       },
       "recoveryFinal5Metrics": {
         "id": "shopkeeper",
@@ -21034,6 +21272,23 @@
           29,
           31
         ]
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent-rmbg-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of shopkeeper: a friendly fantasy shopkeeper humanoid merchant with apron, coin pouch, tiny ledger book, upright pose, moustache, and market-stall trader silhouette Visible positive color palette: warm tan face, burgundy vest, cream shirt, brown apron, brass coin pouch, and gold counter-trade highlights. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, draw the concrete creature or object only; do not draw literal glyph marks, alphabet letters, punctuation symbols, initial badges, or placeholder class marks, no text, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/shopkeeper.png"
+      },
+      "previousSha256": null,
+      "sha256": "153771c9bf3c988f6a346cbc8ee32c1454189cefce4e418fc199f0802af23bd5",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: Bald cartoon man in a brown vest with a thick cream sticker outline; shopkeepers are white (HI_DOMESTIC).) on the B70 with Qwen Image 2.1, seed 7, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 7,
+        "audit": "asset-generation/outputs/audit-2026-10-17/E/flagged.json",
+        "installedAt": "2026-10-18T08:07:25Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/shopkeeper.png"
       }
     },
     {
@@ -21237,13 +21492,13 @@
       "why": "Source-derived full NetHack monster backlog asset installed to close dedicated tile coverage.",
       "artDirection": "Deterministic 32x32 silhouette sprite for NetHack monster nurse; species/class shape keyed from source glyph '@', with no text/initial badge.",
       "renderingNotes": "Upgraded from placeholder initial badge to readable silhouette art; manifest id/path preserved. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of nurse: a healer nurse humanoid with white apron, teal robe, small red medical pouch, visible face, and gentle helping pose Visible positive color palette: ivory white apron and teal robe with peach face, red medical pouch, pale mint rim light, and warm cream highlights. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, draw the concrete creature or object only; do not draw literal glyph marks, alphabet letters, punctuation symbols, initial badges, or placeholder class marks, no text, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a nurse: a human healer in three-quarter view in a long white dress, white apron and white cap, bare empty hands reaching forward, calm stern face, white clothing clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
       "outputPath": "asset-generation/outputs/full-source-monsters/nurse.png",
       "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/nurse.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent-rmbg-coherent-restart",
-      "completedAt": "2026-06-30T02:59:17Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:07:25Z",
       "coherentRestartAt": "2026-06-30T02:59:17Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -21254,11 +21509,28 @@
           32,
           32
         ],
-        "transparentPixels": 486,
-        "semiTransparentPixels": 57,
-        "opaquePixels": 481,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.5811
+        "transparentPixels": 714,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 310,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.3027
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent-rmbg-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of nurse: a healer nurse humanoid with white apron, teal robe, small red medical pouch, visible face, and gentle helping pose Visible positive color palette: ivory white apron and teal robe with peach face, red medical pouch, pale mint rim light, and warm cream highlights. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, draw the concrete creature or object only; do not draw literal glyph marks, alphabet letters, punctuation symbols, initial badges, or placeholder class marks, no text, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/nurse.png"
+      },
+      "previousSha256": null,
+      "sha256": "b512f05a9c0ee43e7c9bba92db218b1acbc99286422abfe573e76cb34f99e5b7",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: Cartoon old nurse in a teal dress with a cream sticker outline; nurses are white (HI_DOMESTIC).) on the B70 with Qwen Image 2.1, seed 42, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 42,
+        "audit": "asset-generation/outputs/audit-2026-10-17/E/flagged.json",
+        "installedAt": "2026-10-18T08:07:25Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/nurse.png"
       }
     },
     {
@@ -22453,13 +22725,13 @@
       "why": "Source-derived full NetHack monster backlog asset installed to close dedicated tile coverage.",
       "artDirection": "Deterministic 32x32 silhouette sprite for NetHack monster djinni; species/class shape keyed from source glyph '&', with no text/initial badge.",
       "renderingNotes": "Upgraded from placeholder initial badge to readable silhouette art; manifest id/path preserved. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of djinni: a djinni genie spirit with humanoid torso, folded arms, curled smoky lower body, gold cuffs, turban-like hair, and magical floating posture Visible positive color palette: turquoise and sapphire djinni spirit with smoky lower body, gold cuffs, tan face, black beard, white teeth, and cyan magical glow. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, draw the concrete creature or object only; do not draw literal glyph marks, alphabet letters, punctuation symbols, initial badges, or placeholder class marks, no text, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a djinni: a muscular genie in three-quarter view with golden-yellow skin, yellow turban and sash, lower body trailing into a swirling yellow smoke tail, scimitar in hand, yellow clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
       "outputPath": "asset-generation/outputs/full-source-monsters/djinni.png",
       "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/djinni.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent-rmbg-coherent-restart",
-      "completedAt": "2026-06-30T03:54:26Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:07:24Z",
       "coherentRestartAt": "2026-06-30T03:54:26Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "needs-secretary-review",
@@ -22470,11 +22742,28 @@
           32,
           32
         ],
-        "transparentPixels": 623,
-        "semiTransparentPixels": 90,
-        "opaquePixels": 311,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.4375
+        "transparentPixels": 762,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 262,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.2559
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent-rmbg-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of djinni: a djinni genie spirit with humanoid torso, folded arms, curled smoky lower body, gold cuffs, turban-like hair, and magical floating posture Visible positive color palette: turquoise and sapphire djinni spirit with smoky lower body, gold cuffs, tan face, black beard, white teeth, and cyan magical glow. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, draw the concrete creature or object only; do not draw literal glyph marks, alphabet letters, punctuation symbols, initial badges, or placeholder class marks, no text, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/djinni.png"
+      },
+      "previousSha256": null,
+      "sha256": "dc433e1ea95e7f2a7c3cab9247d4f0be35976df1ba49d493663176c095b29bfe",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: Blue-teal genie with a sticker edge; NetHack djinn are yellow.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/E/flagged.json",
+        "installedAt": "2026-10-18T08:07:24Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/djinni.png"
       }
     },
     {
@@ -22487,13 +22776,13 @@
       "why": "Source-derived full NetHack monster backlog asset installed to close dedicated tile coverage.",
       "artDirection": "Deterministic 32x32 silhouette sprite for NetHack monster jellyfish; species/class shape keyed from source glyph ';', with no text/initial badge.",
       "renderingNotes": "Upgraded from placeholder initial badge to readable silhouette art; manifest id/path preserved. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of jellyfish: a jellyfish sea creature with translucent bell body, dangling tentacles, soft glow, rounded top, and drifting aquatic silhouette Visible positive color palette: translucent pink and aqua jellyfish bell with lavender shadows, white sparkle highlights, and long pale cyan trailing tentacles. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, draw the concrete creature or object only; do not draw literal glyph marks, alphabet letters, punctuation symbols, initial badges, or placeholder class marks, no text, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a jellyfish: a deep blue translucent bell-shaped body with bright blue glowing rim and pale blue inner folds, long trailing blue stinging tentacles drifting below, three-quarter view, blue clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
       "outputPath": "asset-generation/outputs/full-source-monsters/jellyfish.png",
       "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/jellyfish.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent-rmbg-coherent-restart",
-      "completedAt": "2026-06-30T03:55:00Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:07:24Z",
       "coherentRestartAt": "2026-06-30T03:55:00Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "needs-secretary-review",
@@ -22504,11 +22793,28 @@
           32,
           32
         ],
-        "transparentPixels": 570,
-        "semiTransparentPixels": 215,
-        "opaquePixels": 239,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.5059
+        "transparentPixels": 723,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 301,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.2939
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent-rmbg-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of jellyfish: a jellyfish sea creature with translucent bell body, dangling tentacles, soft glow, rounded top, and drifting aquatic silhouette Visible positive color palette: translucent pink and aqua jellyfish bell with lavender shadows, white sparkle highlights, and long pale cyan trailing tentacles. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, draw the concrete creature or object only; do not draw literal glyph marks, alphabet letters, punctuation symbols, initial badges, or placeholder class marks, no text, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/jellyfish.png"
+      },
+      "previousSha256": null,
+      "sha256": "97bb8b249be47b4e0ea9824d7596bb6b13997d30a17021dc964045b6de532f2e",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: Pastel pink-and-teal jellyfish with a cream sticker outline; NetHack jellyfish are blue.) on the B70 with Qwen Image 2.1, seed 42, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 42,
+        "audit": "asset-generation/outputs/audit-2026-10-17/E/flagged.json",
+        "installedAt": "2026-10-18T08:07:24Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/jellyfish.png"
       }
     },
     {
@@ -23167,13 +23473,13 @@
       "why": "Source-derived full NetHack monster backlog asset installed to close dedicated tile coverage.",
       "artDirection": "Deterministic 32x32 silhouette sprite for NetHack monster tourist; species/class shape keyed from source glyph '@', with no text/initial badge.",
       "renderingNotes": "Upgraded from placeholder initial badge to readable silhouette art; manifest id/path preserved. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of tourist: a tourist adventurer with cloth sunhat, bright shirt, backpack, camera, shorts, boots, visible face, and cheerful humanoid explorer stance Visible positive color palette: straw yellow hat, bright sky-blue shirt, red backpack, tan shorts, black camera, and cream highlights. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, draw the concrete creature or object only; do not draw literal glyph marks, alphabet letters, punctuation symbols, initial badges, or placeholder class marks, no text, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a tourist: a soft, sunburned middle-aged human traveller in three-quarter view, bright white short-sleeved shirt with a faint floral print, cream shorts, white sun hat, an expensive camera on a strap around the neck and a fat purse of gold in one hand, nervous wide-eyed expression, white clothing clearly dominant. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
       "outputPath": "asset-generation/outputs/full-source-monsters/tourist.png",
       "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/tourist.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent-rmbg-coherent-restart",
-      "completedAt": "2026-06-30T04:19:10Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:07:25Z",
       "coherentRestartAt": "2026-06-30T04:19:10Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "needs-secretary-review",
@@ -23184,11 +23490,28 @@
           32,
           32
         ],
-        "transparentPixels": 547,
-        "semiTransparentPixels": 30,
-        "opaquePixels": 447,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.5117
+        "transparentPixels": 719,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 305,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.2979
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent-rmbg-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of tourist: a tourist adventurer with cloth sunhat, bright shirt, backpack, camera, shorts, boots, visible face, and cheerful humanoid explorer stance Visible positive color palette: straw yellow hat, bright sky-blue shirt, red backpack, tan shorts, black camera, and cream highlights. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, draw the concrete creature or object only; do not draw literal glyph marks, alphabet letters, punctuation symbols, initial badges, or placeholder class marks, no text, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/tourist.png"
+      },
+      "previousSha256": null,
+      "sha256": "f50bb32d0ec35662442af013fda87130b1d1e53ab0afd3fb2f8886fcd4b1f7c5",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: Chibi kid with a big head and thick cream sticker outline, dressed in red and blue; tourists are white (HI_DOMESTIC) and should look like a grown adult traveller.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/E/flagged.json",
+        "installedAt": "2026-10-18T08:07:25Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/tourist.png"
       }
     },
     {

@@ -1,0 +1,434 @@
+{
+  "schema": "nethack-electron-test-scenario/v1",
+  "id": "art/monsters-4",
+  "phase": "after-level-and-hero-before-first-draw",
+  "hero": {
+    "placement": "current"
+  },
+  "level": {
+    "safeAreaAroundHero": 3,
+    "lit": true,
+    "suppressAdjacentMonsters": false,
+    "pet": "none",
+    "terrain": [
+      {
+        "at": {
+          "dx": -3,
+          "dy": -2
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": -2,
+          "dy": -2
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": -1,
+          "dy": -2
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": 0,
+          "dy": -2
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": 1,
+          "dy": -2
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": 2,
+          "dy": -2
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": 3,
+          "dy": -2
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": -3,
+          "dy": -1
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": -2,
+          "dy": -1
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": -1,
+          "dy": -1
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": 0,
+          "dy": -1
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": 1,
+          "dy": -1
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": 2,
+          "dy": -1
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": 3,
+          "dy": -1
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": -3,
+          "dy": 0
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": -2,
+          "dy": 0
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": -1,
+          "dy": 0
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": 1,
+          "dy": 0
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": 2,
+          "dy": 0
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": 3,
+          "dy": 0
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": -3,
+          "dy": 1
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": -2,
+          "dy": 1
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": -1,
+          "dy": 1
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": 0,
+          "dy": 1
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": 1,
+          "dy": 1
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": 2,
+          "dy": 1
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": 3,
+          "dy": 1
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": -3,
+          "dy": 2
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": -2,
+          "dy": 2
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": -1,
+          "dy": 2
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": 0,
+          "dy": 2
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": 1,
+          "dy": 2
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": 2,
+          "dy": 2
+        },
+        "type": "floor"
+      },
+      {
+        "at": {
+          "dx": 3,
+          "dy": 2
+        },
+        "type": "floor"
+      }
+    ]
+  },
+  "ground": [],
+  "monsters": [
+    {
+      "typeId": "DJINNI",
+      "at": {
+        "dx": -3,
+        "dy": -2
+      },
+      "attitude": "peaceful",
+      "asleep": true
+    },
+    {
+      "typeId": "DWARF_MUMMY",
+      "at": {
+        "dx": -2,
+        "dy": -2
+      },
+      "attitude": "peaceful",
+      "asleep": true
+    },
+    {
+      "typeId": "FIRE_VORTEX",
+      "at": {
+        "dx": -1,
+        "dy": -2
+      },
+      "attitude": "peaceful",
+      "asleep": true
+    },
+    {
+      "typeId": "GIANT_SPIDER",
+      "at": {
+        "dx": 0,
+        "dy": -2
+      },
+      "attitude": "peaceful",
+      "asleep": true
+    },
+    {
+      "typeId": "HILL_GIANT",
+      "at": {
+        "dx": 1,
+        "dy": -2
+      },
+      "attitude": "peaceful",
+      "asleep": true
+    },
+    {
+      "typeId": "JELLYFISH",
+      "at": {
+        "dx": 2,
+        "dy": -2
+      },
+      "attitude": "peaceful",
+      "asleep": true
+    },
+    {
+      "typeId": "LEMURE",
+      "at": {
+        "dx": 3,
+        "dy": -2
+      },
+      "attitude": "peaceful",
+      "asleep": true
+    },
+    {
+      "typeId": "MORDOR_ORC",
+      "at": {
+        "dx": -3,
+        "dy": -1
+      },
+      "attitude": "peaceful",
+      "asleep": true
+    },
+    {
+      "typeId": "NURSE",
+      "at": {
+        "dx": -2,
+        "dy": -1
+      },
+      "attitude": "peaceful",
+      "asleep": true
+    },
+    {
+      "typeId": "ORC_CAPTAIN",
+      "at": {
+        "dx": 0,
+        "dy": -1
+      },
+      "attitude": "peaceful",
+      "asleep": true
+    },
+    {
+      "typeId": "PYROLISK",
+      "at": {
+        "dx": 1,
+        "dy": -1
+      },
+      "attitude": "peaceful",
+      "asleep": true
+    },
+    {
+      "typeId": "QUEEN_BEE",
+      "at": {
+        "dx": 2,
+        "dy": -1
+      },
+      "attitude": "peaceful",
+      "asleep": true
+    },
+    {
+      "typeId": "SHOPKEEPER",
+      "at": {
+        "dx": 3,
+        "dy": -1
+      },
+      "attitude": "peaceful",
+      "asleep": true
+    },
+    {
+      "typeId": "TOURIST",
+      "at": {
+        "dx": -3,
+        "dy": 0
+      },
+      "attitude": "peaceful",
+      "asleep": true
+    },
+    {
+      "typeId": "GNOME",
+      "at": {
+        "dx": -2,
+        "dy": 0
+      },
+      "attitude": "peaceful",
+      "asleep": true
+    },
+    {
+      "typeId": "GRID_BUG",
+      "at": {
+        "dx": 1,
+        "dy": 0
+      },
+      "attitude": "peaceful",
+      "asleep": true
+    },
+    {
+      "typeId": "HOMUNCULUS",
+      "at": {
+        "dx": 2,
+        "dy": 0
+      },
+      "attitude": "peaceful",
+      "asleep": true
+    },
+    {
+      "typeId": "IGUANA",
+      "at": {
+        "dx": 3,
+        "dy": 0
+      },
+      "attitude": "peaceful",
+      "asleep": true
+    },
+    {
+      "typeId": "ROTHE",
+      "at": {
+        "dx": -3,
+        "dy": 1
+      },
+      "attitude": "peaceful",
+      "asleep": true
+    }
+  ],
+  "inventory": [],
+  "expectedPublicFacts": {
+    "messages": [
+      "art gallery: newly generated tiles around the hero"
+    ]
+  }
+}
