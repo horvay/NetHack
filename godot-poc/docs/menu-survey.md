@@ -174,4 +174,5 @@ All additive, public, and gated by `NH_BRIDGE_EXTENDED` where Electron's output 
 | 13 | Shop lists | Done: ShopLedgerScreen; "Your bill" in the inventory (`shop_ledger`) |
 | 20 | #vanquished / #genocided | Done: BestiaryScreen (`bestiary`) |
 | 23 | Travel | Done: destination chips on the travel banner (`travel_picker`) |
-| 19, 22, 24–27, 29, 30 | Options, #adjust, quest/Oracle, help, loot/tip choosers, `A` category, minor | Open |
+| 19 | Options | Done: OptionsScreen (`options_page`) |
+| 22, 24–27, 29, 30 | #adjust, quest/Oracle, help, loot/tip choosers, `A` category, minor | Open (`A`'s item step already uses ItemPickScreen) |

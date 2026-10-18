@@ -206,6 +206,13 @@ func _on_request(request: Dictionary) -> void:
 		pick.setup(screen, request)
 		_show(pick)
 		return
+	if kind == "menu" and OptionsScreen.recognises(request):
+		# O: NetHack's options as a settings page.
+		var options := OptionsScreen.new()
+		options.set_meta("request_dialog", true)
+		options.setup(screen, request)
+		_show(options)
+		return
 	if kind == "menu" and not ChoiceScreen.menu_for(request).is_empty():
 		# #name, #terrain, / look: their choices as tiles.
 		var choice := ChoiceScreen.new()
