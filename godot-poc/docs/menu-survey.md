@@ -171,7 +171,7 @@ All additive, public, and gated by `NH_BRIDGE_EXTENDED` where Electron's output 
 | 10 | Pray | Done: prayer facts on the question card |
 | 11 | ^X | Done: CharacterSheet |
 | 12, 17, 18 | Lore, conduct, chronicle | Done: RecordScreen |
-| 13 | Shop lists | In progress: ShopLedgerScreen |
+| 13 | Shop lists | Done: ShopLedgerScreen; "Your bill" in the inventory (`shop_ledger`) |
 | 20 | #vanquished / #genocided | Done: BestiaryScreen (`bestiary`) |
 | 23 | Travel | Done: destination chips on the travel banner (`travel_picker`) |
 | 19, 22, 24–27, 29, 30 | Options, #adjust, quest/Oracle, help, loot/tip choosers, `A` category, minor | Open |

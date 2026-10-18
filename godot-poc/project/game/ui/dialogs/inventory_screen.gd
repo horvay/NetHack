@@ -103,6 +103,15 @@ func _build_header() -> Control:
 	facts.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	facts.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header.add_child(facts)
+	# In a shop with unpaid things: NetHack's bill (Iu), as the ledger.
+	var bill := Button.new()
+	bill.name = "BillButton"
+	bill.focus_mode = Control.FOCUS_ALL
+	bill.visible = false
+	bill.pressed.connect(func() -> void:
+		close()
+		screen.send_keys("Iu"))
+	header.add_child(bill)
 	var hint := Label.new()
 	hint.text = "Click to inspect  ·  Double-click or Enter to use  ·  Letters select"
 	hint.theme_type_variation = "CaptionLabel"
@@ -166,6 +175,16 @@ func _rebuild() -> void:
 	var count := screen.state.inventory.size()
 	var burden := screen.state.status.encumbrance()
 	facts.text = "%d items   ·   ◆ %s gold%s" % [count, screen.state.status.text(StatusModel.Field.GOLD), ("   ·   " + burden) if burden != "" else ""]
+	var unpaid := 0
+	var owed := 0
+	for item in screen.state.inventory:
+		var ownership: Variant = item.get("ownership", {})
+		if ownership is Dictionary and str(ownership.get("state", "")) == "unpaid":
+			unpaid += 1
+			owed += ItemText.price(item)
+	var bill: Button = find_child("BillButton", true, false)
+	bill.visible = unpaid > 0
+	bill.text = ("Your bill  ·  %d zm" % owed) if owed > 0 else "Your bill"
 	for child in _tabs.get_children():
 		child.queue_free()
 	for cat in CATEGORIES:

@@ -332,6 +332,11 @@ func _document_screen(lines: Array) -> ModalCard:
 		var overview := OverviewScreen.new()
 		overview.setup(screen, lines)
 		return overview
+	var shop := ShopLedgerScreen.kind_of(lines)
+	if shop != "":
+		var ledger := ShopLedgerScreen.new()
+		ledger.setup(screen, lines, shop)
+		return ledger
 	var beasts := BestiaryScreen.kind_of(lines)
 	if beasts != "":
 		var bestiary := BestiaryScreen.new()
