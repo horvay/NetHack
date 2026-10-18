@@ -551,7 +551,7 @@
    "category": "traps-hazards",
    "name": "Bear trap",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "beartrap": {
    "category": "full-source-objects",
@@ -597,7 +597,7 @@
    "category": "full-source-monsters",
    "name": "black dragon",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "black-dragon-scale-mail": {
    "category": "full-source-objects",
@@ -899,6 +899,12 @@
    "workflow": "qwen-b70",
    "workflowLabel": "godot-audit-regen-qwen"
   },
+  "buckled-boots": {
+   "category": "objects-appearance",
+   "name": "buckled boots",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "bugbear": {
    "category": "common-early-monsters",
    "name": "bugbear",
@@ -1077,6 +1083,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-targeted-followup-critique-clean"
   },
+  "checkered-spellbook": {
+   "category": "objects-appearance",
+   "name": "checkered spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "chest": {
    "category": "full-source-objects",
    "name": "chest",
@@ -1189,6 +1201,12 @@
    "workflow": "asset-generation/workflows/krea2_basic.json",
    "workflowLabel": "godot-audit-regen-qwen"
   },
+  "cloth-spellbook": {
+   "category": "objects-appearance",
+   "name": "cloth spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "cloud": {
    "category": "terrain-features",
    "name": "Cloud",
@@ -1249,6 +1267,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
   },
+  "combat-boots": {
+   "category": "objects-appearance",
+   "name": "combat boots",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "concave-amulet": {
    "category": "objects-appearance",
    "name": "concave amulet",
@@ -1290,9 +1314,21 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
   },
+  "conical-hat": {
+   "category": "objects-appearance",
+   "name": "conical hat",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "copper-ring": {
    "category": "objects-appearance",
    "name": "copper ring",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "copper-spellbook": {
+   "category": "objects-appearance",
+   "name": "copper spellbook",
    "workflow": "qwen-b70",
    "workflowLabel": "godot-audit-regen-qwen"
   },
@@ -1367,6 +1403,12 @@
    "name": "credit card",
    "objectClasses": "(",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "crested-helmet": {
+   "category": "objects-appearance",
+   "name": "crested helmet",
+   "workflow": "qwen-b70",
    "workflowLabel": "godot-audit-regen-qwen"
   },
   "crocodile": {
@@ -1497,7 +1539,7 @@
    "category": "terrain-features",
    "name": "Dark corridor",
    "workflow": "asset-generation/workflows/krea2_basic.json",
-   "workflowLabel": "provisional-terrain-room-regeneration-approved-install"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "dark-green-potion": {
    "category": "objects-appearance",
@@ -1527,7 +1569,7 @@
    "category": "terrain-features",
    "name": "Dark room floor",
    "workflow": "asset-generation/workflows/krea2_basic.json",
-   "workflowLabel": "provisional-terrain-room-regeneration-approved-install"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "dart": {
    "category": "objects-inventory",
@@ -1540,6 +1582,12 @@
    "category": "traps-hazards",
    "name": "Dart trap",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "deaf-badge": {
+   "category": "ui-status-overlays",
+   "name": "Deaf badge",
+   "workflow": "qwen-b70",
    "workflowLabel": "godot-audit-regen-qwen"
   },
   "death": {
@@ -1652,7 +1700,7 @@
    "category": "full-source-monsters",
    "name": "dingo",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "disenchanter": {
    "category": "full-source-monsters",
@@ -1683,6 +1731,12 @@
    "name": "dog",
    "workflow": "asset-generation/scripts/fix_dog_asset.py",
    "workflowLabel": "transparent-approved-candidate-curation"
+  },
+  "dog-eared-spellbook": {
+   "category": "objects-appearance",
+   "name": "dog eared spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "doppelganger": {
    "category": "full-source-monsters",
@@ -1718,6 +1772,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "godot-audit-regen-qwen"
   },
+  "dull-spellbook": {
+   "category": "objects-appearance",
+   "name": "dull spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "dunce-cap": {
    "category": "full-source-objects",
    "name": "dunce cap",
@@ -1730,6 +1790,12 @@
    "name": "dust vortex",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "dusty-spellbook": {
+   "category": "objects-appearance",
+   "name": "dusty spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "dwarf": {
    "category": "common-early-monsters",
@@ -2140,6 +2206,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "godot-audit-regen-qwen"
   },
+  "etched-helmet": {
+   "category": "objects-appearance",
+   "name": "etched helmet",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "ettin": {
    "category": "full-source-monsters",
    "name": "ettin",
@@ -2206,6 +2278,12 @@
    "objectClasses": "[",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "fencing-gloves": {
+   "category": "objects-appearance",
+   "name": "fencing gloves",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "figurine": {
    "category": "full-source-objects",
@@ -2768,6 +2846,12 @@
    "workflow": "qwen-b70",
    "workflowLabel": "godot-audit-regen-qwen"
   },
+  "glittering-spellbook": {
+   "category": "objects-appearance",
+   "name": "glittering spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "glob-of-black-pudding": {
    "category": "full-source-objects",
    "name": "glob of black pudding",
@@ -3004,6 +3088,12 @@
    "workflow": "qwen-b70",
    "workflowLabel": "godot-audit-regen-qwen"
   },
+  "gold-spellbook": {
+   "category": "objects-appearance",
+   "name": "gold spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "golden-naga": {
    "category": "full-source-monsters",
    "name": "golden naga",
@@ -3216,6 +3306,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "godot-audit-regen-qwen"
   },
+  "hardcover-spellbook": {
+   "category": "objects-appearance",
+   "name": "hardcover spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "haste-self": {
    "category": "full-source-objects",
    "name": "haste self",
@@ -3362,6 +3458,12 @@
    "name": "High-elf",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "hiking-boots": {
+   "category": "objects-appearance",
+   "name": "hiking boots",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "hill-giant": {
    "category": "full-source-monsters",
@@ -3687,7 +3789,7 @@
    "category": "terrain-features",
    "name": "Ice",
    "workflow": "asset-generation/workflows/krea2_basic.json",
-   "workflowLabel": "opaque-terrain-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "ice-box": {
    "category": "full-source-objects",
@@ -3944,6 +4046,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
   },
+  "jungle-boots": {
+   "category": "objects-appearance",
+   "name": "jungle boots",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "k-ration": {
    "category": "full-source-objects",
    "name": "K-ration",
@@ -4012,7 +4120,7 @@
    "category": "player-pets-identity",
    "name": "Kitten pet",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "knife": {
    "category": "objects-inventory",
@@ -4181,7 +4289,7 @@
    "category": "terrain-features",
    "name": "Lava",
    "workflow": "asset-generation/workflows/krea2_basic.json",
-   "workflowLabel": "opaque-terrain-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "lava-wall": {
    "category": "terrain-features",
@@ -4363,7 +4471,7 @@
    "category": "terrain-features",
    "name": "Lit corridor",
    "workflow": "asset-generation/workflows/krea2_basic.json",
-   "workflowLabel": "provisional-terrain-room-regeneration-approved-install"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "little-dog": {
    "category": "common-early-monsters",
@@ -4375,7 +4483,7 @@
    "category": "player-pets-identity",
    "name": "Little dog pet",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent-rmbg-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "lizard": {
    "category": "full-source-monsters",
@@ -4788,7 +4896,7 @@
    "category": "terrain-features",
    "name": "Moat water",
    "workflow": "asset-generation/workflows/krea2_basic.json",
-   "workflowLabel": "opaque-terrain-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "monk": {
    "category": "full-source-monsters",
@@ -4853,6 +4961,12 @@
    "name": "Movement hint icon",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "mud-boots": {
+   "category": "objects-appearance",
+   "name": "mud boots",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "mumak": {
    "category": "full-source-monsters",
@@ -5036,6 +5150,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
   },
+  "old-gloves": {
+   "category": "objects-appearance",
+   "name": "old gloves",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "olog-hai": {
    "category": "full-source-monsters",
    "name": "Olog-hai",
@@ -5083,6 +5203,12 @@
    "smooth": true,
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
+  },
+  "opera-cloak": {
+   "category": "objects-appearance",
+   "name": "opera cloak",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "oracle": {
    "category": "full-source-monsters",
@@ -5337,6 +5463,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
   },
+  "ornamental-cope": {
+   "category": "objects-appearance",
+   "name": "ornamental cope",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "oval-amulet": {
    "category": "objects-appearance",
    "name": "oval amulet",
@@ -5348,6 +5480,12 @@
    "name": "owlbear",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
+  },
+  "padded-gloves": {
+   "category": "objects-appearance",
+   "name": "padded gloves",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "page": {
    "category": "full-source-monsters",
@@ -5450,6 +5588,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
   },
+  "piece-of-cloth": {
+   "category": "objects-appearance",
+   "name": "piece of cloth",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "pine-wand": {
    "category": "objects-appearance",
    "name": "pine wand",
@@ -5510,6 +5654,12 @@
   "platinum-wand": {
    "category": "objects-appearance",
    "name": "platinum wand",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "plumed-helmet": {
+   "category": "objects-appearance",
+   "name": "plumed helmet",
    "workflow": "qwen-b70",
    "workflowLabel": "godot-audit-regen-qwen"
   },
@@ -5574,7 +5724,7 @@
    "category": "terrain-features",
    "name": "Pool water",
    "workflow": "asset-generation/workflows/krea2_basic.json",
-   "workflowLabel": "opaque-terrain-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "potion-class-icon": {
    "category": "objects-inventory",
@@ -5673,10 +5823,8 @@
   "purple-worm": {
    "category": "full-source-monsters",
    "name": "purple worm",
-   "portrait": true,
-   "smooth": true,
    "workflow": "PIL alpha-bbox recenter/scale review fix; no generative model",
-   "workflowLabel": "transparent-second-pass-provisional-candidate"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "pyramidal-amulet": {
    "category": "objects-appearance",
@@ -5877,6 +6025,18 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-review-candidate"
   },
+  "riding-boots": {
+   "category": "objects-appearance",
+   "name": "riding boots",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "riding-gloves": {
+   "category": "objects-appearance",
+   "name": "riding gloves",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "ring-class-icon": {
    "category": "objects-inventory",
    "name": "Ring class icon",
@@ -5946,7 +6106,7 @@
    "category": "terrain-features",
    "name": "Room floor",
    "workflow": "asset-generation/workflows/krea2_basic.json",
-   "workflowLabel": "provisional-terrain-room-regeneration-approved-install"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "rope-golem": {
    "category": "full-source-monsters",
@@ -6168,7 +6328,7 @@
    "category": "terrain-features",
    "name": "Sea water",
    "workflow": "asset-generation/workflows/krea2_basic.json",
-   "workflowLabel": "opaque-terrain-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "searching": {
    "category": "full-source-objects",
@@ -6595,6 +6755,12 @@
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
    "workflowLabel": "transparent-rmbg-coherent-restart"
   },
+  "snow-boots": {
+   "category": "objects-appearance",
+   "name": "snow boots",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "sokoban-floor": {
    "category": "terrain-features",
    "name": "Sokoban floor",
@@ -6970,6 +7136,12 @@
    "workflow": "qwen-b70",
    "workflowLabel": "godot-audit-regen-qwen"
   },
+  "tattered-cape": {
+   "category": "objects-appearance",
+   "name": "tattered cape",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
   "teleport-away": {
    "category": "full-source-objects",
    "name": "teleport away",
@@ -7187,7 +7359,7 @@
    "category": "terrain-features",
    "name": "Tree",
    "workflow": "asset-generation/workflows/krea2_basic.json",
-   "workflowLabel": "opaque-terrain-coherent-restart"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "triangular-amulet": {
    "category": "objects-appearance",
@@ -7372,7 +7544,7 @@
    "category": "terrain-features",
    "name": "Vertical wall",
    "workflow": "asset-generation/workflows/krea2_basic.json",
-   "workflowLabel": "provisional-terrain-room-regeneration-approved-install"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "vibrating-square": {
    "category": "terrain-features",
@@ -7389,6 +7561,12 @@
   "violet-spellbook": {
    "category": "objects-appearance",
    "name": "violet spellbook",
+   "workflow": "qwen-b70",
+   "workflowLabel": "godot-audit-regen-qwen"
+  },
+  "visored-helmet": {
+   "category": "objects-appearance",
+   "name": "visored helmet",
    "workflow": "qwen-b70",
    "workflowLabel": "godot-audit-regen-qwen"
   },
@@ -7666,7 +7844,7 @@
    "category": "full-source-monsters",
    "name": "winter wolf",
    "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-   "workflowLabel": "transparent"
+   "workflowLabel": "godot-audit-regen-qwen"
   },
   "winter-wolf-cub": {
    "category": "full-source-monsters",

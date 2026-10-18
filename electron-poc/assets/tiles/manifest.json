@@ -75,13 +75,13 @@
       "why": "Dominant ordinary level terrain",
       "artDirection": "A simple flat dungeon floor tile with a few large readable cracks or stones. Keep it low contrast so actors and objects stand out clearly.",
       "renderingNotes": "Use for lit rooms; tint based on lighting when available.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of Room floor: very subtle ordinary dungeon floor, low contrast and quiet so transparent items and monsters remain readable Palette: muted neutral slate floors, cool gray stone walls with warm highlights, restrained brown/brass doors, readable at 32px and 16px, cohesive fantasy roguelike terrain, opaque terrain/base tile, no text, no UI badge, no square card, no baked checkerboard.",
+      "prompt": "A pixel art game tile in the style of a fantasy game asset: a seamless top-down texture of lit warm gray slate flagstone dungeon floor, the texture runs edge to edge and wraps seamlessly so tiles join without seams, no border, no frame, no rim, no vignette, no objects, flat even lighting, readable at 32 pixels.",
       "outputPath": "asset-generation/outputs/terrain-features/room-floor.png",
       "installedPath": "electron-poc/assets/tiles/generated/terrain-features/room-floor.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic.json",
-      "workflowLabel": "provisional-terrain-room-regeneration-approved-install",
-      "completedAt": "2026-07-05T03:09:38Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:47:01Z",
       "coherentRestartAt": "2026-06-29T19:23:37Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -95,11 +95,10 @@
         "transparentPixels": 0,
         "semiTransparentPixels": 0,
         "opaquePixels": 1024,
-        "opaqueEdgePixels": 128,
         "greenishVisiblePixels": 0,
         "nonTransparentRatio": 1.0
       },
-      "sha256": "377633365381f88a1ac3161908c5ac7eff0a5bedf66b9b8b8958a4d5f931eb76",
+      "sha256": "d6971ccec9708929d76c944075744574069da64124e0977115c0b5f9ffbcb691",
       "dungeonStructureRegeneration": {
         "label": "provisional-terrain-room-regeneration-approved-install",
         "installedAt": "2026-07-05T03:09:38Z",
@@ -119,14 +118,30 @@
         "candidateTransparentPixels": 0,
         "candidateOpaquePixels": 1024
       },
-      "qaNote": "Approved dungeon-structure terrain candidate installed provisionally from developer-mu-jumping-anchor-63; quiet room floors, coherent walls/doors/openings, and readable overlays previewed. Label provisional-terrain-room-regeneration-approved-install.",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (vector: Flat single-color gray square with one dot; a placeholder with no stone texture (Electron draws it everywhere). (First tries had baked frames: redone as a seamless texture.)) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; opaque terrain tile; 32 px. Picked by eye on the contact sheet and checked in game.",
       "provenance": {
-        "source": "approved dungeon-structure candidate set",
-        "sourceAssignment": "developer-mu-jumping-anchor-63",
-        "installedByAssignment": "developer-eta-singing-anchor-82",
-        "installedAt": "2026-07-05T03:09:38Z",
-        "sourceCandidateSha256": "377633365381f88a1ac3161908c5ac7eff0a5bedf66b9b8b8958a4d5f931eb76"
-      }
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:47:01Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/terrain-features/room-floor.png"
+      },
+      "previous": {
+        "sha256": "377633365381f88a1ac3161908c5ac7eff0a5bedf66b9b8b8958a4d5f931eb76",
+        "qaNote": "Approved dungeon-structure terrain candidate installed provisionally from developer-mu-jumping-anchor-63; quiet room floors, coherent walls/doors/openings, and readable overlays previewed. Label provisional-terrain-room-regeneration-approved-install.",
+        "provenance": {
+          "source": "approved dungeon-structure candidate set",
+          "sourceAssignment": "developer-mu-jumping-anchor-63",
+          "installedByAssignment": "developer-eta-singing-anchor-82",
+          "installedAt": "2026-07-05T03:09:38Z",
+          "sourceCandidateSha256": "377633365381f88a1ac3161908c5ac7eff0a5bedf66b9b8b8958a4d5f931eb76"
+        },
+        "workflowLabel": "provisional-terrain-room-regeneration-approved-install",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of Room floor: very subtle ordinary dungeon floor, low contrast and quiet so transparent items and monsters remain readable Palette: muted neutral slate floors, cool gray stone walls with warm highlights, restrained brown/brass doors, readable at 32px and 16px, cohesive fantasy roguelike terrain, opaque terrain/base tile, no text, no UI badge, no square card, no baked checkerboard.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/terrain-features/room-floor.png"
+      },
+      "previousSha256": "377633365381f88a1ac3161908c5ac7eff0a5bedf66b9b8b8958a4d5f931eb76"
     },
     {
       "id": "vertical-wall",
@@ -138,13 +153,13 @@
       "why": "Room boundaries",
       "artDirection": "A thick vertical stone bar centered in the tile with strong edge highlights. It should be icon-like rather than brick-realistic, clearly blocking movement.",
       "renderingNotes": "Maps from S_vwall or ASCII vertical wall.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of Vertical wall: thick vertical connected stone wall bar that clearly blocks movement Palette: muted neutral slate floors, cool gray stone walls with warm highlights, restrained brown/brass doors, readable at 32px and 16px, cohesive fantasy roguelike terrain, opaque terrain/base tile, no text, no UI badge, no square card, no baked checkerboard.",
+      "prompt": "A pixel art game tile in the style of a fantasy game asset: a seamless texture of cool gray dungeon stone brick wall seen from above, bricks running top to bottom, the texture runs edge to edge and wraps seamlessly so tiles join without seams, no border, no frame, no rim, no vignette, no objects, flat even lighting, readable at 32 pixels.",
       "outputPath": "asset-generation/outputs/terrain-features/vertical-wall.png",
       "installedPath": "electron-poc/assets/tiles/generated/terrain-features/vertical-wall.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic.json",
-      "workflowLabel": "provisional-terrain-room-regeneration-approved-install",
-      "completedAt": "2026-07-05T03:09:38Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:47:01Z",
       "coherentRestartAt": "2026-06-29T19:30:12Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -158,11 +173,10 @@
         "transparentPixels": 0,
         "semiTransparentPixels": 0,
         "opaquePixels": 1024,
-        "opaqueEdgePixels": 128,
         "greenishVisiblePixels": 0,
         "nonTransparentRatio": 1.0
       },
-      "sha256": "bea649ad85b424ee37211439c5a8876e98eb85452bff8995ddc12f84f2681f60",
+      "sha256": "5ffeacf8d4c13af033b318fe1ac595d73eb1256e8f690725f865571ca140ad6e",
       "dungeonStructureRegeneration": {
         "label": "provisional-terrain-room-regeneration-approved-install",
         "installedAt": "2026-07-05T03:09:38Z",
@@ -182,14 +196,30 @@
         "candidateTransparentPixels": 0,
         "candidateOpaquePixels": 1024
       },
-      "qaNote": "Approved dungeon-structure terrain candidate installed provisionally from developer-mu-jumping-anchor-63; quiet room floors, coherent walls/doors/openings, and readable overlays previewed. Label provisional-terrain-room-regeneration-approved-install.",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (vector: A flat gray bar with two black lines, drawn like a UI icon rather than stone masonry. (First tries had baked frames: redone as a seamless texture.)) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; opaque terrain tile; 32 px. Picked by eye on the contact sheet and checked in game.",
       "provenance": {
-        "source": "approved dungeon-structure candidate set",
-        "sourceAssignment": "developer-mu-jumping-anchor-63",
-        "installedByAssignment": "developer-eta-singing-anchor-82",
-        "installedAt": "2026-07-05T03:09:38Z",
-        "sourceCandidateSha256": "bea649ad85b424ee37211439c5a8876e98eb85452bff8995ddc12f84f2681f60"
-      }
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:47:01Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/terrain-features/vertical-wall.png"
+      },
+      "previous": {
+        "sha256": "bea649ad85b424ee37211439c5a8876e98eb85452bff8995ddc12f84f2681f60",
+        "qaNote": "Approved dungeon-structure terrain candidate installed provisionally from developer-mu-jumping-anchor-63; quiet room floors, coherent walls/doors/openings, and readable overlays previewed. Label provisional-terrain-room-regeneration-approved-install.",
+        "provenance": {
+          "source": "approved dungeon-structure candidate set",
+          "sourceAssignment": "developer-mu-jumping-anchor-63",
+          "installedByAssignment": "developer-eta-singing-anchor-82",
+          "installedAt": "2026-07-05T03:09:38Z",
+          "sourceCandidateSha256": "bea649ad85b424ee37211439c5a8876e98eb85452bff8995ddc12f84f2681f60"
+        },
+        "workflowLabel": "provisional-terrain-room-regeneration-approved-install",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of Vertical wall: thick vertical connected stone wall bar that clearly blocks movement Palette: muted neutral slate floors, cool gray stone walls with warm highlights, restrained brown/brass doors, readable at 32px and 16px, cohesive fantasy roguelike terrain, opaque terrain/base tile, no text, no UI badge, no square card, no baked checkerboard.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/terrain-features/vertical-wall.png"
+      },
+      "previousSha256": "bea649ad85b424ee37211439c5a8876e98eb85452bff8995ddc12f84f2681f60"
     },
     {
       "id": "closed-door",
@@ -313,13 +343,13 @@
       "why": "Rooms outside light or memory",
       "artDirection": "The same floor silhouette as room floor, but with a blue-black dim overlay. It must still be distinguishable from unexplored stone by visible tile seams.",
       "renderingNotes": "Use when renderer can infer dark room or remembered terrain.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of Dark room floor: dark subtle dungeon floor for unlit rooms, nearly flat with only broad seams Palette: muted neutral slate floors, cool gray stone walls with warm highlights, restrained brown/brass doors, readable at 32px and 16px, cohesive fantasy roguelike terrain, opaque terrain/base tile, no text, no UI badge, no square card, no baked checkerboard.",
+      "prompt": "A pixel art game tile in the style of a fantasy game asset: a seamless top-down texture of dim dark slate flagstone dungeon floor in shadow, the texture runs edge to edge and wraps seamlessly so tiles join without seams, no border, no frame, no rim, no vignette, no objects, flat even lighting, readable at 32 pixels.",
       "outputPath": "asset-generation/outputs/terrain-features/dark-room-floor.png",
       "installedPath": "electron-poc/assets/tiles/generated/terrain-features/dark-room-floor.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic.json",
-      "workflowLabel": "provisional-terrain-room-regeneration-approved-install",
-      "completedAt": "2026-07-05T03:09:38Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:47:00Z",
       "coherentRestartAt": "2026-06-29T19:04:12Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -333,11 +363,10 @@
         "transparentPixels": 0,
         "semiTransparentPixels": 0,
         "opaquePixels": 1024,
-        "opaqueEdgePixels": 128,
         "greenishVisiblePixels": 0,
         "nonTransparentRatio": 1.0
       },
-      "sha256": "07719274b36dfdacbd75a8373fa5aa013692ee1a0728be934ad378a9f92589b9",
+      "sha256": "d7e7569b3f3045a0fc71032714b1ab99e170055e6081151619dc81cad944a8aa",
       "dungeonStructureRegeneration": {
         "label": "provisional-terrain-room-regeneration-approved-install",
         "installedAt": "2026-07-05T03:09:38Z",
@@ -357,14 +386,30 @@
         "candidateTransparentPixels": 0,
         "candidateOpaquePixels": 1024
       },
-      "qaNote": "Approved dungeon-structure terrain candidate installed provisionally from developer-mu-jumping-anchor-63; quiet room floors, coherent walls/doors/openings, and readable overlays previewed. Label provisional-terrain-room-regeneration-approved-install.",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (vector: Flat near-black square; a placeholder with no texture and barely distinguishable from unexplored stone. (First tries still had baked frames: redone as a seamless texture.)) on the B70 with Qwen Image 2.1, seed 3, via godot-poc/tools/art/regen_audit.py; opaque terrain tile; 32 px. Picked by eye on the contact sheet and checked in game.",
       "provenance": {
-        "source": "approved dungeon-structure candidate set",
-        "sourceAssignment": "developer-mu-jumping-anchor-63",
-        "installedByAssignment": "developer-eta-singing-anchor-82",
-        "installedAt": "2026-07-05T03:09:38Z",
-        "sourceCandidateSha256": "07719274b36dfdacbd75a8373fa5aa013692ee1a0728be934ad378a9f92589b9"
-      }
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 3,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:47:00Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/terrain-features/dark-room-floor.png"
+      },
+      "previous": {
+        "sha256": "07719274b36dfdacbd75a8373fa5aa013692ee1a0728be934ad378a9f92589b9",
+        "qaNote": "Approved dungeon-structure terrain candidate installed provisionally from developer-mu-jumping-anchor-63; quiet room floors, coherent walls/doors/openings, and readable overlays previewed. Label provisional-terrain-room-regeneration-approved-install.",
+        "provenance": {
+          "source": "approved dungeon-structure candidate set",
+          "sourceAssignment": "developer-mu-jumping-anchor-63",
+          "installedByAssignment": "developer-eta-singing-anchor-82",
+          "installedAt": "2026-07-05T03:09:38Z",
+          "sourceCandidateSha256": "07719274b36dfdacbd75a8373fa5aa013692ee1a0728be934ad378a9f92589b9"
+        },
+        "workflowLabel": "provisional-terrain-room-regeneration-approved-install",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of Dark room floor: dark subtle dungeon floor for unlit rooms, nearly flat with only broad seams Palette: muted neutral slate floors, cool gray stone walls with warm highlights, restrained brown/brass doors, readable at 32px and 16px, cohesive fantasy roguelike terrain, opaque terrain/base tile, no text, no UI badge, no square card, no baked checkerboard.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/terrain-features/dark-room-floor.png"
+      },
+      "previousSha256": "07719274b36dfdacbd75a8373fa5aa013692ee1a0728be934ad378a9f92589b9"
     },
     {
       "id": "horizontal-wall",
@@ -643,13 +688,13 @@
       "why": "Common movement path",
       "artDirection": "A narrow passage tile with a centered trail of small floor stones. It should read as tunnel rather than room floor by using darker side margins.",
       "renderingNotes": "Map from corridor glyph; keep # fallback for unknowns.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of Lit corridor: narrow passable stone corridor floor with subdued edge definition Palette: muted neutral slate floors, cool gray stone walls with warm highlights, restrained brown/brass doors, readable at 32px and 16px, cohesive fantasy roguelike terrain, opaque terrain/base tile, no text, no UI badge, no square card, no baked checkerboard.",
+      "prompt": "A pixel art game tile in the style of a fantasy game asset: a seamless top-down texture of a lit warm tan packed earth and rubble dungeon corridor floor, the texture runs edge to edge and wraps seamlessly so tiles join without seams, no border, no frame, no rim, no vignette, no objects, flat even lighting, readable at 32 pixels.",
       "outputPath": "asset-generation/outputs/terrain-features/lit-corridor.png",
       "installedPath": "electron-poc/assets/tiles/generated/terrain-features/lit-corridor.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic.json",
-      "workflowLabel": "provisional-terrain-room-regeneration-approved-install",
-      "completedAt": "2026-07-05T03:09:38Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:47:00Z",
       "coherentRestartAt": "2026-06-29T19:19:06Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -663,11 +708,10 @@
         "transparentPixels": 0,
         "semiTransparentPixels": 0,
         "opaquePixels": 1024,
-        "opaqueEdgePixels": 128,
         "greenishVisiblePixels": 0,
         "nonTransparentRatio": 1.0
       },
-      "sha256": "b1102569cd4b8b4b4d75b766e446779d09412fc87478a81de44fa192310b8ca5",
+      "sha256": "538bae3e4b0647793995b285f9687d9f4ab0cbb65e69ae33fe085fe8133dc279",
       "dungeonStructureRegeneration": {
         "label": "provisional-terrain-room-regeneration-approved-install",
         "installedAt": "2026-07-05T03:09:38Z",
@@ -687,14 +731,30 @@
         "candidateTransparentPixels": 0,
         "candidateOpaquePixels": 1024
       },
-      "qaNote": "Approved dungeon-structure terrain candidate installed provisionally from developer-mu-jumping-anchor-63; quiet room floors, coherent walls/doors/openings, and readable overlays previewed. Label provisional-terrain-room-regeneration-approved-install.",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (vector: Flat gray square with a single gray bar; does not read as a dug tunnel or corridor. (First tries had baked frames: redone as a seamless texture.)) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; opaque terrain tile; 32 px. Picked by eye on the contact sheet and checked in game.",
       "provenance": {
-        "source": "approved dungeon-structure candidate set",
-        "sourceAssignment": "developer-mu-jumping-anchor-63",
-        "installedByAssignment": "developer-eta-singing-anchor-82",
-        "installedAt": "2026-07-05T03:09:38Z",
-        "sourceCandidateSha256": "b1102569cd4b8b4b4d75b766e446779d09412fc87478a81de44fa192310b8ca5"
-      }
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:47:00Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/terrain-features/lit-corridor.png"
+      },
+      "previous": {
+        "sha256": "b1102569cd4b8b4b4d75b766e446779d09412fc87478a81de44fa192310b8ca5",
+        "qaNote": "Approved dungeon-structure terrain candidate installed provisionally from developer-mu-jumping-anchor-63; quiet room floors, coherent walls/doors/openings, and readable overlays previewed. Label provisional-terrain-room-regeneration-approved-install.",
+        "provenance": {
+          "source": "approved dungeon-structure candidate set",
+          "sourceAssignment": "developer-mu-jumping-anchor-63",
+          "installedByAssignment": "developer-eta-singing-anchor-82",
+          "installedAt": "2026-07-05T03:09:38Z",
+          "sourceCandidateSha256": "b1102569cd4b8b4b4d75b766e446779d09412fc87478a81de44fa192310b8ca5"
+        },
+        "workflowLabel": "provisional-terrain-room-regeneration-approved-install",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of Lit corridor: narrow passable stone corridor floor with subdued edge definition Palette: muted neutral slate floors, cool gray stone walls with warm highlights, restrained brown/brass doors, readable at 32px and 16px, cohesive fantasy roguelike terrain, opaque terrain/base tile, no text, no UI badge, no square card, no baked checkerboard.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/terrain-features/lit-corridor.png"
+      },
+      "previousSha256": "b1102569cd4b8b4b4d75b766e446779d09412fc87478a81de44fa192310b8ca5"
     },
     {
       "id": "dark-corridor",
@@ -706,13 +766,13 @@
       "why": "Common movement path in darkness",
       "artDirection": "A dim tunnel tile with a thin readable center path and muted edges. It should be visibly walkable but less inviting than lit corridor.",
       "renderingNotes": "Use lighting tint or memory state when available.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of Dark corridor: dark passable corridor path, low noise Palette: muted neutral slate floors, cool gray stone walls with warm highlights, restrained brown/brass doors, readable at 32px and 16px, cohesive fantasy roguelike terrain, opaque terrain/base tile, no text, no UI badge, no square card, no baked checkerboard.",
+      "prompt": "A pixel art game tile in the style of a fantasy game asset: a seamless top-down texture of a dim dark gray-blue packed earth and rubble dungeon corridor floor, the texture runs edge to edge and wraps seamlessly so tiles join without seams, no border, no frame, no rim, no vignette, no objects, flat even lighting, readable at 32 pixels.",
       "outputPath": "asset-generation/outputs/terrain-features/dark-corridor.png",
       "installedPath": "electron-poc/assets/tiles/generated/terrain-features/dark-corridor.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic.json",
-      "workflowLabel": "provisional-terrain-room-regeneration-approved-install",
-      "completedAt": "2026-07-05T03:09:38Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:47:00Z",
       "coherentRestartAt": "2026-06-29T19:03:51Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -726,11 +786,10 @@
         "transparentPixels": 0,
         "semiTransparentPixels": 0,
         "opaquePixels": 1024,
-        "opaqueEdgePixels": 128,
         "greenishVisiblePixels": 0,
         "nonTransparentRatio": 1.0
       },
-      "sha256": "b31c8b99694d700e064bcb4555390ab0003c4814cf1de50f42be2a55ef8a299f",
+      "sha256": "4beeb929850b9fa5d901be1fcb0911f4482a63cae4bfb410700cd7435ac9be75",
       "dungeonStructureRegeneration": {
         "label": "provisional-terrain-room-regeneration-approved-install",
         "installedAt": "2026-07-05T03:09:38Z",
@@ -750,14 +809,30 @@
         "candidateTransparentPixels": 0,
         "candidateOpaquePixels": 1024
       },
-      "qaNote": "Approved dungeon-structure terrain candidate installed provisionally from developer-mu-jumping-anchor-63; quiet room floors, coherent walls/doors/openings, and readable overlays previewed. Label provisional-terrain-room-regeneration-approved-install.",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (vector: Flat near-black square with a faint bar; placeholder with no tunnel texture. (First tries still had baked frames: redone as a seamless texture.)) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; opaque terrain tile; 32 px. Picked by eye on the contact sheet and checked in game.",
       "provenance": {
-        "source": "approved dungeon-structure candidate set",
-        "sourceAssignment": "developer-mu-jumping-anchor-63",
-        "installedByAssignment": "developer-eta-singing-anchor-82",
-        "installedAt": "2026-07-05T03:09:38Z",
-        "sourceCandidateSha256": "b31c8b99694d700e064bcb4555390ab0003c4814cf1de50f42be2a55ef8a299f"
-      }
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:47:00Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/terrain-features/dark-corridor.png"
+      },
+      "previous": {
+        "sha256": "b31c8b99694d700e064bcb4555390ab0003c4814cf1de50f42be2a55ef8a299f",
+        "qaNote": "Approved dungeon-structure terrain candidate installed provisionally from developer-mu-jumping-anchor-63; quiet room floors, coherent walls/doors/openings, and readable overlays previewed. Label provisional-terrain-room-regeneration-approved-install.",
+        "provenance": {
+          "source": "approved dungeon-structure candidate set",
+          "sourceAssignment": "developer-mu-jumping-anchor-63",
+          "installedByAssignment": "developer-eta-singing-anchor-82",
+          "installedAt": "2026-07-05T03:09:38Z",
+          "sourceCandidateSha256": "b31c8b99694d700e064bcb4555390ab0003c4814cf1de50f42be2a55ef8a299f"
+        },
+        "workflowLabel": "provisional-terrain-room-regeneration-approved-install",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of Dark corridor: dark passable corridor path, low noise Palette: muted neutral slate floors, cool gray stone walls with warm highlights, restrained brown/brass doors, readable at 32px and 16px, cohesive fantasy roguelike terrain, opaque terrain/base tile, no text, no UI badge, no square card, no baked checkerboard.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/terrain-features/dark-corridor.png"
+      },
+      "previousSha256": "b31c8b99694d700e064bcb4555390ab0003c4814cf1de50f42be2a55ef8a299f"
     },
     {
       "id": "open-vertical-door",
@@ -1634,13 +1709,13 @@
       "why": "Occasional feature",
       "artDirection": "A compact green canopy over a small trunk, simplified into a bold environmental icon. It should be obviously natural and immobile.",
       "renderingNotes": "Usually branch or special-level oriented; keep low priority variant.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of Tree: A compact green canopy over a small trunk, simplified into a bold environmental icon. It should be obviously natural and immobile. Visible positive color palette: warm brown and cream with tan highlights and amber edge accents.. Opaque 32x32 terrain/base dungeon tile for a cohesive fantasy roguelike tileset, readable at 32px and 16px, painted pixel-art texture, strong mid-tone local color, bright highlights, colored rim light, and clear contrast, no text, no UI badge, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a single leafy green tree seen from a top-down three-quarter view, round lush canopy with light green highlights and a short brown trunk, a soft shadow at its base, readable at 32 pixels. Bold clean dark outline, centered with a clear margin, on a solid magenta background.",
       "outputPath": "asset-generation/outputs/terrain-features/tree.png",
       "installedPath": "electron-poc/assets/tiles/generated/terrain-features/tree.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic.json",
-      "workflowLabel": "opaque-terrain-coherent-restart",
-      "completedAt": "2026-06-29T19:28:39Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:47:01Z",
       "coherentRestartAt": "2026-06-29T19:28:39Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -1651,11 +1726,28 @@
           32,
           32
         ],
-        "transparentPixels": 0,
+        "transparentPixels": 573,
         "semiTransparentPixels": 0,
-        "opaquePixels": 1024,
-        "opaqueEdgePixels": 128,
-        "nonTransparentRatio": 1.0
+        "opaquePixels": 451,
+        "greenishVisiblePixels": 23,
+        "nonTransparentRatio": 0.4404
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "opaque-terrain-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of Tree: A compact green canopy over a small trunk, simplified into a bold environmental icon. It should be obviously natural and immobile. Visible positive color palette: warm brown and cream with tan highlights and amber edge accents.. Opaque 32x32 terrain/base dungeon tile for a cohesive fantasy roguelike tileset, readable at 32px and 16px, painted pixel-art texture, strong mid-tone local color, bright highlights, colored rim light, and clear contrast, no text, no UI badge, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/terrain-features/tree.png"
+      },
+      "previousSha256": null,
+      "sha256": "abf749c175c4a6f22bf4e358c1bf399f6a4edf6202dccddde0a325fd57b4435b",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (unclear: Blurry upscaled green and brown blob with no shape; reads as a smudge rather than a tree. (Redone as a cut-out sprite: Godot draws it over its own floor.)) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; magenta matte (green subject) keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:47:01Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/terrain-features/tree.png"
       }
     },
     {
@@ -1668,13 +1760,13 @@
       "why": "Special terrain edge case",
       "artDirection": "A flat blue tile with one or two high-contrast wave marks. It should read as hazardous liquid from a top-down symbolic view.",
       "renderingNotes": "Placeholder acceptable until water-heavy levels are targeted.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of Pool water: A flat blue tile with one or two high-contrast wave marks. It should read as hazardous liquid from a top-down symbolic view. Visible positive color palette: emerald green with lime highlights, mint edge glow, and yellow-green accents.. Opaque 32x32 terrain/base dungeon tile for a cohesive fantasy roguelike tileset, readable at 32px and 16px, painted pixel-art texture, strong mid-tone local color, bright highlights, colored rim light, and clear contrast, no text, no UI badge, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game tile in the style of a fantasy game asset: a seamless top-down texture of clear blue pool water with soft ripples and highlights, the texture runs edge to edge and wraps seamlessly so tiles join without seams, no border, no frame, no rim, no vignette, no objects, flat even lighting, readable at 32 pixels.",
       "outputPath": "asset-generation/outputs/terrain-features/pool-water.png",
       "installedPath": "electron-poc/assets/tiles/generated/terrain-features/pool-water.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic.json",
-      "workflowLabel": "opaque-terrain-coherent-restart",
-      "completedAt": "2026-06-29T19:23:17Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:47:01Z",
       "coherentRestartAt": "2026-06-29T19:23:17Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -1688,8 +1780,25 @@
         "transparentPixels": 0,
         "semiTransparentPixels": 0,
         "opaquePixels": 1024,
-        "opaqueEdgePixels": 128,
+        "greenishVisiblePixels": 0,
         "nonTransparentRatio": 1.0
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "opaque-terrain-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of Pool water: A flat blue tile with one or two high-contrast wave marks. It should read as hazardous liquid from a top-down symbolic view. Visible positive color palette: emerald green with lime highlights, mint edge glow, and yellow-green accents.. Opaque 32x32 terrain/base dungeon tile for a cohesive fantasy roguelike tileset, readable at 32px and 16px, painted pixel-art texture, strong mid-tone local color, bright highlights, colored rim light, and clear contrast, no text, no UI badge, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/terrain-features/pool-water.png"
+      },
+      "previousSha256": null,
+      "sha256": "785e8f9e2b5bfe8d79aa6fe75407996b4006426a3e087c4b4fcf14342c00d75e",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (wrong: Green swampy water; NetHack pools are blue, and green reads as slime or acid. (First tries had baked frames: redone as a seamless texture.)) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; opaque terrain tile; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:47:01Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/terrain-features/pool-water.png"
       }
     },
     {
@@ -1702,13 +1811,13 @@
       "why": "Special terrain edge case",
       "artDirection": "A pale blue floor tile with a crisp snowflake or diagonal shine mark. It should communicate slippery cold terrain rather than ordinary floor.",
       "renderingNotes": "Use as terrain base, not object overlay.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of Ice: A pale blue floor tile with a crisp snowflake or diagonal shine mark. It should communicate slippery cold terrain rather than ordinary floor. Visible positive color palette: rust red and copper with orange highlights, brass accents, and warm cream edge pixels.. Opaque 32x32 terrain/base dungeon tile for a cohesive fantasy roguelike tileset, readable at 32px and 16px, painted pixel-art texture, strong mid-tone local color, bright highlights, colored rim light, and clear contrast, no text, no UI badge, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game tile in the style of a fantasy game asset: a seamless top-down texture of smooth pale blue ice with faint white cracks and frosty highlights, the texture runs edge to edge and wraps seamlessly so tiles join without seams, no border, no frame, no rim, no vignette, no objects, flat even lighting, readable at 32 pixels.",
       "outputPath": "asset-generation/outputs/terrain-features/ice.png",
       "installedPath": "electron-poc/assets/tiles/generated/terrain-features/ice.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic.json",
-      "workflowLabel": "opaque-terrain-coherent-restart",
-      "completedAt": "2026-06-29T19:16:52Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:47:00Z",
       "coherentRestartAt": "2026-06-29T19:16:52Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -1722,8 +1831,25 @@
         "transparentPixels": 0,
         "semiTransparentPixels": 0,
         "opaquePixels": 1024,
-        "opaqueEdgePixels": 128,
+        "greenishVisiblePixels": 0,
         "nonTransparentRatio": 1.0
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "opaque-terrain-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of Ice: A pale blue floor tile with a crisp snowflake or diagonal shine mark. It should communicate slippery cold terrain rather than ordinary floor. Visible positive color palette: rust red and copper with orange highlights, brass accents, and warm cream edge pixels.. Opaque 32x32 terrain/base dungeon tile for a cohesive fantasy roguelike tileset, readable at 32px and 16px, painted pixel-art texture, strong mid-tone local color, bright highlights, colored rim light, and clear contrast, no text, no UI badge, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/terrain-features/ice.png"
+      },
+      "previousSha256": null,
+      "sha256": "341bdee83cd70e40b0a5ad1a0d3f8f72d6ca95d32d2544980fcf5a906bec1c53",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: A pale blue diamond inside an orange brick frame; the baked frame looks like a badge and will not tile into an ice field. (First tries still had baked frames: redone as a seamless texture.)) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; opaque terrain tile; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:47:00Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/terrain-features/ice.png"
       }
     },
     {
@@ -1736,13 +1862,13 @@
       "why": "Special terrain edge case",
       "artDirection": "A red-orange tile with a simple molten crack symbol. The icon should look dangerous immediately without detailed animation.",
       "renderingNotes": "Rare early; static placeholder is fine.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of Lava: A red-orange tile with a simple molten crack symbol. The icon should look dangerous immediately without detailed animation. Visible positive color palette: warm brown and cream with tan highlights and amber edge accents.. Opaque 32x32 terrain/base dungeon tile for a cohesive fantasy roguelike tileset, readable at 32px and 16px, painted pixel-art texture, strong mid-tone local color, bright highlights, colored rim light, and clear contrast, no text, no UI badge, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game tile in the style of a fantasy game asset: a seamless top-down texture of glowing molten lava, bright orange and yellow cracks between dark red-black crust, the texture runs edge to edge and wraps seamlessly so tiles join without seams, no border, no frame, no rim, no vignette, no objects, flat even lighting, readable at 32 pixels.",
       "outputPath": "asset-generation/outputs/terrain-features/lava.png",
       "installedPath": "electron-poc/assets/tiles/generated/terrain-features/lava.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic.json",
-      "workflowLabel": "opaque-terrain-coherent-restart",
-      "completedAt": "2026-06-29T19:18:21Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:47:00Z",
       "coherentRestartAt": "2026-06-29T19:18:21Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -1756,8 +1882,25 @@
         "transparentPixels": 0,
         "semiTransparentPixels": 0,
         "opaquePixels": 1024,
-        "opaqueEdgePixels": 128,
+        "greenishVisiblePixels": 0,
         "nonTransparentRatio": 1.0
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "opaque-terrain-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of Lava: A red-orange tile with a simple molten crack symbol. The icon should look dangerous immediately without detailed animation. Visible positive color palette: warm brown and cream with tan highlights and amber edge accents.. Opaque 32x32 terrain/base dungeon tile for a cohesive fantasy roguelike tileset, readable at 32px and 16px, painted pixel-art texture, strong mid-tone local color, bright highlights, colored rim light, and clear contrast, no text, no UI badge, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/terrain-features/lava.png"
+      },
+      "previousSha256": null,
+      "sha256": "4d1bd9b0355c911c108c9e29a6acc62d5d137b346fe545b9a935dfee058543d1",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: A red rock icon inside a stone frame; reads as a framed badge, not a molten lava field, and will not tile. (First tries still had baked frames: redone as a seamless texture.)) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; opaque terrain tile; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:47:00Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/terrain-features/lava.png"
       }
     },
     {
@@ -2218,13 +2361,13 @@
       "why": "Visible trap asset or detection overlay from NetHack trap set.",
       "artDirection": "An open jaw trap silhouette with two semicircular teeth arcs. Keep the metal jaws bold and centered so it reads at tile size.",
       "renderingNotes": "Visible traps use ^ glyph; hidden traps render as underlying terrain until discovered. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of Bear trap: An open jaw trap silhouette with two semicircular teeth arcs. Keep the metal jaws bold and centered so it reads at tile size. Visible positive color palette: warm brown and cream with tan highlights and amber edge accents. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: an open steel bear trap seen from above at an angle, two curved jaws lined with big serrated teeth spread wide open, a round pressure plate in the middle and a short chain, dark iron with bright steel highlights, readable at 32 pixels. Bold clean dark outline, centered with a clear margin, on a solid green background.",
       "outputPath": "asset-generation/outputs/traps-hazards/bear-trap.png",
       "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/bear-trap.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent-rmbg-coherent-restart",
-      "completedAt": "2026-06-29T19:33:59Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:59Z",
       "coherentRestartAt": "2026-06-29T19:33:59Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -2235,11 +2378,28 @@
           32,
           32
         ],
-        "transparentPixels": 409,
-        "semiTransparentPixels": 133,
-        "opaquePixels": 482,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.6777
+        "transparentPixels": 684,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 340,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.332
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent-rmbg-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of Bear trap: An open jaw trap silhouette with two semicircular teeth arcs. Keep the metal jaws bold and centered so it reads at tile size. Visible positive color palette: warm brown and cream with tan highlights and amber edge accents. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/traps-hazards/bear-trap.png"
+      },
+      "previousSha256": null,
+      "sha256": "7a13fe498da0471a9141ff87bdee0371474b462b32dc812e3b1246df9d4a3666",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (unclear: Brown jagged ring reads as a crown at game size. (First tries read as a wheel: clearer prompt.)) on the B70 with Qwen Image 2.1, seed 7, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 7,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:59Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/traps-hazards/bear-trap.png"
       }
     },
     {
@@ -2921,13 +3081,13 @@
       "why": "Starting pet",
       "artDirection": "A small cat silhouette with pointed ears and a friendly collar or halo badge. It must be distinct from hostile feline monsters by the pet marker.",
       "renderingNotes": "Use friendly outline or badge. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of Kitten pet: A small cat silhouette with pointed ears and a friendly collar or halo badge. It must be distinct from hostile feline monsters by the pet marker. Visible positive color palette: small orange and cream kitten with pink ears, amber eyes, blue collar badge, white whisker highlights, and pale gold edge accents. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a small white kitten sitting, white fur with pale gray shading, pink ears and nose, bright eyes, a small red collar, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background",
       "outputPath": "asset-generation/outputs/player-pets-identity/kitten-pet.png",
       "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/kitten-pet.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent-rmbg-coherent-restart",
-      "completedAt": "2026-06-29T18:36:19Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:47:01Z",
       "coherentRestartAt": "2026-06-29T18:36:19Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -2938,11 +3098,28 @@
           32,
           32
         ],
-        "transparentPixels": 465,
-        "semiTransparentPixels": 113,
-        "opaquePixels": 446,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.6113
+        "transparentPixels": 654,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 370,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.3613
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent-rmbg-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of Kitten pet: A small cat silhouette with pointed ears and a friendly collar or halo badge. It must be distinct from hostile feline monsters by the pet marker. Visible positive color palette: small orange and cream kitten with pink ears, amber eyes, blue collar badge, white whisker highlights, and pale gold edge accents. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/player-pets-identity/kitten-pet.png"
+      },
+      "previousSha256": null,
+      "sha256": "9cbe03596697fb9a65fb1b05e4f908d4bcf82a18285e73a94b60bb33c62f6f03",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (wrong: Orange tabby; NetHack's kitten is white, so it clashes with the game's own description and colors. (A reference edit changed too little: generated fresh.)) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:47:01Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/player-pets-identity/kitten-pet.png"
       }
     },
     {
@@ -2955,13 +3132,13 @@
       "why": "Starting pet",
       "artDirection": "A small dog silhouette with raised tail and friendly collar badge. Keep the profile simple so it differs from jackal and fox tiles.",
       "renderingNotes": "Use pet overlay because glyph class is shared. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of Little dog pet: A small dog silhouette with raised tail and friendly collar badge. Keep the profile simple so it differs from jackal and fox tiles. Visible positive color palette: small gray and cream dog with warm brown collar badge, pink tongue, amber eyes, silver-blue edge highlights, and pale cream paws. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a small white dog standing, white fur with soft gray shading, brown eyes and black nose, raised tail, a small red collar, bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background",
       "outputPath": "asset-generation/outputs/player-pets-identity/little-dog-pet.png",
       "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/little-dog-pet.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent-rmbg-coherent-restart",
-      "completedAt": "2026-06-29T18:37:23Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:47:01Z",
       "coherentRestartAt": "2026-06-29T18:37:23Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -2972,11 +3149,28 @@
           32,
           32
         ],
-        "transparentPixels": 375,
-        "semiTransparentPixels": 94,
-        "opaquePixels": 555,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.6924
+        "transparentPixels": 542,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 482,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4707
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent-rmbg-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of Little dog pet: A small dog silhouette with raised tail and friendly collar badge. Keep the profile simple so it differs from jackal and fox tiles. Visible positive color palette: small gray and cream dog with warm brown collar badge, pink tongue, amber eyes, silver-blue edge highlights, and pale cream paws. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/player-pets-identity/little-dog-pet.png"
+      },
+      "previousSha256": null,
+      "sha256": "6b970118d3e43f7c7b4ecb86735a9a627e49f70d8041c59965315434ad78fea5",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (wrong: Dark gray and black dog; NetHack's little dog is white, and the dark coat also blends into the floor. (A reference edit changed too little: generated fresh.)) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:47:01Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/player-pets-identity/little-dog-pet.png"
       }
     },
     {
@@ -10832,13 +11026,13 @@
       "why": "Castle/moat water variant",
       "artDirection": "Opaque dark blue water with stone edge highlights, distinct from ordinary pool.",
       "renderingNotes": "Expansion asset; semantic renderer may map by tile id when Pyra's mapping work lands.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of Moat water: Opaque dark blue water with stone edge highlights, distinct from ordinary pool. Visible positive color palette: rust red and copper with orange highlights, brass accents, and warm cream edge pixels.. Opaque 32x32 terrain/base dungeon tile for a cohesive fantasy roguelike tileset, readable at 32px and 16px, painted pixel-art texture, strong mid-tone local color, bright highlights, colored rim light, and clear contrast, no text, no UI badge, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game tile in the style of a fantasy game asset: a seamless top-down texture of deep dark blue moat water with gentle ripples, the texture runs edge to edge and wraps seamlessly so tiles join without seams, no border, no frame, no rim, no vignette, no objects, flat even lighting, readable at 32 pixels.",
       "status": "installed",
       "outputPath": "asset-generation/outputs/terrain-features/moat-water.png",
       "installedPath": "electron-poc/assets/tiles/generated/terrain-features/moat-water.png",
       "workflow": "asset-generation/workflows/krea2_basic.json",
-      "workflowLabel": "opaque-terrain-coherent-restart",
-      "completedAt": "2026-06-29T19:21:13Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:47:01Z",
       "coherentRestartAt": "2026-06-29T19:21:13Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -10852,8 +11046,25 @@
         "transparentPixels": 0,
         "semiTransparentPixels": 0,
         "opaquePixels": 1024,
-        "opaqueEdgePixels": 128,
+        "greenishVisiblePixels": 0,
         "nonTransparentRatio": 1.0
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "opaque-terrain-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of Moat water: Opaque dark blue water with stone edge highlights, distinct from ordinary pool. Visible positive color palette: rust red and copper with orange highlights, brass accents, and warm cream edge pixels.. Opaque 32x32 terrain/base dungeon tile for a cohesive fantasy roguelike tileset, readable at 32px and 16px, painted pixel-art texture, strong mid-tone local color, bright highlights, colored rim light, and clear contrast, no text, no UI badge, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/terrain-features/moat-water.png"
+      },
+      "previousSha256": null,
+      "sha256": "3c82cafa76cfeac4f85e1b891db072b663d653781cf017bdb1e3ad40dd16a7f8",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: Dark pool with an orange rocky border baked into the tile, so adjacent moat squares form a grid of separate puddles (also the '}' fallback). (First tries had baked frames: redone as a seamless texture.)) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; opaque terrain tile; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:47:01Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/terrain-features/moat-water.png"
       }
     },
     {
@@ -10900,13 +11111,13 @@
       "why": "Sea/large water variant",
       "artDirection": "Opaque larger-wave teal water tile, lower contrast than creatures/items.",
       "renderingNotes": "Expansion asset; semantic renderer may map by tile id when Pyra's mapping work lands.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of Sea water: Opaque larger-wave teal water tile, lower contrast than creatures/items. Visible positive color palette: rust red and copper with orange highlights, brass accents, and warm cream edge pixels.. Opaque 32x32 terrain/base dungeon tile for a cohesive fantasy roguelike tileset, readable at 32px and 16px, painted pixel-art texture, strong mid-tone local color, bright highlights, colored rim light, and clear contrast, no text, no UI badge, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game tile in the style of a fantasy game asset: a seamless top-down texture of dark blue-green sea water with small rolling waves, the texture runs edge to edge and wraps seamlessly so tiles join without seams, no border, no frame, no rim, no vignette, no objects, flat even lighting, readable at 32 pixels.",
       "status": "installed",
       "outputPath": "asset-generation/outputs/terrain-features/sea-water.png",
       "installedPath": "electron-poc/assets/tiles/generated/terrain-features/sea-water.png",
       "workflow": "asset-generation/workflows/krea2_basic.json",
-      "workflowLabel": "opaque-terrain-coherent-restart",
-      "completedAt": "2026-06-29T19:23:57Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:47:01Z",
       "coherentRestartAt": "2026-06-29T19:23:57Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -10920,8 +11131,25 @@
         "transparentPixels": 0,
         "semiTransparentPixels": 0,
         "opaquePixels": 1024,
-        "opaqueEdgePixels": 128,
+        "greenishVisiblePixels": 0,
         "nonTransparentRatio": 1.0
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "opaque-terrain-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of Sea water: Opaque larger-wave teal water tile, lower contrast than creatures/items. Visible positive color palette: rust red and copper with orange highlights, brass accents, and warm cream edge pixels.. Opaque 32x32 terrain/base dungeon tile for a cohesive fantasy roguelike tileset, readable at 32px and 16px, painted pixel-art texture, strong mid-tone local color, bright highlights, colored rim light, and clear contrast, no text, no UI badge, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/terrain-features/sea-water.png"
+      },
+      "previousSha256": null,
+      "sha256": "16a021c30220d8076e01f1a6bc1365d83d38189e0117cb820f948853878aebd6",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (vector: Flat blue and teal horizontal stripes; geometric placeholder used for the water on Medusa's level. (First tries had baked frames: redone as a seamless texture.)) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; opaque terrain tile; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:47:01Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/terrain-features/sea-water.png"
       }
     },
     {
@@ -12419,13 +12647,13 @@
       "why": "Source-derived full NetHack monster backlog asset installed to close dedicated tile coverage.",
       "artDirection": "Deterministic 32x32 silhouette sprite for NetHack monster dingo; species/class shape keyed from source glyph 'd', with no text/initial badge.",
       "renderingNotes": "Upgraded from placeholder initial badge to readable silhouette art; manifest id/path preserved. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of dingo: Deterministic 32x32 silhouette sprite for NetHack monster dingo; species/class shape keyed from source glyph 'd', with no text/initial badge. Visible positive color palette: cool gray with silver-blue rim light, pale highlights, and blue-violet shadows. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a dingo: a lean wild dog with sandy yellow fur, cream chest, upright ears, amber eyes. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
       "outputPath": "asset-generation/outputs/full-source-monsters/dingo.png",
       "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/dingo.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent-rmbg-coherent-restart",
-      "completedAt": "2026-06-29T20:01:31Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:47:00Z",
       "coherentRestartAt": "2026-06-29T20:01:31Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -12436,11 +12664,28 @@
           32,
           32
         ],
-        "transparentPixels": 518,
-        "semiTransparentPixels": 77,
-        "opaquePixels": 429,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.5381
+        "transparentPixels": 708,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 316,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.3086
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent-rmbg-coherent-restart",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of dingo: Deterministic 32x32 silhouette sprite for NetHack monster dingo; species/class shape keyed from source glyph 'd', with no text/initial badge. Visible positive color palette: cool gray with silver-blue rim light, pale highlights, and blue-violet shadows. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/dingo.png"
+      },
+      "previousSha256": null,
+      "sha256": "63e586bcf0c6baf2fde3c5fca8f493407c1af6ad9fff10ba03381861dbdcce71",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (wrong: Gray-blue dog; dingo is yellow. (A reference edit changed too little: generated fresh.)) on the B70 with Qwen Image 2.1, seed 7, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 7,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:47:00Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/dingo.png"
       }
     },
     {
@@ -12756,13 +13001,13 @@
       "why": "Source-derived full NetHack monster backlog asset installed to close dedicated tile coverage.",
       "artDirection": "Deterministic 32x32 silhouette sprite for NetHack monster winter wolf; species/class shape keyed from source glyph 'd', with no text/initial badge.",
       "renderingNotes": "Upgraded from placeholder initial badge to readable silhouette art; manifest id/path preserved. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of winter wolf: Deterministic 32x32 silhouette sprite for NetHack monster winter wolf; species/class shape keyed from source glyph 'd', with no text/initial badge. Visible positive color palette: bone-white with warm gray shadows, ivory highlights, and pale gold edge accents. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a winter wolf: a large wolf with icy cyan-white fur, pale blue highlights, frosty breath from its jaws exaggerated. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
       "outputPath": "asset-generation/outputs/full-source-monsters/winter-wolf.png",
       "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/winter-wolf.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent",
-      "completedAt": "2026-06-29T20:22:31Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:47:00Z",
       "coherentRestartAt": "2026-06-29T20:22:31Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -12773,11 +13018,28 @@
           32,
           32
         ],
-        "transparentPixels": 433,
-        "semiTransparentPixels": 87,
-        "opaquePixels": 504,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.6514
+        "transparentPixels": 681,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 343,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.335
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of winter wolf: Deterministic 32x32 silhouette sprite for NetHack monster winter wolf; species/class shape keyed from source glyph 'd', with no text/initial badge. Visible positive color palette: bone-white with warm gray shadows, ivory highlights, and pale gold edge accents. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/winter-wolf.png"
+      },
+      "previousSha256": null,
+      "sha256": "b23371f5d10555c1a777b939ed9c087dc999bdabd7c5f66527396fed8a2c669a",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (wrong: Cream wolf with no icy cue; winter wolves are cyan. (A reference edit changed too little: generated fresh.)) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:47:00Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/winter-wolf.png"
       }
     },
     {
@@ -15586,13 +15848,13 @@
       "why": "Source-derived full NetHack monster backlog asset installed to close dedicated tile coverage.",
       "artDirection": "Deterministic 32x32 silhouette sprite for NetHack monster purple worm; species/class shape keyed from source glyph 'w', with no text/initial badge.",
       "renderingNotes": "Upgraded from placeholder initial badge to readable silhouette art; manifest id/path preserved. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Provisional selected-candidate replacement installed 2026-07-04T20:37:51Z from /home/horvay/.config/ai-org/ai-org-dev-data/run-evidence/developer-delta-dancing-anchor-7/second-pass-asset-refinement/new-candidates/full-source-monsters/purple-worm.png pending Secretary/Boss visual review.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of purple worm: a massive purple worm coiled across the tile, violet segmented body, open circular maw, magenta highlights. Visible positive color palette: strong mid-tone local color, bright cream highlights, cool blue rim light, and saturated magical accent colors. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset; the final candidate will be background-removed to transparent alpha. Bold centered silhouette, readable at 32px and 16px on dark dungeon stone, compact subject occupying about 24 to 28 pixels, clear game-item identity, consistent sibling-set style where applicable, no text, no readable letters, no literal glyph marks, no punctuation symbols, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a purple worm: an enormous purple segmented worm rearing up with a huge round toothy maw exaggerated, magenta highlights. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
       "outputPath": "asset-generation/outputs/full-source-monsters/purple-worm.png",
       "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/purple-worm.png",
       "status": "installed",
       "workflow": "PIL alpha-bbox recenter/scale review fix; no generative model",
-      "workflowLabel": "transparent-second-pass-provisional-candidate",
-      "completedAt": "2026-07-04T20:37:51Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:47:00Z",
       "coherentRestartAt": "2026-06-29T20:47:39Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -15600,16 +15862,14 @@
       "coherentRestartNotes": "QA-reviewed in five-sheet next100 batch group 3; sheets: /home/horvay/.config/ai-org/ai-org-dev-data/run-evidence/developer-phi-polishing-rocket-72/next100-review/group03-next100-game-32px.png, /home/horvay/.config/ai-org/ai-org-dev-data/run-evidence/developer-phi-polishing-rocket-72/next100-review/group03-next100-game-16px.png, /home/horvay/.config/ai-org/ai-org-dev-data/run-evidence/developer-phi-polishing-rocket-72/next100-review/group03-next100-alpha-checker-32px.png; real alpha/no card or matte accepted; post-generation semantic pixel-art fix replaced glyph/letter-like or unclear output",
       "alphaStats": {
         "size": [
-          512,
-          512
+          32,
+          32
         ],
-        "transparentPixels": 104359,
-        "semiTransparentPixels": 140599,
-        "opaquePixels": 17186,
-        "opaqueEdgePixels": 0,
-        "greenishVisiblePixels": 247,
-        "greenishVisibleEdgePixels8px": 0,
-        "nonTransparentRatio": 0.601902
+        "transparentPixels": 675,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 349,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.3408
       },
       "sourceSha256": "e026a5283c236b5c63bca3a9d540334eb9b02d206272bad525c8ca1ba47e211c",
       "provisionalReplacement": {
@@ -15635,6 +15895,23 @@
         "needsLaterRegenerationOrBossReview": false,
         "note": "Installed per updated Boss instruction as a provisional replacement from the 270-asset selected candidate batch; not final-quality approval.",
         "workflowLabelCorrection": "transparent-second-pass-provisional-candidate set after install so transparent full-source/effect candidates remain renderer overlays."
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent-second-pass-provisional-candidate",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of purple worm: a massive purple worm coiled across the tile, violet segmented body, open circular maw, magenta highlights. Visible positive color palette: strong mid-tone local color, bright cream highlights, cool blue rim light, and saturated magical accent colors. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset; the final candidate will be background-removed to transparent alpha. Bold centered silhouette, readable at 32px and 16px on dark dungeon stone, compact subject occupying about 24 to 28 pixels, clear game-item identity, consistent sibling-set style where applicable, no text, no readable letters, no literal glyph marks, no punctuation symbols, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/purple-worm.png"
+      },
+      "previousSha256": null,
+      "sha256": "78638e351e69c2d5c7ca5da78db1f21556ca846ad7b5f6f188d0d13da32bb487",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (inconsistent: Installed as a 512x512 painterly image instead of a 32x32 pixel tile; downscaled it turns into a soft smudge with no outline. Soft and outline-free next to the pixel tiles. (A reference edit changed too little: generated fresh.)) on the B70 with Qwen Image 2.1, seed 3, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 3,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:47:00Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/purple-worm.png"
       }
     },
     {
@@ -17250,13 +17527,13 @@
       "why": "Source-derived full NetHack monster backlog asset installed to close dedicated tile coverage.",
       "artDirection": "Deterministic 32x32 silhouette sprite for NetHack monster black dragon; species/class shape keyed from source glyph 'D', with no text/initial badge.",
       "renderingNotes": "Upgraded from placeholder initial badge to readable silhouette art; manifest id/path preserved. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable. Visual QA cleanup: deterministic semantic 32px tile; transparent overlays have no background card; stairs/engraving normalized where applicable.",
-      "prompt": "A concept pixel art image in the style of a fantasy game asset of black dragon: Deterministic 32x32 silhouette sprite for NetHack monster black dragon; species/class shape keyed from source glyph 'D', with no text/initial badge. Visible positive color palette: cool gray with silver-blue rim light, pale highlights, and blue-violet shadows. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset: a black dragon: a large dragon with charcoal-black scales, violet rim light and silver edge highlights, spread wings, glowing red eyes. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
       "outputPath": "asset-generation/outputs/full-source-monsters/black-dragon.png",
       "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/black-dragon.png",
       "status": "installed",
       "workflow": "asset-generation/workflows/krea2_basic_rem-background.json",
-      "workflowLabel": "transparent",
-      "completedAt": "2026-06-29T21:07:24Z",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:47:00Z",
       "coherentRestartAt": "2026-06-29T21:07:24Z",
       "coherentRestartStatus": "generated",
       "coherentRestartQaStatus": "qa-reviewed",
@@ -17267,11 +17544,28 @@
           32,
           32
         ],
-        "transparentPixels": 411,
-        "semiTransparentPixels": 135,
-        "opaquePixels": 478,
-        "opaqueEdgePixels": 0,
-        "nonTransparentRatio": 0.6494
+        "transparentPixels": 731,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 293,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.2861
+      },
+      "previous": {
+        "sha256": null,
+        "workflowLabel": "transparent",
+        "prompt": "A concept pixel art image in the style of a fantasy game asset of black dragon: Deterministic 32x32 silhouette sprite for NetHack monster black dragon; species/class shape keyed from source glyph 'D', with no text/initial badge. Visible positive color palette: cool gray with silver-blue rim light, pale highlights, and blue-violet shadows. on a solid green background. Isolated transparent cutout sprite for a cohesive fantasy roguelike tileset, bold centered silhouette with a clean removable green matte, readable at 32px and 16px, high contrast on a dark dungeon floor, compact subject occupying about 24 to 28 pixels, strong mid-tone local color, bright highlights, colored rim light, and light edge accents, no text, no letters, no UI badge, no square card, no baked checkerboard, no fake transparency, no flat SVG/vector placeholder look.",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/black-dragon.png"
+      },
+      "previousSha256": null,
+      "sha256": "6c693d4d3fb0923bc2a8fb820f4992697e99c3a5dd021651a87ceba7e039dca9",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (wrong: Dragon colors are the only way to tell dragons apart in NetHack; this one is light silver-gray but should be black. (A reference edit changed too little: generated fresh.)) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:47:00Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/full-source-monsters/black-dragon.png"
       }
     },
     {
@@ -55871,6 +56165,1266 @@
         "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
         "installedAt": "2026-10-18T07:20:02Z",
         "backup": "asset-generation/backups/2026-10-17-audit-regen/ui-status-overlays/wounded-legs-badge.png"
+      }
+    },
+    {
+      "id": "buckled-boots",
+      "name": "buckled boots",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "[",
+      "why": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+      "outputPath": "asset-generation/outputs/objects-appearance/buckled-boots.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/buckled-boots.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/buckled-boots.png"
+      },
+      "previousSha256": null,
+      "sha256": "4426b4932762fd5eec277624ce5b9181af192fc0ea5046acb88f5ff68c33b588",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 537,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 487,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4756
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of brown leather boots with brass buckles Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:56Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:56Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/buckled-boots.png"
+      }
+    },
+    {
+      "id": "checkered-spellbook",
+      "name": "checkered spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/checkered-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/checkered-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/checkered-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "3b41477213fbfc51333b67e1c2f7b80b26e437e8241b0c24f55d1d9606d12a33",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 528,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 496,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4844
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a black and white checkerboard-patterned cover, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:56Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:56Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/checkered-spellbook.png"
+      }
+    },
+    {
+      "id": "cloth-spellbook",
+      "name": "cloth spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/cloth-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/cloth-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/cloth-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "6e664b98b0b7eb878a312a0456d3e0e2973ad37567643fe50beea67265ad9b96",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 538,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 486,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4746
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a soft dark red woven cloth cover with visible fabric weave, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:56Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:56Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/cloth-spellbook.png"
+      }
+    },
+    {
+      "id": "combat-boots",
+      "name": "combat boots",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "[",
+      "why": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+      "outputPath": "asset-generation/outputs/objects-appearance/combat-boots.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/combat-boots.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/combat-boots.png"
+      },
+      "previousSha256": null,
+      "sha256": "27274024c1e1d36c5f4052e5b21e3b9f4b8280916e5f220ded2f7a208915b826",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 553,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 471,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.46
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of sturdy black laced combat boots Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:57Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:57Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/combat-boots.png"
+      }
+    },
+    {
+      "id": "conical-hat",
+      "name": "conical hat",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "[",
+      "why": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+      "outputPath": "asset-generation/outputs/objects-appearance/conical-hat.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/conical-hat.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/conical-hat.png"
+      },
+      "previousSha256": null,
+      "sha256": "f84dce8b0a44a0269ff7dc71d19989d2012a8b987555eac78c65a2901a8f305e",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 690,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 334,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.3262
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a tall plain pointed conical hat of dark blue felt Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:57Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.) on the B70 with Qwen Image 2.1, seed 7, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 7,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:57Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/conical-hat.png"
+      }
+    },
+    {
+      "id": "copper-spellbook",
+      "name": "copper spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/copper-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/copper-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/copper-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "1009988348e157142b968190474fae694d488aa08c4ddd63f77356571f1c4360",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 514,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 510,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.498
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a cover plated in shiny orange copper metal with rivets, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:57Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:57Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/copper-spellbook.png"
+      }
+    },
+    {
+      "id": "crested-helmet",
+      "name": "crested helmet",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "[",
+      "why": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+      "outputPath": "asset-generation/outputs/objects-appearance/crested-helmet.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/crested-helmet.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/crested-helmet.png"
+      },
+      "previousSha256": null,
+      "sha256": "9e2f5518404e5fb0678bf61ed959aa0008425df180a06e44baacbbb9ec4cdf63",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 536,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 488,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4766
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a steel helmet with a raised metal crest running front to back Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:57Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.) on the B70 with Qwen Image 2.1, seed 7, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 7,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:57Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/crested-helmet.png"
+      }
+    },
+    {
+      "id": "dog-eared-spellbook",
+      "name": "dog eared spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/dog-eared-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/dog-eared-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/dog-eared-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "f0cbc6b2d07de7b1e488e60faf6ebd100a6ba7613a141000f56d67171adb400b",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 522,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 502,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4902
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a pale tan cover with its corners bent and folded over, pages sticking out, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:57Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:57Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/dog-eared-spellbook.png"
+      }
+    },
+    {
+      "id": "dull-spellbook",
+      "name": "dull spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/dull-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/dull-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/dull-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "934e4b5f6c0f3918062218cf945221cb6329333132dcb2b58e834e30a4a61caa",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 544,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 480,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4688
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a flat, faded gray-brown matte cover with no shine, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:57Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:57Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/dull-spellbook.png"
+      }
+    },
+    {
+      "id": "dusty-spellbook",
+      "name": "dusty spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/dusty-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/dusty-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/dusty-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "58996386d40634c532c905ac1a81ef91f6fe847b6c3642650fedc3dbaa81871d",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 524,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 500,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4883
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a cover coated in pale gray dust with finger streaks, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:57Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:57Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/dusty-spellbook.png"
+      }
+    },
+    {
+      "id": "etched-helmet",
+      "name": "etched helmet",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "[",
+      "why": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+      "outputPath": "asset-generation/outputs/objects-appearance/etched-helmet.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/etched-helmet.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/etched-helmet.png"
+      },
+      "previousSha256": null,
+      "sha256": "d851a2093743ebb08319a2a884d316e0ab9129863b9343439bc5083f7e1ab8c8",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 552,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 472,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4609
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a steel helmet covered in fine etched swirling engravings Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:57Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.) on the B70 with Qwen Image 2.1, seed 42, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 42,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:57Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/etched-helmet.png"
+      }
+    },
+    {
+      "id": "fencing-gloves",
+      "name": "fencing gloves",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "[",
+      "why": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+      "outputPath": "asset-generation/outputs/objects-appearance/fencing-gloves.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/fencing-gloves.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/fencing-gloves.png"
+      },
+      "previousSha256": null,
+      "sha256": "604fa72f32cc83cf0238e10161ff10bf6d44e03869f035691c662a63cf4f2ba2",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 568,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 456,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4453
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of slim white fencing gloves Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:57Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:57Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/fencing-gloves.png"
+      }
+    },
+    {
+      "id": "glittering-spellbook",
+      "name": "glittering spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/glittering-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/glittering-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/glittering-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "49327da3d188bc76e497deff1fe13e23fd0f6918d617bb5676d1f45914ca5e89",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 535,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 489,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4775
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a deep violet cover sprinkled with bright sparkling glitter, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:57Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:57Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/glittering-spellbook.png"
+      }
+    },
+    {
+      "id": "gold-spellbook",
+      "name": "gold spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/gold-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/gold-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/gold-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "cc1e7d14778fe1379a894fcf61a83a07c8935a58e63983b57a3c6c30372be551",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 504,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 520,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.5078
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a cover of bright polished gold, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:58Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:58Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/gold-spellbook.png"
+      }
+    },
+    {
+      "id": "hardcover-spellbook",
+      "name": "hardcover spellbook",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "+",
+      "why": "No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).",
+      "outputPath": "asset-generation/outputs/objects-appearance/hardcover-spellbook.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/hardcover-spellbook.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/hardcover-spellbook.png"
+      },
+      "previousSha256": null,
+      "sha256": "68f576c3d1073b8c626b9f7b025e8008d85dbb3f784924513f1f6d39e48e640c",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 560,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 464,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4531
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a closed thick spellbook with a stiff thick navy blue hardcover with a square spine, brass corner fittings, seen at an angle, the cover's look clearly distinct. Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:58Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance: every one showed the same class icon (Greg: you can't tell what gem is what).) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:58Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/hardcover-spellbook.png"
+      }
+    },
+    {
+      "id": "hiking-boots",
+      "name": "hiking boots",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "[",
+      "why": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+      "outputPath": "asset-generation/outputs/objects-appearance/hiking-boots.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/hiking-boots.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/hiking-boots.png"
+      },
+      "previousSha256": null,
+      "sha256": "52b3d6137e19aa2b08d47b7896b3c9bc0cb19daca1ce006ead5a674024d4e5fd",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 604,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 420,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4102
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of brown laced hiking boots with thick soles Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:58Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:58Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/hiking-boots.png"
+      }
+    },
+    {
+      "id": "jungle-boots",
+      "name": "jungle boots",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "[",
+      "why": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+      "outputPath": "asset-generation/outputs/objects-appearance/jungle-boots.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/jungle-boots.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/jungle-boots.png"
+      },
+      "previousSha256": null,
+      "sha256": "25edce9da62476e64e7b6725b40578824360a64b90316bc6ea297aebc91ae0fe",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 559,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 465,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4541
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of olive canvas and leather jungle boots Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid magenta background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:58Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.) on the B70 with Qwen Image 2.1, seed 42, via godot-poc/tools/art/regen_audit.py; magenta matte (green subject) keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 42,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:58Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/jungle-boots.png"
+      }
+    },
+    {
+      "id": "mud-boots",
+      "name": "mud boots",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "[",
+      "why": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+      "outputPath": "asset-generation/outputs/objects-appearance/mud-boots.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/mud-boots.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/mud-boots.png"
+      },
+      "previousSha256": null,
+      "sha256": "5979c26b9b96c51b4e6b5d84bf3ec260e07f7f046ded801f53cf7e3b46cee099",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 599,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 425,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.415
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of mud-caked brown rubbery boots Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:58Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.) on the B70 with Qwen Image 2.1, seed 7, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 7,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:58Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/mud-boots.png"
+      }
+    },
+    {
+      "id": "old-gloves",
+      "name": "old gloves",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "[",
+      "why": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+      "outputPath": "asset-generation/outputs/objects-appearance/old-gloves.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/old-gloves.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/old-gloves.png"
+      },
+      "previousSha256": null,
+      "sha256": "cf464acf4d805df30d181cb601ddfecffaaace128ae4e95d9f31e483522decc2",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 579,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 445,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4346
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of worn, patched brown leather gloves Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:58Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:58Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/old-gloves.png"
+      }
+    },
+    {
+      "id": "opera-cloak",
+      "name": "opera cloak",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "[",
+      "why": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+      "outputPath": "asset-generation/outputs/objects-appearance/opera-cloak.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/opera-cloak.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/opera-cloak.png"
+      },
+      "previousSha256": null,
+      "sha256": "611ec1767f78257a4eba9374425900ad233df6f2efa6491e13337e1feedb4ae0",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 672,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 352,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.3438
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: an elegant long black opera cloak with red silk lining Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:58Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.) on the B70 with Qwen Image 2.1, seed 7, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 7,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:58Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/opera-cloak.png"
+      }
+    },
+    {
+      "id": "ornamental-cope",
+      "name": "ornamental cope",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "[",
+      "why": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+      "outputPath": "asset-generation/outputs/objects-appearance/ornamental-cope.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/ornamental-cope.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/ornamental-cope.png"
+      },
+      "previousSha256": null,
+      "sha256": "60859eb04f7c45be7aa19b48b0273ab9ef865cddc6351620f63d8128881a5509",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 686,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 338,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.3301
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a richly embroidered gold and crimson ceremonial cope Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:58Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:58Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/ornamental-cope.png"
+      }
+    },
+    {
+      "id": "padded-gloves",
+      "name": "padded gloves",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "[",
+      "why": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+      "outputPath": "asset-generation/outputs/objects-appearance/padded-gloves.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/padded-gloves.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/padded-gloves.png"
+      },
+      "previousSha256": null,
+      "sha256": "c1196719bd69f43b4e2d93342a4d0b53db36a3bbaca8ffef7bd0a012fd7d9ab7",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 576,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 448,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4375
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of thick quilted padded tan gloves Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:58Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:58Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/padded-gloves.png"
+      }
+    },
+    {
+      "id": "piece-of-cloth",
+      "name": "piece of cloth",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "[",
+      "why": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+      "outputPath": "asset-generation/outputs/objects-appearance/piece-of-cloth.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/piece-of-cloth.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/piece-of-cloth.png"
+      },
+      "previousSha256": null,
+      "sha256": "ae3f098b3aa428bc29bf03e43c54bed9fcfa5c47b426250efe3985f59dee67ad",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 710,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 314,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.3066
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a plain folded piece of pale blue cloth Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:59Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.) on the B70 with Qwen Image 2.1, seed 42, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 42,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:59Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/piece-of-cloth.png"
+      }
+    },
+    {
+      "id": "plumed-helmet",
+      "name": "plumed helmet",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "[",
+      "why": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+      "outputPath": "asset-generation/outputs/objects-appearance/plumed-helmet.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/plumed-helmet.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/plumed-helmet.png"
+      },
+      "previousSha256": null,
+      "sha256": "26f31c35f9fa729a95b865b713078439e9a82acc0bb5b3efe63b0a6c6f0f7a35",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 591,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 433,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4229
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a steel helmet with a tall red feather plume on top Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:59Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:59Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/plumed-helmet.png"
+      }
+    },
+    {
+      "id": "riding-boots",
+      "name": "riding boots",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "[",
+      "why": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+      "outputPath": "asset-generation/outputs/objects-appearance/riding-boots.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/riding-boots.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/riding-boots.png"
+      },
+      "previousSha256": null,
+      "sha256": "185cb8101c59d9901d7b4d7f487c0f3f631d0f55db231c1a80f9f315bb4124fc",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 570,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 454,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4434
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of tall polished black riding boots Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:59Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.) on the B70 with Qwen Image 2.1, seed 7, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 7,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:59Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/riding-boots.png"
+      }
+    },
+    {
+      "id": "riding-gloves",
+      "name": "riding gloves",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "[",
+      "why": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+      "outputPath": "asset-generation/outputs/objects-appearance/riding-gloves.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/riding-gloves.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/riding-gloves.png"
+      },
+      "previousSha256": null,
+      "sha256": "2938793b90e80b63d4ac5b9a1b6c263cd4909f1a3e982736cdc913fd49a5cb31",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 549,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 475,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4639
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of long dark brown leather riding gloves with flared cuffs Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:59Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:59Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/riding-gloves.png"
+      }
+    },
+    {
+      "id": "snow-boots",
+      "name": "snow boots",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "[",
+      "why": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+      "outputPath": "asset-generation/outputs/objects-appearance/snow-boots.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/snow-boots.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/snow-boots.png"
+      },
+      "previousSha256": null,
+      "sha256": "7b1534b00dd8532e8569b4422b2ad437ab2d56c252068656f9725ff701e96360",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 450,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 574,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.5605
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a pair of white fur-lined snow boots Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:59Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:59Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/snow-boots.png"
+      }
+    },
+    {
+      "id": "tattered-cape",
+      "name": "tattered cape",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "[",
+      "why": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+      "outputPath": "asset-generation/outputs/objects-appearance/tattered-cape.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/tattered-cape.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/tattered-cape.png"
+      },
+      "previousSha256": null,
+      "sha256": "1fc0da307b810a22b61d25e5f4e629f2f36411ac0c190267988a70d700de117e",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 634,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 390,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.3809
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a ragged torn short gray-brown cape with frayed edges Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:59Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:59Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/tattered-cape.png"
+      }
+    },
+    {
+      "id": "visored-helmet",
+      "name": "visored helmet",
+      "category": "objects-appearance",
+      "categorySlug": "objects-appearance",
+      "priority": "P1",
+      "glyph": "[",
+      "why": "No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.",
+      "outputPath": "asset-generation/outputs/objects-appearance/visored-helmet.png",
+      "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/visored-helmet.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/visored-helmet.png"
+      },
+      "previousSha256": null,
+      "sha256": "8601661672fb286f4290d2f9b2b9d5f136d1fef76b476231cd2f4fa376e1eb4d",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 562,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 462,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4512
+      },
+      "prompt": "A pixel art game sprite in the style of a fantasy game asset, matching a cohesive roguelike item set: a steel helmet with a closed slotted visor over the face Bold clean dark outline, readable at 32 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:59Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: No art for this unidentified appearance (reshuffled each game, so it can't borrow an identified item's art); it showed the generic armor art.) on the B70 with Qwen Image 2.1, seed 8, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 8,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:59Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/objects-appearance/visored-helmet.png"
+      }
+    },
+    {
+      "id": "deaf-badge",
+      "name": "Deaf badge",
+      "category": "UI, status, and overlays",
+      "categorySlug": "ui-status-overlays",
+      "priority": "P1",
+      "glyph": "",
+      "why": "Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).",
+      "outputPath": "asset-generation/outputs/ui-status-overlays/deaf-badge.png",
+      "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/deaf-badge.png",
+      "workflow": "qwen-b70",
+      "previous": {
+        "sha256": null,
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/ui-status-overlays/deaf-badge.png"
+      },
+      "previousSha256": null,
+      "sha256": "f78384361f24f414879858869a9d4b5797d0838b04fd7ec1ebc8d45f1ebc8e59",
+      "alphaStats": {
+        "size": [
+          32,
+          32
+        ],
+        "transparentPixels": 582,
+        "semiTransparentPixels": 0,
+        "opaquePixels": 442,
+        "greenishVisiblePixels": 0,
+        "nonTransparentRatio": 0.4316
+      },
+      "prompt": "A pixel art game status effect icon in the style of a fantasy game asset: a large pale skin-coloured human ear seen from the side, filling most of the frame, with a thin red diagonal line crossing over it, the ear clearly recognisable, thick dark outline, readable at 24 pixels, centered with a clear margin, on a solid green background.",
+      "workflowLabel": "godot-audit-regen-qwen",
+      "completedAt": "2026-10-18T08:46:59Z",
+      "status": "installed",
+      "qaNote": "Regenerated 2026-10-17 after the asset audit (missing: Status icon for the status badges and onset announcements (Greg: negative statuses must be obvious).) on the B70 with Qwen Image 2.1, seed 7, via godot-poc/tools/art/regen_audit.py; green matte keyed from the border; 32 px. Picked by eye on the contact sheet and checked in game.",
+      "provenance": {
+        "source": "asset-generation/outputs/godot-regen/audit",
+        "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+        "seed": 7,
+        "audit": "asset-generation/outputs/audit-2026-10-17/D/flagged.json",
+        "installedAt": "2026-10-18T08:46:59Z",
+        "backup": "asset-generation/backups/2026-10-17-audit-regen/ui-status-overlays/deaf-badge.png"
       }
     }
   ]
