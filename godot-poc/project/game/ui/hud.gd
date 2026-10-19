@@ -7,6 +7,8 @@ var screen: GameScreen
 var state: GameState
 var root: Control
 var portrait: TextureRect
+## The asset the portrait shows (a monster's while polymorphed).
+var portrait_asset := ""
 var name_label: Label
 var title_label: Label
 var hp_bar: StatBar
@@ -78,6 +80,7 @@ func setup(game_screen: GameScreen) -> void:
 	root.move_child(fade, 0)
 	_build_level_banner()
 	state.status_changed.connect(_refresh_status)
+	state.map_changed.connect(_refresh_portrait)
 	state.skill_ready_changed.connect(func(_ready: bool) -> void: _refresh_conditions())
 	state.hero_moved.connect(func(_f: Vector2i, _t: Vector2i) -> void: _refresh_status())
 	state.command_refused.connect(func(reason: String) -> void: feed.flash_notice(ItemText.sentence(reason)))
@@ -242,12 +245,24 @@ func _place_level_banner() -> void:
 	level_banner.position.y = maxf(236.0, minimap.offset_top + minimap.get_combined_minimum_size().y + 14.0)
 
 
+## The hero's portrait, or the monster's tile while polymorphed.
+func _refresh_portrait() -> void:
+	var resolver := TileResolver.shared()
+	var asset := resolver.hero_form_asset(state.map.cell(state.map.hero)) if state.map.hero.x >= 0 else ""
+	if asset == "":
+		asset = resolver.player_avatar_id(state.character)
+	if asset == portrait_asset:
+		return
+	portrait_asset = asset
+	portrait.texture = resolver.portrait(asset)
+	# Monster tiles are pixel art; the hero's portrait is painted.
+	portrait.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR if resolver.assets.get(asset, {}).get("portrait", false) else CanvasItem.TEXTURE_FILTER_NEAREST
+
+
 func _refresh_status() -> void:
 	var status := state.status
 	var character := state.character
-	if portrait.texture == null:
-		var avatar := TileResolver.shared().player_avatar_id(character)
-		portrait.texture = TileResolver.shared().portrait(avatar)
+	_refresh_portrait()
 	name_label.text = str(character.get("name", ""))
 	var title := status.title()
 	var dash := title.find(" the ")
@@ -257,7 +272,7 @@ func _refresh_status() -> void:
 	_stat_labels["Dlvl"].text = state.level_name()
 	_stat_labels["Dlvl"].tooltip_text = state.level_name(true)
 	# While polymorphed NetHack reports hit dice instead of a level.
-	var hit_dice := status.number(StatusModel.Field.HD)
+	var hit_dice := status.number(StatusModel.Field.HD) if status.polymorphed else 0
 	_stat_labels["Lv"].text = ("HD %d" % hit_dice) if hit_dice > 0 else "Lv " + status.text(StatusModel.Field.XP)
 	_stat_labels["Lv"].tooltip_text = "Hit dice (polymorphed)" if hit_dice > 0 else "Experience level"
 	_stat_labels["AC"].text = "AC " + status.text(StatusModel.Field.AC)

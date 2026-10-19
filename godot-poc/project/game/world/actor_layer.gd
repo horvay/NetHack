@@ -84,9 +84,9 @@ func sync() -> void:
 		if id == "hero":
 			asset = resolver.player_avatar_id(state.character)
 			if map_cell.get("actorId") == "hero":
-				var shown := resolver.asset_for_cell(map_cell, state.character)
-				if shown != "" and not resolver.is_player_cell(map_cell):
-					asset = shown  # polymorphed or disguised hero
+				var form := resolver.hero_form_asset(map_cell)
+				if form != "":
+					asset = form  # polymorphed hero
 		else:
 			asset = resolver.asset_for_cell(map_cell, state.character)
 		if actors.has(id):

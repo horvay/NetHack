@@ -30,6 +30,9 @@ var values: Dictionary = {}
 var colors: Dictionary = {}
 var percents: Dictionary = {}
 var condition_mask := 0
+## NetHack sends hit dice while the hero is polymorphed and the experience
+## level otherwise, without clearing the other: the newer one is current.
+var polymorphed := false
 var revision := 0
 var _pending := false
 
@@ -47,6 +50,8 @@ func apply(event: Dictionary) -> bool:
 		condition_mask = int(event.get("conditionMask", 0))
 	else:
 		values[field] = str(event.get("value", "")).strip_edges()
+	if field == Field.HD or field == Field.XP:
+		polymorphed = field == Field.HD
 	colors[field] = int(event.get("color", 0))
 	percents[field] = int(event.get("percent", 0))
 	_pending = true

@@ -141,6 +141,12 @@ func player_avatar_id(character: Dictionary) -> String:
 	return "hero-avatar" if has_asset("hero-avatar") else ""
 
 
+## The tile of the monster a polymorphed hero is ("" when in their own form).
+func hero_form_asset(cell: Dictionary) -> String:
+	var form := str(cell.get("heroForm", ""))
+	return asset_for_semantic_name(form, "monster") if form != "" else ""
+
+
 func is_player_cell(cell: Dictionary) -> bool:
 	if cell.get("actorId") == "hero":
 		return true
@@ -367,9 +373,9 @@ func _cell_char(cell: Dictionary) -> String:
 
 ## Main art for a cell (monster, object, terrain or hero). "" means draw nothing.
 func asset_for_cell(cell: Dictionary, character: Dictionary = {}) -> String:
-	var key := "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % [cell.get("glyph", ""), cell.get("char", ""), cell.get("semanticKind", ""),
+	var key := "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % [cell.get("glyph", ""), cell.get("char", ""), cell.get("semanticKind", ""),
 		cell.get("semanticName", ""), cell.get("semanticKnown", ""), cell.get("semanticAppearance", ""), cell.get("cmapIndex", ""),
-		cell.get("displayName", ""), cell.get("actorId", "") == "hero", character.get("role", "") + character.get("race", "") + character.get("gender", "")]
+		cell.get("displayName", ""), cell.get("actorId", "") == "hero", cell.get("heroForm", ""), character.get("role", "") + character.get("race", "") + character.get("gender", "")]
 	var cached: Variant = _memo.get(key)
 	if cached != null:
 		return cached
@@ -392,6 +398,10 @@ func _asset_for_cell(cell: Dictionary, character: Dictionary) -> String:
 	var kind := str(cell.get("semanticKind", "")).to_lower()
 
 	if is_player_cell(cell):
+		# Polymorphed: the monster the hero became.
+		var form := hero_form_asset(cell)
+		if form != "":
+			return form
 		for candidate in [player_avatar_id(character) if not character.is_empty() else "", _semantic_player_avatar(cell),
 				"hero-avatar", glyph_numbers.get(glyph_key, ""), kinds.get(kind, ""), chars.get(ch, "")]:
 			if candidate != "" and has_asset(candidate):

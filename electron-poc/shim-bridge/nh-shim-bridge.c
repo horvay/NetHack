@@ -3479,6 +3479,12 @@ static void emit_print_glyph_fields(int win, int x, int y, const glyph_info *gi,
     else emit_action_affordances_for_glyph_at(glyph, x, y);
     if (hero_cell) {
         fputs(",\"actorId\":\"hero\"", stdout);
+        /* Polymorphed (or a lycanthrope changed): the monster the hero is. */
+        if (Upolyd) {
+            fputs(",\"heroForm\":\"", stdout);
+            json_escape(stdout, pmname(&mons[u.umonnum], flags.female ? FEMALE : MALE));
+            fputs("\"", stdout);
+        }
     } else if (isok(x, y) && glyph_is_monster(glyph)) {
         struct monst *actor = m_at((coordxy) x, (coordxy) y);
         /* Extended clients get one actor per creature: a long worm's tail

@@ -100,9 +100,15 @@ func _build() -> void:
 	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	var resolver := TileResolver.shared()
-	var avatar := resolver.player_avatar_id(screen.state.character)
+	var map := screen.state.map
+	# Polymorphed: the monster the hero is now.
+	var avatar := resolver.hero_form_asset(map.cell(map.hero)) if map.hero.x >= 0 else ""
+	if avatar == "":
+		avatar = resolver.player_avatar_id(screen.state.character)
 	if avatar != "":
 		portrait.texture = resolver.portrait(avatar)
+		if not resolver.assets.get(avatar, {}).get("portrait", false):
+			portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST  # a monster's pixel-art tile
 	left.add_child(portrait)
 	left.add_child(_card("Background", _section("background")))
 	# Basics and characteristics.
