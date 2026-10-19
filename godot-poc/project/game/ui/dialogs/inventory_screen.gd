@@ -2,7 +2,8 @@ class_name InventoryScreen
 extends Control
 ## The pack, as a modern RPG inventory: categories, an item grid and a
 ## detail panel with everything the hero knows and every action. Classic
-## letters select items; double-click or Enter uses the selected item.
+## letters select items, except the selected item's action keys (r reads
+## it); double-click or Enter uses the selected item.
 
 signal closed
 
@@ -574,9 +575,6 @@ func handle_key(event: InputEventKey) -> bool:
 			else:
 				close()
 			return true
-		KEY_SLASH:
-			_search.grab_focus()
-			return true
 		KEY_ENTER, KEY_KP_ENTER:
 			# A focused action button gets Enter; otherwise use the item.
 			var focused := get_viewport().gui_get_focus_owner()
@@ -590,6 +588,16 @@ func handle_key(event: InputEventKey) -> bool:
 			return true
 	var text := InputRouter.key_to_nethack(event)
 	if text.length() == 1:
+		# The selected item's action keys (r reads, d drops) come first;
+		# other letters pick items.
+		if not selected.is_empty():
+			for action in ItemActions.for_item(selected, screen.state):
+				if _key_hint(str(action.keys)) == text:
+					_run(action)
+					return true
+		if text == "/":
+			_search.grab_focus()
+			return true
 		for item in screen.state.inventory:
 			if char(int(item.get("selector", 0))) == text:
 				if not _matches(item, category):

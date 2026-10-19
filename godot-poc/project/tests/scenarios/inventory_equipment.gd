@@ -1,7 +1,8 @@
 extends Scenario
 ## Deep path through the pack and the paper doll: open the inventory with
 ## the classic i key, select by letter, use the primary action with Enter
-## (wield the dagger), then take off the shield from the equipment screen.
+## (wield the dagger), then take off the shield from the equipment screen;
+## a selected item's action key (/ for the spear) runs that action.
 
 
 func run() -> void:
@@ -62,14 +63,17 @@ func run() -> void:
 	expect(int(_item_named("dagger").get("wornMask", 0)) & 0x100, "the dagger stayed in hand: %s" % _item_named("dagger").get("text", ""))
 	await screenshot("alternate-set")
 
-	# Look it up: NetHack's / then "something in your inventory", then the item.
+	# Look it up with its key: select the spear by letter, then / (NetHack's
+	# / then "something in your inventory", then the item).
 	var spear := _item_named("spear")
-	var lookup := {}
-	for action in ItemActions.for_item(spear, game.state):
-		if action.id == "lookup":
-			lookup = action
+	await type_text("i")
+	await type_text(char(int(spear.get("selector", 0))))
+	var panel := game.dialogs.active as InventoryScreen
+	expect(panel != null and panel.selected.get("objectId") == spear.get("objectId"), "the spear's letter selects it")
+	await screenshot("spear-selected")
 	mark()
-	game.input_router.send_with_answers(str(lookup.keys), lookup.answers)
+	await type_text("/")
+	expect(not game.dialogs.active is InventoryScreen, "/ ran Look it up (the inventory closed)")
 	var shown := await wait_for_event(func(e: Dictionary) -> bool: return e.get("name") == "shim_putstr" and str(e.get("text", "")).to_lower().contains("spear"), "the spear's description")
 	expect(not shown.is_empty(), "Look it up shows NetHack's entry for the spear")
 	await get_tree().create_timer(0.4).timeout
