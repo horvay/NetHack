@@ -40,6 +40,22 @@ func run() -> void:
 	await get_tree().create_timer(0.8).timeout
 	expect(music._duck_db > -1.0, "closing it brings the music back (%.1f dB)" % music._duck_db)
 
+	# A new level with the same theme switches to another take of it.
+	await _fixture("regression/downstairs-current")
+	await press(KEY_ESCAPE)
+	await _settle()
+	var upstairs := [music.current, music.take_stem()]
+	mark()
+	game.send_keys(">")
+	await wait_for_command_prompt()
+	await _settle()
+	expect(game.state.map.depth == 2, "the hero went down (Dlvl %d)" % game.state.map.depth)
+	if music.current == upstairs[0] and music.library.get(music.current, []).size() > 1:
+		expect(music.take_stem() != upstairs[1] and music._players[music._active].playing,
+			"level 2 plays another take of %s (%s, after %s)" % [music.current, music.take_stem(), upstairs[1]])
+	else:
+		expect(music.current != "", "level 2 plays %s (after %s)" % [music.current, upstairs[0]])
+
 	# A level gained, then a named artifact picked up.
 	await _fixture("object/gain-level-and-named-sword")
 	await press(KEY_ESCAPE)

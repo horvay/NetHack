@@ -12,7 +12,8 @@ extends Node
 ##   - the title screen, the tombstone and the ascension have their pieces;
 ##   - the music ducks under NetHack's windows and questions and fades in.
 ## Every theme is a whole piece with an opening and an ending; when one ends
-## another take of it follows, crossfaded. A track with no music yet falls
+## another take of it follows, crossfaded, and a new level that keeps the
+## theme switches to another take at random. A track with no music yet falls
 ## back to the area's, then the dungeon's.
 
 const MANIFEST := "res://assets/music/music.json"
@@ -62,6 +63,8 @@ var _last_hostile := -1000.0
 var _branches_seen := {}
 var _artifacts_seen := {}
 var _praying := 0
+## The level the music last played on (branch and depth), "" before any.
+var _level_key := ""
 ## The pack seen once (a continued game may start with an artifact).
 var _inventory_known := false
 var _rules: Array = []
@@ -186,6 +189,7 @@ func follow(screen: GameScreen) -> void:
 	_inventory_known = false
 	_last_hostile = -1000.0
 	tense = false
+	_level_key = ""
 	screen.state.message_added.connect(_on_message)
 	screen.state.level_changed.connect(_on_level)
 	screen.state.inventory_changed.connect(_on_inventory)
@@ -225,7 +229,17 @@ func _update() -> void:
 	if _hostile_near(state):
 		_last_hostile = now
 	tense = now - _last_hostile < CALM_AFTER
-	play(track_for(state.map, state.character, tense))
+	var level_key := "%s:%d" % [state.map.dungeon, state.map.depth]
+	var new_level := _level_key != "" and level_key != _level_key
+	_level_key = level_key
+	var track := track_for(state.map, state.character, tense)
+	# A new level with the same theme: another take of it.
+	if new_level and _resolve(track) == current and library.get(current, []).size() > 1:
+		# (_pick plays the take after the one stored.)
+		_take[current] = posmod(_other_take(current) - 1, library[current].size())
+		_crossfade()
+		return
+	play(track)
 
 
 ## The music for where the hero is: tense when hostiles are close, else the
@@ -349,6 +363,16 @@ func _pick(id: String) -> String:
 	var next := (int(_take.get(id, randi() % takes.size())) + 1) % takes.size()
 	_take[id] = next
 	return "res://assets/music/" + str(takes[next])
+
+
+## A random take of a track other than the one playing (an index).
+func _other_take(id: String) -> int:
+	var takes: Array = library.get(id, [])
+	var playing := takes.find(take_path.trim_prefix("res://assets/music/"))
+	if playing < 0:
+		return randi() % takes.size()
+	var pick := randi() % (takes.size() - 1)
+	return pick + 1 if pick >= playing else pick
 
 
 func _start(player: AudioStreamPlayer, id: String, fade: float) -> void:
