@@ -1,8 +1,8 @@
 {
  "tracks": {
   "ascension": [
-   "ascension/2.mp3",
-   "ascension/3.mp3"
+   "ascension/1.mp3",
+   "ascension/2.mp3"
   ],
   "astral": [
    "astral/1.mp3",
@@ -18,47 +18,55 @@
   ],
   "death": [
    "death/1.mp3",
-   "death/2.mp3"
+   "death/3.mp3"
   ],
   "depths-calm": [
    "depths-calm/1.mp3",
-   "depths-calm/2.mp3"
+   "depths-calm/3.mp3",
+   "depths-calm/4.mp3",
+   "depths-calm/5.mp3"
   ],
   "depths-tense": [
    "depths-tense/1.mp3",
-   "depths-tense/3.mp3"
+   "depths-tense/2.mp3"
   ],
   "dungeon-calm": [
    "dungeon-calm/1.mp3",
-   "dungeon-calm/2.mp3"
+   "dungeon-calm/2.mp3",
+   "dungeon-calm/3.mp3",
+   "dungeon-calm/4.mp3"
   ],
   "dungeon-tense": [
-   "dungeon-tense/1.mp3",
-   "dungeon-tense/2.mp3"
+   "dungeon-tense/2.mp3",
+   "dungeon-tense/5.mp3"
   ],
   "gehennom-calm": [
    "gehennom-calm/1.mp3",
-   "gehennom-calm/2.mp3"
+   "gehennom-calm/2.mp3",
+   "gehennom-calm/3.mp3",
+   "gehennom-calm/4.mp3"
   ],
   "gehennom-tense": [
    "gehennom-tense/1.mp3",
-   "gehennom-tense/3.mp3"
+   "gehennom-tense/2.mp3"
   ],
   "ludios": [
    "ludios/1.mp3",
-   "ludios/2.mp3"
+   "ludios/3.mp3"
   ],
   "medusa": [
    "medusa/1.mp3",
-   "medusa/2.mp3"
+   "medusa/3.mp3"
   ],
   "mines-calm": [
    "mines-calm/1.mp3",
-   "mines-calm/2.mp3"
+   "mines-calm/2.mp3",
+   "mines-calm/3.mp3",
+   "mines-calm/5.mp3"
   ],
   "mines-tense": [
-   "mines-tense/2.mp3",
-   "mines-tense/4.mp3"
+   "mines-tense/1.mp3",
+   "mines-tense/2.mp3"
   ],
   "minetown": [
    "minetown/1.mp3",
@@ -73,7 +81,7 @@
    "planes/2.mp3"
   ],
   "quest-arc": [
-   "quest-arc/1.mp3"
+   "quest-arc/2.mp3"
   ],
   "quest-bar": [
    "quest-bar/1.mp3"
@@ -85,7 +93,7 @@
    "quest-hea/1.mp3"
   ],
   "quest-kni": [
-   "quest-kni/3.mp3"
+   "quest-kni/2.mp3"
   ],
   "quest-mon": [
    "quest-mon/1.mp3"
@@ -97,7 +105,7 @@
    "quest-ran/1.mp3"
   ],
   "quest-rog": [
-   "quest-rog/2.mp3"
+   "quest-rog/1.mp3"
   ],
   "quest-sam": [
    "quest-sam/1.mp3"
@@ -113,7 +121,7 @@
   ],
   "shop": [
    "shop/1.mp3",
-   "shop/2.mp3"
+   "shop/3.mp3"
   ],
   "sokoban": [
    "sokoban/1.mp3",
@@ -124,8 +132,8 @@
    "sting-artifact/2.mp3"
   ],
   "sting-ascend": [
-   "sting-ascend/1.mp3",
-   "sting-ascend/2.mp3"
+   "sting-ascend/2.mp3",
+   "sting-ascend/3.mp3"
   ],
   "sting-branch": [
    "sting-branch/1.mp3",
@@ -136,8 +144,8 @@
    "sting-death/2.mp3"
   ],
   "sting-levelup": [
-   "sting-levelup/3.mp3",
-   "sting-levelup/4.mp3"
+   "sting-levelup/1.mp3",
+   "sting-levelup/3.mp3"
   ],
   "sting-prayer": [
    "sting-prayer/1.mp3",
@@ -145,7 +153,7 @@
   ],
   "temple": [
    "temple/1.mp3",
-   "temple/2.mp3"
+   "temple/3.mp3"
   ],
   "throne": [
    "throne/1.mp3",
@@ -153,11 +161,11 @@
   ],
   "title": [
    "title/1.mp3",
-   "title/3.mp3"
+   "title/2.mp3"
   ],
   "vlad": [
    "vlad/1.mp3",
-   "vlad/2.mp3"
+   "vlad/3.mp3"
   ],
   "wizard-tower": [
    "wizard-tower/1.mp3",
@@ -165,80 +173,88 @@
   ]
  },
  "sources": {
-  "ascension/2.mp3": "ascension-t2-s8859",
-  "ascension/3.mp3": "ascension-t3-s9868",
-  "astral/1.mp3": "astral-t1-s5638",
-  "astral/2.mp3": "astral-t2-s6647",
-  "bigroom/1.mp3": "bigroom-t1-s6366",
-  "bigroom/2.mp3": "bigroom-t2-s7375",
-  "castle/1.mp3": "castle-t1-s5561",
-  "castle/2.mp3": "castle-t2-s6570",
-  "death/1.mp3": "death-t1-s4735",
-  "death/2.mp3": "death-t2-s5744",
-  "depths-calm/1.mp3": "depths-calm-t1-s8851",
-  "depths-calm/2.mp3": "depths-calm-t2-s9860",
-  "depths-tense/1.mp3": "depths-tense-t1-s9761",
-  "depths-tense/3.mp3": "depths-tense-t3-s11779",
-  "dungeon-calm/1.mp3": "dungeon-calm-t1-s9579",
-  "dungeon-calm/2.mp3": "dungeon-calm-t2-s10588",
-  "dungeon-tense/1.mp3": "dungeon-tense-t1-s10489",
-  "dungeon-tense/2.mp3": "dungeon-tense-t2-s11498",
-  "gehennom-calm/1.mp3": "gehennom-calm-t1-s10258",
-  "gehennom-calm/2.mp3": "gehennom-calm-t2-s11267",
-  "gehennom-tense/1.mp3": "gehennom-tense-t1-s11168",
-  "gehennom-tense/3.mp3": "gehennom-tense-t3-s13186",
-  "ludios/1.mp3": "ludios-t1-s5701",
-  "ludios/2.mp3": "ludios-t2-s6710",
-  "medusa/1.mp3": "medusa-t1-s5582",
-  "medusa/2.mp3": "medusa-t2-s6591",
-  "mines-calm/1.mp3": "mines-calm-t1-s8095",
-  "mines-calm/2.mp3": "mines-calm-t2-s9104",
-  "mines-tense/2.mp3": "mines-tense-t2-s10014",
-  "mines-tense/4.mp3": "mines-tense-t4-s12032",
-  "minetown/1.mp3": "minetown-t1-s7276",
-  "minetown/2.mp3": "minetown-t2-s8285",
-  "oracle/1.mp3": "oracle-t1-s5519",
-  "oracle/2.mp3": "oracle-t2-s6528",
-  "planes/1.mp3": "planes-t1-s5610",
-  "planes/2.mp3": "planes-t2-s6619",
-  "quest-arc/1.mp3": "quest-arc-t1-s7528",
-  "quest-bar/1.mp3": "quest-bar-t1-s7521",
-  "quest-cav/1.mp3": "quest-cav-t1-s7556",
-  "quest-hea/1.mp3": "quest-hea-t1-s7472",
-  "quest-kni/3.mp3": "quest-kni-t3-s9630",
-  "quest-mon/1.mp3": "quest-mon-t1-s7668",
-  "quest-pri/1.mp3": "quest-pri-t1-s7675",
-  "quest-ran/1.mp3": "quest-ran-t1-s7605",
-  "quest-rog/2.mp3": "quest-rog-t2-s8663",
-  "quest-sam/1.mp3": "quest-sam-t1-s7605",
-  "quest-tou/1.mp3": "quest-tou-t1-s7766",
-  "quest-val/1.mp3": "quest-val-t1-s7619",
-  "quest-wiz/1.mp3": "quest-wiz-t1-s7780",
-  "shop/1.mp3": "shop-t1-s4203",
-  "shop/2.mp3": "shop-t2-s5212",
-  "sokoban/1.mp3": "sokoban-t1-s6352",
-  "sokoban/2.mp3": "sokoban-t2-s7361",
-  "sting-artifact/1.mp3": "sting-artifact-t1-s11189",
-  "sting-artifact/2.mp3": "sting-artifact-t2-s12198",
-  "sting-ascend/1.mp3": "sting-ascend-t1-s9621",
-  "sting-ascend/2.mp3": "sting-ascend-t2-s10630",
-  "sting-branch/1.mp3": "sting-branch-t1-s9621",
-  "sting-branch/2.mp3": "sting-branch-t2-s10630",
-  "sting-death/1.mp3": "sting-death-t1-s8893",
-  "sting-death/2.mp3": "sting-death-t2-s9902",
-  "sting-levelup/3.mp3": "sting-levelup-t3-s12640",
-  "sting-levelup/4.mp3": "sting-levelup-t4-s13649",
-  "sting-prayer/1.mp3": "sting-prayer-t1-s9880",
-  "sting-prayer/2.mp3": "sting-prayer-t2-s10889",
-  "temple/1.mp3": "temple-t1-s5638",
-  "temple/2.mp3": "temple-t2-s6647",
-  "throne/1.mp3": "throne-t1-s5701",
-  "throne/2.mp3": "throne-t2-s6710",
-  "title/1.mp3": "title-t1-s4931",
-  "title/3.mp3": "title-t3-s6949",
-  "vlad/1.mp3": "vlad-t1-s4070",
-  "vlad/2.mp3": "vlad-t2-s5079",
-  "wizard-tower/1.mp3": "wizard-tower-t1-s9950",
-  "wizard-tower/2.mp3": "wizard-tower-t2-s10959"
+  "ascension/1.mp3": "ascension-t1-s27750",
+  "ascension/2.mp3": "ascension-t2-s28759",
+  "astral/1.mp3": "astral-t1-s25538",
+  "astral/2.mp3": "astral-t2-s26547",
+  "bigroom/1.mp3": "bigroom-t1-s26266",
+  "bigroom/2.mp3": "bigroom-t2-s27275",
+  "castle/1.mp3": "castle-t1-s25461",
+  "castle/2.mp3": "castle-t2-s26470",
+  "death/1.mp3": "death-t1-s24635",
+  "death/3.mp3": "death-t3-s26653",
+  "depths-calm/1.mp3": "depths-calm-t1-s28751",
+  "depths-calm/3.mp3": "depths-calm-t3-s30769",
+  "depths-calm/4.mp3": "depths-calm-t4-s31778",
+  "depths-calm/5.mp3": "depths-calm-t5-s32787",
+  "depths-tense/1.mp3": "depths-tense-t1-s29661",
+  "depths-tense/2.mp3": "depths-tense-t2-s30670",
+  "dungeon-calm/1.mp3": "dungeon-calm-t1-s29479",
+  "dungeon-calm/2.mp3": "dungeon-calm-t2-s30488",
+  "dungeon-calm/3.mp3": "dungeon-calm-t3-s31497",
+  "dungeon-calm/4.mp3": "dungeon-calm-t4-s32506",
+  "dungeon-tense/2.mp3": "dungeon-tense-t2-s31398",
+  "dungeon-tense/5.mp3": "dungeon-tense-t5-s34425",
+  "gehennom-calm/1.mp3": "gehennom-calm-t1-s30158",
+  "gehennom-calm/2.mp3": "gehennom-calm-t2-s31167",
+  "gehennom-calm/3.mp3": "gehennom-calm-t3-s32176",
+  "gehennom-calm/4.mp3": "gehennom-calm-t4-s33185",
+  "gehennom-tense/1.mp3": "gehennom-tense-t1-s31068",
+  "gehennom-tense/2.mp3": "gehennom-tense-t2-s32077",
+  "ludios/1.mp3": "ludios-t1-s25601",
+  "ludios/3.mp3": "ludios-t3-s27619",
+  "medusa/1.mp3": "medusa-t1-s25482",
+  "medusa/3.mp3": "medusa-t3-s27500",
+  "mines-calm/1.mp3": "mines-calm-t1-s27995",
+  "mines-calm/2.mp3": "mines-calm-t2-s29004",
+  "mines-calm/3.mp3": "mines-calm-t3-s30013",
+  "mines-calm/5.mp3": "mines-calm-t5-s32031",
+  "mines-tense/1.mp3": "mines-tense-t1-s28905",
+  "mines-tense/2.mp3": "mines-tense-t2-s29914",
+  "minetown/1.mp3": "minetown-t1-s27176",
+  "minetown/2.mp3": "minetown-t2-s28185",
+  "oracle/1.mp3": "oracle-t1-s25419",
+  "oracle/2.mp3": "oracle-t2-s26428",
+  "planes/1.mp3": "planes-t1-s25510",
+  "planes/2.mp3": "planes-t2-s26519",
+  "quest-arc/2.mp3": "quest-arc-t2-s28437",
+  "quest-bar/1.mp3": "quest-bar-t1-s27421",
+  "quest-cav/1.mp3": "quest-cav-t1-s27456",
+  "quest-hea/1.mp3": "quest-hea-t1-s27372",
+  "quest-kni/2.mp3": "quest-kni-t2-s28521",
+  "quest-mon/1.mp3": "quest-mon-t1-s27568",
+  "quest-pri/1.mp3": "quest-pri-t1-s27575",
+  "quest-ran/1.mp3": "quest-ran-t1-s27505",
+  "quest-rog/1.mp3": "quest-rog-t1-s27554",
+  "quest-sam/1.mp3": "quest-sam-t1-s27505",
+  "quest-tou/1.mp3": "quest-tou-t1-s27666",
+  "quest-val/1.mp3": "quest-val-t1-s27519",
+  "quest-wiz/1.mp3": "quest-wiz-t1-s27680",
+  "shop/1.mp3": "shop-t1-s24103",
+  "shop/3.mp3": "shop-t3-s26121",
+  "sokoban/1.mp3": "sokoban-t1-s26252",
+  "sokoban/2.mp3": "sokoban-t2-s27261",
+  "sting-artifact/1.mp3": "sting-artifact-t1-s31089",
+  "sting-artifact/2.mp3": "sting-artifact-t2-s32098",
+  "sting-ascend/2.mp3": "sting-ascend-t2-s30530",
+  "sting-ascend/3.mp3": "sting-ascend-t3-s31539",
+  "sting-branch/1.mp3": "sting-branch-t1-s29521",
+  "sting-branch/2.mp3": "sting-branch-t2-s30530",
+  "sting-death/1.mp3": "sting-death-t1-s28793",
+  "sting-death/2.mp3": "sting-death-t2-s29802",
+  "sting-levelup/1.mp3": "sting-levelup-t1-s30522",
+  "sting-levelup/3.mp3": "sting-levelup-t3-s32540",
+  "sting-prayer/1.mp3": "sting-prayer-t1-s29780",
+  "sting-prayer/2.mp3": "sting-prayer-t2-s30789",
+  "temple/1.mp3": "temple-t1-s25538",
+  "temple/3.mp3": "temple-t3-s27556",
+  "throne/1.mp3": "throne-t1-s25601",
+  "throne/2.mp3": "throne-t2-s26610",
+  "title/1.mp3": "title-t1-s24831",
+  "title/2.mp3": "title-t2-s25840",
+  "vlad/1.mp3": "vlad-t1-s23970",
+  "vlad/3.mp3": "vlad-t3-s25988",
+  "wizard-tower/1.mp3": "wizard-tower-t1-s29850",
+  "wizard-tower/2.mp3": "wizard-tower-t2-s30859"
  }
 }

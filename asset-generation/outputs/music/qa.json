@@ -1,1166 +1,1345 @@
 {
- "dungeon-calm-t1-s9579": {
-  "seconds": 84.1,
-  "mean_db": -26.8,
-  "peak_db": -7.6,
+ "ascension-t1-s27750": {
+  "seconds": 62.7,
+  "mean_db": -21.7,
+  "peak_db": -2.0,
   "silent_s": 0,
   "lulls": [],
-  "mtime": 1792347601.7854571,
+  "mtime": 1792425727.3292844,
   "problem": "",
   "heard": [
    "Music playing",
-   "Seval.",
-   "you"
+   "Hmm."
   ],
-  "mp3_seconds": 84.0
+  "mp3_seconds": 62.7
  },
- "depths-calm-t1-s8851": {
-  "seconds": 81.5,
-  "mean_db": -19.4,
-  "peak_db": -0.0,
+ "ascension-t2-s28759": {
+  "seconds": 61.9,
+  "mean_db": -19.1,
+  "peak_db": -0.1,
   "silent_s": 0,
   "lulls": [],
-  "mtime": 1792347821.4783056,
-  "problem": "",
-  "heard": [
-   "The End",
-   "I don't know what you're talking about.",
-   "Oh."
-  ],
-  "mp3_seconds": 81.5
- },
- "depths-tense-t1-s9761": {
-  "seconds": 70.4,
-  "mean_db": -17.3,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792347918.439251,
+  "mtime": 1792429084.7638092,
   "problem": "",
   "heard": [
    "you"
   ],
-  "mp3_seconds": 70.4
+  "mp3_seconds": 60.7
  },
- "dungeon-tense-t1-s10489": {
-  "seconds": 76.5,
-  "mean_db": -20.0,
+ "astral-t1-s25538": {
+  "seconds": 66.7,
+  "mean_db": -18.9,
+  "peak_db": -0.0,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792423419.022995,
+  "problem": "",
+  "heard": [
+   "Music playing",
+   "you"
+  ],
+  "mp3_seconds": 66.6
+ },
+ "astral-t2-s26547": {
+  "seconds": 45.8,
+  "mean_db": -19.5,
   "peak_db": -1.7,
   "silent_s": 0,
   "lulls": [],
-  "mtime": 1792347708.1073785,
+  "mtime": 1792428428.389652,
+  "problem": "",
+  "heard": [],
+  "mp3_seconds": 45.8
+ },
+ "bigroom-t1-s26266": {
+  "seconds": 113.5,
+  "mean_db": -20.1,
+  "peak_db": -0.9,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792422200.7481804,
+  "problem": "",
+  "heard": [
+   "Music playing",
+   "me."
+  ],
+  "mp3_seconds": 113.5
+ },
+ "bigroom-t2-s27275": {
+  "seconds": 92.6,
+  "mean_db": -22.8,
+  "peak_db": -0.1,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792427273.2628357,
+  "problem": "",
+  "heard": [
+   "you"
+  ],
+  "mp3_seconds": 92.6
+ },
+ "castle-t1-s25461": {
+  "seconds": 110.0,
+  "mean_db": -17.7,
+  "peak_db": -1.1,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792422637.462754,
+  "problem": "",
+  "heard": [
+   "Music playing",
+   "you",
+   "you"
+  ],
+  "mp3_seconds": 110.0
+ },
+ "castle-t2-s26470": {
+  "seconds": 64.8,
+  "mean_db": -18.9,
+  "peak_db": -1.8,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792427597.4005344,
+  "problem": "",
+  "heard": [
+   "Music playing",
+   "Music playing"
+  ],
+  "mp3_seconds": 64.8
+ },
+ "death-t1-s24635": {
+  "seconds": 71.5,
+  "mean_db": -21.3,
+  "peak_db": -1.2,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792425642.6124303,
+  "problem": "",
+  "heard": [
+   "Music playing",
+   "you"
+  ],
+  "mp3_seconds": 71.5
+ },
+ "death-t2-s25644": {
+  "seconds": 51.5,
+  "mean_db": -21.4,
+  "peak_db": -2.6,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792429000.477738,
+  "problem": "words: 'Of your mind standing low'",
+  "heard": [
+   "I am",
+   "Of your mind standing low"
+  ],
+  "mp3_seconds": 51.5
+ },
+ "depths-calm-t1-s28751": {
+  "seconds": 65.9,
+  "mean_db": -21.6,
+  "peak_db": -1.5,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792421315.2194803,
+  "problem": "",
+  "heard": [
+   "you"
+  ],
+  "mp3_seconds": 65.9
+ },
+ "depths-calm-t2-s29760": {
+  "seconds": 66.3,
+  "mean_db": -18.5,
+  "peak_db": -0.0,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792426373.8222682,
+  "problem": "words: 'Mars, Mars, Mars'",
+  "heard": [
+   "Mars, Mars, Mars",
+   "Marge Marge Marge Marge Marge Marge Marge Marge Marge Marge Marge Marge"
+  ],
+  "mp3_seconds": 66.3
+ },
+ "depths-calm-t3-s30769": {
+  "seconds": 152.1,
+  "mean_db": -21.0,
+  "peak_db": -0.0,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792429698.0249197,
+  "problem": "",
+  "heard": [],
+  "mp3_seconds": 152.1
+ },
+ "depths-calm-t4-s31778": {
+  "seconds": 113.6,
+  "mean_db": -18.0,
+  "peak_db": -0.0,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792430259.9927251,
+  "problem": "",
+  "heard": [
+   "ooooooooooooo",
+   "you"
+  ],
+  "mp3_seconds": 113.6
+ },
+ "depths-tense-t1-s29661": {
+  "seconds": 82.0,
+  "mean_db": -14.8,
+  "peak_db": -0.0,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792421428.000495,
+  "problem": "",
+  "heard": [
+   "you",
+   "Oh Oh Oh Oh"
+  ],
+  "mp3_seconds": 82.0
+ },
+ "depths-tense-t2-s30670": {
+  "seconds": 83.0,
+  "mean_db": -20.4,
+  "peak_db": -0.0,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792426486.6092105,
+  "problem": "",
+  "heard": [
+   "you"
+  ],
+  "mp3_seconds": 83.0
+ },
+ "dungeon-calm-t1-s29479": {
+  "seconds": 69.9,
+  "mean_db": -21.9,
+  "peak_db": -0.8,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792421081.9483535,
+  "problem": "",
+  "heard": [
+   "Music",
+   "Music playing"
+  ],
+  "mp3_seconds": 69.9
+ },
+ "dungeon-calm-t2-s30488": {
+  "seconds": 137.9,
+  "mean_db": -19.0,
+  "peak_db": -0.0,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792426156.2105968,
+  "problem": "",
+  "heard": [
+   "you"
+  ],
+  "mp3_seconds": 136.9
+ },
+ "dungeon-calm-t3-s31497": {
+  "seconds": 121.8,
+  "mean_db": -24.4,
+  "peak_db": -3.2,
+  "silent_s": 5.5,
+  "lulls": [
+   106.548934,
+   113.541361
+  ],
+  "mtime": 1792429486.00494,
+  "problem": "",
+  "heard": [
+   "you",
+   "Music playing",
+   "Music playing"
+  ],
+  "mp3_seconds": 121.4
+ },
+ "dungeon-calm-t4-s32506": {
+  "seconds": 94.9,
+  "mean_db": -19.1,
+  "peak_db": -0.7,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792430102.988793,
+  "problem": "",
+  "heard": [
+   "the the"
+  ],
+  "mp3_seconds": 94.2
+ },
+ "dungeon-tense-t1-s30389": {
+  "seconds": 104.1,
+  "mean_db": -20.7,
+  "peak_db": -0.0,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792421225.546449,
+  "problem": "words: 'Tanlali Tanlali Tanlali Tanlali'",
+  "heard": [
+   "Music playing",
+   "Tanlali Tanlali Tanlali Tanlali",
+   "la la"
+  ],
+  "mp3_seconds": 104.1
+ },
+ "dungeon-tense-t2-s31398": {
+  "seconds": 93.0,
+  "mean_db": -15.6,
+  "peak_db": -0.3,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792426283.9524028,
+  "problem": "",
+  "heard": [
+   "you"
+  ],
+  "mp3_seconds": 92.7
+ },
+ "gehennom-calm-t1-s30158": {
+  "seconds": 82.7,
+  "mean_db": -21.4,
+  "peak_db": -4.0,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792422750.0496385,
+  "problem": "",
+  "heard": [
+   "Music Music",
+   "you",
+   "you"
+  ],
+  "mp3_seconds": 82.7
+ },
+ "gehennom-calm-t2-s31167": {
+  "seconds": 139.9,
+  "mean_db": -19.7,
+  "peak_db": -0.0,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792427791.6933377,
+  "problem": "",
+  "heard": [
+   "Music playing",
+   "Music playing",
+   "Music playing"
+  ],
+  "mp3_seconds": 138.4
+ },
+ "gehennom-calm-t3-s32176": {
+  "seconds": 107.4,
+  "mean_db": -20.0,
+  "peak_db": -1.3,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792429973.1678426,
+  "problem": "",
+  "heard": [
+   "you",
+   "Music playing",
+   "Music playing"
+  ],
+  "mp3_seconds": 107.4
+ },
+ "gehennom-calm-t4-s33185": {
+  "seconds": 154.1,
+  "mean_db": -19.9,
+  "peak_db": -0.3,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792430626.0662262,
+  "problem": "",
+  "heard": [
+   "you you",
+   "I'm",
+   "Music playing",
+   "you"
+  ],
+  "mp3_seconds": 154.1
+ },
+ "gehennom-tense-t1-s31068": {
+  "seconds": 77.0,
+  "mean_db": -19.2,
+  "peak_db": -1.0,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792422855.3845332,
   "problem": "",
   "heard": [
    "Music playing"
   ],
   "mp3_seconds": 76.5
  },
- "mines-calm-t1-s8095": {
-  "seconds": 105.9,
-  "mean_db": -20.0,
-  "peak_db": -0.0,
+ "gehennom-tense-t2-s32077": {
+  "seconds": 89.8,
+  "mean_db": -17.3,
+  "peak_db": -0.4,
   "silent_s": 0,
   "lulls": [],
-  "mtime": 1792348066.0741782,
-  "problem": "",
-  "heard": [
-   "Yeah.",
-   "Yeah."
-  ],
-  "mp3_seconds": 105.9
- },
- "mines-tense-t1-s9005": {
-  "seconds": 70.4,
-  "mean_db": -18.5,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792348163.5301359,
-  "problem": "words: 'the men plush just boys are for the air'",
-  "heard": [
-   "Pleasure spoils the fall of the air."
-  ]
- },
- "ascension-t1-s7850": {
-  "seconds": 72.0,
-  "mean_db": -20.0,
-  "peak_db": -1.8,
-  "silent_s": 2.2,
-  "lulls": [
-   69.825646
-  ],
-  "mtime": 1792352697.728807,
-  "problem": "words: \"when I mourned that it's left to crest and one will date\"",
-  "heard": [
-   "you",
-   "When our morn met, but it's left to crest, and one wool-dade."
-  ]
- },
- "astral-t1-s5638": {
-  "seconds": 53.4,
-  "mean_db": -20.2,
-  "peak_db": -2.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792350496.1920013,
+  "mtime": 1792427914.6092093,
   "problem": "",
   "heard": [
    "you"
   ],
-  "mp3_seconds": 53.4
+  "mp3_seconds": 89.8
  },
- "bigroom-t1-s6366": {
-  "seconds": 72.3,
-  "mean_db": -21.6,
-  "peak_db": -1.4,
+ "ludios-t1-s25601": {
+  "seconds": 97.2,
+  "mean_db": -21.2,
+  "peak_db": -1.6,
   "silent_s": 0,
   "lulls": [],
-  "mtime": 1792348566.5619917,
+  "mtime": 1792422334.2630842,
   "problem": "",
   "heard": [
-   "Music playing"
-  ],
-  "mp3_seconds": 72.2
- },
- "bigroom-t2-s7375": {
-  "seconds": 79.5,
-  "mean_db": -21.5,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792354031.5485406,
-  "problem": "",
-  "heard": [
-   "Music playing",
-   "We guys... ...did dead. We mill up. We know... ...he's cause.",
+   "you you",
    "you"
   ],
-  "mp3_seconds": 79.4
+  "mp3_seconds": 97.0
  },
- "castle-t1-s5561": {
-  "seconds": 54.4,
-  "mean_db": -19.2,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792349877.5260768,
-  "problem": "",
-  "heard": [
-   "you"
-  ],
-  "mp3_seconds": 54.4
- },
- "castle-t2-s6570": {
-  "seconds": 55.4,
-  "mean_db": -17.7,
-  "peak_db": -0.1,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792354373.907142,
-  "problem": "",
-  "heard": [],
-  "mp3_seconds": 55.4
- },
- "death-t1-s4735": {
-  "seconds": 66.7,
-  "mean_db": -19.4,
-  "peak_db": -0.7,
-  "silent_s": 2.3,
-  "lulls": [
-   64.422472
-  ],
-  "mtime": 1792352596.5577204,
-  "problem": "",
-  "heard": [],
-  "mp3_seconds": 66.7
- },
- "depths-calm-t2-s9860": {
-  "seconds": 102.3,
-  "mean_db": -21.5,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792353294.319554,
-  "problem": "",
-  "heard": [
-   "Music playing",
-   "you",
-   "Music playing"
-  ],
-  "mp3_seconds": 101.8
- },
- "depths-tense-t2-s10770": {
-  "seconds": 35.0,
-  "mean_db": -15.2,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792353343.7817423,
-  "problem": "too short (35.0 s)",
-  "heard": [
-   "you"
-  ]
- },
- "dungeon-calm-t2-s10588": {
-  "seconds": 92.8,
-  "mean_db": -23.3,
-  "peak_db": -0.1,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792353087.5416152,
-  "problem": "",
-  "heard": [
-   "you",
-   "I go pen for a sweet shampoo Fat to start the void"
-  ],
-  "mp3_seconds": 92.8
- },
- "dungeon-tense-t2-s11498": {
-  "seconds": 45.0,
-  "mean_db": -20.5,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792353151.1929336,
-  "problem": "",
-  "heard": [
-   "Music playing",
-   "you"
-  ],
-  "mp3_seconds": 44.9
- },
- "gehennom-calm-t1-s10258": {
-  "seconds": 105.7,
-  "mean_db": -21.5,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792350024.261061,
-  "problem": "",
-  "heard": [
-   "Oh,",
-   "Ah... Ah... Ah... Ah...",
-   "Ah... Ah...",
-   "ahhh"
-  ],
-  "mp3_seconds": 105.6
- },
- "gehennom-calm-t2-s11267": {
-  "seconds": 94.8,
-  "mean_db": -21.4,
-  "peak_db": -0.5,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792354506.2773516,
-  "problem": "",
-  "heard": [
-   "Music Music",
-   "Music playing",
-   "Oh"
-  ],
-  "mp3_seconds": 94.2
- },
- "gehennom-tense-t1-s11168": {
-  "seconds": 69.8,
-  "mean_db": -22.0,
-  "peak_db": -0.2,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792350120.3290498,
-  "problem": "",
-  "heard": [
-   "Music playing",
-   "Music playing"
-  ],
-  "mp3_seconds": 69.8
- },
- "gehennom-tense-t2-s12177": {
-  "seconds": 110.8,
-  "mean_db": -18.7,
-  "peak_db": -0.6,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792354662.1265879,
-  "problem": "words: 'I need it all. I need it all. I need it all. I need it all. I need it all. I need it all. I need it all.'",
-  "heard": [
-   "Oh, oh, oh, oh, oh, oh, oh, oh, oh, oh, oh",
-   "I need it all I need it all I need it all I need it all I need it all I need it all I need it all A dark game",
-   "you"
-  ]
- },
- "ludios-t1-s5701": {
-  "seconds": 64.9,
-  "mean_db": -21.4,
-  "peak_db": -3.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792348656.491013,
-  "problem": "",
-  "heard": [
-   "Then we'll be",
-   "Then were the two Then were the two",
-   "Ah, ah, ah"
-  ],
-  "mp3_seconds": 64.8
- },
- "ludios-t2-s6710": {
-  "seconds": 80.2,
-  "mean_db": -17.7,
-  "peak_db": -0.3,
-  "silent_s": 2.7,
-  "lulls": [
-   77.504921
-  ],
-  "mtime": 1792354144.550751,
-  "problem": "",
-  "heard": [
-   "Music playing"
-  ],
-  "mp3_seconds": 76.4
- },
- "medusa-t1-s5582": {
-  "seconds": 67.2,
-  "mean_db": -18.9,
-  "peak_db": -1.3,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792349802.2960842,
-  "problem": "",
-  "heard": [
-   "Hmm.",
-   "I thought I'd go Your rush goes, I thought"
-  ],
-  "mp3_seconds": 67.2
- },
- "medusa-t2-s6591": {
-  "seconds": 108.5,
-  "mean_db": -21.8,
+ "ludios-t2-s26610": {
+  "seconds": 59.0,
+  "mean_db": -19.7,
   "peak_db": -2.7,
   "silent_s": 0,
   "lulls": [],
-  "mtime": 1792354296.900015,
+  "mtime": 1792427352.9777658,
+  "problem": "words: 'Not a making call'",
+  "heard": [
+   "Not a making call"
+  ],
+  "mp3_seconds": 59.0
+ },
+ "medusa-t1-s25482": {
+  "seconds": 110.7,
+  "mean_db": -17.8,
+  "peak_db": -0.4,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792422486.1989145,
   "problem": "",
   "heard": [
    "Music playing",
-   "Ray Ray Ray",
-   "John."
+   "you"
   ],
-  "mp3_seconds": 108.5
+  "mp3_seconds": 110.7
  },
- "mines-calm-t2-s9104": {
-  "seconds": 93.5,
-  "mean_db": -18.8,
-  "peak_db": -0.0,
+ "medusa-t2-s26491": {
+  "seconds": 113.2,
+  "mean_db": -21.9,
+  "peak_db": -0.7,
+  "silent_s": 2.6,
+  "lulls": [
+   110.568639
+  ],
+  "mtime": 1792427508.9526205,
+  "problem": "words: 'My lost and they are made'",
+  "heard": [
+   "Music playing",
+   "My lost and they are made",
+   "My lost and the amaze My lost and the amaze My lost and the amaze"
+  ],
+  "mp3_seconds": 113.2
+ },
+ "mines-calm-t1-s27995": {
+  "seconds": 149.7,
+  "mean_db": -18.1,
+  "peak_db": -0.2,
   "silent_s": 0,
   "lulls": [],
-  "mtime": 1792353474.3671873,
+  "mtime": 1792421636.553467,
   "problem": "",
   "heard": [
-   "Music playing"
-  ],
-  "mp3_seconds": 91.7
- },
- "mines-tense-t2-s10014": {
-  "seconds": 88.1,
-  "mean_db": -17.8,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792353597.47455,
-  "problem": "",
-  "heard": [
+   "Hmm.",
    "you",
-   "Music playing"
+   "you"
   ],
-  "mp3_seconds": 88.1
+  "mp3_seconds": 149.7
  },
- "minetown-t1-s7276": {
-  "seconds": 58.3,
-  "mean_db": -18.3,
-  "peak_db": -0.0,
+ "mines-calm-t2-s29004": {
+  "seconds": 109.3,
+  "mean_db": -19.6,
+  "peak_db": -0.6,
   "silent_s": 0,
   "lulls": [],
-  "mtime": 1792348245.212103,
+  "mtime": 1792426637.391208,
   "problem": "",
   "heard": [
    "you"
   ],
-  "mp3_seconds": 58.3
+  "mp3_seconds": 109.3
  },
- "minetown-t2-s8285": {
-  "seconds": 81.6,
-  "mean_db": -18.1,
-  "peak_db": -0.7,
+ "mines-calm-t3-s30013": {
+  "seconds": 93.1,
+  "mean_db": -18.9,
+  "peak_db": -0.4,
   "silent_s": 0,
   "lulls": [],
-  "mtime": 1792353711.1228461,
+  "mtime": 1792429825.9768896,
   "problem": "",
   "heard": [
-   "Music playing",
-   "You didn't tell me"
+   "you"
   ],
-  "mp3_seconds": 81.6
+  "mp3_seconds": 93.1
  },
- "oracle-t1-s5519": {
-  "seconds": 72.1,
+ "mines-calm-t4-s31022": {
+  "seconds": 110.5,
+  "mean_db": -19.1,
+  "peak_db": -0.1,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792430412.373653,
+  "problem": "words: 'Let, let there wait and trade'",
+  "heard": [
+   "Let, let there wait and trade",
+   "Let the weight entrain We're too long a late We're too long a late",
+   "Let the weight entrain Let the weight entrain"
+  ],
+  "mp3_seconds": 110.5
+ },
+ "mines-tense-t1-s28905": {
+  "seconds": 48.5,
+  "mean_db": -17.6,
+  "peak_db": -1.7,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792421703.6434462,
+  "problem": "",
+  "heard": [],
+  "mp3_seconds": 48.5
+ },
+ "mines-tense-t2-s29914": {
+  "seconds": 68.2,
+  "mean_db": -16.6,
+  "peak_db": -0.0,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792426730.7811837,
+  "problem": "",
+  "heard": [
+   "Yeah."
+  ],
+  "mp3_seconds": 67.7
+ },
+ "minetown-t1-s27176": {
+  "seconds": 56.1,
+  "mean_db": -16.2,
+  "peak_db": -0.0,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792421780.7744167,
+  "problem": "",
+  "heard": [],
+  "mp3_seconds": 55.5
+ },
+ "minetown-t2-s28185": {
+  "seconds": 126.9,
   "mean_db": -18.2,
   "peak_db": -0.0,
   "silent_s": 0,
   "lulls": [],
-  "mtime": 1792348465.862024,
+  "mtime": 1792426905.589104,
   "problem": "",
-  "heard": [
-   "Music playing",
-   "Oh, oh, oh"
-  ],
-  "mp3_seconds": 72.1
+  "heard": [],
+  "mp3_seconds": 126.9
  },
- "oracle-t2-s6528": {
-  "seconds": 90.7,
-  "mean_db": -18.1,
-  "peak_db": -0.0,
+ "oracle-t1-s25419": {
+  "seconds": 103.5,
+  "mean_db": -23.2,
+  "peak_db": -2.4,
   "silent_s": 0,
   "lulls": [],
-  "mtime": 1792353921.5993211,
+  "mtime": 1792422043.9882803,
   "problem": "",
-  "heard": [
-   "Oh"
-  ],
-  "mp3_seconds": 89.9
- },
- "planes-t1-s5610": {
-  "seconds": 83.7,
-  "mean_db": -22.1,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792350422.1260114,
-  "problem": "",
-  "heard": [
-   "Ooh, ooh, ooh Ooh, ooh, ooh",
-   "your lessons"
-  ],
-  "mp3_seconds": 83.7
- },
- "quest-arc-t1-s7528": {
-  "seconds": 80.0,
-  "mean_db": -21.0,
-  "peak_db": -2.6,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792350607.741986,
-  "problem": "",
-  "heard": [
-   "Music playing",
-   "you",
-   "you"
-  ],
-  "mp3_seconds": 79.2
- },
- "quest-bar-t1-s7521": {
-  "seconds": 88.7,
-  "mean_db": -18.7,
-  "peak_db": -2.1,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792350731.6268404,
-  "problem": "",
-  "heard": [
-   "Be Kansas Shadow."
-  ],
-  "mp3_seconds": 88.7
- },
- "quest-cav-t1-s7556": {
-  "seconds": 68.9,
-  "mean_db": -23.1,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792350827.6587157,
-  "problem": "",
-  "heard": [
-   "EJOYEJOYEJOYEJOYE",
-   "it out."
-  ],
-  "mp3_seconds": 68.9
- },
- "quest-hea-t1-s7472": {
-  "seconds": 86.4,
-  "mean_db": -20.2,
-  "peak_db": -0.2,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792350947.363583,
-  "problem": "",
-  "heard": [
-   "Music playing"
-  ],
-  "mp3_seconds": 85.7
- },
- "quest-kni-t1-s7612": {
-  "seconds": 90.7,
-  "mean_db": -20.7,
-  "peak_db": -0.3,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792351073.5794644,
-  "problem": "words: 'Rivers, I lie low, I lie low'",
   "heard": [
    "you",
-   "Rivers I lie low"
-  ]
- },
- "quest-mon-t1-s7668": {
-  "seconds": 103.2,
-  "mean_db": -16.8,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792351217.1083505,
-  "problem": "",
-  "heard": [
-   "Ah ah ah ah ah ah ah ah ah ah ah ah ah ah ah ah ah ah ah ah",
-   "you"
+   "Yeah."
   ],
-  "mp3_seconds": 103.2
+  "mp3_seconds": 103.5
  },
- "quest-pri-t1-s7675": {
-  "seconds": 54.0,
-  "mean_db": -20.9,
-  "peak_db": -2.7,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792351292.097298,
-  "problem": "",
-  "heard": [
-   "Music playing",
-   "Is to be you Is to be you away"
-  ],
-  "mp3_seconds": 54.0
- },
- "quest-ran-t1-s7605": {
-  "seconds": 99.6,
-  "mean_db": -19.3,
-  "peak_db": -0.3,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792351430.540211,
-  "problem": "",
-  "heard": [
-   "Why?"
-  ],
-  "mp3_seconds": 99.1
- },
- "quest-rog-t1-s7654": {
-  "seconds": 92.4,
-  "mean_db": -17.7,
-  "peak_db": -0.4,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792351560.087139,
-  "problem": "words: 'That all will be kind My Cain and Cainters Those in the land That all will be good'",
-  "heard": [
-   "That all will be cursed My came-a came-tush Throws in the leather That all will be cursed"
-  ]
- },
- "quest-sam-t1-s7605": {
-  "seconds": 87.4,
-  "mean_db": -19.1,
-  "peak_db": -0.1,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792351681.2840781,
-  "problem": "",
-  "heard": [
-   "Oh.",
-   "Go!"
-  ],
-  "mp3_seconds": 87.4
- },
- "quest-tou-t1-s7766": {
-  "seconds": 108.5,
-  "mean_db": -16.5,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792351833.4400084,
-  "problem": "",
-  "heard": [
-   "I'm",
-   "How are you? How are you? How are you? How are you?"
-  ],
-  "mp3_seconds": 108.5
- },
- "quest-val-t1-s7619": {
-  "seconds": 89.9,
-  "mean_db": -19.3,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792351959.0939553,
-  "problem": "",
-  "heard": [
-   "Music playing",
-   "Chant, Margeant"
-  ],
-  "mp3_seconds": 89.6
- },
- "quest-wiz-t1-s7780": {
-  "seconds": 89.9,
-  "mean_db": -18.3,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792352084.877905,
-  "problem": "",
-  "heard": [
-   "Seluqib Gugia, RLF."
-  ],
-  "mp3_seconds": 89.9
- },
- "shop-t1-s4203": {
-  "seconds": 57.1,
-  "mean_db": -19.3,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792352164.4338746,
-  "problem": "",
-  "heard": [
-   "Music playing",
-   "you"
-  ],
-  "mp3_seconds": 57.1
- },
- "sokoban-t1-s6352": {
-  "seconds": 86.2,
-  "mean_db": -19.1,
-  "peak_db": -0.1,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792348365.4690585,
-  "problem": "",
-  "heard": [
-   "Music playing"
-  ],
-  "mp3_seconds": 85.5
- },
- "sokoban-t2-s7361": {
-  "seconds": 60.2,
-  "mean_db": -21.5,
+ "oracle-t2-s26428": {
+  "seconds": 105.3,
+  "mean_db": -17.8,
   "peak_db": -0.9,
   "silent_s": 0,
   "lulls": [],
-  "mtime": 1792353795.4210463,
-  "problem": "",
-  "heard": [
-   "you"
-  ],
-  "mp3_seconds": 60.2
- },
- "sting-artifact-t1-s11189": {
-  "seconds": 30.0,
-  "mean_db": -18.7,
-  "peak_db": -2.2,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792352785.0115972,
-  "problem": "",
-  "heard": [
-   "you"
-  ],
-  "mp3_seconds": 5.0
- },
- "sting-ascend-t1-s9621": {
-  "seconds": 30.0,
-  "mean_db": -15.5,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792352957.7498646,
-  "problem": "",
-  "heard": [
-   "you"
-  ],
-  "mp3_seconds": 9.0
- },
- "sting-branch-t1-s9621": {
-  "seconds": 30.0,
-  "mean_db": -17.5,
-  "peak_db": -1.1,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792352871.1862733,
-  "problem": "",
-  "heard": [
-   "Tim, Tim, Tim, Tim, Tim, Tim, Tim, Tim. I will pin the weight of rain. I will pin the weight"
-  ],
-  "mp3_seconds": 6.0
- },
- "sting-death-t1-s8893": {
-  "seconds": 30.0,
-  "mean_db": -18.9,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792352914.440579,
-  "problem": "",
-  "heard": [
-   "you"
-  ],
-  "mp3_seconds": 7.0
- },
- "sting-levelup-t1-s10622": {
-  "seconds": 30.0,
-  "mean_db": -17.6,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792352741.4042168,
-  "problem": "words: 'Chiming old big air, it is all I cram in. Cave is a soft side of fluent. Chiming old big air, it is all I cram in.'",
-  "heard": [
-   "Climbing old Begarit is all I crammin' Gave us a soul-sider-fooin' Climbing old Begarit is all I crammin'"
-  ]
- },
- "sting-prayer-t1-s9880": {
-  "seconds": 29.4,
-  "mean_db": -20.0,
-  "peak_db": -0.5,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792352827.6549437,
-  "problem": "",
-  "heard": [
-   "Didi, didi, didi, didi,"
-  ],
-  "mp3_seconds": 6.0
- },
- "temple-t1-s5638": {
-  "seconds": 89.9,
-  "mean_db": -21.6,
-  "peak_db": -3.8,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792352289.807828,
-  "problem": "",
-  "heard": [
-   "ooooooooooooo",
-   "ooo ooo ooo ooo ooo ooo"
-  ],
-  "mp3_seconds": 89.8
- },
- "throne-t1-s5701": {
-  "seconds": 71.0,
-  "mean_db": -18.6,
-  "peak_db": -1.3,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792352388.1107929,
+  "mtime": 1792427145.7039404,
   "problem": "",
   "heard": [
    "you",
-   "Music playing"
+   "you"
   ],
-  "mp3_seconds": 70.5
+  "mp3_seconds": 105.2
  },
- "title-t1-s4931": {
-  "seconds": 83.6,
-  "mean_db": -21.8,
+ "planes-t1-s25510": {
+  "seconds": 111.6,
+  "mean_db": -17.7,
   "peak_db": -0.6,
   "silent_s": 0,
   "lulls": [],
-  "mtime": 1792352504.179752,
+  "mtime": 1792423328.982079,
+  "problem": "",
+  "heard": [
+   "you"
+  ],
+  "mp3_seconds": 111.6
+ },
+ "planes-t2-s26519": {
+  "seconds": 152.5,
+  "mean_db": -17.2,
+  "peak_db": -0.9,
+  "silent_s": 2.1,
+  "lulls": [
+   150.402971
+  ],
+  "mtime": 1792428365.6407213,
+  "problem": "",
+  "heard": [
+   "you"
+  ],
+  "mp3_seconds": 152.5
+ },
+ "quest-arc-t1-s27428": {
+  "seconds": 67.3,
+  "mean_db": -19.3,
+  "peak_db": -1.9,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792423509.660911,
+  "problem": "words: 'Yet a man shall not endow, through queer faith a commenting, through the smith of her death,'",
+  "heard": [
+   "Yet a man shall not endow, through queer faith a commenting, through the smith of her death,",
+   "so quiet."
+  ],
+  "mp3_seconds": 67.3
+ },
+ "quest-bar-t1-s27421": {
+  "seconds": 180.0,
+  "mean_db": -15.8,
+  "peak_db": -0.1,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792423762.7406783,
+  "problem": "",
+  "heard": [
+   "you"
+  ],
+  "mp3_seconds": 179.8
+ },
+ "quest-cav-t1-s27456": {
+  "seconds": 57.4,
+  "mean_db": -23.6,
+  "peak_db": -3.2,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792423840.880607,
+  "problem": "",
+  "heard": [],
+  "mp3_seconds": 57.4
+ },
+ "quest-hea-t1-s27372": {
+  "seconds": 68.9,
+  "mean_db": -18.3,
+  "peak_db": -0.3,
+  "silent_s": 2.1,
+  "lulls": [
+   0.00138322
+  ],
+  "mtime": 1792423934.4635215,
+  "problem": "",
+  "heard": [],
+  "mp3_seconds": 68.9
+ },
+ "quest-kni-t1-s27512": {
+  "seconds": 39.3,
+  "mean_db": -21.3,
+  "peak_db": -2.7,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792423988.799472,
+  "problem": "too short (39.3 s)",
+  "heard": [
+   "you"
+  ]
+ },
+ "quest-mon-t1-s27568": {
+  "seconds": 104.9,
+  "mean_db": -23.8,
+  "peak_db": -3.0,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792424133.0803409,
+  "problem": "",
+  "heard": [
+   "Music Music",
+   "Music playing"
+  ],
+  "mp3_seconds": 104.9
+ },
+ "quest-pri-t1-s27575": {
+  "seconds": 81.2,
+  "mean_db": -23.1,
+  "peak_db": -2.6,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792424244.1722403,
+  "problem": "",
+  "heard": [
+   "you",
+   "you"
+  ],
+  "mp3_seconds": 81.2
+ },
+ "quest-ran-t1-s27505": {
+  "seconds": 156.9,
+  "mean_db": -17.8,
+  "peak_db": -0.0,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792424462.372668,
+  "problem": "",
+  "heard": [
+   "you you"
+  ],
+  "mp3_seconds": 156.9
+ },
+ "quest-rog-t1-s27554": {
+  "seconds": 88.2,
+  "mean_db": -26.7,
+  "peak_db": -5.7,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792424583.6451278,
   "problem": "",
   "heard": [
    "Music playing",
    "you",
-   "When leave and leave are the emma, do we leave him? Teeth us, we can, the lie."
-  ],
-  "mp3_seconds": 83.3
- },
- "vlad-t1-s4070": {
-  "seconds": 78.1,
-  "mean_db": -18.6,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792350306.8250265,
-  "problem": "",
-  "heard": [],
-  "mp3_seconds": 76.7
- },
- "wizard-tower-t1-s9950": {
-  "seconds": 56.2,
-  "mean_db": -19.1,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792350198.85204,
-  "problem": "",
-  "heard": [],
-  "mp3_seconds": 55.9
- },
- "wizard-tower-t2-s10959": {
-  "seconds": 86.7,
-  "mean_db": -20.2,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792354783.3930755,
-  "problem": "",
-  "heard": [
-   "You're a sign while you're holding"
-  ],
-  "mp3_seconds": 86.7
- },
- "ascension-t2-s8859": {
-  "seconds": 74.1,
-  "mean_db": -20.7,
-  "peak_db": -1.1,
-  "silent_s": 2.4,
-  "lulls": [
-   71.709751
-  ],
-  "mtime": 1792355753.4207368,
-  "problem": "",
-  "heard": [
-   "Music playing",
    "you"
   ],
-  "mp3_seconds": 74.1
+  "mp3_seconds": 88.2
  },
- "astral-t2-s6647": {
-  "seconds": 71.2,
-  "mean_db": -21.3,
-  "peak_db": -2.3,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792355111.8651614,
-  "problem": "",
-  "heard": [
-   "Music playing",
-   "Because I'm quiet the other sheep I gave."
-  ],
-  "mp3_seconds": 71.2
- },
- "death-t2-s5744": {
-  "seconds": 90.9,
-  "mean_db": -22.2,
-  "peak_db": -0.9,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792355649.0309696,
-  "problem": "",
-  "heard": [
-   "the the",
-   "Oh, sub-my sub-my",
-   "Sub my Sub my Sub my"
-  ],
-  "mp3_seconds": 90.9
- },
- "planes-t2-s6619": {
-  "seconds": 75.4,
-  "mean_db": -18.8,
+ "quest-sam-t1-s27505": {
+  "seconds": 104.2,
+  "mean_db": -18.4,
   "peak_db": -0.3,
   "silent_s": 0,
   "lulls": [],
-  "mtime": 1792355012.028865,
-  "problem": "",
-  "heard": [
-   "you"
-  ],
-  "mp3_seconds": 75.4
- },
- "shop-t2-s5212": {
-  "seconds": 65.1,
-  "mean_db": -19.2,
-  "peak_db": -0.1,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792355203.8746195,
-  "problem": "",
-  "heard": [
-   "you"
-  ],
-  "mp3_seconds": 65.1
- },
- "sting-artifact-t2-s12198": {
-  "seconds": 30.0,
-  "mean_db": -25.1,
-  "peak_db": -5.7,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792355841.3365698,
+  "mtime": 1792424727.0695882,
   "problem": "",
   "heard": [],
-  "mp3_seconds": 5.0
+  "mp3_seconds": 103.8
  },
- "sting-ascend-t2-s10630": {
-  "seconds": 30.0,
-  "mean_db": -15.9,
+ "quest-tou-t1-s27666": {
+  "seconds": 67.3,
+  "mean_db": -20.1,
+  "peak_db": -2.6,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792424817.5992916,
+  "problem": "",
+  "heard": [
+   "Yeah."
+  ],
+  "mp3_seconds": 67.3
+ },
+ "quest-val-t1-s27519": {
+  "seconds": 114.6,
+  "mean_db": -19.0,
+  "peak_db": -0.7,
+  "silent_s": 3.5,
+  "lulls": [
+   111.085238
+  ],
+  "mtime": 1792424975.151838,
+  "problem": "",
+  "heard": [
+   "Hmm.",
+   "Oh",
+   "music music"
+  ],
+  "mp3_seconds": 113.9
+ },
+ "quest-wiz-t1-s27680": {
+  "seconds": 121.3,
+  "mean_db": -18.5,
+  "peak_db": -0.0,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792425142.7314227,
+  "problem": "",
+  "heard": [
+   "you",
+   "Be..."
+  ],
+  "mp3_seconds": 121.3
+ },
+ "shop-t1-s24103": {
+  "seconds": 97.9,
+  "mean_db": -17.9,
+  "peak_db": -0.6,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792425277.0951266,
+  "problem": "",
+  "heard": [
+   "you",
+   "Music playing",
+   "you"
+  ],
+  "mp3_seconds": 97.6
+ },
+ "shop-t2-s25112": {
+  "seconds": 135.9,
+  "mean_db": -16.4,
+  "peak_db": -0.0,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792428616.7180746,
+  "problem": "words: 'La la la la la la la la la'",
+  "heard": [
+   "La la la la la la la la la",
+   "La la la la la la"
+  ]
+ },
+ "sokoban-t1-s26252": {
+  "seconds": 89.0,
+  "mean_db": -18.3,
+  "peak_db": -0.3,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792421902.5083594,
+  "problem": "",
+  "heard": [
+   "you"
+  ],
+  "mp3_seconds": 88.4
+ },
+ "sokoban-t2-s27261": {
+  "seconds": 70.8,
+  "mean_db": -18.8,
   "peak_db": -0.2,
   "silent_s": 0,
   "lulls": [],
-  "mtime": 1792356016.9332998,
+  "mtime": 1792427001.067045,
+  "problem": "",
+  "heard": [],
+  "mp3_seconds": 70.8
+ },
+ "sting-artifact-t1-s31089": {
+  "seconds": 30.0,
+  "mean_db": -18.1,
+  "peak_db": -2.5,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792425804.8241546,
   "problem": "",
   "heard": [
-   "ooo ooo ooo"
+   "Music playing"
+  ],
+  "mp3_seconds": 5.0
+ },
+ "sting-artifact-t2-s32098": {
+  "seconds": 28.5,
+  "mean_db": -18.3,
+  "peak_db": -2.5,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792429167.284861,
+  "problem": "",
+  "heard": [
+   "Music playing"
+  ],
+  "mp3_seconds": 5.0
+ },
+ "sting-ascend-t1-s29521": {
+  "seconds": 30.0,
+  "mean_db": -18.3,
+  "peak_db": -2.7,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792425965.4438941,
+  "problem": "words: \"I'm still here when the silence is a damn, was a damn.\"",
+  "heard": [
+   "I'm still here when the silence is a damn, was a damn."
   ],
   "mp3_seconds": 9.0
  },
- "sting-branch-t2-s10630": {
-  "seconds": 30.0,
-  "mean_db": -19.9,
-  "peak_db": -0.5,
+ "sting-ascend-t2-s30530": {
+  "seconds": 20.7,
+  "mean_db": -18.5,
+  "peak_db": -1.4,
   "silent_s": 0,
   "lulls": [],
-  "mtime": 1792355929.1564255,
+  "mtime": 1792429317.5209188,
+  "problem": "",
+  "heard": [
+   "you"
+  ],
+  "mp3_seconds": 9.0
+ },
+ "sting-branch-t1-s29521": {
+  "seconds": 30.0,
+  "mean_db": -16.6,
+  "peak_db": -0.0,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792425888.782017,
   "problem": "",
   "heard": [
    "Music playing"
   ],
   "mp3_seconds": 6.0
  },
- "sting-death-t2-s9902": {
-  "seconds": 30.0,
-  "mean_db": -21.8,
-  "peak_db": -0.1,
+ "sting-branch-t2-s30530": {
+  "seconds": 26.2,
+  "mean_db": -19.3,
+  "peak_db": -0.5,
   "silent_s": 0,
   "lulls": [],
-  "mtime": 1792355973.0413604,
+  "mtime": 1792429245.4478965,
   "problem": "",
   "heard": [
-   "Oh, oh, oh"
-  ],
-  "mp3_seconds": 7.0
- },
- "sting-levelup-t2-s11631": {
-  "seconds": 30.0,
-  "mean_db": -17.0,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792355797.3766503,
-  "problem": "words: \"here's just man star never love here's just man star never love\"",
-  "heard": [
-   "Here's just men's star, never love Here's just men's star, never love"
-  ]
- },
- "sting-prayer-t2-s10889": {
-  "seconds": 30.0,
-  "mean_db": -18.0,
-  "peak_db": -1.9,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792355885.209495,
-  "problem": "",
-  "heard": [
-   "ooooooooooooo"
+   "Music playing"
   ],
   "mp3_seconds": 6.0
  },
- "temple-t2-s6647": {
-  "seconds": 52.3,
-  "mean_db": -21.9,
-  "peak_db": -0.2,
+ "sting-death-t1-s28793": {
+  "seconds": 24.0,
+  "mean_db": -17.8,
+  "peak_db": -1.8,
   "silent_s": 0,
   "lulls": [],
-  "mtime": 1792355278.8442411,
+  "mtime": 1792425923.4569612,
+  "problem": "",
+  "heard": [],
+  "mp3_seconds": 7.0
+ },
+ "sting-death-t2-s29802": {
+  "seconds": 30.0,
+  "mean_db": -29.9,
+  "peak_db": -8.6,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792429287.4599106,
   "problem": "",
   "heard": [
-   "Music playing",
+   "Good."
+  ],
+  "mp3_seconds": 7.0
+ },
+ "sting-levelup-t1-s30522": {
+  "seconds": 24.5,
+  "mean_db": -20.2,
+  "peak_db": -0.9,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792425762.8392246,
+  "problem": "",
+  "heard": [
    "you"
   ],
-  "mp3_seconds": 52.3
+  "mp3_seconds": 4.5
  },
- "throne-t2-s6710": {
-  "seconds": 87.8,
-  "mean_db": -19.2,
-  "peak_db": -0.7,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792355402.48372,
-  "problem": "",
-  "heard": [
-   "Music playing",
-   "you",
-   "Ooooooh"
-  ],
-  "mp3_seconds": 87.8
- },
- "title-t2-s5940": {
-  "seconds": 84.0,
-  "mean_db": -21.3,
-  "peak_db": -0.1,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792355521.510317,
-  "problem": "words: 'wing right for bone wake was i and as a law at a one was i at a live ball alive'",
-  "heard": [
-   "Music playing",
-   "The bone-wake was I, And as a law, at a one was I, At a live ball, at a live ball."
-  ]
- },
- "vlad-t2-s5079": {
-  "seconds": 87.5,
-  "mean_db": -23.7,
-  "peak_db": -1.9,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792354905.9207728,
-  "problem": "",
-  "heard": [
-   "you",
-   "you",
-   "you"
-  ],
-  "mp3_seconds": 87.5
- },
- "depths-tense-t3-s11779": {
-  "seconds": 81.5,
+ "sting-levelup-t2-s31531": {
+  "seconds": 30.0,
   "mean_db": -17.2,
   "peak_db": -0.0,
   "silent_s": 0,
   "lulls": [],
-  "mtime": 1792357064.554978,
+  "mtime": 1792429126.8928378,
+  "problem": "words: \"I'm getting no more Help today This morning, this morning\"",
+  "heard": [
+   "I'm getting no more Help today This morning, this morning"
+  ],
+  "mp3_seconds": 4.5
+ },
+ "sting-prayer-t1-s29780": {
+  "seconds": 30.0,
+  "mean_db": -16.9,
+  "peak_db": -1.2,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792425846.7610855,
   "problem": "",
   "heard": [
+   "Hey yo!"
+  ],
+  "mp3_seconds": 6.0
+ },
+ "sting-prayer-t2-s30789": {
+  "seconds": 29.6,
+  "mean_db": -21.2,
+  "peak_db": -2.7,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792429208.5948815,
+  "problem": "",
+  "heard": [
+   "Music playing"
+  ],
+  "mp3_seconds": 6.0
+ },
+ "temple-t1-s25538": {
+  "seconds": 77.5,
+  "mean_db": -19.4,
+  "peak_db": -1.2,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792425382.7089114,
+  "problem": "",
+  "heard": [
+   "Music playing",
+   "you"
+  ],
+  "mp3_seconds": 77.4
+ },
+ "temple-t2-s26547": {
+  "seconds": 105.3,
+  "mean_db": -20.8,
+  "peak_db": -1.3,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792428761.4514046,
+  "problem": "words: \"Ever changes there? Who won't go away last time?\"",
+  "heard": [
+   "you",
+   "In the dead",
+   "Ever changes there? Who won't go away last time?"
+  ],
+  "mp3_seconds": 105.3
+ },
+ "throne-t1-s25601": {
+  "seconds": 63.0,
+  "mean_db": -21.7,
+  "peak_db": -2.9,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792425467.933747,
+  "problem": "",
+  "heard": [
+   "Oh.",
+   "you"
+  ],
+  "mp3_seconds": 61.5
+ },
+ "throne-t2-s26610": {
+  "seconds": 73.9,
+  "mean_db": -23.6,
+  "peak_db": -1.4,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792428862.0475721,
+  "problem": "",
+  "heard": [
+   "you"
+  ],
+  "mp3_seconds": 73.4
+ },
+ "title-t1-s24831": {
+  "seconds": 57.0,
+  "mean_db": -25.7,
+  "peak_db": -5.2,
+  "silent_s": 2.6,
+  "lulls": [
+   54.442245
+  ],
+  "mtime": 1792425545.7396028,
+  "problem": "",
+  "heard": [
+   "Music playing",
+   "Yeah."
+  ],
+  "mp3_seconds": 56.4
+ },
+ "title-t2-s25840": {
+  "seconds": 50.3,
+  "mean_db": -22.4,
+  "peak_db": -5.1,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792428930.6676626,
+  "problem": "",
+  "heard": [
+   "you"
+  ],
+  "mp3_seconds": 49.5
+ },
+ "vlad-t1-s23970": {
+  "seconds": 119.7,
+  "mean_db": -18.3,
+  "peak_db": -0.0,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792423176.309223,
+  "problem": "",
+  "heard": [
+   "you you",
    "you",
    "you"
   ],
-  "mp3_seconds": 81.5
+  "mp3_seconds": 119.5
  },
- "mines-tense-t3-s11023": {
-  "seconds": 118.3,
-  "mean_db": -17.5,
+ "vlad-t2-s24979": {
+  "seconds": 112.7,
+  "mean_db": -17.3,
   "peak_db": -0.0,
   "silent_s": 0,
   "lulls": [],
-  "mtime": 1792358193.1534774,
-  "problem": "words: \"Walls go on too Walls go on too Wall walls go on too Our area won't stay One die in your one do your front Do your front, do your front Walls go on too\"",
+  "mtime": 1792428153.3139536,
+  "problem": "words: 'Lift your head bright night at least Yes, see it when the sick the bleed Lift your head bright night at least Yes, see it when the sick the bleed'",
   "heard": [
-   "Walls go on two Walls go on two Walls go on two Our airy won't stay One dying, you're one to your fraud Do your fraud, do your fraud Walls go on two",
-   "from"
+   "you",
+   "Lift your head bright night at least Yes, see it when the sick the bleed Lift your head bright night at least Yes, see it when the sick the bleed",
+   "If it weren't the sake that bleeds A drop of hen you'll find If it weren't the sake"
   ]
  },
- "mines-tense-t4-s12032": {
-  "seconds": 67.7,
-  "mean_db": -17.0,
-  "peak_db": -0.1,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792359311.1384728,
-  "problem": "",
-  "heard": [
-   "Oh, it finds the finds by width of you too If I understood"
-  ],
-  "mp3_seconds": 67.7
- },
- "gehennom-tense-t3-s13186": {
-  "seconds": 85.6,
-  "mean_db": -21.1,
-  "peak_db": -0.3,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792361301.947694,
-  "problem": "",
-  "heard": [
-   "Noah's word. Enough of Goeth. Never implore."
-  ],
-  "mp3_seconds": 85.6
- },
- "quest-kni-t2-s8621": {
-  "seconds": 71.5,
-  "mean_db": -21.9,
-  "peak_db": -1.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792362444.389449,
-  "problem": "words: 'There will well be goalless till you'",
-  "heard": [
-   "There a wealth big ol' listed you",
-   "There are well-begoalists in you"
-  ]
- },
- "quest-kni-t3-s9630": {
-  "seconds": 95.3,
-  "mean_db": -23.8,
-  "peak_db": -1.3,
-  "silent_s": 2.8,
-  "lulls": [
-   92.502313
-  ],
-  "mtime": 1792363417.9662032,
-  "problem": "",
-  "heard": [
-   "Music playing",
-   "Music playing",
-   "you"
-  ],
-  "mp3_seconds": 95.3
- },
- "quest-rog-t2-s8663": {
-  "seconds": 74.1,
-  "mean_db": -20.1,
+ "wizard-tower-t1-s29850": {
+  "seconds": 113.4,
+  "mean_db": -15.0,
   "peak_db": -0.0,
   "silent_s": 0,
   "lulls": [],
-  "mtime": 1792363533.1979048,
+  "mtime": 1792423011.8493803,
   "problem": "",
   "heard": [
-   "Music playing",
+   "you.",
    "you"
   ],
-  "mp3_seconds": 73.2
+  "mp3_seconds": 113.4
  },
- "title-t3-s6949": {
-  "seconds": 61.0,
-  "mean_db": -24.4,
-  "peak_db": -2.6,
-  "silent_s": 2.4,
-  "lulls": [
-   58.558798
-  ],
-  "mtime": 1792363628.0296824,
+ "wizard-tower-t2-s30859": {
+  "seconds": 60.3,
+  "mean_db": -20.6,
+  "peak_db": -2.2,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792427997.4571214,
   "problem": "",
   "heard": [
-   "you"
+   "Music playing"
   ],
-  "mp3_seconds": 61.0
+  "mp3_seconds": 59.9
  },
- "ascension-t3-s9868": {
-  "seconds": 62.8,
-  "mean_db": -19.0,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792363724.0624743,
-  "problem": "",
-  "heard": [],
-  "mp3_seconds": 62.4
- },
- "sting-levelup-t3-s12640": {
-  "seconds": 20.3,
-  "mean_db": -17.4,
-  "peak_db": -0.0,
-  "silent_s": 0,
-  "lulls": [],
-  "mtime": 1792363762.7163947,
-  "problem": "",
-  "heard": [],
-  "mp3_seconds": 4.5
- },
- "sting-levelup-t4-s13649": {
-  "seconds": 26.1,
+ "dungeon-tense-t3-s32407": {
+  "seconds": 149.9,
   "mean_db": -18.1,
   "peak_db": -0.0,
   "silent_s": 0,
   "lulls": [],
-  "mtime": 1792363806.3283076,
+  "mtime": 1792431989.075855,
+  "problem": "words: 'Higher flow and taste Throated in love'",
+  "heard": [
+   "Music playing",
+   "Higher flow and taste Throated in love",
+   "Oh.",
+   "you",
+   "you"
+  ]
+ },
+ "dungeon-tense-t4-s33416": {
+  "seconds": 113.8,
+  "mean_db": -17.7,
+  "peak_db": -0.4,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792432162.6816683,
+  "problem": "words: 'Can I use your peace at your dream? Master, did you... ...who dream?'",
+  "heard": [
+   "Easy line",
+   "Ijeela Ijeela",
+   "Can I use your peace at your dream? Master, did you... ...who dream?"
+  ]
+ },
+ "dungeon-tense-t5-s34425": {
+  "seconds": 87.8,
+  "mean_db": -17.7,
+  "peak_db": -0.3,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792432295.7835298,
   "problem": "",
   "heard": [
-   "Yeah. Yeah, one word!"
+   "Music playing",
+   "Ah, ah, ah",
+   "you"
+  ],
+  "mp3_seconds": 87.6
+ },
+ "depths-calm-t5-s32787": {
+  "seconds": 86.8,
+  "mean_db": -31.8,
+  "peak_db": -8.7,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792432429.5803936,
+  "problem": "",
+  "heard": [
+   "Music playing",
+   "you",
+   "you"
+  ],
+  "mp3_seconds": 86.8
+ },
+ "mines-calm-t5-s32031": {
+  "seconds": 152.4,
+  "mean_db": -19.8,
+  "peak_db": -0.1,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792432656.7843015,
+  "problem": "",
+  "heard": [
+   "Music playing",
+   "you",
+   "Music playing",
+   "Music playing"
+  ],
+  "mp3_seconds": 152.1
+ },
+ "ludios-t3-s27619": {
+  "seconds": 85.5,
+  "mean_db": -20.8,
+  "peak_db": -0.4,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792432793.5133362,
+  "problem": "",
+  "heard": [
+   "Music playing",
+   "Music playing"
+  ],
+  "mp3_seconds": 85.5
+ },
+ "medusa-t3-s27500": {
+  "seconds": 77.5,
+  "mean_db": -25.2,
+  "peak_db": -3.2,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792432913.0943394,
+  "problem": "",
+  "heard": [
+   "Music playing"
+  ],
+  "mp3_seconds": 77.5
+ },
+ "vlad-t3-s25988": {
+  "seconds": 87.8,
+  "mean_db": -20.7,
+  "peak_db": -0.7,
+  "silent_s": 2.5,
+  "lulls": [
+   85.278345
+  ],
+  "mtime": 1792433045.2103202,
+  "problem": "",
+  "heard": [
+   "Music playing",
+   "Music playing",
+   "you"
+  ],
+  "mp3_seconds": 87.8
+ },
+ "quest-arc-t2-s28437": {
+  "seconds": 71.4,
+  "mean_db": -25.4,
+  "peak_db": -4.6,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792433157.497289,
+  "problem": "",
+  "heard": [
+   "you"
+  ],
+  "mp3_seconds": 70.3
+ },
+ "quest-kni-t2-s28521": {
+  "seconds": 41.7,
+  "mean_db": -18.7,
+  "peak_db": -1.5,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792433226.3012643,
+  "problem": "",
+  "heard": [
+   "you"
+  ],
+  "mp3_seconds": 41.7
+ },
+ "shop-t3-s26121": {
+  "seconds": 49.1,
+  "mean_db": -19.7,
+  "peak_db": -0.0,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792433303.6862323,
+  "problem": "",
+  "heard": [
+   "Music playing",
+   "you"
+  ],
+  "mp3_seconds": 49.0
+ },
+ "temple-t3-s27556": {
+  "seconds": 126.3,
+  "mean_db": -25.0,
+  "peak_db": -5.3,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792433488.7251413,
+  "problem": "",
+  "heard": [
+   "Music playing",
+   "you",
+   "Music playing",
+   "Music playing"
+  ],
+  "mp3_seconds": 125.3
+ },
+ "death-t3-s26653": {
+  "seconds": 59.8,
+  "mean_db": -25.1,
+  "peak_db": -7.0,
+  "silent_s": 2.5,
+  "lulls": [
+   57.235964
+  ],
+  "mtime": 1792433586.3230867,
+  "problem": "",
+  "heard": [
+   "Music playing",
+   "you"
+  ],
+  "mp3_seconds": 59.8
+ },
+ "sting-levelup-t3-s32540": {
+  "seconds": 20.9,
+  "mean_db": -21.4,
+  "peak_db": -0.6,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792433628.520062,
+  "problem": "",
+  "heard": [
+   "you"
   ],
   "mp3_seconds": 4.5
+ },
+ "sting-ascend-t3-s31539": {
+  "seconds": 24.2,
+  "mean_db": -18.8,
+  "peak_db": -0.2,
+  "silent_s": 0,
+  "lulls": [],
+  "mtime": 1792433671.6920362,
+  "problem": "",
+  "heard": [
+   "Music playing"
+  ],
+  "mp3_seconds": 9.0
  }
 }

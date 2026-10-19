@@ -49,7 +49,8 @@ def probe(path: Path) -> dict:
 
 
 # What Whisper prints for any instrumental audio: not words.
-PHANTOMS = {"music", "playing", "you", "thank", "thanks", "for", "watching", "bye", "so", "oh", "ah", "mm", "hmm", "uh", "um"}
+PHANTOMS = {"music", "playing", "you", "thank", "thanks", "for", "watching", "bye", "so", "oh", "ah", "mm", "hmm", "uh", "um",
+            "yeah", "me", "i", "i'm", "am", "the", "be", "good", "hey", "yo", "ooh", "ooo"}
 
 
 def whisper(wav: Path, model: str) -> list[dict]:
@@ -61,30 +62,21 @@ def whisper(wav: Path, model: str) -> list[dict]:
     return json.loads((out / f"{wav.stem}.json").read_text()).get("segments", [])
 
 
-def phrase(segment: dict) -> bool:
-    """A real phrase: 4+ words that aren't phantoms, at a speaking or
-    singing pace. Whisper's hallucinations over music stretch a stock
-    sentence across half a minute."""
-    words = [w for w in re.findall(r"[a-z']+", segment["text"].lower()) if w not in PHANTOMS]
-    seconds = max(0.1, float(segment["end"]) - float(segment["start"]))
-    return len(words) >= 4 and len(words) / seconds >= 0.7
+def sung(text: str) -> bool:
+    """Words in what Whisper heard: 3+ that aren't its stock phantoms over
+    music ("Music playing", "you", "Thank you."). Repeats count: a chant
+    ("Marge Marge Marge") is singing too. Strict on purpose (round 2 sang
+    "Let the weight entrain" past a looser rule); a good take lost to a
+    hallucination only costs a regeneration."""
+    words = [w for w in re.findall(r"[a-z']+", text.lower()) if w not in PHANTOMS and not re.fullmatch(r"o+h*|a+h*|m+|h+m+", w)]
+    return len(words) >= 3
 
 
 def words_in(wav: Path) -> tuple[list[str], str]:
-    """What WhisperX hears, and the phrase that makes it a take with words
-    ("" for none): the small model screens, large-v3 confirms."""
-    segments = whisper(wav, "small")
-    heard = [seg["text"].strip() for seg in segments]
-    for seg in segments:
-        if not phrase(seg):
-            continue
-        clip = Path("/tmp/nethack-music-whisperx") / f"{wav.stem}-confirm.wav"
-        subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-ss", str(max(0.0, seg["start"] - 2)),
-                        "-to", str(seg["end"] + 2), "-i", str(wav), str(clip)], check=True)
-        confirmed = [c for c in whisper(clip, "large-v3") if phrase(c)]
-        if confirmed:
-            return heard, confirmed[0]["text"].strip()
-    return heard, ""
+    """What WhisperX (small) hears, and the line that makes it a take with
+    words ("" for none)."""
+    heard = [seg["text"].strip() for seg in whisper(wav, "small")]
+    return heard, next((line for line in heard if sung(line)), "")
 
 
 def check(track: dict, info: dict) -> str:
@@ -149,6 +141,10 @@ def main() -> None:
                 entry["mp3_seconds"] = probe(mp3)["seconds"]
             qa[wav.stem] = entry
             print(f"{wav.stem}: {entry['seconds']} s, mean {entry['mean_db']} dB, heard {entry['heard']}" + (f"  REJECTED: {entry['problem']}" if entry["problem"] else ""), flush=True)
+        # The words rule can tighten: recheck what Whisper heard.
+        if entry and (not entry["problem"] or entry["problem"].startswith("words")):
+            words = next((line for line in entry.get("heard", []) if sung(line)), "")
+            entry["problem"] = f"words: {words!r}" if words else ""
         if wav.stem in rejected or entry["problem"]:
             mp3.unlink(missing_ok=True)
             continue
