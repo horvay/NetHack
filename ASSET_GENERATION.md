@@ -50,5 +50,5 @@ The Godot front end's music is MiniMax Music 3 on the B70 (`godot-poc/tools/musi
 
 - Captions use Music 3's structured format (genre in the Basic Attributes line) and are all instrumental; edit `tracks.py`, never one-off prompts.
 - Every take must pass `post.py` before it ships, including the WhisperX words check: Music 3 sometimes sings even when told not to. Never install a take by hand.
-- Listen before calling a track done; a take that sounds wrong goes in `asset-generation/outputs/music/rejected.txt` and is replaced with `generate.py --replace`.
+- Listen before calling a track done; a take that sounds wrong goes in `asset-generation/outputs/music/rejected.txt` (in game: Settings → Audio → "Reject this take") and is replaced with `generate.py --replace`.
 - Game assets are MP3 (`project/assets/music`); raw WAVs stay out of git.

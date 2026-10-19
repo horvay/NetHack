@@ -16,6 +16,9 @@ extends Node
 ## back to the area's, then the dungeon's.
 
 const MANIFEST := "res://assets/music/music.json"
+## Where "Reject this take" lists takes for tools/music/generate.py --replace
+## (in the repo checkout only).
+const REJECTED := "res://../../asset-generation/outputs/music/rejected.txt"
 const FADE := 3.0
 const DUCK_DB := -8.0
 const STINGER_DUCK_DB := -12.0
@@ -40,6 +43,13 @@ var current := ""
 ## Stingers played this run, in order (tests and diagnostics).
 var stingers: Array[String] = []
 var tense := false
+## The take of `current` playing (res:// path), "" for none.
+var take_path := ""
+## rejected.txt (tests point it elsewhere).
+var rejected_path := REJECTED
+
+## A take started (a track id and its res:// path).
+signal take_started(track: String, path: String)
 
 var _players: Array[AudioStreamPlayer] = []
 var _active := 0
@@ -55,6 +65,8 @@ var _praying := 0
 ## The pack seen once (a continued game may start with an artifact).
 var _inventory_known := false
 var _rules: Array = []
+## MP3 (relative to assets/music) -> its raw WAV stem.
+var _sources: Dictionary = {}
 var _prayer_answered := RegEx.create_from_string("(?i)is well-pleased|is pleased|is satisfied|hopeful feeling|reconciliation|you feel much better|shimmering light|golden glow")
 
 
@@ -76,6 +88,7 @@ func _ready() -> void:
 		var parsed: Variant = JSON.parse_string(file.get_as_text())
 		if parsed is Dictionary:
 			library = (parsed as Dictionary).get("tracks", {})
+			_sources = (parsed as Dictionary).get("sources", {})
 	_rules = [
 		[RegEx.create_from_string("(?i)welcome to experience level"), "sting-levelup"],
 		[RegEx.create_from_string("(?i)^you die\\.\\.\\."), "sting-death"],
@@ -106,12 +119,51 @@ func play(id: String) -> void:
 	if resolved == current:
 		return
 	current = resolved
-	var old := _players[_active]
-	_fade(old, -80.0, FADE, true)
-	if resolved == "":
+	_crossfade()
+
+
+func _crossfade() -> void:
+	_fade(_players[_active], -80.0, FADE, true)
+	take_path = ""
+	if current == "":
+		take_started.emit("", "")
 		return
 	_active = 1 - _active
-	_start(_players[_active], resolved, FADE)
+	_start(_players[_active], current, FADE)
+
+
+## The playing take's WAV stem (as in rejected.txt), "" for none.
+func take_stem() -> String:
+	return str(_sources.get(take_path.trim_prefix("res://assets/music/"), ""))
+
+
+## Whether this checkout can list rejected takes for regeneration.
+func can_reject() -> bool:
+	return DirAccess.dir_exists_absolute(ProjectSettings.globalize_path(rejected_path).get_base_dir())
+
+
+## Lists the playing take in rejected.txt (generate.py --replace makes a new
+## one) and plays another take of the track instead. Returns its stem.
+func reject_take() -> String:
+	var stem := take_stem()
+	if stem == "" or not can_reject():
+		return ""
+	var path := ProjectSettings.globalize_path(rejected_path)
+	var file := FileAccess.open(path, FileAccess.READ_WRITE) if FileAccess.file_exists(path) else FileAccess.open(path, FileAccess.WRITE)
+	if file == null:
+		return ""
+	file.seek_end()
+	file.store_line(stem)
+	file.close()
+	print("Music: rejected %s" % stem)
+	var takes: Array = library.get(current, [])
+	takes.erase(take_path.trim_prefix("res://assets/music/"))
+	if takes.is_empty():
+		library.erase(current)
+	_take.erase(current)
+	current = _resolve(wanted)
+	_crossfade()
+	return stem
 
 
 ## A short cue over the music, which ducks under it.
@@ -151,7 +203,8 @@ func _process(_delta: float) -> void:
 		_screen = null
 	# Duck under NetHack's windows and questions, and under a stinger.
 	var duck := 0.0
-	if is_instance_valid(_screen) and _screen.dialogs.active != null:
+	# Not under Settings: the music's volume is set there.
+	if is_instance_valid(_screen) and _screen.dialogs.active != null and not _screen.dialogs.active is SettingsScreen:
 		duck = DUCK_DB
 	if Time.get_ticks_msec() / 1000.0 < _stinger_until:
 		duck = STINGER_DUCK_DB
@@ -306,6 +359,9 @@ func _start(player: AudioStreamPlayer, id: String, fade: float) -> void:
 	player.set_meta("track", id)
 	player.volume_db = -40.0
 	player.play()
+	take_path = path
+	print("Music: %s (%s)" % [id, take_stem() if take_stem() != "" else path.get_file()])
+	take_started.emit(id, path)
 	_fade(player, 0.0, fade, false)
 
 

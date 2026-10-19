@@ -89,6 +89,8 @@ func setup(game_screen: GameScreen) -> void:
 		settings.music_volume = v / 100.0
 		if App.instance and App.instance.music:
 			App.instance.music.apply_settings(), "%d%%"))
+	if App.instance and App.instance.music:
+		_list.add_child(_now_playing(App.instance.music))
 	_list.add_child(_toggle("Game sounds (fights, steps, the dungeon)", settings.game_sounds, func(on: bool) -> void: settings.game_sounds = on))
 	_list.add_child(_toggle("Interface sounds (clicks, panels)", settings.interface_sounds, func(on: bool) -> void: settings.interface_sounds = on))
 	_list.add_child(_heading("Advanced — NetHack options for your next new game"))
@@ -176,6 +178,37 @@ func _slider(label_text: String, low: int, high: int, current: int, on_change: C
 	slider.value_changed.connect(func(v: float) -> void: value_label.text = format % int(v))
 	row.add_child(slider)
 	row.add_child(value_label)
+	return row
+
+
+## Which music take plays, and (in the repo checkout) a button that lists it
+## for regeneration and plays another.
+func _now_playing(music: MusicDirector) -> Control:
+	var row := _row("Now playing")
+	var label := Label.new()
+	label.name = "NowPlaying"
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.clip_text = true
+	label.add_theme_color_override("font_color", UiTheme.GOLD)
+	row.add_child(label)
+	var show := func(_track := "", _path := "") -> void:
+		if is_instance_valid(label):
+			var stem := music.take_stem()
+			label.text = "Nothing" if music.current == "" else (stem if stem != "" else music.current)
+	show.call()
+	music.take_started.connect(show)
+	tree_exiting.connect(func() -> void: music.take_started.disconnect(show))
+	if music.can_reject():
+		var reject := Button.new()
+		reject.name = "RejectTake"
+		reject.text = "Reject this take"
+		reject.focus_mode = Control.FOCUS_ALL
+		reject.tooltip_text = "Lists it in asset-generation/outputs/music/rejected.txt and plays another; generate.py --replace makes a new one."
+		reject.pressed.connect(func() -> void:
+			var stem := music.reject_take()
+			if stem != "" and screen:
+				screen.hud.feed.flash_notice("Rejected %s." % stem))
+		row.add_child(reject)
 	return row
 
 

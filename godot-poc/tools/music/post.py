@@ -126,6 +126,8 @@ def main() -> None:
     qa_path = OUT / "qa.json"
     qa = json.loads(qa_path.read_text()) if qa_path.exists() else {}
     manifest: dict[str, list[str]] = {}
+    # Each MP3's WAV stem: the game's "Reject this take" writes it to rejected.txt.
+    sources: dict[str, str] = {}
     for wav in sorted(RAW.glob("*.wav")):
         m = TAKE.match(wav.stem)
         track = tracks.BY_ID.get(m["id"]) if m else None
@@ -152,9 +154,10 @@ def main() -> None:
             continue
         if mp3.exists():
             manifest.setdefault(track["id"], []).append(f"{track['id']}/{mp3.name}")
+            sources[f"{track['id']}/{mp3.name}"] = wav.stem
     qa_path.write_text(json.dumps(qa, indent=1) + "\n")
     ASSETS.mkdir(parents=True, exist_ok=True)
-    (ASSETS / "music.json").write_text(json.dumps({"tracks": dict(sorted(manifest.items()))}, indent=1) + "\n")
+    (ASSETS / "music.json").write_text(json.dumps({"tracks": dict(sorted(manifest.items())), "sources": sources}, indent=1) + "\n")
     missing = [t["id"] for t in tracks.TRACKS if t["id"] not in manifest]
     print(f"{len(manifest)} of {len(tracks.TRACKS)} tracks have music" + (f"; missing: {', '.join(missing)}" if missing else ""))
 

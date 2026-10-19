@@ -55,6 +55,32 @@ func run() -> void:
 		while Time.get_ticks_msec() < deadline and player.stream.resource_path == before:
 			await get_tree().process_frame
 		expect(player.playing and player.stream.resource_path != before, "after %s ends another take plays (%s)" % [before.get_file(), player.stream.resource_path])
+	# Settings shows the take playing (without ducking it); "Reject this
+	# take" lists it for regeneration and plays another.
+	if music.library.get("dungeon-calm", []).size() > 1:
+		music.rejected_path = "user://test-music-rejected.txt"
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(music.rejected_path))
+		game.input_router.open_ui("settings")
+		await get_tree().create_timer(0.8).timeout
+		var settings := game.dialogs.active as SettingsScreen
+		var label: Label = settings.find_child("NowPlaying", true, false) if settings else null
+		var stem := music.take_stem()
+		expect(stem.begins_with("dungeon-calm-t"), "the playing take is known (%s)" % stem)
+		expect(label != null and label.text == stem, "Settings shows it (%s)" % [label.text if label else null])
+		expect(music._duck_db > -1.0, "Settings doesn't duck the music (%.1f dB)" % music._duck_db)
+		await screenshot("now-playing")
+		var reject: Button = settings.find_child("RejectTake", true, false) if settings else null
+		if expect(reject != null, "Settings has the reject button"):
+			reject.pressed.emit()
+			await get_tree().create_timer(0.3).timeout
+			var listed := FileAccess.get_file_as_string(music.rejected_path).strip_edges()
+			expect(listed == stem, "the take is listed for regeneration (%s)" % listed)
+			expect(music.current == "dungeon-calm" and music.take_stem() != stem and music._players[music._active].playing,
+				"another take plays (%s)" % music.take_stem())
+			expect(label.text == music.take_stem(), "the label follows (%s)" % label.text)
+			await screenshot("rejected")
+		await press(KEY_ESCAPE)
+		music.rejected_path = MusicDirector.REJECTED
 	music.stingers.clear()
 	mark()
 	game.send_keys("q")
