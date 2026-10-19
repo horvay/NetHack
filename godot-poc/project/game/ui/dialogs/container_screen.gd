@@ -146,7 +146,25 @@ func _verb_in() -> String:
 	return "Drop" if source == "ground" else "Put in"
 
 
+var _render_queued := false
+## Rows rebuilt so far (tests check a move costs one or two).
+var renders := 0
+
+
+## Redraws once at the end of the frame: one move brings a burst of
+## updates (the pack, the pile, the confirmation, the prompt), and
+## rebuilding every row for each was a visible hitch.
 func _render() -> void:
+	if not _render_queued:
+		_render_queued = true
+		_render_now.call_deferred()
+
+
+func _render_now() -> void:
+	_render_queued = false
+	if not is_instance_valid(self) or is_queued_for_deletion():
+		return
+	renders += 1
 	_left_title.text = "ON THE FLOOR" if source == "ground" else "IN THE %s" % str(container.get("displayName", "container")).to_upper().trim_prefix("A ").trim_prefix("AN ")
 	_fill(_left, contents, _selected_out, OUT)
 	# (A carried container isn't offered for putting into itself.)
