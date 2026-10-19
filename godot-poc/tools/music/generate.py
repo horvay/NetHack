@@ -35,7 +35,8 @@ TOOL = Path.home() / "ai/stable-diffusion.cpp-b70-native/xpu_sdpa/xpu_music3"
 
 
 def seed_for(track_id: str, take: int) -> int:
-    return 100 + sum(ord(c) for c in track_id) * 7 + take * 1009
+    # Round 2 (MiniMax-format captions, 2026-10-19): new seeds, new file names.
+    return 20000 + sum(ord(c) for c in track_id) * 7 + take * 1009
 
 
 def wav_seconds(path: Path) -> float:
@@ -53,7 +54,7 @@ def generate(track: dict, take: int) -> None:
         return
     stem = out.with_suffix("")
     caption, lyrics = stem.with_suffix(".caption.txt"), stem.with_suffix(".lyrics.txt")
-    caption.write_text(tracks.caption(track))
+    caption.write_text(tracks.caption(track, take))
     lyrics.write_text(tracks.lyrics(track))
     started = time.time()
     with open(stem.with_suffix(".log"), "w") as log:
