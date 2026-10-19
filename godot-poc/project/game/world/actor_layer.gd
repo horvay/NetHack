@@ -11,6 +11,7 @@ const TILE := 32
 const MOVE_TIME := 0.13
 const PET_RING := Color(0.35, 0.95, 0.55, 0.55)
 const PEACEFUL_RING := Color(0.45, 0.7, 1.0, 0.45)
+const INVISIBLE_HERO_ALPHA := 0.4
 
 var state: GameState
 var resolver := TileResolver.shared()
@@ -183,8 +184,10 @@ func _apply_look(entry: Dictionary, asset: String, map_cell: Dictionary) -> void
 		ring.modulate = PEACEFUL_RING
 	else:
 		ring.visible = false
-	# Invisible-but-sensed or detected monsters render ghostly.
-	(entry.sprite as Sprite2D).modulate.a = 0.55 if flags & (0x04 | 0x08) else 1.0
+	# Invisible-but-sensed or detected monsters render ghostly; an invisible
+	# hero too, shimmering (see _process).
+	entry.invisible = map_cell.get("heroInvisible", false) == true
+	(entry.sprite as Sprite2D).modulate.a = INVISIBLE_HERO_ALPHA if entry.invisible else (0.55 if flags & (0x04 | 0x08) else 1.0)
 
 
 func _remove(id: String) -> void:
@@ -240,6 +243,8 @@ func _process(delta: float) -> void:
 		var hop_offset := -sin((1.0 - hop) * PI) * 3.0 if hop > 0.0 and moving else 0.0
 		if not sprite.has_meta("lunging"):
 			sprite.position.y = -2.0 + bob + hop_offset
+		if entry.get("invisible", false) and moving:
+			sprite.modulate.a = INVISIBLE_HERO_ALPHA + 0.12 * sin(_time * 1.7)
 		var fit: float = sprite.get_meta("fit", 1.0)
 		sprite.scale = Vector2(fit, fit * (1.0 + (0.02 * sin(_time * 2.4 + float(entry.phase)) if moving else 0.0)))
 

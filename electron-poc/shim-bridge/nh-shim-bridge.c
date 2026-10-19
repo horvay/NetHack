@@ -3479,6 +3479,7 @@ static void emit_print_glyph_fields(int win, int x, int y, const glyph_info *gi,
     else emit_action_affordances_for_glyph_at(glyph, x, y);
     if (hero_cell) {
         fputs(",\"actorId\":\"hero\"", stdout);
+        if (Invisible) fputs(",\"heroInvisible\":true", stdout);
         /* Polymorphed (or a lycanthrope changed): the monster the hero is. */
         if (Upolyd) {
             fputs(",\"heroForm\":\"", stdout);

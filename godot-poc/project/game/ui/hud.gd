@@ -9,6 +9,7 @@ var root: Control
 var portrait: TextureRect
 ## The asset the portrait shows (a monster's while polymorphed).
 var portrait_asset := ""
+var portrait_invisible := false
 var name_label: Label
 var title_label: Label
 var hp_bar: StatBar
@@ -245,10 +246,15 @@ func _place_level_banner() -> void:
 	level_banner.position.y = maxf(236.0, minimap.offset_top + minimap.get_combined_minimum_size().y + 14.0)
 
 
-## The hero's portrait, or the monster's tile while polymorphed.
+## The hero's portrait, or the monster's tile while polymorphed; faded
+## while the hero is invisible.
 func _refresh_portrait() -> void:
 	var resolver := TileResolver.shared()
-	var asset := resolver.hero_form_asset(state.map.cell(state.map.hero)) if state.map.hero.x >= 0 else ""
+	var hero_cell := state.map.cell(state.map.hero) if state.map.hero.x >= 0 else {}
+	portrait_invisible = hero_cell.get("heroInvisible", false) == true
+	portrait.modulate.a = ActorLayer.INVISIBLE_HERO_ALPHA if portrait_invisible else 1.0
+	portrait.tooltip_text = "Invisible" if portrait_invisible else ""
+	var asset := resolver.hero_form_asset(hero_cell)
 	if asset == "":
 		asset = resolver.player_avatar_id(state.character)
 	if asset == portrait_asset:
