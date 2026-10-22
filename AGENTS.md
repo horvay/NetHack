@@ -14,3 +14,4 @@ Keep this file short. Detailed project rules live in the linked documents below.
 - Always capture, open, and inspect screenshots from UI tests; never pass a test only because assertions passed.
 - Follow the asset rules for tile/icon generation, resolver work, transparency, and asset QA.
 - Preserve real NetHack behavior and classic/manual keyboard flows unless the user explicitly asks to change them.
+- B70 work goes through the b70q queue (`~/ai/b70q/README.md`): `b70q submit` for batches, `b70-lease run` for a job you wait on; no own queues, chains or sleep gaps.
