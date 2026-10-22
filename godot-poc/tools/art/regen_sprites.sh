@@ -4,7 +4,7 @@
 #                       yellow (`:` yellow)
 #   open-vertical-door  read as a broken floor tile
 # Krea2 (the ComfyUI workflow in ASSET_GENERATION.md) was removed from this PC on 2026-10-17, so this uses the one
-# local image model left, Qwen Image 2.1 via ~/ai/weeb/b70-image.sh, in edit mode: image 1 is an existing sprite from
+# local image model left, Qwen Image 2.1 via ~/b70/tools/b70-image.sh, in edit mode: image 1 is an existing sprite from
 # the generated tileset, so the new art keeps the tileset's pixel-art look.
 # `queue` hands one sd-cli batch to the B70 queue (`b70q submit nethack-art`, ~/ai/b70q/README.md) and returns at once;
 # the queue skips it if the batch already finished (jobs-<hash>.done), retries it once after a crash, and runs
@@ -16,8 +16,7 @@ cd "$(dirname "$0")"
 ROOT=$(cd ../../.. && pwd)
 TILES=$ROOT/electron-poc/assets/tiles/generated
 OUT=$ROOT/asset-generation/outputs/godot-regen
-B70=~/ai/weeb/b70-image.sh
-export SD_XPU_QWEN21_LIB=${SD_XPU_QWEN21_LIB:-$HOME/ai/stable-diffusion.cpp-b70-native/xpu_sdpa/libxpu_qwen21.so}
+B70=~/b70/tools/b70-image.sh
 mkdir -p "$OUT/refs"
 NEG="photograph, realistic, 3d render, blurry, text, letters, watermark, logo, frame, border, checkerboard, ui badge, card"
 q() { python3 -c 'import shlex, sys; print(" ".join(map(shlex.quote, sys.argv[1:])))' "$@"; }

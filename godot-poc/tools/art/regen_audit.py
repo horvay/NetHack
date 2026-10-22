@@ -8,7 +8,7 @@ problem and a ready prompt (`regen.prompt`), whether the tile is a sprite on a k
 tile as image 1).
 
 Krea2 (ASSET_GENERATION.md's ComfyUI workflows) was removed from this PC on 2026-10-17; the one local image model is
-Qwen Image 2.1 through ~/ai/weeb/b70-image.sh. `queue` hands each batch to the B70 queue (`b70q submit nethack-art`,
+Qwen Image 2.1 through ~/b70/tools/b70-image.sh. `queue` hands each batch to the B70 queue (`b70q submit nethack-art`,
 ~/ai/b70q/README.md) and returns at once; the queue runs it when the card is free, skips it when the same batch already
 finished (its jobs-<hash>.done marker), retries it once after a crash, and runs `post` for it when it succeeds. To run
 several batches in order, queue them one after another; no chain scripts. Sprites are generated on a solid green matte as ASSET_GENERATION.md asks, except subjects that are themselves
@@ -35,7 +35,7 @@ REFS = WORK / "refs"
 MANIFEST = ROOT / "electron-poc/assets/tiles/manifest.json"
 TRACKER = ROOT / "asset-generation/manifests/full-regeneration-tracker.md"
 BACKUP = ROOT / "asset-generation/backups/2026-10-17-audit-regen"
-B70 = Path.home() / "ai/weeb/b70-image.sh"
+B70 = Path.home() / "b70/tools/b70-image.sh"
 NEG = ("photograph, realistic, 3d render, blurry, text, letters, numbers, watermark, logo, signature, frame, border, "
        "checkerboard, ui badge, card, icon background, vector clip-art, flat shapes, multiple subjects")
 FLOOR = (74, 70, 64)
@@ -144,14 +144,12 @@ def cmd_queue(a):
     gen = [str(B70), "--batch", str(jobs), "-m", "qwen", "--xpu", "-W", str(a.size), "-H", str(a.size), "-n", NEG,
            "--cfg-steps", "15"]
     post = [sys.executable, str(Path(__file__).resolve()), "post", "--ids", ",".join(ids)]
-    env = dict(os.environ)
-    env.setdefault("SD_XPU_QWEN21_LIB", str(Path.home() / "ai/stable-diffusion.cpp-b70-native/xpu_sdpa/libxpu_qwen21.so"))
     label = a.share and f"share {a.share}" or a.ids and f"{len(ids)} ids" or f"severity {a.severity}"
     subprocess.run(["b70q", "submit", "nethack-art", "--note", f"audit regen {label}: {len(lines)} tiles",
                     "--creates", str(done), "--retries", "1", "--log", str(jobs.with_suffix(".log")),
                     "--on-exit", f'[ "$B70Q_EXIT" = 0 ] && {shlex.join(post)}',
                     "--", "bash", "-c", f"{shlex.join(gen)} && touch {shlex.quote(str(done))}"],
-                   check=True, env=env)
+                   check=True)
     print(f"queued on the B70; log {jobs.with_suffix('.log')}, candidates and sheets when it finishes")
 
 
@@ -374,7 +372,7 @@ def cmd_install(a):
                        f"with Qwen Image 2.1{' edit (reference: the previous tile)' if e['regen'].get('use_reference') else ''}, "
                        f"seed {a.seed}, via godot-poc/tools/art/regen_audit.py; {matte}; 32 px. "
                        + (a.note or "Picked by eye on the contact sheet and checked in game."))
-    asset["provenance"] = {"source": "asset-generation/outputs/godot-regen/audit", "tool": "~/ai/weeb/b70-image.sh --batch -m qwen --xpu",
+    asset["provenance"] = {"source": "asset-generation/outputs/godot-regen/audit", "tool": "~/b70/tools/b70-image.sh --batch -m qwen --xpu",
                            "seed": a.seed, "audit": f"asset-generation/outputs/audit-2026-10-17/{e['share']}/flagged.json",
                            "installedAt": now, "backup": str(backup.relative_to(ROOT))}
     MANIFEST.write_text(json.dumps(data, indent=2) + "\n")

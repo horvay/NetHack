@@ -32,7 +32,7 @@ RAW = REPO / "asset-generation" / "outputs" / "music" / "raw"
 QA = RAW.parent / "qa.json"
 REJECTED = RAW.parent / "rejected.txt"
 MAX_EXTRA = 3
-TOOL = Path.home() / "ai/stable-diffusion.cpp-b70-native/xpu_sdpa/xpu_music3"
+TOOL = Path.home() / "b70/engines/sd.cpp/xpu_sdpa/xpu_music3"
 
 
 def seed_for(track_id: str, take: int) -> int:
