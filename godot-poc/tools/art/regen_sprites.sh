@@ -6,7 +6,7 @@
 # Krea2 (the ComfyUI workflow in ASSET_GENERATION.md) was removed from this PC on 2026-10-17, so this uses the one
 # local image model left, Qwen Image 2.1 via ~/b70/tools/b70-image.sh, in edit mode: image 1 is an existing sprite from
 # the generated tileset, so the new art keeps the tileset's pixel-art look.
-# `queue` hands one sd-cli batch to the B70 queue (`b70q submit nethack-art`, ~/ai/b70q/README.md) and returns at once;
+# `queue` hands one sd-cli batch to the B70 queue (`b70q submit nethack-art`, ~/b70/queue/README.md) and returns at once;
 # the queue skips it if the batch already finished (jobs-<hash>.done), retries it once after a crash, and runs
 # `postprocess` when it succeeds. Candidates only: nothing is installed. `postprocess` keys out the green matte,
 # shrinks each candidate to 32 px and writes a contact sheet for picking by eye.

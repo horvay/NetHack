@@ -6,7 +6,7 @@
 
 One process per take, each its own `b70-lease run` job, so a batch never
 holds the B70 for hours: the queue gives other owners the card between
-takes once this owner's 30-minute turn is over (~/ai/b70q/README.md).
+takes once this owner's 30-minute turn is over (~/b70/queue/README.md).
 Run from inside a queued job, each take runs at once under that job. Takes that already have a WAV are skipped; delete one to
 regenerate it. A take post.py rejected (qa.json) or listed in rejected.txt
 doesn't count: the track gets another take with a new seed, up to

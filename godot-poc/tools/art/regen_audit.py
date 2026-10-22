@@ -9,7 +9,7 @@ tile as image 1).
 
 Krea2 (ASSET_GENERATION.md's ComfyUI workflows) was removed from this PC on 2026-10-17; the one local image model is
 Qwen Image 2.1 through ~/b70/tools/b70-image.sh. `queue` hands each batch to the B70 queue (`b70q submit nethack-art`,
-~/ai/b70q/README.md) and returns at once; the queue runs it when the card is free, skips it when the same batch already
+~/b70/queue/README.md) and returns at once; the queue runs it when the card is free, skips it when the same batch already
 finished (its jobs-<hash>.done marker), retries it once after a crash, and runs `post` for it when it succeeds. To run
 several batches in order, queue them one after another; no chain scripts. Sprites are generated on a solid green matte as ASSET_GENERATION.md asks, except subjects that are themselves
 green, which get a magenta matte; the matte is removed by keying only the background connected to the image border,
