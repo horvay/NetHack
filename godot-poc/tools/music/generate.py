@@ -4,8 +4,10 @@
     generate.py [track-id ...]            all tracks when none given
     generate.py --replace [track-id ...]  then replace rejected takes
 
-One process per take, each under `b70-lease` so other B70 jobs can run
-between takes. Takes that already have a WAV are skipped; delete one to
+One process per take, each its own `b70-lease run` job, so a batch never
+holds the B70 for hours: the queue gives other owners the card between
+takes once this owner's 30-minute turn is over (~/ai/b70q/README.md).
+Run from inside a queued job, each take runs at once under that job. Takes that already have a WAV are skipped; delete one to
 regenerate it. A take post.py rejected (qa.json) or listed in rejected.txt
 doesn't count: the track gets another take with a new seed, up to
 MAX_EXTRA more. Raw WAVs, captions and logs go to
@@ -15,7 +17,6 @@ the game's MP3s.
 from __future__ import annotations
 
 import json
-import os
 import subprocess
 import sys
 import time
@@ -58,11 +59,8 @@ def generate(track: dict, take: int) -> None:
     lyrics.write_text(tracks.lyrics(track))
     started = time.time()
     with open(stem.with_suffix(".log"), "w") as log:
-        # NETHACK_MUSIC_LEASED=1: the caller already holds the B70 lease for
-        # the whole batch (a nested lease would wait on itself).
-        lease = [] if os.environ.get("NETHACK_MUSIC_LEASED") == "1" else ["b70-lease", "run", "nethack-music", "--"]
         code = subprocess.call(
-            [*lease, str(TOOL),
+            ["b70-lease", "run", "nethack-music", "--note", out.stem, "--", str(TOOL),
              "--caption-file", str(caption), "--lyrics-file", str(lyrics),
              "--seconds", str(track["seconds"]), "--seed", str(seed_for(track["id"], take)), "--out", str(out)],
             stdout=log, stderr=subprocess.STDOUT)

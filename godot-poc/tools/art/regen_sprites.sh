@@ -6,8 +6,9 @@
 # Krea2 (the ComfyUI workflow in ASSET_GENERATION.md) was removed from this PC on 2026-10-17, so this uses the one
 # local image model left, Qwen Image 2.1 via ~/ai/weeb/b70-image.sh, in edit mode: image 1 is an existing sprite from
 # the generated tileset, so the new art keeps the tileset's pixel-art look.
-# Queued like ~/ai/clips and ~/Music/make_real: one sd-cli batch under `b70-lease run`, which waits for the other
-# holder and for free VRAM. Candidates only: nothing is installed. Afterwards `postprocess` keys out the green matte,
+# `queue` hands one sd-cli batch to the B70 queue (`b70q submit nethack-art`, ~/ai/b70q/README.md) and returns at once;
+# the queue skips it if the batch already finished (jobs-<hash>.done), retries it once after a crash, and runs
+# `postprocess` when it succeeds. Candidates only: nothing is installed. `postprocess` keys out the green matte,
 # shrinks each candidate to 32 px and writes a contact sheet for picking by eye.
 # usage: regen_sprites.sh queue | postprocess
 set -euo pipefail
@@ -27,18 +28,22 @@ ref() { magick "$1" -background "$3" -flatten -filter point -resize 1024x1024! "
 queue() {
   ref "$TILES/common-early-monsters/gecko.png" newt-base '#00ff00'
   ref "$TILES/terrain-features/open-vertical-door.png" door-base '#4a4a4a'
-  local jobs=$OUT/jobs.txt; : > "$jobs"
+  local jobs=$OUT/jobs.tmp; : > "$jobs"
   for sd in 42 8 7; do
     [[ -f $OUT/newt-s$sd.png ]] || q --seed $sd -r "$OUT/refs/newt-base.png" -o "$OUT/newt-s$sd.png" -p \
       "Edit image 1, a pixel art game sprite in the style of a fantasy game asset. Redraw the creature as a small newt: a slender bright lemon-yellow newt with a pale cream belly, small olive-green spots along its back, a long thin tail, four short splayed legs and a small rounded head with tiny black eyes and white highlights, seen from above at a slight angle. Bold clean dark-brown outline, readable at 32 pixels, centered with a clear margin, on a solid green background. Keep the same chunky pixel-art style, shading and outline weight as image 1." >> "$jobs"
     [[ -f $OUT/open-vertical-door-s$sd.png ]] || q --seed $sd -r "$OUT/refs/door-base.png" -o "$OUT/open-vertical-door-s$sd.png" -p \
       "Edit image 1, a top-down pixel art dungeon tile in the style of a fantasy game asset. Show an open doorway in a vertical stone wall: gray stone door jambs at the top and bottom edges, warm slate floor visible through the middle of the gap, and a brown wooden plank door with brass hinges swung fully open and lying flat against the left jamb. The opening must clearly read as a passage. Bold clean outlines, readable at 32 pixels, filling the whole tile. Keep the same chunky pixel-art style and palette as image 1." >> "$jobs"
   done
-  [[ -s $jobs ]] || { echo "all candidates exist"; return; }
+  [[ -s $jobs ]] || { rm "$jobs"; echo "all candidates exist"; return; }
+  # Named by content: the same batch queued twice is one batch, and its .done marker lets the queue skip it.
+  local named=$OUT/jobs-$(sha256sum "$jobs" | cut -c1-10)
+  mv "$jobs" "$named.txt"; jobs=$named.txt
   [[ ${DRY:-} == 1 ]] && { echo "dry run: $(wc -l < "$jobs") jobs in $jobs"; return; }
-  echo "$(date +%T) queued $(wc -l < "$jobs") jobs; waiting for the B70 lease"
-  b70-lease run nethack-art -- "$B70" --batch "$jobs" -m qwen --xpu -W 1024 -H 1024 -n "$NEG" --cfg-steps 15
-  postprocess
+  b70q submit nethack-art --note "sprite regen: $(wc -l < "$jobs") candidates" --creates "$named.done" --retries 1 \
+    --log "$named.log" --on-exit "[ \"\$B70Q_EXIT\" = 0 ] && $(q "$PWD/regen_sprites.sh" postprocess)" \
+    -- bash -c "$(q "$B70" --batch "$jobs" -m qwen --xpu -W 1024 -H 1024 -n "$NEG" --cfg-steps 15) && touch $(q "$named.done")"
+  echo "queued on the B70; log $named.log, candidates and the contact sheet when it finishes"
 }
 
 postprocess() {

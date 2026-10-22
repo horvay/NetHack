@@ -8,13 +8,15 @@ problem and a ready prompt (`regen.prompt`), whether the tile is a sprite on a k
 tile as image 1).
 
 Krea2 (ASSET_GENERATION.md's ComfyUI workflows) was removed from this PC on 2026-10-17; the one local image model is
-Qwen Image 2.1 through ~/ai/weeb/b70-image.sh, run under `b70-lease run` (it waits for the other holder and for free
-VRAM). Sprites are generated on a solid green matte as ASSET_GENERATION.md asks, except subjects that are themselves
+Qwen Image 2.1 through ~/ai/weeb/b70-image.sh. `queue` hands each batch to the B70 queue (`b70q submit nethack-art`,
+~/ai/b70q/README.md) and returns at once; the queue runs it when the card is free, skips it when the same batch already
+finished (its jobs-<hash>.done marker), retries it once after a crash, and runs `post` for it when it succeeds. To run
+several batches in order, queue them one after another; no chain scripts. Sprites are generated on a solid green matte as ASSET_GENERATION.md asks, except subjects that are themselves
 green, which get a magenta matte; the matte is removed by keying only the background connected to the image border,
 so green inside a creature survives, and the edge is despilled. Every result is checked for real alpha and zero
 greenish visible pixels before it can be installed.
 
-  regen_audit.py queue [--ids a,b] [--severity high,medium,low] [--seeds 42,8,7] [--size 768] [--dry]
+  regen_audit.py queue [--ids a,b | --share D,E] [--severity high,medium,low] [--seeds 42,8,7] [--size 768] [--dry]
   regen_audit.py post [--ids a,b]              key, shrink to 32 px, contact sheets (current tile beside candidates)
   regen_audit.py install ID SEED [--note TEXT] copy into the shared tileset, update manifest, tracker, backup
 """
@@ -110,8 +112,10 @@ def cmd_queue(a):
         d.mkdir(parents=True, exist_ok=True)
     seeds = [int(s) for s in a.seeds.split(",")]
     want = set(a.ids.split(",")) if a.ids else None
+    if a.share:
+        want = (want or set()) | {e["id"] for e in entries() if e["share"] in a.share.split(",")}
     sev = set(a.severity.split(","))
-    lines = []
+    lines, ids = [], []
     for e in entries():
         if want is not None and e["id"] not in want:
             continue
@@ -127,16 +131,28 @@ def cmd_queue(a):
             if e["regen"].get("use_reference"):
                 args[2:2] = ["-r", str(make_ref(e, a.size))]
             lines.append(" ".join(shlex.quote(x) for x in args))
-    jobs = WORK / ("jobs-%s.txt" % datetime.datetime.now().strftime("%H%M%S"))
-    jobs.write_text("\n".join(lines) + ("\n" if lines else ""))
-    print(f"{len(lines)} jobs in {jobs}")
+            if e["id"] not in ids:
+                ids.append(e["id"])
+    text = "\n".join(lines) + ("\n" if lines else "")
+    # Named by content: the same batch queued twice is one batch, and its .done marker lets the queue skip it.
+    jobs = WORK / ("jobs-%s.txt" % hashlib.sha256(text.encode()).hexdigest()[:10])
+    jobs.write_text(text)
+    print(f"{len(lines)} jobs in {jobs}", flush=True)
     if not lines or a.dry:
         return
+    done = jobs.with_suffix(".done")
+    gen = [str(B70), "--batch", str(jobs), "-m", "qwen", "--xpu", "-W", str(a.size), "-H", str(a.size), "-n", NEG,
+           "--cfg-steps", "15"]
+    post = [sys.executable, str(Path(__file__).resolve()), "post", "--ids", ",".join(ids)]
     env = dict(os.environ)
     env.setdefault("SD_XPU_QWEN21_LIB", str(Path.home() / "ai/stable-diffusion.cpp-b70-native/xpu_sdpa/libxpu_qwen21.so"))
-    subprocess.run(["b70-lease", "run", "nethack-art", "--", str(B70), "--batch", str(jobs), "-m", "qwen", "--xpu",
-                    "-W", str(a.size), "-H", str(a.size), "-n", NEG, "--cfg-steps", "15"], check=True, env=env)
-    cmd_post(a)
+    label = a.share and f"share {a.share}" or a.ids and f"{len(ids)} ids" or f"severity {a.severity}"
+    subprocess.run(["b70q", "submit", "nethack-art", "--note", f"audit regen {label}: {len(lines)} tiles",
+                    "--creates", str(done), "--retries", "1", "--log", str(jobs.with_suffix(".log")),
+                    "--on-exit", f'[ "$B70Q_EXIT" = 0 ] && {shlex.join(post)}',
+                    "--", "bash", "-c", f"{shlex.join(gen)} && touch {shlex.quote(str(done))}"],
+                   check=True, env=env)
+    print(f"queued on the B70; log {jobs.with_suffix('.log')}, candidates and sheets when it finishes")
 
 
 def key_matte(img, matte):
@@ -384,6 +400,7 @@ def main():
     sub = p.add_subparsers(dest="cmd", required=True)
     q = sub.add_parser("queue")
     q.add_argument("--ids")
+    q.add_argument("--share", help="every tile of these audit shares, e.g. D,E,F")
     q.add_argument("--severity", default="high,medium,low")
     q.add_argument("--seeds", default="42,8,7")
     q.add_argument("--size", type=int, default=768)
