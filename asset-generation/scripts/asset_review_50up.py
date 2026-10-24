@@ -18,7 +18,7 @@ from statistics import mean
 from PIL import Image, ImageChops, ImageDraw, ImageStat
 
 ROOT = Path(__file__).resolve().parents[2]
-MANIFEST_PATH = ROOT / 'electron-poc/assets/tiles/manifest.json'
+MANIFEST_PATH = ROOT / 'assets/tiles/manifest.json'
 DEFAULT_EVIDENCE = Path('/home/horvay/.config/ai-org/ai-org-dev-data/run-evidence/developer-eta-climbing-rocket-70')
 TRANSPARENT_SLUGS = {
     'common-early-monsters', 'full-source-monsters', 'objects-inventory',

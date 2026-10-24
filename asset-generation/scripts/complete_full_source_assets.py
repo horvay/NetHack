@@ -19,13 +19,13 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[2]
 BASELINE = Path('/home/horvay/.config/ai-org/ai-org-dev-data/run-evidence/developer-beta-sailing-cat-49/missing-assets-analysis.json')
-MANIFEST_PATH = ROOT / 'electron-poc/assets/tiles/manifest.json'
+MANIFEST_PATH = ROOT / 'assets/tiles/manifest.json'
 STATUS_PATH = ROOT / 'asset-generation/manifests/generation-status.json'
-TILE_MAP_PATH = ROOT / 'electron-poc/assets/tiles/tile-map.json'
+TILE_MAP_PATH = ROOT / 'assets/tiles/tile-map.json'
 EVIDENCE_DIR = Path('/home/horvay/.config/ai-org/ai-org-dev-data/run-evidence/developer-nu-sailing-cat-60')
 
-MON_DIR = ROOT / 'electron-poc/assets/tiles/generated/full-source-monsters'
-OBJ_DIR = ROOT / 'electron-poc/assets/tiles/generated/full-source-objects'
+MON_DIR = ROOT / 'assets/tiles/generated/full-source-monsters'
+OBJ_DIR = ROOT / 'assets/tiles/generated/full-source-objects'
 MON_OUT = ROOT / 'asset-generation/outputs/full-source-monsters'
 OBJ_OUT = ROOT / 'asset-generation/outputs/full-source-objects'
 

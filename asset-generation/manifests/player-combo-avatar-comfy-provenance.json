@@ -27,7 +27,7 @@
       },
       "comfyPromptId": "2d929479-bf34-4e57-970c-5d90e2885af5",
       "outputPath": "asset-generation/outputs/player-combo-avatars/dwarf-archeologist-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-archeologist-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/dwarf-archeologist-female-avatar.png",
       "sha256": "ddc68a2ae6720be1a3c129b493037ae3f35eeac44a47a098c11695c271a2bca3",
       "size": [
         1024,
@@ -78,7 +78,7 @@
       },
       "comfyPromptId": "0c984b00-b661-4e0c-b6eb-bf14b253e17d",
       "outputPath": "asset-generation/outputs/player-combo-avatars/dwarf-archeologist-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-archeologist-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/dwarf-archeologist-male-avatar.png",
       "sha256": "617e910db917d6c05565de0f7721f966843edd8d19f167c72d98eb0d8908388e",
       "size": [
         1024,
@@ -129,7 +129,7 @@
       },
       "comfyPromptId": "892275ae-845e-48db-a3de-67a33c00a15a",
       "outputPath": "asset-generation/outputs/player-combo-avatars/dwarf-caveman-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-caveman-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/dwarf-caveman-female-avatar.png",
       "sha256": "a7fbdbf7beaaba9569c1b4545c12b887b20165027dbe987f6491ac01a24f0d02",
       "size": [
         1024,
@@ -180,7 +180,7 @@
       },
       "comfyPromptId": "7d9ee9c7-6a2e-4ff2-afa4-79f0ae5f1a46",
       "outputPath": "asset-generation/outputs/player-combo-avatars/dwarf-caveman-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-caveman-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/dwarf-caveman-male-avatar.png",
       "sha256": "daaf08210531f7f3b1f94f686d7ecb4583f671d638920191846ecdffdd0dc998",
       "size": [
         1024,
@@ -231,7 +231,7 @@
       },
       "comfyPromptId": "1e5da93b-ce94-48b6-bf94-880ef78da568",
       "outputPath": "asset-generation/outputs/player-combo-avatars/dwarf-valkyrie-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-valkyrie-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/dwarf-valkyrie-female-avatar.png",
       "sha256": "3cadfd5e1353b2def253940ae84ce0ab6c7f60495d8ccde4edfaaee9e4ab560d",
       "size": [
         1024,
@@ -282,7 +282,7 @@
       },
       "comfyPromptId": "8aae4045-2d60-4cd3-89f3-e191f8eeda54",
       "outputPath": "asset-generation/outputs/player-combo-avatars/elf-priest-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-priest-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/elf-priest-female-avatar.png",
       "sha256": "05d93ee39aed5acc22dee7a93935ec59c7179c26b858c5784b1fe11dc6c8a0c7",
       "size": [
         1024,
@@ -333,7 +333,7 @@
       },
       "comfyPromptId": "6560d6dd-5297-4934-a17f-0cb75f7792b4",
       "outputPath": "asset-generation/outputs/player-combo-avatars/elf-priest-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-priest-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/elf-priest-male-avatar.png",
       "sha256": "c93fc4b683e8f15fceebebece15b56609b1d4e711459bacc39c9ddd280099282",
       "size": [
         1024,
@@ -384,7 +384,7 @@
       },
       "comfyPromptId": "d818d2e2-3e88-4b78-b171-9ea20b039d65",
       "outputPath": "asset-generation/outputs/player-combo-avatars/elf-ranger-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-ranger-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/elf-ranger-female-avatar.png",
       "sha256": "c60332978e4ece818e415558abf04373e76620963882d3b5a07586660f0a7be4",
       "size": [
         1024,
@@ -435,7 +435,7 @@
       },
       "comfyPromptId": "b507364a-2337-4ed8-a5a1-5c2bd4c152df",
       "outputPath": "asset-generation/outputs/player-combo-avatars/elf-ranger-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-ranger-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/elf-ranger-male-avatar.png",
       "sha256": "092249cb1ccd1d05e2f6345b01b6830cae5505a517f0661d5c0217ca18cfb866",
       "size": [
         1024,
@@ -486,7 +486,7 @@
       },
       "comfyPromptId": "cc992e37-ce87-4184-9001-fb0a8c8f462d",
       "outputPath": "asset-generation/outputs/player-combo-avatars/elf-wizard-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-wizard-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/elf-wizard-female-avatar.png",
       "sha256": "e467c23827b41a063d3c42ac30ef45a28a33996fb72d296959c54ae617069e4b",
       "size": [
         1024,
@@ -537,7 +537,7 @@
       },
       "comfyPromptId": "e6f4dbe8-2676-4114-884f-48049e727536",
       "outputPath": "asset-generation/outputs/player-combo-avatars/elf-wizard-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-wizard-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/elf-wizard-male-avatar.png",
       "sha256": "4a30f6a55fa3c925d183cb3cb2203ddce46f1c52a3652fa14555bda4f369f4e1",
       "size": [
         1024,
@@ -588,7 +588,7 @@
       },
       "comfyPromptId": "6473b513-f610-4208-bd14-5d19d465f6e1",
       "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-archeologist-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-archeologist-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-archeologist-female-avatar.png",
       "sha256": "51000211d141537e0a6aed560d8cbb175aa36645f14878dd9c5b660ce6183161",
       "size": [
         1024,
@@ -639,7 +639,7 @@
       },
       "comfyPromptId": "08720d99-832d-413e-aa61-d9c671c39cae",
       "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-archeologist-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-archeologist-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-archeologist-male-avatar.png",
       "sha256": "2f51d5ce9d136b68620269c281aca7ae5efd828d545c4dbba7712b523914e1b5",
       "size": [
         1024,
@@ -690,7 +690,7 @@
       },
       "comfyPromptId": "02f525f0-4eaf-4e91-85bf-f44f37d9a994",
       "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-caveman-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-caveman-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-caveman-female-avatar.png",
       "sha256": "864b6548c56c94a8d978fd8a4cadbd482a87cfd9f0bbb4f32a7afa8c79cd1ed1",
       "size": [
         1024,
@@ -741,7 +741,7 @@
       },
       "comfyPromptId": "cefbc780-4a26-4b47-9344-ba83adb9ebac",
       "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-caveman-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-caveman-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-caveman-male-avatar.png",
       "sha256": "9467b0ff745ec275d2fa4e65038ba29155b4621daf46cd8849c6699fc24c12c2",
       "size": [
         1024,
@@ -792,7 +792,7 @@
       },
       "comfyPromptId": "1923499b-bfea-4b71-83c1-8d52636745f6",
       "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-healer-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-healer-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-healer-female-avatar.png",
       "sha256": "bb1535d1a5da16bb8110e453c5f05bb1a3d86f670daf6627a2da3612af7fbfc2",
       "size": [
         1024,
@@ -843,7 +843,7 @@
       },
       "comfyPromptId": "ede00722-3fe2-4a67-9234-2eb542406ff0",
       "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-healer-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-healer-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-healer-male-avatar.png",
       "sha256": "047839ea728e49a74c26f90d64af7b9699447918610767df0b5e0d14ec971ca3",
       "size": [
         1024,
@@ -894,7 +894,7 @@
       },
       "comfyPromptId": "5d59e4ce-1709-4c9b-97e3-bfa5e9602229",
       "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-ranger-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-ranger-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-ranger-female-avatar.png",
       "sha256": "cf8b6b6ae4bb7ca8b95e305da57550738ac945fed061bda5d8170d28506dbc34",
       "size": [
         1024,
@@ -945,7 +945,7 @@
       },
       "comfyPromptId": "349ff6bd-831a-4303-bb4e-e27a53514dad",
       "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-ranger-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-ranger-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-ranger-male-avatar.png",
       "sha256": "944f1cae0eb78b7dbf866099edf8d60b0dd872ca8ccb99530898da0122fe9ba2",
       "size": [
         1024,
@@ -996,7 +996,7 @@
       },
       "comfyPromptId": "1e0d0b53-cfd2-457a-830a-6a7675baaaf2",
       "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-wizard-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-wizard-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-wizard-female-avatar.png",
       "sha256": "b7b424721822da3d077233233b590bb2e95f6f0cd5b557321997def22e223a95",
       "size": [
         1024,
@@ -1047,7 +1047,7 @@
       },
       "comfyPromptId": "dd906837-9d76-4130-a94e-513018c35b12",
       "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-wizard-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-wizard-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-wizard-male-avatar.png",
       "sha256": "4be3c024bed44c9def35e15f071ac06d5555378f13c8669ac665c910fc27e1dc",
       "size": [
         1024,
@@ -1098,7 +1098,7 @@
       },
       "comfyPromptId": "652d8d41-578e-49aa-8bbf-898cd8cb910b",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-archeologist-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-archeologist-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-archeologist-female-avatar.png",
       "sha256": "d5ec4d4bcbe935e833e4c6a1d48bbc79a7d763148504e8bf977b8472665e1a8a",
       "size": [
         1024,
@@ -1149,7 +1149,7 @@
       },
       "comfyPromptId": "10793635-e296-4b59-b58d-8abfd52280c1",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-archeologist-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-archeologist-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-archeologist-male-avatar.png",
       "sha256": "c50ad67df557cfa5c106205e368b3edca1a8a40e4a54822b85fe1089ed3c1d6b",
       "size": [
         1024,
@@ -1200,7 +1200,7 @@
       },
       "comfyPromptId": "76410dd9-c163-4d1a-9499-056e1e4fc691",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-barbarian-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-barbarian-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-barbarian-female-avatar.png",
       "sha256": "12e87110412b34cfcbd61bcf4a5cc4bba9b56b55813daa4a4cdca2d24d142fd3",
       "size": [
         1024,
@@ -1251,7 +1251,7 @@
       },
       "comfyPromptId": "2d0b0103-8048-4114-9f89-cbc645df30e5",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-barbarian-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-barbarian-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-barbarian-male-avatar.png",
       "sha256": "60f04a5454d3e4d04415e4bbb21a535c53cf39c7f16fa2e72e446ea0a5d4b88c",
       "size": [
         1024,
@@ -1302,7 +1302,7 @@
       },
       "comfyPromptId": "cc20d350-b9e1-4414-8a76-0979ff5741cd",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-caveman-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-caveman-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-caveman-female-avatar.png",
       "sha256": "d1650f5f7e8847284e4e0043868139eb9a06dae58a87055e2221b60e07a2b81f",
       "size": [
         1024,
@@ -1353,7 +1353,7 @@
       },
       "comfyPromptId": "e612e6a1-0ef5-4c33-925a-5f43e4db168d",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-caveman-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-caveman-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-caveman-male-avatar.png",
       "sha256": "da82ec89829291a27b548bdf66fd63a82d4f5b62337e959029af43cc07710e15",
       "size": [
         1024,
@@ -1404,7 +1404,7 @@
       },
       "comfyPromptId": "c94254e9-bae3-4de6-aaa5-6f5079c031bf",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-healer-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-healer-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-healer-female-avatar.png",
       "sha256": "12e29da5eb5aa4eca7505db38c6df8deaa1d940d409792fea0af4a07ed86ce0f",
       "size": [
         1024,
@@ -1455,7 +1455,7 @@
       },
       "comfyPromptId": "62ff7382-90df-4329-9e6e-7e6977259155",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-healer-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-healer-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-healer-male-avatar.png",
       "sha256": "a1caefcc287da5d323e88c1833754df882a36c7cad3afb99982d72e4a7ed2251",
       "size": [
         1024,
@@ -1506,7 +1506,7 @@
       },
       "comfyPromptId": "fe0f6399-c8fb-44d0-9e5c-83a2c8ade950",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-knight-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-knight-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-knight-female-avatar.png",
       "sha256": "e028b02d4d607b2d687a92fa8f2a53dbfcfc88c773ac08aa64f7f0aa255a08ab",
       "size": [
         1024,
@@ -1557,7 +1557,7 @@
       },
       "comfyPromptId": "3dbb582f-9813-49e8-91be-5230d61d3f51",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-knight-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-knight-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-knight-male-avatar.png",
       "sha256": "d45d3ebc34eb4b139d54fc6ab6d2f2d4a6f81131e17e9f64d9e2c491a2572b05",
       "size": [
         1024,
@@ -1608,7 +1608,7 @@
       },
       "comfyPromptId": "8ce477e4-1fea-4b9d-adf1-85cc7d4263b5",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-monk-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-monk-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-monk-female-avatar.png",
       "sha256": "dc3e6810bb058cc5512b57a1ef6517654e77e7a74a22a51512291f80b681c3c8",
       "size": [
         1024,
@@ -1659,7 +1659,7 @@
       },
       "comfyPromptId": "13512ea8-09ba-4cb4-b719-4fb4333809ef",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-monk-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-monk-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-monk-male-avatar.png",
       "sha256": "878f61d44bcc502df60612d4fbecac6d34be81fab668d1ed585a3861fec09bcd",
       "size": [
         1024,
@@ -1710,7 +1710,7 @@
       },
       "comfyPromptId": "2ed2f131-e1a6-417e-a204-32a86d9d8705",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-priest-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-priest-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-priest-female-avatar.png",
       "sha256": "db4eda5d9423cf43b5a462da3d0cd3ae899264140a772ce4e160d1e6a34ccc52",
       "size": [
         1024,
@@ -1761,7 +1761,7 @@
       },
       "comfyPromptId": "26dbaf56-7efe-40c4-8b31-4e682d7352c6",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-priest-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-priest-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-priest-male-avatar.png",
       "sha256": "35745f0d3e143a86d3f38391bed23d0e460889f56a4ba9056e5633b466bb2d95",
       "size": [
         1024,
@@ -1812,7 +1812,7 @@
       },
       "comfyPromptId": "cdf7b8e5-0aa1-408f-8bd7-94434d489fce",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-ranger-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-ranger-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-ranger-female-avatar.png",
       "sha256": "39a9df0b81058d4b1219f3cd91459684efd3cd9a995a3f0763abe9e9edb0f932",
       "size": [
         1024,
@@ -1863,7 +1863,7 @@
       },
       "comfyPromptId": "1329fe32-6fc1-4e22-a426-e0d050599edf",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-ranger-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-ranger-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-ranger-male-avatar.png",
       "sha256": "ea8495000ae830a6ddc14ed80a2961884319c6366321c5d85940332a8ae557b0",
       "size": [
         1024,
@@ -1914,7 +1914,7 @@
       },
       "comfyPromptId": "32e361d4-2780-430d-b68f-7d3b947b356c",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-rogue-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-rogue-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-rogue-female-avatar.png",
       "sha256": "1baee1822b21d62e625e1d0d66f8eb7b56622cb3df3d19e0d67dcddf4f3025a7",
       "size": [
         1024,
@@ -1965,7 +1965,7 @@
       },
       "comfyPromptId": "8d6576aa-b7d3-4f96-baf2-b9d19954efc8",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-rogue-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-rogue-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-rogue-male-avatar.png",
       "sha256": "3eb9765e9cdcc8ef3638467ff07b7ae2d42ef3aa82b501123dbc914620b16f59",
       "size": [
         1024,
@@ -2016,7 +2016,7 @@
       },
       "comfyPromptId": "4e2d2146-3573-4b61-a093-c1847dbccedc",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-samurai-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-samurai-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-samurai-female-avatar.png",
       "sha256": "2c5043e9cb55e781217ddc0f9bbe991e949bf060176ae8b8ec22734a0842c167",
       "size": [
         1024,
@@ -2067,7 +2067,7 @@
       },
       "comfyPromptId": "db73525e-c853-4927-8343-fb7e1ee805ca",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-samurai-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-samurai-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-samurai-male-avatar.png",
       "sha256": "e82792650da827de292aafa938dafbcf177be1b650167e256744b5ff7dded062",
       "size": [
         1024,
@@ -2118,7 +2118,7 @@
       },
       "comfyPromptId": "002b8039-0606-46b0-927f-011f6639f127",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-tourist-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-tourist-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-tourist-female-avatar.png",
       "sha256": "ed8f2beded6476290241bf215c195b66cd3b1e694a65100e14e84c46fdaba28f",
       "size": [
         1024,
@@ -2169,7 +2169,7 @@
       },
       "comfyPromptId": "6f75b52a-f9cc-461c-a9e1-a5eb71c6386c",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-tourist-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-tourist-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-tourist-male-avatar.png",
       "sha256": "6d35d2f53caf062fedfad64fb64db0066626d4e0d3101f50c17ebd41be7c2c22",
       "size": [
         1024,
@@ -2220,7 +2220,7 @@
       },
       "comfyPromptId": "f181d468-f9f1-41b5-916b-19c69a02ad19",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-valkyrie-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-valkyrie-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-valkyrie-female-avatar.png",
       "sha256": "3788f230cf69b8b802f1696b99748a4c740c2585c154a7c7c69b1203f2fd3ca7",
       "size": [
         1024,
@@ -2271,7 +2271,7 @@
       },
       "comfyPromptId": "65209780-d361-4fc9-a5c0-e81ae59f2fb7",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-wizard-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-wizard-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-wizard-female-avatar.png",
       "sha256": "f216b2af1b58e77c5e58f0e27fa284cd5e93ff7100cd2eed8b185a4ccb7d5b3f",
       "size": [
         1024,
@@ -2322,7 +2322,7 @@
       },
       "comfyPromptId": "76dc6f1f-ee3f-46ba-ac3b-121394bfcdfb",
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-wizard-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-wizard-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-wizard-male-avatar.png",
       "sha256": "5f649b441baa8b5496e3171649960bd9d94a1b7b523b8027a5197589f6b5a54b",
       "size": [
         1024,
@@ -2373,7 +2373,7 @@
       },
       "comfyPromptId": "8977cc40-01e8-4794-b3ea-e0da20ba3c90",
       "outputPath": "asset-generation/outputs/player-combo-avatars/orc-barbarian-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-barbarian-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/orc-barbarian-female-avatar.png",
       "sha256": "5cde211123d30d22a324631d1c8765770e4a4812b9ee50bd6ae73c97e4f4a79d",
       "size": [
         1024,
@@ -2424,7 +2424,7 @@
       },
       "comfyPromptId": "a7dcfdd5-68e9-4d77-90e7-a290f9777df7",
       "outputPath": "asset-generation/outputs/player-combo-avatars/orc-barbarian-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-barbarian-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/orc-barbarian-male-avatar.png",
       "sha256": "385d465473ae1d7851175ec8dad46419abe02c39789f2974581748d68e215d63",
       "size": [
         1024,
@@ -2475,7 +2475,7 @@
       },
       "comfyPromptId": "37ec5731-339f-41e2-b20e-34f80a2f6248",
       "outputPath": "asset-generation/outputs/player-combo-avatars/orc-ranger-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-ranger-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/orc-ranger-female-avatar.png",
       "sha256": "c0d925b8c823f4026e9b2fbbceed55e6dd89700904648b86630fb6bc8893e59e",
       "size": [
         1024,
@@ -2526,7 +2526,7 @@
       },
       "comfyPromptId": "adb17160-92e5-4dcd-a4df-f1cb9cb8414c",
       "outputPath": "asset-generation/outputs/player-combo-avatars/orc-ranger-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-ranger-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/orc-ranger-male-avatar.png",
       "sha256": "44f63857e86465c9de8f36f0d0778679135a328fa6cc80396ce59b1c1d818daf",
       "size": [
         1024,
@@ -2577,7 +2577,7 @@
       },
       "comfyPromptId": "ecda9db2-8cf7-4ac7-947c-38d74f10b3f7",
       "outputPath": "asset-generation/outputs/player-combo-avatars/orc-rogue-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-rogue-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/orc-rogue-female-avatar.png",
       "sha256": "133cd44c25310c6713b1a4e3e1e70feea5d76654ebc7b1eafee09e8a9ddfc65e",
       "size": [
         1024,
@@ -2628,7 +2628,7 @@
       },
       "comfyPromptId": "e0be9acb-4b6e-4362-a2fe-3f6e67539525",
       "outputPath": "asset-generation/outputs/player-combo-avatars/orc-rogue-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-rogue-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/orc-rogue-male-avatar.png",
       "sha256": "4aa082de91ccf05b1da0974f8ae3584b7fe6b385db1c7f3757e5bfbfe34d4201",
       "size": [
         1024,
@@ -2679,7 +2679,7 @@
       },
       "comfyPromptId": "3295134c-9c55-41b2-b7a4-6ce5b4bbb6cb",
       "outputPath": "asset-generation/outputs/player-combo-avatars/orc-wizard-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-wizard-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/orc-wizard-female-avatar.png",
       "sha256": "19164a2fc02486639066160178d3408d100cc1953f2450e4e8967d3926e40419",
       "size": [
         1024,
@@ -2730,7 +2730,7 @@
       },
       "comfyPromptId": "157036da-0956-462d-bcf5-e2f745fbf6d3",
       "outputPath": "asset-generation/outputs/player-combo-avatars/orc-wizard-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-wizard-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/orc-wizard-male-avatar.png",
       "sha256": "0fa0f8140b71b1ee88212e0ce9a20fd5b3ac67ba71c23ba79881daad28ed3155",
       "size": [
         1024,

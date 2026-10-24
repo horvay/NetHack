@@ -9,7 +9,7 @@ BASE=ROOT/'asset-generation/scripts/generate_assets.py'
 spec=importlib.util.spec_from_file_location('basegen', BASE)
 base=importlib.util.module_from_spec(spec); sys.modules[spec.name]=base; spec.loader.exec_module(base)  # type: ignore
 base.WORKFLOW_PATH=(ROOT/'asset-generation/workflows/krea2_basic_rem-background.json').resolve()
-EMAN=ROOT/'electron-poc/assets/tiles/manifest.json'
+EMAN=ROOT/'assets/tiles/manifest.json'
 STATUS=ROOT/'asset-generation/manifests/generation-status.json'
 PROV=ROOT/'asset-generation/manifests/scroll-followup-provenance.json'
 BACKUP=ROOT/'asset-generation/backups/scroll-followup-before-20260701T000000Z'

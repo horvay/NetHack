@@ -4,7 +4,7 @@ import json, math, shutil
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 ROOT=Path(__file__).resolve().parents[2]
-EMAN=ROOT/'electron-poc/assets/tiles/manifest.json'
+EMAN=ROOT/'assets/tiles/manifest.json'
 EVID=Path('/home/horvay/.config/ai-org/ai-org-dev-data/run-evidence/developer-eta-mapping-comet-74/weapon-audit-followup')
 IDS='bill-guisarme bullwhip elven-bow glaive guisarme halberd lance partisan two-handed-sword sling aklys bec-de-corbin dwarvish-short-sword elven-arrow javelin katana morning-star scimitar silver-mace yumi crossbow'.split()
 

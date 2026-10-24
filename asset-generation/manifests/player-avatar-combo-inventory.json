@@ -14,11 +14,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/archeologist-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/archeologist-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-archeologist-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-archeologist-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-archeologist-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -45,11 +45,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/archeologist-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/archeologist-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-archeologist-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-archeologist-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-archeologist-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -76,11 +76,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/archeologist-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/dwarf-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/archeologist-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/dwarf-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/dwarf-archeologist-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-archeologist-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/dwarf-archeologist-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -107,11 +107,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/archeologist-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/dwarf-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/archeologist-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/dwarf-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/dwarf-archeologist-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-archeologist-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/dwarf-archeologist-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -138,11 +138,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/archeologist-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/gnome-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/archeologist-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/gnome-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-archeologist-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-archeologist-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-archeologist-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -169,11 +169,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/archeologist-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/gnome-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/archeologist-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/gnome-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-archeologist-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-archeologist-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-archeologist-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -200,11 +200,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/barbarian-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/barbarian-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-barbarian-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-barbarian-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-barbarian-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -231,11 +231,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/barbarian-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/barbarian-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-barbarian-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-barbarian-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-barbarian-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -262,11 +262,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/barbarian-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/orc-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/barbarian-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/orc-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/orc-barbarian-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-barbarian-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/orc-barbarian-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -293,11 +293,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/barbarian-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/orc-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/barbarian-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/orc-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/orc-barbarian-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-barbarian-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/orc-barbarian-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -324,11 +324,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/caveman-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/caveman-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-caveman-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-caveman-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-caveman-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -355,11 +355,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/cavewoman-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/cavewoman-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-caveman-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-caveman-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-caveman-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -386,11 +386,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/caveman-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/dwarf-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/caveman-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/dwarf-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/dwarf-caveman-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-caveman-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/dwarf-caveman-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -417,11 +417,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/cavewoman-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/dwarf-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/cavewoman-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/dwarf-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/dwarf-caveman-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-caveman-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/dwarf-caveman-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -448,11 +448,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/caveman-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/gnome-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/caveman-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/gnome-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-caveman-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-caveman-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-caveman-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -479,11 +479,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/cavewoman-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/gnome-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/cavewoman-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/gnome-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-caveman-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-caveman-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-caveman-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -510,11 +510,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/healer-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/healer-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-healer-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-healer-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-healer-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -541,11 +541,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/healer-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/healer-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-healer-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-healer-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-healer-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -572,11 +572,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/healer-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/gnome-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/healer-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/gnome-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-healer-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-healer-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-healer-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -603,11 +603,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/healer-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/gnome-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/healer-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/gnome-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-healer-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-healer-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-healer-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -634,11 +634,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/knight-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/knight-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-knight-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-knight-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-knight-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -665,11 +665,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/knight-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/knight-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-knight-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-knight-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-knight-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -696,11 +696,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/monk-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/monk-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-monk-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-monk-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-monk-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -727,11 +727,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/monk-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/monk-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-monk-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-monk-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-monk-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -758,11 +758,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/priest-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/priest-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-priest-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-priest-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-priest-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -789,11 +789,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/priestess-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/priestess-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-priest-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-priest-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-priest-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -820,11 +820,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/priest-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/elf-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/priest-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/elf-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/elf-priest-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-priest-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/elf-priest-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -851,11 +851,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/priestess-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/elf-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/priestess-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/elf-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/elf-priest-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-priest-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/elf-priest-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -882,11 +882,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/rogue-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/rogue-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-rogue-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-rogue-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-rogue-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -913,11 +913,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/rogue-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/rogue-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-rogue-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-rogue-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-rogue-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -944,11 +944,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/rogue-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/orc-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/rogue-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/orc-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/orc-rogue-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-rogue-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/orc-rogue-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -975,11 +975,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/rogue-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/orc-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/rogue-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/orc-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/orc-rogue-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-rogue-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/orc-rogue-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -1006,11 +1006,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/ranger-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/ranger-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-ranger-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-ranger-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-ranger-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -1037,11 +1037,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/ranger-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/ranger-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-ranger-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-ranger-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-ranger-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -1068,11 +1068,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/ranger-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/elf-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/ranger-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/elf-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/elf-ranger-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-ranger-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/elf-ranger-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -1099,11 +1099,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/ranger-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/elf-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/ranger-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/elf-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/elf-ranger-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-ranger-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/elf-ranger-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -1130,11 +1130,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/ranger-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/gnome-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/ranger-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/gnome-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-ranger-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-ranger-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-ranger-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -1161,11 +1161,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/ranger-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/gnome-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/ranger-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/gnome-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-ranger-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-ranger-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-ranger-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -1192,11 +1192,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/ranger-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/orc-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/ranger-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/orc-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/orc-ranger-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-ranger-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/orc-ranger-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -1223,11 +1223,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/ranger-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/orc-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/ranger-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/orc-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/orc-ranger-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-ranger-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/orc-ranger-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -1254,11 +1254,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/samurai-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/samurai-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-samurai-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-samurai-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-samurai-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -1285,11 +1285,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/samurai-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/samurai-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-samurai-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-samurai-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-samurai-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -1316,11 +1316,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/tourist-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/tourist-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-tourist-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-tourist-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-tourist-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -1347,11 +1347,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/tourist-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/tourist-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-tourist-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-tourist-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-tourist-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -1378,11 +1378,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/valkyrie-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/valkyrie-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-valkyrie-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-valkyrie-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-valkyrie-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -1409,11 +1409,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/valkyrie-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/dwarf-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/valkyrie-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/dwarf-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/dwarf-valkyrie-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-valkyrie-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/dwarf-valkyrie-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -1440,11 +1440,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/wizard-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/wizard-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-wizard-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-wizard-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-wizard-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -1471,11 +1471,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/wizard-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/wizard-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/human-wizard-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-wizard-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/human-wizard-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -1502,11 +1502,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/wizard-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/elf-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/wizard-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/elf-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/elf-wizard-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-wizard-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/elf-wizard-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -1533,11 +1533,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/wizard-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/elf-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/wizard-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/elf-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/elf-wizard-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-wizard-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/elf-wizard-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -1564,11 +1564,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/wizard-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/gnome-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/wizard-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/gnome-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-wizard-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-wizard-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-wizard-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -1595,11 +1595,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/wizard-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/gnome-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/wizard-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/gnome-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/gnome-wizard-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-wizard-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-wizard-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -1626,11 +1626,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/wizard-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/orc-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/wizard-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/orc-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/orc-wizard-male-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-wizard-male-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/orc-wizard-male-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [
@@ -1657,11 +1657,11 @@
       "source": "src/role.c role/race/gender allow masks",
       "currentState": {
         "runtimeTile": "hero-avatar (@ glyph maps globally to hero-avatar; no race/role/gender runtime selection found)",
-        "existingRoleAvatar": "electron-poc/assets/tiles/generated/player-pets-identity/wizard-role-avatar.png",
-        "existingRaceVariant": "electron-poc/assets/tiles/generated/player-pets-identity/orc-player-variant.png"
+        "existingRoleAvatar": "assets/tiles/generated/player-pets-identity/wizard-role-avatar.png",
+        "existingRaceVariant": "assets/tiles/generated/player-pets-identity/orc-player-variant.png"
       },
       "outputPath": "asset-generation/outputs/player-combo-avatars/orc-wizard-female-avatar.png",
-      "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-wizard-female-avatar.png",
+      "installedPath": "assets/tiles/generated/player-combo-avatars/orc-wizard-female-avatar.png",
       "status": "generated-1024",
       "alphaStats": {
         "size": [

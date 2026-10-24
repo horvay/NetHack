@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from PIL import Image, ImageDraw, ImageFilter
 
 ROOT=Path(__file__).resolve().parents[2]
-MANIFEST=ROOT/'electron-poc/assets/tiles/manifest.json'
+MANIFEST=ROOT/'assets/tiles/manifest.json'
 STATUS=ROOT/'asset-generation/manifests/generation-status.json'
 EVIDENCE=Path('/home/horvay/.config/ai-org/ai-org-dev-data/run-evidence/developer-nu-polishing-violin-32/next100-continuation-review')
 BACKUP=ROOT/'asset-generation/backups'/('next100-continuation-semantic-fix-'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ'))

@@ -1,26 +1,26 @@
 ---
 name: nethack-scenario-fixtures
-description: Create and maintain NetHack Electron JSON scenario fixture tests under electron-poc/test/scenarios with the expanded v1 schema, safe resolver, fail-closed validation, and real Electron/MCP proof expectations.
+description: Create and maintain NetHack JSON fixture scenarios under godot-poc/tests/fixtures with the expanded v1 schema, safe resolver, fail-closed validation, and real Godot deep-path scenario proof expectations.
 ---
 
 # NetHack scenario fixtures
 
-Use this skill when adding or changing Electron NetHack JSON scenario fixtures and tests.
+Use this skill when adding or changing NetHack JSON fixture scenarios and the Godot scenarios that use them.
 
 ## What this framework is
 
-This is a **fixture-only v1 framework** for the Electron test suite. It is intended to become the main way to set up hermetic NetHack/Electron gameplay tests: JSON scenario -> safe load -> real UI/game actions -> public assertions. It is not a production mutator or renderer/preload API.
+This is a **fixture-only v1 framework**, written for the old Electron test suite and now used by the Godot front end. It sets up hermetic gameplay tests: JSON scenario -> safe load -> real UI/game actions -> public assertions. It is not a production mutator or a UI API. The loader is C code in `src/allmain.c`; the bridge (`godot-poc/extension/bridge/nh-shim-bridge.c`) turns the id into a path.
 
 Scenario JSON files live under:
 
-- `electron-poc/test/scenarios/...`
+- `godot-poc/tests/fixtures/...`
 
 The bridge resolves by safe ID only:
 
 - `NH_TEST_SCENARIO_ID=monster/visible-jackal-east`
-- to `electron-poc/test/scenarios/monster/visible-jackal-east.json`
+- to `godot-poc/tests/fixtures/monster/visible-jackal-east.json` (relative to the bridge's working directory, the repository root; Godot sets it with `NH_GODOT_WORKDIR`)
 
-Do not expose or pass direct arbitrary `NH_TEST_SCENARIO` paths from renderer/preload/product code.
+Do not expose or pass direct arbitrary `NH_TEST_SCENARIO` paths from product code.
 
 ## Supported expanded v1 schema
 
@@ -44,7 +44,7 @@ Every scenario is a strict JSON object with these top-level fields:
 Supported top-level values:
 
 - `schema`: only `nethack-electron-test-scenario/v1`.
-- `id`: must match the safe resolver ID and file path under `electron-poc/test/scenarios/<id>.json`.
+- `id`: must match the safe resolver ID and file path under `godot-poc/tests/fixtures/<id>.json`.
 - `phase`: only `after-level-and-hero-before-first-draw`.
 - `hero`, `level`, `ground`, `monsters`, `inventory`, and `expectedPublicFacts` are required; arrays may be empty unless the test needs entries.
 - `eventResults` is optional. It is a fixture-only queue of deterministic named outcomes for normal NetHack events. Each entry is consumed once by a matching event/result consumer and must be an explicitly supported pair. Initial support is `{ "event": "drink-fountain", "result": "monster-detection" }`, which routes the next fountain drink through NetHack's normal monster-detection fountain case.
@@ -157,39 +157,26 @@ Current caps: file size `65536` bytes; objects `80`; ground entries `32`; invent
 ## Adding scenarios and tests
 
 1. Choose a safe ID such as `map/terrain-room-trap-water`.
-2. Create `electron-poc/test/scenarios/<id>.json` and keep path/id identical.
-3. Use only supported fields. If a test needs unsupported world state, extend parser/apply code plus negative tests; do not smuggle state through expected facts.
-4. Add positive loader coverage (the positive test discovers all scenario files).
-5. Add negative tests for every new field/value/range/failure mode in `electron-poc/scripts/scenario-loader-negative-test.js`. For deterministic event outcomes, add both schema-shape failures and unsupported event/result pair failures.
-6. Add or extend real Electron/CDP/MCP proof scripts for player-facing behavior. Required coverage for expanded scenarios now includes:
-   - identity/equipment/inventory: load `identity/valkyrie-equipped-inventory`, verify visible status/startup/player identity where exposed, open the real inventory/equipment UI, assert wielded/worn/quivered/charged items, and save artifacts under `electron-poc/test-output/real-scenario-identity-equipment/`.
-   - map/terrain: load `map/terrain-room-trap-water`, assert public map cells/aria/semantic labels for wall, open door, trap, water, lava, stairs, and ground apple where practical, and save artifacts under `electron-poc/test-output/real-scenario-terrain-map/`.
-   - existing object flows: containers, ground pickup, locked/trapped context actions, and visible monsters.
-7. Include screenshots/artifacts under `electron-poc/test-output/...` and summarize what was proven through real Electron UI, not just loaded-event expected facts.
-
-Relevant commands from `electron-poc/`:
+2. Create `godot-poc/tests/fixtures/<id>.json` and keep path/id identical.
+3. Use only supported fields. If a test needs unsupported world state, extend the parser/apply code in `src/allmain.c`; do not smuggle state through expected facts.
+4. Every new field, value, range and failure mode needs a failing case that proves it fails closed (the old Electron negative loader test, `scenario-loader-negative-test.js`, was removed with Electron; add the case to a Godot scenario that expects `bridge_test_scenario_failed`). For deterministic event outcomes, cover both schema-shape failures and unsupported event/result pair failures.
+5. Use the fixture from a deep-path Godot scenario in `godot-poc/project/tests/scenarios/`: `await start_fixture(character, "<id>")`, then drive real input and assert on what the player sees (map cells, inventory and equipment screens, prompts, messages).
+6. Build the fixture core and run the scenario, then open and inspect every screenshot (`../../../TESTING.md`):
 
 ```bash
-npm run test:scenario-loader
-npm run test:architecture
-npm run test:container-transfer-panel
-npm run test:ground-pickup-transfer-panel
-npm run test:inventory-action-service
-npm run test:equipment-screen-rpg
-npm run test:real-container-transfer-panel-mcp
-npm run test:real-ground-pickup-transfer-panel-mcp
-npm run test:real-equipment-screen-mcp
-node scripts/real-scenario-identity-equipment-mcp-test.js
-node scripts/real-scenario-terrain-map-mcp-test.js
+godot-poc/extension/build.sh --fixtures
+godot-poc/tests/run.sh <scenario>
 ```
+
+Screenshots and `godot.log` land in `godot-poc/test-output/<scenario>/`. Summarize what was proven through the real Godot UI, not just loaded-event expected facts.
 
 ## Quality bar
 
 - No substring JSON validation or hardcoded scenario special cases.
-- No production/test leakage through preload, renderer, normal bridge builds, or normal NetHack state.
+- No production/test leakage through the release core, normal bridge builds, or normal NetHack state.
 - Normal builds must reject fixture envs with no mutation.
 - Strong positive and negative coverage for every schema extension, including planned map/terrain conflicts before mutation: monster/ground placement on planned wall, water, lava, and closed impassable door tiles must fail closed.
-- Real Electron/CDP/MCP screenshots/artifacts for player-facing behavior; `npm run test:scenario-loader` must include the real proofs for containers, ground pickup, locked/trapped context actions, visible monsters, identity/equipment/inventory, and terrain/map.
+- Real Godot scenario screenshots for player-facing behavior: containers, ground pickup, locked/trapped context actions, visible monsters, identity/equipment/inventory, and terrain/map.
 - Assertions target user-facing labels/map cells/public facts, not private state alone. Terrain/map proofs should assert exact scenario-relative cells, not just “any matching wall/trap/stair somewhere.”
-- Real proof scripts must fail on player-facing/runtime defects such as `Program in disorder`, “Please report these messages,” contradictory equipment labels (for example a weapon both wielded and not wielded), wrong quiver/action labels, or a hero tile exposed as monster semantics.
+- Real scenarios must fail on player-facing/runtime defects such as `Program in disorder`, “Please report these messages,” contradictory equipment labels (for example a weapon both wielded and not wielded), wrong quiver/action labels, or a hero tile exposed as monster semantics.
 - Use critique before claiming substantive scenario-framework changes complete.

@@ -2,7 +2,7 @@
  {
   "id": "gnome",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/gnome.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/gnome.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Garden-ornament gnome with a red pointy hat, white beard and cream sticker outline; Greg: \"gnomes look terrible\". NetHack gnomes are brown underground humanoids.",
@@ -15,7 +15,7 @@
  {
   "id": "tourist",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/tourist.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/tourist.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Chibi kid with a big head and thick cream sticker outline, dressed in red and blue; tourists are white (HI_DOMESTIC) and should look like a grown adult traveller.",
@@ -28,7 +28,7 @@
  {
   "id": "dwarf-mummy",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/dwarf-mummy.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/dwarf-mummy.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Cartoon bald goggled dwarf in beige with a thick cream sticker outline; reads as a friendly miner, not a red-coloured undead mummy.",
@@ -41,7 +41,7 @@
  {
   "id": "homunculus",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/homunculus.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/homunculus.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Cute purple dragon-cat with a cream sticker outline; a NetHack homunculus is a small green winged imp.",
@@ -54,7 +54,7 @@
  {
   "id": "jellyfish",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/jellyfish.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/jellyfish.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Pastel pink-and-teal jellyfish with a cream sticker outline; NetHack jellyfish are blue.",
@@ -67,7 +67,7 @@
  {
   "id": "winged-gargoyle",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/winged-gargoyle.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/winged-gargoyle.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Orange-brown dragon shape with a thick cream sticker outline; winged gargoyles are magenta (HI_LORD) stone demons.",
@@ -80,7 +80,7 @@
  {
   "id": "queen-bee",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/queen-bee.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/queen-bee.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Orange-brown bee with a thick cream sticker outline; the queen bee is magenta (HI_LORD) and should read as a large elongated queen.",
@@ -93,7 +93,7 @@
  {
   "id": "rothe",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/rothe.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/rothe.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Orange lion-bull hybrid with a thick cream sticker outline; a rothe is a squat shaggy brown ox-like beast.",
@@ -106,7 +106,7 @@
  {
   "id": "shopkeeper",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/shopkeeper.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/shopkeeper.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Bald cartoon man in a brown vest with a thick cream sticker outline; shopkeepers are white (HI_DOMESTIC).",
@@ -119,7 +119,7 @@
  {
   "id": "pyrolisk",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/pyrolisk.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/pyrolisk.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Red-brown demon blob with a thick cream sticker outline; a pyrolisk is a red cockatrice-like bird-reptile.",
@@ -132,7 +132,7 @@
  {
   "id": "nymph",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/nymph.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/nymph.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Chibi green-haired anime girl with a thick cream sticker outline; reads as a cute doll, not a thieving nymph.",
@@ -145,7 +145,7 @@
  {
   "id": "green-mold",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/green-mold.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/green-mold.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Glossy green bubble cluster with a cream sticker outline; reads as grapes or slime, not a mold patch.",
@@ -158,7 +158,7 @@
  {
   "id": "red-dragon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/red-dragon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/red-dragon.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Orange-brown, small and rounded with a thick cream sticker outline; reads as a cartoon baby, not a huge red adult dragon.",
@@ -171,7 +171,7 @@
  {
   "id": "nurse",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/nurse.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/nurse.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Cartoon old nurse in a teal dress with a cream sticker outline; nurses are white (HI_DOMESTIC).",
@@ -184,7 +184,7 @@
  {
   "id": "displacer-beast",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/displacer-beast.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/displacer-beast.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Red-brown horned demon blob with a cream sticker outline; a displacer beast is a blue six-legged panther with shoulder tentacles.",
@@ -197,7 +197,7 @@
  {
   "id": "housecat",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/housecat.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/housecat.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Dark green cat silhouette with a green sticker outline; housecats are white (HI_DOMESTIC).",
@@ -210,7 +210,7 @@
  {
   "id": "werewolf",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/werewolf.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/werewolf.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Brown cartoon beast with a cream sticker outline; the werewolf tile (@ form in the manifest) should be an orange (CLR_ORANGE) feral man.",
@@ -223,7 +223,7 @@
  {
   "id": "giant-bat",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/giant-bat.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/giant-bat.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Brown bat with a thick cream sticker outline; giant bats are red.",
@@ -236,7 +236,7 @@
  {
   "id": "sandestin",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/sandestin.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/sandestin.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Iridescent rainbow swirl with no body; a sandestin is a gray shapeshifting demon.",
@@ -249,7 +249,7 @@
  {
   "id": "baby-orange-dragon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/baby-orange-dragon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/baby-orange-dragon.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Brown cartoon dragonling with a thick cream sticker outline; baby orange dragons are bright orange.",
@@ -262,7 +262,7 @@
  {
   "id": "steam-vortex",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/steam-vortex.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/steam-vortex.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Gray-beige smoke swirl with a cream sticker edge; steam vortices are blue.",
@@ -275,7 +275,7 @@
  {
   "id": "cave-spider",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/cave-spider.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/cave-spider.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Black spider with a thick cream sticker outline; cave spiders are small and gray.",
@@ -288,7 +288,7 @@
  {
   "id": "guard",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/guard.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/guard.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Blue-armored guard with a thick cream sticker outline that clashes with the rest of the set.",
@@ -301,7 +301,7 @@
  {
   "id": "grid-bug",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/grid-bug.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/grid-bug.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Blue jewel beetle with a cream sticker outline; grid bugs are small magenta electric bugs.",
@@ -314,7 +314,7 @@
  {
   "id": "water-elemental",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/water-elemental.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/water-elemental.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Ragged blue wave shape with a noisy pale sticker fringe; inconsistent with the cleaner outlined set.",
@@ -327,7 +327,7 @@
  {
   "id": "hill-giant",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/hill-giant.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/hill-giant.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Red-orange cartoon brute with a cream sticker outline; hill giants are cyan.",
@@ -340,7 +340,7 @@
  {
   "id": "mordor-orc",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/mordor-orc.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/mordor-orc.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Green-skinned cartoon orc with a cream sticker outline; Mordor orcs are blue.",
@@ -353,7 +353,7 @@
  {
   "id": "goblin",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/goblin.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/goblin.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Green-skinned cartoon goblin with a cream sticker outline; NetHack goblins are gray.",
@@ -366,7 +366,7 @@
  {
   "id": "giant-beetle",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/giant-beetle.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/giant-beetle.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Silver-gray beetle with a cream sticker outline; giant beetles are black.",
@@ -379,7 +379,7 @@
  {
   "id": "woodland-elf",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/woodland-elf.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/woodland-elf.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Chibi elf in green and brown with a thick cream sticker outline; looks cute rather than a serious elf warrior.",
@@ -392,7 +392,7 @@
  {
   "id": "iguana",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/iguana.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/iguana.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Bright green cartoon lizard with a cream sticker outline; NetHack iguanas are brown.",
@@ -405,7 +405,7 @@
  {
   "id": "hobbit",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/hobbit.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/hobbit.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Chibi hobbit head and shoulders only with a cream sticker outline; no body or feet visible.",
@@ -418,7 +418,7 @@
  {
   "id": "kop-kaptain",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/kop-kaptain.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/kop-kaptain.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Navy-uniformed cartoon cop with a cream sticker outline; Kop Kaptains are magenta (HI_LORD).",
@@ -431,7 +431,7 @@
  {
   "id": "lieutenant",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/lieutenant.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/lieutenant.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Blue and white knight with a cream sticker outline; lieutenants are green.",
@@ -444,7 +444,7 @@
  {
   "id": "rock-piercer",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/rock-piercer.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/rock-piercer.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Gray-blue hook-shaped shell with a cream sticker outline; reads as a claw, not a stalactite creature.",
@@ -457,7 +457,7 @@
  {
   "id": "little-dog",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/little-dog.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/little-dog.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Cute tan cartoon puppy with a cream sticker outline; little dogs are white (HI_DOMESTIC).",
@@ -470,7 +470,7 @@
  {
   "id": "arch-lich",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/arch-lich.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/arch-lich.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Dark robed figure with cyan magic and a pale sticker edge; arch-liches are magenta (HI_LORD).",
@@ -483,7 +483,7 @@
  {
   "id": "djinni",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/djinni.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/djinni.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Blue-teal genie with a sticker edge; NetHack djinn are yellow.",
@@ -496,7 +496,7 @@
  {
   "id": "norn",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/norn.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/norn.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Pale white-teal robed figure with a sticker edge; the Norn is magenta (HI_LORD).",
@@ -509,7 +509,7 @@
  {
   "id": "lemure",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/lemure.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/lemure.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Green horned worm with a cream sticker outline; lemures are brown shapeless blobs of flesh.",
@@ -522,7 +522,7 @@
  {
   "id": "fire-vortex",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/fire-vortex.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/fire-vortex.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Gray tornado with a sticker edge; fire vortices are yellow fire.",
@@ -535,7 +535,7 @@
  {
   "id": "killer-bee",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/killer-bee.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/killer-bee.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Cute round bee with a thick cream sticker outline; killer bees should look aggressive.",
@@ -548,7 +548,7 @@
  {
   "id": "kitten",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/kitten.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/kitten.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Cute orange cartoon kitten with a cream sticker outline; kittens are white (HI_DOMESTIC).",
@@ -561,7 +561,7 @@
  {
   "id": "giant-spider",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/giant-spider.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/giant-spider.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Red-brown spider with a cream sticker outline; giant spiders are magenta.",
@@ -574,7 +574,7 @@
  {
   "id": "jackal",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/jackal.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/jackal.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Front-facing cute tan fox with a cream sticker outline; reads as a pet, not a scavenger.",
@@ -587,7 +587,7 @@
  {
   "id": "page",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/page.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/page.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Chibi boy in a blue tunic with a thick cream sticker outline; pages are white (HI_DOMESTIC).",
@@ -600,7 +600,7 @@
  {
   "id": "earth-elemental",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/earth-elemental.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/earth-elemental.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Mossy brown rock figure with a cream sticker outline; inconsistent with the set.",
@@ -613,7 +613,7 @@
  {
   "id": "jaguar",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/jaguar.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/jaguar.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Sitting white cat with a gold sticker outline; jaguars are brown spotted big cats.",
@@ -626,7 +626,7 @@
  {
   "id": "elf",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/elf.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/elf.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Chibi gray-haired elf in green and brown with a cream sticker outline; the elf is white (HI_DOMESTIC).",
@@ -639,7 +639,7 @@
  {
   "id": "acolyte",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/acolyte.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/acolyte.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Purple-robed figure with a torch and a sticker edge; acolytes are white (HI_DOMESTIC).",
@@ -652,7 +652,7 @@
  {
   "id": "doppelganger",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/doppelganger.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/doppelganger.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Teal and purple figure with a noisy sticker edge; doppelgangers are white (HI_DOMESTIC).",
@@ -665,7 +665,7 @@
  {
   "id": "white-unicorn",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/white-unicorn.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/white-unicorn.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Cute white unicorn with a thick cream sticker outline; reads as a toy.",
@@ -678,7 +678,7 @@
  {
   "id": "orc-shaman",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/orc-shaman.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/orc-shaman.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Messy multicolour green and purple cluster with no readable figure; orc shamans are bright blue (HI_ZAP).",
@@ -691,7 +691,7 @@
  {
   "id": "glass-golem",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/glass-golem.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/glass-golem.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Pale clear golem with a cream sticker outline; should be clearly cyan.",
@@ -704,7 +704,7 @@
  {
   "id": "yellow-mold",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/yellow-mold.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/yellow-mold.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Yellow flower or cookie shape with a cream sticker outline; reads as an item, not a mold.",
@@ -717,7 +717,7 @@
  {
   "id": "dwarf-zombie",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/dwarf-zombie.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/dwarf-zombie.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Brown-orange zombie with a cream sticker outline; dwarf zombies are red.",
@@ -730,7 +730,7 @@
  {
   "id": "wraith",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/wraith.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/wraith.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Gray hooded ghost with a sticker edge; wraiths are black.",
@@ -743,7 +743,7 @@
  {
   "id": "hill-orc",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/hill-orc.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/hill-orc.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Green-skinned cartoon orc with a cream sticker outline; hill orcs are yellow.",
@@ -756,7 +756,7 @@
  {
   "id": "captain",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/captain.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/captain.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Red and gold spartan with a cream sticker outline; captains are blue.",
@@ -769,7 +769,7 @@
  {
   "id": "watchman",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/watchman.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/watchman.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Gray-blue guard with a cream sticker outline; inconsistent with the set.",
@@ -782,7 +782,7 @@
  {
   "id": "tiger",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/tiger.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/tiger.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Brown-orange tiger with a cream sticker outline; tigers are yellow.",
@@ -795,7 +795,7 @@
  {
   "id": "giant-ant",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/giant-ant.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/giant-ant.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Brown spider-like ant with a cream sticker outline; reads as a spider.",
@@ -808,7 +808,7 @@
  {
   "id": "neferet-the-green",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/neferet-the-green.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/neferet-the-green.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Chibi green-robed sorceress with a cream sticker outline; looks cute.",
@@ -821,7 +821,7 @@
  {
   "id": "ice-vortex",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/ice-vortex.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/ice-vortex.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Blue-white swirl with a cream sticker outline; should be clearly cyan.",
@@ -834,7 +834,7 @@
  {
   "id": "orc-captain",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/orc-captain.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/orc-captain.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Gray blocky pixel blob; orc-captains are magenta (HI_LORD).",
@@ -847,7 +847,7 @@
  {
   "id": "ice-devil",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/ice-devil.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/ice-devil.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Blue spiky insect with a cream sticker outline; ice devils are white.",
@@ -860,7 +860,7 @@
  {
   "id": "hell-hound",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/hell-hound.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/hell-hound.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Brown dog sitting with a cream sticker outline; hell hounds are red.",
@@ -873,7 +873,7 @@
  {
   "id": "air-elemental",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/air-elemental.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/air-elemental.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Pale wispy shape with a sticker edge; faint and hard to read.",
@@ -886,7 +886,7 @@
  {
   "id": "leprechaun",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/leprechaun.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/leprechaun.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Chibi leprechaun with a cream sticker outline; looks cute.",
@@ -899,7 +899,7 @@
  {
   "id": "demilich",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/demilich.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/demilich.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Skull with purple and blue magic; demiliches are red.",
@@ -912,7 +912,7 @@
  {
   "id": "soldier",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/soldier.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/soldier.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Dark chibi soldier with a cream sticker outline; soldiers are gray.",
@@ -925,7 +925,7 @@
  {
   "id": "arch-priest",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/arch-priest.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/arch-priest.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Purple and gold priest with a sticker edge; the Arch Priest is white.",
@@ -938,7 +938,7 @@
  {
   "id": "twoflower",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/twoflower.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/twoflower.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Cartoon tourist with a straw hat in orange and red with a sticker edge; Twoflower is white (HI_DOMESTIC).",

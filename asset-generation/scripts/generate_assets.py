@@ -16,7 +16,7 @@ WORKFLOW_PATH = ROOT / 'asset-generation/workflows/krea2_basic.json'
 MANIFEST_PATH = ROOT / 'asset-generation/manifests/early-level-assets.json'
 STATUS_PATH = ROOT / 'asset-generation/manifests/generation-status.json'
 OUTPUT_DIR = ROOT / 'asset-generation/outputs'
-ELECTRON_TILE_DIR = ROOT / 'electron-poc/assets/tiles'
+ELECTRON_TILE_DIR = ROOT / 'assets/tiles'
 ELECTRON_GENERATED_DIR = ELECTRON_TILE_DIR / 'generated'
 ELECTRON_MANIFEST_PATH = ELECTRON_TILE_DIR / 'manifest.json'
 

@@ -1,31 +1,27 @@
 # NetHack testing instructions
 
-## Canonical terminal proof
+The front end is the Godot app in `godot-poc/`. Its testing doctrine (deep-path scenarios, mock only what a test cannot control) is in [`godot-poc/BIBLE.md`](./godot-poc/BIBLE.md#testing-doctrine-deep-path).
 
-There is one acceptance path for the completed Electron architecture:
+## Running the suite
 
 ```sh
-cd electron-poc
-NH_EVIDENCE_REVIEWER=/absolute/path/to/external-reviewer npm run test:final-proof
+godot-poc/extension/build.sh             # release core, after engine or bridge changes
+godot-poc/extension/build.sh --fixtures  # fixture core, for scenarios that stage a game
+godot-poc/tests/run.sh [scenario ...]    # default: every scenario
 ```
 
-`NH_EVIDENCE_REVIEWER` is required. It must resolve to an executable regular file outside this repository. The proof runner passes it the immutable `evidence-approval.json` path plus a JSON review request containing the manifest hash, Verification Run identity, run-content hash, every raw-capture path, and every raw SHA-256. The reviewer must personally open every raw capture and return one JSON review object with explicit inspection notes and an approval or rejection for each exact hash. A repository script, default approval, filename, or approval-like prose is not a reviewer.
+Scenarios live in `godot-poc/project/tests/scenarios/`, one file each. Each run writes `godot.log` and its screenshots to `godot-poc/test-output/<scenario>/`. `run.sh` fails a scenario on any failed assertion and on any script or engine error in its log, except lines the scenario lists as `## expected-error: <text>`.
 
-The command is authoritative because it performs all of the following as one fail-closed gate:
+Fixture scenarios (`godot-poc/tests/fixtures/<id>.json`) set up hard-to-reach game states on the fixture core. A scenario loads one with `start_fixture(character, id)`; the id is the file's path under `tests/fixtures/` without `.json`.
 
-1. Runs the focused Verification Run, Evidence Approval, screenshot adapter, Game View, prompt/menu, command-planning, Transfer Session, ground-owner, and item/equipment contracts.
-2. Rebuilds the fixture-enabled native shim.
-3. Exercises a small representative set through the real production Electron/native interfaces: locked-container rejection → unlock → open, direct container Select all, direct and classic ground pickup, canonical item naming and Inventory & equipment ownership, direct equipment changes, and a terrain/context action.
-4. Gives every captured scenario a unique Verification Run identity and output root under `electron-poc/test-output/verification-runs/<run-identity>/`.
-5. Records assertions, stdout/stderr logs, raw screenshots, losslessly derived review copies, exact hashes, capture provenance, and derivative transform provenance in the run's sole `evidence-approval.json`.
-6. Stops at **CAPTURED** until the external review has covered every exact raw hash. **CAPTURED is not APPROVED.**
-7. Rejects missing or changed artifacts, failed assertions, reused identities/roots, reviewer mutation, mismatched review hashes/content, incomplete review notes, non-approved decisions, and leftover playground locks.
-8. Applies the external review through `EvidenceApproval`, validates the immutable decision bindings, writes `evidence-approval.md`, and reports `FINAL VERIFICATION PROOF APPROVED` only when every run is valid and approved.
+## Screenshot QA
 
-The raw screenshot is the approval subject. Review-safe derivatives are convenience copies only; their provenance must bind them to the raw SHA-256 and reproduce the declared Pillow transform. Never overwrite a capture in place. A changed raw screenshot, derivative, assertion, run identity, or decision invalidates approval.
+A UI test passes only after someone opens and inspects every screenshot it captured. Assertions alone never pass a UI test, and neither does a `PASS` line.
 
-Individual real scripts and scenario runbooks remain useful for diagnosis, but their capture-phase output is not acceptance evidence by itself. Do not claim terminal proof from an individual command, an old output directory, a synthetic-only test, or a `CAPTURED` manifest. Run the canonical command and include its exact run identities, manifests, reports, hashes, and inspection notes in the final response.
+- Open every PNG in the scenario's `test-output/` folder, not a sample.
+- Check what the scenario claims: the right screen, item, prompt or map state, readable text, nothing clipped, overlapping or blank.
+- In the report, name the screenshots you inspected and what each showed. Old output folders are not evidence for a new change.
 
 ## Native build consistency
 
-Both `build:shim` and `build:shim:test-fixtures` clean the complete core object set with `make -C ../src clean` before rebuilding `libnh.a`. Keep that full clean: Make does not track changes to `WANT_LIBNH` or compiler flags, and deleting selected object files can leave a mixed archive with missing native menu context or fixture hooks.
+`build.sh` cleans the complete core object set with `make -C src clean` before rebuilding `libnh.a`, for both flavors. Keep that full clean: Make does not track changes to `WANT_LIBNH` or compiler flags, and deleting selected object files can leave a mixed archive with missing native menu context or fixture hooks. Never run two builds at the same time.

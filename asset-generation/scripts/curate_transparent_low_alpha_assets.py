@@ -3,8 +3,8 @@ from pathlib import Path
 import json, shutil, time
 from PIL import Image, ImageDraw
 ROOT=Path(__file__).resolve().parents[2]
-STATUS=ROOT/'asset-generation/manifests/generation-status.json'; EMAN=ROOT/'electron-poc/assets/tiles/manifest.json'
-OUT=ROOT/'asset-generation/outputs'; GEN=ROOT/'electron-poc/assets/tiles/generated'
+STATUS=ROOT/'asset-generation/manifests/generation-status.json'; EMAN=ROOT/'assets/tiles/manifest.json'
+OUT=ROOT/'asset-generation/outputs'; GEN=ROOT/'assets/tiles/generated'
 BACK=ROOT/'asset-generation/backups'/time.strftime('transparent-curated-%Y%m%dT%H%M%SZ', time.gmtime())
 SIZE=512
 WHITE=(220,220,210,255); GRAY=(120,124,128,255); DARK=(38,40,44,255); RED=(210,42,42,255); GOLD=(230,175,45,255); GREEN=(78,160,78,255); PURP=(160,80,210,255)
@@ -56,7 +56,7 @@ for aid,(cat,im) in MAP.items(): save(aid,cat,im)
 status=json.loads(STATUS.read_text()); manifest=json.loads(EMAN.read_text())
 for aid,(cat,im) in MAP.items():
  rec=status.setdefault('assets',{}).get(aid,{})
- rec.update({'id':aid,'categorySlug':cat,'outputPath':f'asset-generation/outputs/{cat}/{aid}.png','installedPath':f'electron-poc/assets/tiles/generated/{cat}/{aid}.png','status':'installed','completedAt':time.strftime('%FT%TZ', time.gmtime()),'workflow':'asset-generation/workflows/krea2_basic_rem_back.json','workflowLabel':'transparent-rmbg-curated-alpha-fix','transparentCuratedFix':True,'backupRoot':str(BACK.relative_to(ROOT))})
+ rec.update({'id':aid,'categorySlug':cat,'outputPath':f'asset-generation/outputs/{cat}/{aid}.png','installedPath':f'assets/tiles/generated/{cat}/{aid}.png','status':'installed','completedAt':time.strftime('%FT%TZ', time.gmtime()),'workflow':'asset-generation/workflows/krea2_basic_rem_back.json','workflowLabel':'transparent-rmbg-curated-alpha-fix','transparentCuratedFix':True,'backupRoot':str(BACK.relative_to(ROOT))})
  status['assets'][aid]=rec
 status.setdefault('runs',[]).append({'type':'transparent-low-alpha-curated-fixes','completedAt':time.strftime('%FT%TZ', time.gmtime()),'ids':list(MAP),'backupRoot':str(BACK.relative_to(ROOT))})
 STATUS.write_text(json.dumps(status,indent=2))

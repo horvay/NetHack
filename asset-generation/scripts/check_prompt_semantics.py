@@ -16,7 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / 'asset-generation/scripts/full_tileset_regenerate.py'
-MANIFEST = ROOT / 'electron-poc/assets/tiles/manifest.json'
+MANIFEST = ROOT / 'assets/tiles/manifest.json'
 IDS = ['kop-lieutenant', 'lich', 'stone-golem', 'glass-golem', 'elf', 'green-elf', 'vrock', 'hezrou', 'bone-devil', 'ice-devil', 'nalfeshnee', 'pit-fiend', 'sandestin', 'balrog']
 REQUIRED_TERMS = {
     'kop-lieutenant': ['Keystone Kop', 'police lieutenant', 'blue uniform', 'brass badge'],

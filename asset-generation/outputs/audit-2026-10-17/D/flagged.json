@@ -2,7 +2,7 @@
  {
   "id": "gray-stone",
   "category": "objects-inventory",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/gray-stone.png",
+  "installedPath": "assets/tiles/generated/objects-inventory/gray-stone.png",
   "outputPath": "asset-generation/outputs/objects-inventory/gray-stone.png",
   "name": "Gray stone",
   "glyph": "*",
@@ -19,7 +19,7 @@
  {
   "id": "closed-door",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/closed-door.png",
+  "installedPath": "assets/tiles/generated/terrain-features/closed-door.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Flat orange rectangle with three black lines and a yellow square; a geometric placeholder with no wood grain, shading or wall context. Redesigned as a front-view door family that matches Godot's 3/4 brick walls (Greg: 'Terrible door').",
@@ -39,7 +39,7 @@
  {
   "id": "open-horizontal-door",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/open-horizontal-door.png",
+  "installedPath": "assets/tiles/generated/terrain-features/open-horizontal-door.png",
   "problem": "unclear",
   "severity": "high",
   "what_is_wrong": "Flat gray blocks with two tiny orange dashes; nothing reads as a door or a passable doorway. Redesigned as a front-view door family that matches Godot's 3/4 brick walls (Greg: 'Terrible door').",
@@ -59,7 +59,7 @@
  {
   "id": "open-vertical-door",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/open-vertical-door.png",
+  "installedPath": "assets/tiles/generated/terrain-features/open-vertical-door.png",
   "problem": "unclear",
   "severity": "high",
   "what_is_wrong": "Reads as a brown plank lying on a stone floor; there are no jambs, no visible gap and nothing says 'doorway in a vertical wall'. Redesigned as a front-view door family that matches Godot's 3/4 brick walls (Greg: 'Terrible door').",
@@ -79,7 +79,7 @@
  {
   "id": "broken-door",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/broken-door.png",
+  "installedPath": "assets/tiles/generated/terrain-features/broken-door.png",
   "problem": "unclear",
   "severity": "high",
   "what_is_wrong": "Three brown blobs and a yellow dot on dark gray; reads as scattered bread or debris, not a smashed door in a doorway. Redesigned as a front-view door family that matches Godot's 3/4 brick walls (Greg: 'Terrible door').",
@@ -99,7 +99,7 @@
  {
   "id": "no-door-doorway",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/no-door-doorway.png",
+  "installedPath": "assets/tiles/generated/terrain-features/no-door-doorway.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Almost blank dark-gray square with one faint bar; it is indistinguishable from floor and never reads as an opening in a wall. Redesigned as a front-view door family that matches Godot's 3/4 brick walls (Greg: 'Terrible door').",
@@ -119,7 +119,7 @@
  {
   "id": "baby-blue-dragon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/baby-blue-dragon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/baby-blue-dragon.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is purple but should be blue. (A reference edit kept the old purple in every try: generated fresh.)",
@@ -138,7 +138,7 @@
  {
   "id": "green-dragon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/green-dragon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/green-dragon.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is purple but should be green. (A reference edit kept the old purple in every try: generated fresh.)",
@@ -157,7 +157,7 @@
  {
   "id": "silver-dragon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/silver-dragon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/silver-dragon.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is purple but should be bright silver-cyan. (A reference edit kept the old purple in every try: generated fresh.)",
@@ -176,7 +176,7 @@
  {
   "id": "warg",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/warg.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/warg.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Installed as a 1024x1024 painterly image instead of a 32x32 pixel tile; downscaled it turns into a soft smudge with no outline. Reads as a dark smudge. (First tries drew only a head.)",
@@ -195,7 +195,7 @@
  {
   "id": "engraving",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/engraving.png",
+  "installedPath": "assets/tiles/generated/terrain-features/engraving.png",
   "problem": "unclear",
   "severity": "high",
   "what_is_wrong": "Pale gray squiggles that read as a pile of bones or a brick fragment, not as writing scratched into the floor. Redone as a transparent overlay: Godot paints its own floor under it.",
@@ -214,7 +214,7 @@
  {
   "id": "black-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/black-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/black-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/black-potion.png",
   "name": "black potion",
   "glyph": "!",
@@ -231,7 +231,7 @@
  {
   "id": "brilliant-blue-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/brilliant-blue-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/brilliant-blue-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/brilliant-blue-potion.png",
   "name": "brilliant blue potion",
   "glyph": "!",
@@ -248,7 +248,7 @@
  {
   "id": "brown-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/brown-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/brown-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/brown-potion.png",
   "name": "brown potion",
   "glyph": "!",
@@ -265,7 +265,7 @@
  {
   "id": "bubbly-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/bubbly-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/bubbly-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/bubbly-potion.png",
   "name": "bubbly potion",
   "glyph": "!",
@@ -282,7 +282,7 @@
  {
   "id": "clear-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/clear-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/clear-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/clear-potion.png",
   "name": "clear potion",
   "glyph": "!",
@@ -299,7 +299,7 @@
  {
   "id": "cloudy-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/cloudy-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/cloudy-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/cloudy-potion.png",
   "name": "cloudy potion",
   "glyph": "!",
@@ -316,7 +316,7 @@
  {
   "id": "cyan-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/cyan-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/cyan-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/cyan-potion.png",
   "name": "cyan potion",
   "glyph": "!",
@@ -333,7 +333,7 @@
  {
   "id": "dark-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/dark-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/dark-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/dark-potion.png",
   "name": "dark potion",
   "glyph": "!",
@@ -350,7 +350,7 @@
  {
   "id": "dark-green-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/dark-green-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/dark-green-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/dark-green-potion.png",
   "name": "dark green potion",
   "glyph": "!",
@@ -367,7 +367,7 @@
  {
   "id": "effervescent-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/effervescent-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/effervescent-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/effervescent-potion.png",
   "name": "effervescent potion",
   "glyph": "!",
@@ -384,7 +384,7 @@
  {
   "id": "emerald-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/emerald-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/emerald-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/emerald-potion.png",
   "name": "emerald potion",
   "glyph": "!",
@@ -401,7 +401,7 @@
  {
   "id": "fizzy-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/fizzy-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/fizzy-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/fizzy-potion.png",
   "name": "fizzy potion",
   "glyph": "!",
@@ -418,7 +418,7 @@
  {
   "id": "golden-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/golden-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/golden-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/golden-potion.png",
   "name": "golden potion",
   "glyph": "!",
@@ -435,7 +435,7 @@
  {
   "id": "magenta-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/magenta-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/magenta-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/magenta-potion.png",
   "name": "magenta potion",
   "glyph": "!",
@@ -452,7 +452,7 @@
  {
   "id": "milky-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/milky-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/milky-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/milky-potion.png",
   "name": "milky potion",
   "glyph": "!",
@@ -469,7 +469,7 @@
  {
   "id": "murky-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/murky-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/murky-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/murky-potion.png",
   "name": "murky potion",
   "glyph": "!",
@@ -486,7 +486,7 @@
  {
   "id": "orange-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/orange-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/orange-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/orange-potion.png",
   "name": "orange potion",
   "glyph": "!",
@@ -503,7 +503,7 @@
  {
   "id": "pink-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/pink-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/pink-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/pink-potion.png",
   "name": "pink potion",
   "glyph": "!",
@@ -520,7 +520,7 @@
  {
   "id": "puce-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/puce-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/puce-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/puce-potion.png",
   "name": "puce potion",
   "glyph": "!",
@@ -537,7 +537,7 @@
  {
   "id": "purple-red-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/purple-red-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/purple-red-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/purple-red-potion.png",
   "name": "purple-red potion",
   "glyph": "!",
@@ -554,7 +554,7 @@
  {
   "id": "ruby-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/ruby-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/ruby-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/ruby-potion.png",
   "name": "ruby potion",
   "glyph": "!",
@@ -571,7 +571,7 @@
  {
   "id": "sky-blue-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/sky-blue-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/sky-blue-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/sky-blue-potion.png",
   "name": "sky blue potion",
   "glyph": "!",
@@ -588,7 +588,7 @@
  {
   "id": "smoky-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/smoky-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/smoky-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/smoky-potion.png",
   "name": "smoky potion",
   "glyph": "!",
@@ -605,7 +605,7 @@
  {
   "id": "swirly-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/swirly-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/swirly-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/swirly-potion.png",
   "name": "swirly potion",
   "glyph": "!",
@@ -622,7 +622,7 @@
  {
   "id": "white-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/white-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/white-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/white-potion.png",
   "name": "white potion",
   "glyph": "!",
@@ -639,7 +639,7 @@
  {
   "id": "yellow-potion",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/yellow-potion.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/yellow-potion.png",
   "outputPath": "asset-generation/outputs/objects-appearance/yellow-potion.png",
   "name": "yellow potion",
   "glyph": "!",
@@ -656,7 +656,7 @@
  {
   "id": "agate-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/agate-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/agate-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/agate-ring.png",
   "name": "agate ring",
   "glyph": "=",
@@ -673,7 +673,7 @@
  {
   "id": "black-onyx-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/black-onyx-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/black-onyx-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/black-onyx-ring.png",
   "name": "black onyx ring",
   "glyph": "=",
@@ -690,7 +690,7 @@
  {
   "id": "brass-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/brass-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/brass-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/brass-ring.png",
   "name": "brass ring",
   "glyph": "=",
@@ -707,7 +707,7 @@
  {
   "id": "bronze-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/bronze-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/bronze-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/bronze-ring.png",
   "name": "bronze ring",
   "glyph": "=",
@@ -724,7 +724,7 @@
  {
   "id": "clay-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/clay-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/clay-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/clay-ring.png",
   "name": "clay ring",
   "glyph": "=",
@@ -741,7 +741,7 @@
  {
   "id": "copper-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/copper-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/copper-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/copper-ring.png",
   "name": "copper ring",
   "glyph": "=",
@@ -758,7 +758,7 @@
  {
   "id": "coral-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/coral-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/coral-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/coral-ring.png",
   "name": "coral ring",
   "glyph": "=",
@@ -775,7 +775,7 @@
  {
   "id": "diamond-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/diamond-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/diamond-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/diamond-ring.png",
   "name": "diamond ring",
   "glyph": "=",
@@ -792,7 +792,7 @@
  {
   "id": "emerald-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/emerald-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/emerald-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/emerald-ring.png",
   "name": "emerald ring",
   "glyph": "=",
@@ -809,7 +809,7 @@
  {
   "id": "engagement-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/engagement-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/engagement-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/engagement-ring.png",
   "name": "engagement ring",
   "glyph": "=",
@@ -826,7 +826,7 @@
  {
   "id": "gold-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/gold-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/gold-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/gold-ring.png",
   "name": "gold ring",
   "glyph": "=",
@@ -843,7 +843,7 @@
  {
   "id": "granite-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/granite-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/granite-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/granite-ring.png",
   "name": "granite ring",
   "glyph": "=",
@@ -860,7 +860,7 @@
  {
   "id": "iron-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/iron-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/iron-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/iron-ring.png",
   "name": "iron ring",
   "glyph": "=",
@@ -877,7 +877,7 @@
  {
   "id": "ivory-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/ivory-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/ivory-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/ivory-ring.png",
   "name": "ivory ring",
   "glyph": "=",
@@ -894,7 +894,7 @@
  {
   "id": "jade-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/jade-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/jade-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/jade-ring.png",
   "name": "jade ring",
   "glyph": "=",
@@ -911,7 +911,7 @@
  {
   "id": "moonstone-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/moonstone-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/moonstone-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/moonstone-ring.png",
   "name": "moonstone ring",
   "glyph": "=",
@@ -928,7 +928,7 @@
  {
   "id": "opal-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/opal-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/opal-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/opal-ring.png",
   "name": "opal ring",
   "glyph": "=",
@@ -945,7 +945,7 @@
  {
   "id": "pearl-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/pearl-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/pearl-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/pearl-ring.png",
   "name": "pearl ring",
   "glyph": "=",
@@ -962,7 +962,7 @@
  {
   "id": "ruby-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/ruby-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/ruby-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/ruby-ring.png",
   "name": "ruby ring",
   "glyph": "=",
@@ -979,7 +979,7 @@
  {
   "id": "sapphire-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/sapphire-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/sapphire-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/sapphire-ring.png",
   "name": "sapphire ring",
   "glyph": "=",
@@ -996,7 +996,7 @@
  {
   "id": "shiny-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/shiny-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/shiny-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/shiny-ring.png",
   "name": "shiny ring",
   "glyph": "=",
@@ -1013,7 +1013,7 @@
  {
   "id": "silver-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/silver-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/silver-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/silver-ring.png",
   "name": "silver ring",
   "glyph": "=",
@@ -1030,7 +1030,7 @@
  {
   "id": "steel-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/steel-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/steel-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/steel-ring.png",
   "name": "steel ring",
   "glyph": "=",
@@ -1047,7 +1047,7 @@
  {
   "id": "tiger-eye-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/tiger-eye-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/tiger-eye-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/tiger-eye-ring.png",
   "name": "tiger eye ring",
   "glyph": "=",
@@ -1064,7 +1064,7 @@
  {
   "id": "topaz-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/topaz-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/topaz-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/topaz-ring.png",
   "name": "topaz ring",
   "glyph": "=",
@@ -1081,7 +1081,7 @@
  {
   "id": "twisted-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/twisted-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/twisted-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/twisted-ring.png",
   "name": "twisted ring",
   "glyph": "=",
@@ -1098,7 +1098,7 @@
  {
   "id": "wire-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/wire-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/wire-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/wire-ring.png",
   "name": "wire ring",
   "glyph": "=",
@@ -1115,7 +1115,7 @@
  {
   "id": "wooden-ring",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/wooden-ring.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/wooden-ring.png",
   "outputPath": "asset-generation/outputs/objects-appearance/wooden-ring.png",
   "name": "wooden ring",
   "glyph": "=",
@@ -1132,7 +1132,7 @@
  {
   "id": "aluminum-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/aluminum-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/aluminum-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/aluminum-wand.png",
   "name": "aluminum wand",
   "glyph": "/",
@@ -1149,7 +1149,7 @@
  {
   "id": "balsa-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/balsa-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/balsa-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/balsa-wand.png",
   "name": "balsa wand",
   "glyph": "/",
@@ -1166,7 +1166,7 @@
  {
   "id": "brass-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/brass-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/brass-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/brass-wand.png",
   "name": "brass wand",
   "glyph": "/",
@@ -1183,7 +1183,7 @@
  {
   "id": "copper-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/copper-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/copper-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/copper-wand.png",
   "name": "copper wand",
   "glyph": "/",
@@ -1200,7 +1200,7 @@
  {
   "id": "crystal-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/crystal-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/crystal-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/crystal-wand.png",
   "name": "crystal wand",
   "glyph": "/",
@@ -1217,7 +1217,7 @@
  {
   "id": "curved-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/curved-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/curved-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/curved-wand.png",
   "name": "curved wand",
   "glyph": "/",
@@ -1234,7 +1234,7 @@
  {
   "id": "ebony-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/ebony-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/ebony-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/ebony-wand.png",
   "name": "ebony wand",
   "glyph": "/",
@@ -1251,7 +1251,7 @@
  {
   "id": "forked-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/forked-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/forked-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/forked-wand.png",
   "name": "forked wand",
   "glyph": "/",
@@ -1268,7 +1268,7 @@
  {
   "id": "glass-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/glass-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/glass-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/glass-wand.png",
   "name": "glass wand",
   "glyph": "/",
@@ -1285,7 +1285,7 @@
  {
   "id": "hexagonal-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/hexagonal-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/hexagonal-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/hexagonal-wand.png",
   "name": "hexagonal wand",
   "glyph": "/",
@@ -1302,7 +1302,7 @@
  {
   "id": "iridium-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/iridium-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/iridium-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/iridium-wand.png",
   "name": "iridium wand",
   "glyph": "/",
@@ -1319,7 +1319,7 @@
  {
   "id": "iron-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/iron-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/iron-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/iron-wand.png",
   "name": "iron wand",
   "glyph": "/",
@@ -1336,7 +1336,7 @@
  {
   "id": "jeweled-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/jeweled-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/jeweled-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/jeweled-wand.png",
   "name": "jeweled wand",
   "glyph": "/",
@@ -1353,7 +1353,7 @@
  {
   "id": "long-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/long-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/long-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/long-wand.png",
   "name": "long wand",
   "glyph": "/",
@@ -1370,7 +1370,7 @@
  {
   "id": "maple-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/maple-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/maple-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/maple-wand.png",
   "name": "maple wand",
   "glyph": "/",
@@ -1387,7 +1387,7 @@
  {
   "id": "marble-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/marble-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/marble-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/marble-wand.png",
   "name": "marble wand",
   "glyph": "/",
@@ -1404,7 +1404,7 @@
  {
   "id": "oak-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/oak-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/oak-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/oak-wand.png",
   "name": "oak wand",
   "glyph": "/",
@@ -1421,7 +1421,7 @@
  {
   "id": "pine-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/pine-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/pine-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/pine-wand.png",
   "name": "pine wand",
   "glyph": "/",
@@ -1438,7 +1438,7 @@
  {
   "id": "platinum-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/platinum-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/platinum-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/platinum-wand.png",
   "name": "platinum wand",
   "glyph": "/",
@@ -1455,7 +1455,7 @@
  {
   "id": "redwood-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/redwood-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/redwood-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/redwood-wand.png",
   "name": "redwood wand",
   "glyph": "/",
@@ -1472,7 +1472,7 @@
  {
   "id": "runed-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/runed-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/runed-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/runed-wand.png",
   "name": "runed wand",
   "glyph": "/",
@@ -1489,7 +1489,7 @@
  {
   "id": "short-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/short-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/short-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/short-wand.png",
   "name": "short wand",
   "glyph": "/",
@@ -1506,7 +1506,7 @@
  {
   "id": "silver-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/silver-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/silver-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/silver-wand.png",
   "name": "silver wand",
   "glyph": "/",
@@ -1523,7 +1523,7 @@
  {
   "id": "spiked-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/spiked-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/spiked-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/spiked-wand.png",
   "name": "spiked wand",
   "glyph": "/",
@@ -1540,7 +1540,7 @@
  {
   "id": "steel-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/steel-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/steel-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/steel-wand.png",
   "name": "steel wand",
   "glyph": "/",
@@ -1557,7 +1557,7 @@
  {
   "id": "tin-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/tin-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/tin-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/tin-wand.png",
   "name": "tin wand",
   "glyph": "/",
@@ -1574,7 +1574,7 @@
  {
   "id": "uranium-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/uranium-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/uranium-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/uranium-wand.png",
   "name": "uranium wand",
   "glyph": "/",
@@ -1591,7 +1591,7 @@
  {
   "id": "zinc-wand",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/zinc-wand.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/zinc-wand.png",
   "outputPath": "asset-generation/outputs/objects-appearance/zinc-wand.png",
   "name": "zinc wand",
   "glyph": "/",
@@ -1608,7 +1608,7 @@
  {
   "id": "circular-amulet",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/circular-amulet.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/circular-amulet.png",
   "outputPath": "asset-generation/outputs/objects-appearance/circular-amulet.png",
   "name": "circular amulet",
   "glyph": "\"",
@@ -1625,7 +1625,7 @@
  {
   "id": "concave-amulet",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/concave-amulet.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/concave-amulet.png",
   "outputPath": "asset-generation/outputs/objects-appearance/concave-amulet.png",
   "name": "concave amulet",
   "glyph": "\"",
@@ -1642,7 +1642,7 @@
  {
   "id": "cubical-amulet",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/cubical-amulet.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/cubical-amulet.png",
   "outputPath": "asset-generation/outputs/objects-appearance/cubical-amulet.png",
   "name": "cubical amulet",
   "glyph": "\"",
@@ -1659,7 +1659,7 @@
  {
   "id": "hexagonal-amulet",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/hexagonal-amulet.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/hexagonal-amulet.png",
   "outputPath": "asset-generation/outputs/objects-appearance/hexagonal-amulet.png",
   "name": "hexagonal amulet",
   "glyph": "\"",
@@ -1676,7 +1676,7 @@
  {
   "id": "octagonal-amulet",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/octagonal-amulet.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/octagonal-amulet.png",
   "outputPath": "asset-generation/outputs/objects-appearance/octagonal-amulet.png",
   "name": "octagonal amulet",
   "glyph": "\"",
@@ -1693,7 +1693,7 @@
  {
   "id": "oval-amulet",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/oval-amulet.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/oval-amulet.png",
   "outputPath": "asset-generation/outputs/objects-appearance/oval-amulet.png",
   "name": "oval amulet",
   "glyph": "\"",
@@ -1710,7 +1710,7 @@
  {
   "id": "perforated-amulet",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/perforated-amulet.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/perforated-amulet.png",
   "outputPath": "asset-generation/outputs/objects-appearance/perforated-amulet.png",
   "name": "perforated amulet",
   "glyph": "\"",
@@ -1727,7 +1727,7 @@
  {
   "id": "pyramidal-amulet",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/pyramidal-amulet.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/pyramidal-amulet.png",
   "outputPath": "asset-generation/outputs/objects-appearance/pyramidal-amulet.png",
   "name": "pyramidal amulet",
   "glyph": "\"",
@@ -1744,7 +1744,7 @@
  {
   "id": "spherical-amulet",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/spherical-amulet.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/spherical-amulet.png",
   "outputPath": "asset-generation/outputs/objects-appearance/spherical-amulet.png",
   "name": "spherical amulet",
   "glyph": "\"",
@@ -1761,7 +1761,7 @@
  {
   "id": "square-amulet",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/square-amulet.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/square-amulet.png",
   "outputPath": "asset-generation/outputs/objects-appearance/square-amulet.png",
   "name": "square amulet",
   "glyph": "\"",
@@ -1778,7 +1778,7 @@
  {
   "id": "triangular-amulet",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/triangular-amulet.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/triangular-amulet.png",
   "outputPath": "asset-generation/outputs/objects-appearance/triangular-amulet.png",
   "name": "triangular amulet",
   "glyph": "\"",
@@ -1795,7 +1795,7 @@
  {
   "id": "bronze-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/bronze-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/bronze-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/bronze-spellbook.png",
   "name": "bronze spellbook",
   "glyph": "+",
@@ -1812,7 +1812,7 @@
  {
   "id": "canvas-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/canvas-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/canvas-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/canvas-spellbook.png",
   "name": "canvas spellbook",
   "glyph": "+",
@@ -1829,7 +1829,7 @@
  {
   "id": "checkered-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/checkered-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/checkered-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/checkered-spellbook.png",
   "name": "checkered spellbook",
   "glyph": "+",
@@ -1851,7 +1851,7 @@
  {
   "id": "cloth-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/cloth-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/cloth-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/cloth-spellbook.png",
   "name": "cloth spellbook",
   "glyph": "+",
@@ -1873,7 +1873,7 @@
  {
   "id": "copper-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/copper-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/copper-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/copper-spellbook.png",
   "name": "copper spellbook",
   "glyph": "+",
@@ -1895,7 +1895,7 @@
  {
   "id": "cyan-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/cyan-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/cyan-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/cyan-spellbook.png",
   "name": "cyan spellbook",
   "glyph": "+",
@@ -1912,7 +1912,7 @@
  {
   "id": "dark-blue-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/dark-blue-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/dark-blue-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/dark-blue-spellbook.png",
   "name": "dark blue spellbook",
   "glyph": "+",
@@ -1929,7 +1929,7 @@
  {
   "id": "dark-brown-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/dark-brown-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/dark-brown-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/dark-brown-spellbook.png",
   "name": "dark brown spellbook",
   "glyph": "+",
@@ -1946,7 +1946,7 @@
  {
   "id": "dark-green-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/dark-green-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/dark-green-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/dark-green-spellbook.png",
   "name": "dark green spellbook",
   "glyph": "+",
@@ -1963,7 +1963,7 @@
  {
   "id": "dog-eared-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/dog-eared-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/dog-eared-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/dog-eared-spellbook.png",
   "name": "dog eared spellbook",
   "glyph": "+",
@@ -1985,7 +1985,7 @@
  {
   "id": "dull-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/dull-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/dull-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/dull-spellbook.png",
   "name": "dull spellbook",
   "glyph": "+",
@@ -2007,7 +2007,7 @@
  {
   "id": "dusty-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/dusty-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/dusty-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/dusty-spellbook.png",
   "name": "dusty spellbook",
   "glyph": "+",
@@ -2029,7 +2029,7 @@
  {
   "id": "glittering-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/glittering-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/glittering-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/glittering-spellbook.png",
   "name": "glittering spellbook",
   "glyph": "+",
@@ -2051,7 +2051,7 @@
  {
   "id": "gold-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/gold-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/gold-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/gold-spellbook.png",
   "name": "gold spellbook",
   "glyph": "+",
@@ -2073,7 +2073,7 @@
  {
   "id": "gray-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/gray-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/gray-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/gray-spellbook.png",
   "name": "gray spellbook",
   "glyph": "+",
@@ -2090,7 +2090,7 @@
  {
   "id": "hardcover-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/hardcover-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/hardcover-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/hardcover-spellbook.png",
   "name": "hardcover spellbook",
   "glyph": "+",
@@ -2112,7 +2112,7 @@
  {
   "id": "indigo-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/indigo-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/indigo-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/indigo-spellbook.png",
   "name": "indigo spellbook",
   "glyph": "+",
@@ -2129,7 +2129,7 @@
  {
   "id": "leathery-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/leathery-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/leathery-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/leathery-spellbook.png",
   "name": "leathery spellbook",
   "glyph": "+",
@@ -2151,7 +2151,7 @@
  {
   "id": "light-blue-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/light-blue-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/light-blue-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/light-blue-spellbook.png",
   "name": "light blue spellbook",
   "glyph": "+",
@@ -2168,7 +2168,7 @@
  {
   "id": "light-brown-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/light-brown-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/light-brown-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/light-brown-spellbook.png",
   "name": "light brown spellbook",
   "glyph": "+",
@@ -2185,7 +2185,7 @@
  {
   "id": "light-green-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/light-green-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/light-green-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/light-green-spellbook.png",
   "name": "light green spellbook",
   "glyph": "+",
@@ -2202,7 +2202,7 @@
  {
   "id": "magenta-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/magenta-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/magenta-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/magenta-spellbook.png",
   "name": "magenta spellbook",
   "glyph": "+",
@@ -2219,7 +2219,7 @@
  {
   "id": "mottled-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/mottled-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/mottled-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/mottled-spellbook.png",
   "name": "mottled spellbook",
   "glyph": "+",
@@ -2241,7 +2241,7 @@
  {
   "id": "orange-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/orange-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/orange-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/orange-spellbook.png",
   "name": "orange spellbook",
   "glyph": "+",
@@ -2258,7 +2258,7 @@
  {
   "id": "parchment-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/parchment-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/parchment-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/parchment-spellbook.png",
   "name": "parchment spellbook",
   "glyph": "+",
@@ -2280,7 +2280,7 @@
  {
   "id": "pink-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/pink-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/pink-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/pink-spellbook.png",
   "name": "pink spellbook",
   "glyph": "+",
@@ -2297,7 +2297,7 @@
  {
   "id": "plaid-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/plaid-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/plaid-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/plaid-spellbook.png",
   "name": "plaid spellbook",
   "glyph": "+",
@@ -2319,7 +2319,7 @@
  {
   "id": "plain-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/plain-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/plain-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/plain-spellbook.png",
   "name": "plain spellbook",
   "glyph": "+",
@@ -2341,7 +2341,7 @@
  {
   "id": "purple-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/purple-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/purple-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/purple-spellbook.png",
   "name": "purple spellbook",
   "glyph": "+",
@@ -2358,7 +2358,7 @@
  {
   "id": "ragged-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/ragged-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/ragged-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/ragged-spellbook.png",
   "name": "ragged spellbook",
   "glyph": "+",
@@ -2380,7 +2380,7 @@
  {
   "id": "red-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/red-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/red-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/red-spellbook.png",
   "name": "red spellbook",
   "glyph": "+",
@@ -2397,7 +2397,7 @@
  {
   "id": "shining-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/shining-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/shining-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/shining-spellbook.png",
   "name": "shining spellbook",
   "glyph": "+",
@@ -2419,7 +2419,7 @@
  {
   "id": "silver-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/silver-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/silver-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/silver-spellbook.png",
   "name": "silver spellbook",
   "glyph": "+",
@@ -2441,7 +2441,7 @@
  {
   "id": "stained-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/stained-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/stained-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/stained-spellbook.png",
   "name": "stained spellbook",
   "glyph": "+",
@@ -2463,7 +2463,7 @@
  {
   "id": "tan-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/tan-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/tan-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/tan-spellbook.png",
   "name": "tan spellbook",
   "glyph": "+",
@@ -2485,7 +2485,7 @@
  {
   "id": "thick-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/thick-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/thick-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/thick-spellbook.png",
   "name": "thick spellbook",
   "glyph": "+",
@@ -2507,7 +2507,7 @@
  {
   "id": "thin-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/thin-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/thin-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/thin-spellbook.png",
   "name": "thin spellbook",
   "glyph": "+",
@@ -2529,7 +2529,7 @@
  {
   "id": "turquoise-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/turquoise-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/turquoise-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/turquoise-spellbook.png",
   "name": "turquoise spellbook",
   "glyph": "+",
@@ -2546,7 +2546,7 @@
  {
   "id": "vellum-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/vellum-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/vellum-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/vellum-spellbook.png",
   "name": "vellum spellbook",
   "glyph": "+",
@@ -2568,7 +2568,7 @@
  {
   "id": "velvet-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/velvet-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/velvet-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/velvet-spellbook.png",
   "name": "velvet spellbook",
   "glyph": "+",
@@ -2590,7 +2590,7 @@
  {
   "id": "violet-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/violet-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/violet-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/violet-spellbook.png",
   "name": "violet spellbook",
   "glyph": "+",
@@ -2607,7 +2607,7 @@
  {
   "id": "white-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/white-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/white-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/white-spellbook.png",
   "name": "white spellbook",
   "glyph": "+",
@@ -2624,7 +2624,7 @@
  {
   "id": "wrinkled-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/wrinkled-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/wrinkled-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/wrinkled-spellbook.png",
   "name": "wrinkled spellbook",
   "glyph": "+",
@@ -2646,7 +2646,7 @@
  {
   "id": "yellow-spellbook",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/yellow-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/yellow-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-appearance/yellow-spellbook.png",
   "name": "yellow spellbook",
   "glyph": "+",
@@ -2663,7 +2663,7 @@
  {
   "id": "hunger-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/hunger-badge.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/hunger-badge.png",
   "outputPath": "asset-generation/outputs/ui-status-overlays/hunger-badge.png",
   "name": "Hunger badge",
   "glyph": "",
@@ -2680,7 +2680,7 @@
  {
   "id": "hallucination-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/hallucination-badge.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/hallucination-badge.png",
   "outputPath": "asset-generation/outputs/ui-status-overlays/hallucination-badge.png",
   "name": "Hallucination badge",
   "glyph": "",
@@ -2697,7 +2697,7 @@
  {
   "id": "sick-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/sick-badge.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/sick-badge.png",
   "outputPath": "asset-generation/outputs/ui-status-overlays/sick-badge.png",
   "name": "Sick badge",
   "glyph": "",
@@ -2714,7 +2714,7 @@
  {
   "id": "stoning-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/stoning-badge.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/stoning-badge.png",
   "outputPath": "asset-generation/outputs/ui-status-overlays/stoning-badge.png",
   "name": "Stoning badge",
   "glyph": "",
@@ -2731,7 +2731,7 @@
  {
   "id": "sliming-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/sliming-badge.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/sliming-badge.png",
   "outputPath": "asset-generation/outputs/ui-status-overlays/sliming-badge.png",
   "name": "Sliming badge",
   "glyph": "",
@@ -2748,7 +2748,7 @@
  {
   "id": "strangled-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/strangled-badge.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/strangled-badge.png",
   "outputPath": "asset-generation/outputs/ui-status-overlays/strangled-badge.png",
   "name": "Strangled badge",
   "glyph": "",
@@ -2765,7 +2765,7 @@
  {
   "id": "trapped-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/trapped-badge.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/trapped-badge.png",
   "outputPath": "asset-generation/outputs/ui-status-overlays/trapped-badge.png",
   "name": "Trapped badge",
   "glyph": "",
@@ -2782,7 +2782,7 @@
  {
   "id": "deaf-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/deaf-badge.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/deaf-badge.png",
   "outputPath": "asset-generation/outputs/ui-status-overlays/deaf-badge.png",
   "name": "Deaf badge",
   "glyph": "",
@@ -2799,7 +2799,7 @@
  {
   "id": "wounded-legs-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/wounded-legs-badge.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/wounded-legs-badge.png",
   "outputPath": "asset-generation/outputs/ui-status-overlays/wounded-legs-badge.png",
   "name": "Wounded legs badge",
   "glyph": "",
@@ -2816,7 +2816,7 @@
  {
   "id": "slippery-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/slippery-badge.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/slippery-badge.png",
   "outputPath": "asset-generation/outputs/ui-status-overlays/slippery-badge.png",
   "name": "Slippery badge",
   "glyph": "",
@@ -2833,7 +2833,7 @@
  {
   "id": "paralyzed-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/paralyzed-badge.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/paralyzed-badge.png",
   "outputPath": "asset-generation/outputs/ui-status-overlays/paralyzed-badge.png",
   "name": "Paralyzed badge",
   "glyph": "",
@@ -2850,7 +2850,7 @@
  {
   "id": "black-dragon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/black-dragon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/black-dragon.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is light silver-gray but should be black. (A reference edit changed too little: generated fresh.)",
@@ -2869,7 +2869,7 @@
  {
   "id": "dingo",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/dingo.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/dingo.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Gray-blue dog; dingo is yellow. (A reference edit changed too little: generated fresh.)",
@@ -2888,7 +2888,7 @@
  {
   "id": "jaguar",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/jaguar.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/jaguar.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "White cat, near-identical to panther and large cat; jaguar is brown with rosettes. (A reference edit changed too little: generated fresh.)",
@@ -2907,7 +2907,7 @@
  {
   "id": "purple-worm",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/purple-worm.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/purple-worm.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Installed as a 512x512 painterly image instead of a 32x32 pixel tile; downscaled it turns into a soft smudge with no outline. Soft and outline-free next to the pixel tiles. (A reference edit changed too little: generated fresh.)",
@@ -2926,7 +2926,7 @@
  {
   "id": "winter-wolf",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/winter-wolf.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/winter-wolf.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Cream wolf with no icy cue; winter wolves are cyan. (A reference edit changed too little: generated fresh.)",
@@ -2945,7 +2945,7 @@
  {
   "id": "ice",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/ice.png",
+  "installedPath": "assets/tiles/generated/terrain-features/ice.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "A pale blue diamond inside an orange brick frame; the baked frame looks like a badge and will not tile into an ice field. (First tries still had baked frames: redone as a seamless texture.)",
@@ -2964,7 +2964,7 @@
  {
   "id": "lava",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/lava.png",
+  "installedPath": "assets/tiles/generated/terrain-features/lava.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "A red rock icon inside a stone frame; reads as a framed badge, not a molten lava field, and will not tile. (First tries still had baked frames: redone as a seamless texture.)",
@@ -2983,7 +2983,7 @@
  {
   "id": "dark-corridor",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/dark-corridor.png",
+  "installedPath": "assets/tiles/generated/terrain-features/dark-corridor.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Flat near-black square with a faint bar; placeholder with no tunnel texture. (First tries still had baked frames: redone as a seamless texture.)",
@@ -3002,7 +3002,7 @@
  {
   "id": "dark-room-floor",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/dark-room-floor.png",
+  "installedPath": "assets/tiles/generated/terrain-features/dark-room-floor.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Flat near-black square; a placeholder with no texture and barely distinguishable from unexplored stone. (First tries still had baked frames: redone as a seamless texture.)",
@@ -3021,7 +3021,7 @@
  {
   "id": "lit-corridor",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/lit-corridor.png",
+  "installedPath": "assets/tiles/generated/terrain-features/lit-corridor.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Flat gray square with a single gray bar; does not read as a dug tunnel or corridor. (First tries had baked frames: redone as a seamless texture.)",
@@ -3040,7 +3040,7 @@
  {
   "id": "moat-water",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/moat-water.png",
+  "installedPath": "assets/tiles/generated/terrain-features/moat-water.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Dark pool with an orange rocky border baked into the tile, so adjacent moat squares form a grid of separate puddles (also the '}' fallback). (First tries had baked frames: redone as a seamless texture.)",
@@ -3059,7 +3059,7 @@
  {
   "id": "pool-water",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/pool-water.png",
+  "installedPath": "assets/tiles/generated/terrain-features/pool-water.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Green swampy water; NetHack pools are blue, and green reads as slime or acid. (First tries had baked frames: redone as a seamless texture.)",
@@ -3078,7 +3078,7 @@
  {
   "id": "room-floor",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/room-floor.png",
+  "installedPath": "assets/tiles/generated/terrain-features/room-floor.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Flat single-color gray square with one dot; a placeholder with no stone texture (Electron draws it everywhere). (First tries had baked frames: redone as a seamless texture.)",
@@ -3097,7 +3097,7 @@
  {
   "id": "sea-water",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/sea-water.png",
+  "installedPath": "assets/tiles/generated/terrain-features/sea-water.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Flat blue and teal horizontal stripes; geometric placeholder used for the water on Medusa's level. (First tries had baked frames: redone as a seamless texture.)",
@@ -3116,7 +3116,7 @@
  {
   "id": "vertical-wall",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/vertical-wall.png",
+  "installedPath": "assets/tiles/generated/terrain-features/vertical-wall.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "A flat gray bar with two black lines, drawn like a UI icon rather than stone masonry. (First tries had baked frames: redone as a seamless texture.)",
@@ -3135,7 +3135,7 @@
  {
   "id": "tree",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/tree.png",
+  "installedPath": "assets/tiles/generated/terrain-features/tree.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Blurry upscaled green and brown blob with no shape; reads as a smudge rather than a tree. (Redone as a cut-out sprite: Godot draws it over its own floor.)",
@@ -3154,7 +3154,7 @@
  {
   "id": "bear-trap",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/bear-trap.png",
+  "installedPath": "assets/tiles/generated/traps-hazards/bear-trap.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Brown jagged ring reads as a crown at game size. (First tries read as a wheel: clearer prompt.)",
@@ -3173,7 +3173,7 @@
  {
   "id": "kitten-pet",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/kitten-pet.png",
+  "installedPath": "assets/tiles/generated/player-pets-identity/kitten-pet.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Orange tabby; NetHack's kitten is white, so it clashes with the game's own description and colors. (A reference edit changed too little: generated fresh.)",
@@ -3192,7 +3192,7 @@
  {
   "id": "little-dog-pet",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/little-dog-pet.png",
+  "installedPath": "assets/tiles/generated/player-pets-identity/little-dog-pet.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Dark gray and black dog; NetHack's little dog is white, and the dark coat also blends into the floor. (A reference edit changed too little: generated fresh.)",
@@ -3211,7 +3211,7 @@
  {
   "id": "plumed-helmet",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/plumed-helmet.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/plumed-helmet.png",
   "outputPath": "asset-generation/outputs/objects-appearance/plumed-helmet.png",
   "name": "plumed helmet",
   "glyph": "[",
@@ -3228,7 +3228,7 @@
  {
   "id": "etched-helmet",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/etched-helmet.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/etched-helmet.png",
   "outputPath": "asset-generation/outputs/objects-appearance/etched-helmet.png",
   "name": "etched helmet",
   "glyph": "[",
@@ -3245,7 +3245,7 @@
  {
   "id": "crested-helmet",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/crested-helmet.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/crested-helmet.png",
   "outputPath": "asset-generation/outputs/objects-appearance/crested-helmet.png",
   "name": "crested helmet",
   "glyph": "[",
@@ -3262,7 +3262,7 @@
  {
   "id": "visored-helmet",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/visored-helmet.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/visored-helmet.png",
   "outputPath": "asset-generation/outputs/objects-appearance/visored-helmet.png",
   "name": "visored helmet",
   "glyph": "[",
@@ -3279,7 +3279,7 @@
  {
   "id": "old-gloves",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/old-gloves.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/old-gloves.png",
   "outputPath": "asset-generation/outputs/objects-appearance/old-gloves.png",
   "name": "old gloves",
   "glyph": "[",
@@ -3296,7 +3296,7 @@
  {
   "id": "padded-gloves",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/padded-gloves.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/padded-gloves.png",
   "outputPath": "asset-generation/outputs/objects-appearance/padded-gloves.png",
   "name": "padded gloves",
   "glyph": "[",
@@ -3313,7 +3313,7 @@
  {
   "id": "riding-gloves",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/riding-gloves.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/riding-gloves.png",
   "outputPath": "asset-generation/outputs/objects-appearance/riding-gloves.png",
   "name": "riding gloves",
   "glyph": "[",
@@ -3330,7 +3330,7 @@
  {
   "id": "fencing-gloves",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/fencing-gloves.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/fencing-gloves.png",
   "outputPath": "asset-generation/outputs/objects-appearance/fencing-gloves.png",
   "name": "fencing gloves",
   "glyph": "[",
@@ -3347,7 +3347,7 @@
  {
   "id": "tattered-cape",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/tattered-cape.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/tattered-cape.png",
   "outputPath": "asset-generation/outputs/objects-appearance/tattered-cape.png",
   "name": "tattered cape",
   "glyph": "[",
@@ -3364,7 +3364,7 @@
  {
   "id": "opera-cloak",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/opera-cloak.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/opera-cloak.png",
   "outputPath": "asset-generation/outputs/objects-appearance/opera-cloak.png",
   "name": "opera cloak",
   "glyph": "[",
@@ -3381,7 +3381,7 @@
  {
   "id": "ornamental-cope",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/ornamental-cope.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/ornamental-cope.png",
   "outputPath": "asset-generation/outputs/objects-appearance/ornamental-cope.png",
   "name": "ornamental cope",
   "glyph": "[",
@@ -3398,7 +3398,7 @@
  {
   "id": "piece-of-cloth",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/piece-of-cloth.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/piece-of-cloth.png",
   "outputPath": "asset-generation/outputs/objects-appearance/piece-of-cloth.png",
   "name": "piece of cloth",
   "glyph": "[",
@@ -3415,7 +3415,7 @@
  {
   "id": "combat-boots",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/combat-boots.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/combat-boots.png",
   "outputPath": "asset-generation/outputs/objects-appearance/combat-boots.png",
   "name": "combat boots",
   "glyph": "[",
@@ -3432,7 +3432,7 @@
  {
   "id": "jungle-boots",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/jungle-boots.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/jungle-boots.png",
   "outputPath": "asset-generation/outputs/objects-appearance/jungle-boots.png",
   "name": "jungle boots",
   "glyph": "[",
@@ -3449,7 +3449,7 @@
  {
   "id": "hiking-boots",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/hiking-boots.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/hiking-boots.png",
   "outputPath": "asset-generation/outputs/objects-appearance/hiking-boots.png",
   "name": "hiking boots",
   "glyph": "[",
@@ -3466,7 +3466,7 @@
  {
   "id": "mud-boots",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/mud-boots.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/mud-boots.png",
   "outputPath": "asset-generation/outputs/objects-appearance/mud-boots.png",
   "name": "mud boots",
   "glyph": "[",
@@ -3483,7 +3483,7 @@
  {
   "id": "buckled-boots",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/buckled-boots.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/buckled-boots.png",
   "outputPath": "asset-generation/outputs/objects-appearance/buckled-boots.png",
   "name": "buckled boots",
   "glyph": "[",
@@ -3500,7 +3500,7 @@
  {
   "id": "riding-boots",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/riding-boots.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/riding-boots.png",
   "outputPath": "asset-generation/outputs/objects-appearance/riding-boots.png",
   "name": "riding boots",
   "glyph": "[",
@@ -3517,7 +3517,7 @@
  {
   "id": "snow-boots",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/snow-boots.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/snow-boots.png",
   "outputPath": "asset-generation/outputs/objects-appearance/snow-boots.png",
   "name": "snow boots",
   "glyph": "[",
@@ -3534,7 +3534,7 @@
  {
   "id": "conical-hat",
   "category": "objects-appearance",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-appearance/conical-hat.png",
+  "installedPath": "assets/tiles/generated/objects-appearance/conical-hat.png",
   "outputPath": "asset-generation/outputs/objects-appearance/conical-hat.png",
   "name": "conical hat",
   "glyph": "[",

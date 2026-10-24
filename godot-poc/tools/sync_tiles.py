@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Copies the generated tile art from electron-poc into the Godot project.
+"""Copies the generated tile art from assets/tiles into the Godot project.
 
-Source of truth: electron-poc/assets/tiles/manifest.json and tile-map.json.
+Source of truth: assets/tiles/manifest.json and tile-map.json.
 Output: project/assets/tiles/<id>.png (map size, 32 px), <id>.portrait.png for
 large source art (hero avatars), and tiles.json (asset metadata + tile map)
 read by project/game/world/tile_resolver.gd. Re-run after new art is installed.
@@ -15,7 +15,7 @@ from PIL import Image
 
 GODOT = Path(__file__).resolve().parent.parent
 ROOT = GODOT.parent
-SOURCE = ROOT / "electron-poc" / "assets" / "tiles"
+SOURCE = ROOT / "assets" / "tiles"
 OUT = GODOT / "project" / "assets" / "tiles"
 MAP_SIZE = 32
 LARGE_MAP_SIZE = 64

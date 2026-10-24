@@ -3,7 +3,7 @@
 
 Uses asset-generation/manifests/player-avatar-combo-inventory.json as source of truth
 and the transparent Krea2+RMBG workflow by default. Outputs true 1024x1024 PNGs,
-installs copies into electron-poc, and records prompt/seed/workflow/model/checksum provenance.
+installs copies into assets/tiles, and records prompt/seed/workflow/model/checksum provenance.
 The prompt intentionally asks for full-body head-to-toe framing; cropped portrait-style
 results should be retried rather than accepted as final assets.
 """
@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parents[2]
 INVENTORY_JSON = ROOT / "asset-generation/manifests/player-avatar-combo-inventory.json"
 WORKFLOW_PATH = ROOT / "asset-generation/workflows/krea2_basic_rem-background.json"
 OUTPUT_DIR = ROOT / "asset-generation/outputs/player-combo-avatars"
-INSTALL_DIR = ROOT / "electron-poc/assets/tiles/generated/player-combo-avatars"
+INSTALL_DIR = ROOT / "assets/tiles/generated/player-combo-avatars"
 PROVENANCE_JSON = ROOT / "asset-generation/manifests/player-combo-avatar-comfy-provenance.json"
 TRACKER_MD = ROOT / "asset-generation/manifests/player-combo-avatar-comfy-tracker.md"
 CONTACT_SHEET = ROOT / "asset-generation/outputs/player-combo-avatar-contact-sheet-comfy.png"

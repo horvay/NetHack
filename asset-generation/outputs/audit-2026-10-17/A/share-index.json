@@ -2,951 +2,951 @@
  {
   "id": "air",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/air.png"
+  "installedPath": "assets/tiles/generated/terrain-features/air.png"
  },
  {
   "id": "altar",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/altar.png"
+  "installedPath": "assets/tiles/generated/terrain-features/altar.png"
  },
  {
   "id": "beam-east",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/beam-east.png"
+  "installedPath": "assets/tiles/generated/terrain-features/beam-east.png"
  },
  {
   "id": "beam-north",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/beam-north.png"
+  "installedPath": "assets/tiles/generated/terrain-features/beam-north.png"
  },
  {
   "id": "beam-south",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/beam-south.png"
+  "installedPath": "assets/tiles/generated/terrain-features/beam-south.png"
  },
  {
   "id": "beam-west",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/beam-west.png"
+  "installedPath": "assets/tiles/generated/terrain-features/beam-west.png"
  },
  {
   "id": "boom-east",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/boom-east.png"
+  "installedPath": "assets/tiles/generated/terrain-features/boom-east.png"
  },
  {
   "id": "boom-north",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/boom-north.png"
+  "installedPath": "assets/tiles/generated/terrain-features/boom-north.png"
  },
  {
   "id": "boom-south",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/boom-south.png"
+  "installedPath": "assets/tiles/generated/terrain-features/boom-south.png"
  },
  {
   "id": "boom-west",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/boom-west.png"
+  "installedPath": "assets/tiles/generated/terrain-features/boom-west.png"
  },
  {
   "id": "branch-ladder-down",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/branch-ladder-down.png"
+  "installedPath": "assets/tiles/generated/terrain-features/branch-ladder-down.png"
  },
  {
   "id": "branch-ladder-up",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/branch-ladder-up.png"
+  "installedPath": "assets/tiles/generated/terrain-features/branch-ladder-up.png"
  },
  {
   "id": "branch-stairs-down",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/branch-stairs-down.png"
+  "installedPath": "assets/tiles/generated/terrain-features/branch-stairs-down.png"
  },
  {
   "id": "branch-stairs-up",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/branch-stairs-up.png"
+  "installedPath": "assets/tiles/generated/terrain-features/branch-stairs-up.png"
  },
  {
   "id": "broken-door",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/broken-door.png"
+  "installedPath": "assets/tiles/generated/terrain-features/broken-door.png"
  },
  {
   "id": "closed-door",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/closed-door.png"
+  "installedPath": "assets/tiles/generated/terrain-features/closed-door.png"
  },
  {
   "id": "cloud",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/cloud.png"
+  "installedPath": "assets/tiles/generated/terrain-features/cloud.png"
  },
  {
   "id": "dark-corridor",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/dark-corridor.png"
+  "installedPath": "assets/tiles/generated/terrain-features/dark-corridor.png"
  },
  {
   "id": "dark-room-floor",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/dark-room-floor.png"
+  "installedPath": "assets/tiles/generated/terrain-features/dark-room-floor.png"
  },
  {
   "id": "down-stairs",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/down-stairs.png"
+  "installedPath": "assets/tiles/generated/terrain-features/down-stairs.png"
  },
  {
   "id": "drawbridge",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/drawbridge.png"
+  "installedPath": "assets/tiles/generated/terrain-features/drawbridge.png"
  },
  {
   "id": "engraving",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/engraving.png"
+  "installedPath": "assets/tiles/generated/terrain-features/engraving.png"
  },
  {
   "id": "flash-effect",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/flash-effect.png"
+  "installedPath": "assets/tiles/generated/terrain-features/flash-effect.png"
  },
  {
   "id": "fountain",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/fountain.png"
+  "installedPath": "assets/tiles/generated/terrain-features/fountain.png"
  },
  {
   "id": "generic-wall-fallback",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/generic-wall-fallback.png"
+  "installedPath": "assets/tiles/generated/terrain-features/generic-wall-fallback.png"
  },
  {
   "id": "grave",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/grave.png"
+  "installedPath": "assets/tiles/generated/terrain-features/grave.png"
  },
  {
   "id": "horizontal-wall",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/horizontal-wall.png"
+  "installedPath": "assets/tiles/generated/terrain-features/horizontal-wall.png"
  },
  {
   "id": "ice",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/ice.png"
+  "installedPath": "assets/tiles/generated/terrain-features/ice.png"
  },
  {
   "id": "iron-bars",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/iron-bars.png"
+  "installedPath": "assets/tiles/generated/terrain-features/iron-bars.png"
  },
  {
   "id": "ladder-down",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/ladder-down.png"
+  "installedPath": "assets/tiles/generated/terrain-features/ladder-down.png"
  },
  {
   "id": "ladder-up",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/ladder-up.png"
+  "installedPath": "assets/tiles/generated/terrain-features/ladder-up.png"
  },
  {
   "id": "lava",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/lava.png"
+  "installedPath": "assets/tiles/generated/terrain-features/lava.png"
  },
  {
   "id": "lava-wall",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/lava-wall.png"
+  "installedPath": "assets/tiles/generated/terrain-features/lava-wall.png"
  },
  {
   "id": "lit-corridor",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/lit-corridor.png"
+  "installedPath": "assets/tiles/generated/terrain-features/lit-corridor.png"
  },
  {
   "id": "magic-portal",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/magic-portal.png"
+  "installedPath": "assets/tiles/generated/terrain-features/magic-portal.png"
  },
  {
   "id": "mines-corner",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/mines-corner.png"
+  "installedPath": "assets/tiles/generated/terrain-features/mines-corner.png"
  },
  {
   "id": "mines-floor",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/mines-floor.png"
+  "installedPath": "assets/tiles/generated/terrain-features/mines-floor.png"
  },
  {
   "id": "mines-wall",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/mines-wall.png"
+  "installedPath": "assets/tiles/generated/terrain-features/mines-wall.png"
  },
  {
   "id": "moat-water",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/moat-water.png"
+  "installedPath": "assets/tiles/generated/terrain-features/moat-water.png"
  },
  {
   "id": "no-door-doorway",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/no-door-doorway.png"
+  "installedPath": "assets/tiles/generated/terrain-features/no-door-doorway.png"
  },
  {
   "id": "open-horizontal-door",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/open-horizontal-door.png"
+  "installedPath": "assets/tiles/generated/terrain-features/open-horizontal-door.png"
  },
  {
   "id": "open-vertical-door",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/open-vertical-door.png"
+  "installedPath": "assets/tiles/generated/terrain-features/open-vertical-door.png"
  },
  {
   "id": "poison-cloud",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/poison-cloud.png"
+  "installedPath": "assets/tiles/generated/terrain-features/poison-cloud.png"
  },
  {
   "id": "pool-water",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/pool-water.png"
+  "installedPath": "assets/tiles/generated/terrain-features/pool-water.png"
  },
  {
   "id": "room-floor",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/room-floor.png"
+  "installedPath": "assets/tiles/generated/terrain-features/room-floor.png"
  },
  {
   "id": "sea-water",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/sea-water.png"
+  "installedPath": "assets/tiles/generated/terrain-features/sea-water.png"
  },
  {
   "id": "shield-east",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/shield-east.png"
+  "installedPath": "assets/tiles/generated/terrain-features/shield-east.png"
  },
  {
   "id": "shield-effect",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/shield-effect.png"
+  "installedPath": "assets/tiles/generated/terrain-features/shield-effect.png"
  },
  {
   "id": "shield-north",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/shield-north.png"
+  "installedPath": "assets/tiles/generated/terrain-features/shield-north.png"
  },
  {
   "id": "shield-south",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/shield-south.png"
+  "installedPath": "assets/tiles/generated/terrain-features/shield-south.png"
  },
  {
   "id": "shield-west",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/shield-west.png"
+  "installedPath": "assets/tiles/generated/terrain-features/shield-west.png"
  },
  {
   "id": "sink",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/sink.png"
+  "installedPath": "assets/tiles/generated/terrain-features/sink.png"
  },
  {
   "id": "sokoban-floor",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/sokoban-floor.png"
+  "installedPath": "assets/tiles/generated/terrain-features/sokoban-floor.png"
  },
  {
   "id": "sokoban-goal",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/sokoban-goal.png"
+  "installedPath": "assets/tiles/generated/terrain-features/sokoban-goal.png"
  },
  {
   "id": "sokoban-wall",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/sokoban-wall.png"
+  "installedPath": "assets/tiles/generated/terrain-features/sokoban-wall.png"
  },
  {
   "id": "throne",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/throne.png"
+  "installedPath": "assets/tiles/generated/terrain-features/throne.png"
  },
  {
   "id": "tree",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/tree.png"
+  "installedPath": "assets/tiles/generated/terrain-features/tree.png"
  },
  {
   "id": "unexplored-stone",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/unexplored-stone.png"
+  "installedPath": "assets/tiles/generated/terrain-features/unexplored-stone.png"
  },
  {
   "id": "up-stairs",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/up-stairs.png"
+  "installedPath": "assets/tiles/generated/terrain-features/up-stairs.png"
  },
  {
   "id": "valid-position-marker",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/valid-position-marker.png"
+  "installedPath": "assets/tiles/generated/terrain-features/valid-position-marker.png"
  },
  {
   "id": "vertical-wall",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/vertical-wall.png"
+  "installedPath": "assets/tiles/generated/terrain-features/vertical-wall.png"
  },
  {
   "id": "vibrating-square",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/vibrating-square.png"
+  "installedPath": "assets/tiles/generated/terrain-features/vibrating-square.png"
  },
  {
   "id": "wall-corner",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/wall-corner.png"
+  "installedPath": "assets/tiles/generated/terrain-features/wall-corner.png"
  },
  {
   "id": "wall-tee-junction",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/wall-tee-junction.png"
+  "installedPath": "assets/tiles/generated/terrain-features/wall-tee-junction.png"
  },
  {
   "id": "water-wall",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/water-wall.png"
+  "installedPath": "assets/tiles/generated/terrain-features/water-wall.png"
  },
  {
   "id": "zap-beam",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/zap-beam.png"
+  "installedPath": "assets/tiles/generated/terrain-features/zap-beam.png"
  },
  {
   "id": "anti-magic-trap",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/anti-magic-trap.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/anti-magic-trap.png"
  },
  {
   "id": "arrow-trap",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/arrow-trap.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/arrow-trap.png"
  },
  {
   "id": "bear-trap",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/bear-trap.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/bear-trap.png"
  },
  {
   "id": "dart-trap",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/dart-trap.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/dart-trap.png"
  },
  {
   "id": "falling-rock-trap",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/falling-rock-trap.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/falling-rock-trap.png"
  },
  {
   "id": "fire-trap",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/fire-trap.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/fire-trap.png"
  },
  {
   "id": "hole",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/hole.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/hole.png"
  },
  {
   "id": "land-mine",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/land-mine.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/land-mine.png"
  },
  {
   "id": "level-teleporter",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/level-teleporter.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/level-teleporter.png"
  },
  {
   "id": "magic-trap",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/magic-trap.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/magic-trap.png"
  },
  {
   "id": "pit",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/pit.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/pit.png"
  },
  {
   "id": "polymorph-trap",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/polymorph-trap.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/polymorph-trap.png"
  },
  {
   "id": "rolling-boulder-trap",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/rolling-boulder-trap.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/rolling-boulder-trap.png"
  },
  {
   "id": "rust-trap",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/rust-trap.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/rust-trap.png"
  },
  {
   "id": "sleeping-gas-trap",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/sleeping-gas-trap.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/sleeping-gas-trap.png"
  },
  {
   "id": "spiked-pit",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/spiked-pit.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/spiked-pit.png"
  },
  {
   "id": "squeaky-board",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/squeaky-board.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/squeaky-board.png"
  },
  {
   "id": "statue-trap",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/statue-trap.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/statue-trap.png"
  },
  {
   "id": "teleport-trap",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/teleport-trap.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/teleport-trap.png"
  },
  {
   "id": "trap-door",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/trap-door.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/trap-door.png"
  },
  {
   "id": "trapped-chest-marker",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/trapped-chest-marker.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/trapped-chest-marker.png"
  },
  {
   "id": "trapped-door-marker",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/trapped-door-marker.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/trapped-door-marker.png"
  },
  {
   "id": "web",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/web.png"
+  "installedPath": "assets/tiles/generated/traps-hazards/web.png"
  },
  {
   "id": "blind-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/blind-badge.png"
+  "installedPath": "assets/tiles/generated/ui-status-overlays/blind-badge.png"
  },
  {
   "id": "burdened-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/burdened-badge.png"
+  "installedPath": "assets/tiles/generated/ui-status-overlays/burdened-badge.png"
  },
  {
   "id": "confused-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/confused-badge.png"
+  "installedPath": "assets/tiles/generated/ui-status-overlays/confused-badge.png"
  },
  {
   "id": "equipment-slot-frame",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/equipment-slot-frame.png"
+  "installedPath": "assets/tiles/generated/ui-status-overlays/equipment-slot-frame.png"
  },
  {
   "id": "glyph-class-debug-overlay",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/glyph-class-debug-overlay.png"
+  "installedPath": "assets/tiles/generated/ui-status-overlays/glyph-class-debug-overlay.png"
  },
  {
   "id": "glyph-debug-overlay",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/glyph-debug-overlay.png"
+  "installedPath": "assets/tiles/generated/ui-status-overlays/glyph-debug-overlay.png"
  },
  {
   "id": "hallucination-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/hallucination-badge.png"
+  "installedPath": "assets/tiles/generated/ui-status-overlays/hallucination-badge.png"
  },
  {
   "id": "health-bar",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/health-bar.png"
+  "installedPath": "assets/tiles/generated/ui-status-overlays/health-bar.png"
  },
  {
   "id": "hunger-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/hunger-badge.png"
+  "installedPath": "assets/tiles/generated/ui-status-overlays/hunger-badge.png"
  },
  {
   "id": "inventory-selected-item-highlight",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/inventory-selected-item-highlight.png"
+  "installedPath": "assets/tiles/generated/ui-status-overlays/inventory-selected-item-highlight.png"
  },
  {
   "id": "message-log-panel",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/message-log-panel.png"
+  "installedPath": "assets/tiles/generated/ui-status-overlays/message-log-panel.png"
  },
  {
   "id": "movement-hint-icon",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/movement-hint-icon.png"
+  "installedPath": "assets/tiles/generated/ui-status-overlays/movement-hint-icon.png"
  },
  {
   "id": "open-door-action-icon",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/open-door-action-icon.png"
+  "installedPath": "assets/tiles/generated/ui-status-overlays/open-door-action-icon.png"
  },
  {
   "id": "pickup-action-icon",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/pickup-action-icon.png"
+  "installedPath": "assets/tiles/generated/ui-status-overlays/pickup-action-icon.png"
  },
  {
   "id": "poisoned-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/poisoned-badge.png"
+  "installedPath": "assets/tiles/generated/ui-status-overlays/poisoned-badge.png"
  },
  {
   "id": "power-bar",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/power-bar.png"
+  "installedPath": "assets/tiles/generated/ui-status-overlays/power-bar.png"
  },
  {
   "id": "sick-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/sick-badge.png"
+  "installedPath": "assets/tiles/generated/ui-status-overlays/sick-badge.png"
  },
  {
   "id": "stairs-down-action-icon",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/stairs-down-action-icon.png"
+  "installedPath": "assets/tiles/generated/ui-status-overlays/stairs-down-action-icon.png"
  },
  {
   "id": "stairs-up-action-icon",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/stairs-up-action-icon.png"
+  "installedPath": "assets/tiles/generated/ui-status-overlays/stairs-up-action-icon.png"
  },
  {
   "id": "status-strip-field-frame",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/status-strip-field-frame.png"
+  "installedPath": "assets/tiles/generated/ui-status-overlays/status-strip-field-frame.png"
  },
  {
   "id": "stunned-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/stunned-badge.png"
+  "installedPath": "assets/tiles/generated/ui-status-overlays/stunned-badge.png"
  },
  {
   "id": "wait-action-icon",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/wait-action-icon.png"
+  "installedPath": "assets/tiles/generated/ui-status-overlays/wait-action-icon.png"
  },
  {
   "id": "archeologist-role-avatar",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/archeologist-role-avatar.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/archeologist-role-avatar.png"
  },
  {
   "id": "barbarian-role-avatar",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/barbarian-role-avatar.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/barbarian-role-avatar.png"
  },
  {
   "id": "caveman-role-avatar",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/caveman-role-avatar.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/caveman-role-avatar.png"
  },
  {
   "id": "cavewoman-role-avatar",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/cavewoman-role-avatar.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/cavewoman-role-avatar.png"
  },
  {
   "id": "cursor-indicator",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/cursor-indicator.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/cursor-indicator.png"
  },
  {
   "id": "dwarf-player-variant",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/dwarf-player-variant.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/dwarf-player-variant.png"
  },
  {
   "id": "elf-player-variant",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/elf-player-variant.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/elf-player-variant.png"
  },
  {
   "id": "gnome-player-variant",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/gnome-player-variant.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/gnome-player-variant.png"
  },
  {
   "id": "healer-role-avatar",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/healer-role-avatar.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/healer-role-avatar.png"
  },
  {
   "id": "hero-avatar",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/hero-avatar.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/hero-avatar.png"
  },
  {
   "id": "human-player-variant",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/human-player-variant.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/human-player-variant.png"
  },
  {
   "id": "kitten-pet",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/kitten-pet.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/kitten-pet.png"
  },
  {
   "id": "knight-role-avatar",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/knight-role-avatar.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/knight-role-avatar.png"
  },
  {
   "id": "little-dog-pet",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/little-dog-pet.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/little-dog-pet.png"
  },
  {
   "id": "monk-role-avatar",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/monk-role-avatar.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/monk-role-avatar.png"
  },
  {
   "id": "orc-player-variant",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/orc-player-variant.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/orc-player-variant.png"
  },
  {
   "id": "pony-pet",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/pony-pet.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/pony-pet.png"
  },
  {
   "id": "priest-role-avatar",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/priest-role-avatar.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/priest-role-avatar.png"
  },
  {
   "id": "priestess-role-avatar",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/priestess-role-avatar.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/priestess-role-avatar.png"
  },
  {
   "id": "ranger-role-avatar",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/ranger-role-avatar.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/ranger-role-avatar.png"
  },
  {
   "id": "rogue-role-avatar",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/rogue-role-avatar.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/rogue-role-avatar.png"
  },
  {
   "id": "samurai-role-avatar",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/samurai-role-avatar.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/samurai-role-avatar.png"
  },
  {
   "id": "tourist-role-avatar",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/tourist-role-avatar.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/tourist-role-avatar.png"
  },
  {
   "id": "valkyrie-role-avatar",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/valkyrie-role-avatar.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/valkyrie-role-avatar.png"
  },
  {
   "id": "wizard-role-avatar",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/wizard-role-avatar.png"
+  "installedPath": "assets/tiles/generated/player-pets-identity/wizard-role-avatar.png"
  },
  {
   "id": "dwarf-archeologist-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-archeologist-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/dwarf-archeologist-female-avatar.png"
  },
  {
   "id": "dwarf-archeologist-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-archeologist-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/dwarf-archeologist-male-avatar.png"
  },
  {
   "id": "dwarf-caveman-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-caveman-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/dwarf-caveman-female-avatar.png"
  },
  {
   "id": "dwarf-caveman-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-caveman-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/dwarf-caveman-male-avatar.png"
  },
  {
   "id": "dwarf-valkyrie-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-valkyrie-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/dwarf-valkyrie-female-avatar.png"
  },
  {
   "id": "elf-priest-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-priest-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/elf-priest-female-avatar.png"
  },
  {
   "id": "elf-priest-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-priest-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/elf-priest-male-avatar.png"
  },
  {
   "id": "elf-ranger-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-ranger-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/elf-ranger-female-avatar.png"
  },
  {
   "id": "elf-ranger-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-ranger-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/elf-ranger-male-avatar.png"
  },
  {
   "id": "elf-wizard-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-wizard-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/elf-wizard-female-avatar.png"
  },
  {
   "id": "elf-wizard-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-wizard-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/elf-wizard-male-avatar.png"
  },
  {
   "id": "gnome-archeologist-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-archeologist-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-archeologist-female-avatar.png"
  },
  {
   "id": "gnome-archeologist-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-archeologist-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-archeologist-male-avatar.png"
  },
  {
   "id": "gnome-caveman-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-caveman-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-caveman-female-avatar.png"
  },
  {
   "id": "gnome-caveman-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-caveman-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-caveman-male-avatar.png"
  },
  {
   "id": "gnome-healer-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-healer-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-healer-female-avatar.png"
  },
  {
   "id": "gnome-healer-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-healer-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-healer-male-avatar.png"
  },
  {
   "id": "gnome-ranger-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-ranger-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-ranger-female-avatar.png"
  },
  {
   "id": "gnome-ranger-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-ranger-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-ranger-male-avatar.png"
  },
  {
   "id": "gnome-wizard-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-wizard-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-wizard-female-avatar.png"
  },
  {
   "id": "gnome-wizard-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-wizard-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-wizard-male-avatar.png"
  },
  {
   "id": "human-archeologist-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-archeologist-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-archeologist-female-avatar.png"
  },
  {
   "id": "human-archeologist-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-archeologist-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-archeologist-male-avatar.png"
  },
  {
   "id": "human-barbarian-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-barbarian-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-barbarian-female-avatar.png"
  },
  {
   "id": "human-barbarian-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-barbarian-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-barbarian-male-avatar.png"
  },
  {
   "id": "human-caveman-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-caveman-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-caveman-female-avatar.png"
  },
  {
   "id": "human-caveman-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-caveman-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-caveman-male-avatar.png"
  },
  {
   "id": "human-healer-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-healer-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-healer-female-avatar.png"
  },
  {
   "id": "human-healer-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-healer-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-healer-male-avatar.png"
  },
  {
   "id": "human-knight-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-knight-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-knight-female-avatar.png"
  },
  {
   "id": "human-knight-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-knight-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-knight-male-avatar.png"
  },
  {
   "id": "human-monk-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-monk-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-monk-female-avatar.png"
  },
  {
   "id": "human-monk-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-monk-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-monk-male-avatar.png"
  },
  {
   "id": "human-priest-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-priest-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-priest-female-avatar.png"
  },
  {
   "id": "human-priest-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-priest-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-priest-male-avatar.png"
  },
  {
   "id": "human-ranger-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-ranger-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-ranger-female-avatar.png"
  },
  {
   "id": "human-ranger-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-ranger-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-ranger-male-avatar.png"
  },
  {
   "id": "human-rogue-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-rogue-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-rogue-female-avatar.png"
  },
  {
   "id": "human-rogue-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-rogue-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-rogue-male-avatar.png"
  },
  {
   "id": "human-samurai-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-samurai-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-samurai-female-avatar.png"
  },
  {
   "id": "human-samurai-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-samurai-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-samurai-male-avatar.png"
  },
  {
   "id": "human-tourist-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-tourist-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-tourist-female-avatar.png"
  },
  {
   "id": "human-tourist-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-tourist-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-tourist-male-avatar.png"
  },
  {
   "id": "human-valkyrie-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-valkyrie-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-valkyrie-female-avatar.png"
  },
  {
   "id": "human-wizard-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-wizard-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-wizard-female-avatar.png"
  },
  {
   "id": "human-wizard-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-wizard-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-wizard-male-avatar.png"
  },
  {
   "id": "orc-barbarian-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-barbarian-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/orc-barbarian-female-avatar.png"
  },
  {
   "id": "orc-barbarian-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-barbarian-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/orc-barbarian-male-avatar.png"
  },
  {
   "id": "orc-ranger-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-ranger-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/orc-ranger-female-avatar.png"
  },
  {
   "id": "orc-ranger-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-ranger-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/orc-ranger-male-avatar.png"
  },
  {
   "id": "orc-rogue-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-rogue-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/orc-rogue-female-avatar.png"
  },
  {
   "id": "orc-rogue-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-rogue-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/orc-rogue-male-avatar.png"
  },
  {
   "id": "orc-wizard-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-wizard-female-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/orc-wizard-female-avatar.png"
  },
  {
   "id": "orc-wizard-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-wizard-male-avatar.png"
+  "installedPath": "assets/tiles/generated/player-combo-avatars/orc-wizard-male-avatar.png"
  }
 ]

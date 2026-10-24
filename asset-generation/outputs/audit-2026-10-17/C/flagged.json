@@ -2,7 +2,7 @@
  {
   "id": "abra-ka-dabra",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/abra-ka-dabra.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/abra-ka-dabra.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Unidentified scroll label art is drawn as an ornate jeweled spellbook; the resolver shows it for every unread 'scroll labeled ABRA KA DABRA', so it misleads and can hint at a fake identity.",
@@ -15,7 +15,7 @@
  {
   "id": "ashpd-sodalg",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/ashpd-sodalg.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/ashpd-sodalg.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Unidentified scroll label art is drawn as a gray-and-purple spellbook; the resolver shows it for every unread 'scroll labeled ASHPD SODALG', so it misleads and can hint at a fake identity.",
@@ -28,7 +28,7 @@
  {
   "id": "eiris-sazun-idisi",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/eiris-sazun-idisi.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/eiris-sazun-idisi.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Unidentified scroll label art is drawn as a navy spellbook with a green matte fringe; the resolver shows it for every unread 'scroll labeled EIRIS SAZUN IDISI', so it misleads and can hint at a fake identity.",
@@ -41,7 +41,7 @@
  {
   "id": "garven-deh",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/garven-deh.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/garven-deh.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Unidentified scroll label art is drawn as a teal ornate spellbook; the resolver shows it for every unread 'scroll labeled GARVEN DEH', so it misleads and can hint at a fake identity.",
@@ -54,7 +54,7 @@
  {
   "id": "hapax-legomenon",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/hapax-legomenon.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/hapax-legomenon.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Unidentified scroll label art is drawn as a purple spellbook; the resolver shows it for every unread 'scroll labeled HAPAX LEGOMENON', so it misleads and can hint at a fake identity.",
@@ -67,7 +67,7 @@
  {
   "id": "etaoin-shrdlu",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/etaoin-shrdlu.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/etaoin-shrdlu.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Unidentified scroll label art is drawn as a brown spellbook with green edge fringe; the resolver shows it for every unread 'scroll labeled ETAOIN SHRDLU', so it misleads and can hint at a fake identity.",
@@ -80,7 +80,7 @@
  {
   "id": "foobie-bletch",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/foobie-bletch.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/foobie-bletch.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Unidentified scroll label art is drawn as a bomb/ornament with a fuse, not a scroll; the resolver shows it for every unread 'scroll labeled FOOBIE BLETCH', so it misleads and can hint at a fake identity.",
@@ -93,7 +93,7 @@
  {
   "id": "ghoti",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/ghoti.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/ghoti.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Unidentified scroll label art is drawn as a fish (the 'ghoti' pun), which is not a scroll at all; the resolver shows it for every unread 'scroll labeled GHOTI', so it misleads and can hint at a fake identity.",
@@ -106,7 +106,7 @@
  {
   "id": "gnik-sisi-vle",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/gnik-sisi-vle.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/gnik-sisi-vle.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Unidentified scroll label art is drawn as a mechanical gear/compass, not a scroll; the resolver shows it for every unread 'scroll labeled GNIK SISI VLE', so it misleads and can hint at a fake identity.",
@@ -119,7 +119,7 @@
  {
   "id": "ko-bate",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/ko-bate.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/ko-bate.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Unidentified scroll label art is drawn as two crossed sticks, not a scroll; the resolver shows it for every unread 'scroll labeled KO BATE', so it misleads and can hint at a fake identity.",
@@ -132,7 +132,7 @@
  {
   "id": "mapiro-mahama-diromat",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/mapiro-mahama-diromat.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/mapiro-mahama-diromat.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Unidentified scroll label art is drawn as an open book, not a rolled scroll; the resolver shows it for every unread 'scroll labeled MAPIRO MAHAMA DIROMAT', so it misleads and can hint at a fake identity.",
@@ -145,7 +145,7 @@
  {
   "id": "phol-ende-wodan",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/phol-ende-wodan.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/phol-ende-wodan.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Unidentified scroll label art is drawn as a chain/rope piece with a gem, not a scroll; the resolver shows it for every unread 'scroll labeled PHOL ENDE WODAN', so it misleads and can hint at a fake identity.",
@@ -158,7 +158,7 @@
  {
   "id": "strc-prst-skrz-krk",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/strc-prst-skrz-krk.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/strc-prst-skrz-krk.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Unidentified scroll label art is drawn as a purple crystal-and-bones relic, not a scroll; the resolver shows it for every unread 'scroll labeled STRC PRST SKRZ KRK', so it misleads and can hint at a fake identity.",
@@ -171,7 +171,7 @@
  {
   "id": "vas-corp-bet-mani",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/vas-corp-bet-mani.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/vas-corp-bet-mani.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Unidentified scroll label art is flat vector skull inside a red capsule; not a scroll and reads as a poison/death icon; the resolver shows it for every unread 'scroll labeled VAS CORP BET MANI', so it misleads and can hint at a fake identity.",
@@ -184,7 +184,7 @@
  {
   "id": "xor-ota",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/xor-ota.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/xor-ota.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Unidentified scroll label art is drawn as a green-gem wand/scepter, not a scroll; the resolver shows it for every unread 'scroll labeled XOR OTA', so it misleads and can hint at a fake identity.",
@@ -197,7 +197,7 @@
  {
   "id": "lorem-ipsum",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/lorem-ipsum.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/lorem-ipsum.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Scroll label drawn as a flat square parchment card in a cyan/purple UI-like frame; reads as a UI panel, not a rolled scroll like its sibling labels.",
@@ -210,7 +210,7 @@
  {
   "id": "fnord",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/fnord.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/fnord.png",
   "problem": "inconsistent",
   "severity": "low",
   "what_is_wrong": "Scroll label has a purple/cyan magic glow and twisted book-like shape; an unidentified label should look like a plain scroll like read-me/temov.",
@@ -223,7 +223,7 @@
  {
   "id": "ring-class-icon",
   "category": "objects-inventory",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/ring-class-icon.png",
+  "installedPath": "assets/tiles/generated/objects-inventory/ring-class-icon.png",
   "problem": "unclear",
   "severity": "high",
   "what_is_wrong": "Generic ring icon (shown for every unidentified ring) reads as a lumpy gold bag or blob; no visible ring hole.",
@@ -236,7 +236,7 @@
  {
   "id": "tool-class-icon",
   "category": "objects-inventory",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/tool-class-icon.png",
+  "installedPath": "assets/tiles/generated/objects-inventory/tool-class-icon.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Generic tool icon is a muddy pile of wrench, cogs and wheels; nothing reads at 32 px.",
@@ -249,7 +249,7 @@
  {
   "id": "whistle",
   "category": "objects-inventory",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/whistle.png",
+  "installedPath": "assets/tiles/generated/objects-inventory/whistle.png",
   "problem": "unclear",
   "severity": "high",
   "what_is_wrong": "Generic 'whistle' appearance (all unidentified whistles) is an unreadable gold/red/green gadget with a green matte fringe.",
@@ -262,7 +262,7 @@
  {
   "id": "rare-amulet-variant",
   "category": "objects-inventory",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/rare-amulet-variant.png",
+  "installedPath": "assets/tiles/generated/objects-inventory/rare-amulet-variant.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Amulet fallback is drawn as a gray glass bottle/flask, reads as a potion.",
@@ -275,7 +275,7 @@
  {
   "id": "elven-arrow",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/elven-arrow.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/elven-arrow.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Arrow is wrapped in a bright lime-green halo left over from the green matte.",
@@ -288,7 +288,7 @@
  {
   "id": "elven-bow",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/elven-bow.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/elven-bow.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "The space between bow and string is filled with flat green matte; the bow reads as a green leaf.",
@@ -301,7 +301,7 @@
  {
   "id": "dart",
   "category": "objects-inventory",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/dart.png",
+  "installedPath": "assets/tiles/generated/objects-inventory/dart.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Flat programmer-art arrow (22 colors, no shading); looks like a full arrow rather than a short throwing dart.",
@@ -314,7 +314,7 @@
  {
   "id": "lance",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/lance.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/lance.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Lance is a hair-thin, low-contrast stick that almost vanishes at 32 px.",
@@ -327,7 +327,7 @@
  {
   "id": "yumi",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/yumi.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/yumi.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Yumi is a faint hairline outline of a bow with no outline weight; disappears on the floor.",
@@ -340,7 +340,7 @@
  {
   "id": "quarterstaff",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/quarterstaff.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/quarterstaff.png",
   "problem": "vector",
   "severity": "low",
   "what_is_wrong": "Flat brown log with minimal detail; weaker and flatter than the rest of the weapon set.",
@@ -353,7 +353,7 @@
  {
   "id": "mace",
   "category": "objects-inventory",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/mace.png",
+  "installedPath": "assets/tiles/generated/objects-inventory/mace.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Mace head is a pale bone-white cog shape with a tiny handle; reads like a gear or ankh.",
@@ -366,7 +366,7 @@
  {
   "id": "sling",
   "category": "objects-inventory",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/sling.png",
+  "installedPath": "assets/tiles/generated/objects-inventory/sling.png",
   "problem": "unclear",
   "severity": "low",
   "what_is_wrong": "Sling is a loose brown loop that reads as a rope or belt.",
@@ -379,7 +379,7 @@
  {
   "id": "force-bolt",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/force-bolt.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/force-bolt.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Spellbook of force bolt is drawn as a brass telescope/cannon with a blue orb.",
@@ -392,7 +392,7 @@
  {
   "id": "bronze-plate-mail",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/bronze-plate-mail.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/bronze-plate-mail.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Flat 8-color programmer-art breastplate with no shading; looks like a barrel next to the painted armor set.",
@@ -405,7 +405,7 @@
  {
   "id": "crystal-plate-mail",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/crystal-plate-mail.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/crystal-plate-mail.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Crystal plate mail is drawn as a loose faceted gem; players will read it as a gem.",
@@ -418,7 +418,7 @@
  {
   "id": "dwarvish-mithril-coat",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/dwarvish-mithril-coat.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/dwarvish-mithril-coat.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Mithril coat is drawn as a brown/gold crossbow-like contraption with a green fringe; nothing reads as body armor.",
@@ -431,7 +431,7 @@
  {
   "id": "elven-mithril-coat",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/elven-mithril-coat.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/elven-mithril-coat.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Elven mithril coat is drawn as an axe/tool with green fringe, not a shirt of mail.",
@@ -444,7 +444,7 @@
  {
   "id": "cornuthaum",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cornuthaum.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/cornuthaum.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Cornuthaum (tall wizard hat) is drawn as a jeweled gadget/drill with green fringe.",
@@ -457,7 +457,7 @@
  {
   "id": "dunce-cap",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/dunce-cap.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/dunce-cap.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Dunce cap is a dark muddy bell shape; does not read as a tall pointed cone.",
@@ -470,7 +470,7 @@
  {
   "id": "cloak-of-displacement",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cloak-of-displacement.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/cloak-of-displacement.png",
   "problem": "duplicate",
   "severity": "high",
   "what_is_wrong": "One of six near-identical noisy gray-metal crumpled cloaks; reads as crushed foil and players cannot tell the cloaks apart.",
@@ -483,7 +483,7 @@
  {
   "id": "cloak-of-invisibility",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cloak-of-invisibility.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/cloak-of-invisibility.png",
   "problem": "duplicate",
   "severity": "high",
   "what_is_wrong": "One of six near-identical noisy gray-metal crumpled cloaks; reads as crushed foil and players cannot tell the cloaks apart.",
@@ -496,7 +496,7 @@
  {
   "id": "cloak-of-magic-resistance",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cloak-of-magic-resistance.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/cloak-of-magic-resistance.png",
   "problem": "duplicate",
   "severity": "high",
   "what_is_wrong": "One of six near-identical noisy gray-metal crumpled cloaks; reads as crushed foil and players cannot tell the cloaks apart.",
@@ -509,7 +509,7 @@
  {
   "id": "cloak-of-protection",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cloak-of-protection.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/cloak-of-protection.png",
   "problem": "duplicate",
   "severity": "high",
   "what_is_wrong": "One of six near-identical noisy gray-metal crumpled cloaks; reads as crushed foil and players cannot tell the cloaks apart.",
@@ -522,7 +522,7 @@
  {
   "id": "dwarvish-cloak",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/dwarvish-cloak.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/dwarvish-cloak.png",
   "problem": "duplicate",
   "severity": "high",
   "what_is_wrong": "One of six near-identical noisy gray-metal crumpled cloaks; reads as crushed foil and players cannot tell the cloaks apart.",
@@ -535,7 +535,7 @@
  {
   "id": "elven-cloak",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/elven-cloak.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/elven-cloak.png",
   "problem": "duplicate",
   "severity": "high",
   "what_is_wrong": "One of six near-identical noisy gray-metal crumpled cloaks; reads as crushed foil and players cannot tell the cloaks apart.",
@@ -548,7 +548,7 @@
  {
   "id": "elven-boots",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/elven-boots.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/elven-boots.png",
   "problem": "unclear",
   "severity": "low",
   "what_is_wrong": "Noisy crumpled metallic texture like the cloaks; reads as scrap rather than soft boots.",
@@ -561,7 +561,7 @@
  {
   "id": "shimmering-dragon-scales",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/shimmering-dragon-scales.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/shimmering-dragon-scales.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Flat candy-colored pebbles in a dark disc; reads as a bowl of sweets, flatter than the other dragon scales.",
@@ -574,7 +574,7 @@
  {
   "id": "black-dragon-scales",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/black-dragon-scales.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/black-dragon-scales.png",
   "problem": "unclear",
   "severity": "low",
   "what_is_wrong": "Near-black spiky blob with almost no highlight; disappears on dark floor.",
@@ -587,7 +587,7 @@
  {
   "id": "shield-of-drain-resistance",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/shield-of-drain-resistance.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/shield-of-drain-resistance.png",
   "problem": "duplicate",
   "severity": "medium",
   "what_is_wrong": "Drawn as a double-bladed axe head; nearly identical to shield-of-reflection and shield-of-shock-resistance.",
@@ -600,7 +600,7 @@
  {
   "id": "shield-of-shock-resistance",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/shield-of-shock-resistance.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/shield-of-shock-resistance.png",
   "problem": "duplicate",
   "severity": "low",
   "what_is_wrong": "Same blue kite shield with white star as shield-of-reflection; the two are indistinguishable.",
@@ -613,7 +613,7 @@
  {
   "id": "mail",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/mail.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/mail.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "'mail' in NetHack is the scroll of mail, but this is a chain-mail shirt (duplicate of chain-mail).",
@@ -626,7 +626,7 @@
  {
   "id": "destroy-armor",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/destroy-armor.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/destroy-armor.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Flat vector icon: gray rounded rectangle with a red diagonal slash; not a scroll and not pixel-art.",
@@ -639,7 +639,7 @@
  {
   "id": "enchant-armor",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/enchant-armor.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/enchant-armor.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Flat vector blue rectangle with yellow plus signs; reads as a UI badge, not a scroll.",
@@ -652,7 +652,7 @@
  {
   "id": "magic-mapping",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/magic-mapping.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/magic-mapping.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Flat yellow rounded card with a cyan line; vector-looking and unlike the parchment scrolls.",
@@ -665,7 +665,7 @@
  {
   "id": "stinking-cloud",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/stinking-cloud.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/stinking-cloud.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Scroll of stinking cloud is a brown potato/meat lump.",
@@ -678,7 +678,7 @@
  {
   "id": "amnesia",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/amnesia.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/amnesia.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Scroll of amnesia is drawn as a cloudy potion flask.",
@@ -691,7 +691,7 @@
  {
   "id": "scare-monster",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/scare-monster.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/scare-monster.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Scroll of scare monster is drawn as a tribal skull mask creature; looks like a monster on the map.",
@@ -704,7 +704,7 @@
  {
   "id": "gold-detection",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/gold-detection.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/gold-detection.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Scroll of gold detection is drawn as a golden key/wand.",
@@ -717,7 +717,7 @@
  {
   "id": "fire-resistance",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/fire-resistance.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/fire-resistance.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Ring of fire resistance is drawn as a sealed scroll.",
@@ -730,7 +730,7 @@
  {
   "id": "teleport-control",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/teleport-control.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/teleport-control.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Ring of teleport control is drawn as a parchment scroll.",
@@ -743,7 +743,7 @@
  {
   "id": "lightning",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/lightning.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/lightning.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Wand of lightning is drawn as a glowing parchment sheet.",
@@ -756,7 +756,7 @@
  {
   "id": "fireball",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/fireball.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/fireball.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Spellbook of fireball is drawn as a sealed scroll identical to scroll of fire.",
@@ -769,7 +769,7 @@
  {
   "id": "chain-lightning",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/chain-lightning.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/chain-lightning.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Spellbook of chain lightning is drawn as a scroll (with a green edge fringe).",
@@ -782,7 +782,7 @@
  {
   "id": "detect-food",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/detect-food.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/detect-food.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Spellbook of detect food is drawn as a scroll.",
@@ -795,7 +795,7 @@
  {
   "id": "detect-monsters",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/detect-monsters.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/detect-monsters.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Spellbook of detect monsters is drawn as a scroll.",
@@ -808,7 +808,7 @@
  {
   "id": "detect-treasure",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/detect-treasure.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/detect-treasure.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Spellbook of detect treasure is drawn as a scroll.",
@@ -821,7 +821,7 @@
  {
   "id": "detect-unseen",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/detect-unseen.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/detect-unseen.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Spellbook of detect unseen is drawn as a scroll.",
@@ -834,7 +834,7 @@
  {
   "id": "teleport-away",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/teleport-away.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/teleport-away.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Spellbook of teleport away is drawn as a scroll.",
@@ -847,7 +847,7 @@
  {
   "id": "cone-of-cold",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cone-of-cold.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/cone-of-cold.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Spellbook of cone of cold is drawn as a wand.",
@@ -860,7 +860,7 @@
  {
   "id": "dig",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/dig.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/dig.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Spellbook of dig is drawn as a crystal wand (near-identical to wand of digging).",
@@ -873,7 +873,7 @@
  {
   "id": "drain-life",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/drain-life.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/drain-life.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Spellbook of drain life is drawn as a wand, almost identical to the digging wand.",
@@ -886,7 +886,7 @@
  {
   "id": "haste-self",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/haste-self.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/haste-self.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Spellbook of haste self is drawn as a key/wand.",
@@ -899,7 +899,7 @@
  {
   "id": "jumping",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/jumping.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/jumping.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Spellbook of jumping is drawn as a boot on a spring.",
@@ -912,7 +912,7 @@
  {
   "id": "knock",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/knock.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/knock.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Spellbook of knock is drawn as a jeweled ring/door knocker.",
@@ -925,7 +925,7 @@
  {
   "id": "turn-undead",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/turn-undead.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/turn-undead.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Spellbook of turn undead is drawn as a wrench-like tool.",
@@ -938,7 +938,7 @@
  {
   "id": "wizard-lock",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/wizard-lock.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/wizard-lock.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Spellbook of wizard lock is drawn as a key.",
@@ -951,7 +951,7 @@
  {
   "id": "freeze-sphere",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/freeze-sphere.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/freeze-sphere.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Spellbook of freeze sphere is drawn as a crystal ball/orb.",
@@ -964,7 +964,7 @@
  {
   "id": "stone-to-flesh",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/stone-to-flesh.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/stone-to-flesh.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Spellbook of stone to flesh is drawn as a gray rock (reads as a gray stone).",
@@ -977,7 +977,7 @@
  {
   "id": "cure-blindness",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cure-blindness.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/cure-blindness.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Book with a jumble of potion bottles on top; cluttered and reads as neither a spellbook nor a potion.",
@@ -990,7 +990,7 @@
  {
   "id": "cure-sickness",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cure-sickness.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/cure-sickness.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Same cluttered book-plus-potions jumble as cure-blindness; the two are near-duplicates.",
@@ -1003,7 +1003,7 @@
  {
   "id": "book-of-the-dead",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/book-of-the-dead.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/book-of-the-dead.png",
   "problem": "duplicate",
   "severity": "medium",
   "what_is_wrong": "The unique Book of the Dead looks exactly like the generic spellbook (same red/navy book), with a green edge fringe.",
@@ -1016,7 +1016,7 @@
  {
   "id": "cause-fear",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cause-fear.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/cause-fear.png",
   "problem": "duplicate",
   "severity": "low",
   "what_is_wrong": "Identical red/navy spellbook art shared by cause-fear, charm-monster, confuse-monster, create-familiar and flame-sphere; identified books can't be told apart.",
@@ -1029,7 +1029,7 @@
  {
   "id": "charm-monster",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/charm-monster.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/charm-monster.png",
   "problem": "duplicate",
   "severity": "low",
   "what_is_wrong": "Identical red/navy spellbook art shared by cause-fear, charm-monster, confuse-monster, create-familiar and flame-sphere; identified books can't be told apart.",
@@ -1042,7 +1042,7 @@
  {
   "id": "confuse-monster",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/confuse-monster.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/confuse-monster.png",
   "problem": "duplicate",
   "severity": "low",
   "what_is_wrong": "Identical red/navy spellbook art shared by cause-fear, charm-monster, confuse-monster, create-familiar and flame-sphere; identified books can't be told apart.",
@@ -1055,7 +1055,7 @@
  {
   "id": "create-familiar",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/create-familiar.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/create-familiar.png",
   "problem": "duplicate",
   "severity": "low",
   "what_is_wrong": "Identical red/navy spellbook art shared by cause-fear, charm-monster, confuse-monster, create-familiar and flame-sphere; identified books can't be told apart.",
@@ -1068,7 +1068,7 @@
  {
   "id": "flame-sphere",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/flame-sphere.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/flame-sphere.png",
   "problem": "duplicate",
   "severity": "low",
   "what_is_wrong": "Identical red/navy spellbook art shared by cause-fear, charm-monster, confuse-monster, create-familiar and flame-sphere; identified books can't be told apart.",
@@ -1081,7 +1081,7 @@
  {
   "id": "enlightenment",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/enlightenment.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/enlightenment.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Potion of enlightenment is drawn as a spellbook with potions on it.",
@@ -1094,7 +1094,7 @@
  {
   "id": "gain-constitution",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/gain-constitution.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/gain-constitution.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Ring of gain constitution is drawn as an orange potion.",
@@ -1107,7 +1107,7 @@
  {
   "id": "gain-strength",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/gain-strength.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/gain-strength.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Ring of gain strength is drawn as a flaming red potion.",
@@ -1120,7 +1120,7 @@
  {
   "id": "polymorph-control",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/polymorph-control.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/polymorph-control.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Ring of polymorph control is drawn as a green potion with a ring orbit.",
@@ -1133,7 +1133,7 @@
  {
   "id": "aggravate-monster",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/aggravate-monster.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/aggravate-monster.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Ring of aggravate monster is drawn as a red monster figure/potion; reads as a creature on the map.",
@@ -1146,7 +1146,7 @@
  {
   "id": "speed-monster",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/speed-monster.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/speed-monster.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Wand of speed monster is drawn as a fiery potion flask.",
@@ -1159,7 +1159,7 @@
  {
   "id": "make-invisible",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/make-invisible.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/make-invisible.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Wand of make invisible is drawn as a potion bottle.",
@@ -1172,7 +1172,7 @@
  {
   "id": "nothing",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/nothing.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/nothing.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Wand of nothing is drawn as an empty soap bubble.",
@@ -1185,7 +1185,7 @@
  {
   "id": "secret-door-detection",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/secret-door-detection.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/secret-door-detection.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Wand of secret door detection is drawn as a stone doorway with a cyan portal.",
@@ -1198,7 +1198,7 @@
  {
   "id": "stasis",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/stasis.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/stasis.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Wand of stasis is drawn as a hammer.",
@@ -1211,7 +1211,7 @@
  {
   "id": "cancellation",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cancellation.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/cancellation.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Flat vector 'no' sign (purple circle, red slash, white plus); not a wand and not pixel art.",
@@ -1224,7 +1224,7 @@
  {
   "id": "cold",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cold.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/cold.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Flat vector cyan snowflake with no wand at all.",
@@ -1237,7 +1237,7 @@
  {
   "id": "wand-of-magic-missile",
   "category": "objects-inventory",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/wand-of-magic-missile.png",
+  "installedPath": "assets/tiles/generated/objects-inventory/wand-of-magic-missile.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Wand has a thick lime-green outline from the matte.",
@@ -1250,7 +1250,7 @@
  {
   "id": "wand-of-slow-monster",
   "category": "objects-inventory",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/wand-of-slow-monster.png",
+  "installedPath": "assets/tiles/generated/objects-inventory/wand-of-slow-monster.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Busy wand with a teal ring and a strong green matte fringe.",
@@ -1263,7 +1263,7 @@
  {
   "id": "wand-of-create-monster",
   "category": "objects-inventory",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/wand-of-create-monster.png",
+  "installedPath": "assets/tiles/generated/objects-inventory/wand-of-create-monster.png",
   "problem": "unclear",
   "severity": "low",
   "what_is_wrong": "Thin spindly wand lost under oversized pale sparkles; low contrast at 32 px.",
@@ -1276,7 +1276,7 @@
  {
   "id": "drum-of-earthquake",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/drum-of-earthquake.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/drum-of-earthquake.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Drum of earthquake is drawn as a sealed scroll with arrows, plus green fringe.",
@@ -1289,7 +1289,7 @@
  {
   "id": "fire-horn",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/fire-horn.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/fire-horn.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Fire horn is drawn as a parchment scroll.",
@@ -1302,7 +1302,7 @@
  {
   "id": "tin-opener",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/tin-opener.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/tin-opener.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Tiny flat tin opener sitting on a baked semi-transparent dark speckled background square (34% faint-alpha pixels), visible as a gray card.",
@@ -1315,7 +1315,7 @@
  {
   "id": "tinning-kit",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/tinning-kit.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/tinning-kit.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Jumble of tin can, scissors and blue gadget; does not read as one object.",
@@ -1328,7 +1328,7 @@
  {
   "id": "magic-whistle",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/magic-whistle.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/magic-whistle.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Blue-ringed gadget with no clear whistle shape.",
@@ -1341,7 +1341,7 @@
  {
   "id": "blindfold",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/blindfold.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/blindfold.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Flat 4-color near-black blob with a gray outline; unreadable on the dark floor.",
@@ -1354,7 +1354,7 @@
  {
   "id": "credit-card",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/credit-card.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/credit-card.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Flat 7-color yellow block that reads as a gold bar.",
@@ -1367,7 +1367,7 @@
  {
   "id": "grappling-hook",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/grappling-hook.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/grappling-hook.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Flat 6-color programmer-art hook and brown stick; not painted like the tileset.",
@@ -1380,7 +1380,7 @@
  {
   "id": "crystal-ball",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/crystal-ball.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/crystal-ball.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Flat vector circle on a stand, and the orb is semi-transparent so its color changes with the floor.",
@@ -1393,7 +1393,7 @@
  {
   "id": "beartrap",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/beartrap.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/beartrap.png",
   "problem": "vector",
   "severity": "low",
   "what_is_wrong": "Harsh flat black-and-white jaws with a gray handle; flatter than the painted tools.",
@@ -1406,7 +1406,7 @@
  {
   "id": "can-of-grease",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/can-of-grease.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/can-of-grease.png",
   "problem": "inconsistent",
   "severity": "low",
   "what_is_wrong": "Green matte fringe around the can.",
@@ -1419,7 +1419,7 @@
  {
   "id": "bugle",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/bugle.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/bugle.png",
   "problem": "inconsistent",
   "severity": "low",
   "what_is_wrong": "Green matte fringe around the bugle.",
@@ -1432,7 +1432,7 @@
  {
   "id": "bell-of-opening",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/bell-of-opening.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/bell-of-opening.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Thick lime-green glow/matte around the silver bell; reads as green halo not magic.",
@@ -1445,7 +1445,7 @@
  {
   "id": "corpse",
   "category": "objects-inventory",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-inventory/corpse.png",
+  "installedPath": "assets/tiles/generated/objects-inventory/corpse.png",
   "problem": "unclear",
   "severity": "high",
   "what_is_wrong": "Generic corpse fallback is an unreadable jumble of dark brown shapes and small skulls.",
@@ -1458,7 +1458,7 @@
  {
   "id": "eucalyptus-leaf",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/eucalyptus-leaf.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/eucalyptus-leaf.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Eucalyptus leaf is a red-and-gold horn/candy shape, not a leaf.",
@@ -1471,7 +1471,7 @@
  {
   "id": "c-ration",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/c-ration.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/c-ration.png",
   "problem": "duplicate",
   "severity": "medium",
   "what_is_wrong": "Looks like a wrapped candy and is near-identical to cram-ration and candy-bar.",
@@ -1484,7 +1484,7 @@
  {
   "id": "cram-ration",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cram-ration.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/cram-ration.png",
   "problem": "duplicate",
   "severity": "medium",
   "what_is_wrong": "Wrapped-candy look, near-identical to c-ration and candy-bar.",
@@ -1497,7 +1497,7 @@
  {
   "id": "enormous-meatball",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/enormous-meatball.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/enormous-meatball.png",
   "problem": "unclear",
   "severity": "low",
   "what_is_wrong": "Reads as a cracked bread loaf or box rather than a huge round meatball.",
@@ -1510,7 +1510,7 @@
  {
   "id": "glob-of-gray-ooze",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/glob-of-gray-ooze.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/glob-of-gray-ooze.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Glob of gray ooze is drawn as a mace/club.",
@@ -1523,7 +1523,7 @@
  {
   "id": "glob-of-green-slime",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/glob-of-green-slime.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/glob-of-green-slime.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Glob of green slime is drawn as a green orb on a stick (a rattle or wand).",
@@ -1536,7 +1536,7 @@
  {
   "id": "splash-of-acid-venom",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/splash-of-acid-venom.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/splash-of-acid-venom.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Flat vector lime-green blobs and a dark slab; clip-art look.",
@@ -1549,7 +1549,7 @@
  {
   "id": "splash-of-blinding-venom",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/splash-of-blinding-venom.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/splash-of-blinding-venom.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Flat vector yellow star; reads as a UI sparkle, not venom.",
@@ -1562,7 +1562,7 @@
  {
   "id": "rock",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/rock.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/rock.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Rock is drawn as a cut faceted gem with a green base; rocks are very common and should be plain stones.",

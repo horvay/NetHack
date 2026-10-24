@@ -3,10 +3,9 @@
 #   build.sh             release core  (libnethack_core.so)
 #   build.sh --fixtures  fixture core  (libnethack_core_fixtures.so), for tests
 #
-# libnh.a is rebuilt from a full clean, exactly like electron-poc's
-# build:shim (Make does not track flag changes; see TESTING.md), then copied
-# out of src/ immediately so later Electron builds cannot change it under us.
-# Do not run this at the same time as an Electron shim build.
+# libnh.a is rebuilt from a full clean (Make does not track flag changes; see
+# TESTING.md), then copied out of src/ immediately so a later build of the
+# other flavor cannot change it under us. Never run two builds at once.
 set -euo pipefail
 
 flavor=release

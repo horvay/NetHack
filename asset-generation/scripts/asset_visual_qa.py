@@ -12,7 +12,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageStat
 
 ROOT = Path(__file__).resolve().parents[2]
-MANIFEST_PATH = ROOT / 'electron-poc/assets/tiles/manifest.json'
+MANIFEST_PATH = ROOT / 'assets/tiles/manifest.json'
 STATUS_PATH = ROOT / 'asset-generation/manifests/generation-status.json'
 DEFAULT_EVIDENCE = Path('/home/horvay/.config/ai-org/ai-org-dev-data/run-evidence/developer-epsilon-climbing-cat-76')
 
@@ -165,7 +165,7 @@ def write_asset(a, img):
     for key in ('installedPath','outputPath'):
         p=ROOT/a[key]; p.parent.mkdir(parents=True, exist_ok=True); img.save(p)
     # Legacy by-category mirrors exist for some early assets; keep them in sync if present.
-    mirror=ROOT/'electron-poc/assets/tiles/by-category'/a['categorySlug']/(a['id']+'.png')
+    mirror=ROOT/'assets/tiles/by-category'/a['categorySlug']/(a['id']+'.png')
     if mirror.exists(): img.save(mirror)
 
 def qa_record(a):

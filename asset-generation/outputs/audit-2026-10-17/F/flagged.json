@@ -2,7 +2,7 @@
  {
   "id": "athame",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/athame.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/athame.png",
   "outputPath": "asset-generation/outputs/full-source-objects/athame.png",
   "name": "athame",
   "glyph": ")",
@@ -19,7 +19,7 @@
  {
   "id": "bardiche",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/bardiche.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/bardiche.png",
   "outputPath": "asset-generation/outputs/full-source-objects/bardiche.png",
   "name": "bardiche",
   "glyph": ")",
@@ -36,7 +36,7 @@
  {
   "id": "blank-paper-spellbook",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/blank-paper-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-identified/blank-paper-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-identified/blank-paper-spellbook.png",
   "name": "blank paper (spellbook)",
   "glyph": "+",
@@ -53,7 +53,7 @@
  {
   "id": "blank-paper-scroll",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/blank-paper-scroll.png",
+  "installedPath": "assets/tiles/generated/objects-identified/blank-paper-scroll.png",
   "outputPath": "asset-generation/outputs/objects-identified/blank-paper-scroll.png",
   "name": "blank paper (scroll)",
   "glyph": "?",
@@ -70,7 +70,7 @@
  {
   "id": "cancellation-spellbook",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/cancellation-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-identified/cancellation-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-identified/cancellation-spellbook.png",
   "name": "cancellation (spellbook)",
   "glyph": "+",
@@ -87,7 +87,7 @@
  {
   "id": "cancellation-wand",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/cancellation-wand.png",
+  "installedPath": "assets/tiles/generated/objects-identified/cancellation-wand.png",
   "outputPath": "asset-generation/outputs/objects-identified/cancellation-wand.png",
   "name": "cancellation (wand)",
   "glyph": "/",
@@ -104,7 +104,7 @@
  {
   "id": "cause-fear",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cause-fear.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/cause-fear.png",
   "outputPath": "asset-generation/outputs/full-source-objects/cause-fear.png",
   "name": "cause fear",
   "glyph": "+",
@@ -121,7 +121,7 @@
  {
   "id": "chain-lightning",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/chain-lightning.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/chain-lightning.png",
   "outputPath": "asset-generation/outputs/full-source-objects/chain-lightning.png",
   "name": "chain lightning",
   "glyph": "+",
@@ -138,7 +138,7 @@
  {
   "id": "charm-monster",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/charm-monster.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/charm-monster.png",
   "outputPath": "asset-generation/outputs/full-source-objects/charm-monster.png",
   "name": "charm monster",
   "glyph": "+",
@@ -155,7 +155,7 @@
  {
   "id": "chrysoberyl",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/chrysoberyl.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/chrysoberyl.png",
   "outputPath": "asset-generation/outputs/full-source-objects/chrysoberyl.png",
   "name": "chrysoberyl",
   "glyph": "*",
@@ -172,7 +172,7 @@
  {
   "id": "clairvoyance",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/clairvoyance.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/clairvoyance.png",
   "outputPath": "asset-generation/outputs/full-source-objects/clairvoyance.png",
   "name": "clairvoyance",
   "glyph": "+",
@@ -189,7 +189,7 @@
  {
   "id": "cone-of-cold",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cone-of-cold.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/cone-of-cold.png",
   "outputPath": "asset-generation/outputs/full-source-objects/cone-of-cold.png",
   "name": "cone of cold",
   "glyph": "+",
@@ -206,7 +206,7 @@
  {
   "id": "confuse-monster-spellbook",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/confuse-monster-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-identified/confuse-monster-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-identified/confuse-monster-spellbook.png",
   "name": "confuse monster (spellbook)",
   "glyph": "+",
@@ -223,7 +223,7 @@
  {
   "id": "confuse-monster-scroll",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/confuse-monster-scroll.png",
+  "installedPath": "assets/tiles/generated/objects-identified/confuse-monster-scroll.png",
   "outputPath": "asset-generation/outputs/objects-identified/confuse-monster-scroll.png",
   "name": "confuse monster (scroll)",
   "glyph": "?",
@@ -240,7 +240,7 @@
  {
   "id": "create-familiar",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/create-familiar.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/create-familiar.png",
   "outputPath": "asset-generation/outputs/full-source-objects/create-familiar.png",
   "name": "create familiar",
   "glyph": "+",
@@ -257,7 +257,7 @@
  {
   "id": "create-monster-spellbook",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/create-monster-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-identified/create-monster-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-identified/create-monster-spellbook.png",
   "name": "create monster (spellbook)",
   "glyph": "+",
@@ -274,7 +274,7 @@
  {
   "id": "create-monster-wand",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/create-monster-wand.png",
+  "installedPath": "assets/tiles/generated/objects-identified/create-monster-wand.png",
   "outputPath": "asset-generation/outputs/objects-identified/create-monster-wand.png",
   "name": "create monster (wand)",
   "glyph": "/",
@@ -291,7 +291,7 @@
  {
   "id": "create-monster-scroll",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/create-monster-scroll.png",
+  "installedPath": "assets/tiles/generated/objects-identified/create-monster-scroll.png",
   "outputPath": "asset-generation/outputs/objects-identified/create-monster-scroll.png",
   "name": "create monster (scroll)",
   "glyph": "?",
@@ -308,7 +308,7 @@
  {
   "id": "cure-blindness",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cure-blindness.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/cure-blindness.png",
   "outputPath": "asset-generation/outputs/full-source-objects/cure-blindness.png",
   "name": "cure blindness",
   "glyph": "+",
@@ -325,7 +325,7 @@
  {
   "id": "cure-sickness",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/cure-sickness.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/cure-sickness.png",
   "outputPath": "asset-generation/outputs/full-source-objects/cure-sickness.png",
   "name": "cure sickness",
   "glyph": "+",
@@ -342,7 +342,7 @@
  {
   "id": "dented-pot",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/dented-pot.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/dented-pot.png",
   "outputPath": "asset-generation/outputs/full-source-objects/dented-pot.png",
   "name": "dented pot",
   "glyph": "[",
@@ -359,7 +359,7 @@
  {
   "id": "detect-food",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/detect-food.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/detect-food.png",
   "outputPath": "asset-generation/outputs/full-source-objects/detect-food.png",
   "name": "detect food",
   "glyph": "+",
@@ -376,7 +376,7 @@
  {
   "id": "detect-monsters",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/detect-monsters.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/detect-monsters.png",
   "outputPath": "asset-generation/outputs/full-source-objects/detect-monsters.png",
   "name": "detect monsters",
   "glyph": "+",
@@ -393,7 +393,7 @@
  {
   "id": "detect-treasure",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/detect-treasure.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/detect-treasure.png",
   "outputPath": "asset-generation/outputs/full-source-objects/detect-treasure.png",
   "name": "detect treasure",
   "glyph": "+",
@@ -410,7 +410,7 @@
  {
   "id": "detect-unseen",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/detect-unseen.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/detect-unseen.png",
   "outputPath": "asset-generation/outputs/full-source-objects/detect-unseen.png",
   "name": "detect unseen",
   "glyph": "+",
@@ -427,7 +427,7 @@
  {
   "id": "dig",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/dig.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/dig.png",
   "outputPath": "asset-generation/outputs/full-source-objects/dig.png",
   "name": "dig",
   "glyph": "+",
@@ -444,7 +444,7 @@
  {
   "id": "drain-life",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/drain-life.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/drain-life.png",
   "outputPath": "asset-generation/outputs/full-source-objects/drain-life.png",
   "name": "drain life",
   "glyph": "+",
@@ -461,7 +461,7 @@
  {
   "id": "dwarvish-mattock",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/dwarvish-mattock.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/dwarvish-mattock.png",
   "outputPath": "asset-generation/outputs/full-source-objects/dwarvish-mattock.png",
   "name": "dwarvish mattock",
   "glyph": ")",
@@ -478,7 +478,7 @@
  {
   "id": "enchant-weapon",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/enchant-weapon.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/enchant-weapon.png",
   "outputPath": "asset-generation/outputs/full-source-objects/enchant-weapon.png",
   "name": "enchant weapon",
   "glyph": "?",
@@ -495,7 +495,7 @@
  {
   "id": "enlightenment-potion",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/enlightenment-potion.png",
+  "installedPath": "assets/tiles/generated/objects-identified/enlightenment-potion.png",
   "outputPath": "asset-generation/outputs/objects-identified/enlightenment-potion.png",
   "name": "enlightenment (potion)",
   "glyph": "!",
@@ -512,7 +512,7 @@
  {
   "id": "enlightenment-wand",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/enlightenment-wand.png",
+  "installedPath": "assets/tiles/generated/objects-identified/enlightenment-wand.png",
   "outputPath": "asset-generation/outputs/objects-identified/enlightenment-wand.png",
   "name": "enlightenment (wand)",
   "glyph": "/",
@@ -529,7 +529,7 @@
  {
   "id": "extra-healing-potion",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/extra-healing-potion.png",
+  "installedPath": "assets/tiles/generated/objects-identified/extra-healing-potion.png",
   "outputPath": "asset-generation/outputs/objects-identified/extra-healing-potion.png",
   "name": "extra healing (potion)",
   "glyph": "!",
@@ -546,7 +546,7 @@
  {
   "id": "extra-healing-spellbook",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/extra-healing-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-identified/extra-healing-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-identified/extra-healing-spellbook.png",
   "name": "extra healing (spellbook)",
   "glyph": "+",
@@ -563,7 +563,7 @@
  {
   "id": "finger-of-death",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/finger-of-death.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/finger-of-death.png",
   "outputPath": "asset-generation/outputs/full-source-objects/finger-of-death.png",
   "name": "finger of death",
   "glyph": "+",
@@ -580,7 +580,7 @@
  {
   "id": "fire-wand",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/fire-wand.png",
+  "installedPath": "assets/tiles/generated/objects-identified/fire-wand.png",
   "outputPath": "asset-generation/outputs/objects-identified/fire-wand.png",
   "name": "fire (wand)",
   "glyph": "/",
@@ -597,7 +597,7 @@
  {
   "id": "fire-scroll",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/fire-scroll.png",
+  "installedPath": "assets/tiles/generated/objects-identified/fire-scroll.png",
   "outputPath": "asset-generation/outputs/objects-identified/fire-scroll.png",
   "name": "fire (scroll)",
   "glyph": "?",
@@ -614,7 +614,7 @@
  {
   "id": "fire-resistance",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/fire-resistance.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/fire-resistance.png",
   "outputPath": "asset-generation/outputs/full-source-objects/fire-resistance.png",
   "name": "fire resistance",
   "glyph": "=",
@@ -631,7 +631,7 @@
  {
   "id": "fireball",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/fireball.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/fireball.png",
   "outputPath": "asset-generation/outputs/full-source-objects/fireball.png",
   "name": "fireball",
   "glyph": "+",
@@ -648,7 +648,7 @@
  {
   "id": "flame-sphere",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/flame-sphere.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/flame-sphere.png",
   "outputPath": "asset-generation/outputs/full-source-objects/flame-sphere.png",
   "name": "flame sphere",
   "glyph": "+",
@@ -665,7 +665,7 @@
  {
   "id": "food-detection",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/food-detection.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/food-detection.png",
   "outputPath": "asset-generation/outputs/full-source-objects/food-detection.png",
   "name": "food detection",
   "glyph": "?",
@@ -682,7 +682,7 @@
  {
   "id": "force-bolt",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/force-bolt.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/force-bolt.png",
   "outputPath": "asset-generation/outputs/full-source-objects/force-bolt.png",
   "name": "force bolt",
   "glyph": "+",
@@ -699,7 +699,7 @@
  {
   "id": "freeze-sphere",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/freeze-sphere.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/freeze-sphere.png",
   "outputPath": "asset-generation/outputs/full-source-objects/freeze-sphere.png",
   "name": "freeze sphere",
   "glyph": "+",
@@ -716,7 +716,7 @@
  {
   "id": "gain-constitution",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/gain-constitution.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/gain-constitution.png",
   "outputPath": "asset-generation/outputs/full-source-objects/gain-constitution.png",
   "name": "gain constitution",
   "glyph": "=",
@@ -733,7 +733,7 @@
  {
   "id": "gain-strength",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/gain-strength.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/gain-strength.png",
   "outputPath": "asset-generation/outputs/full-source-objects/gain-strength.png",
   "name": "gain strength",
   "glyph": "=",
@@ -750,7 +750,7 @@
  {
   "id": "glob-of-black-pudding",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/glob-of-black-pudding.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/glob-of-black-pudding.png",
   "outputPath": "asset-generation/outputs/full-source-objects/glob-of-black-pudding.png",
   "name": "glob of black pudding",
   "glyph": "%",
@@ -767,7 +767,7 @@
  {
   "id": "glob-of-brown-pudding",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/glob-of-brown-pudding.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/glob-of-brown-pudding.png",
   "outputPath": "asset-generation/outputs/full-source-objects/glob-of-brown-pudding.png",
   "name": "glob of brown pudding",
   "glyph": "%",
@@ -784,7 +784,7 @@
  {
   "id": "glob-of-gray-ooze",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/glob-of-gray-ooze.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/glob-of-gray-ooze.png",
   "outputPath": "asset-generation/outputs/full-source-objects/glob-of-gray-ooze.png",
   "name": "glob of gray ooze",
   "glyph": "%",
@@ -801,7 +801,7 @@
  {
   "id": "glob-of-green-slime",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/glob-of-green-slime.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/glob-of-green-slime.png",
   "outputPath": "asset-generation/outputs/full-source-objects/glob-of-green-slime.png",
   "name": "glob of green slime",
   "glyph": "%",
@@ -818,7 +818,7 @@
  {
   "id": "gold-detection",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/gold-detection.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/gold-detection.png",
   "outputPath": "asset-generation/outputs/full-source-objects/gold-detection.png",
   "name": "gold detection",
   "glyph": "?",
@@ -835,7 +835,7 @@
  {
   "id": "haste-self",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/haste-self.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/haste-self.png",
   "outputPath": "asset-generation/outputs/full-source-objects/haste-self.png",
   "name": "haste self",
   "glyph": "+",
@@ -852,7 +852,7 @@
  {
   "id": "healing-potion",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/healing-potion.png",
+  "installedPath": "assets/tiles/generated/objects-identified/healing-potion.png",
   "outputPath": "asset-generation/outputs/objects-identified/healing-potion.png",
   "name": "healing (potion)",
   "glyph": "!",
@@ -869,7 +869,7 @@
  {
   "id": "healing-spellbook",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/healing-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-identified/healing-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-identified/healing-spellbook.png",
   "name": "healing (spellbook)",
   "glyph": "+",
@@ -886,7 +886,7 @@
  {
   "id": "identify-spellbook",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/identify-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-identified/identify-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-identified/identify-spellbook.png",
   "name": "identify (spellbook)",
   "glyph": "+",
@@ -903,7 +903,7 @@
  {
   "id": "identify-scroll",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/identify-scroll.png",
+  "installedPath": "assets/tiles/generated/objects-identified/identify-scroll.png",
   "outputPath": "asset-generation/outputs/objects-identified/identify-scroll.png",
   "name": "identify (scroll)",
   "glyph": "?",
@@ -920,7 +920,7 @@
  {
   "id": "invisibility-potion",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/invisibility-potion.png",
+  "installedPath": "assets/tiles/generated/objects-identified/invisibility-potion.png",
   "outputPath": "asset-generation/outputs/objects-identified/invisibility-potion.png",
   "name": "invisibility (potion)",
   "glyph": "!",
@@ -937,7 +937,7 @@
  {
   "id": "invisibility-spellbook",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/invisibility-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-identified/invisibility-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-identified/invisibility-spellbook.png",
   "name": "invisibility (spellbook)",
   "glyph": "+",
@@ -954,7 +954,7 @@
  {
   "id": "invisibility-ring",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/invisibility-ring.png",
+  "installedPath": "assets/tiles/generated/objects-identified/invisibility-ring.png",
   "outputPath": "asset-generation/outputs/objects-identified/invisibility-ring.png",
   "name": "invisibility (ring)",
   "glyph": "=",
@@ -971,7 +971,7 @@
  {
   "id": "iron-shoes",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/iron-shoes.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/iron-shoes.png",
   "outputPath": "asset-generation/outputs/full-source-objects/iron-shoes.png",
   "name": "iron shoes",
   "glyph": "[",
@@ -988,7 +988,7 @@
  {
   "id": "jumping",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/jumping.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/jumping.png",
   "outputPath": "asset-generation/outputs/full-source-objects/jumping.png",
   "name": "jumping",
   "glyph": "+",
@@ -1005,7 +1005,7 @@
  {
   "id": "knock",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/knock.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/knock.png",
   "outputPath": "asset-generation/outputs/full-source-objects/knock.png",
   "name": "knock",
   "glyph": "+",
@@ -1022,7 +1022,7 @@
  {
   "id": "levitation-potion",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/levitation-potion.png",
+  "installedPath": "assets/tiles/generated/objects-identified/levitation-potion.png",
   "outputPath": "asset-generation/outputs/objects-identified/levitation-potion.png",
   "name": "levitation (potion)",
   "glyph": "!",
@@ -1039,7 +1039,7 @@
  {
   "id": "levitation-spellbook",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/levitation-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-identified/levitation-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-identified/levitation-spellbook.png",
   "name": "levitation (spellbook)",
   "glyph": "+",
@@ -1056,7 +1056,7 @@
  {
   "id": "levitation-ring",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/levitation-ring.png",
+  "installedPath": "assets/tiles/generated/objects-identified/levitation-ring.png",
   "outputPath": "asset-generation/outputs/objects-identified/levitation-ring.png",
   "name": "levitation (ring)",
   "glyph": "=",
@@ -1073,7 +1073,7 @@
  {
   "id": "light-spellbook",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/light-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-identified/light-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-identified/light-spellbook.png",
   "name": "light (spellbook)",
   "glyph": "+",
@@ -1090,7 +1090,7 @@
  {
   "id": "light-wand",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/light-wand.png",
+  "installedPath": "assets/tiles/generated/objects-identified/light-wand.png",
   "outputPath": "asset-generation/outputs/objects-identified/light-wand.png",
   "name": "light (wand)",
   "glyph": "/",
@@ -1107,7 +1107,7 @@
  {
   "id": "light-scroll",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/light-scroll.png",
+  "installedPath": "assets/tiles/generated/objects-identified/light-scroll.png",
   "outputPath": "asset-generation/outputs/objects-identified/light-scroll.png",
   "name": "light (scroll)",
   "glyph": "?",
@@ -1124,7 +1124,7 @@
  {
   "id": "lightning",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/lightning.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/lightning.png",
   "outputPath": "asset-generation/outputs/full-source-objects/lightning.png",
   "name": "lightning",
   "glyph": "/",
@@ -1141,7 +1141,7 @@
  {
   "id": "magic-mapping-spellbook",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/magic-mapping-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-identified/magic-mapping-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-identified/magic-mapping-spellbook.png",
   "name": "magic mapping (spellbook)",
   "glyph": "+",
@@ -1158,7 +1158,7 @@
  {
   "id": "magic-mapping-scroll",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/magic-mapping-scroll.png",
+  "installedPath": "assets/tiles/generated/objects-identified/magic-mapping-scroll.png",
   "outputPath": "asset-generation/outputs/objects-identified/magic-mapping-scroll.png",
   "name": "magic mapping (scroll)",
   "glyph": "?",
@@ -1175,7 +1175,7 @@
  {
   "id": "magic-missile-spellbook",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/magic-missile-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-identified/magic-missile-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-identified/magic-missile-spellbook.png",
   "name": "magic missile (spellbook)",
   "glyph": "+",
@@ -1192,7 +1192,7 @@
  {
   "id": "magic-missile-wand",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/magic-missile-wand.png",
+  "installedPath": "assets/tiles/generated/objects-identified/magic-missile-wand.png",
   "outputPath": "asset-generation/outputs/objects-identified/magic-missile-wand.png",
   "name": "magic missile (wand)",
   "glyph": "/",
@@ -1209,7 +1209,7 @@
  {
   "id": "mail",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/mail.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/mail.png",
   "outputPath": "asset-generation/outputs/full-source-objects/mail.png",
   "name": "mail",
   "glyph": "?",
@@ -1226,7 +1226,7 @@
  {
   "id": "make-invisible",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/make-invisible.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/make-invisible.png",
   "outputPath": "asset-generation/outputs/full-source-objects/make-invisible.png",
   "name": "make invisible",
   "glyph": "/",
@@ -1243,7 +1243,7 @@
  {
   "id": "nothing",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/nothing.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/nothing.png",
   "outputPath": "asset-generation/outputs/full-source-objects/nothing.png",
   "name": "nothing",
   "glyph": "/",
@@ -1260,7 +1260,7 @@
  {
   "id": "polymorph-potion",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/polymorph-potion.png",
+  "installedPath": "assets/tiles/generated/objects-identified/polymorph-potion.png",
   "outputPath": "asset-generation/outputs/objects-identified/polymorph-potion.png",
   "name": "polymorph (potion)",
   "glyph": "!",
@@ -1277,7 +1277,7 @@
  {
   "id": "polymorph-spellbook",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/polymorph-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-identified/polymorph-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-identified/polymorph-spellbook.png",
   "name": "polymorph (spellbook)",
   "glyph": "+",
@@ -1294,7 +1294,7 @@
  {
   "id": "polymorph-wand",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/polymorph-wand.png",
+  "installedPath": "assets/tiles/generated/objects-identified/polymorph-wand.png",
   "outputPath": "asset-generation/outputs/objects-identified/polymorph-wand.png",
   "name": "polymorph (wand)",
   "glyph": "/",
@@ -1311,7 +1311,7 @@
  {
   "id": "polymorph-ring",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/polymorph-ring.png",
+  "installedPath": "assets/tiles/generated/objects-identified/polymorph-ring.png",
   "outputPath": "asset-generation/outputs/objects-identified/polymorph-ring.png",
   "name": "polymorph (ring)",
   "glyph": "=",
@@ -1328,7 +1328,7 @@
  {
   "id": "polymorph-control",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/polymorph-control.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/polymorph-control.png",
   "outputPath": "asset-generation/outputs/full-source-objects/polymorph-control.png",
   "name": "polymorph control",
   "glyph": "=",
@@ -1345,7 +1345,7 @@
  {
   "id": "protection-spellbook",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/protection-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-identified/protection-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-identified/protection-spellbook.png",
   "name": "protection (spellbook)",
   "glyph": "+",
@@ -1362,7 +1362,7 @@
  {
   "id": "protection-ring",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/protection-ring.png",
+  "installedPath": "assets/tiles/generated/objects-identified/protection-ring.png",
   "outputPath": "asset-generation/outputs/objects-identified/protection-ring.png",
   "name": "protection (ring)",
   "glyph": "=",
@@ -1379,7 +1379,7 @@
  {
   "id": "remove-curse-spellbook",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/remove-curse-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-identified/remove-curse-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-identified/remove-curse-spellbook.png",
   "name": "remove curse (spellbook)",
   "glyph": "+",
@@ -1396,7 +1396,7 @@
  {
   "id": "remove-curse-scroll",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/remove-curse-scroll.png",
+  "installedPath": "assets/tiles/generated/objects-identified/remove-curse-scroll.png",
   "outputPath": "asset-generation/outputs/objects-identified/remove-curse-scroll.png",
   "name": "remove curse (scroll)",
   "glyph": "?",
@@ -1413,7 +1413,7 @@
  {
   "id": "restore-ability-potion",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/restore-ability-potion.png",
+  "installedPath": "assets/tiles/generated/objects-identified/restore-ability-potion.png",
   "outputPath": "asset-generation/outputs/objects-identified/restore-ability-potion.png",
   "name": "restore ability (potion)",
   "glyph": "!",
@@ -1430,7 +1430,7 @@
  {
   "id": "restore-ability-spellbook",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/restore-ability-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-identified/restore-ability-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-identified/restore-ability-spellbook.png",
   "name": "restore ability (spellbook)",
   "glyph": "+",
@@ -1447,7 +1447,7 @@
  {
   "id": "rubber-hose",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/rubber-hose.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/rubber-hose.png",
   "outputPath": "asset-generation/outputs/full-source-objects/rubber-hose.png",
   "name": "rubber hose",
   "glyph": ")",
@@ -1464,7 +1464,7 @@
  {
   "id": "scalpel",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/scalpel.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/scalpel.png",
   "outputPath": "asset-generation/outputs/full-source-objects/scalpel.png",
   "name": "scalpel",
   "glyph": ")",
@@ -1481,7 +1481,7 @@
  {
   "id": "secret-door-detection",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/secret-door-detection.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/secret-door-detection.png",
   "outputPath": "asset-generation/outputs/full-source-objects/secret-door-detection.png",
   "name": "secret door detection",
   "glyph": "/",
@@ -1498,7 +1498,7 @@
  {
   "id": "see-invisible-potion",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/see-invisible-potion.png",
+  "installedPath": "assets/tiles/generated/objects-identified/see-invisible-potion.png",
   "outputPath": "asset-generation/outputs/objects-identified/see-invisible-potion.png",
   "name": "see invisible (potion)",
   "glyph": "!",
@@ -1515,7 +1515,7 @@
  {
   "id": "see-invisible-ring",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/see-invisible-ring.png",
+  "installedPath": "assets/tiles/generated/objects-identified/see-invisible-ring.png",
   "outputPath": "asset-generation/outputs/objects-identified/see-invisible-ring.png",
   "name": "see invisible (ring)",
   "glyph": "=",
@@ -1532,7 +1532,7 @@
  {
   "id": "sleep-spellbook",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/sleep-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-identified/sleep-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-identified/sleep-spellbook.png",
   "name": "sleep (spellbook)",
   "glyph": "+",
@@ -1549,7 +1549,7 @@
  {
   "id": "sleep-wand",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/sleep-wand.png",
+  "installedPath": "assets/tiles/generated/objects-identified/sleep-wand.png",
   "outputPath": "asset-generation/outputs/objects-identified/sleep-wand.png",
   "name": "sleep (wand)",
   "glyph": "/",
@@ -1566,7 +1566,7 @@
  {
   "id": "slow-monster-spellbook",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/slow-monster-spellbook.png",
+  "installedPath": "assets/tiles/generated/objects-identified/slow-monster-spellbook.png",
   "outputPath": "asset-generation/outputs/objects-identified/slow-monster-spellbook.png",
   "name": "slow monster (spellbook)",
   "glyph": "+",
@@ -1583,7 +1583,7 @@
  {
   "id": "slow-monster-wand",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/slow-monster-wand.png",
+  "installedPath": "assets/tiles/generated/objects-identified/slow-monster-wand.png",
   "outputPath": "asset-generation/outputs/objects-identified/slow-monster-wand.png",
   "name": "slow monster (wand)",
   "glyph": "/",
@@ -1600,7 +1600,7 @@
  {
   "id": "speed-monster",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/speed-monster.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/speed-monster.png",
   "outputPath": "asset-generation/outputs/full-source-objects/speed-monster.png",
   "name": "speed monster",
   "glyph": "/",
@@ -1617,7 +1617,7 @@
  {
   "id": "stasis",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/stasis.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/stasis.png",
   "outputPath": "asset-generation/outputs/full-source-objects/stasis.png",
   "name": "stasis",
   "glyph": "/",
@@ -1634,7 +1634,7 @@
  {
   "id": "stiletto",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/stiletto.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/stiletto.png",
   "outputPath": "asset-generation/outputs/full-source-objects/stiletto.png",
   "name": "stiletto",
   "glyph": ")",
@@ -1651,7 +1651,7 @@
  {
   "id": "stone-to-flesh",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/stone-to-flesh.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/stone-to-flesh.png",
   "outputPath": "asset-generation/outputs/full-source-objects/stone-to-flesh.png",
   "name": "stone to flesh",
   "glyph": "+",
@@ -1668,7 +1668,7 @@
  {
   "id": "teleport-away",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/teleport-away.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/teleport-away.png",
   "outputPath": "asset-generation/outputs/full-source-objects/teleport-away.png",
   "name": "teleport away",
   "glyph": "+",
@@ -1685,7 +1685,7 @@
  {
   "id": "teleport-control",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/teleport-control.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/teleport-control.png",
   "outputPath": "asset-generation/outputs/full-source-objects/teleport-control.png",
   "name": "teleport control",
   "glyph": "=",
@@ -1702,7 +1702,7 @@
  {
   "id": "teleportation-wand",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/teleportation-wand.png",
+  "installedPath": "assets/tiles/generated/objects-identified/teleportation-wand.png",
   "outputPath": "asset-generation/outputs/objects-identified/teleportation-wand.png",
   "name": "teleportation (wand)",
   "glyph": "/",
@@ -1719,7 +1719,7 @@
  {
   "id": "teleportation-ring",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/teleportation-ring.png",
+  "installedPath": "assets/tiles/generated/objects-identified/teleportation-ring.png",
   "outputPath": "asset-generation/outputs/objects-identified/teleportation-ring.png",
   "name": "teleportation (ring)",
   "glyph": "=",
@@ -1736,7 +1736,7 @@
  {
   "id": "teleportation-scroll",
   "category": "objects-identified",
-  "installedPath": "electron-poc/assets/tiles/generated/objects-identified/teleportation-scroll.png",
+  "installedPath": "assets/tiles/generated/objects-identified/teleportation-scroll.png",
   "outputPath": "asset-generation/outputs/objects-identified/teleportation-scroll.png",
   "name": "teleportation (scroll)",
   "glyph": "?",
@@ -1753,7 +1753,7 @@
  {
   "id": "tin-whistle",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/tin-whistle.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/tin-whistle.png",
   "outputPath": "asset-generation/outputs/full-source-objects/tin-whistle.png",
   "name": "tin whistle",
   "glyph": "(",
@@ -1770,7 +1770,7 @@
  {
   "id": "turn-undead",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/turn-undead.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/turn-undead.png",
   "outputPath": "asset-generation/outputs/full-source-objects/turn-undead.png",
   "name": "turn undead",
   "glyph": "+",
@@ -1787,7 +1787,7 @@
  {
   "id": "wizard-lock",
   "category": "full-source-objects",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-objects/wizard-lock.png",
+  "installedPath": "assets/tiles/generated/full-source-objects/wizard-lock.png",
   "outputPath": "asset-generation/outputs/full-source-objects/wizard-lock.png",
   "name": "wizard lock",
   "glyph": "+",

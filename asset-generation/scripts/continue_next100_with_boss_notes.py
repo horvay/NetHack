@@ -14,7 +14,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[2]
-MANIFEST = ROOT/'electron-poc/assets/tiles/manifest.json'
+MANIFEST = ROOT/'assets/tiles/manifest.json'
 STATUS = ROOT/'asset-generation/manifests/generation-status.json'
 TRACKER = ROOT/'asset-generation/manifests/full-regeneration-tracker.md'
 EVIDENCE = Path('/home/horvay/.config/ai-org/ai-org-dev-data/run-evidence/developer-nu-polishing-violin-32/next100-continuation-review')

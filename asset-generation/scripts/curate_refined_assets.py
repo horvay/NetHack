@@ -13,9 +13,9 @@ from PIL import Image, ImageDraw, ImageFilter
 
 ROOT=Path(__file__).resolve().parents[2]
 OUT=ROOT/'asset-generation/outputs'
-GEN=ROOT/'electron-poc/assets/tiles/generated'
+GEN=ROOT/'assets/tiles/generated'
 STATUS=ROOT/'asset-generation/manifests/generation-status.json'
-EMAN=ROOT/'electron-poc/assets/tiles/manifest.json'
+EMAN=ROOT/'assets/tiles/manifest.json'
 MAN=ROOT/'asset-generation/manifests/early-level-assets.json'
 BACK=ROOT/'asset-generation/backups'/time.strftime('curated-%Y%m%dT%H%M%SZ', time.gmtime())
 SIZE=512
@@ -124,7 +124,7 @@ status.setdefault('runs',[]).append({'type':'curated-cleanup-after-comfy-refinem
 for aid in ids:
     cat,_=MAP[aid]
     rec=status.setdefault('assets',{}).get(aid,{})
-    rec.update({'id':aid,'categorySlug':cat,'outputPath':f'asset-generation/outputs/{cat}/{aid}.png','installedPath':f'electron-poc/assets/tiles/generated/{cat}/{aid}.png','status':'installed','completedAt':time.strftime('%FT%TZ', time.gmtime()),'curatedCleanup':True,'backupRoot':str(BACK.relative_to(ROOT))})
+    rec.update({'id':aid,'categorySlug':cat,'outputPath':f'asset-generation/outputs/{cat}/{aid}.png','installedPath':f'assets/tiles/generated/{cat}/{aid}.png','status':'installed','completedAt':time.strftime('%FT%TZ', time.gmtime()),'curatedCleanup':True,'backupRoot':str(BACK.relative_to(ROOT))})
     status['assets'][aid]=rec
 STATUS.write_text(json.dumps(status,indent=2))
 # Preserve manifest fields, just keep paths/count from current manifest if already complete.
@@ -132,6 +132,6 @@ manifest=json.loads(EMAN.read_text())
 for a in manifest.get('assets',[]):
     aid=a.get('id')
     if aid in MAP:
-        cat,_=MAP[aid]; a['outputPath']=f'asset-generation/outputs/{cat}/{aid}.png'; a['installedPath']=f'electron-poc/assets/tiles/generated/{cat}/{aid}.png'; a['status']='installed'
+        cat,_=MAP[aid]; a['outputPath']=f'asset-generation/outputs/{cat}/{aid}.png'; a['installedPath']=f'assets/tiles/generated/{cat}/{aid}.png'; a['status']='installed'
 EMAN.write_text(json.dumps(manifest,indent=2))
 print('installed curated cleanup', len(ids), 'assets; backup', BACK)

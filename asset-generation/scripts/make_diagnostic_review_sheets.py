@@ -19,7 +19,7 @@ from statistics import mean
 from PIL import Image, ImageChops, ImageDraw, ImageStat
 
 ROOT = Path(__file__).resolve().parents[2]
-MANIFEST_PATH = ROOT / 'electron-poc/assets/tiles/manifest.json'
+MANIFEST_PATH = ROOT / 'assets/tiles/manifest.json'
 STATUS_PATH = ROOT / 'asset-generation/manifests/generation-status.json'
 TRANSPARENT_SLUGS = {
     'common-early-monsters', 'full-source-monsters', 'objects-inventory',
@@ -198,7 +198,7 @@ def main() -> int:
 
     metrics = OrderedDict([
         ('reviewedAt', now_iso()),
-        ('source', 'installed 32x32 PNGs from electron-poc/assets/tiles/manifest.json, not raw512 files'),
+        ('source', 'installed 32x32 PNGs from assets/tiles/manifest.json, not raw512 files'),
         ('ids', wanted),
         ('outputs', outputs),
         ('records', [metric_record(a, status) for a in assets]),

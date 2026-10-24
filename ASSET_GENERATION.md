@@ -1,6 +1,6 @@
 # NetHack asset generation instructions
 
-The Electron tile assets must be generated as one coherent fantasy-game tileset, not as a mix of unrelated icon styles.
+The tile assets must be generated as one coherent fantasy-game tileset, not as a mix of unrelated icon styles.
 
 ## Consistent style prompt
 

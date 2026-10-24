@@ -1057,7 +1057,7 @@ electron_test_validate_resolved_path(const char *path, const char *id)
             electron_test_fixture_fail(id, "invalid scenario id");
     }
     (void) snprintf(suffix, sizeof suffix,
-                    "/electron-poc/test/scenarios/%s.json", id);
+                    "/godot-poc/tests/fixtures/%s.json", id);
     if (strlen(suffix) + 1 >= sizeof suffix)
         electron_test_fixture_fail(id, "scenario path is too long");
     path_len = strlen(path);

@@ -14,7 +14,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[2]
-MANIFEST = ROOT/'electron-poc/assets/tiles/manifest.json'
+MANIFEST = ROOT/'assets/tiles/manifest.json'
 STATUS = ROOT/'asset-generation/manifests/generation-status.json'
 TRACKER = ROOT/'asset-generation/manifests/full-regeneration-tracker.md'
 EVIDENCE = Path('/home/horvay/.config/ai-org/ai-org-dev-data/run-evidence/developer-sigma-flying-teacup-9/remaining58-review')
@@ -49,7 +49,7 @@ def backup_path(p: Path):
 def write_asset(a, im):
     for key in ['installedPath','outputPath']:
         p=ROOT/a[key]; backup_path(p); p.parent.mkdir(parents=True, exist_ok=True); im.save(p)
-    mirror=ROOT/'electron-poc/assets/tiles/by-category'/a['categorySlug']/(a['id']+'.png')
+    mirror=ROOT/'assets/tiles/by-category'/a['categorySlug']/(a['id']+'.png')
     if mirror.exists(): backup_path(mirror); im.save(mirror)
 
 

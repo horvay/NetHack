@@ -11,9 +11,9 @@ This folder contains the ComfyUI-driven generation pipeline for the 239 assets l
 - `outputs/<category>/<asset-id>.png` — raw downloaded generation outputs.
 - `logs/` — dry-run and generation logs.
 
-## Electron app asset install target
+## Install target
 
-Every successful generation is installed into `electron-poc/assets/tiles/generated/<category>/<asset-id>.png` and added to `electron-poc/assets/tiles/manifest.json`. The renderer consumes this manifest and uses generated images when present, while preserving ASCII fallback.
+Every successful generation is installed into `assets/tiles/generated/<category>/<asset-id>.png` and added to `assets/tiles/manifest.json`, the shared tileset. The Godot front end copies it into its project with `godot-poc/tools/sync_tiles.py`.
 
 ## Commands
 

@@ -2,7 +2,7 @@ class_name TileResolver
 extends RefCounted
 ## Maps a map cell (a shim_print_glyph event) to tile art ids.
 ##
-## Port of electron-poc/src/shared/tile-assets.js mappedAssetIdForCell and
+## Port of the removed Electron app's tile-assets.js mappedAssetIdForCell and
 ## baseTileIdForCell, including its no-spoiler rules: an unidentified object
 ## (semanticKnown == false) only ever resolves through its public appearance
 ## or class icon, never through hidden identity art.

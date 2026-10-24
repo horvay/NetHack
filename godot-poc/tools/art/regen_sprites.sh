@@ -14,7 +14,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 ROOT=$(cd ../../.. && pwd)
-TILES=$ROOT/electron-poc/assets/tiles/generated
+TILES=$ROOT/assets/tiles/generated
 OUT=$ROOT/asset-generation/outputs/godot-regen
 B70=~/b70/tools/b70-image.sh
 mkdir -p "$OUT/refs"

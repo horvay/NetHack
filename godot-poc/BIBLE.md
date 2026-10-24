@@ -6,14 +6,14 @@ The single source of truth for the Godot front end. Read it before any work in `
 
 A Godot 4 front end for real NetHack that plays like a beautiful modern game. Two bars, both required:
 
-- **Functional parity** with the Electron app in `../electron-poc`: every feature it has, this has.
+- **Functional parity** with the old Electron app: every feature it had, this has. Electron was removed on 2026-10-24; its source is in git history (`git show 5bf4f2829:electron-poc/<path>`).
 - **Better in every other way.** The Electron screens are a feature checklist, not a design reference: Greg rates Electron's UX as poor. Design every screen from first principles the way a great modern game would, then check it covers the Electron feature. It should look, move, and feel like a polished modern game, with modern ease of use.
 
 The NetHack rules engine stays authoritative and unmodified in behavior. Every outcome comes from the real game.
 
 ## Art direction: lit 2D pixel art
 
-- Use the generated pixel tiles in `../electron-poc/assets/tiles/generated` (monsters, objects, terrain, traps, effects, player avatars). Generate new art under the rules in `../ASSET_GENERATION.md`.
+- Use the generated pixel tiles in `../assets/tiles/generated` (monsters, objects, terrain, traps, effects, player avatars). Generate new art under the rules in `../ASSET_GENERATION.md`.
 - Pixel art stays crisp: nearest-neighbor filtering and whole-pixel scaling.
 - The mood comes from **light**: dynamic 2D lights (the hero's light radius, lit rooms, torches, lava, magic), real darkness in unlit corridors, and remembered-but-unseen tiles drawn dim and desaturated. Fog of war is a shader, not a color swap.
 - **Juice** on everything the game reports: movement tweens, attack lunges, hit flashes, floating damage and status text, particles for zaps, spells, explosions and breath, screen shake scaled to impact, smooth panel transitions. Animation never delays input. A queued key skips or fast-forwards pending animation.
@@ -26,7 +26,7 @@ The NetHack rules engine stays authoritative and unmodified in behavior. Every o
 - **Classic keys are sacred.** Every NetHack keyboard command and flow works exactly as in classic NetHack (project rule in `../AGENTS.md`). Modern controls are layered on top; they never replace a key.
 - **No dead ends.** Every prompt states what it wants and how to back out. Direction prompts show targets on the map. Text prompts offer suggestions where the game allows.
 - **Modern RPG layouts:** inventory grid with item cards, equipment paper doll, searchable command palette, readable character sheet, clear feedback when something happens to the hero.
-- **No spoilers.** The UI shows only what the player character knows, the same policy as `../electron-poc/docs/ui-protocol-v2.md`.
+- **No spoilers.** The UI shows only what the player character knows, the same policy as `docs/ui-protocol-v2.md`.
 
 ## Architecture
 
@@ -35,18 +35,17 @@ Godot (GDScript UI)
    │  signals / method calls
 NetHackCore  (GDExtension, C++ via godot-cpp)
    │  dlopen per game
-libnethack_core.so  =  libnh + electron-poc/shim-bridge/nh-shim-bridge.c
+libnethack_core.so  =  libnh + extension/bridge/nh-shim-bridge.c
    │  shim window callbacks
 NetHack engine (src/)
 ```
 
 - **In-process engine.** The GDExtension loads NetHack as a shared library. There is no subprocess.
-- **Shared bridge.** `nh-shim-bridge.c` is compiled into the shared library through a wrapper translation unit and is never forked for Godot. The wrapper renames its `main` and points its `stdin`/`stdout` at in-memory pipes. Godot therefore receives the exact JSON event protocol Electron gets and sends the same command lines; the full reference is `docs/bridge-protocol.md`. Fixes to the bridge benefit both front ends.
-- **Extended bridge features (Godot only).** Additions Godot needs live in the shared bridge behind `NH_BRIDGE_EXTENDED=1`, which only `NetHackSession` sets, so Electron's stream is byte-identical. They are: `bridge_vision` (per-cell in-sight/lit map plus depth, sent when it changes), `bridge_key_wait` (NetHack is waiting for a single key), the `map-click` input (decoded in `nh_poskey` into NetHack's own mouse coordinates, so click-to-travel and position picking use NetHack's logic; accepted only while NetHack reads a command or a position), classic control/meta keys (all of 1..255 except ^C and ^Z), the branch name (`dungeon`) on `bridge_vision`, worm tails tagged `actorRole:"tail"`, the hero's pile resent whenever it changes (also when it empties), full menus set once per game, and the `default` answer on yes/no questions (protocol §9.6). New Godot-only bridge behavior follows the same rule: additive, gated, Electron unchanged.
+- **Shared bridge.** `nh-shim-bridge.c` is compiled into the shared library through a wrapper translation unit and is never forked for Godot. The wrapper renames its `main` and points its `stdin`/`stdout` at in-memory pipes. Godot therefore receives the JSON event protocol the bridge was built to stream to Electron and sends the same command lines; the full reference is `docs/bridge-protocol.md`.
+- **Extended bridge features.** Additions Godot needs live in the bridge behind `NH_BRIDGE_EXTENDED=1`, which `NetHackSession` sets; the gate kept Electron's stream byte-identical while Electron existed. They are: `bridge_vision` (per-cell in-sight/lit map plus depth, sent when it changes), `bridge_key_wait` (NetHack is waiting for a single key), the `map-click` input (decoded in `nh_poskey` into NetHack's own mouse coordinates, so click-to-travel and position picking use NetHack's logic; accepted only while NetHack reads a command or a position), classic control/meta keys (all of 1..255 except ^C and ^Z), the branch name (`dungeon`) on `bridge_vision`, worm tails tagged `actorRole:"tail"`, the hero's pile resent whenever it changes (also when it empties), full menus set once per game, and the `default` answer on yes/no questions (protocol §9.6). With Electron gone, new bridge behavior no longer needs the gate.
 - **Game thread.** NetHack's `nhmain` runs on a dedicated thread and blocks waiting for input. Godot's main thread never blocks on the engine. Events cross back on a queue drained each frame.
 - **Exit containment.** NetHack calls `exit()` on game over, quit, save and panic. The shared library is linked with `-Wl,--wrap=exit`; on the game thread, the wrapper ends that thread and reports the exit code instead of killing Godot.
 - **Fresh library per game.** NetHack keeps state in globals and cannot start a second game in one load. Each new game does `dlclose` and a fresh `dlopen`, which resets every global. All library threads must be stopped before `dlclose`.
-- **Electron stays untouched.** Shared C changes must keep the Electron build and its tests green.
 
 Known hazards:
 - The bridge `chdir`s into the playground, which changes Godot's working directory. Use absolute paths in the extension; `res://` paths are unaffected. `nhcore_finish` restores the directory and signal handlers.
@@ -57,12 +56,12 @@ Known hazards:
 - NetHack never shows a tombstone or score summary under the shim; the end screen is built from `shim_native_end_diagnostic` plus disclosures collected by `EndChronicle`.
 - JSON numbers arrive as floats in GDScript. Convert with `int()` before sending ids back in typed commands.
 - `lib/lua/liblua-*.a` is not position-independent; the extension build compiles `lib/lua-5.4.8/src` itself.
-- `build.sh` rebuilds `src/libnh.a` from a full clean, like Electron's `build:shim`. Never run the two builds at once.
-- NetHack's farewell ("Goodbye … with N points") never prints under the shim (its window port never sets `iflags.window_inited`, so `really_done` stops printing). The shim is shared with Electron, so it stays as is: the end screen reads the score from the run's new `xlogfile` record instead (`NetHackSession._new_xlog_record`).
+- `build.sh` rebuilds `src/libnh.a` from a full clean: Make does not track changes to `WANT_LIBNH` or compiler flags, and a partial clean can leave a mixed archive without fixture hooks. Never run two builds at once.
+- NetHack's farewell ("Goodbye … with N points") never prints under the shim (its window port never sets `iflags.window_inited`, so `really_done` stops printing). The shim stays as is: the end screen reads the score from the run's new `xlogfile` record instead (`NetHackSession._new_xlog_record`).
 - GDScript lambdas capture locals by value: collect results from a signal callback into a shared Dictionary, not a reassigned local. A lambda also dies with the object that created it: follow-ups that must outlive a closing dialog live on a long-lived node (`InputRouter.send_then`, `swap_if_wielding`).
 - `OS.is_process_running` logs an error for processes Godot didn't start; lock liveness checks read `/proc/<pid>` on Linux (`SaveCatalog._alive`).
 - Parsed mouse events move the GUI's hover state but not `Input`'s polled mouse position: hover effects listen to `mouse_entered`/`mouse_exited`, and a child that stops the mouse (`MOUSE_FILTER_STOP`) hides the hover from its parent.
-- Fixture scenes that move the hero after vision ran must set `gv.vision_full_recalc` (fixed in `src/allmain.c`, fixture-only code; Electron's fixture streams change accordingly).
+- Fixture scenes that move the hero after vision ran must set `gv.vision_full_recalc` (fixed in `src/allmain.c`, fixture-only code).
 - **Never type ahead, even item letters.** NetHack skips questions it doesn't need (`T` with one worn item asks nothing; `#call` with nothing callable just says so), so any key typed ahead runs as a command. Everything goes through `InputRouter.send_sequence`: the command alone, then each answer (item, menu, direction) only when NetHack asks for that kind of thing, a real yes/no left to the player, anything else ending it; an optional follow-up runs at the next command prompt. `send_item_command`, `send_with_direction` and `send_with_answers` build on it; `run_equipment_steps` runs checked T/W sequences (the bridge's typed `takeOff` reports multi-turn doffing as refused). `will_answer` keeps those questions from flashing up as dialogs.
 - In NetHack's menus and questions the arrows only move the highlight (an arrow is a vi direction letter, which is an answer); Enter presses the highlighted row or button.
 - Godot's built-in `ui_*` actions had no controller bindings: `App._bind_pad_to_ui` adds A and the D-pad/left stick so pads work every dialog.
@@ -83,6 +82,7 @@ godot-poc/
   BIBLE.md                  this file
   extension/build.sh        builds both libraries into project/bin (--fixtures for the test core)
   extension/core/           nhcore.c: hosts the bridge in process (pipes, exit containment, stop)
+  extension/bridge/         nh-shim-bridge.c: the shim bridge (JSON events out, command lines in), compiled into the core
   extension/src/            NetHackCore node (C++, godot-cpp)
   project/                  the Godot project
   project/game/             game code; NetHackSession wraps NetHackCore; App (main.gd) owns screens
@@ -95,6 +95,7 @@ godot-poc/
   project/assets/music/     MiniMax Music 3 MP3s + music.json (tools/music: tracks.py captions, generate.py on the B70, post.py checks and encodes)
   docs/bridge-protocol.md   the bridge's full event and input reference
   project/tests/scenarios/  deep-path scenarios, one file each, base class tests/support/scenario.gd
+  tests/fixtures/           bridge fixture scenarios (JSON) for staged games, loaded by id
   tests/run.sh              runs scenarios: tests/run.sh [name ...]; imports, compiles every script, renders on a private Xvfb (:97) with dummy audio
   tools/                    asset sync scripts; clean_guidebook.py reflows doc/Guidebook.txt for the in-game manual
   .tools/                   git-ignored: `godot` (Godot 4.7.2 linux x86_64 release zip), `godot-cpp` (tag godot-4.5-stable), `bin/Xvfb` (unpacked from Arch's xorg-server-xvfb, no install needed)
@@ -108,7 +109,7 @@ Every test enters as high as possible and reaches as low as possible: launch the
 - Mock only what a test cannot control: randomness (fixed seed), wall-clock time, and the display when headless.
 - Prefer one long scenario that plays through many features over many small tests. Small unit tests of single functions are out of scope.
 - Every UI test captures screenshots, and someone opens and inspects every one before the test counts as passing. Assertions alone never pass a UI test. This follows `../TESTING.md`.
-- Bridge fixture scenarios (`../electron-poc/test/scenarios`, built with `NH_ELECTRON_TEST_FIXTURES`) can set up hard-to-reach game states for Godot tests as well.
+- Bridge fixture scenarios (`tests/fixtures/<id>.json`, run on the fixture core built with `NH_ELECTRON_TEST_FIXTURES`) set up hard-to-reach game states: a real game whose level, ground and pack are staged for the test.
 
 ## Roadmap
 
@@ -125,7 +126,7 @@ Every test enters as high as possible and reaches as low as possible: launch the
 | 8 Review rounds 6–13 | `docs/review-round-6.md` to `-13.md`; round 13: 0 high, 1 medium, 9 low | done: `inventory_places`, `danger_alerts`, `partial_pickup`, `gray_stones`, `loot_redirect`, `ring_finger`, `container_cases`, `doorways`, `status_onset`, `item_appearances` plus extended scenarios |
 | 9 Art audit | Every tile reviewed by eye (`asset-generation/outputs/audit-2026-10-17/`); flagged ones regenerated on the B70 with `tools/art/regen_audit.py`, picked by eye and checked on the map (`art_gallery`) | in progress: doors, gray stone, 103 high-severity tiles, appearance art (potions, rings, wands, amulets, colour spellbooks) and most status badges installed; texture spellbooks, sticker monsters (E), wrong-class objects (F), medium and low generating |
 
-The parity checklist is the feature set of `../electron-poc/src/ux` and `../electron-poc/src/shared`. Track each feature's Godot status here as it lands.
+The parity checklist is the feature set of the removed Electron app's `src/ux` and `src/shared` (`git show 5bf4f2829:electron-poc/src/ux`). Track each feature's Godot status here as it lands.
 
 ## Decision log
 
@@ -259,3 +260,4 @@ The parity checklist is the feature set of `../electron-poc/src/ux` and `../elec
   - Every take is checked before it ships (`tools/music/post.py`, results in `asset-generation/outputs/music/qa.json`): long enough, not silent, not clipped, and no words. WhisperX `small` transcribes each take on the CPU; any line with 3+ words beyond Whisper's stock phantoms over music ("Music playing", "you", "Thank you.", "Yeah") rejects the take, chants included ("Tanlali Tanlali"). Strict on purpose: in round 2 a looser rule (4+ words at speaking pace, confirmed by `large-v3`) let "Let the weight entrain" through. `generate.py --replace` replaces rejected takes with new seeds; round 2 rejected 15 of 98.
   - Stingers are the first 4.5–9 s of a 30 s generation (level up 4.5, artifact 5, prayer and branch 6, death 7, ascension 9), faded out.
   - To drop a take by ear: Settings → Audio shows the take playing ("Now playing"; the terminal logs `Music: <track> (<stem>)` too), and "Reject this take" (repo checkout only) adds its stem to `asset-generation/outputs/music/rejected.txt` and plays another. Or add a stem (e.g. `mines-calm-t2-s9104`) by hand. Then run `post.py`, then `generate.py --replace` for new ones. `music.json` maps each MP3 to its stem (`sources`). 83 takes, 95 MB of MP3 (round 2).
+- **2026-10-24** Greg dropped the Electron front end. Its live pieces moved out of `electron-poc/`: the bridge to `extension/bridge/`, the shared tileset to `../assets/tiles/`, fixture scenarios to `tests/fixtures/`, the UI protocol spec to `docs/ui-protocol-v2.md`; the rest was deleted (last full tree: `5bf4f2829`). Identifiers such as `NH_ELECTRON_TEST_FIXTURES`, `NH_ELECTRON_CHOSEN_SEED` and the `nethack-electron-ui/v2` protocol string keep their names.

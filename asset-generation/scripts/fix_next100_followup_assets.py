@@ -13,7 +13,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 
 ROOT = Path(__file__).resolve().parents[2]
-MANIFEST = ROOT/'electron-poc/assets/tiles/manifest.json'
+MANIFEST = ROOT/'assets/tiles/manifest.json'
 STATUS = ROOT/'asset-generation/manifests/generation-status.json'
 STAMP = time.strftime('next100-followup-fix-%Y%m%dT%H%M%SZ', time.gmtime())
 BACKUP = ROOT/'asset-generation/backups'/STAMP

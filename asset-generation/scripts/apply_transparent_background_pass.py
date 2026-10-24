@@ -15,9 +15,9 @@ from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[2]
 STATUS = ROOT/'asset-generation/manifests/generation-status.json'
-EMAN = ROOT/'electron-poc/assets/tiles/manifest.json'
+EMAN = ROOT/'assets/tiles/manifest.json'
 OUT = ROOT/'asset-generation/outputs'
-GEN = ROOT/'electron-poc/assets/tiles/generated'
+GEN = ROOT/'assets/tiles/generated'
 EVID = ROOT/'evidence/developer-theta-flying-sunflower-3'
 RUN_EVID = Path('/home/horvay/.config/ai-org/ai-org-dev-data/run-evidence/developer-theta-flying-sunflower-3')
 TRANSPARENT_WORKFLOW = 'asset-generation/workflows/krea2_basic_rem_back.json'

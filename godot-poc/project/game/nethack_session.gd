@@ -3,8 +3,8 @@ extends Node
 ## One NetHack game at a time, run in process by the NetHackCore extension.
 ##
 ## Wraps NetHackCore with the playground, character, seed and lock handling
-## the game needs, and re-emits bridge events (the Electron shim protocol,
-## see electron-poc/docs/ui-protocol-v2.md).
+## the game needs, and re-emits bridge events (the shim bridge protocol,
+## see docs/bridge-protocol.md and docs/ui-protocol-v2.md).
 
 signal event_received(event: Dictionary)
 signal game_ended(result: Dictionary)
@@ -16,7 +16,7 @@ const ESC := 27
 
 var core: Node
 var playground: String = _resolve_playground()
-## Tests only: a bridge fixture scenario id (electron-poc/test/scenarios),
+## Tests only: a bridge fixture scenario id (godot-poc/tests/fixtures),
 ## run on the fixture-enabled core. Empty for real games.
 var fixture_id := ""
 ## Tests only: extra fixture switches (e.g. NH_SHIM_TEST_SHOP_PAYMENT_SCENE),

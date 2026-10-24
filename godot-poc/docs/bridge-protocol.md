@@ -1,12 +1,16 @@
 # NetHack bridge protocol reference
 
 This is the wire protocol between a game client and `nh-shim-bridge`
-(`electron-poc/shim-bridge/nh-shim-bridge.c`). The bridge wraps NetHack 5.0's
+(`godot-poc/extension/bridge/nh-shim-bridge.c`). The bridge wraps NetHack 5.0's
 shim window port (`win/shim/winshim.c`): every window-port callback NetHack
 makes becomes a JSON line on the bridge's stdout, and every key the client
-writes to stdin is queued for the next NetHack read. The Electron app and the
-Godot front end use the same bridge. Godot compiles it unchanged into the
-in-process core library (`godot-poc/extension/core/nhcore.c`).
+writes to stdin is queued for the next NetHack read. The bridge was written for
+the Electron app; Godot compiles it unchanged into the in-process core library
+(`godot-poc/extension/core/nhcore.c`).
+
+The Electron app was removed on 2026-10-24. Passages that describe what
+Electron does record the old client for parity; its source is in git history
+(`git show 5bf4f2829:electron-poc/<path>`).
 
 The JSON examples come from real headless games run through the Godot harness
 on 2026-10-17, with Godot's float numbers converted back to integers. Field
@@ -16,7 +20,7 @@ edited.
 
 Status of this document:
 
-- **Base protocol (sections 1 to 8):** what Electron uses today.
+- **Base protocol (sections 1 to 8):** what the Electron app used.
 - **Extended events (section 9):** opt-in with `NH_BRIDGE_EXTENDED=1`. When
   this was written they were uncommitted working-tree changes still being
   developed, so check them against the source before relying on them.
@@ -27,8 +31,8 @@ Status of this document:
 
 ### 1.1 Starting a game
 
-- **Executable.** A standalone process (`electron-poc/shim-bridge/nh-shim-bridge`)
-  or the Godot in-process core. In Godot, `NetHackCore.start(args, env)` and
+- **Executable.** The Godot in-process core. (Electron ran the bridge as a
+  standalone process.) In Godot, `NetHackCore.start(args, env)` and
   `send_line()` replace spawn and stdin; see
   `godot-poc/project/game/nethack_session.gd`.
 - **Arguments.** Pass the character as one NetHack `-u` argument:
@@ -1483,19 +1487,20 @@ Examples: hero 8193 = HERO|FEMALE; kitten 8208 = PET|FEMALE.
   3 italic, 4 underline, 5 blink, 7 inverse. The flags 16 (urgent) and
   32 (no history) can be OR-ed in.
 
-### 5.7 How Electron turns cells into tile art
+### 5.7 How Electron turned cells into tile art
 
-Electron's rules live in `electron-poc/src/shared/tile-assets.js` and
-`map-presentation.js`. A Godot port can reuse the data files as they are.
+Electron's rules lived in `electron-poc/src/shared/tile-assets.js` and
+`map-presentation.js` (git history). Godot's port is
+`project/game/world/tile_resolver.gd`, reading the same data files.
 
 **Assets.**
 
-- Root directory: `electron-poc/assets/tiles/`.
+- Root directory: `assets/tiles/`.
 - `manifest.json`: `{version:2, tileSize:32, assets:[{id, name, category,
   categorySlug, installedPath, workflow, workflowLabel, sha256, …}]}`, 1044
   assets.
 - `installedPath` is always
-  `electron-poc/assets/tiles/generated/<categorySlug>/<id>.png`.
+  `assets/tiles/generated/<categorySlug>/<id>.png`.
 - Categories: `full-source-objects`, `full-source-monsters`,
   `objects-inventory`, `terrain-features`, `common-early-monsters`,
   `player-combo-avatars`, `player-pets-identity`, `traps-hazards`,

@@ -4,7 +4,7 @@
 This script is intentionally resume-friendly. It builds prompts from the current
 Electron manifest/generation-status, chooses transparent RMBG workflow for cutout
 overlays and regular workflow for opaque terrain/base tiles, installs 32x32 PNGs,
-updates generation-status/electron manifest, and rewrites a full markdown tracker.
+updates generation-status/tile manifest, and rewrites a full markdown tracker.
 """
 from __future__ import annotations
 
@@ -19,15 +19,15 @@ from pathlib import Path
 from PIL import Image, ImageEnhance, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[2]
-EMAN = ROOT / 'electron-poc/assets/tiles/manifest.json'
+EMAN = ROOT / 'assets/tiles/manifest.json'
 STATUS = ROOT / 'asset-generation/manifests/generation-status.json'
 BASE_SCRIPT = ROOT / 'asset-generation/scripts/generate_assets.py'
 TRANSPARENT_WF = ROOT / 'asset-generation/workflows/krea2_basic_rem-background.json'
 TRANSPARENT_WF_CANONICAL = ROOT / 'asset-generation/workflows/krea2_basic_rem_back.json'
 OPAQUE_WF = ROOT / 'asset-generation/workflows/krea2_basic.json'
 OUTPUT_DIR = ROOT / 'asset-generation/outputs'
-ELECTRON_GENERATED_DIR = ROOT / 'electron-poc/assets/tiles/generated'
-BY_CATEGORY_DIR = ROOT / 'electron-poc/assets/tiles/by-category'
+ELECTRON_GENERATED_DIR = ROOT / 'assets/tiles/generated'
+BY_CATEGORY_DIR = ROOT / 'assets/tiles/by-category'
 
 spec = importlib.util.spec_from_file_location('generate_assets_base', BASE_SCRIPT)
 base = importlib.util.module_from_spec(spec); sys.modules[spec.name] = base; spec.loader.exec_module(base)  # type: ignore

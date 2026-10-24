@@ -15,7 +15,7 @@ spec = importlib.util.spec_from_file_location('generate_assets_base', ROOT/'asse
 base = importlib.util.module_from_spec(spec); sys.modules[spec.name] = base; spec.loader.exec_module(base)  # type: ignore
 base.WORKFLOW_PATH = ROOT/'asset-generation/workflows/krea2_basic_rem_back.json'
 STATUS = ROOT/'asset-generation/manifests/generation-status.json'
-EMAN = ROOT/'electron-poc/assets/tiles/manifest.json'
+EMAN = ROOT/'assets/tiles/manifest.json'
 TARGETS = {
   'kitten-pet': 'friendly tiny kitten pet, warm ginger and cream fur, pointed ears, curled tail, tiny blue collar glint, cute alert pose, three-quarter top-down roguelike sprite, transparent background only',
   'kitten': 'tiny dungeon kitten monster, tan gray fur, pointed ears, curled tail, cautious low pose, three-quarter top-down roguelike sprite, transparent background only',

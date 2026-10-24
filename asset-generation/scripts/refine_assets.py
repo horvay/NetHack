@@ -77,7 +77,7 @@ def main():
         a = assets[aid]
         prompt = STYLE_PREFIX + REFINEMENTS.get(aid, a.artDirection) + STYLE_SUFFIX
         a.prompt = prompt
-        old_installed = ROOT / (status.get('assets',{}).get(aid,{}).get('installedPath') or f'electron-poc/assets/tiles/generated/{a.categorySlug}/{a.id}.png')
+        old_installed = ROOT / (status.get('assets',{}).get(aid,{}).get('installedPath') or f'assets/tiles/generated/{a.categorySlug}/{a.id}.png')
         old_output = ROOT / (status.get('assets',{}).get(aid,{}).get('outputPath') or f'asset-generation/outputs/{a.categorySlug}/{a.id}.png')
         backup(old_installed, backup_root)
         backup(old_output, backup_root)

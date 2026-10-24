@@ -2,7 +2,7 @@
  {
   "id": "coyote",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/coyote.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/coyote.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Bare white line drawing of a dog with no fill, shading or color; looks unfinished.",
@@ -15,7 +15,7 @@
  {
   "id": "wolf",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/wolf.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/wolf.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Flat 10-color geometric gray shape with no shading or outline; clip-art placeholder.",
@@ -28,7 +28,7 @@
  {
   "id": "storm-giant",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/storm-giant.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/storm-giant.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Flat placeholder figure: blue box body, stick limbs, featureless face.",
@@ -41,7 +41,7 @@
  {
   "id": "titan",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/titan.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/titan.png",
   "problem": "duplicate",
   "severity": "high",
   "what_is_wrong": "Same flat box-body placeholder as storm-giant, only recolored purple.",
@@ -54,7 +54,7 @@
  {
   "id": "freezing-sphere",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/freezing-sphere.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/freezing-sphere.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Flat blue circle icon with tick marks; near pixel-identical to shocking-sphere.",
@@ -67,7 +67,7 @@
  {
   "id": "shocking-sphere",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/shocking-sphere.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/shocking-sphere.png",
   "problem": "duplicate",
   "severity": "high",
   "what_is_wrong": "Same flat blue circle icon as freezing-sphere; players cannot tell them apart.",
@@ -80,7 +80,7 @@
  {
   "id": "floating-eye",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/floating-eye.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/floating-eye.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Flat icon eye with an 'i' pupil that reads as a UI info symbol, not a monster.",
@@ -93,7 +93,7 @@
  {
   "id": "fog-cloud",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/fog-cloud.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/fog-cloud.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Flat clip-art cloud with a G-shaped swirl; reads as a weather UI icon.",
@@ -106,7 +106,7 @@
  {
   "id": "xan",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/xan.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/xan.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Flat eight-pointed purple star icon; NetHack's xan is a red insect.",
@@ -119,7 +119,7 @@
  {
   "id": "acid-blob",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/acid-blob.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/acid-blob.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Flat black blob with a lime outline and two lime eyes; sticker look, body should be green.",
@@ -132,7 +132,7 @@
  {
   "id": "uruk-hai",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/uruk-hai.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/uruk-hai.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Only a green wireframe outline with no filled body.",
@@ -145,7 +145,7 @@
  {
   "id": "black-light",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/black-light.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/black-light.png",
   "problem": "unclear",
   "severity": "high",
   "what_is_wrong": "Only a faint thin purple ring at max alpha 76; invisible on the floor.",
@@ -158,7 +158,7 @@
  {
   "id": "ochre-jelly",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/ochre-jelly.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/ochre-jelly.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Tiny flat brown pancake with two dots covering a quarter of the tile; unreadable.",
@@ -171,7 +171,7 @@
  {
   "id": "gray-ooze",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/gray-ooze.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/gray-ooze.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Reads as a chrome letter P, not an ooze.",
@@ -184,7 +184,7 @@
  {
   "id": "blue-jelly",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/blue-jelly.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/blue-jelly.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Tile is a brown-orange letter J, not a blue jelly.",
@@ -197,7 +197,7 @@
  {
   "id": "gnomish-wizard",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/gnomish-wizard.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/gnomish-wizard.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Blurry flat gray silhouette with no face or color; should be a bright blue-robed gnome.",
@@ -210,7 +210,7 @@
  {
   "id": "angel",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/angel.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/angel.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Symmetric purple-gold emblem/badge with no figure; angel should be a white winged humanoid.",
@@ -223,7 +223,7 @@
  {
   "id": "couatl",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/couatl.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/couatl.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Brown blob with no serpent or wings; couatl is a green winged serpent.",
@@ -236,7 +236,7 @@
  {
   "id": "ki-rin",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/ki-rin.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/ki-rin.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "White goat-dog creature; ki-rin is a gold horned flying horse.",
@@ -249,7 +249,7 @@
  {
   "id": "cerberus",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/cerberus.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/cerberus.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Single-headed gray-blue dog; Cerberus is red and must show three heads.",
@@ -262,7 +262,7 @@
  {
   "id": "hell-hound-pup",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/hell-hound-pup.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/hell-hound-pup.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Green dog with a heavy green matte fringe; hell hound pups are red.",
@@ -275,7 +275,7 @@
  {
   "id": "hell-hound",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/hell-hound.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/hell-hound.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Plain brown dog; hell hounds are red and should look fiery.",
@@ -288,7 +288,7 @@
  {
   "id": "stalker",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/stalker.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/stalker.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Green goblin-like figure with green fringe; stalker is a white, half-invisible hunter.",
@@ -301,7 +301,7 @@
  {
   "id": "ettin",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/ettin.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/ettin.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Single green blob with green matte fringe; ettin is a brown two-headed giant.",
@@ -314,7 +314,7 @@
  {
   "id": "mumak",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/mumak.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/mumak.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Red-brown lump that does not read as an elephant; mumak is gray.",
@@ -327,7 +327,7 @@
  {
   "id": "rock-mole",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/rock-mole.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/rock-mole.png",
   "problem": "unclear",
   "severity": "high",
   "what_is_wrong": "Gray hood with a face and wheels; reads as a vehicle, not a mole.",
@@ -340,7 +340,7 @@
  {
   "id": "centipede",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/centipede.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/centipede.png",
   "problem": "unclear",
   "severity": "high",
   "what_is_wrong": "Blurry gray S on a square card; no creature visible.",
@@ -353,7 +353,7 @@
  {
   "id": "quivering-blob",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/quivering-blob.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/quivering-blob.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Plain brown ball; quivering blob is white and should look jelly-like.",
@@ -366,7 +366,7 @@
  {
   "id": "wood-nymph",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/wood-nymph.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/wood-nymph.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "White ghost/worm shape; does not read as a nymph.",
@@ -379,7 +379,7 @@
  {
   "id": "mountain-nymph",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/mountain-nymph.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/mountain-nymph.png",
   "problem": "unclear",
   "severity": "high",
   "what_is_wrong": "Brown plush bear-like blob; does not read as a nymph.",
@@ -392,7 +392,7 @@
  {
   "id": "water-nymph",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/water-nymph.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/water-nymph.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Green octopus silhouette with green fringe; should be a blue nymph.",
@@ -405,7 +405,7 @@
  {
   "id": "mind-flayer",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/mind-flayer.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/mind-flayer.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Green tentacle squiggle on a stalk; no humanoid, and mind flayers are magenta.",
@@ -418,7 +418,7 @@
  {
   "id": "master-mind-flayer",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/master-mind-flayer.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/master-mind-flayer.png",
   "problem": "unclear",
   "severity": "high",
   "what_is_wrong": "Purple-and-gold tentacle splat with no body or head.",
@@ -431,7 +431,7 @@
  {
   "id": "iron-piercer",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/iron-piercer.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/iron-piercer.png",
   "problem": "unclear",
   "severity": "high",
   "what_is_wrong": "Tiny dark spike covering a few pixels; unreadable. Also installed at 512x512.",
@@ -444,7 +444,7 @@
  {
   "id": "soldier-ant",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/soldier-ant.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/soldier-ant.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Orange-brown ant indistinguishable from giant/fire ant; soldier ants are blue, and the distinction matters.",
@@ -457,7 +457,7 @@
  {
   "id": "aleax",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/aleax.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/aleax.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Installed as a 512x512 painterly image instead of a 32x32 pixel tile; downscaled it turns into a soft smudge with no outline. Reads as mush at 32 px.",
@@ -470,7 +470,7 @@
  {
   "id": "archon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/archon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/archon.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Installed as a 512x512 painterly image instead of a 32x32 pixel tile; downscaled it turns into a soft smudge with no outline. Reads as a white blur.",
@@ -483,7 +483,7 @@
  {
   "id": "warg",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/warg.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/warg.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Installed as a 1024x1024 painterly image instead of a 32x32 pixel tile; downscaled it turns into a soft smudge with no outline. Reads as a dark smudge.",
@@ -496,7 +496,7 @@
  {
   "id": "small-mimic",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/small-mimic.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/small-mimic.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Installed as a 1024x1024 painterly image instead of a 32x32 pixel tile; downscaled it turns into a soft smudge with no outline. Noisy brown smear.",
@@ -509,7 +509,7 @@
  {
   "id": "large-mimic",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/large-mimic.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/large-mimic.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Installed as a 1024x1024 painterly image instead of a 32x32 pixel tile; downscaled it turns into a soft smudge with no outline. Noisy smear; should be red.",
@@ -522,7 +522,7 @@
  {
   "id": "giant-mimic",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/giant-mimic.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/giant-mimic.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Installed as a 512x512 painterly image instead of a 32x32 pixel tile; downscaled it turns into a soft smudge with no outline. Noisy smear; should be magenta.",
@@ -535,7 +535,7 @@
  {
   "id": "zruty",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/zruty.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/zruty.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Installed as a 512x512 painterly image instead of a 32x32 pixel tile; downscaled it turns into a soft smudge with no outline. Unreadable brown blur.",
@@ -548,7 +548,7 @@
  {
   "id": "long-worm",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/long-worm.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/long-worm.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Installed as a 512x512 painterly image instead of a 32x32 pixel tile; downscaled it turns into a soft smudge with no outline. Soft and outline-free next to the pixel tiles.",
@@ -561,7 +561,7 @@
  {
   "id": "purple-worm",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/purple-worm.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/purple-worm.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Installed as a 512x512 painterly image instead of a 32x32 pixel tile; downscaled it turns into a soft smudge with no outline. Soft and outline-free next to the pixel tiles.",
@@ -574,7 +574,7 @@
  {
   "id": "baby-long-worm",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/baby-long-worm.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/baby-long-worm.png",
   "problem": "duplicate",
   "severity": "medium",
   "what_is_wrong": "Installed as a 512x512 painterly image instead of a 32x32 pixel tile; downscaled it turns into a soft smudge with no outline. Same pose and shape as baby-purple-worm.",
@@ -587,7 +587,7 @@
  {
   "id": "baby-purple-worm",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/baby-purple-worm.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/baby-purple-worm.png",
   "problem": "duplicate",
   "severity": "medium",
   "what_is_wrong": "Installed as a 512x512 painterly image instead of a 32x32 pixel tile; downscaled it turns into a soft smudge with no outline. Same pose and shape as baby-long-worm.",
@@ -600,7 +600,7 @@
  {
   "id": "glass-piercer",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/glass-piercer.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/glass-piercer.png",
   "problem": "inconsistent",
   "severity": "low",
   "what_is_wrong": "Installed as a 512x512 painterly image instead of a 32x32 pixel tile; downscaled it turns into a soft smudge with no outline. Smooth render without pixel outline.",
@@ -613,7 +613,7 @@
  {
   "id": "baby-black-dragon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/baby-black-dragon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/baby-black-dragon.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is cream/white but should be black.",
@@ -626,7 +626,7 @@
  {
   "id": "baby-blue-dragon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/baby-blue-dragon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/baby-blue-dragon.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is purple but should be blue.",
@@ -639,7 +639,7 @@
  {
   "id": "baby-gold-dragon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/baby-gold-dragon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/baby-gold-dragon.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is pale gray but should be gold.",
@@ -652,7 +652,7 @@
  {
   "id": "baby-gray-dragon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/baby-gray-dragon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/baby-gray-dragon.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is green with a green fringe but should be gray.",
@@ -665,7 +665,7 @@
  {
   "id": "baby-green-dragon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/baby-green-dragon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/baby-green-dragon.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is brown (teddy-bear look) but should be green.",
@@ -678,7 +678,7 @@
  {
   "id": "baby-red-dragon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/baby-red-dragon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/baby-red-dragon.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is green but should be red.",
@@ -691,7 +691,7 @@
  {
   "id": "baby-shimmering-dragon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/baby-shimmering-dragon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/baby-shimmering-dragon.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is brown (teddy-bear look) but should be shimmering cyan.",
@@ -704,7 +704,7 @@
  {
   "id": "baby-silver-dragon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/baby-silver-dragon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/baby-silver-dragon.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is brown (near-duplicate of baby-shimmering-dragon) but should be bright silver-cyan.",
@@ -717,7 +717,7 @@
  {
   "id": "baby-yellow-dragon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/baby-yellow-dragon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/baby-yellow-dragon.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is gray-blue but should be yellow.",
@@ -730,7 +730,7 @@
  {
   "id": "blue-dragon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/blue-dragon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/blue-dragon.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is brown but should be blue.",
@@ -743,7 +743,7 @@
  {
   "id": "gray-dragon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/gray-dragon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/gray-dragon.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is red-orange (looks like a red dragon) but should be gray.",
@@ -756,7 +756,7 @@
  {
   "id": "green-dragon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/green-dragon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/green-dragon.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is purple but should be green.",
@@ -769,7 +769,7 @@
  {
   "id": "orange-dragon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/orange-dragon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/orange-dragon.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is green but should be orange.",
@@ -782,7 +782,7 @@
  {
   "id": "shimmering-dragon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/shimmering-dragon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/shimmering-dragon.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is purple and gold but should be shimmering cyan.",
@@ -795,7 +795,7 @@
  {
   "id": "silver-dragon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/silver-dragon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/silver-dragon.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is purple but should be bright silver-cyan.",
@@ -808,7 +808,7 @@
  {
   "id": "black-dragon",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/black-dragon.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/black-dragon.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Dragon colors are the only way to tell dragons apart in NetHack; this one is light silver-gray but should be black.",
@@ -821,7 +821,7 @@
  {
   "id": "winter-wolf-cub",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/winter-wolf-cub.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/winter-wolf-cub.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Purple and orange cub; winter wolves are cyan.",
@@ -834,7 +834,7 @@
  {
   "id": "winter-wolf",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/winter-wolf.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/winter-wolf.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Cream wolf with no icy cue; winter wolves are cyan.",
@@ -847,7 +847,7 @@
  {
   "id": "dingo",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/dingo.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/dingo.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Gray-blue dog; dingo is yellow.",
@@ -860,7 +860,7 @@
  {
   "id": "housecat",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/housecat.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/housecat.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Dark green cat with green matte fringe; housecat should be a white domestic cat.",
@@ -873,7 +873,7 @@
  {
   "id": "jaguar",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/jaguar.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/jaguar.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "White cat, near-identical to panther and large cat; jaguar is brown with rosettes.",
@@ -886,7 +886,7 @@
  {
   "id": "panther",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/panther.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/panther.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "White cat, near-identical to jaguar; panther is black.",
@@ -899,7 +899,7 @@
  {
   "id": "lynx",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/lynx.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/lynx.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Purple and orange cat; lynx is cyan in NetHack.",
@@ -912,7 +912,7 @@
  {
   "id": "displacer-beast",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/displacer-beast.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/displacer-beast.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Red-brown lump with no tentacles; displacer beast is blue.",
@@ -925,7 +925,7 @@
  {
   "id": "forest-centaur",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/forest-centaur.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/forest-centaur.png",
   "problem": "duplicate",
   "severity": "high",
   "what_is_wrong": "Plain brown pony with no human torso, near-identical to the other two centaurs; should read as a centaur and be green.",
@@ -938,7 +938,7 @@
  {
   "id": "mountain-centaur",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/mountain-centaur.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/mountain-centaur.png",
   "problem": "duplicate",
   "severity": "high",
   "what_is_wrong": "Plain brown pony with no human torso, near-identical to the other two centaurs; should read as a centaur and be cyan.",
@@ -951,7 +951,7 @@
  {
   "id": "plains-centaur",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/plains-centaur.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/plains-centaur.png",
   "problem": "duplicate",
   "severity": "high",
   "what_is_wrong": "Plain brown pony with no human torso, near-identical to the other two centaurs; should read as a centaur and be brown.",
@@ -964,7 +964,7 @@
  {
   "id": "cockatrice",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/cockatrice.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/cockatrice.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "White camel-like bird; cockatrice is yellow and should show the rooster/serpent mix.",
@@ -977,7 +977,7 @@
  {
   "id": "raven",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/raven.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/raven.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Brown hawk/dinosaur-like bird; raven is black.",
@@ -990,7 +990,7 @@
  {
   "id": "bat",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/bat.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/bat.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Tiny black-and-white bat covering under a fifth of the tile; NetHack bat is brown.",
@@ -1003,7 +1003,7 @@
  {
   "id": "vampire-bat",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/vampire-bat.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/vampire-bat.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Dark bat outlined by a heavy green matte fringe.",
@@ -1016,7 +1016,7 @@
  {
   "id": "gremlin",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/gremlin.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/gremlin.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Brown big-eared critter, similar to gargoyles; gremlin is green.",
@@ -1029,7 +1029,7 @@
  {
   "id": "winged-gargoyle",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/winged-gargoyle.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/winged-gargoyle.png",
   "problem": "duplicate",
   "severity": "medium",
   "what_is_wrong": "Red-brown winged gargoyle nearly identical to gargoyle; winged gargoyle is magenta.",
@@ -1042,7 +1042,7 @@
  {
   "id": "hill-giant",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/hill-giant.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/hill-giant.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Orange-red giant; hill giant is cyan.",
@@ -1055,7 +1055,7 @@
  {
   "id": "ettin-zombie",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/ettin-zombie.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/ettin-zombie.png",
   "problem": "wrong",
   "severity": "low",
   "what_is_wrong": "Purple zombie; ettin zombie is blue and should show two heads.",
@@ -1068,7 +1068,7 @@
  {
   "id": "giant-zombie",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/giant-zombie.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/giant-zombie.png",
   "problem": "duplicate",
   "severity": "medium",
   "what_is_wrong": "Thin beige ragged figure nearly identical to human-zombie and ghoul; giant zombie is cyan and huge.",
@@ -1081,7 +1081,7 @@
  {
   "id": "human-zombie",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/human-zombie.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/human-zombie.png",
   "problem": "duplicate",
   "severity": "low",
   "what_is_wrong": "Thin low-contrast beige figure nearly identical to giant-zombie and ghoul.",
@@ -1094,7 +1094,7 @@
  {
   "id": "spotted-jelly",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/spotted-jelly.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/spotted-jelly.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Cream dome on legs reads as a mushroom or beetle; spotted jelly is green.",
@@ -1107,7 +1107,7 @@
  {
   "id": "gelatinous-cube",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/gelatinous-cube.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/gelatinous-cube.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Solid gray stone cube; gelatinous cube is translucent cyan.",
@@ -1120,7 +1120,7 @@
  {
   "id": "lichen",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/lichen.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/lichen.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "White flower cluster; lichen is bright green.",
@@ -1133,7 +1133,7 @@
  {
   "id": "gas-spore",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/gas-spore.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/gas-spore.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Pale green jar-like bubble; gas spore is gray, and its look matters next to floating eye.",
@@ -1146,7 +1146,7 @@
  {
   "id": "trapper",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/trapper.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/trapper.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Tiny flat yellow crab-like thing in a third of the tile; trapper is green.",
@@ -1159,7 +1159,7 @@
  {
   "id": "lemure",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/lemure.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/lemure.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Green squiggle with horns; lemure is a brown blob-demon.",
@@ -1172,7 +1172,7 @@
  {
   "id": "manes",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/manes.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/manes.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Pale noisy skull-mask blob with cyan fringe; manes are red.",
@@ -1185,7 +1185,7 @@
  {
   "id": "homunculus",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/homunculus.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/homunculus.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Lavender fairy-dragon; homunculus is green.",
@@ -1198,7 +1198,7 @@
  {
   "id": "imp",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/imp.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/imp.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Baked dark background patch covers the right third of the tile.",
@@ -1211,7 +1211,7 @@
  {
   "id": "tengu",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/tengu.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/tengu.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Flat white-gray bird silhouette with almost no shading; tengu is cyan.",
@@ -1224,7 +1224,7 @@
  {
   "id": "cobra",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/cobra.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/cobra.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Snake shown purple and gold; NetHack's cobra is blue, so snakes are hard to tell apart.",
@@ -1237,7 +1237,7 @@
  {
   "id": "garter-snake",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/garter-snake.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/garter-snake.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Snake shown yellow and black; NetHack's garter snake is green, so snakes are hard to tell apart.",
@@ -1250,7 +1250,7 @@
  {
   "id": "pit-viper",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/pit-viper.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/pit-viper.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Snake shown bone white; NetHack's pit viper is blue, so snakes are hard to tell apart.",
@@ -1263,7 +1263,7 @@
  {
   "id": "python",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/python.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/python.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Snake shown green (near-duplicate of snake); NetHack's python is magenta, so snakes are hard to tell apart.",
@@ -1276,7 +1276,7 @@
  {
   "id": "snake",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/snake.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/snake.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Snake shown green (near-duplicate of python); NetHack's snake is brown, so snakes are hard to tell apart.",
@@ -1289,7 +1289,7 @@
  {
   "id": "water-moccasin",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/water-moccasin.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/water-moccasin.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Snake shown purple and orange; NetHack's water moccasin is red, so snakes are hard to tell apart.",
@@ -1302,7 +1302,7 @@
  {
   "id": "giant-spider",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/giant-spider.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/giant-spider.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Orange-red spider; giant spider is magenta, an important danger cue.",
@@ -1315,7 +1315,7 @@
  {
   "id": "scorpion",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/scorpion.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/scorpion.png",
   "problem": "wrong",
   "severity": "low",
   "what_is_wrong": "Gray scorpion; scorpion is red.",
@@ -1328,7 +1328,7 @@
  {
   "id": "grid-bug",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/grid-bug.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/grid-bug.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Blue/cyan ornate beetle; grid bug is magenta.",
@@ -1341,7 +1341,7 @@
  {
   "id": "fire-vortex",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/fire-vortex.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/fire-vortex.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Plain gray tornado; fire vortex is yellow fire.",
@@ -1354,7 +1354,7 @@
  {
   "id": "kraken",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/kraken.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/kraken.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Purple-teal octopus; kraken is red.",
@@ -1367,7 +1367,7 @@
  {
   "id": "jellyfish",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/jellyfish.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/jellyfish.png",
   "problem": "wrong",
   "severity": "low",
   "what_is_wrong": "Pink jellyfish; NetHack jellyfish is blue.",
@@ -1380,7 +1380,7 @@
  {
   "id": "giant-eel",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/giant-eel.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/giant-eel.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Blurry olive S-curve that reads as a letter; giant eel is cyan.",
@@ -1393,7 +1393,7 @@
  {
   "id": "long-worm-tail",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/long-worm-tail.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/long-worm-tail.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Magenta-purple segment; long worm tail should be the brown of the long worm.",
@@ -1406,7 +1406,7 @@
  {
   "id": "orc",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/orc.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/orc.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Flat brown block-man with cartoon face; orc should be red.",
@@ -1419,7 +1419,7 @@
  {
   "id": "orc-captain",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/orc-captain.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/orc-captain.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Gray blocky golem-like figure; orc captain is magenta.",
@@ -1432,7 +1432,7 @@
  {
   "id": "mordor-orc",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/mordor-orc.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/mordor-orc.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Green orc with green matte fringe; Mordor orc is blue.",
@@ -1445,7 +1445,7 @@
  {
   "id": "kobold-mummy",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/kobold-mummy.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/kobold-mummy.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Noisy orange-white jumble with no readable body.",
@@ -1458,7 +1458,7 @@
  {
   "id": "dwarf-mummy",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/dwarf-mummy.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/dwarf-mummy.png",
   "problem": "unclear",
   "severity": "low",
   "what_is_wrong": "Bandaged blob with a beard; hard to read and should carry dwarf red.",
@@ -1471,7 +1471,7 @@
  {
   "id": "paper-golem",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/paper-golem.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/paper-golem.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Origami shards with blue marks; does not read as a golem figure.",
@@ -1484,7 +1484,7 @@
  {
   "id": "nurse",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/nurse.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/nurse.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Flat sticker-style figure with a white outline and blank face.",
@@ -1497,7 +1497,7 @@
  {
   "id": "attendant",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/attendant.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/attendant.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Green matte fringe halos the whole figure.",
@@ -1510,7 +1510,7 @@
  {
   "id": "hippocrates",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/hippocrates.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/hippocrates.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Green matte fringe halos the whole figure.",
@@ -1523,7 +1523,7 @@
  {
   "id": "healer",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/healer.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/healer.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Green matte fringe halos the whole figure.",
@@ -1536,7 +1536,7 @@
  {
   "id": "guide",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/guide.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/guide.png",
   "problem": "inconsistent",
   "severity": "low",
   "what_is_wrong": "Lime fringe outlines the whole figure.",
@@ -1549,7 +1549,7 @@
  {
   "id": "djinni",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/djinni.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/djinni.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Figure dissolves into blurry blue noise with a green fringe.",
@@ -1562,7 +1562,7 @@
  {
   "id": "newt",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/newt.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/newt.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Soft blurry flat yellow lizard with no outline or pixel shading; clashes with the tileset.",
@@ -1575,7 +1575,7 @@
  {
   "id": "iguana",
   "category": "common-early-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/common-early-monsters/iguana.png",
+  "installedPath": "assets/tiles/generated/common-early-monsters/iguana.png",
   "problem": "inconsistent",
   "severity": "low",
   "what_is_wrong": "Thick white sticker outline and a baked pedestal base under the lizard.",
@@ -1588,7 +1588,7 @@
  {
   "id": "ghost",
   "category": "full-source-monsters",
-  "installedPath": "electron-poc/assets/tiles/generated/full-source-monsters/ghost.png",
+  "installedPath": "assets/tiles/generated/full-source-monsters/ghost.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Smooth cartoon bedsheet ghost; clip-art look unlike the painted tiles.",

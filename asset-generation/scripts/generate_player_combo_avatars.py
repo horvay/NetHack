@@ -21,10 +21,10 @@ from PIL import Image, ImageDraw, ImageFilter
 ROOT = Path(__file__).resolve().parents[2]
 ROLE_C = ROOT / "src/role.c"
 OUT_DIR = ROOT / "asset-generation/outputs/player-combo-avatars"
-INSTALL_DIR = ROOT / "electron-poc/assets/tiles/generated/player-combo-avatars"
+INSTALL_DIR = ROOT / "assets/tiles/generated/player-combo-avatars"
 INVENTORY_MD = ROOT / "asset-generation/manifests/player-avatar-combo-inventory.md"
 INVENTORY_JSON = ROOT / "asset-generation/manifests/player-avatar-combo-inventory.json"
-TILE_DIR = ROOT / "electron-poc/assets/tiles/generated/player-pets-identity"
+TILE_DIR = ROOT / "assets/tiles/generated/player-pets-identity"
 TEMPLATE_DIR = ROOT / "asset-generation/generated/player-combo-avatar-templates"
 SIZE = 1024
 

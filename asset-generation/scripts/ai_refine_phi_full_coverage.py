@@ -10,7 +10,7 @@ spec = importlib.util.spec_from_file_location('generate_assets_base', ROOT / 'as
 base = importlib.util.module_from_spec(spec); sys.modules[spec.name] = base; spec.loader.exec_module(base)  # type: ignore
 base.WORKFLOW_PATH = ROOT / 'asset-generation/workflows/krea2_basic_rem_back.json'
 STATUS = ROOT / 'asset-generation/manifests/generation-status.json'
-EMAN = ROOT / 'electron-poc/assets/tiles/manifest.json'
+EMAN = ROOT / 'assets/tiles/manifest.json'
 STYLE = ('A single 32x32 NetHack roguelike dungeon tile sprite, AI-painted pixel-art / painted-pixel hybrid, transparent background, centered bold silhouette, readable at 16px on a dark stone floor, high contrast, cohesive fantasy game art, no text, no letters, no UI frame, no border, no square card, no baked background rectangle, not a flat SVG icon. ')
 NEG = ' Use chunky readable shapes; preserve transparent alpha; avoid tiny hairline details and generic placeholder recolor reuse.'
 TARGETS = {

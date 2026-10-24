@@ -38,7 +38,7 @@ func start_game(character: String, seed: String) -> GameScreen:
 	return game
 
 
-## Starts a game on a bridge fixture scenario (electron-poc/test/scenarios):
+## Starts a game on a bridge fixture scenario (godot-poc/tests/fixtures):
 ## a real NetHack game whose level, ground and pack were set up for the test.
 ## fixture_env adds the bridge's older scene switches (NH_SHIM_TEST_*).
 func start_fixture(character: String, scenario_id: String, fixture_env := {}) -> GameScreen:

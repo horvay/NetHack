@@ -2,7 +2,7 @@
  {
   "id": "open-vertical-door",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/open-vertical-door.png",
+  "installedPath": "assets/tiles/generated/terrain-features/open-vertical-door.png",
   "problem": "unclear",
   "severity": "high",
   "what_is_wrong": "Reads as a brown plank lying on a stone floor; there are no jambs, no visible gap and nothing says 'doorway in a vertical wall'.",
@@ -15,7 +15,7 @@
  {
   "id": "open-horizontal-door",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/open-horizontal-door.png",
+  "installedPath": "assets/tiles/generated/terrain-features/open-horizontal-door.png",
   "problem": "unclear",
   "severity": "high",
   "what_is_wrong": "Flat gray blocks with two tiny orange dashes; nothing reads as a door or a passable doorway.",
@@ -28,7 +28,7 @@
  {
   "id": "closed-door",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/closed-door.png",
+  "installedPath": "assets/tiles/generated/terrain-features/closed-door.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Flat orange rectangle with three black lines and a yellow square; a geometric placeholder with no wood grain, shading or wall context.",
@@ -41,7 +41,7 @@
  {
   "id": "broken-door",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/broken-door.png",
+  "installedPath": "assets/tiles/generated/terrain-features/broken-door.png",
   "problem": "unclear",
   "severity": "high",
   "what_is_wrong": "Three brown blobs and a yellow dot on dark gray; reads as scattered bread or debris, not a smashed door in a doorway.",
@@ -54,7 +54,7 @@
  {
   "id": "no-door-doorway",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/no-door-doorway.png",
+  "installedPath": "assets/tiles/generated/terrain-features/no-door-doorway.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "Almost blank dark-gray square with one faint bar; it is indistinguishable from floor and never reads as an opening in a wall.",
@@ -67,7 +67,7 @@
  {
   "id": "room-floor",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/room-floor.png",
+  "installedPath": "assets/tiles/generated/terrain-features/room-floor.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Flat single-color gray square with one dot; a placeholder with no stone texture (Electron draws it everywhere).",
@@ -80,7 +80,7 @@
  {
   "id": "dark-room-floor",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/dark-room-floor.png",
+  "installedPath": "assets/tiles/generated/terrain-features/dark-room-floor.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Flat near-black square; a placeholder with no texture and barely distinguishable from unexplored stone.",
@@ -93,7 +93,7 @@
  {
   "id": "lit-corridor",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/lit-corridor.png",
+  "installedPath": "assets/tiles/generated/terrain-features/lit-corridor.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Flat gray square with a single gray bar; does not read as a dug tunnel or corridor.",
@@ -106,7 +106,7 @@
  {
   "id": "dark-corridor",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/dark-corridor.png",
+  "installedPath": "assets/tiles/generated/terrain-features/dark-corridor.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Flat near-black square with a faint bar; placeholder with no tunnel texture.",
@@ -119,7 +119,7 @@
  {
   "id": "vertical-wall",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/vertical-wall.png",
+  "installedPath": "assets/tiles/generated/terrain-features/vertical-wall.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "A flat gray bar with two black lines, drawn like a UI icon rather than stone masonry.",
@@ -132,7 +132,7 @@
  {
   "id": "horizontal-wall",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/horizontal-wall.png",
+  "installedPath": "assets/tiles/generated/terrain-features/horizontal-wall.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "A flat gray bar with two vertical lines; reads as a UI slider, not a stone wall.",
@@ -145,7 +145,7 @@
  {
   "id": "wall-corner",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/wall-corner.png",
+  "installedPath": "assets/tiles/generated/terrain-features/wall-corner.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Flat geometric L-shape, and one fixed orientation is mapped to all four NetHack corners, so three of them point the wrong way.",
@@ -158,7 +158,7 @@
  {
   "id": "wall-tee-junction",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/wall-tee-junction.png",
+  "installedPath": "assets/tiles/generated/terrain-features/wall-tee-junction.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Flat geometric T-shape in a single orientation mapped to all four tee walls and crosswalls, so most junctions draw wrong.",
@@ -171,7 +171,7 @@
  {
   "id": "generic-wall-fallback",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/generic-wall-fallback.png",
+  "installedPath": "assets/tiles/generated/terrain-features/generic-wall-fallback.png",
   "problem": "vector",
   "severity": "low",
   "what_is_wrong": "Flat light-gray square with a plus sign; looks like a UI button rather than a stone block.",
@@ -184,7 +184,7 @@
  {
   "id": "up-stairs",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/up-stairs.png",
+  "installedPath": "assets/tiles/generated/terrain-features/up-stairs.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Flat stacked gray rectangles; geometric placeholder (Godot paints its own stairs, Electron still uses this).",
@@ -197,7 +197,7 @@
  {
   "id": "down-stairs",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/down-stairs.png",
+  "installedPath": "assets/tiles/generated/terrain-features/down-stairs.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Flat inverted stack of gray rectangles; geometric placeholder with no depth.",
@@ -210,7 +210,7 @@
  {
   "id": "ladder-up",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/ladder-up.png",
+  "installedPath": "assets/tiles/generated/terrain-features/ladder-up.png",
   "problem": "vector",
   "severity": "low",
   "what_is_wrong": "Flat orange-brown ladder icon with a gray triangle; clip-art look.",
@@ -223,7 +223,7 @@
  {
   "id": "ladder-down",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/ladder-down.png",
+  "installedPath": "assets/tiles/generated/terrain-features/ladder-down.png",
   "problem": "vector",
   "severity": "low",
   "what_is_wrong": "Flat orange-brown ladder icon with a dark triangle; clip-art look.",
@@ -236,7 +236,7 @@
  {
   "id": "branch-stairs-up",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/branch-stairs-up.png",
+  "installedPath": "assets/tiles/generated/terrain-features/branch-stairs-up.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Flat cyan stacked bars; geometric placeholder for the Mines/Sokoban branch stairs a player sees every game.",
@@ -249,7 +249,7 @@
  {
   "id": "branch-stairs-down",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/branch-stairs-down.png",
+  "installedPath": "assets/tiles/generated/terrain-features/branch-stairs-down.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Flat cyan inverted bars; geometric placeholder for the Gnomish Mines entrance stairs.",
@@ -262,7 +262,7 @@
  {
   "id": "branch-ladder-up",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/branch-ladder-up.png",
+  "installedPath": "assets/tiles/generated/terrain-features/branch-ladder-up.png",
   "problem": "vector",
   "severity": "low",
   "what_is_wrong": "Flat cyan ladder icon; clip-art look.",
@@ -275,7 +275,7 @@
  {
   "id": "branch-ladder-down",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/branch-ladder-down.png",
+  "installedPath": "assets/tiles/generated/terrain-features/branch-ladder-down.png",
   "problem": "vector",
   "severity": "low",
   "what_is_wrong": "Flat cyan ladder icon; clip-art look.",
@@ -288,7 +288,7 @@
  {
   "id": "engraving",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/engraving.png",
+  "installedPath": "assets/tiles/generated/terrain-features/engraving.png",
   "problem": "unclear",
   "severity": "high",
   "what_is_wrong": "Pale gray squiggles that read as a pile of bones or a brick fragment, not as writing scratched into the floor.",
@@ -301,7 +301,7 @@
  {
   "id": "iron-bars",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/iron-bars.png",
+  "installedPath": "assets/tiles/generated/terrain-features/iron-bars.png",
   "problem": "vector",
   "severity": "low",
   "what_is_wrong": "Flat gray grid lines on dark gray; looks like a UI grid rather than a heavy iron grate.",
@@ -314,7 +314,7 @@
  {
   "id": "drawbridge",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/drawbridge.png",
+  "installedPath": "assets/tiles/generated/terrain-features/drawbridge.png",
   "problem": "vector",
   "severity": "low",
   "what_is_wrong": "Flat orange crate-like rectangle; reads as a closed door or box, not a castle drawbridge.",
@@ -327,7 +327,7 @@
  {
   "id": "magic-portal",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/magic-portal.png",
+  "installedPath": "assets/tiles/generated/terrain-features/magic-portal.png",
   "problem": "vector",
   "severity": "low",
   "what_is_wrong": "Flat purple ring; geometric placeholder.",
@@ -340,7 +340,7 @@
  {
   "id": "pool-water",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/pool-water.png",
+  "installedPath": "assets/tiles/generated/terrain-features/pool-water.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Green swampy water; NetHack pools are blue, and green reads as slime or acid.",
@@ -353,7 +353,7 @@
  {
   "id": "moat-water",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/moat-water.png",
+  "installedPath": "assets/tiles/generated/terrain-features/moat-water.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Dark pool with an orange rocky border baked into the tile, so adjacent moat squares form a grid of separate puddles (also the '}' fallback).",
@@ -366,7 +366,7 @@
  {
   "id": "sea-water",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/sea-water.png",
+  "installedPath": "assets/tiles/generated/terrain-features/sea-water.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Flat blue and teal horizontal stripes; geometric placeholder used for the water on Medusa's level.",
@@ -379,7 +379,7 @@
  {
   "id": "water-wall",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/water-wall.png",
+  "installedPath": "assets/tiles/generated/terrain-features/water-wall.png",
   "problem": "unclear",
   "severity": "low",
   "what_is_wrong": "Pale crumpled-paper texture that reads as rock or ice, not a wall of water.",
@@ -392,7 +392,7 @@
  {
   "id": "ice",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/ice.png",
+  "installedPath": "assets/tiles/generated/terrain-features/ice.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "A pale blue diamond inside an orange brick frame; the baked frame looks like a badge and will not tile into an ice field.",
@@ -405,7 +405,7 @@
  {
   "id": "lava",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/lava.png",
+  "installedPath": "assets/tiles/generated/terrain-features/lava.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "A red rock icon inside a stone frame; reads as a framed badge, not a molten lava field, and will not tile.",
@@ -418,7 +418,7 @@
  {
   "id": "tree",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/tree.png",
+  "installedPath": "assets/tiles/generated/terrain-features/tree.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Blurry upscaled green and brown blob with no shape; reads as a smudge rather than a tree.",
@@ -431,7 +431,7 @@
  {
   "id": "grave",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/grave.png",
+  "installedPath": "assets/tiles/generated/terrain-features/grave.png",
   "problem": "unclear",
   "severity": "low",
   "what_is_wrong": "Cracked dark headstone without a mound reads as a hooded figure or boulder at 32 px.",
@@ -444,7 +444,7 @@
  {
   "id": "sink",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/sink.png",
+  "installedPath": "assets/tiles/generated/terrain-features/sink.png",
   "problem": "unclear",
   "severity": "low",
   "what_is_wrong": "Brown bucket-like shape with a tap reads as a barrel or coffee pot rather than NetHack's kitchen sink.",
@@ -457,7 +457,7 @@
  {
   "id": "cloud",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/cloud.png",
+  "installedPath": "assets/tiles/generated/terrain-features/cloud.png",
   "problem": "vector",
   "severity": "low",
   "what_is_wrong": "Flat two-tone gray blob with no shading; clip-art cloud.",
@@ -470,7 +470,7 @@
  {
   "id": "poison-cloud",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/poison-cloud.png",
+  "installedPath": "assets/tiles/generated/terrain-features/poison-cloud.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Three dark green balls read as a clover or broccoli, not a drifting gas cloud.",
@@ -483,7 +483,7 @@
  {
   "id": "zap-beam",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/zap-beam.png",
+  "installedPath": "assets/tiles/generated/terrain-features/zap-beam.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Only one diagonal lightning bolt, yet it is used for both slant directions and the dig beam, so left-slant rays draw the wrong way.",
@@ -496,7 +496,7 @@
  {
   "id": "beam-east",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/beam-east.png",
+  "installedPath": "assets/tiles/generated/terrain-features/beam-east.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Flat cyan bar with an arrowhead pointing right; NetHack rays are directionless lines, so a ray going the other way shows a backwards arrow.",
@@ -509,7 +509,7 @@
  {
   "id": "beam-north",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/beam-north.png",
+  "installedPath": "assets/tiles/generated/terrain-features/beam-north.png",
   "problem": "vector",
   "severity": "medium",
   "what_is_wrong": "Flat cyan bar with an arrowhead pointing top; NetHack rays are directionless lines, so a ray going the other way shows a backwards arrow.",
@@ -522,7 +522,7 @@
  {
   "id": "beam-south",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/beam-south.png",
+  "installedPath": "assets/tiles/generated/terrain-features/beam-south.png",
   "problem": "vector",
   "severity": "low",
   "what_is_wrong": "Flat cyan bar with an arrowhead; clip-art look (only reachable through a semantic name, so rarely shown).",
@@ -535,7 +535,7 @@
  {
   "id": "beam-west",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/beam-west.png",
+  "installedPath": "assets/tiles/generated/terrain-features/beam-west.png",
   "problem": "vector",
   "severity": "low",
   "what_is_wrong": "Flat cyan bar with an arrowhead; clip-art look (only reachable through a semantic name, so rarely shown).",
@@ -548,7 +548,7 @@
  {
   "id": "boom-east",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/boom-east.png",
+  "installedPath": "assets/tiles/generated/terrain-features/boom-east.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Shows a flaming fireball, but boom-left/right are NetHack's thrown-boomerang glyphs, so a thrown boomerang draws as a fireball.",
@@ -561,7 +561,7 @@
  {
   "id": "boom-west",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/boom-west.png",
+  "installedPath": "assets/tiles/generated/terrain-features/boom-west.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Shows a flaming fireball, but boom-left/right are NetHack's thrown-boomerang glyphs, so a thrown boomerang draws as a fireball.",
@@ -574,7 +574,7 @@
  {
   "id": "boom-north",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/boom-north.png",
+  "installedPath": "assets/tiles/generated/terrain-features/boom-north.png",
   "problem": "wrong",
   "severity": "low",
   "what_is_wrong": "Shows a flaming fireball, but boom-left/right are NetHack's thrown-boomerang glyphs, so a thrown boomerang draws as a fireball.",
@@ -587,7 +587,7 @@
  {
   "id": "boom-south",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/boom-south.png",
+  "installedPath": "assets/tiles/generated/terrain-features/boom-south.png",
   "problem": "wrong",
   "severity": "low",
   "what_is_wrong": "Shows a flaming fireball, but boom-left/right are NetHack's thrown-boomerang glyphs, so a thrown boomerang draws as a fireball.",
@@ -600,7 +600,7 @@
  {
   "id": "shield-effect",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/shield-effect.png",
+  "installedPath": "assets/tiles/generated/terrain-features/shield-effect.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "An orange orb in a white ring reads as a gem or button, not NetHack's magic-resistance shield sparkle, and it hides the hero.",
@@ -613,7 +613,7 @@
  {
   "id": "valid-position-marker",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/valid-position-marker.png",
+  "installedPath": "assets/tiles/generated/terrain-features/valid-position-marker.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Purple and gold checkmark that reads as a sword or wand lying on the floor rather than a position marker.",
@@ -626,7 +626,7 @@
  {
   "id": "mines-floor",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/mines-floor.png",
+  "installedPath": "assets/tiles/generated/terrain-features/mines-floor.png",
   "problem": "vector",
   "severity": "low",
   "what_is_wrong": "Flat geometric placeholder with 2-6 colors (not referenced by the tile map today).",
@@ -639,7 +639,7 @@
  {
   "id": "mines-wall",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/mines-wall.png",
+  "installedPath": "assets/tiles/generated/terrain-features/mines-wall.png",
   "problem": "vector",
   "severity": "low",
   "what_is_wrong": "Flat geometric placeholder with 2-6 colors (not referenced by the tile map today).",
@@ -652,7 +652,7 @@
  {
   "id": "mines-corner",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/mines-corner.png",
+  "installedPath": "assets/tiles/generated/terrain-features/mines-corner.png",
   "problem": "vector",
   "severity": "low",
   "what_is_wrong": "Flat geometric placeholder with 2-6 colors (not referenced by the tile map today).",
@@ -665,7 +665,7 @@
  {
   "id": "sokoban-floor",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/sokoban-floor.png",
+  "installedPath": "assets/tiles/generated/terrain-features/sokoban-floor.png",
   "problem": "vector",
   "severity": "low",
   "what_is_wrong": "Flat geometric placeholder with 2-6 colors (not referenced by the tile map today).",
@@ -678,7 +678,7 @@
  {
   "id": "sokoban-wall",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/sokoban-wall.png",
+  "installedPath": "assets/tiles/generated/terrain-features/sokoban-wall.png",
   "problem": "vector",
   "severity": "low",
   "what_is_wrong": "Flat geometric placeholder with 2-6 colors (not referenced by the tile map today).",
@@ -691,7 +691,7 @@
  {
   "id": "sokoban-goal",
   "category": "terrain-features",
-  "installedPath": "electron-poc/assets/tiles/generated/terrain-features/sokoban-goal.png",
+  "installedPath": "assets/tiles/generated/terrain-features/sokoban-goal.png",
   "problem": "vector",
   "severity": "low",
   "what_is_wrong": "Flat geometric placeholder with 2-6 colors (not referenced by the tile map today).",
@@ -704,7 +704,7 @@
  {
   "id": "dart-trap",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/dart-trap.png",
+  "installedPath": "assets/tiles/generated/traps-hazards/dart-trap.png",
   "problem": "vector",
   "severity": "high",
   "what_is_wrong": "A flat beige square outline with a red arrow; obvious clip-art placeholder for a common early trap.",
@@ -717,7 +717,7 @@
  {
   "id": "trap-door",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/trap-door.png",
+  "installedPath": "assets/tiles/generated/traps-hazards/trap-door.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Reads as a closed wooden chest or crate, not a hatch in the floor.",
@@ -730,7 +730,7 @@
  {
   "id": "bear-trap",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/bear-trap.png",
+  "installedPath": "assets/tiles/generated/traps-hazards/bear-trap.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Brown jagged ring reads as a crown at game size.",
@@ -743,7 +743,7 @@
  {
   "id": "spiked-pit",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/spiked-pit.png",
+  "installedPath": "assets/tiles/generated/traps-hazards/spiked-pit.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "White rectangular teeth in a ring read as piano keys or a comb, not spikes.",
@@ -756,7 +756,7 @@
  {
   "id": "falling-rock-trap",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/falling-rock-trap.png",
+  "installedPath": "assets/tiles/generated/traps-hazards/falling-rock-trap.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Gray triangular rock shape reads as a seated stone statue; no sense of a rock dropping from above.",
@@ -769,7 +769,7 @@
  {
   "id": "rolling-boulder-trap",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/rolling-boulder-trap.png",
+  "installedPath": "assets/tiles/generated/traps-hazards/rolling-boulder-trap.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Purple sphere reads as a crystal ball; NetHack boulders are gray.",
@@ -782,7 +782,7 @@
  {
   "id": "pit",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/pit.png",
+  "installedPath": "assets/tiles/generated/traps-hazards/pit.png",
   "problem": "vector",
   "severity": "low",
   "what_is_wrong": "Flat brown ring around a black disc; geometric look compared with the painted traps.",
@@ -795,7 +795,7 @@
  {
   "id": "level-teleporter",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/level-teleporter.png",
+  "installedPath": "assets/tiles/generated/traps-hazards/level-teleporter.png",
   "problem": "unclear",
   "severity": "low",
   "what_is_wrong": "Flat gray spiral reads as a snail shell; not clearly a stronger teleport trap.",
@@ -808,7 +808,7 @@
  {
   "id": "land-mine",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/land-mine.png",
+  "installedPath": "assets/tiles/generated/traps-hazards/land-mine.png",
   "problem": "inconsistent",
   "severity": "low",
   "what_is_wrong": "Teal matte smear left in the lower-right corner; otherwise acceptable.",
@@ -821,7 +821,7 @@
  {
   "id": "web",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/web.png",
+  "installedPath": "assets/tiles/generated/traps-hazards/web.png",
   "problem": "inconsistent",
   "severity": "low",
   "what_is_wrong": "Drawn as a brown square card with a web inside, unlike the other cut-out traps.",
@@ -834,7 +834,7 @@
  {
   "id": "trapped-door-marker",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/trapped-door-marker.png",
+  "installedPath": "assets/tiles/generated/traps-hazards/trapped-door-marker.png",
   "problem": "wrong",
   "severity": "low",
   "what_is_wrong": "A full door tile with a red triangle, not a small corner warning badge; unused today.",
@@ -847,7 +847,7 @@
  {
   "id": "trapped-chest-marker",
   "category": "traps-hazards",
-  "installedPath": "electron-poc/assets/tiles/generated/traps-hazards/trapped-chest-marker.png",
+  "installedPath": "assets/tiles/generated/traps-hazards/trapped-chest-marker.png",
   "problem": "wrong",
   "severity": "low",
   "what_is_wrong": "A full purple chest with a red badge, not an overlay marker; unused today.",
@@ -860,7 +860,7 @@
  {
   "id": "glyph-debug-overlay",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/glyph-debug-overlay.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/glyph-debug-overlay.png",
   "problem": "wrong",
   "severity": "high",
   "what_is_wrong": "Plain gray square, yet the tile map uses it for NetHack's 'remembered unseen monster' (I) and warning glyphs, so they show as a blank block.",
@@ -873,7 +873,7 @@
  {
   "id": "message-log-panel",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/message-log-panel.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/message-log-panel.png",
   "problem": "vector",
   "severity": "low",
   "what_is_wrong": "Flat black panel with gray dashes and no alpha (512 RGB); placeholder, unused by either front end.",
@@ -886,7 +886,7 @@
  {
   "id": "health-bar",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/health-bar.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/health-bar.png",
   "problem": "vector",
   "severity": "low",
   "what_is_wrong": "Flat red bar on a striped dark background; placeholder, unused.",
@@ -899,7 +899,7 @@
  {
   "id": "power-bar",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/power-bar.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/power-bar.png",
   "problem": "inconsistent",
   "severity": "low",
   "what_is_wrong": "Ornate orange frame around a thin blue bar; style does not pair with the health bar and the bar is tiny; unused.",
@@ -912,7 +912,7 @@
  {
   "id": "hunger-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/hunger-badge.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/hunger-badge.png",
   "problem": "unclear",
   "severity": "low",
   "what_is_wrong": "Reads as a boot or sock, not a stomach or ration; unused.",
@@ -925,7 +925,7 @@
  {
   "id": "blind-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/blind-badge.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/blind-badge.png",
   "problem": "unclear",
   "severity": "low",
   "what_is_wrong": "Purple shape with a slash reads as a star, not a crossed-out eye; unused.",
@@ -938,7 +938,7 @@
  {
   "id": "stunned-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/stunned-badge.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/stunned-badge.png",
   "problem": "unclear",
   "severity": "low",
   "what_is_wrong": "Orange star with a red keyhole; no dazed head, and dark green edge pixels; unused.",
@@ -951,7 +951,7 @@
  {
   "id": "hallucination-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/hallucination-badge.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/hallucination-badge.png",
   "problem": "wrong",
   "severity": "low",
   "what_is_wrong": "Plain brown-orange disc; the requested rainbow swirl is missing and it has green fringe; unused.",
@@ -964,7 +964,7 @@
  {
   "id": "poisoned-badge",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/poisoned-badge.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/poisoned-badge.png",
   "problem": "inconsistent",
   "severity": "low",
   "what_is_wrong": "Brown droplet with a faint skull plus dark green matte fringe; reads as dirt rather than poison; unused.",
@@ -977,7 +977,7 @@
  {
   "id": "inventory-selected-item-highlight",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/inventory-selected-item-highlight.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/inventory-selected-item-highlight.png",
   "problem": "wrong",
   "severity": "low",
   "what_is_wrong": "A filled orange and red icon that would cover the item, not a highlight frame; unused.",
@@ -990,7 +990,7 @@
  {
   "id": "movement-hint-icon",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/movement-hint-icon.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/movement-hint-icon.png",
   "problem": "unclear",
   "severity": "low",
   "what_is_wrong": "A silver plus sign reads as a healing cross, not a movement pad; unused.",
@@ -1003,7 +1003,7 @@
  {
   "id": "open-door-action-icon",
   "category": "ui-status-overlays",
-  "installedPath": "electron-poc/assets/tiles/generated/ui-status-overlays/open-door-action-icon.png",
+  "installedPath": "assets/tiles/generated/ui-status-overlays/open-door-action-icon.png",
   "problem": "unclear",
   "severity": "low",
   "what_is_wrong": "A pale box with an arrow; does not read as a door being opened; unused.",
@@ -1016,7 +1016,7 @@
  {
   "id": "cursor-indicator",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/cursor-indicator.png",
+  "installedPath": "assets/tiles/generated/player-pets-identity/cursor-indicator.png",
   "problem": "wrong",
   "severity": "low",
   "what_is_wrong": "A mouse pointer arrow with green edge pixels; the cursor overlay should be a ring around the tile; unused.",
@@ -1029,7 +1029,7 @@
  {
   "id": "kitten-pet",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/kitten-pet.png",
+  "installedPath": "assets/tiles/generated/player-pets-identity/kitten-pet.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Orange tabby; NetHack's kitten is white, so it clashes with the game's own description and colors.",
@@ -1042,7 +1042,7 @@
  {
   "id": "little-dog-pet",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/little-dog-pet.png",
+  "installedPath": "assets/tiles/generated/player-pets-identity/little-dog-pet.png",
   "problem": "wrong",
   "severity": "medium",
   "what_is_wrong": "Dark gray and black dog; NetHack's little dog is white, and the dark coat also blends into the floor.",
@@ -1055,7 +1055,7 @@
  {
   "id": "ranger-role-avatar",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/ranger-role-avatar.png",
+  "installedPath": "assets/tiles/generated/player-pets-identity/ranger-role-avatar.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "A big green rectangle with a face; the bow is unreadable and the figure looks like a shield or door.",
@@ -1068,7 +1068,7 @@
  {
   "id": "valkyrie-role-avatar",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/valkyrie-role-avatar.png",
+  "installedPath": "assets/tiles/generated/player-pets-identity/valkyrie-role-avatar.png",
   "problem": "unclear",
   "severity": "medium",
   "what_is_wrong": "Thin broken figure with a spear and wings; the body disappears at 32 px.",
@@ -1081,7 +1081,7 @@
  {
   "id": "healer-role-avatar",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/healer-role-avatar.png",
+  "installedPath": "assets/tiles/generated/player-pets-identity/healer-role-avatar.png",
   "problem": "inconsistent",
   "severity": "low",
   "what_is_wrong": "Pale green matte halo around the outline (leftover green-key fringe); the figure itself is fine.",
@@ -1094,7 +1094,7 @@
  {
   "id": "priest-role-avatar",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/priest-role-avatar.png",
+  "installedPath": "assets/tiles/generated/player-pets-identity/priest-role-avatar.png",
   "problem": "inconsistent",
   "severity": "low",
   "what_is_wrong": "Pale green matte halo around the outline (leftover green-key fringe); the figure itself is fine.",
@@ -1107,7 +1107,7 @@
  {
   "id": "priestess-role-avatar",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/priestess-role-avatar.png",
+  "installedPath": "assets/tiles/generated/player-pets-identity/priestess-role-avatar.png",
   "problem": "inconsistent",
   "severity": "low",
   "what_is_wrong": "Pale green matte halo around the outline (leftover green-key fringe); the figure itself is fine.",
@@ -1120,7 +1120,7 @@
  {
   "id": "wizard-role-avatar",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/wizard-role-avatar.png",
+  "installedPath": "assets/tiles/generated/player-pets-identity/wizard-role-avatar.png",
   "problem": "inconsistent",
   "severity": "low",
   "what_is_wrong": "Pale green matte halo around the outline (leftover green-key fringe); the figure itself is fine.",
@@ -1133,7 +1133,7 @@
  {
   "id": "elf-player-variant",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/elf-player-variant.png",
+  "installedPath": "assets/tiles/generated/player-pets-identity/elf-player-variant.png",
   "problem": "inconsistent",
   "severity": "low",
   "what_is_wrong": "Pale green matte halo around the outline (leftover green-key fringe); the figure itself is fine.",
@@ -1146,7 +1146,7 @@
  {
   "id": "orc-player-variant",
   "category": "player-pets-identity",
-  "installedPath": "electron-poc/assets/tiles/generated/player-pets-identity/orc-player-variant.png",
+  "installedPath": "assets/tiles/generated/player-pets-identity/orc-player-variant.png",
   "problem": "inconsistent",
   "severity": "low",
   "what_is_wrong": "Pale green matte halo around the outline (leftover green-key fringe); the figure itself is fine.",
@@ -1159,7 +1159,7 @@
  {
   "id": "dwarf-archeologist-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-archeologist-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/dwarf-archeologist-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1172,7 +1172,7 @@
  {
   "id": "dwarf-archeologist-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-archeologist-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/dwarf-archeologist-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1185,7 +1185,7 @@
  {
   "id": "dwarf-caveman-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-caveman-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/dwarf-caveman-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1198,7 +1198,7 @@
  {
   "id": "dwarf-caveman-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-caveman-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/dwarf-caveman-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1211,7 +1211,7 @@
  {
   "id": "dwarf-valkyrie-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/dwarf-valkyrie-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/dwarf-valkyrie-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1224,7 +1224,7 @@
  {
   "id": "elf-priest-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-priest-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/elf-priest-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1237,7 +1237,7 @@
  {
   "id": "elf-priest-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-priest-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/elf-priest-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1250,7 +1250,7 @@
  {
   "id": "elf-ranger-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-ranger-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/elf-ranger-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1263,7 +1263,7 @@
  {
   "id": "elf-ranger-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-ranger-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/elf-ranger-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1276,7 +1276,7 @@
  {
   "id": "elf-wizard-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-wizard-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/elf-wizard-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1289,7 +1289,7 @@
  {
   "id": "elf-wizard-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/elf-wizard-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/elf-wizard-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1302,7 +1302,7 @@
  {
   "id": "gnome-archeologist-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-archeologist-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-archeologist-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1315,7 +1315,7 @@
  {
   "id": "gnome-archeologist-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-archeologist-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-archeologist-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1328,7 +1328,7 @@
  {
   "id": "gnome-caveman-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-caveman-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-caveman-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1341,7 +1341,7 @@
  {
   "id": "gnome-caveman-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-caveman-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-caveman-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1354,7 +1354,7 @@
  {
   "id": "gnome-healer-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-healer-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-healer-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1367,7 +1367,7 @@
  {
   "id": "gnome-healer-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-healer-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-healer-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1380,7 +1380,7 @@
  {
   "id": "gnome-ranger-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-ranger-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-ranger-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1393,7 +1393,7 @@
  {
   "id": "gnome-ranger-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-ranger-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-ranger-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1406,7 +1406,7 @@
  {
   "id": "gnome-wizard-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-wizard-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-wizard-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1419,7 +1419,7 @@
  {
   "id": "gnome-wizard-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/gnome-wizard-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/gnome-wizard-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1432,7 +1432,7 @@
  {
   "id": "human-archeologist-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-archeologist-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-archeologist-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1445,7 +1445,7 @@
  {
   "id": "human-archeologist-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-archeologist-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-archeologist-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1458,7 +1458,7 @@
  {
   "id": "human-barbarian-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-barbarian-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-barbarian-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1471,7 +1471,7 @@
  {
   "id": "human-barbarian-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-barbarian-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-barbarian-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1484,7 +1484,7 @@
  {
   "id": "human-caveman-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-caveman-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-caveman-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1497,7 +1497,7 @@
  {
   "id": "human-caveman-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-caveman-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-caveman-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1510,7 +1510,7 @@
  {
   "id": "human-healer-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-healer-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-healer-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1523,7 +1523,7 @@
  {
   "id": "human-healer-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-healer-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-healer-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1536,7 +1536,7 @@
  {
   "id": "human-knight-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-knight-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-knight-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1549,7 +1549,7 @@
  {
   "id": "human-knight-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-knight-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-knight-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1562,7 +1562,7 @@
  {
   "id": "human-monk-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-monk-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-monk-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1575,7 +1575,7 @@
  {
   "id": "human-monk-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-monk-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-monk-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1588,7 +1588,7 @@
  {
   "id": "human-priest-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-priest-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-priest-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1601,7 +1601,7 @@
  {
   "id": "human-priest-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-priest-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-priest-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1614,7 +1614,7 @@
  {
   "id": "human-ranger-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-ranger-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-ranger-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1627,7 +1627,7 @@
  {
   "id": "human-ranger-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-ranger-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-ranger-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1640,7 +1640,7 @@
  {
   "id": "human-rogue-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-rogue-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-rogue-female-avatar.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset, and it nearly vanishes as a dark blob.",
@@ -1653,7 +1653,7 @@
  {
   "id": "human-rogue-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-rogue-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-rogue-male-avatar.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset, and it nearly vanishes as a dark blob.",
@@ -1666,7 +1666,7 @@
  {
   "id": "human-samurai-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-samurai-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-samurai-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1679,7 +1679,7 @@
  {
   "id": "human-samurai-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-samurai-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-samurai-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1692,7 +1692,7 @@
  {
   "id": "human-tourist-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-tourist-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-tourist-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1705,7 +1705,7 @@
  {
   "id": "human-tourist-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-tourist-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-tourist-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1718,7 +1718,7 @@
  {
   "id": "human-valkyrie-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-valkyrie-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-valkyrie-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1731,7 +1731,7 @@
  {
   "id": "human-wizard-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-wizard-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-wizard-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1744,7 +1744,7 @@
  {
   "id": "human-wizard-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/human-wizard-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/human-wizard-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1757,7 +1757,7 @@
  {
   "id": "orc-barbarian-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-barbarian-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/orc-barbarian-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset, and it nearly vanishes as a dark blob.",
@@ -1770,7 +1770,7 @@
  {
   "id": "orc-barbarian-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-barbarian-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/orc-barbarian-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset, and it nearly vanishes as a dark blob.",
@@ -1783,7 +1783,7 @@
  {
   "id": "orc-ranger-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-ranger-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/orc-ranger-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset, and it nearly vanishes as a dark blob.",
@@ -1796,7 +1796,7 @@
  {
   "id": "orc-ranger-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-ranger-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/orc-ranger-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset, and it nearly vanishes as a dark blob.",
@@ -1809,7 +1809,7 @@
  {
   "id": "orc-rogue-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-rogue-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/orc-rogue-female-avatar.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset, and it nearly vanishes as a dark blob.",
@@ -1822,7 +1822,7 @@
  {
   "id": "orc-rogue-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-rogue-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/orc-rogue-male-avatar.png",
   "problem": "inconsistent",
   "severity": "high",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset, and it nearly vanishes as a dark blob.",
@@ -1835,7 +1835,7 @@
  {
   "id": "orc-wizard-female-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-wizard-female-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/orc-wizard-female-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",
@@ -1848,7 +1848,7 @@
  {
   "id": "orc-wizard-male-avatar",
   "category": "player-combo-avatars",
-  "installedPath": "electron-poc/assets/tiles/generated/player-combo-avatars/orc-wizard-male-avatar.png",
+  "installedPath": "assets/tiles/generated/player-combo-avatars/orc-wizard-male-avatar.png",
   "problem": "inconsistent",
   "severity": "medium",
   "what_is_wrong": "Painted illustration with no outline, smooth-scaled to map size: a thin, muddy figure darker than the floor that clashes with the crisp pixel tileset; role and race cues are lost at 32 px.",

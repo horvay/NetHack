@@ -9,7 +9,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[2]
-MANIFEST_PATH = ROOT / 'electron-poc/assets/tiles/manifest.json'
+MANIFEST_PATH = ROOT / 'assets/tiles/manifest.json'
 STATUS_PATH = ROOT / 'asset-generation/manifests/generation-status.json'
 FIX_IDS = {'cave-spider', 'centipede', 'giant-spider', 'scorpion', 'scorpius', 'hole', 'pit', 'spiked-pit'}
 
@@ -78,7 +78,7 @@ def write_asset(asset, img):
         p = ROOT / asset[key]
         p.parent.mkdir(parents=True, exist_ok=True)
         img.save(p)
-    mirror = ROOT / 'electron-poc/assets/tiles/by-category' / asset['categorySlug'] / (asset['id'] + '.png')
+    mirror = ROOT / 'assets/tiles/by-category' / asset['categorySlug'] / (asset['id'] + '.png')
     if mirror.exists():
         img.save(mirror)
 

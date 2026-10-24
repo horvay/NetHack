@@ -19,7 +19,7 @@ from pathlib import Path
 from PIL import Image, ImageEnhance, ImageOps
 
 ROOT = Path(__file__).resolve().parents[2]
-MANIFEST = ROOT / "electron-poc/assets/tiles/manifest.json"
+MANIFEST = ROOT / "assets/tiles/manifest.json"
 STATUS = ROOT / "asset-generation/manifests/generation-status.json"
 TRACKER = ROOT / "asset-generation/manifests/full-regeneration-tracker.md"
 SOURCE = ROOT / "asset-generation/outputs/full-source-monsters/large-dog.png"
@@ -104,7 +104,7 @@ def main() -> None:
 
     output = ROOT / asset["outputPath"]
     installed = ROOT / asset["installedPath"]
-    mirror = ROOT / "electron-poc/assets/tiles/by-category" / asset["categorySlug"] / f"{TARGET_ID}.png"
+    mirror = ROOT / "assets/tiles/by-category" / asset["categorySlug"] / f"{TARGET_ID}.png"
     for path in (output, installed, mirror):
         if path.exists():
             backup = backup_root / path.relative_to(ROOT)

@@ -7,7 +7,7 @@ project(nethack_godot LANGUAGES C CXX)
 #   libnethack_core[_fixtures].so  libnh + shim bridge, dlopen'd per game
 
 set(NETHACK_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../..")
-set(BRIDGE_DIR "${NETHACK_ROOT}/electron-poc/shim-bridge")
+set(BRIDGE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bridge")
 set(GODOT_CPP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../.tools/godot-cpp")
 set(PROJECT_BIN_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../project/bin")
 set(NETHACK_ARCHIVE_DIR "" CACHE PATH "Directory holding libnh.a and hacklib.a")

@@ -3,7 +3,7 @@
 
 This script is intentionally conservative: it only creates missing reviewed expansion
 assets, records replacements under asset-generation/backups if --force is used, installs
-into electron-poc/assets/tiles/generated, updates the Electron manifest, generation
+into assets/tiles/generated, updates the tile manifest, generation
 status, and writes contact-sheet/alpha/downscale evidence.
 """
 from __future__ import annotations
@@ -20,7 +20,7 @@ from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[2]
 OUTPUT_DIR = ROOT / "asset-generation" / "outputs"
-ELECTRON_TILE_DIR = ROOT / "electron-poc" / "assets" / "tiles"
+ELECTRON_TILE_DIR = ROOT / "assets" / "tiles"
 GENERATED_DIR = ELECTRON_TILE_DIR / "generated"
 ELECTRON_MANIFEST = ELECTRON_TILE_DIR / "manifest.json"
 STATUS_PATH = ROOT / "asset-generation" / "manifests" / "generation-status.json"

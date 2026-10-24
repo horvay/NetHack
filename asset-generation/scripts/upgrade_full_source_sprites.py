@@ -14,7 +14,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[2]
-MANIFEST_PATH = ROOT / 'electron-poc/assets/tiles/manifest.json'
+MANIFEST_PATH = ROOT / 'assets/tiles/manifest.json'
 STATUS_PATH = ROOT / 'asset-generation/manifests/generation-status.json'
 EVIDENCE_DIR = Path('/home/horvay/.config/ai-org/ai-org-dev-data/run-evidence/developer-beta-climbing-cat-73')
 
